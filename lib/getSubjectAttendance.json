@@ -1,0 +1,88 @@
+{
+    "error": false,
+    "message": "Data Fetched Successfully",
+    "data": [
+        {
+            "id": 16,
+            "class_section_id": 25,
+            "session_year_id": 1,
+            "date": "2024-12-27",
+            "school_id": 7,
+            "timetable_id": 88,
+            "jumlah_jp": 1,
+            "materi": "HOIII",
+            "lampiran": null,
+            "created_at": "2024-12-27T03:31:18.000000Z",
+            "updated_at": "2024-12-27T07:16:46.000000Z",
+            "roll_number": "",
+            "attendance_student": [
+                {
+                    "id": 15,
+                    "subject_attendance_id": 16,
+                    "student_id": 105,
+                    "type": 1,
+                    "note": null,
+                    "created_at": "2024-12-27T03:31:18.000000Z",
+                    "updated_at": "2024-12-27T07:16:46.000000Z",
+                    "user": {
+                        "id": 105,
+                        "first_name": "Johan Revaya",
+                        "last_name": "Jo",
+                        "image": "http://eschbeta.techflow.my.id/assets/dummy_logo.jpg",
+                        "full_name": "Johan Revaya Jo",
+                        "school_names": "",
+                        "role": "",
+                        "student": {
+                            "id": 3,
+                            "user_id": 105,
+                            "roll_number": 1,
+                            "first_name": "",
+                            "last_name": "",
+                            "full_name": ""
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "code": 200,
+    "is_holiday": false,
+    "merged_subjects": {
+        "41-25": {
+            "id": 88,
+            "subject_teacher_id": 115,
+            "class_section_id": 25,
+            "subject_id": 41,
+            "start_time": "10:20:00",
+            "end_time": "11:00:00",
+            "note": null,
+            "day": "Friday",
+            "type": "Lecture",
+            "semester_id": null,
+            "school_id": 7,
+            "title": "MULOK PJOK",
+            "subject": {
+                "id": 41,
+                "name": "MULOK PJOK",
+                "code": "MULOK PJOK",
+                "bg_color": "#e64444",
+                "image": "http://eschbeta.techflow.my.id/storage/7/subject/6762f421bdacf5.752633381734538273.png",
+                "medium_id": 1,
+                "type": "Theory",
+                "school_id": 7,
+                "deleted_at": null,
+                "name_with_type": "MULOK PJOK - Teori"
+            },
+            "subject_teacher": {
+                "id": 115,
+                "class_section_id": 25,
+                "subject_id": 41,
+                "teacher_id": 9,
+                "class_subject_id": 131,
+                "school_id": 7,
+                "deleted_at": null,
+                "subject_with_name": ""
+            }
+        }
+    }
+}

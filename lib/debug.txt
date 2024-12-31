@@ -1,0 +1,18 @@
+[GETX] GOING TO ROUTE /teacherMyTimetable
+I/flutter (16797): Total slots: 2
+I/flutter (16797): Slot - ID: 84, ClassSectionId: 32
+I/flutter (16797): Slot - ID: 88, ClassSectionId: 25
+I/flutter (16797): ClassState: Instance of 'ClassesFetchSuccess'
+I/flutter (16797): Checking class section ID: 32
+I/flutter (16797): Primary classes: (XII TKJ B (25))
+I/flutter (16797): Other classes: (XII TKJ A (24), XII TKJ C (26), XII TKJ D (27), ..., XII RPL C (34), XII RPL D (35))
+I/flutter (16797): Found class section: XII RPL A for ID: 32
+I/flutter (16797): ClassState: Instance of 'ClassesFetchSuccess'
+I/flutter (16797): Checking class section ID: 25
+I/flutter (16797): Primary classes: (XII TKJ B (25))
+I/flutter (16797): Other classes: (XII TKJ A (24), XII TKJ C (26), XII TKJ D (27), ..., XII RPL C (34), XII RPL D (35))
+I/flutter (16797): Found in primary classes: XII TKJ B
+I/flutter (16797): getAllClasses - Primary Classes: [XII TKJ B (25)]
+I/flutter (16797): getAllClasses - Other Classes: [XII TKJ A (24), XII TKJ C (26), XII TKJ D (27), XII ELIN A (28), XII ELIN B (29), XII METRO A (30), XII METRO B (31), XII RPL A (32), XII RPL B (33), XII RPL C (34), XII RPL D (35)]
+I/flutter (16797): getAllClasses - Combined Classes: [XII TKJ B (25), XII TKJ A (24), XII TKJ C (26), XII TKJ D (27), XII ELIN A (28), XII ELIN B (29), XII METRO A (30), XII METRO B (31), XII RPL A (32), XII RPL B (33), XII RPL C (34), XII RPL D (35)]
+

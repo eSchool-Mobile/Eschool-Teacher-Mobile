@@ -1,0 +1,43 @@
+════════ Exception caught by SVG ═══════════════════════════════════════════════
+The following StateError was thrown resolving a single-frame picture stream:
+Bad state: There must be at least one digit following the .
+
+When the exception was thrown, this was the stack:
+#0      SvgPathStringSource._parseNumber (package:path_parsing/src/path_parsing.dart:235:9)
+path_parsing.dart:235
+#1      SvgPathStringSource.parseSegment (package:path_parsing/src/path_parsing.dart:363:38)
+path_parsing.dart:363
+#2      SvgPathStringSource.parseSegments (package:path_parsing/src/path_parsing.dart:324:13)
+path_parsing.dart:324
+#4      parseSvgPathData (package:path_drawing/src/parse_path.dart:16:38)
+parse_path.dart:16
+#5      _Paths.path (package:flutter_svg/src/svg/parser_state.dart:671:12)
+parser_state.dart:671
+#6      SvgParserState.addShape (package:flutter_svg/src/svg/parser_state.dart:951:31)
+parser_state.dart:951
+#7      SvgParserState.startElement (package:flutter_svg/src/svg/parser_state.dart:985:12)
+parser_state.dart:985
+#8      SvgParserState.parse (package:flutter_svg/src/svg/parser_state.dart:881:13)
+parser_state.dart:881
+<asynchronous suspension>
+#9      SvgParser.parse (package:flutter_svg/parser.dart:27:12)
+parser.dart:27
+<asynchronous suspension>
+#10     Svg.fromSvgString (package:flutter_svg/svg.dart:139:12)
+svg.dart:139
+<asynchronous suspension>
+#11     Svg.svgPictureStringDecoder (package:flutter_svg/svg.dart:90:34)
+svg.dart:90
+<asynchronous suspension>
+#12     PictureStreamCompleter.setPicture (package:flutter_svg/src/picture_stream.dart:327:3)
+picture_stream.dart:327
+<asynchronous suspension>
+(elided one frame from dart:async-patch)
+
+Picture provider: ExactAssetPicture(name: "assets/images/view_attendance_subject.svg", bundle: null, colorFilter: null)
+Picture key: AssetBundlePictureKey(bundle: PlatformAssetBundle#2d1e2(), name: "assets/images/view_attendance_subject.svg", colorFilter: null, theme: SvgTheme(currentColor: Color(0xff000000), fontSize: 14.0, xHeight: 7.0))
+════════════════════════════════════════════════════════════════════════════════
+
+════════ Exception caught by SVG ═══════════════════════════════════════════════
+Bad state: There must be at least one digit following the .
+════════════════════════════════════════════════════════════════════════════════

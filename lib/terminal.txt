@@ -1,0 +1,50 @@
+Config file generated successfully 🎉
+PS D:\UBIG\Flutter\Projek\eSchool\eschool-saas-staff-main-1.4.1> dart run flutter_launcher_icons:generate
+  ════════════════════════════════════════════
+     FLUTTER LAUNCHER ICONS (v0.14.2)
+  ════════════════════════════════════════════
+
+File already exists, use --override flag to override the file, or use --fileName flag to use a different file name
+PS D:\UBIG\Flutter\Projek\eSchool\eschool-saas-staff-main-1.4.1> dart run flutter_launcher_icons:generate -f eschool.png
+  ════════════════════════════════════════════
+     FLUTTER LAUNCHER ICONS (v0.14.2)
+  ════════════════════════════════════════════
+  
+Invalid file name, please provide a valid file name
+PS D:\UBIG\Flutter\Projek\eSchool\eschool-saas-staff-main-1.4.1> dart run flutter_launcher_icons:generate -o
+  ════════════════════════════════════════════
+     FLUTTER LAUNCHER ICONS (v0.14.2)
+  ════════════════════════════════════════════
+  
+File already exists, overriding...
+
+Config file generated successfully 🎉
+You can now use this new config file by using the command below:
+
+flutter pub run flutter_launcher_icons
+
+PS D:\UBIG\Flutter\Projek\eSchool\eschool-saas-staff-main-1.4.1> flutter pub run flutter_launcher_icons
+Deprecated. Use `dart run` instead.
+  ════════════════════════════════════════════
+     FLUTTER LAUNCHER ICONS (v0.14.2)
+  ════════════════════════════════════════════
+
+• Creating default icons Android
+
+✕ Could not generate launcher icons
+PathNotFoundException: Cannot open file, path = 'assets/icon/icon.png' (OS Error: The system cannot find the path specified.
+, errno = 3)
+PS D:\UBIG\Flutter\Projek\eSchool\eschool-saas-staff-main-1.4.1> dart run flutter_launcher_icons:main
+Building package executable... (1.5s)
+Built flutter_launcher_icons:main.
+This command is deprecated and replaced with "flutter pub run flutter_launcher_icons"
+  ════════════════════════════════════════════
+     FLUTTER LAUNCHER ICONS (v0.14.2)
+  ════════════════════════════════════════════
+
+• Creating default icons Android
+
+✕ Could not generate launcher icons
+PathNotFoundException: Cannot open file, path = 'assets/icon/icon.png' (OS Error: The system cannot find the path specified.
+, errno = 3)
+PS D:\UBIG\Flutter\Projek\eSchool\eschool-saas-staff-main-1.4.1>                                                                         
