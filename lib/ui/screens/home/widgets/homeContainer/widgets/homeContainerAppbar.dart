@@ -14,20 +14,20 @@ class HomeContainerAppbar extends StatelessWidget {
   final String profileImage;
   const HomeContainerAppbar({super.key, required this.profileImage});
 
-  String _getGenderPrefix(String? gender) {
-    if (gender?.toLowerCase() == 'male') {
-      return 'Pak ';
-    } else if (gender?.toLowerCase() == 'female') {
-      return 'Bu ';
-    }
-    return '';
-  }
+  // String _getGenderPrefix(String? gender) {
+  //   if (gender?.toLowerCase() == 'male') {
+  //     return 'Pak ';
+  //   } else if (gender?.toLowerCase() == 'female') {
+  //     return 'Bu ';
+  //   }
+  //   return '';
+  // }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthCubit, AuthState>(builder: (context, state) {
-      final userDetails = context.read<AuthCubit>().getUserDetails();
-      final genderPrefix = _getGenderPrefix(userDetails.gender);
+      // final userDetails = context.read<AuthCubit>().getUserDetails();
+      // final genderPrefix = _getGenderPrefix(userDetails.gender);
       return Align(
         alignment: Alignment.topCenter,
         child: Container(
@@ -76,7 +76,7 @@ class HomeContainerAppbar extends StatelessWidget {
                   ),
                   CustomTextContainer(
                     textKey:
-                        "${_getGenderPrefix(context.read<AuthCubit>().getUserDetails().gender)}${context.read<AuthCubit>().getUserDetails().lastName ?? ""}",
+                        context.read<AuthCubit>().getUserDetails().firstName ?? "",
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(

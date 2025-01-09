@@ -48,12 +48,14 @@ class TeacherAddAttendanceSubjectScreen extends StatefulWidget {
   }
 
   static Map<String, dynamic> buildArguments({
-    required ClassSection classSection,
-    required TimeTableSlot timeTableSlot,
+    required ClassSection? classSection,
+    required TimeTableSlot? timeTableSlot, 
+    required bool isWithinTeachingHours // Tambahkan parameter ini
   }) {
     return {
-      'classSection': classSection,
-      'timeTableSlot': timeTableSlot,
+      "classSection": classSection,
+      "timeTableSlot": timeTableSlot,
+      "isWithinTeachingHours": isWithinTeachingHours 
     };
   }
 
@@ -64,9 +66,7 @@ class TeacherAddAttendanceSubjectScreen extends StatefulWidget {
       _TeacherAddAttendanceScreenSubjectState();
 }
 
-class _TeacherAddAttendanceScreenSubjectState
-    extends State<TeacherAddAttendanceSubjectScreen>
-    with TickerProviderStateMixin {
+class _TeacherAddAttendanceScreenSubjectState extends State<TeacherAddAttendanceSubjectScreen> with TickerProviderStateMixin {
   List<({StudentAttendanceStatus status, int studentId})> attendanceReport = [];
 
   final TextEditingController _materiController = TextEditingController();
@@ -76,6 +76,7 @@ class _TeacherAddAttendanceScreenSubjectState
   int _selectedJumlahJp = 0;
   String _selectedMateri = '';
   String? _selectedLampiran;
+  bool _isWithinTeachingHours = false;
 
   @override
   void dispose() {
@@ -101,6 +102,7 @@ class _TeacherAddAttendanceScreenSubjectState
         if (timeTableSlot != null) {
           _selectedTimeTableId = timeTableSlot.id!;
         }
+        _isWithinTeachingHours = arguments['isWithinTeachingHours'] as bool;
       }
 
       context.read<ClassesCubit>().getClasses();
@@ -201,24 +203,24 @@ class _TeacherAddAttendanceScreenSubjectState
         StudentsByClassSectionState>(
       builder: (BuildContext context, StudentsByClassSectionState state) {
         if (state is StudentsByClassSectionFetchSuccess) {
-          print("Fetched students successfully");
           if (state.studentDetailsList.isEmpty) {
             return const SizedBox.shrink();
           }
           return StudentAttendanceContainer(
-            studentAttendances: state.studentDetailsList
-                .map((e) => StudentAttendance.fromStudentDetails(
-                    studentDetails: e,
-                    type: attendance
-                        .firstWhereOrNull(
-                            (element) => element.studentId == e.student?.id)
-                        ?.type))
-                .toList(),
-            onStatusChanged: (attendanceStatuses) {
-              attendanceReport = attendanceStatuses;
-            },
-            isForAddAttendance: true,
-          );
+  studentAttendances: state.studentDetailsList
+    .map((e) => StudentAttendance.fromStudentDetails(
+      studentDetails: e,
+      type: attendance
+        .firstWhereOrNull((element) => element.studentId == e.student?.id)
+        ?.type
+    ))
+    .toList(),
+  isForAddAttendance: true,
+  isReadOnly: !_isWithinTeachingHours, // Add this parameter
+  onStatusChanged: (attendanceStatuses) {
+    attendanceReport = attendanceStatuses;
+  },
+);
         } else if (state is StudentsByClassSectionFetchFailure) {
           print("Failed to fetch students: ${state.errorMessage}");
           return Center(
@@ -300,13 +302,12 @@ class _TeacherAddAttendanceScreenSubjectState
     return BlocBuilder<SubjectAttendanceCubit, SubjectAttendanceState>(
       builder: (context, state) {
         if (state is SubjectAttendanceFetchSuccess) {
-          if (state.isHoliday) {
-            return const SizedBox();
+          if (state.isHoliday || !_isWithinTeachingHours) { // Add check for teaching hours
+            return const SizedBox(); // Hide button completely
           }
-          return BlocConsumer<SubmitAttendanceSubjectCubit,
-                  SubmitAttendanceSubjectState>(
+          return BlocConsumer<SubmitAttendanceSubjectCubit, SubmitAttendanceSubjectState>(
               listener: (context, submitAttendanceSubjectState) {
-            if (submitAttendanceSubjectState
+                if (submitAttendanceSubjectState
                 is SubmitAttendanceSubjectSuccess) {
               Utils.showSnackBar(
                 context: context,
@@ -321,114 +322,62 @@ class _TeacherAddAttendanceScreenSubjectState
                 message: submitAttendanceSubjectState.errorMessage,
               );
             }
-          }, builder: (context, submitAttendanceSubjectState) {
-            return Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  padding: EdgeInsets.all(appContentHorizontalPadding),
-                  decoration: BoxDecoration(boxShadow: const [
+              }, 
+              builder: (context, submitAttendanceSubjectState) {
+                return Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    padding: EdgeInsets.all(appContentHorizontalPadding),
+                    decoration: BoxDecoration(boxShadow: const [
                     BoxShadow(
                         color: Colors.black12, blurRadius: 1, spreadRadius: 1)
                   ], color: Theme.of(context).colorScheme.surface),
-                  width: MediaQuery.of(context).size.width,
-                  height: 70,
-                  child: CustomRoundedButton(
-                    height: 40,
-                    widthPercentage: 1.0,
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    buttonTitle: submitKey,
-                    showBorder: false,
-                    onTap: () {
-                      if (submitAttendanceSubjectState
-                          is SubmitAttendanceSubjectInProgress) {
-                        return;
-                      }
-
-                      if (attendanceReport.isEmpty) {
-                        return;
-                      }
-
-                      if (_selectedMateri.isEmpty) {
-                        Utils.showSnackBar(
-                          message: requiredLearningKey,
-                          context: context,
-                        );
-                        return;
-                      }
-
-                      // if (_selectedLampiran == null) {
-                      //   Utils.showSnackBar(
-                      //     message: requiredAttachmentKey,
-                      //     context: context,
-                      //   );
-                      //   return;
-                      // }
-
-                      // Pengecekan ukuran file lampiran
-                      if (_selectedLampiran != null) {
-                        try {
-                          final file = uploadedFiles.firstWhere(
-                              (file) => file.path == _selectedLampiran);
-                          final fileSizeInMB =
-                              file.size / (1024 * 1024); // Convert size to MB
-
-                          if (fileSizeInMB > 2) {
-                            Utils.showSnackBar(
-                              message: maximumAttachmentKey,
-                              context: context,
-                            );
-                            return;
-                          }
-
-                          final allowedExtensions = [
-                            'jpg',
-                            'jpeg',
-                            'png',
-                            'pdf'
-                          ];
-                          final fileExtension = file.extension?.toLowerCase();
-
-                          if (!allowedExtensions.contains(fileExtension)) {
-                            Utils.showSnackBar(
-                              message:
-                                  onlyImageAndDocumentsAreAllowedNoteLimitKey,
-                              context: context,
-                            );
-                            return;
-                          }
-                        } catch (e) {
-                          print("Error: $e");
-                          Utils.showSnackBar(
-                            message: "Lampiran tidak ditemukan",
-                            context: context,
-                          );
+                    width: MediaQuery.of(context).size.width,
+                    height: 70,
+                    child: CustomRoundedButton(
+                      height: 40,
+                      widthPercentage: 1.0,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      buttonTitle: submitKey,
+                      showBorder: false,
+                      onTap: () {
+                        if (submitAttendanceSubjectState is SubmitAttendanceSubjectInProgress) {
                           return;
                         }
-                      }
 
-                      // Submit attendance
-                      context
-                          .read<SubmitAttendanceSubjectCubit>()
-                          .submitSubjectAttendance(
-                            date: _selectedDateTime,
-                            classSectionId: _selectedClassSection?.id ?? 0,
-                            attendanceReport: attendanceReport,
-                            timetableId: _selectedTimeTableId,
-                            jumlahJp: _selectedJumlahJp,
-                            materi: _selectedMateri,
-                            lampiran: _selectedLampiran ?? '',
-                          );
-                    },
-                    child: submitAttendanceSubjectState
-                            is SubmitAttendanceSubjectInProgress
-                        ? const CustomCircularProgressIndicator(
-                            strokeWidth: 2,
-                            widthAndHeight: 20,
-                          )
-                        : null,
+                        if (attendanceReport.isEmpty) {
+                          return;
+                        }
+
+                        // Remove materi validation
+                        // if (_selectedMateri.isEmpty) {
+                        //   Utils.showSnackBar(
+                        //     message: requiredLearningKey,
+                        //     context: context,
+                        //   );
+                        //   return;
+                        // }
+
+                        context.read<SubmitAttendanceSubjectCubit>().submitSubjectAttendance(
+                          date: _selectedDateTime,
+                          classSectionId: _selectedClassSection?.id ?? 0,
+                          attendanceReport: attendanceReport,
+                          timetableId: _selectedTimeTableId,
+                          jumlahJp: _selectedJumlahJp,
+                          materi: _selectedMateri,
+                          lampiran: _selectedLampiran ?? '',
+                        );
+                      },
+                      child: submitAttendanceSubjectState is SubmitAttendanceSubjectInProgress
+                          ? const CustomCircularProgressIndicator(
+                              strokeWidth: 2,
+                              widthAndHeight: 20,
+                            )
+                          : null,
+                    ),
                   ),
-                ));
-          });
+                );
+              });
         }
         return const SizedBox();
       },
@@ -607,6 +556,7 @@ class _TeacherAddAttendanceScreenSubjectState
                             width: MediaQuery.of(context).size.width * 0.98,
                             child: TextFormField(
                               controller: _materiController,
+                              enabled: _isWithinTeachingHours, // Disable editing if outside teaching hours
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(),
                                 filled: true,

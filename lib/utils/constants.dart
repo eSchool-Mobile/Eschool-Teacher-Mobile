@@ -4,10 +4,12 @@ import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:flutter/material.dart';
 
 ///[Do not add / at the end of the url]
-const String baseUrl = "https://eschbeta.techflow.my.id";
+
+const String baseUrl = "https://eschbeta.quantech.web.id";
+//const String baseUrl = "https://eschbeta.techflow.my.id";
 // const String baseUrl = "https://eschoolbeta.lucia.id";
 // const String baseUrl = "https://eschool.lucia.id";
-// const String baseUrl = "https://eschool.ac.id";
+//const String baseUrl = "https://eschool.ac.id";
 // const String baseUrl = "https://wrteam.net";
 
 const String databaseUrl = "$baseUrl/api/";

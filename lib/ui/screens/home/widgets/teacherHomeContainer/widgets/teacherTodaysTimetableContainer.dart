@@ -200,14 +200,15 @@ class _TeacherTodaysTimetableContainerState
             bool isSameDay =
                 element.day == weekDays[DateTime.now().weekday - 1];
 
-            if (element.endTime != null) {
-              DateTime endTime = DateFormat('HH:mm:ss').parse(element.endTime!);
-              DateTime currentDateTime = DateFormat('HH:mm:ss').parse(Datenow);
+            //fungsi untuk mengatur waktu jadwal tampil per mapel
+            // if (element.endTime != null) {
+            //   DateTime endTime = DateFormat('HH:mm:ss').parse(element.endTime!);
+            //   DateTime currentDateTime = DateFormat('HH:mm:ss').parse(Datenow);
 
-              if (currentDateTime.isAfter(endTime)) {
-                return false;
-              }
-            }
+            //   if (currentDateTime.isAfter(endTime)) {
+            //     return false;
+            //   }
+            // }
             return isSameDay;
           }).toList();
 
@@ -240,47 +241,69 @@ class _TeacherTodaysTimetableContainerState
 
                       // Update GestureDetector onTap
                       return GestureDetector(
-                        onTap: isWithinSlot
-                            ? () {
-                                if (timeTableSlot.classSectionId != null) {
-                                  final classState =
-                                      context.read<ClassesCubit>().state;
-                                  if (classState is ClassesFetchSuccess) {
-                                    // Find class section from either primary or other classes
-                                    final classSection = [
-                                      ...classState.primaryClasses,
-                                      ...classState.classes
-                                    ].firstWhere(
-                                      (element) =>
-                                          element.id ==
-                                          timeTableSlot.classSectionId,
-                                      orElse: () => ClassSection(
-                                          id: 0, name: "-", classId: 0),
-                                    );
+                        onTap: () {
+                          if (timeTableSlot.classSectionId != null) {
+                            final classState =
+                                context.read<ClassesCubit>().state;
+                            if (classState is ClassesFetchSuccess) {
+                              // Temukan bagian kelas dari kelas utama atau kelas lainnya
+                              final classSection = [
+                                ...classState.primaryClasses,
+                                ...classState.classes
+                              ].firstWhere(
+                                (element) =>
+                                    element.id == timeTableSlot.classSectionId,
+                                orElse: () =>
+                                    ClassSection(id: 0, name: "-", classId: 0),
+                              );
 
-                                    print(
-                                        "Found class section: ${classSection.name} (${classSection.id})");
-                                    print("TimeTableSlot: ${timeTableSlot.id}");
+                              print(
+                                  "Found class section: ${classSection.name} (${classSection.id})");
+                              print("TimeTableSlot: ${timeTableSlot.id}");
 
-                                    Get.toNamed(
-                                      Routes.teacherAddAttendanceSubjectScreen,
-                                      arguments:
-                                          TeacherAddAttendanceSubjectScreen
-                                              .buildArguments(
-                                        classSection: classSection,
-                                        timeTableSlot: timeTableSlot,
-                                      ),
-                                    );
-                                  }
-                                }
+                              // Cek apakah waktu sudah lewat
+                              bool isWithinSlot = isCurrentTimeWithinSlot(
+                                timeTableSlot.startTime ?? "",
+                                timeTableSlot.endTime ?? "",
+                              );
+
+                              if (isWithinSlot) {
+                                // Jika masih dalam slot waktu, izinkan absen atau menambah materi
+                                Get.toNamed(
+                                  Routes.teacherAddAttendanceSubjectScreen,
+                                  arguments: TeacherAddAttendanceSubjectScreen
+                                      .buildArguments(
+                                    classSection: classSection,
+                                    timeTableSlot: timeTableSlot,
+                                    isWithinTeachingHours: isWithinSlot,
+                                  ),
+                                );
+                              } else {
+                                // Jika sudah lewat, hanya izinkan melihat jadwal
+                                Utils.showSnackBar(
+                                  message:
+                                      "Jam mengajar sudah lewat, hanya bisa melihat jadwal.",
+                                  context: context,
+                                );
+                                // Navigasi ke halaman untuk melihat jadwal
+                                Get.toNamed(
+                                  Routes.teacherAddAttendanceSubjectScreen,
+                                  arguments: TeacherAddAttendanceSubjectScreen
+                                      .buildArguments(
+                                    classSection: classSection,
+                                    timeTableSlot: timeTableSlot,
+                                    isWithinTeachingHours: isWithinSlot,
+                                  ),
+                                );
                               }
-                            : () {
-                                if (isBeforeSlot) {
-                                  Utils.showSnackBar(
-                                      message: "Belum masuk jam mengajar",
-                                      context: context);
-                                }
-                              },
+                            }
+                          } else {
+                            Utils.showSnackBar(
+                              message: "Tidak ada ID bagian kelas",
+                              context: context,
+                            );
+                          }
+                        },
                         child: TimetableSlotContainer(
                           note: timeTableSlot.note ?? "",
                           endTime: timeTableSlot.endTime ?? "",

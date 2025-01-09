@@ -262,7 +262,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 return;
               }
               if (firstName.text.trim().isEmpty ||
-                  lastName.text.trim().isEmpty ||
+                  // lastName.text.trim().isEmpty ||
                   mobileNumber.text.trim().isEmpty ||
                   email.text.trim().isEmpty ||
                   dateOfBirth.text.trim().isEmpty) {

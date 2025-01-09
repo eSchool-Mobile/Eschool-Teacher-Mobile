@@ -19,6 +19,8 @@ class SubjectAttendanceRepository {
     required int timetableId,
   }) async {
     try {
+      print(
+          'Class Section ID: $classSectionId, Date: $date, Timetable ID: $timetableId, Type: $type');
       final result = await Api.get(
         url: Api.getSubjectAttendance,
         useAuthToken: true,
@@ -26,7 +28,7 @@ class SubjectAttendanceRepository {
           "class_section_id": classSectionId,
           "date": date,
           "timetable_id": timetableId,
-          if (type != null) "type": type
+          "type": 1
         },
       );
 

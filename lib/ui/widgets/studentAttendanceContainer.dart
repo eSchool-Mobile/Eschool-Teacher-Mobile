@@ -10,14 +10,18 @@ import 'package:flutter/material.dart';
 class StudentAttendanceContainer extends StatefulWidget {
   final List<StudentAttendance> studentAttendances;
   final bool isForAddAttendance;
+  final bool isReadOnly;
   final Function(
       List<({StudentAttendanceStatus status, int studentId})>
           attendanceStatuses)? onStatusChanged;
-  const StudentAttendanceContainer(
-      {super.key,
-      required this.isForAddAttendance,
-      required this.studentAttendances,
-      this.onStatusChanged});
+
+  const StudentAttendanceContainer({
+    super.key,
+    required this.isForAddAttendance,
+    required this.studentAttendances,
+    this.onStatusChanged,
+    this.isReadOnly = false,
+  });
 
   @override
   State<StudentAttendanceContainer> createState() =>
@@ -39,25 +43,22 @@ class _StudentAttendanceContainerState
     } else if (e.isAlpa()) {
       return StudentAttendanceStatus.alpa;
     } else {
-      return StudentAttendanceStatus.absent; // Default jika tidak ada match
+      return StudentAttendanceStatus.absent;
     }
   }).toList();
 
   @override
   void initState() {
     if (widget.onStatusChanged != null) {
-      //passing initially filled values
       widget.onStatusChanged!(
         List.generate(
           widget.studentAttendances.length,
-          (index) {
-            return (
-              status: allAttendanceStatuses[index],
-              studentId: widget.studentAttendances[index].studentDetails
-                      ?.student?.userId ??
-                  0
-            );
-          },
+          (index) => (
+            status: allAttendanceStatuses[index],
+            studentId: widget.studentAttendances[index].studentDetails?.student
+                    ?.userId ??
+                0
+          ),
         ),
       );
     }
@@ -116,33 +117,37 @@ class _StudentAttendanceContainerState
             }),
           ),
           ...List.generate(widget.studentAttendances.length, (index) {
-            return StudentAttendanceItemContainer(
-              studentDetails: widget.studentAttendances[index].studentDetails ??
-                  StudentDetails.fromJson({}),
-              showStatusPicker: widget.isForAddAttendance,
-              isPresent: widget.studentAttendances[index].isPresent(),
-              isSick: widget.studentAttendances[index].isSick(),
-              isPermission: widget.studentAttendances[index].isPermission(),
-              isAlpa: widget.studentAttendances[index].isAlpa(),
-              onChangeAttendance: (StudentAttendanceStatus status) {
-                allAttendanceStatuses[index] = status;
-                if (widget.onStatusChanged != null) {
-                  widget.onStatusChanged!(
-                    List.generate(
-                      widget.studentAttendances.length,
-                      (index) {
-                        return (
-                          status: allAttendanceStatuses[index],
-                          studentId: widget.studentAttendances[index]
-                                  .studentDetails?.student?.userId ??
-                              0
-                        );
-                      },
-                    ),
-                  );
-                }
-              },
-              index: index, // Tambahkan parameter index di sini
+            return AbsorbPointer(
+              absorbing: widget.isReadOnly,
+              child: StudentAttendanceItemContainer(
+                studentDetails:
+                    widget.studentAttendances[index].studentDetails ??
+                        StudentDetails.fromJson({}),
+                showStatusPicker: widget.isForAddAttendance,
+                isPresent: widget.studentAttendances[index].isPresent(),
+                isSick: widget.studentAttendances[index].isSick(),
+                isPermission: widget.studentAttendances[index].isPermission(),
+                isAlpa: widget.studentAttendances[index].isAlpa(),
+                onChangeAttendance: (StudentAttendanceStatus status) {
+                  if (!widget.isReadOnly) {
+                    allAttendanceStatuses[index] = status;
+                    if (widget.onStatusChanged != null) {
+                      widget.onStatusChanged!(
+                        List.generate(
+                          widget.studentAttendances.length,
+                          (index) => (
+                            status: allAttendanceStatuses[index],
+                            studentId: widget.studentAttendances[index]
+                                    .studentDetails?.student?.userId ??
+                                0
+                          ),
+                        ),
+                      );
+                    }
+                  }
+                },
+                index: index,
+              ),
             );
           }),
         ],
