@@ -20,8 +20,8 @@ class SubjectAttendanceFetchSuccess extends SubjectAttendanceState {
     required this.attendance,
     required this.isHoliday,
     required this.holidayDetails,
-    this.materi,
     this.lampiran,
+    this.materi,
   });
 
   @override

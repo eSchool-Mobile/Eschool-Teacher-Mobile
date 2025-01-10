@@ -112,6 +112,16 @@ class _TeacherAddAttendanceScreenSubjectState extends State<TeacherAddAttendance
         getStudentList();
       }
     });
+
+    // Listen to attendance cubit state changes
+    context.read<SubjectAttendanceCubit>().stream.listen((state) {
+      if (state is SubjectAttendanceFetchSuccess) {
+        setState(() {
+          _materiController.text = state.materi ?? ''; // Set saved materi
+          _selectedMateri = state.materi ?? '';
+        });
+      }
+    });
   }
 
   void getAttendance() {
@@ -557,6 +567,7 @@ class _TeacherAddAttendanceScreenSubjectState extends State<TeacherAddAttendance
                             child: TextFormField(
                               controller: _materiController,
                               enabled: _isWithinTeachingHours, // Disable editing if outside teaching hours
+                              readOnly: !_isWithinTeachingHours, // Make readonly when outside teaching hours
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(),
                                 filled: true,
@@ -567,13 +578,16 @@ class _TeacherAddAttendanceScreenSubjectState extends State<TeacherAddAttendance
                                     horizontal: 10, vertical: 15),
                               ),
                               keyboardType: TextInputType.text,
-                              onChanged: (value) {
+                              onChanged: _isWithinTeachingHours ? (value) {
                                 // Update _selectedMateri with the new value
                                 setState(() {
                                   _selectedMateri = value;
                                 });
-                              },
+                              } : null,
                               maxLines: 2,
+                              style: TextStyle(
+                                color: _isWithinTeachingHours ? Colors.black : Colors.grey[700], // Adjust text color for readonly state
+                              ),
                               inputFormatters: [
                                 LengthLimitingTextInputFormatter(
                                     300), // Limit to 300 characters
