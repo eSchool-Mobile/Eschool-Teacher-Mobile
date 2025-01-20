@@ -1,6 +1,7 @@
 import 'package:eschool_saas_staff/data/models/timeTableSlot.dart';
 import 'package:eschool_saas_staff/data/repositories/teacherAcademicRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:convert';
 
 abstract class TeacherMyTimetableState {}
 
@@ -34,7 +35,9 @@ class TeacherMyTimetableCubit extends Cubit<TeacherMyTimetableState> {
     try {
       emit(TeacherMyTimetableFetchInProgress());
 
-      final slots =
+      print("OKK3");
+
+      final slots = // bukan ini
           await _teacherAcademicsRepository.getTeacherTimetableByClassSection(
         classSectionId: classSectionId,
         date: date,
@@ -62,12 +65,14 @@ class TeacherMyTimetableCubit extends Cubit<TeacherMyTimetableState> {
       final slots = await _teacherAcademicsRepository.getTeacherMyTimetable();
 
       // Debug logs
-      print("Fetched slots: ${slots.length}");
-      slots.forEach((slot) {
-        print("Class Section: ${slot.classSection?.name ?? 'No class'}");
-        print(
-            "Raw class data: ${slot.toJson()}"); // Add toJson() to TimeTableSlot model
-      });
+
+      print("DOKSLI ASELI");
+      String jsonString = JsonEncoder.withIndent('  ').convert(slots);
+
+      List<String> lines = jsonString.split('\n');
+      for (var line in lines) {
+        print(line);
+      }
 
       emit(TeacherMyTimetableFetchSuccess(timeTableSlots: slots));
     } catch (e) {

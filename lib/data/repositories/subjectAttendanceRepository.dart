@@ -3,6 +3,7 @@ import 'package:eschool_saas_staff/data/models/holiday.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
+import 'dart:convert';
 
 class SubjectAttendanceRepository {
   Future<
@@ -14,13 +15,12 @@ class SubjectAttendanceRepository {
         String? lampiran,
       })> getAttendance({
     required int classSectionId,
-    required int? type,
     required String date,
     required int timetableId,
   }) async {
     try {
       print(
-          'Class Section ID: $classSectionId, Date: $date, Timetable ID: $timetableId, Type: $type');
+          'Class Section ID: $classSectionId, Date: $date, Timetable ID: $timetableId');
       final result = await Api.get(
         url: Api.getSubjectAttendance,
         useAuthToken: true,
@@ -28,12 +28,29 @@ class SubjectAttendanceRepository {
           "class_section_id": classSectionId,
           "date": date,
           "timetable_id": timetableId,
-          "type": 1
         },
       );
 
+      print(classSectionId);
+      print(date);
+      print(timetableId);
+
+      print("CREDDDDDDDDDDDDDDDDDDSSSSSSSSSSSSSSSSSSSSSS");
+
       // Tambahkan logging untuk mencetak respons dari server
-      print("API Response: $result");
+      print("DATA ASELI: $result");
+
+      // Pretty print full response
+      final JsonEncoder encoder = JsonEncoder.withIndent('  ');
+      print("\n=== DATA ASELI (Full Response) ===");
+      print(encoder.convert(result));
+
+      // Print detailed keys
+      print("\n=== Response Keys Detail ===");
+      result.forEach((key, value) {
+        print("\nKey: $key");
+        print(encoder.convert(value));
+      });
 
       if (result['data'] == null) {
         throw ApiException('Data is null');
@@ -107,9 +124,16 @@ class SubjectAttendanceRepository {
             attendance[i]['type'].toString();
       }
 
-      print('Request Fields: ${request.fields}');
+      final JsonEncoder encoder = JsonEncoder.withIndent('  ');
+      print('\n=== Request Fields as JSON ===');
+      print(encoder.convert(request.fields));
+
       if (lampiran.isNotEmpty) {
-        print('Request Files: ${request.files}');
+        print('\n=== Request Files ===');
+        final filesInfo = {
+          'lampiran': {'filename': basename(lampiran), 'path': lampiran}
+        };
+        print(encoder.convert(filesInfo));
         request.files.add(await http.MultipartFile.fromPath(
           'lampiran',
           lampiran,

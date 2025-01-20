@@ -28,6 +28,19 @@ class AssignmentsFetchSuccess extends AssignmentState {
     final bool? newMoreAssignmentsFetchError,
     final bool? newFetchMoreAssignmentsInProgress,
   }) {
+    print("assignment:${newAssignment ?? assignment}");
+    print("OK1");
+    print("totalPage:${newTotalPage ?? totalPage}");
+    print("OK2");
+    print("currentPage:${newCurrentPage ?? currentPage}");
+    print("OK3");
+    print(
+        "moreAssignmentsFetchError:${newMoreAssignmentsFetchError ?? moreAssignmentsFetchError}");
+    print("OK4");
+    print(
+        "fetchMoreAssignmentsInProgress:${newFetchMoreAssignmentsInProgress ?? fetchMoreAssignmentsInProgress}");
+    print("OK5");
+
     return AssignmentsFetchSuccess(
       assignment: newAssignment ?? assignment,
       totalPage: newTotalPage ?? totalPage,
@@ -62,6 +75,7 @@ class AssignmentCubit extends Cubit<AssignmentState> {
         classSubjectId: subjectId,
         page: page,
       );
+      print("OKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
       emit(AssignmentsFetchSuccess(
         assignment: result.assignments,
         currentPage: result.currentPage,
@@ -97,6 +111,8 @@ class AssignmentCubit extends Cubit<AssignmentState> {
         (state as AssignmentsFetchSuccess)
             .copyWith(newFetchMoreAssignmentsInProgress: true),
       );
+
+      print("OKOEYYYYYYYYYYYYYYYYYYYYYYYYY");
 
       final fetchMoreAssignment = await _assignmentRepository.fetchAssignment(
         classSectionId: classSectionId,

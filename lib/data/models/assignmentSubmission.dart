@@ -80,7 +80,7 @@ class ReviewAssignment {
     required this.classSectionId,
     required this.classSubjectId,
     required this.name,
-    required this.instructions,
+    required this.description,
     required this.dueDate,
     required this.points,
     required this.resubmission,
@@ -93,7 +93,7 @@ class ReviewAssignment {
   late final int classSectionId;
   late final int classSubjectId;
   late final String name;
-  late final String instructions;
+  late final String description;
   late final String dueDate;
   late final int points;
   late final int resubmission;
@@ -107,7 +107,7 @@ class ReviewAssignment {
     classSectionId = json['class_section_id'] ?? 0;
     classSubjectId = json['class_subject_id'] ?? 0;
     name = json['name'] ?? "";
-    instructions = json['instructions'] ?? "";
+   description = json['description'] ?? "";
     dueDate = json['due_date'] ?? "";
     points = json['points'] ?? 0;
     resubmission = json['resubmission'] ?? 0;

@@ -1,6 +1,7 @@
 import 'package:eschool_saas_staff/data/models/offlineExamSubjectResult.dart';
 import 'package:eschool_saas_staff/data/models/paidFeeDetails.dart';
 import 'package:eschool_saas_staff/data/models/student.dart';
+import 'dart:convert';
 
 class StudentDetails {
   final int? id;
@@ -29,6 +30,8 @@ class StudentDetails {
   final List<OfflineExamSubjectResult>? offlineExamMarks;
   final List<ExamMarks>? examMarks;
   final PaidFeeDetails? paidFeeDetails;
+  final String? profileUrl;
+  final String? rollNumber;
 
   StudentDetails({
     this.id,
@@ -57,6 +60,8 @@ class StudentDetails {
     this.schoolNames,
     this.offlineExamMarks,
     this.examMarks,
+    this.profileUrl,
+    this.rollNumber,
   });
 
   StudentDetails copyWith(
@@ -82,7 +87,9 @@ class StudentDetails {
       String? deletedAt,
       String? fullName,
       String? schoolNames,
-      Student? student}) {
+      Student? student,
+      String? profileUrl,
+      String? rollNumber}) {
     return StudentDetails(
       id: id ?? this.id,
       student: student ?? this.student,
@@ -107,6 +114,8 @@ class StudentDetails {
       deletedAt: deletedAt ?? this.deletedAt,
       fullName: fullName ?? this.fullName,
       schoolNames: schoolNames ?? this.schoolNames,
+      profileUrl: profileUrl ?? this.profileUrl,
+      rollNumber: rollNumber ?? this.rollNumber,
     );
   }
 
@@ -143,7 +152,9 @@ class StudentDetails {
             PaidFeeDetails.fromJson(Map.from(json['fees_paid'] ?? {})),
         examMarks = ((json['marks'] ?? []) as List)
             .map<ExamMarks>((e) => ExamMarks.fromJson(Map.from(e ?? {})))
-            .toList();
+            .toList(),
+        profileUrl = json['profileUrl'] as String?,
+        rollNumber = json['rollNumber'] as String?;
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -169,7 +180,14 @@ class StudentDetails {
         'full_name': fullName,
         'school_names': schoolNames,
         'student': student?.toJson(),
+        'profileUrl': profileUrl,
+        'rollNumber': rollNumber,
       };
+
+  @override
+  String toString() {
+    return 'StudentDetails(id: $id, firstName: $firstName, lastName: $lastName, rollNumber: $rollNumber)';
+  }
 
   String getGender() {
     if (gender == "male") {

@@ -72,10 +72,17 @@ class _TeacherAddAttendanceScreenState
   }
 
   void getAttendance() {
-    context.read<AttendanceCubit>().fetchAttendance(
-        date: _selectedDateTime,
-        classSectionId: _selectedClassSection?.id ?? 0,
-        type: null);
+    print("FETCHING222");
+    context
+        .read<AttendanceCubit>()
+        .fetchAttendance(
+          date: _selectedDateTime,
+          classSectionId: _selectedClassSection?.id ?? 0,
+          type: null,
+        )
+        .catchError((error) {
+      print('Error: $error');
+    });
   }
 
   void getStudentList() {
@@ -108,14 +115,17 @@ class _TeacherAddAttendanceScreenState
             return const SizedBox.shrink();
           }
           return StudentAttendanceContainer(
-            studentAttendances: state.studentDetailsList
-                .map((e) => StudentAttendance.fromStudentDetails(
-                    studentDetails: e,
-                    type: attendance
-                        .firstWhereOrNull(
-                            (element) => element.studentId == e.student?.id)
-                        ?.type))
-                .toList(),
+            studentAttendances: state.studentDetailsList.map((e) {
+              final matchedAttendance = attendance
+                  .firstWhereOrNull((element) => element.studentId == e.id);
+
+              print(matchedAttendance);
+
+              print('Found attendance record: ${matchedAttendance?.type}');
+
+              return StudentAttendance.fromStudentDetails(
+                  studentDetails: e, type: matchedAttendance?.type);
+            }).toList(),
             onStatusChanged: (attendanceStatuses) {
               attendanceReport = attendanceStatuses;
             },

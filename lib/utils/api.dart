@@ -110,6 +110,7 @@ class Api {
   static String uploadAssignment = "${databaseUrl}teacher/update-assignment";
   static String deleteAssignment = "${databaseUrl}teacher/delete-assignment";
   static String createAssignment = "${databaseUrl}teacher/create-assignment";
+  static String getAssignmentFileTypes = "${databaseUrl}teacher/get-assignment-filetype";
 
   static String getAnnouncement = "${databaseUrl}teacher/get-announcement";
   static String createAnnouncement = "${databaseUrl}teacher/send-announcement";
@@ -170,16 +171,25 @@ class Api {
         print(body);
       }
       final Dio dio = Dio();
-      final FormData formData =
-          FormData.fromMap(body, ListFormat.multiCompatible);
+      
+      // Enable array format for form data
+      final options = Options(
+        headers: (useAuthToken ?? true) ? headers() : null,
+        contentType: Headers.multipartFormDataContentType,
+      );
 
-      final response = await dio.post(url,
-          data: formData,
-          queryParameters: queryParameters,
-          cancelToken: cancelToken,
-          onReceiveProgress: onReceiveProgress,
-          onSendProgress: onSendProgress,
-          options: (useAuthToken ?? true) ? Options(headers: headers()) : null);
+      // Create form data with array format support
+      final formData = FormData.fromMap(body, ListFormat.multi);
+
+      final response = await dio.post(
+        url,
+        data: formData,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+        onReceiveProgress: onReceiveProgress,
+        onSendProgress: onSendProgress,
+        options: options,
+      );
 
       if (bool.parse(response.data['error'].toString())) {
         throw ApiException(response.data['message'].toString());

@@ -27,6 +27,7 @@ class ClassTimetableCubit extends Cubit<ClassTimetableState> {
 
   void getClassTimetable({required int classSectionId}) async {
     try {
+      print("OKK1");
       emit(ClassTimetableFetchInProgress());
       emit(ClassTimetableFetchSuccess(
           classTimetableSlots: await _academicRepository.getClassTimetable(

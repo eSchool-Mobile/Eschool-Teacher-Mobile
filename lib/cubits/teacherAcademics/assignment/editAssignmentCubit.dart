@@ -28,13 +28,15 @@ class EditAssignmentCubit extends Cubit<EditAssignmentState> {
     required int classSubjectId,
     required String name,
     required String dateTime,
-    required String instruction,
+    required String description,
     required String points,
+    required String minPoints,
     required int resubmission,
     required String extraDayForResubmission,
     required List<PlatformFile> filePaths,
+    required String startDate,
+    required String endDate,
   }) async {
-    emit(EditAssignmentInProgress());
     try {
       await _assignmentRepository.editAssignment(
         assignmentId: assignmentId,
@@ -45,10 +47,15 @@ class EditAssignmentCubit extends Cubit<EditAssignmentState> {
         extraDayForResubmission: int.parse(
           extraDayForResubmission.isEmpty ? "0" : extraDayForResubmission,
         ),
-        instruction: instruction,
+        description: description,
         points: int.parse(points.isEmpty ? "0" : points),
+        minPoints: int.parse(minPoints.isEmpty ? "0" : minPoints),
         resubmission: resubmission,
         filePaths: filePaths,
+        startDate: startDate,
+        endDate: endDate,
+        acceptedFile: [],
+        maxFile: 10, // Added  parameter (in MB)
       );
       emit(EditAssignmentSuccess());
     } catch (e) {

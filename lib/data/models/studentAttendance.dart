@@ -57,8 +57,7 @@ class StudentAttendance {
       schoolId: studentDetails.schoolId,
       classSectionId: studentDetails.student?.classSectionId,
       sessionYearId: studentDetails.student?.sessionYearId,
-      type: type ??
-          1, //default attendance on add attendance screen items is Present
+      type: type ?? 1, // Set default to 1 (present) if type is null
       studentDetails: studentDetails,
     );
   }
@@ -89,22 +88,27 @@ class StudentAttendance {
       };
 
   bool isPresent() {
+    print("PRESENT ${studentDetails?.fullName}: ${type == 1}");
     return type == 1;
   }
 
   bool isAbsent() {
+    print("ABSENT ${studentDetails?.fullName}: ${type == 0}");
     return type == 0;
   }
 
   bool isSick() {
+    print("SICK ${studentDetails?.fullName}: ${type == 2}");
     return type == 2;
   }
 
   bool isPermission() {
+    print("PERMISSION ${studentDetails?.fullName}: ${type == 3}");
     return type == 3;
   }
 
   bool isAlpa() {
+    print("ALPA ${studentDetails?.fullName}: ${type == 4}");
     return type == 4;
   }
 

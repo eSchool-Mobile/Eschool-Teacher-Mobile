@@ -45,6 +45,17 @@ class AttendanceStudent {
         'user': user?.toJson(),
       };
 
+  @override
+  String toString() {
+    return '''AttendanceStudent{
+    id: $id,
+    subjectAttendanceId: $subjectAttendanceId,
+    studentId: $studentId, 
+    type: $type,
+    note: $note
+  }''';
+  }
+
   bool isPresent() {
     return type == 1;
   }

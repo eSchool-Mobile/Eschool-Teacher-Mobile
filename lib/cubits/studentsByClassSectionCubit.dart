@@ -64,15 +64,19 @@ class StudentsByClassSectionCubit extends Cubit<StudentsByClassSectionState> {
   }) async {
     emit(StudentsByClassSectionFetchInProgress());
     try {
+      final studentDetailsList = await _studentRepository.getStudentsByClassSectionAndSubject(
+        classSectionId: classSectionId,
+        status: status,
+        classSubjectId: classSubjectId,
+        examId: examId,
+      );
+
+      // Print the data structure
+      print('Fetched Students: ${studentDetailsList.map((student) => student.toJson()).toList()}');
+
       emit(
         StudentsByClassSectionFetchSuccess(
-          studentDetailsList:
-              await _studentRepository.getStudentsByClassSectionAndSubject(
-            classSectionId: classSectionId,
-            status: status,
-            classSubjectId: classSubjectId,
-            examId: examId,
-          ),
+          studentDetailsList: studentDetailsList,
         ),
       );
     } catch (e) {

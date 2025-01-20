@@ -106,7 +106,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
         lastDate: DateTime.parse(context
             .read<LeaveSettingsAndSessionYearsCubit>()
             .getCurrentSessionYear()
-            .endDate!));
+            .end_date!));
     if (selectedDate != null) {
       _selectedFromDate = selectedDate;
 
@@ -130,7 +130,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
           lastDate: DateTime.parse(context
               .read<LeaveSettingsAndSessionYearsCubit>()
               .getCurrentSessionYear()
-              .endDate!));
+              .end_date!));
       if (selectedDate != null) {
         _selectedToDate = selectedDate;
 

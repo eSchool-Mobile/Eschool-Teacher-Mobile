@@ -45,20 +45,24 @@ class SubjectAttendanceCubit extends Cubit<SubjectAttendanceState> {
   Future<void> fetchSubjectAttendance({
     required int classSectionId,
     required DateTime date,
-    required int? type,
     required int timetableId,
   }) async {
     emit(SubjectAttendanceFetchInProgress());
     try {
       final result = await _subjectAttendanceRepository.getAttendance(
         classSectionId: classSectionId,
-        type: type,
         date: "${date.year}-${date.month}-${date.day}",
         timetableId: timetableId,
       );
-      print("Attendance State: ${result.attendance}");
 
-      print("API Response: ${result.attendance}");
+      print("Attendance Details: ${result.attendance.map((a) => {
+            'id': a.id,
+            'student_id': a.studentId,
+            'type': a.type,
+            'note': a.note
+          }).toList()}");
+
+      print("API Response2: ${result.attendance}");
       emit(SubjectAttendanceFetchSuccess(
         attendance: result.attendance,
         isHoliday: result.isHoliday,

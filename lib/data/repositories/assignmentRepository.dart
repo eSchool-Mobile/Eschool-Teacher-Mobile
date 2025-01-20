@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/assignment.dart';
+import 'package:eschool_saas_staff/data/models/assignmentFiletype.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -21,6 +22,9 @@ class AssignmentRepository {
           "page": page ?? 0,
         },
       );
+
+      print("Dari API le");
+      print(result);
 
       return (
         assignments: ((result['data']['data'] ?? []) as List)
@@ -59,11 +63,16 @@ class AssignmentRepository {
     required int classSubjectId,
     required String name,
     required String dateTime,
-    required String instruction,
+    required String startDate,
+    required String endDate,
+    required String description,
     required int points,
+    required int minPoints,
+    required int maxFile, // Add this line
     required int resubmission,
     required int extraDayForResubmission,
     List<PlatformFile>? filePaths,
+    required List<String> acceptedFile,
   }) async {
     try {
       List<MultipartFile> files = [];
@@ -76,15 +85,21 @@ class AssignmentRepository {
         "assignment_id": assignmentId,
         "class_subject_id": classSubjectId,
         "name": name,
-        "instructions": instruction,
+        "description": description,
         "due_date": dateTime,
+        "start_date": startDate,
+        "end_date": endDate,
         "points": points,
+        "min_points": minPoints,
+        "max_file": maxFile, // Add this line
         "resubmission": resubmission,
         "extra_days_for_resubmission": extraDayForResubmission,
-        "file": files
+        "file": files,
+        "accepted_file": acceptedFile,
+        "text": "text",
       };
-      if (instruction.isEmpty) {
-        body.remove("instructions");
+      if (description.isEmpty) {
+        body.remove("description");
       }
       if (points == 0) {
         body.remove("points");
@@ -109,48 +124,90 @@ class AssignmentRepository {
     required int classSectionId,
     required int classSubjectId,
     required String name,
-    required String instruction,
+    required String description,
     required String dateTime,
+    required String startDate,
+    required String endDate,
     required int points,
+    required int minPoints,
+    required int maxFile,
     required bool resubmission,
     required int extraDayForResubmission,
     required List<PlatformFile>? filePaths,
+    required List<String> acceptedFile,
+    required String text,
   }) async {
     try {
       List<MultipartFile> files = [];
       for (var filePath in filePaths!) {
         files.add(await MultipartFile.fromFile(filePath.path!));
       }
-      var body = {
+
+      // Create base body
+      var bodyMap = {
         "class_section_id": classSectionId,
         "class_subject_id": classSubjectId,
         "name": name,
-        "instructions": instruction,
+        "description": description,
         "due_date": dateTime,
+        "start_date": startDate,
+        "end_date": endDate,
         "points": points,
+        "min_points": minPoints,
+        "max_file": maxFile,
         "resubmission": resubmission ? 1 : 0,
         "extra_days_for_resubmission": extraDayForResubmission,
-        "file": files
+        "file": files,
+        "text": text, // Pass the text value directly
       };
-      if (instruction.isEmpty) {
-        body.remove("instructions");
+
+      // Add accepted file types in array format
+      for (int i = 0; i < acceptedFile.length; i++) {
+        bodyMap["accepted_file[$i]"] = acceptedFile[i];
+      }
+
+      // Remove optional fields if empty
+      if (description.isEmpty) {
+        bodyMap.remove("description");
       }
       if (points == 0) {
-        body.remove("points");
+        bodyMap.remove("points");
       }
-      if (filePaths.isEmpty) {
-        body.remove("file");
+      if (files.isEmpty) {
+        bodyMap.remove("file");
       }
-      if (resubmission == false) {
-        body.remove("extra_days_for_resubmission");
+      if (!resubmission) {
+        bodyMap.remove("extra_days_for_resubmission");
       }
+
+      // Convert to FormData
+      final formData = FormData.fromMap(bodyMap);
 
       await Api.post(
         url: Api.createAssignment,
-        body: body,
+        body: formData.fields.fold<Map<String, dynamic>>({}, (map, field) {
+          map[field.key] = field.value;
+          return map;
+        }),
         useAuthToken: true,
       );
     } catch (e) {
+      throw ApiException(e.toString());
+    }
+  }
+
+  Future<List<AssignmentFileType>> fetchAssignmentFileTypes() async {
+    try {
+      final result = await Api.get(
+        url: Api.getAssignmentFileTypes,
+        useAuthToken: true,
+      );
+
+      return (result['data'] as List)
+          .map((e) => AssignmentFileType.fromJson(e))
+          .toList();
+    } catch (e) {
+      print('Repository error: $e');
       throw ApiException(e.toString());
     }
   }

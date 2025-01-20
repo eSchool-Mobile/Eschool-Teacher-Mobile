@@ -78,49 +78,10 @@ class _TeacherViewAttendanceSubjectScreenState
     super.initState();
     _selectedDateTime = DateTime.now();
 
-    Future.delayed(Duration.zero, () async {
+    Future.delayed(Duration.zero, () {
       if (mounted) {
-        // Load classes first
-        await context.read<ClassesCubit>().getAllClasses();
-        final classState = context.read<ClassesCubit>().state;
-
-        if (classState is ClassesFetchSuccess) {
-          setState(() {
-            if (classState.primaryClasses.isNotEmpty) {
-              _selectedClassSection = classState.primaryClasses.first;
-            }
-          });
-
-          // Load timetable after class selection
-          context.read<TeacherMyTimetableCubit>().getTeacherMyTimetable();
-          final timetableState = context.read<TeacherMyTimetableCubit>().state;
-
-          if (timetableState is TeacherMyTimetableFetchSuccess) {
-            // Get slots for selected class and day
-            final slots = timetableState.timeTableSlots.where((slot) {
-              print(
-                  "Checking slot: ${slot.id} for class ${slot.classSectionId} on ${slot.day}");
-              return slot.day == weekDays[_selectedDateTime.weekday - 1] &&
-                  slot.classSectionId == _selectedClassSection?.id;
-            }).toList();
-
-            print("Found slots: ${slots.length}");
-            slots.forEach(
-                (slot) => print("Slot: ${slot.id} - ${slot.subject?.name}"));
-
-            if (slots.isNotEmpty) {
-              setState(() {
-                _selectedTimetableId = slots.first.id!;
-                print("Selected timetable ID: $_selectedTimetableId");
-              });
-
-              // Get attendance with found slot
-              if (_selectedClassSection != null) {
-                getAttendance();
-              }
-            }
-          }
-        }
+        // Load timetable
+        context.read<TeacherMyTimetableCubit>().getTeacherMyTimetable();
       }
     });
   }
@@ -203,13 +164,7 @@ class _TeacherViewAttendanceSubjectScreenState
       context.read<SubjectAttendanceCubit>().fetchSubjectAttendance(
             date: _selectedDateTime,
             classSectionId: _selectedClassSection!.id!,
-            type: selectedStatus != null
-                ? getStudentAttendanceStatusValue(selectedStatus)
-                : isPresentStatusOnly == null
-                    ? null
-                    : isPresentStatusOnly!
-                        ? 1
-                        : 0,
+           
             timetableId: _selectedTimetableId,
           );
     }
@@ -614,104 +569,53 @@ class _TeacherViewAttendanceSubjectScreenState
                                 // Filter Kelas
                                 FilterButton(
                                   onTap: () {
-                                    var timetableState = context
-                                        .read<TeacherMyTimetableCubit>()
-                                        .state;
-                                    if (timetableState
-                                        is TeacherMyTimetableFetchSuccess) {
-                                      var classSections = timetableState
-                                          .timeTableSlots
-                                          .where((slot) =>
-                                              slot.day ==
-                                              weekDays[
-                                                  _selectedDateTime.weekday -
-                                                      1])
-                                          .map((slot) => slot.classSection)
-                                          .whereType<ClassSection>()
-                                          .toSet()
-                                          .toList();
+                                    try {
+                                      var timetableState = context.read<TeacherMyTimetableCubit>().state;
+                                      if (timetableState is TeacherMyTimetableFetchSuccess) {
+                                        final classState = context.read<ClassesCubit>().state;
+                                        if (classState is ClassesFetchSuccess) {
+                                          // Get all available classes
+                                          final allClasses = [
+                                            ...classState.primaryClasses,
+                                            ...timetableState.timeTableSlots
+                                                .where((slot) => slot.day == weekDays[_selectedDateTime.weekday - 1])
+                                                .map((slot) => slot.classSection)
+                                                .whereType<ClassSection>()
+                                                .toSet()
+                                                .toList()
+                                          ];
 
-                                      if (classSections.isNotEmpty) {
-                                        Utils.showBottomSheet(
-                                          child: FilterSelectionBottomsheet<
-                                              ClassSection>(
-                                            onSelection: (value) {
-                                              Get.back();
-                                              if (_selectedClassSection !=
-                                                  value) {
-                                                _selectedClassSection = value;
-                                                setState(() {
-                                                  _selectedClassSection = value;
-                                                });
-                                                print(
-                                                    "Selected Class Section: $_selectedClassSection");
+                                          print("Available classes: ${allClasses.length}");
 
-                                                // Update timetable ID when class section changes
-                                                final slots = timetableState
-                                                    .timeTableSlots
-                                                    .where((slot) =>
-                                                        slot.day ==
-                                                            weekDays[
-                                                                _selectedDateTime
-                                                                        .weekday -
-                                                                    1] &&
-                                                        slot.classSection?.id ==
-                                                            _selectedClassSection
-                                                                ?.id)
-                                                    .toList();
-
-                                                if (slots.isNotEmpty) {
-                                                  _selectedTimetableId =
-                                                      slots.first.id!;
-                                                  print(
-                                                      "Updated Timetable ID: $_selectedTimetableId");
-                                                } else {
-                                                  _selectedTimetableId = 0;
-                                                  print(
-                                                      "No Timetable Slot Found for Selected Class Section");
-                                                }
-
-                                                getAttendance();
-                                              }
-                                            },
-                                            selectedValue:
-                                                _selectedClassSection!,
-                                            titleKey: classKey,
-                                            values: classSections,
-                                          ),
-                                          context: context,
-                                        );
+                                          if (allClasses.isNotEmpty) {
+                                            Utils.showBottomSheet(
+                                              child: FilterSelectionBottomsheet<ClassSection>(
+                                                onSelection: (value) {
+                                                  Get.back();
+                                                  if (_selectedClassSection != value) {
+                                                    setState(() {
+                                                      _selectedClassSection = value;
+                                                      _selectedTimetableId = 0; // Reset timetable selection
+                                                    });
+                                                    getAttendance();
+                                                  }
+                                                },
+                                                selectedValue: _selectedClassSection ?? allClasses.first,
+                                                titleKey: classKey,
+                                                values: allClasses,
+                                              ),
+                                              context: context
+                                            );
+                                          }
+                                        }
                                       }
+                                    } catch (e) {
+                                      print("Error showing class sections: $e");
                                     }
                                   },
-                                  titleKey: (() {
-                                    final timetableState = context
-                                        .read<TeacherMyTimetableCubit>()
-                                        .state;
-                                    if (timetableState
-                                        is TeacherMyTimetableFetchSuccess) {
-                                      final hasClassesToday = timetableState
-                                          .timeTableSlots
-                                          .where((slot) =>
-                                              slot.day ==
-                                              weekDays[
-                                                  _selectedDateTime.weekday -
-                                                      1])
-                                          .isNotEmpty;
-
-                                      // Jika tidak ada kelas yang diajar hari ini, kembalikan classKey
-                                      if (!hasClassesToday) {
-                                        return classKey;
-                                      }
-                                    }
-
-                                    // Jika ada kelas yang dipilih, tampilkan nama kelasnya
-                                    return _selectedClassSection?.id == null
-                                        ? classKey
-                                        : Utils().cleanClassName(
-                                            _selectedClassSection?.fullName ??
-                                                "");
-                                  })(),
+                                  titleKey: _selectedClassSection?.id == null 
+                                      ? classKey 
+                                      : Utils().cleanClassName(_selectedClassSection?.fullName ?? ""),
                                   width: boxConstraints.maxWidth * (0.48),
                                 ),
                                 // Filter Status

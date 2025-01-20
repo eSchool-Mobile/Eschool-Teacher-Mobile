@@ -208,13 +208,13 @@ class _TeacherManageAssignmentScreenState
                     ],
                   ],
                 ),
-                expandedContentWidget: assignment.instructions.trim().isNotEmpty
+                expandedContentWidget: assignment.description.trim().isNotEmpty
                     ? Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           CustomTitleDescriptionContainer(
                               titleKey: instructionsKey,
-                              description: assignment.instructions),
+                              description: assignment.description),
                         ],
                       )
                     : null,

@@ -2,6 +2,7 @@ import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/timeTableSlot.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
 
 class TeacherAcademicsRepository {
   Future<List<TimeTableSlot>> getTeacherMyTimetable() async {
@@ -10,6 +11,8 @@ class TeacherAcademicsRepository {
         url: Api.getTeacherMyTimetable,
         useAuthToken: true,
       );
+
+      print("INIII");
 
       print("API Response type: ${response['data'].runtimeType}");
       print("Raw API Response: ${response['data']}");
@@ -24,6 +27,7 @@ class TeacherAcademicsRepository {
             timeTableSlots.add(TimeTableSlot.fromJson(value));
           }
         });
+
         return timeTableSlots;
       } else if (response['data'] is List) {
         final List<dynamic> data = response['data'];
@@ -50,7 +54,7 @@ class TeacherAcademicsRepository {
         useAuthToken: true,
       );
 
-      print("API Response for class section timetable: ${response['data']}");
+      print("INI RESPONNYAA ${response}");
 
       if (response['data'] is List) {
         final List<dynamic> data = response['data'];

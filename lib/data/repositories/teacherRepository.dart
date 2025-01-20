@@ -21,6 +21,11 @@ class TeacherRepository {
       final result = await Api.get(
           url: Api.getTimeTableOfTeacher,
           queryParameters: {"teacher_id": teacherId});
+      print("DARI API NIH WOK");
+      print(((result['data'] ?? []) as List)
+          .map((timeTableSlot) =>
+              TimeTableSlot.fromJson(Map.from(timeTableSlot ?? {})))
+          .toList());
       return ((result['data'] ?? []) as List)
           .map((timeTableSlot) =>
               TimeTableSlot.fromJson(Map.from(timeTableSlot ?? {})))

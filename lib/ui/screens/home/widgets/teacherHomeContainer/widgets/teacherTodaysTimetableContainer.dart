@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'dart:convert';
+
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCubit.dart';
@@ -196,6 +198,8 @@ class _TeacherTodaysTimetableContainerState
     return BlocBuilder<TeacherMyTimetableCubit, TeacherMyTimetableState>(
       builder: (context, state) {
         if (state is TeacherMyTimetableFetchSuccess) {
+          print("START");
+
           final slots = state.timeTableSlots.where((element) {
             bool isSameDay =
                 element.day == weekDays[DateTime.now().weekday - 1];
@@ -209,8 +213,11 @@ class _TeacherTodaysTimetableContainerState
             //     return false;
             //   }
             // }
+            print(element);
             return isSameDay;
           }).toList();
+
+          print("END");
 
           if (slots.isEmpty) {
             return const SizedBox();
@@ -253,8 +260,8 @@ class _TeacherTodaysTimetableContainerState
                               ].firstWhere(
                                 (element) =>
                                     element.id == timeTableSlot.classSectionId,
-                                orElse: () =>
-                                    ClassSection(id: 0, name: "-", classId: 0),
+                                orElse: () => ClassSection(
+                                    id: 0, name: "-", classId: 0),
                               );
 
                               print(
@@ -359,9 +366,8 @@ class _TeacherTodaysTimetableContainerState
                                   note: timeTableSlot.note ?? "",
                                   endTime: timeTableSlot.endTime ?? "",
                                   isForClass: false,
-                                  classSectionName:
-                                      timeTableSlot.classSection?.fullName ??
-                                          "-",
+                                  classSectionName: getClassSectionName(
+                                      timeTableSlot.classSectionId) ?? "-",
                                   startTime: timeTableSlot.startTime ?? "",
                                   subjectName:
                                       timeTableSlot.subject?.name ?? "-",

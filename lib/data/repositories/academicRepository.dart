@@ -11,7 +11,7 @@ class AcademicRepository {
       getClasses() async {
     try {
       final result = await Api.get(url: Api.getClasses);
-      print("Raw API response: $result");
+      print("Raw API response");
 
       // Mapping untuk other classes (tetap dipertahankan)
       final otherClasses = ((result['other'] ?? []) as List)

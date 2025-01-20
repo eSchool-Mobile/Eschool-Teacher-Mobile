@@ -20,6 +20,7 @@ import 'package:eschool_saas_staff/ui/widgets/uploadImageOrFileLimitButton.dart'
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -47,15 +48,15 @@ class TeacherAddAttendanceSubjectScreen extends StatefulWidget {
     );
   }
 
-  static Map<String, dynamic> buildArguments({
-    required ClassSection? classSection,
-    required TimeTableSlot? timeTableSlot, 
-    required bool isWithinTeachingHours // Tambahkan parameter ini
-  }) {
+  static Map<String, dynamic> buildArguments(
+      {required ClassSection? classSection,
+      required TimeTableSlot? timeTableSlot,
+      required bool isWithinTeachingHours // Tambahkan parameter ini
+      }) {
     return {
       "classSection": classSection,
       "timeTableSlot": timeTableSlot,
-      "isWithinTeachingHours": isWithinTeachingHours 
+      "isWithinTeachingHours": isWithinTeachingHours
     };
   }
 
@@ -66,7 +67,9 @@ class TeacherAddAttendanceSubjectScreen extends StatefulWidget {
       _TeacherAddAttendanceScreenSubjectState();
 }
 
-class _TeacherAddAttendanceScreenSubjectState extends State<TeacherAddAttendanceSubjectScreen> with TickerProviderStateMixin {
+class _TeacherAddAttendanceScreenSubjectState
+    extends State<TeacherAddAttendanceSubjectScreen>
+    with TickerProviderStateMixin {
   List<({StudentAttendanceStatus status, int studentId})> attendanceReport = [];
 
   final TextEditingController _materiController = TextEditingController();
@@ -125,10 +128,10 @@ class _TeacherAddAttendanceScreenSubjectState extends State<TeacherAddAttendance
   }
 
   void getAttendance() {
+    print("FETCHING111");
     context.read<SubjectAttendanceCubit>().fetchSubjectAttendance(
           date: _selectedDateTime,
           classSectionId: _selectedClassSection?.id ?? 0,
-          type: null,
           timetableId: _selectedTimeTableId,
         );
   }
@@ -217,20 +220,36 @@ class _TeacherAddAttendanceScreenSubjectState extends State<TeacherAddAttendance
             return const SizedBox.shrink();
           }
           return StudentAttendanceContainer(
-  studentAttendances: state.studentDetailsList
-    .map((e) => StudentAttendance.fromStudentDetails(
-      studentDetails: e,
-      type: attendance
-        .firstWhereOrNull((element) => element.studentId == e.student?.id)
-        ?.type
-    ))
-    .toList(),
-  isForAddAttendance: true,
-  isReadOnly: !_isWithinTeachingHours, // Add this parameter
-  onStatusChanged: (attendanceStatuses) {
-    attendanceReport = attendanceStatuses;
-  },
-);
+            studentAttendances: state.studentDetailsList.map((e) {
+              // Find matching attendance from previous submission
+              final matchedAttendance = attendance.firstWhereOrNull(
+                  (element) => element.studentId == e.id);
+
+              print("START");
+              print(attendance);
+
+              print('Mapping student attendance:');
+              print('Student ID: ${e.student?.id}');
+              print('Found attendance type: ${matchedAttendance?.type}');
+
+              return StudentAttendance.fromStudentDetails(
+                studentDetails: e,
+                type: matchedAttendance?.type ??
+                    1, // Use stored type or default to present (1)
+              );
+            }).toList(),
+            isForAddAttendance: true,
+            isReadOnly: !_isWithinTeachingHours,
+            onStatusChanged:
+                (List<({StudentAttendanceStatus status, int studentId})>
+                    attendanceStatuses) {
+              print('Status changed:');
+              attendanceStatuses.forEach((status) {
+                print('Student ${status.studentId}: ${status.status}');
+              });
+              attendanceReport = attendanceStatuses;
+            },
+          );
         } else if (state is StudentsByClassSectionFetchFailure) {
           print("Failed to fetch students: ${state.errorMessage}");
           return Center(
@@ -312,12 +331,14 @@ class _TeacherAddAttendanceScreenSubjectState extends State<TeacherAddAttendance
     return BlocBuilder<SubjectAttendanceCubit, SubjectAttendanceState>(
       builder: (context, state) {
         if (state is SubjectAttendanceFetchSuccess) {
-          if (state.isHoliday || !_isWithinTeachingHours) { // Add check for teaching hours
+          if (state.isHoliday || !_isWithinTeachingHours) {
+            // Add check for teaching hours
             return const SizedBox(); // Hide button completely
           }
-          return BlocConsumer<SubmitAttendanceSubjectCubit, SubmitAttendanceSubjectState>(
+          return BlocConsumer<SubmitAttendanceSubjectCubit,
+                  SubmitAttendanceSubjectState>(
               listener: (context, submitAttendanceSubjectState) {
-                if (submitAttendanceSubjectState
+            if (submitAttendanceSubjectState
                 is SubmitAttendanceSubjectSuccess) {
               Utils.showSnackBar(
                 context: context,
@@ -332,43 +353,45 @@ class _TeacherAddAttendanceScreenSubjectState extends State<TeacherAddAttendance
                 message: submitAttendanceSubjectState.errorMessage,
               );
             }
-              }, 
-              builder: (context, submitAttendanceSubjectState) {
-                return Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    padding: EdgeInsets.all(appContentHorizontalPadding),
-                    decoration: BoxDecoration(boxShadow: const [
-                    BoxShadow(
-                        color: Colors.black12, blurRadius: 1, spreadRadius: 1)
-                  ], color: Theme.of(context).colorScheme.surface),
-                    width: MediaQuery.of(context).size.width,
-                    height: 70,
-                    child: CustomRoundedButton(
-                      height: 40,
-                      widthPercentage: 1.0,
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      buttonTitle: submitKey,
-                      showBorder: false,
-                      onTap: () {
-                        if (submitAttendanceSubjectState is SubmitAttendanceSubjectInProgress) {
-                          return;
-                        }
+          }, builder: (context, submitAttendanceSubjectState) {
+            return Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                padding: EdgeInsets.all(appContentHorizontalPadding),
+                decoration: BoxDecoration(boxShadow: const [
+                  BoxShadow(
+                      color: Colors.black12, blurRadius: 1, spreadRadius: 1)
+                ], color: Theme.of(context).colorScheme.surface),
+                width: MediaQuery.of(context).size.width,
+                height: 70,
+                child: CustomRoundedButton(
+                  height: 40,
+                  widthPercentage: 1.0,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  buttonTitle: submitKey,
+                  showBorder: false,
+                  onTap: () {
+                    if (submitAttendanceSubjectState
+                        is SubmitAttendanceSubjectInProgress) {
+                      return;
+                    }
 
-                        if (attendanceReport.isEmpty) {
-                          return;
-                        }
+                    if (attendanceReport.isEmpty) {
+                      return;
+                    }
 
-                        // Remove materi validation
-                        // if (_selectedMateri.isEmpty) {
-                        //   Utils.showSnackBar(
-                        //     message: requiredLearningKey,
-                        //     context: context,
-                        //   );
-                        //   return;
-                        // }
+                    // Remove materi validation
+                    // if (_selectedMateri.isEmpty) {
+                    //   Utils.showSnackBar(
+                    //     message: requiredLearningKey,
+                    //     context: context,
+                    //   );
+                    //   return;
+                    // }
 
-                        context.read<SubmitAttendanceSubjectCubit>().submitSubjectAttendance(
+                    context
+                        .read<SubmitAttendanceSubjectCubit>()
+                        .submitSubjectAttendance(
                           date: _selectedDateTime,
                           classSectionId: _selectedClassSection?.id ?? 0,
                           attendanceReport: attendanceReport,
@@ -377,17 +400,18 @@ class _TeacherAddAttendanceScreenSubjectState extends State<TeacherAddAttendance
                           materi: _selectedMateri,
                           lampiran: _selectedLampiran ?? '',
                         );
-                      },
-                      child: submitAttendanceSubjectState is SubmitAttendanceSubjectInProgress
-                          ? const CustomCircularProgressIndicator(
-                              strokeWidth: 2,
-                              widthAndHeight: 20,
-                            )
-                          : null,
-                    ),
-                  ),
-                );
-              });
+                  },
+                  child: submitAttendanceSubjectState
+                          is SubmitAttendanceSubjectInProgress
+                      ? const CustomCircularProgressIndicator(
+                          strokeWidth: 2,
+                          widthAndHeight: 20,
+                        )
+                      : null,
+                ),
+              ),
+            );
+          });
         }
         return const SizedBox();
       },
@@ -566,8 +590,10 @@ class _TeacherAddAttendanceScreenSubjectState extends State<TeacherAddAttendance
                             width: MediaQuery.of(context).size.width * 0.98,
                             child: TextFormField(
                               controller: _materiController,
-                              enabled: _isWithinTeachingHours, // Disable editing if outside teaching hours
-                              readOnly: !_isWithinTeachingHours, // Make readonly when outside teaching hours
+                              enabled:
+                                  _isWithinTeachingHours, // Disable editing if outside teaching hours
+                              readOnly:
+                                  !_isWithinTeachingHours, // Make readonly when outside teaching hours
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(),
                                 filled: true,
@@ -578,15 +604,20 @@ class _TeacherAddAttendanceScreenSubjectState extends State<TeacherAddAttendance
                                     horizontal: 10, vertical: 15),
                               ),
                               keyboardType: TextInputType.text,
-                              onChanged: _isWithinTeachingHours ? (value) {
-                                // Update _selectedMateri with the new value
-                                setState(() {
-                                  _selectedMateri = value;
-                                });
-                              } : null,
+                              onChanged: _isWithinTeachingHours
+                                  ? (value) {
+                                      // Update _selectedMateri with the new value
+                                      setState(() {
+                                        _selectedMateri = value;
+                                      });
+                                    }
+                                  : null,
                               maxLines: 2,
                               style: TextStyle(
-                                color: _isWithinTeachingHours ? Colors.black : Colors.grey[700], // Adjust text color for readonly state
+                                color: _isWithinTeachingHours
+                                    ? Colors.black
+                                    : Colors.grey[
+                                        700], // Adjust text color for readonly state
                               ),
                               inputFormatters: [
                                 LengthLimitingTextInputFormatter(

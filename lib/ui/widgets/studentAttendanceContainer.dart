@@ -56,8 +56,7 @@ class _StudentAttendanceContainerState
           (index) => (
             status: allAttendanceStatuses[index],
             studentId: widget.studentAttendances[index].studentDetails?.student
-                    ?.userId ??
-                0
+                    ?.userId ?? 0
           ),
         ),
       );
@@ -121,8 +120,7 @@ class _StudentAttendanceContainerState
               absorbing: widget.isReadOnly,
               child: StudentAttendanceItemContainer(
                 studentDetails:
-                    widget.studentAttendances[index].studentDetails ??
-                        StudentDetails.fromJson({}),
+                    widget.studentAttendances[index].studentDetails ?? StudentDetails.fromJson({}),
                 showStatusPicker: widget.isForAddAttendance,
                 isPresent: widget.studentAttendances[index].isPresent(),
                 isSick: widget.studentAttendances[index].isSick(),
@@ -138,8 +136,7 @@ class _StudentAttendanceContainerState
                           (index) => (
                             status: allAttendanceStatuses[index],
                             studentId: widget.studentAttendances[index]
-                                    .studentDetails?.student?.userId ??
-                                0
+                                    .studentDetails?.student?.userId ?? 0
                           ),
                         ),
                       );

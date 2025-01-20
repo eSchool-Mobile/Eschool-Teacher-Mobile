@@ -43,9 +43,17 @@ class SubmitAttendanceSubjectCubit extends Cubit<SubmitAttendanceSubjectState> {
         lampiran: lampiran,
         attendance: attendanceReport
             .map(
-              (attendanceReport) => {
-                "student_id": attendanceReport.studentId,
-                "type": _mapAttendanceStatusToType(attendanceReport.status),
+              (attendanceReport) {
+                print('Mapping attendance report:');
+                print('Student ID: ${attendanceReport.studentId}');
+                print('Original Status: ${attendanceReport.status}');
+                final mappedType = _mapAttendanceStatusToType(attendanceReport.status);
+                print('Mapped Type: $mappedType');
+                
+                return {
+                  "student_id": attendanceReport.studentId,
+                  "type": mappedType,
+                };
               },
             )
             .toList(),

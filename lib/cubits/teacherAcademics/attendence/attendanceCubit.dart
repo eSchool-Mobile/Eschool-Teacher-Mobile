@@ -50,7 +50,7 @@ class AttendanceCubit extends Cubit<AttendanceState> {
         type: type,
       );
 
-      print("API Response: ${result.attendance}");
+      print("API Response1: ${result.attendance}");
 
       emit(
         AttendanceFetchSuccess(
