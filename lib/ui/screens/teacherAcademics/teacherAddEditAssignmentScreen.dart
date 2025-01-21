@@ -78,7 +78,7 @@ class TeacherAddEditAssignmentScreen extends StatefulWidget {
 
 class _TeacherAddEditAssignmentScreenState
     extends State<TeacherAddEditAssignmentScreen> {
-  late ClassSection? _selectedClassSection = widget.selectedClassSection;
+ late  ClassSection? _selectedClassSection = widget.selectedClassSection;
   late TeacherSubject? _selectedSubject = widget.selectedSubject;
 
   //This will determine if need to refresh the previous page
@@ -92,7 +92,7 @@ class _TeacherAddEditAssignmentScreenState
   );
   late final TextEditingController _assignmentDescriptionTextEditingController =
       TextEditingController(
-    text: widget.assignment?.description,
+    text: widget.assignment?.description ?? '', // Add null safety
   );
 
   late final TextEditingController _assignmentPointsTextEditingController =
@@ -122,24 +122,99 @@ class _TeacherAddEditAssignmentScreenState
 
   List<AssignmentFileType> fileTypes = [];
 
-  final TextEditingController _minPointsTextEditingController = TextEditingController();
-  final TextEditingController _startDateTextEditingController = TextEditingController(); // Add this line
-  final TextEditingController _endDateTextEditingController = TextEditingController(); // Add this line
-  final TextEditingController _maxFileSizeTextEditingController = TextEditingController(); // Add this line
+late final TextEditingController _minPointsTextEditingController = TextEditingController(
+  text: widget.assignment?.minPoints != null && widget.assignment!.minPoints != 0 
+      ? widget.assignment!.minPoints.toString()
+      : '',
+);
+final TextEditingController _startDateTextEditingController =
+    TextEditingController(); // Add this line
+final TextEditingController _endDateTextEditingController =
+    TextEditingController(); // Add this line
+late final TextEditingController _maxFileSizeTextEditingController = TextEditingController(
+  text: widget.assignment?.maxFile != null && widget.assignment!.maxFile != 0
+      ? widget.assignment!.maxFile.toString() 
+      : ''
+);
+late final TextEditingController _maxFileTextEditingController = TextEditingController(
+  text: widget.assignment?.maxFile != null && widget.assignment!.maxFile != 0
+      ? widget.assignment!.maxFile.toString()
+      : '',
+);
 
-  DateTime? start_date; // Add this line
- 
-  DateTime? end_date; // Add this line
-  
+  late DateTime? start_date =
+      widget.assignment != null ? widget.assignment!.startDate : null;
+
+  late DateTime? end_date =
+      widget.assignment != null ? widget.assignment!.endDate : null;
+
   String? selectedAnswerType = "dokumen"; // Default to dokumen
 
-  bool _isTextAnswerAllowed = false;
-  bool _isFileAnswerAllowed = false;
+  late bool _isTextAnswerAllowed;
+  late bool _isFileAnswerAllowed;
 
   @override
   void initState() {
     super.initState();
-    _loadFileTypes();
+
+    // Add EditAssignment state listener
+    context.read<EditAssignmentCubit>().stream.listen((state) {
+      if (state is EditAssignmentSuccess) {
+        setState(() {
+          _assignmentNameTextEditingController.text = widget.assignment?.name ?? '';
+        });
+      }
+    });
+
+    // Remove duplicate initialization since it's already initialized as final
+
+    // Initialize dates from existing assignment if editing
+    if (widget.assignment != null) {
+      start_date = widget.assignment!.startDate;
+      end_date = widget.assignment!.endDate;
+      
+      // Update the text controllers with formatted dates
+      _startDateTextEditingController.text = 
+          DateFormat('dd-MM-yyyy').format(widget.assignment!.startDate);
+      _endDateTextEditingController.text = 
+          DateFormat('dd-MM-yyyy').format(widget.assignment!.endDate);
+    }
+
+    // Inisialisasi text controller dengan nilai dari assignment jika ada
+    _startDateTextEditingController.text = widget.assignment != null
+        ? DateFormat('dd-MM-yyyy').format(widget.assignment!.startDate)
+        : '';
+
+    _endDateTextEditingController.text = widget.assignment != null
+        ? DateFormat('dd-MM-yyyy').format(widget.assignment!.endDate)
+        : '';
+
+    if (widget.assignment != null) {
+      _assignmentDescriptionTextEditingController.text =
+          widget.assignment!.description;
+    }
+
+    _isTextAnswerAllowed = widget.assignment?.text == "1";
+    _isFileAnswerAllowed = widget.assignment?.acceptedFile.isNotEmpty ?? false;
+
+    if (_isFileAnswerAllowed && widget.assignment != null) {
+      for (var fileType in fileTypes) {
+        fileType.isSelected = widget.assignment!.acceptedFile
+            .contains(fileType.name.toLowerCase());
+      }
+    }
+
+    _loadFileTypes().then((_) {
+      if (widget.assignment != null) {
+        setState(() {
+          for (var type in fileTypes) {
+            type.isSelected = widget.assignment!.acceptedFile
+                .map((e) => e.toLowerCase())
+                .contains(type.name.toLowerCase());
+          }
+        });
+      }
+    });
     Future.delayed(Duration.zero, () {
       if (mounted) {
         context
@@ -148,6 +223,14 @@ class _TeacherAddEditAssignmentScreenState
                 classSectionId: _selectedClassSection?.id);
       }
     });
+
+    // Initialize file types from saved assignment
+    if (widget.assignment != null) {
+      final savedTypes = widget.assignment!.acceptedFile;
+      fileTypes.forEach((type) {
+        type.isSelected = savedTypes.contains(type.name.toLowerCase());
+      });
+    }
   }
 
   Future<void> _loadFileTypes() async {
@@ -172,8 +255,9 @@ class _TeacherAddEditAssignmentScreenState
     _extraResubmissionDaysTextEditingController.dispose();
     _minPointsTextEditingController.dispose(); // Add this line
     _startDateTextEditingController.dispose(); // Add this line
-    _endDateTextEditingController.dispose(); // Add this line
+    // _endDateTextEditingController.dispose(); // Add this line
     _maxFileSizeTextEditingController.dispose(); // Add this line
+    _maxFileTextEditingController.dispose();
     super.dispose();
   }
 
@@ -201,35 +285,35 @@ class _TeacherAddEditAssignmentScreenState
     }
   }
 
-  Future<void> _selectStartDate(BuildContext context) async { // Add this method
+  Future<void> _selectStartDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: start_date ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
-    if (picked != null && picked != start_date)
+    if (picked != null && picked != start_date) {
       setState(() {
         start_date = picked;
+        _startDateTextEditingController.text = DateFormat('dd-MM-yyyy').format(picked);
       });
+    }
   }
 
- 
-
-  Future<void> _selectEndDate(BuildContext context) async { // Add this method
+  Future<void> _selectEndDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: end_date ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
-    if (picked != null && picked != end_date)
+    if (picked != null && picked != end_date) {
       setState(() {
-       end_date = picked;
+        end_date = picked;
+        _endDateTextEditingController.text = DateFormat('dd-MM-yyyy').format(picked);
       });
+    }
   }
-
-
 
   void showErrorMessage(String errorMessageKey) {
     Utils.showSnackBar(
@@ -301,12 +385,14 @@ class _TeacherAddEditAssignmentScreenState
       showErrorMessage(pleaseSelectTimeKey);
       return;
     }
-    if (start_date == null) { // Add this line
+    if (start_date == null) {
+      // Add this line
       showErrorMessage("Silahkan mengisi Tanggal Penugasan");
       return;
     }
-    
-    if (end_date == null) { // Add this line
+
+    if (end_date == null) {
+      // Add this line
       showErrorMessage("Isi Tanggal Mulai Penugasan.");
       return;
     }
@@ -317,12 +403,12 @@ class _TeacherAddEditAssignmentScreenState
     }
 
     // Get selected file types
-    final selectedFileTypes = _isFileAnswerAllowed 
-      ? fileTypes
-          .where((type) => type.isSelected)
-          .map((type) => type.name)
-          .toList()
-      : [];
+    final selectedFileTypes = _isFileAnswerAllowed
+        ? fileTypes
+            .where((type) => type.isSelected)
+            .map((type) => type.name)
+            .toList()
+        : [];
 
     // Prepare text value
     final textValue = _isTextAnswerAllowed ? "1" : "0";
@@ -338,46 +424,64 @@ class _TeacherAddEditAssignmentScreenState
     }
 
     context.read<CreateAssignmentCubit>().createAssignment(
-      classSectionId: _selectedClassSection?.id ?? 0,
-      classSubjectId: _selectedSubject?.classSubjectId ?? 0,
-      name: _assignmentNameTextEditingController.text.trim(),
-      dateTime:
-          "${DateFormat('dd-MM-yyyy').format(dueDate!).toString()} ${dueTime!.hour}:${dueTime!.minute}",
-      startDate: "${DateFormat('dd-MM-yyyy').format(start_date!).toString()}", // Add this line
-     endDate: "${DateFormat('dd-MM-yyyy').format(end_date!).toString()}", // Add this line
-      extraDayForResubmission:
-          _extraResubmissionDaysTextEditingController.text.trim(),
-      description: _assignmentDescriptionTextEditingController.text.trim(),
-      points: _assignmentPointsTextEditingController.text.trim(),
-      minPoints: _minPointsTextEditingController.text.trim(), // Add this line
-      maxFile: _maxFileSizeTextEditingController.text.trim(), // Add this line
-      resubmission: _allowedReSubmissionOfRejectedAssignment,
-      file: uploadedFiles,
-      acceptedFile: selectedFileTypes.cast<String>(),
-      text: textValue,
-    );
+          classSectionId: _selectedClassSection?.id ?? 0,
+          classSubjectId: _selectedSubject?.classSubjectId ?? 0,
+          name: _assignmentNameTextEditingController.text.trim(),
+          dateTime:
+              "${DateFormat('dd-MM-yyyy').format(dueDate!).toString()} ${dueTime!.hour}:${dueTime!.minute}",
+          startDate:
+              "${DateFormat('dd-MM-yyyy').format(start_date!).toString()}", // Add this line
+          endDate:
+              "${DateFormat('dd-MM-yyyy').format(end_date!).toString()}", // Add this line
+          extraDayForResubmission:
+              _extraResubmissionDaysTextEditingController.text.trim(),
+          description: _assignmentDescriptionTextEditingController.text.trim(),
+          points: _assignmentPointsTextEditingController.text.trim(),
+          minPoints:
+              _minPointsTextEditingController.text.trim(), // Add this line
+          maxFile:
+              _maxFileSizeTextEditingController.text.trim(), // Add this line
+          resubmission: _allowedReSubmissionOfRejectedAssignment,
+          file: uploadedFiles,
+          acceptedFile: selectedFileTypes.cast<String>(),
+          text: textValue,
+        );
   }
 
   void editAssignment() {
     FocusManager.instance.primaryFocus?.unfocus();
     if (_assignmentNameTextEditingController.text.trim().isEmpty) {
       showErrorMessage(pleaseEnterAssignmentNameKey);
+      return;
     }
     if (dueDate == null) {
       showErrorMessage(pleaseSelectDateKey);
+      return;
     }
     if (_assignmentPointsTextEditingController.text.length >= 10) {
-      // showErrorMessage(invalidPointsLengthKey);
       return;
     }
     if (dueTime == null) {
       showErrorMessage(pleaseSelectDateKey);
+      return;
     }
     if (_extraResubmissionDaysTextEditingController.text.trim().isEmpty &&
         _allowedReSubmissionOfRejectedAssignment) {
       showErrorMessage(pleaseEnterExtraDaysForResubmissionKey);
       return;
     }
+    if (start_date == null) {
+      showErrorMessage("Please select start date");
+      return;
+    }
+    if (end_date == null) {
+      showErrorMessage("Please select end date");
+      return;
+    }
+
+    // Format dates properly for API
+    final formattedStartDate = DateFormat('dd-MM-yyyy').format(start_date!);
+    final formattedEndDate = DateFormat('dd-MM-yyyy').format(end_date!);
 
     context.read<EditAssignmentCubit>().editAssignment(
           classSelectionId: _selectedClassSection?.id ?? 0,
@@ -393,8 +497,9 @@ class _TeacherAddEditAssignmentScreenState
           resubmission: _allowedReSubmissionOfRejectedAssignment ? 1 : 0,
           filePaths: uploadedFiles,
           assignmentId: widget.assignment!.id,
-          startDate: _startDateTextEditingController.text.trim(),
-          endDate: _endDateTextEditingController.text.trim(),
+          // Update these lines to use the actual DateTime objects
+          startDate: formattedStartDate,
+          endDate: formattedEndDate,
         );
   }
 
@@ -494,14 +599,14 @@ class _TeacherAddEditAssignmentScreenState
     );
   }
 
-Widget _buildAnswerTypeSelection() {
-  return Card(
-    elevation: 4,
-    color: Theme.of(context).scaffoldBackgroundColor,
-    shape: RoundedRectangleBorder(
+  Widget _buildAnswerTypeSelection() {
+    return Card(
+      elevation: 4,
+      color: Theme.of(context).scaffoldBackgroundColor,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
         side: BorderSide(
-color: Theme.of(context).dividerColor,
+          color: Theme.of(context).dividerColor,
           width: 1,
         ),
       ),
@@ -536,7 +641,6 @@ color: Theme.of(context).dividerColor,
               ],
             ),
             const SizedBox(height: 20),
-
             Row(
               children: [
                 Expanded(
@@ -560,7 +664,8 @@ color: Theme.of(context).dividerColor,
                       value: _isTextAnswerAllowed,
                       activeColor: Theme.of(context).colorScheme.secondary,
                       checkColor: Theme.of(context).colorScheme.background,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 12),
                       onChanged: (value) {
                         setState(() {
                           _isTextAnswerAllowed = value ?? false;
@@ -591,7 +696,8 @@ color: Theme.of(context).dividerColor,
                       value: _isFileAnswerAllowed,
                       activeColor: Theme.of(context).colorScheme.secondary,
                       checkColor: Theme.of(context).colorScheme.background,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 12),
                       onChanged: (value) {
                         setState(() {
                           _isFileAnswerAllowed = value ?? false;
@@ -602,7 +708,6 @@ color: Theme.of(context).dividerColor,
                 ),
               ],
             ),
-
             if (_isFileAnswerAllowed) ...[
               const SizedBox(height: 20),
               Container(
@@ -638,10 +743,11 @@ color: Theme.of(context).dividerColor,
                             width: MediaQuery.of(context).size.width * 0.25,
                             child: Container(
                               margin: EdgeInsets.symmetric(
-                                horizontal: MediaQuery.of(context).size.width * 0.01,
+                                horizontal:
+                                    MediaQuery.of(context).size.width * 0.01,
                               ),
                               decoration: BoxDecoration(
-                                color: fileTypes[index].isSelected 
+                                color: fileTypes[index].isSelected
                                     ? Theme.of(context).colorScheme.surface
                                     : Theme.of(context).colorScheme.background,
                                 borderRadius: BorderRadius.circular(8),
@@ -655,22 +761,27 @@ color: Theme.of(context).dividerColor,
                                   textAlign: TextAlign.left,
                                   style: TextStyle(
                                     fontSize: 13,
-                                    fontWeight: fileTypes[index].isSelected 
-                                        ? FontWeight.w600 
+                                    fontWeight: fileTypes[index].isSelected
+                                        ? FontWeight.w600
                                         : FontWeight.w500,
-                                    color: Theme.of(context).colorScheme.secondary,
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
                                   ),
                                 ),
                                 value: fileTypes[index].isSelected,
-                                activeColor: Theme.of(context).colorScheme.secondary,
-                                checkColor: Theme.of(context).colorScheme.background,
+                                activeColor:
+                                    Theme.of(context).colorScheme.secondary,
+                                checkColor:
+                                    Theme.of(context).colorScheme.background,
                                 dense: true,
                                 visualDensity: VisualDensity.compact,
                                 contentPadding: EdgeInsets.zero,
-                                controlAffinity: ListTileControlAffinity.leading,
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
                                 onChanged: (bool? value) {
                                   setState(() {
-                                    fileTypes[index].isSelected = value ?? false;
+                                    fileTypes[index].isSelected =
+                                        value ?? false;
                                   });
                                 },
                               ),
@@ -798,36 +909,41 @@ color: Theme.of(context).dividerColor,
                           hintTextKey: instructionsKey),
                       Column(
                         children: [
-                           Row(
-                        children: [
-                          Expanded(
-                            child: CustomSelectionDropdownSelectionButton(
-                              onTap: () {
-                                _selectStartDate(context); // Update this line
-                              },
-                              titleKey: start_date != null
-                                  ? DateFormat('dd-MM-yyyy').format(start_date!)
-                                  : "Tanggal di Mulai",
-                              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                            ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: CustomSelectionDropdownSelectionButton(
+                                  onTap: () {
+                                    _selectStartDate(
+                                        context); // Update this line
+                                  },
+                                  titleKey: start_date != null
+                                      ? DateFormat('dd-MM-yyyy')
+                                          .format(start_date!)
+                                      : "Tanggal di Mulai",
+                                  backgroundColor:
+                                      Theme.of(context).scaffoldBackgroundColor,
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 15,
+                              ),
+                              Expanded(
+                                child: CustomSelectionDropdownSelectionButton(
+                                  onTap: () {
+                                    _selectEndDate(context); // Update this line
+                                  },
+                                  titleKey: end_date != null
+                                      ? DateFormat('dd-MM-yyyy')
+                                          .format(end_date!)
+                                      : "Tanggal Berakhir",
+                                  backgroundColor:
+                                      Theme.of(context).scaffoldBackgroundColor,
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(
-                            width: 15,
-                          ),
-                          Expanded(
-                            child: CustomSelectionDropdownSelectionButton(
-                              onTap: () {
-                                _selectEndDate(context); // Update this line
-                              },
-                              titleKey: end_date != null
-                                  ? DateFormat('dd-MM-yyyy').format(end_date!)
-                                  : "Tanggal Berakhir",
-                              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
                             height: 15,
                           ),
                           // Due Date and Due Time
@@ -841,7 +957,8 @@ color: Theme.of(context).dividerColor,
                                   titleKey: dueDate != null
                                       ? Utils.getFormattedDate(dueDate!)
                                       : dueDateKey,
-                                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                                  backgroundColor:
+                                      Theme.of(context).scaffoldBackgroundColor,
                                 ),
                               ),
                               const SizedBox(
@@ -855,7 +972,8 @@ color: Theme.of(context).dividerColor,
                                   titleKey: dueTime != null
                                       ? Utils.getFormattedDayOfTime(dueTime!)
                                       : dueTimeKey,
-                                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                                  backgroundColor:
+                                      Theme.of(context).scaffoldBackgroundColor,
                                 ),
                               ),
                             ],
@@ -876,12 +994,14 @@ color: Theme.of(context).dividerColor,
                           FilteringTextInputFormatter.digitsOnly
                         ],
                       ),
-                     
-                       CustomTextFieldContainer(
+
+                      CustomTextFieldContainer(
                         textEditingController: _minPointsTextEditingController,
                         hintTextKey: "Nilai Syarat Kelulusan",
                         keyboardType: TextInputType.number,
-                        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                        backgroundColor:
+                            Theme.of(context).scaffoldBackgroundColor,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       ),
                       CustomCheckboxContainer(
                         backgroundColor:
@@ -944,11 +1064,16 @@ color: Theme.of(context).dividerColor,
                       const SizedBox(height: 15),
 
                       CustomTextFieldContainer(
-                        textEditingController: _maxFileSizeTextEditingController,
+                        textEditingController:
+                            _maxFileSizeTextEditingController,
                         hintTextKey: "Maximum File Size (MB)",
                         keyboardType: TextInputType.number,
-                        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                        backgroundColor:
+                            Theme.of(context).scaffoldBackgroundColor,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       ),
+
+                      const SizedBox(height: 15),
 
                       const SizedBox(height: 15),
 

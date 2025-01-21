@@ -61,6 +61,8 @@ class AcademicRepository {
     try {
       final result =
           await Api.post(url: Api.getClassesWithTeacherDetails, body: {});
+      print("resultnya");
+      print(result);
       return ((result['data'] ?? []) as List)
           .map((classDetails) =>
               ClassSection.fromJson(Map.from(classDetails ?? {})))

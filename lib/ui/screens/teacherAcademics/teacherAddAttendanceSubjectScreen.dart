@@ -128,7 +128,6 @@ class _TeacherAddAttendanceScreenSubjectState
   }
 
   void getAttendance() {
-    print("FETCHING111");
     context.read<SubjectAttendanceCubit>().fetchSubjectAttendance(
           date: _selectedDateTime,
           classSectionId: _selectedClassSection?.id ?? 0,
@@ -222,8 +221,8 @@ class _TeacherAddAttendanceScreenSubjectState
           return StudentAttendanceContainer(
             studentAttendances: state.studentDetailsList.map((e) {
               // Find matching attendance from previous submission
-              final matchedAttendance = attendance.firstWhereOrNull(
-                  (element) => element.studentId == e.id);
+              final matchedAttendance = attendance
+                  .firstWhereOrNull((element) => element.studentId == e.id);
 
               print("START");
               print(attendance);

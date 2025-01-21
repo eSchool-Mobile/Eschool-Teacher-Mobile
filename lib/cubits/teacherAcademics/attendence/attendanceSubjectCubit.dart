@@ -62,7 +62,7 @@ class SubjectAttendanceCubit extends Cubit<SubjectAttendanceState> {
             'note': a.note
           }).toList()}");
 
-      print("API Response2: ${result.attendance}");
+      print("API Response2: ${result}");
       emit(SubjectAttendanceFetchSuccess(
         attendance: result.attendance,
         isHoliday: result.isHoliday,

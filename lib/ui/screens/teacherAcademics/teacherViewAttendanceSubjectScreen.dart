@@ -1,6 +1,7 @@
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/studentsByClassSectionCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/attendence/attendanceSubjectCubit.dart';
+import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/timeTableSlot.dart';
@@ -25,7 +26,6 @@ import 'package:shimmer/shimmer.dart';
 
 class TeacherViewAttendanceSubjectScreen extends StatefulWidget {
   static Widget getRouteInstance() {
-    //final arguments = Get.arguments as Map<String,dynamic>;
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -36,6 +36,9 @@ class TeacherViewAttendanceSubjectScreen extends StatefulWidget {
           create: (context) => ClassesCubit(),
         ),
         BlocProvider(create: (context) => TeacherMyTimetableCubit()),
+        BlocProvider(
+          create: (context) => ClassSectionsAndSubjectsCubit(),
+        ),
       ],
       child: const TeacherViewAttendanceSubjectScreen(),
     );
@@ -67,6 +70,8 @@ class _TeacherViewAttendanceSubjectScreenState
   bool _isLoading = true;
   bool _isStudentDataLoading = true;
 
+  List<ClassSection> allClasses = [];
+
   @override
   void dispose() {
     _materiController.dispose();
@@ -82,8 +87,13 @@ class _TeacherViewAttendanceSubjectScreenState
       if (mounted) {
         // Load timetable
         context.read<TeacherMyTimetableCubit>().getTeacherMyTimetable();
+        context.read<ClassSectionsAndSubjectsCubit>().getClassSectionsAndSubjects();
       }
     });
+    // Fetch initial data
+    context.read<ClassesCubit>().getClasses();
+    context.read<TeacherMyTimetableCubit>().getTeacherMyTimetable();
+    getClasses();
   }
 
   @override
@@ -164,7 +174,6 @@ class _TeacherViewAttendanceSubjectScreenState
       context.read<SubjectAttendanceCubit>().fetchSubjectAttendance(
             date: _selectedDateTime,
             classSectionId: _selectedClassSection!.id!,
-           
             timetableId: _selectedTimetableId,
           );
     }
@@ -567,56 +576,38 @@ class _TeacherViewAttendanceSubjectScreenState
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 // Filter Kelas
-                                FilterButton(
-                                  onTap: () {
-                                    try {
-                                      var timetableState = context.read<TeacherMyTimetableCubit>().state;
-                                      if (timetableState is TeacherMyTimetableFetchSuccess) {
-                                        final classState = context.read<ClassesCubit>().state;
-                                        if (classState is ClassesFetchSuccess) {
-                                          // Get all available classes
-                                          final allClasses = [
-                                            ...classState.primaryClasses,
-                                            ...timetableState.timeTableSlots
-                                                .where((slot) => slot.day == weekDays[_selectedDateTime.weekday - 1])
-                                                .map((slot) => slot.classSection)
-                                                .whereType<ClassSection>()
-                                                .toSet()
-                                                .toList()
-                                          ];
-
-                                          print("Available classes: ${allClasses.length}");
-
-                                          if (allClasses.isNotEmpty) {
-                                            Utils.showBottomSheet(
-                                              child: FilterSelectionBottomsheet<ClassSection>(
-                                                onSelection: (value) {
-                                                  Get.back();
-                                                  if (_selectedClassSection != value) {
-                                                    setState(() {
-                                                      _selectedClassSection = value;
-                                                      _selectedTimetableId = 0; // Reset timetable selection
-                                                    });
-                                                    getAttendance();
-                                                  }
-                                                },
-                                                selectedValue: _selectedClassSection ?? allClasses.first,
-                                                titleKey: classKey,
-                                                values: allClasses,
-                                              ),
-                                              context: context
-                                            );
-                                          }
-                                        }
+                                BlocConsumer<ClassSectionsAndSubjectsCubit, ClassSectionsAndSubjectsState>(
+                                  listener: (context, state) {
+                                    if (state is ClassSectionsAndSubjectsFetchSuccess) {
+                                      if (_selectedClassSection == null) {
+                                        changeSelectedClassSection(state.classSections.firstOrNull);
                                       }
-                                    } catch (e) {
-                                      print("Error showing class sections: $e");
                                     }
                                   },
-                                  titleKey: _selectedClassSection?.id == null 
-                                      ? classKey 
-                                      : Utils().cleanClassName(_selectedClassSection?.fullName ?? ""),
-                                  width: boxConstraints.maxWidth * (0.48),
+                                  builder: (context, state) {
+                                    return FilterButton(
+                                      onTap: () {
+                                        if (state is ClassSectionsAndSubjectsFetchSuccess) {
+                                          Utils.showBottomSheet(
+                                            child: FilterSelectionBottomsheet<ClassSection>(
+                                              onSelection: (value) {
+                                                changeSelectedClassSection(value!);
+                                                Get.back();
+                                              },
+                                              selectedValue: _selectedClassSection!,
+                                              titleKey: classKey,
+                                              values: state.classSections,
+                                            ),
+                                            context: context
+                                          );
+                                        }
+                                      },
+                                      titleKey: _selectedClassSection?.id == null 
+                                        ? classKey 
+                                        : _selectedClassSection?.name ?? "",
+                                      width: boxConstraints.maxWidth * (0.48),
+                                    );
+                                  },
                                 ),
                                 // Filter Status
                                 FilterButton(
@@ -1038,5 +1029,49 @@ class _TeacherViewAttendanceSubjectScreenState
         ],
       ),
     );
+  }
+
+  String? getClassSectionName(int? classSectionId) {
+    if (classSectionId == null) return null;
+
+    return allClasses
+        .firstWhere((element) => element.id == classSectionId,
+            orElse: () => ClassSection())
+        .fullName;
+  }
+
+  void getClasses() async {
+    try {
+      final classState = context.read<ClassesCubit>().state;
+      final timetableState = context.read<TeacherMyTimetableCubit>().state;
+
+      if (classState is ClassesFetchSuccess &&
+          timetableState is TeacherMyTimetableFetchSuccess) {
+        print(timetableState.timeTableSlots
+            .map((slot) => slot.classSection)
+            .whereType<ClassSection>()
+            .toList());
+
+        setState(() {
+          // Combine classes from timetable slots
+          allClasses = timetableState.timeTableSlots
+              .map((slot) => slot.classSection)
+              .whereType<ClassSection>()
+              .toList();
+        });
+      }
+    } catch (e) {
+      print("Error fetching classes: $e");
+    }
+  }
+
+  void changeSelectedClassSection(ClassSection? classSection) {
+    if (_selectedClassSection != classSection) {
+      setState(() {
+        _selectedClassSection = classSection;
+        _selectedTimetableId = 0;
+      });
+      getAttendance();
+    }
   }
 }

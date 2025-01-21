@@ -260,13 +260,9 @@ class _TeacherTodaysTimetableContainerState
                               ].firstWhere(
                                 (element) =>
                                     element.id == timeTableSlot.classSectionId,
-                                orElse: () => ClassSection(
-                                    id: 0, name: "-", classId: 0),
+                                orElse: () =>
+                                    ClassSection(id: 0, name: "-", classId: 0),
                               );
-
-                              print(
-                                  "Found class section: ${classSection.name} (${classSection.id})");
-                              print("TimeTableSlot: ${timeTableSlot.id}");
 
                               // Cek apakah waktu sudah lewat
                               bool isWithinSlot = isCurrentTimeWithinSlot(
@@ -349,32 +345,84 @@ class _TeacherTodaysTimetableContainerState
                                   timeTableSlot.startTime ?? "");
 
                               return GestureDetector(
-                                onTap: isWithinSlot
-                                    ? () {
-                                        Get.toNamed(Routes
-                                            .teacherAddAttendanceSubjectScreen);
+                                onTap: () {
+                                  if (timeTableSlot.classSectionId != null) {
+                                    final classState =
+                                        context.read<ClassesCubit>().state;
+                                    if (classState is ClassesFetchSuccess) {
+                                      // Temukan bagian kelas dari kelas utama atau kelas lainnya
+                                      final classSection = [
+                                        ...classState.primaryClasses,
+                                        ...classState.classes
+                                      ].firstWhere(
+                                        (element) =>
+                                            element.id ==
+                                            timeTableSlot.classSectionId,
+                                        orElse: () => ClassSection(
+                                            id: 0, name: "-", classId: 0),
+                                      );
+
+                                      // Cek apakah waktu sudah lewat
+                                      bool isWithinSlot =
+                                          isCurrentTimeWithinSlot(
+                                        timeTableSlot.startTime ?? "",
+                                        timeTableSlot.endTime ?? "",
+                                      );
+
+                                      if (isWithinSlot) {
+                                        // Jika masih dalam slot waktu, izinkan absen atau menambah materi
+                                        Get.toNamed(
+                                          Routes
+                                              .teacherAddAttendanceSubjectScreen,
+                                          arguments:
+                                              TeacherAddAttendanceSubjectScreen
+                                                  .buildArguments(
+                                            classSection: classSection,
+                                            timeTableSlot: timeTableSlot,
+                                            isWithinTeachingHours: isWithinSlot,
+                                          ),
+                                        );
+                                      } else {
+                                        // Jika sudah lewat, hanya izinkan melihat jadwal
+                                        Utils.showSnackBar(
+                                          message:
+                                              "Jam mengajar sudah lewat, hanya bisa melihat jadwal.",
+                                          context: context,
+                                        );
+                                        // Navigasi ke halaman untuk melihat jadwal
+                                        Get.toNamed(
+                                          Routes
+                                              .teacherAddAttendanceSubjectScreen,
+                                          arguments:
+                                              TeacherAddAttendanceSubjectScreen
+                                                  .buildArguments(
+                                            classSection: classSection,
+                                            timeTableSlot: timeTableSlot,
+                                            isWithinTeachingHours: isWithinSlot,
+                                          ),
+                                        );
                                       }
-                                    : () {
-                                        if (isBeforeSlot) {
-                                          Utils.showSnackBar(
-                                              message:
-                                                  "Belum masuk jam mengajar",
-                                              context: context);
-                                        }
-                                      },
+                                    }
+                                  } else {
+                                    Utils.showSnackBar(
+                                      message: "Tidak ada ID bagian kelas",
+                                      context: context,
+                                    );
+                                  }
+                                },
                                 child: TimetableSlotContainer(
                                   note: timeTableSlot.note ?? "",
                                   endTime: timeTableSlot.endTime ?? "",
-                                  isForClass: false,
-                                  classSectionName: getClassSectionName(
-                                      timeTableSlot.classSectionId) ?? "-",
                                   startTime: timeTableSlot.startTime ?? "",
                                   subjectName:
                                       timeTableSlot.subject?.name ?? "-",
-                                  backgroundColor: isBeforeSlot
+                                  isForClass: false,
+                                  classSectionName: getClassSectionName(
+                                      timeTableSlot.classSectionId),
+                                  backgroundColor: isWithinSlot
                                       ? Theme.of(context)
                                           .scaffoldBackgroundColor
-                                      : Colors.grey[300]!,
+                                      : Colors.grey[300],
                                 ),
                               );
                             },
