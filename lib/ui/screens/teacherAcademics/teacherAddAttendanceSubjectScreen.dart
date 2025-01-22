@@ -438,242 +438,235 @@ class _TeacherAddAttendanceScreenSubjectState
                     context, 338), // Increased height to accommodate the layout
                 child: LayoutBuilder(
                   builder: (context, boxConstraints) {
-                    return Expanded(
-                      child: Column(
-                        children: [
-                          // Tanggal filter
-                          SizedBox(
-                            height: 40,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                FilterButton(
-                                  onTap: () {},
-                                  titleKey: Utils.formatDate(_selectedDateTime),
-                                  width: boxConstraints.maxWidth *
-                                      0.98, // Full width for the date dropdown
-                                ),
-                              ],
-                            ),
+                    return Column(
+                      children: [
+                        // Tanggal filter
+                        SizedBox(
+                          height: 40,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              FilterButton(
+                                onTap: () {},
+                                titleKey: Utils.formatDate(_selectedDateTime),
+                                width: boxConstraints.maxWidth *
+                                    0.98, // Full width for the date dropdown
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 15),
+                        ),
+                        const SizedBox(height: 15),
 
-                          SizedBox(
-                            height: 40,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                // Filter Kelas
-                                BlocBuilder<TeacherMyTimetableCubit,
-                                    TeacherMyTimetableState>(
-                                  builder: (context, timetableState) {
-                                    if (timetableState
-                                        is TeacherMyTimetableFetchSuccess) {
-                                      final classState =
-                                          context.read<ClassesCubit>().state;
-                                      if (classState is ClassesFetchSuccess) {
-                                        // Get primary classes (wali kelas)
-                                        final primaryClasses =
-                                            classState.primaryClasses;
+                        SizedBox(
+                          height: 40,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // Filter Kelas
+                              BlocBuilder<TeacherMyTimetableCubit,
+                                  TeacherMyTimetableState>(
+                                builder: (context, timetableState) {
+                                  if (timetableState
+                                      is TeacherMyTimetableFetchSuccess) {
+                                    final classState =
+                                        context.read<ClassesCubit>().state;
+                                    if (classState is ClassesFetchSuccess) {
+                                      // Get primary classes (wali kelas)
+                                      final primaryClasses =
+                                          classState.primaryClasses;
 
-                                        // Get classes from timetable
-                                        final classSections = timetableState
-                                            .timeTableSlots
-                                            .where((slot) =>
-                                                slot.day ==
-                                                weekDays[
-                                                    DateTime.now().weekday - 1])
-                                            .map((slot) => slot.classSection)
-                                            .whereType<ClassSection>()
-                                            .toSet()
-                                            .toList();
-
-                                        // Combine primary and timetable classes
-                                        final allClasses = {
-                                          ...primaryClasses,
-                                          ...classSections
-                                        }.toList();
-
-                                        print(
-                                            "Primary Classes: ${primaryClasses.map((e) => '${e.name} (${e.id})')}");
-                                        print(
-                                            "Timetable Classes: ${classSections.map((e) => '${e.name} (${e.id})')}");
-                                        print(
-                                            "All Classes: ${allClasses.map((e) => '${e.name} (${e.id})')}");
-
-                                        // Set default selected class if not already set
-                                        if (_selectedClassSection == null &&
-                                            allClasses.isNotEmpty) {
-                                          _selectedClassSection =
-                                              allClasses.first;
-                                          getAttendance();
-                                          getStudentList();
-                                        }
-
-                                        return FilterButton(
-                                          onTap: () {},
-                                          titleKey:
-                                              _selectedClassSection?.id == null
-                                                  ? classKey
-                                                  : Utils().cleanClassName(
-                                                      _selectedClassSection
-                                                              ?.fullName ??
-                                                          ""),
-                                          width: boxConstraints.maxWidth * 0.48,
-                                        );
-                                      }
-                                    }
-                                    return const SizedBox();
-                                  },
-                                ),
-
-                                // Jadwal Filter
-                                BlocBuilder<TeacherMyTimetableCubit,
-                                    TeacherMyTimetableState>(
-                                  builder: (context, timetableState) {
-                                    if (timetableState
-                                        is TeacherMyTimetableFetchSuccess) {
-                                      // Filter slots based on current day and selected class
-                                      final slots = timetableState
+                                      // Get classes from timetable
+                                      final classSections = timetableState
                                           .timeTableSlots
-                                          .where((element) {
-                                        print(
-                                            "Checking slot: ID=${element.id}, ClassID=${element.classSectionId}, Day=${element.day}");
-                                        return element.day ==
-                                                weekDays[
-                                                    DateTime.now().weekday -
-                                                        1] &&
-                                            element.classSectionId ==
-                                                _selectedClassSection?.id;
-                                      }).toList();
+                                          .where((slot) =>
+                                              slot.day ==
+                                              weekDays[
+                                                  DateTime.now().weekday - 1])
+                                          .map((slot) => slot.classSection)
+                                          .whereType<ClassSection>()
+                                          .toSet()
+                                          .toList();
 
-                                      print("Filtered slots: ${slots.length}");
-                                      print(
-                                          "Selected timetable ID: $_selectedTimeTableId");
-                                      print(
-                                          "Selected class section: ${_selectedClassSection?.id}");
+                                      // Combine primary and timetable classes
+                                      final allClasses = {
+                                        ...primaryClasses,
+                                        ...classSections
+                                      }.toList();
 
-                                      // Add safety check
-                                      if (slots.isEmpty) {
-                                        return FilterButton(
-                                          onTap: () {},
-                                          titleKey: timeTableKey,
-                                          width: boxConstraints.maxWidth * 0.48,
-                                        );
+                                      print(
+                                          "Primary Classes: ${primaryClasses.map((e) => '${e.name} (${e.id})')}");
+                                      print(
+                                          "Timetable Classes: ${classSections.map((e) => '${e.name} (${e.id})')}");
+                                      print(
+                                          "All Classes: ${allClasses.map((e) => '${e.name} (${e.id})')}");
+
+                                      // Set default selected class if not already set
+                                      if (_selectedClassSection == null &&
+                                          allClasses.isNotEmpty) {
+                                        _selectedClassSection =
+                                            allClasses.first;
+                                        getAttendance();
+                                        getStudentList();
                                       }
-
-                                      // Find selected slot with safety
-                                      final selectedSlot = slots.firstWhere(
-                                        (slot) =>
-                                            slot.id == _selectedTimeTableId,
-                                        orElse: () => slots
-                                            .first, // Use first slot if selected not found
-                                      );
 
                                       return FilterButton(
                                         onTap: () {},
-                                        titleKey: _selectedTimeTableId == 0
-                                            ? timeTableKey
-                                            : "${selectedSlot.subject?.name ?? '-'} : ${formatTime(selectedSlot.startTime ?? '')} - ${formatTime(selectedSlot.endTime ?? '')}",
+                                        titleKey:
+                                            _selectedClassSection?.id == null
+                                                ? classKey
+                                                : Utils().cleanClassName(
+                                                    _selectedClassSection
+                                                            ?.fullName ??
+                                                        ""),
                                         width: boxConstraints.maxWidth * 0.48,
                                       );
                                     }
-                                    return const SizedBox();
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 15),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.98,
-                            child: TextFormField(
-                              controller: _materiController,
-                              enabled:
-                                  _isWithinTeachingHours, // Disable editing if outside teaching hours
-                              readOnly:
-                                  !_isWithinTeachingHours, // Make readonly when outside teaching hours
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                filled: true,
-                                fillColor:
-                                    Theme.of(context).colorScheme.surface,
-                                hintText: 'Isi Materi',
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 15),
+                                  }
+                                  return const SizedBox();
+                                },
                               ),
-                              keyboardType: TextInputType.text,
-                              onChanged: _isWithinTeachingHours
-                                  ? (value) {
-                                      // Update _selectedMateri with the new value
+
+                              // Jadwal Filter
+                              BlocBuilder<TeacherMyTimetableCubit,
+                                  TeacherMyTimetableState>(
+                                builder: (context, timetableState) {
+                                  if (timetableState
+                                      is TeacherMyTimetableFetchSuccess) {
+                                    // Filter slots based on current day and selected class
+                                    final slots = timetableState.timeTableSlots
+                                        .where((element) {
+                                      print(
+                                          "Checking slot: ID=${element.id}, ClassID=${element.classSectionId}, Day=${element.day}");
+                                      return element.day ==
+                                              weekDays[
+                                                  DateTime.now().weekday - 1] &&
+                                          element.classSectionId ==
+                                              _selectedClassSection?.id;
+                                    }).toList();
+
+                                    print("Filtered slots: ${slots.length}");
+                                    print(
+                                        "Selected timetable ID: $_selectedTimeTableId");
+                                    print(
+                                        "Selected class section: ${_selectedClassSection?.id}");
+
+                                    // Add safety check
+                                    if (slots.isEmpty) {
+                                      return FilterButton(
+                                        onTap: () {},
+                                        titleKey: timeTableKey,
+                                        width: boxConstraints.maxWidth * 0.48,
+                                      );
+                                    }
+
+                                    // Find selected slot with safety
+                                    final selectedSlot = slots.firstWhere(
+                                      (slot) => slot.id == _selectedTimeTableId,
+                                      orElse: () => slots
+                                          .first, // Use first slot if selected not found
+                                    );
+
+                                    return FilterButton(
+                                      onTap: () {},
+                                      titleKey: _selectedTimeTableId == 0
+                                          ? timeTableKey
+                                          : "${selectedSlot.subject?.name ?? '-'} : ${formatTime(selectedSlot.startTime ?? '')} - ${formatTime(selectedSlot.endTime ?? '')}",
+                                      width: boxConstraints.maxWidth * 0.48,
+                                    );
+                                  }
+                                  return const SizedBox();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 15),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.98,
+                          child: TextFormField(
+                            controller: _materiController,
+                            enabled:
+                                _isWithinTeachingHours, // Disable editing if outside teaching hours
+                            readOnly:
+                                !_isWithinTeachingHours, // Make readonly when outside teaching hours
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface,
+                              hintText: 'Isi Materi',
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 15),
+                            ),
+                            keyboardType: TextInputType.text,
+                            onChanged: _isWithinTeachingHours
+                                ? (value) {
+                                    // Update _selectedMateri with the new value
+                                    setState(() {
+                                      _selectedMateri = value;
+                                    });
+                                  }
+                                : null,
+                            maxLines: 2,
+                            style: TextStyle(
+                              color: _isWithinTeachingHours
+                                  ? Colors.black
+                                  : Colors.grey[
+                                      700], // Adjust text color for readonly state
+                            ),
+                            inputFormatters: [
+                              LengthLimitingTextInputFormatter(
+                                  300), // Limit to 300 characters
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Input file lampiran
+                        SizedBox(
+                          width: boxConstraints.maxWidth *
+                              0.98, // 50% width for text field
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (uploadedFiles.isEmpty)
+                                UploadImageOrFileLimitButton(
+                                  uploadFile: true,
+                                  includeImageFileOnlyAllowedNoteLimit:
+                                      uploadedFiles.isEmpty,
+                                  onTap: () async {
+                                    FilePickerResult? result =
+                                        await FilePicker.platform.pickFiles();
+                                    if (result != null) {
                                       setState(() {
-                                        _selectedMateri = value;
+                                        uploadedFiles.add(result.files.single);
+                                        _selectedLampiran = result.files.single
+                                            .path; // Simpan file path
                                       });
                                     }
-                                  : null,
-                              maxLines: 2,
-                              style: TextStyle(
-                                color: _isWithinTeachingHours
-                                    ? Colors.black
-                                    : Colors.grey[
-                                        700], // Adjust text color for readonly state
-                              ),
-                              inputFormatters: [
-                                LengthLimitingTextInputFormatter(
-                                    300), // Limit to 300 characters
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-
-                          // Input file lampiran
-                          SizedBox(
-                            width: boxConstraints.maxWidth *
-                                0.98, // 50% width for text field
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (uploadedFiles.isEmpty)
-                                  UploadImageOrFileLimitButton(
-                                    uploadFile: true,
-                                    includeImageFileOnlyAllowedNoteLimit:
-                                        uploadedFiles.isEmpty,
-                                    onTap: () async {
-                                      FilePickerResult? result =
-                                          await FilePicker.platform.pickFiles();
-                                      if (result != null) {
-                                        setState(() {
-                                          uploadedFiles
-                                              .add(result.files.single);
-                                          _selectedLampiran = result.files
-                                              .single.path; // Simpan file path
-                                        });
-                                      }
-                                    },
-                                  ),
-                                // User's added study materials
-                                ...List.generate(
-                                    uploadedFiles.length, (index) => index).map(
-                                  (index) => CustomFileContainer(
-                                    backgroundColor: Theme.of(context)
-                                        .scaffoldBackgroundColor,
-                                    onDelete: () {
-                                      setState(() {
-                                        uploadedFiles.removeAt(index);
-                                        if (uploadedFiles.isEmpty) {
-                                          _selectedLampiran =
-                                              null; // Reset file path jika tidak ada file
-                                        }
-                                      });
-                                    },
-                                    title: uploadedFiles[index].name,
-                                  ),
+                                  },
                                 ),
-                              ],
-                            ),
+                              // User's added study materials
+                              ...List.generate(
+                                  uploadedFiles.length, (index) => index).map(
+                                (index) => CustomFileContainer(
+                                  backgroundColor:
+                                      Theme.of(context).scaffoldBackgroundColor,
+                                  onDelete: () {
+                                    setState(() {
+                                      uploadedFiles.removeAt(index);
+                                      if (uploadedFiles.isEmpty) {
+                                        _selectedLampiran =
+                                            null; // Reset file path jika tidak ada file
+                                      }
+                                    });
+                                  },
+                                  title: uploadedFiles[index].name,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     );
                   },
                 ),

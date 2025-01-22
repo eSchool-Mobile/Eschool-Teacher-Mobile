@@ -1,6 +1,7 @@
 import 'package:eschool_saas_staff/data/models/assignment.dart';
 import 'package:eschool_saas_staff/data/repositories/assignmentRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:convert';
 
 abstract class AssignmentState {}
 
@@ -75,7 +76,11 @@ class AssignmentCubit extends Cubit<AssignmentState> {
         classSubjectId: subjectId,
         page: page,
       );
-      print("OKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
+
+      final resultJsonString =
+          const JsonEncoder.withIndent('  ').convert(result);
+      resultJsonString.split('\n').forEach((line) => print(line));
+
       emit(AssignmentsFetchSuccess(
         assignment: result.assignments,
         currentPage: result.currentPage,

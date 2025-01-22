@@ -110,7 +110,8 @@ class Api {
   static String uploadAssignment = "${databaseUrl}teacher/update-assignment";
   static String deleteAssignment = "${databaseUrl}teacher/delete-assignment";
   static String createAssignment = "${databaseUrl}teacher/create-assignment";
-  static String getAssignmentFileTypes = "${databaseUrl}teacher/get-assignment-filetype";
+  static String getAssignmentFileTypes =
+      "${databaseUrl}teacher/get-assignment-filetype";
 
   static String getAnnouncement = "${databaseUrl}teacher/get-announcement";
   static String createAnnouncement = "${databaseUrl}teacher/send-announcement";
@@ -143,6 +144,13 @@ class Api {
 
   static String downloadStudentResult = "${databaseUrl}student-exan-result-pdf";
 
+  // Question Bank APIs
+  static String getQuestionBank = "${databaseUrl}teacher/bank-soal/get";
+  static String getQuestionDetail = "${databaseUrl}teacher/bank-soal/getSoal";
+  static String createQuestion = "${databaseUrl}teacher/bank-soal/create";
+  static String updateQuestion = "${databaseUrl}teacher/bank-soal/update";
+  static String deleteQuestion = "${databaseUrl}teacher/bank-soal/delete";
+
   static Map<String, String> headers({bool useAuthToken = false}) {
     final String jwtToken = AuthRepository.getAuthToken();
     final schoolCode = AuthRepository().schoolCode;
@@ -166,12 +174,12 @@ class Api {
     Function(int, int)? onReceiveProgress,
   }) async {
     try {
-      if (kDebugMode) {
+      // if (kDebugMode) {
         print(url);
         print(body);
-      }
+      // }
       final Dio dio = Dio();
-      
+
       // Enable array format for form data
       final options = Options(
         headers: (useAuthToken ?? true) ? headers() : null,
@@ -217,10 +225,10 @@ class Api {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
-      if (kDebugMode) {
+      // if (kDebugMode) {
         print(url);
         print(queryParameters);
-      }
+      // }
       //
       final Dio dio = Dio();
       final response = await dio.get(url,

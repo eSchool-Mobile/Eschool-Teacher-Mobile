@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/assignment.dart';
 import 'package:eschool_saas_staff/data/models/assignmentFiletype.dart';
@@ -24,7 +26,11 @@ class AssignmentRepository {
       );
 
       print("Dari API le");
-      print(result);
+      // Logging the result for debugging purposes
+      print(
+          'Assignments fetched: ${((result['data']['data'] ?? []) as List).map((e) => Assignment.fromJson(e)).toList()}');
+      print('Current Page: ${result["data"]["current_page"]}');
+      print('Total Page: ${result["data"]["last_page"]}');
 
       return (
         assignments: ((result['data']['data'] ?? []) as List)
@@ -75,6 +81,8 @@ class AssignmentRepository {
     required List<String> acceptedFile,
   }) async {
     try {
+      print("OTEWE HIT");
+
       List<MultipartFile> files = [];
       for (var filePath in filePaths!) {
         files.add(await MultipartFile.fromFile(filePath.path!));
@@ -110,12 +118,31 @@ class AssignmentRepository {
       if (resubmission == 0) {
         body.remove("extra_days_for_resubmission");
       }
-      await Api.post(
+
+      print("REQUEST LE");
+
+      final response = await Api.post(
         body: body,
         url: Api.uploadAssignment,
         useAuthToken: true,
       );
+
+      print("Hasilnya nih le");
+
+      final jsonResponse = response.toString();
+      final jsonResponseIndented =
+          JsonEncoder.withIndent('  ').convert(json.decode(jsonResponse));
+      final jsonResponseLines = jsonResponse.split('\n');
+      for (var line in jsonResponseLines) {
+        print(line);
+      }
+
+      // if (response['error'] != false) {
+      //   throw ApiException(response['message'] ?? 'Unknown error occurred');
+      // }
     } catch (e) {
+      print("Error ternyata le");
+      print(e);
       ApiException(e.toString());
     }
   }

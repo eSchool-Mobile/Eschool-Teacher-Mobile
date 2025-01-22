@@ -483,6 +483,27 @@ late final TextEditingController _maxFileTextEditingController = TextEditingCont
     final formattedStartDate = DateFormat('dd-MM-yyyy').format(start_date!);
     final formattedEndDate = DateFormat('dd-MM-yyyy').format(end_date!);
 
+    print("classSelectionId: ${_selectedClassSection?.id ?? 0}");
+    print("classSubjectId: ${_selectedSubject?.classSubjectId ?? 0}");
+    print("name: ${_assignmentNameTextEditingController.text.trim()}");
+    print("dateTime: ${DateFormat('dd-MM-yyyy HH:mm').format(DateTime(
+        dueDate!.year,
+        dueDate!.month,
+        dueDate!.day,
+        dueTime!.hour,
+        dueTime!.minute
+    ))}");
+    print("extraDayForResubmission: ${_extraResubmissionDaysTextEditingController.text.trim()}");
+    print("description: ${_assignmentDescriptionTextEditingController.text.trim()}");
+    print("points: ${_assignmentPointsTextEditingController.text.trim()}");
+    print("minPoints: ${_minPointsTextEditingController.text.trim()}");
+    print("resubmission: ${_allowedReSubmissionOfRejectedAssignment ? 1 : 0}");
+    print("filePaths: $uploadedFiles");
+    print("assignmentId: ${widget.assignment!.id}");
+    print("startDate: $formattedStartDate");
+    print("endDate: $formattedEndDate");
+
+
     context.read<EditAssignmentCubit>().editAssignment(
           classSelectionId: _selectedClassSection?.id ?? 0,
           classSubjectId: _selectedSubject?.classSubjectId ?? 0,

@@ -61,6 +61,11 @@ import 'package:eschool_saas_staff/ui/screens/teacherTimeTableDetailsScreen.dart
 import 'package:eschool_saas_staff/ui/screens/teachersScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/termsAndConditionScreen.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
+import 'package:eschool_saas_staff/ui/screens/teacherAcademics/questionBankListScreen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/questionBankCubit.dart';
+import 'package:eschool_saas_staff/data/repositories/questionBankRepository.dart';
+import 'package:dio/dio.dart';
 
 // Nama route
 class Routes {
@@ -120,6 +125,12 @@ class Routes {
   static String attendanceRankingScreen = "/attendanceRanking";
   static String teacherManageLessonScreen = "/teacherManageLesson";
   static String teacherManageTopicScreen = "/teacherManageTopic";
+
+  // Question Bank routes
+  static String questionBankScreen = "/questionBank";
+  static String addQuestionScreen = "/addQuestion"; 
+  static String editQuestionScreen = "/editQuestion";
+
   static String teacherManageAssignmentScreen = "/teacherManageAssignment";
   static String teacherManageAssignmentSubmissionScreen =
       "/teacherManageAssignmentSubmissionScreen";
@@ -331,6 +342,13 @@ class Routes {
     GetPage(
       name: chatContacts,
       page: () => ChatContainer.getRouteInstance(),
+    ),
+    GetPage(
+      name: questionBankScreen,
+      page: () => BlocProvider(
+        create: (context) => QuestionBankCubit(QuestionBankRepository()),
+        child: QuestionBankListScreen(),
+      ),
     ),
     GetPage(name: chatScreen, page: () => ChatScreen.getRouteInstance()),
     GetPage(

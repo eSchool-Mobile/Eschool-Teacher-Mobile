@@ -32,10 +32,10 @@ int nextSearchRequestQueryTimeInMilliSeconds = 700;
 int searchRequestPerodicMilliSeconds = 100;
 double topPaddingOfErrorAndLoadingContainer = 150;
 
-String defaultSchoolCode = "SCH20248";
-String defaultEmail = "erinta@smkn9malang.sch.id";
+String defaultSchoolCode = "SCH20247";
+String defaultEmail = "agungcahyono533@gmail.com";
 // String defaultPassword = "081234234234";
-String defaultPassword = "28052024";
+String defaultPassword = "081230093978";
 
 List<String> months = [
   januaryKey,
