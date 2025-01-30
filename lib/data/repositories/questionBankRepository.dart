@@ -1,11 +1,12 @@
-import 'package:eschool_saas_staff/data/models/question.dart';
+import 'package:eschool_saas_staff/data/models/question.dart' hide ApiException;
 import 'package:eschool_saas_staff/data/models/subjectQuestion.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'dart:convert';
+import 'package:dio/dio.dart';
 
 class QuestionBankRepository {
   Future<List<SubjectQuestion>> getQuestionsBySubject(int subjectId) async {
-    try {
+    try { 
       final result = await Api.get(
         url: Api.getQuestionBank,
         queryParameters: {'subject_id': subjectId},
@@ -44,30 +45,86 @@ class QuestionBankRepository {
 
   Future<void> createQuestion(Question question) async {
     try {
-      await Api.post(
+      // Validate options
+      if (question.options.isEmpty) {
+        throw ApiException('At least one option is required');
+      }
+
+      // Validate each option
+      for (var option in question.options) {
+        if (option.text.trim().isEmpty) {
+          throw ApiException('Option text is required');
+        }
+        if (option.feedback.trim().isEmpty) {
+          throw ApiException('Option feedback is required');
+        }
+        if (option.percentage.isEmpty) {
+          throw ApiException('Option percentage is required');
+        }
+      }
+
+      final formData = {
+        'subject_id': int.parse(question.subjectId),
+        'name': question.name.trim(),
+        'type': question.type.toLowerCase(),
+        'default_point': int.parse(question.defaultPoint),
+        'question': question.question.trim(),
+        'note': question.note.trim(),
+        'options': question.options.map((option) => {
+          'text': option.text.trim(),
+          'percentage': int.parse(option.percentage),
+          'feedback': option.feedback.trim()
+        }).toList(),
+      };
+
+      print("Creating question with formData: $formData");
+
+      final result = await Api.post(
         url: Api.createQuestion,
-        body: question.toJson(),
-        useAuthToken: true,
+        body: formData,
+        useAuthToken: true,  
       );
+
+      if (result['error'] == true) {
+        throw ApiException(result['message'] ?? 'Failed to create question');
+      }
     } catch (e) {
+      print("Error creating question: $e");
       throw ApiException(e.toString());
     }
   }
 
-  Future<void> updateQuestion(int questionId, Question question) async {
+  Future<void> updateQuestion(Question question) async {
     try {
-      final body = {
-        'banksoal_id': questionId,
-        ...question.toJson()
+      final requestBody = {
+        'banksoal_id': question.id,
+        'subject_id': int.parse(question.subjectId), // Convert string to int
+        'name': question.name,
+        'type': question.type,
+        'default_point': question.defaultPoint,
+        'question': question.question,
+        'note': question.note,
+        'options': question.options.map((option) => {
+          'text': option.text,
+          'percentage': option.percentage,
+          'feedback': option.feedback
+        }).toList(),
       };
-      
-      await Api.post(
+
+      print('Update Request: $requestBody');
+
+      final result = await Api.post(
         url: Api.updateQuestion,
-        body: body,
+        body: requestBody,
         useAuthToken: true,
       );
+
+      if (result['error'] == true) {
+        throw ApiException(result['message']);
+      }
     } catch (e) {
-      throw ApiException(e.toString());
+      print('Error updating question: $e');
+      rethrow;
     }
   }
 

@@ -57,7 +57,7 @@ class CreateAssignmentCubit extends Cubit<CreateAssignmentState> {
           int.parse(extraDayForResubmission.isEmpty ? "0" : extraDayForResubmission),
       filePaths: file,
       acceptedFile: acceptedFile,
-      text: text, // Pass the text value directly without modification
+      text: text,
     );
     emit(CreateAssignmentSuccess());
   } catch (e) {

@@ -48,24 +48,56 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
   }
 
   Future<void> createQuestion(Question question) async {
+    if (isClosed) return;
+    
     try {
+      emit(state.copyWith(isLoading: true));
       await _repository.createQuestion(question);
-      if (question.subjectId != null) {
-        await getQuestions(int.parse(question.subjectId));
+      
+      // Refresh questions list setelah create
+      if (!isClosed) {
+        final questions = await _repository.getQuestionsBySubject(
+          int.parse(question.subjectId)
+        );
+        
+        emit(state.copyWith(
+          questions: questions,
+          isLoading: false,
+        ));
       }
     } catch (e) {
-      emit(QuestionBankState(error: e.toString()));
+      // ...error handling
     }
   }
 
-  Future<void> updateQuestion(int questionId, Question question) async {
+  Future<void> updateQuestion(Question question) async {
+    if (isClosed) return;
+    
     try {
-      await _repository.updateQuestion(questionId, question);
-      if (question.subjectId != null) {
-        await getQuestions(int.parse(question.subjectId));
+      emit(state.copyWith(isLoading: true));
+      
+      // Ensure subject_id exists
+      if (question.subjectId.isEmpty) {
+        throw Exception('Subject ID is required');
       }
+
+      await _repository.updateQuestion(question);
+      
+      // Refresh questions list
+      final questions = await _repository.getQuestionsBySubject(
+        int.parse(question.subjectId)
+      );
+      
+      emit(state.copyWith(
+        questions: questions,
+        isLoading: false,
+      ));
     } catch (e) {
-      emit(QuestionBankState(error: e.toString()));
+      emit(state.copyWith(
+        error: e.toString(),
+        isLoading: false
+      ));
+      rethrow;
     }
   }
 

@@ -44,15 +44,26 @@ class TeacherEditAssignmentSubmissionScreen extends StatefulWidget {
 class _TeacherEditAssignmentSubmissionScreenState
     extends State<TeacherEditAssignmentSubmissionScreen> {
   bool isAccepting = true;
+  bool isEditingPoints = false;
   late final TextEditingController _feedbackTextEditingController =
       TextEditingController();
   late final TextEditingController _pointsTextEditingController =
       TextEditingController();
+  late final TextEditingController _newPointsController;
+
+  @override
+  void initState() {
+    super.initState();
+    _newPointsController = TextEditingController(
+      text: widget.assignmentSubmission.points.toString()
+    );
+  }
 
   @override
   void dispose() {
     _feedbackTextEditingController.dispose();
     _pointsTextEditingController.dispose();
+    _newPointsController.dispose();
     super.dispose();
   }
 
@@ -68,9 +79,12 @@ class _TeacherEditAssignmentSubmissionScreenState
       alignment: Alignment.bottomCenter,
       child: Container(
         padding: EdgeInsets.all(appContentHorizontalPadding),
-        decoration: BoxDecoration(boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 1, spreadRadius: 1)
-        ], color: Theme.of(context).colorScheme.surface),
+        decoration: BoxDecoration(
+          boxShadow: const [
+            BoxShadow(color: Colors.black12, blurRadius: 1, spreadRadius: 1)
+          ], 
+          color: Theme.of(context).colorScheme.surface,
+        ),
         width: MediaQuery.of(context).size.width,
         height: 70,
         child: BlocConsumer<EditAssignmentSubmissionCubit,
@@ -247,24 +261,55 @@ class _TeacherEditAssignmentSubmissionScreenState
                                         AssignmentSubmissionFilters
                                             .accepted)) &&
                             widget.assignmentSubmission.assignment.points != 0)
-                          CustomTextFieldContainer(
-                            enabled: !isNonEditable,
-                            textEditingController: isNonEditable
-                                ? null
-                                : _pointsTextEditingController,
-                            initialValue: isNonEditable
-                                ? widget.assignmentSubmission.points.toString()
-                                : null,
-                            borderColor: Theme.of(context).colorScheme.primary,
-                            labelTextKey:
-                                "${Utils.getTranslatedLabel(pointsKey)} ${Utils.getTranslatedLabel(outOfKey)} ${widget.assignmentSubmission.assignment.points}",
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly
+                          Row(
+                            children: [
+                              Expanded(
+                                child: CustomTextFieldContainer(
+                                  enabled: isEditingPoints,
+                                  textEditingController: _newPointsController,
+                                  borderColor: Theme.of(context).colorScheme.primary,
+                                  labelTextKey:
+                                      "${Utils.getTranslatedLabel(pointsKey)} ${Utils.getTranslatedLabel(outOfKey)} ${widget.assignmentSubmission.assignment.points}",
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                    LengthLimitingTextInputFormatter(
+                                      widget.assignmentSubmission.assignment.points.toString().length
+                                    ),
+                                  ],
+                                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                                  hintTextKey: pointsKey,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              IconButton(
+                                icon: Icon(
+                                  isEditingPoints ? Icons.save : Icons.edit,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                onPressed: () {
+                                  if (isEditingPoints) {
+                                    // Validate and save points
+                                    final newPoints = int.tryParse(_newPointsController.text) ?? 0;
+                                    if (newPoints > widget.assignmentSubmission.assignment.points) {
+                                      showErrorMessage(cannotGiveMorePointsThenTotalKey);
+                                      return;
+                                    }
+                                    
+                                    context.read<EditAssignmentSubmissionCubit>()
+                                        .updateAssignmentSubmission(
+                                          assignmentSubmissionId: widget.assignmentSubmission.id,
+                                          assignmentSubmissionStatus: widget.assignmentSubmission.status,
+                                          assignmentSubmissionPoints: newPoints.toString(),
+                                          assignmentSubmissionFeedBack: widget.assignmentSubmission.feedback,
+                                        );
+                                  }
+                                  setState(() {
+                                    isEditingPoints = !isEditingPoints;
+                                  });
+                                },
+                              ),
                             ],
-                            backgroundColor:
-                                Theme.of(context).scaffoldBackgroundColor,
-                            hintTextKey: pointsKey,
                           ),
                         CustomTextFieldContainer(
                             enabled: !isNonEditable,
@@ -323,6 +368,27 @@ class _TeacherEditAssignmentSubmissionScreenState
             child: CustomAppbar(
               titleKey: reviewAssignmentSubmissionKey,
             ),
+          ),
+          BlocListener<EditAssignmentSubmissionCubit, EditAssignmentSubmissionState>(
+            listener: (context, state) {
+              if (state is EditAssignmentSubmissionSuccess) {
+                setState(() {
+                  widget.assignmentSubmission.points = int.parse(_newPointsController.text);
+                  isEditingPoints = false;
+                });
+                Utils.showSnackBar(
+                  context: context,
+                  message: "Points updated successfully",
+                );
+              }
+              if (state is EditAssignmentSubmissionFailure) {
+                Utils.showSnackBar(
+                  context: context,
+                  message: "Failed to update points",
+                );
+              }
+            },
+            child: Container(), // your existing Stack content
           ),
         ],
       ),

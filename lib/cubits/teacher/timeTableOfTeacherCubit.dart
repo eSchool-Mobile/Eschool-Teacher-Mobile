@@ -27,7 +27,6 @@ class TimeTableOfTeacherCubit extends Cubit<TimeTableOfTeacherState> {
 
   void getTimeTableOfTeacher({required int teacherId}) async {
     try {
-      print("OKK2");
       emit(TimeTableOfTeacherFetchInProgress());
       emit(TimeTableOfTeacherFetchSuccess(
           timeTableSlots: await _teacherRepository.getTimeTableOfTeacher(

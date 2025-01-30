@@ -12,7 +12,7 @@ class TeacherAcademicsRepository {
         useAuthToken: true,
       );
 
-      print("INIII");
+
 
       print("API Response type: ${response['data'].runtimeType}");
       print("Raw API Response: ${response['data']}");

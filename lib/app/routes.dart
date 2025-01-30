@@ -60,11 +60,14 @@ import 'package:eschool_saas_staff/ui/screens/teacherProfileScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherTimeTableDetailsScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teachersScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/termsAndConditionScreen.dart';
-import 'package:get/get_navigation/src/routes/get_route.dart';
+import 'package:get/get.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/questionBankListScreen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/questionBankCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/questionBankRepository.dart';
+import 'package:eschool_saas_staff/ui/screens/teacherAcademics/addQuestionScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/editQuestionScreen.dart';
+import 'package:eschool_saas_staff/data/models/question.dart';
 import 'package:dio/dio.dart';
 
 // Nama route
@@ -354,7 +357,32 @@ class Routes {
     GetPage(
         name: newChatContactsScreen,
         page: () => NewChatContactsScreen.getRouteInstance()),
-  ];
+    GetPage(
+      name: addQuestionScreen,  
+      page: () => BlocProvider(
+        create: (context) => QuestionBankCubit(QuestionBankRepository()),
+        child: AddQuestionScreen(),
+      ),
+    ),
+   GetPage(
+    name: editQuestionScreen, // Route yang sudah didefinisikan
+    page: () => BlocProvider(
+      create: (context) => QuestionBankCubit(QuestionBankRepository()),
+      child: EditQuestionScreen(
+        question: Get.arguments as Question,
+      ),
+    ),
+  ),
+  GetPage(
+    name: editQuestionScreen,
+    page: () => BlocProvider(
+      create: (context) => QuestionBankCubit(QuestionBankRepository()),
+      child: EditQuestionScreen(
+        question: Get.arguments as Question,
+      ),
+    ),
+  ),
+];
 
   // /[This will check if user is login or not. If user is login then navigate to target screen]
   // /[If user is not login then it will redirect user to login screen]

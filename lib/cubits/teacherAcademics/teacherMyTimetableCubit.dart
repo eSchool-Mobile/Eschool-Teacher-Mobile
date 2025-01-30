@@ -35,7 +35,7 @@ class TeacherMyTimetableCubit extends Cubit<TeacherMyTimetableState> {
     try {
       emit(TeacherMyTimetableFetchInProgress());
 
-      print("OKK3");
+
 
       final slots = // bukan ini
           await _teacherAcademicsRepository.getTeacherTimetableByClassSection(
@@ -66,7 +66,7 @@ class TeacherMyTimetableCubit extends Cubit<TeacherMyTimetableState> {
 
       // Debug logs
 
-      print("DOKSLI ASELI");
+
       String jsonString = JsonEncoder.withIndent('  ').convert(slots);
 
       List<String> lines = jsonString.split('\n');

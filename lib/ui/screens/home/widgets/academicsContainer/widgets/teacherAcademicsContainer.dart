@@ -121,13 +121,13 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer> {
                     onTap: () {
                       Get.toNamed(Routes.teacherManageTopicScreen);
                     }),
-                CustomMenuTile(
-                    iconImageName: "question_bank.svg",
-                    titleKey: "Question Bank",
-                    onTap: () {
-                      print("Navigating to Question Bank"); // Add debug print
-                      Get.toNamed(Routes.questionBankScreen);
-                    }),
+                // CustomMenuTile(
+                //     iconImageName: "question_bank.svg",
+                //     titleKey: "Question Bank",
+                //     onTap: () {
+                //       print("Navigating to Question Bank"); // Add debug print
+                //       Get.toNamed(Routes.questionBankScreen);
+                //     }),
               ]),
             if (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
                 moduleId: assignmentManagementModuleId.toString()))

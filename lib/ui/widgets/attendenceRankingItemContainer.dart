@@ -77,10 +77,7 @@ class _AttendanceRankingItemContainerState
               width: boxConstraints.maxWidth * (0.18),
               child: CustomTextContainer(
                 textAlign: TextAlign.center,
-                textKey: (widget.topStudents.point != null &&
-                        double.parse(widget.topStudents.point!) == 0.0)
-                    ? "0"
-                    : widget.topStudents.point?.toString() ?? "-",
+                textKey: widget.topStudents.point?.toString() ?? "-",
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                     fontSize: Utils.getScaledValue(context, 15),

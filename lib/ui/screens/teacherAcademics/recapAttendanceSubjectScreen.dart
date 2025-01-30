@@ -81,7 +81,7 @@ class _RecapAttendanceSubjectScreenState
 
     final encodedEmail = Uri.encodeComponent(email!);
 
-    final url = Uri.parse('https://eschbeta.techflow.my.id/recap-download'
+    final url = Uri.parse('https://eschool.ac.id/recap-download'
         // '_token=$token'
         '?school_id=$schoolId'
         '&class_id=$classId'

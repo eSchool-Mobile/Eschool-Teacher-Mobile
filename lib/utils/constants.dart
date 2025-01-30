@@ -130,22 +130,25 @@ enum StudentListStatus { all, active, inactive }
 enum StudentAttendanceStatus { absent, present, sick, permission, alpa }
 
 StudentAttendanceStatus getStudentAttendanceStatusFromValue(int status) {
+  print('Getting attendance status for value: $status');
+  
+  StudentAttendanceStatus result;
   if (status == 0) {
-    return StudentAttendanceStatus.absent;
+    result = StudentAttendanceStatus.absent;
+  } else if (status == 1) {
+    result = StudentAttendanceStatus.present;
+  } else if (status == 2) {
+    result = StudentAttendanceStatus.sick;
+  } else if (status == 3) {
+    result = StudentAttendanceStatus.permission;
+  } else if (status == 4) {
+    result = StudentAttendanceStatus.alpa;
+  } else {
+    result = StudentAttendanceStatus.absent;
   }
-  if (status == 1) {
-    return StudentAttendanceStatus.present;
-  }
-  if (status == 2) {
-    return StudentAttendanceStatus.sick;
-  }
-  if (status == 3) {
-    return StudentAttendanceStatus.permission;
-  }
-  if (status == 4) {
-    return StudentAttendanceStatus.alpa;
-  }
-  return StudentAttendanceStatus.absent;
+  
+  print('Attendance status resolved to: ${result.toString().split('.').last}');
+  return result;
 }
 
 String getStudentAttendanceStatusKey(

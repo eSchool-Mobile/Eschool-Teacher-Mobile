@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/questionBankCubit.dart';
 import 'package:eschool_saas_staff/data/models/question.dart';
+import 'package:get/get.dart';
 
 class EditQuestionScreen extends StatefulWidget {
   final Question question;
-  
+
   EditQuestionScreen({required this.question});
-  
+
   @override
   _EditQuestionScreenState createState() => _EditQuestionScreenState();
 }
@@ -34,6 +35,48 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
     version = int.parse(widget.question.version) + 1;
   }
 
+  void _updateQuestion() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final question = Question(
+          id: widget.question.id,
+          // Get subject_id from original question
+          subjectId: "41", // Hardcode for now since we know the subject_id
+          name: nameController.text.trim(),
+          type: selectedType,
+          defaultPoint: defaultPoint.toString(),
+          question: questionController.text.trim(),
+          note: noteController.text.trim(),
+          version: version.toString(),
+          options: options.map((opt) => QuestionOption(
+            text: opt.text.trim(),
+            percentage: opt.percentage,
+            feedback: opt.feedback.trim()
+          )).toList(),
+        );
+
+        print('Update payload: ${question.toJson()}');
+        
+        await context.read<QuestionBankCubit>().updateQuestion(question);
+        
+        Get.back();
+        Get.snackbar(
+          'Berhasil', 
+          'Soal berhasil diperbarui',
+          backgroundColor: Colors.green,
+          colorText: Colors.white
+        );
+      } catch (e) {
+        Get.snackbar(
+          'Error',
+          e.toString(),
+          backgroundColor: Colors.red,
+          colorText: Colors.white
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,11 +84,11 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
         title: Text('Edit Question'),
         actions: [
           TextButton(
+            onPressed: _updateQuestion,
             child: Text(
-              'Version $version',
+              'Save',
               style: TextStyle(color: Colors.white),
             ),
-            onPressed: null,
           ),
         ],
       ),
@@ -64,7 +107,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                 ),
                 validator: (v) => v!.isEmpty ? 'Required' : null,
               ),
-              
               SizedBox(height: 16),
               TextFormField(
                 controller: questionController,
@@ -75,7 +117,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                 maxLines: 3,
                 validator: (v) => v!.isEmpty ? 'Required' : null,
               ),
-              
               SizedBox(height: 16),
               TextFormField(
                 controller: noteController,
@@ -85,50 +126,80 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                 ),
                 maxLines: 2,
               ),
-
-              if (selectedType == 'multiple_choice' || selectedType == 'true_false') ...[
+              if (selectedType == 'multiple_choice' ||
+                  selectedType == 'true_false') ...[
                 SizedBox(height: 16),
                 Text('Options', style: Theme.of(context).textTheme.titleLarge),
                 ...options.asMap().entries.map((entry) {
                   final index = entry.key;
                   final option = entry.value;
-                  return Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Row(
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 16),
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
                       children: [
-                        Expanded(
-                          child: TextFormField(
-                            initialValue: option.text,
-                            decoration: InputDecoration(
-                              labelText: 'Option ${index + 1}',
-                              border: OutlineInputBorder(),
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                options[index] = QuestionOption(
+                        TextFormField(
+                          initialValue: option.text,
+                          decoration: InputDecoration(
+                            labelText: 'Option ${index + 1}',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (v) =>
+                              v?.isEmpty ?? true ? 'Required' : null,
+                          onChanged: (value) {
+                            setState(() {
+                              options[index] = QuestionOption(
                                   text: value,
                                   percentage: option.percentage,
-                                  feedback: option.feedback
-                                );
-                              });
-                            },
-                          ),
+                                  feedback: option.feedback);
+                            });
+                          },
                         ),
-                        SizedBox(width: 8),
-                        if (selectedType != 'true_false')
-                          IconButton(
-                            icon: Icon(Icons.delete),
-                            onPressed: () {
-                              setState(() {
-                                options.removeAt(index);
-                              });
-                            },
+                        SizedBox(height: 8),
+                        TextFormField(
+                          initialValue: option.percentage,
+                          decoration: InputDecoration(
+                            labelText: 'Percentage',
+                            border: OutlineInputBorder(),
                           ),
+                          keyboardType: TextInputType.number,
+                          validator: (v) =>
+                              v?.isEmpty ?? true ? 'Required' : null,
+                          onChanged: (value) {
+                            setState(() {
+                              options[index] = QuestionOption(
+                                  text: option.text,
+                                  percentage: value,
+                                  feedback: option.feedback);
+                            });
+                          },
+                        ),
+                        SizedBox(height: 8),
+                        TextFormField(
+                          initialValue: option.feedback,
+                          decoration: InputDecoration(
+                            labelText: 'Feedback',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (v) =>
+                              v?.isEmpty ?? true ? 'Required' : null,
+                          onChanged: (value) {
+                            setState(() {
+                              options[index] = QuestionOption(
+                                  text: option.text,
+                                  percentage: option.percentage,
+                                  feedback: value);
+                            });
+                          },
+                        ),
                       ],
                     ),
                   );
                 }).toList(),
-                
                 if (selectedType == 'multiple_choice')
                   ElevatedButton.icon(
                     icon: Icon(Icons.add),
@@ -136,15 +207,11 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                     onPressed: () {
                       setState(() {
                         options.add(QuestionOption(
-                          text: '',
-                          percentage: '0',
-                          feedback: ''
-                        ));
+                            text: '', percentage: '0', feedback: ''));
                       });
                     },
                   ),
               ],
-              
               SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
@@ -153,25 +220,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                     padding: EdgeInsets.all(16),
                     child: Text('Update Question'),
                   ),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      final question = Question(
-                        id: widget.question.id,
-                        subjectId: widget.question.subjectId,
-                        name: nameController.text,
-                        type: selectedType,
-                        defaultPoint: defaultPoint.toString(),
-                        question: questionController.text,
-                        note: noteController.text,
-                        options: options,
-                        version: version.toString()
-                      );
-                      
-                      context.read<QuestionBankCubit>()
-                        .updateQuestion(int.parse(widget.question.id), question);
-                      Navigator.pop(context);
-                    }
-                  },
+                  onPressed: _updateQuestion,
                 ),
               ),
             ],

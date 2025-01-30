@@ -72,7 +72,7 @@ class _TeacherAddAttendanceScreenState
   }
 
   void getAttendance() {
-    print("FETCHING222");
+
     context
         .read<AttendanceCubit>()
         .fetchAttendance(

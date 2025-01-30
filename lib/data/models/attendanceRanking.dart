@@ -40,8 +40,8 @@ class TopStudents {
   final String? className;
   final String? studentName;
   final int? studentId;
-  final String? jumlahJpSum;
-  final String? point;
+  final dynamic jumlahJpSum; // Changed from String? to dynamic
+  final dynamic point; // Changed from String? to dynamic
 
   TopStudents({
     this.rank,
@@ -58,8 +58,8 @@ class TopStudents {
       className: json['class'] as String?,
       studentName: json['student_name'] as String?,
       studentId: json['student_id'] as int?,
-      jumlahJpSum: json['jumlah_jp_sum'] as String?,
-      point: json['point'] as String?,
+      jumlahJpSum: json['jumlah_jp_sum']?.toString(), // Convert to String
+      point: json['point']?.toString(), // Convert to String
     );
   }
 }
@@ -69,8 +69,8 @@ class AllStudents {
   final String? studentName;
   final String? classLevel;
   final String? className;
-  final String? jumlahJpSum;
-  final String? point;
+  final dynamic jumlahJpSum; // Changed from String? to dynamic
+  final dynamic point; // Changed from String? to dynamic
 
   AllStudents({
     this.studentId,
@@ -87,8 +87,8 @@ class AllStudents {
       studentName: json['student_name'] as String?,
       classLevel: json['class_level'] as String?,
       className: json['class'] as String?,
-      jumlahJpSum: json['jumlah_jp_sum'] as String?,
-      point: json['point'] as String?,
+      jumlahJpSum: json['jumlah_jp_sum']?.toString(), // Convert to String
+      point: json['point']?.toString(), // Convert to String
     );
   }
 }

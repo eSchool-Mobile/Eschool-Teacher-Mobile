@@ -19,6 +19,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+// 1. Tambahkan enum untuk status waktu
+enum TimeSlotStatus {
+  before,
+  during,
+  after
+}
+
 class TeacherTodaysTimetableContainer extends StatefulWidget {
   const TeacherTodaysTimetableContainer({super.key});
 
@@ -150,6 +157,26 @@ class _TeacherTodaysTimetableContainerState
     return now.isBefore(todayStart);
   }
 
+  // 2. Tambahkan fungsi untuk mendapatkan status waktu
+  TimeSlotStatus getTimeSlotStatus(String startTime, String endTime) {
+    DateTime now = DateTime.now();
+    DateTime start = DateFormat('HH:mm:ss').parse(startTime);
+    DateTime end = DateFormat('HH:mm:ss').parse(endTime);
+
+    DateTime todayStart = DateTime(
+        now.year, now.month, now.day, start.hour, start.minute, start.second);
+    DateTime todayEnd = DateTime(
+        now.year, now.month, now.day, end.hour, end.minute, end.second);
+
+    if (now.isBefore(todayStart)) {
+      return TimeSlotStatus.before;
+    } else if (now.isAfter(todayEnd)) {
+      return TimeSlotStatus.after;
+    } else {
+      return TimeSlotStatus.during;
+    }
+  }
+
   Widget _viewMoreViewLessContainer(
       {required bool isExpanded, required Function() onTap}) {
     return InkWell(
@@ -198,7 +225,7 @@ class _TeacherTodaysTimetableContainerState
     return BlocBuilder<TeacherMyTimetableCubit, TeacherMyTimetableState>(
       builder: (context, state) {
         if (state is TeacherMyTimetableFetchSuccess) {
-          print("START");
+
 
           final slots = state.timeTableSlots.where((element) {
             bool isSameDay =
@@ -217,7 +244,6 @@ class _TeacherTodaysTimetableContainerState
             return isSameDay;
           }).toList();
 
-          print("END");
 
           if (slots.isEmpty) {
             return const SizedBox();
@@ -253,7 +279,6 @@ class _TeacherTodaysTimetableContainerState
                             final classState =
                                 context.read<ClassesCubit>().state;
                             if (classState is ClassesFetchSuccess) {
-                              // Temukan bagian kelas dari kelas utama atau kelas lainnya
                               final classSection = [
                                 ...classState.primaryClasses,
                                 ...classState.classes
@@ -264,41 +289,46 @@ class _TeacherTodaysTimetableContainerState
                                     ClassSection(id: 0, name: "-", classId: 0),
                               );
 
-                              // Cek apakah waktu sudah lewat
-                              bool isWithinSlot = isCurrentTimeWithinSlot(
+                              TimeSlotStatus status = getTimeSlotStatus(
                                 timeTableSlot.startTime ?? "",
                                 timeTableSlot.endTime ?? "",
                               );
 
-                              if (isWithinSlot) {
-                                // Jika masih dalam slot waktu, izinkan absen atau menambah materi
-                                Get.toNamed(
-                                  Routes.teacherAddAttendanceSubjectScreen,
-                                  arguments: TeacherAddAttendanceSubjectScreen
-                                      .buildArguments(
-                                    classSection: classSection,
-                                    timeTableSlot: timeTableSlot,
-                                    isWithinTeachingHours: isWithinSlot,
-                                  ),
-                                );
-                              } else {
-                                // Jika sudah lewat, hanya izinkan melihat jadwal
-                                Utils.showSnackBar(
-                                  message:
-                                      "Jam mengajar sudah lewat, hanya bisa melihat jadwal.",
-                                  context: context,
-                                );
-                                // Navigasi ke halaman untuk melihat jadwal
-                                Get.toNamed(
-                                  Routes.teacherAddAttendanceSubjectScreen,
-                                  arguments: TeacherAddAttendanceSubjectScreen
-                                      .buildArguments(
-                                    classSection: classSection,
-                                    timeTableSlot: timeTableSlot,
-                                    isWithinTeachingHours: isWithinSlot,
-                                  ),
-                                );
+                              switch (status) {
+                                case TimeSlotStatus.before:
+                                  Utils.showSnackBar(
+                                    message: "Anda belum memasuki jam pelajaran.",
+                                    context: context,
+                                  );
+                                  break;
+                                case TimeSlotStatus.after:
+                                  Utils.showSnackBar(
+                                    message: "Jam mengajar sudah lewat, hanya bisa melihat jadwal.",
+                                    context: context,
+                                  );
+                                  break;
+                                case TimeSlotStatus.during:
+                                  // Lanjutkan ke halaman pengisian
+                                  Get.toNamed(
+                                    Routes.teacherAddAttendanceSubjectScreen,
+                                    arguments: TeacherAddAttendanceSubjectScreen.buildArguments(
+                                      classSection: classSection,
+                                      timeTableSlot: timeTableSlot,
+                                      isWithinTeachingHours: true,
+                                    ),
+                                  );
+                                  return;
                               }
+
+                              // Navigasi ke mode view-only untuk status before dan after
+                              Get.toNamed(
+                                Routes.teacherAddAttendanceSubjectScreen,
+                                arguments: TeacherAddAttendanceSubjectScreen.buildArguments(
+                                  classSection: classSection,
+                                  timeTableSlot: timeTableSlot,
+                                  isWithinTeachingHours: false,
+                                ),
+                              );
                             }
                           } else {
                             Utils.showSnackBar(
@@ -350,7 +380,6 @@ class _TeacherTodaysTimetableContainerState
                                     final classState =
                                         context.read<ClassesCubit>().state;
                                     if (classState is ClassesFetchSuccess) {
-                                      // Temukan bagian kelas dari kelas utama atau kelas lainnya
                                       final classSection = [
                                         ...classState.primaryClasses,
                                         ...classState.classes
@@ -362,46 +391,46 @@ class _TeacherTodaysTimetableContainerState
                                             id: 0, name: "-", classId: 0),
                                       );
 
-                                      // Cek apakah waktu sudah lewat
-                                      bool isWithinSlot =
-                                          isCurrentTimeWithinSlot(
+                                      TimeSlotStatus status = getTimeSlotStatus(
                                         timeTableSlot.startTime ?? "",
                                         timeTableSlot.endTime ?? "",
                                       );
 
-                                      if (isWithinSlot) {
-                                        // Jika masih dalam slot waktu, izinkan absen atau menambah materi
-                                        Get.toNamed(
-                                          Routes
-                                              .teacherAddAttendanceSubjectScreen,
-                                          arguments:
-                                              TeacherAddAttendanceSubjectScreen
-                                                  .buildArguments(
-                                            classSection: classSection,
-                                            timeTableSlot: timeTableSlot,
-                                            isWithinTeachingHours: isWithinSlot,
-                                          ),
-                                        );
-                                      } else {
-                                        // Jika sudah lewat, hanya izinkan melihat jadwal
-                                        Utils.showSnackBar(
-                                          message:
-                                              "Jam mengajar sudah lewat, hanya bisa melihat jadwal.",
-                                          context: context,
-                                        );
-                                        // Navigasi ke halaman untuk melihat jadwal
-                                        Get.toNamed(
-                                          Routes
-                                              .teacherAddAttendanceSubjectScreen,
-                                          arguments:
-                                              TeacherAddAttendanceSubjectScreen
-                                                  .buildArguments(
-                                            classSection: classSection,
-                                            timeTableSlot: timeTableSlot,
-                                            isWithinTeachingHours: isWithinSlot,
-                                          ),
-                                        );
+                                      switch (status) {
+                                        case TimeSlotStatus.before:
+                                          Utils.showSnackBar(
+                                            message: "Anda belum memasuki jam pelajaran.",
+                                            context: context,
+                                          );
+                                          break;
+                                        case TimeSlotStatus.after:
+                                          Utils.showSnackBar(
+                                            message: "Jam mengajar sudah lewat, hanya bisa melihat jadwal.",
+                                            context: context,
+                                          );
+                                          break;
+                                        case TimeSlotStatus.during:
+                                          // Lanjutkan ke halaman pengisian
+                                          Get.toNamed(
+                                            Routes.teacherAddAttendanceSubjectScreen,
+                                            arguments: TeacherAddAttendanceSubjectScreen.buildArguments(
+                                              classSection: classSection,
+                                              timeTableSlot: timeTableSlot,
+                                              isWithinTeachingHours: true,
+                                            ),
+                                          );
+                                          return;
                                       }
+
+                                      // Navigasi ke mode view-only untuk status before dan after
+                                      Get.toNamed(
+                                        Routes.teacherAddAttendanceSubjectScreen,
+                                        arguments: TeacherAddAttendanceSubjectScreen.buildArguments(
+                                          classSection: classSection,
+                                          timeTableSlot: timeTableSlot,
+                                          isWithinTeachingHours: false,
+                                        ),
+                                      );
                                     }
                                   } else {
                                     Utils.showSnackBar(

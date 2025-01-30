@@ -143,6 +143,7 @@ class Api {
   //-------------
 
   static String downloadStudentResult = "${databaseUrl}student-exan-result-pdf";
+  static String getTeacherSubjectId = "${databaseUrl}teacher/bank-soal/getTeacherSubject";
 
   // Question Bank APIs
   static String getQuestionBank = "${databaseUrl}teacher/bank-soal/get";
@@ -155,9 +156,9 @@ class Api {
     final String jwtToken = AuthRepository.getAuthToken();
     final schoolCode = AuthRepository().schoolCode;
 
-    if (kDebugMode) {
-      print({"Authorization": "Bearer $jwtToken", "school_code": schoolCode});
-    }
+    print("JWT Token: ${AuthRepository.getAuthToken()}");
+    print("School Code: ${AuthRepository().schoolCode}");
+
     return {
       "Authorization": "Bearer $jwtToken",
       "school_code": schoolCode,
@@ -173,7 +174,7 @@ class Api {
     Function(int, int)? onSendProgress,
     Function(int, int)? onReceiveProgress,
   }) async {
-    try {
+  try {
       // if (kDebugMode) {
         print(url);
         print(body);
@@ -198,11 +199,20 @@ class Api {
         onSendProgress: onSendProgress,
         options: options,
       );
-
-      if (bool.parse(response.data['error'].toString())) {
+            if (bool.parse(response.data['error'].toString())) {
         throw ApiException(response.data['message'].toString());
       }
-      return Map.from(response.data);
+
+      print("Response Status: ${response.statusCode}");
+      print("Response Data: ${response.data}");
+      print("Response Headers: ${response.headers}");
+      print("Response Status Code: ${response.statusCode}");
+
+      if (response.data['error'] == true) {
+        throw ApiException(response.data['message']);
+      }
+
+     return Map.from(response.data);
     } on DioException catch (e) {
       if (kDebugMode) {
         print(e.response?.data);

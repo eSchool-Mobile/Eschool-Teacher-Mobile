@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/leaveDetails.dart';
 import 'package:eschool_saas_staff/data/models/leaveRequest.dart';
@@ -83,6 +85,16 @@ class LeaveRepository {
         "staff_id": userId,
         "month": monthNumber
       });
+
+      final prettyJson = JsonEncoder.withIndent('  ').convert(result);
+
+      // Memecah JSON menjadi baris-baris
+      final lines = prettyJson.split('\n');
+
+      // Mencetak setiap baris
+      for (final line in lines) {
+        print(line);
+      }
 
       return (
         leaves: ((result['data']['leave_details'] ?? []) as List)

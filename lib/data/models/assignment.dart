@@ -27,7 +27,7 @@ class Assignment {
     required this.text,
     required this.acceptedFile,
   });
-  
+
   final int id;
   final int classSectionId;
   final int subjectId;
@@ -50,15 +50,15 @@ class Assignment {
   final List<String> acceptedFile;
 
   factory Assignment.fromJson(Map<String, dynamic> json) {
-
     return Assignment(
       id: json['id'] ?? 0,
       classSectionId: json['class_section_id'] ?? 0,
       subjectId: json['subject_id'] ?? 0,
       name: json['name'] ?? "",
-      description: json["description"] ?? "",
+      description: json["instructions"] ?? "",
       dueDate: DateTime.parse(json['due_date'] ?? DateTime.now().toString()),
-      startDate: DateTime.parse(json['start_date'] ?? DateTime.now().toString()),
+      startDate:
+          DateTime.parse(json['start_date'] ?? DateTime.now().toString()),
       endDate: DateTime.parse(json['end_date'] ?? DateTime.now().toString()),
       points: json["points"] ?? 0,
       minPoints: json["min_points"] ?? 0,
@@ -73,7 +73,7 @@ class Assignment {
           .toList(),
       subject: Subject.fromJson(json['subject'] ?? {}),
       text: json['text']?.toString() ?? "0", // Convert to String
-      acceptedFile: List<String>.from(json['accepted_file'] ?? []),
+      acceptedFile: List<String>.from(json['filetypes'] ?? []),
     );
   }
 }

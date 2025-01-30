@@ -30,17 +30,16 @@ class AssignmentsFetchSuccess extends AssignmentState {
     final bool? newFetchMoreAssignmentsInProgress,
   }) {
     print("assignment:${newAssignment ?? assignment}");
-    print("OK1");
+
     print("totalPage:${newTotalPage ?? totalPage}");
-    print("OK2");
+
     print("currentPage:${newCurrentPage ?? currentPage}");
-    print("OK3");
+
     print(
         "moreAssignmentsFetchError:${newMoreAssignmentsFetchError ?? moreAssignmentsFetchError}");
-    print("OK4");
+
     print(
         "fetchMoreAssignmentsInProgress:${newFetchMoreAssignmentsInProgress ?? fetchMoreAssignmentsInProgress}");
-    print("OK5");
 
     return AssignmentsFetchSuccess(
       assignment: newAssignment ?? assignment,
@@ -77,9 +76,7 @@ class AssignmentCubit extends Cubit<AssignmentState> {
         page: page,
       );
 
-      final resultJsonString =
-          const JsonEncoder.withIndent('  ').convert(result);
-      resultJsonString.split('\n').forEach((line) => print(line));
+      print("ASELI DEPOK");
 
       emit(AssignmentsFetchSuccess(
         assignment: result.assignments,
@@ -117,13 +114,13 @@ class AssignmentCubit extends Cubit<AssignmentState> {
             .copyWith(newFetchMoreAssignmentsInProgress: true),
       );
 
-      print("OKOEYYYYYYYYYYYYYYYYYYYYYYYYY");
-
       final fetchMoreAssignment = await _assignmentRepository.fetchAssignment(
         classSectionId: classSectionId,
         classSubjectId: classSubjectId,
         page: (state as AssignmentsFetchSuccess).currentPage + 1,
       );
+
+      print("ASELI NGAWI");
 
       final currentState = state as AssignmentsFetchSuccess;
 

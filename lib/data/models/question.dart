@@ -1,5 +1,10 @@
 import 'dart:convert';
 
+class ApiException implements Exception {
+  final String message;
+  ApiException(this.message);
+}
+
 class Question {
   final String id; // Changed to String
   final String subjectId; // Changed to String
@@ -50,7 +55,7 @@ class Question {
 
     return Question(
       id: json['id']?.toString() ?? '',
-      subjectId: json['bank_soal_id']?.toString() ?? '',
+      subjectId: json['banksoal_id']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
       type: json['type']?.toString() ?? '',
       defaultPoint: json['default_point']?.toString() ?? '0',
@@ -61,17 +66,16 @@ class Question {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'subject_id': subjectId,
-      'name': name,
-      'type': type,
-      'default_point': defaultPoint,
-      'question': question,
-      'note': note,
-      'options': options.map((o) => o.toJson()).toList()
-    };
-  }
+  Map<String, dynamic> toJson() => {
+    'banksoal_id': id,
+    'subject_id': subjectId, // Ensure this is included
+    'name': name,
+    'type': type,
+    'default_point': defaultPoint,
+    'question': question,
+    'note': note,
+    'options': options.map((o) => o.toJson()).toList(),
+  };
 }
 
 class QuestionOption {
@@ -104,7 +108,7 @@ class QuestionOption {
   Map<String, dynamic> toJson() {
     return {
       'text': text,
-      'percentage': percentage,
+      'percentage': int.parse(percentage),
       'feedback': feedback
     };
   }

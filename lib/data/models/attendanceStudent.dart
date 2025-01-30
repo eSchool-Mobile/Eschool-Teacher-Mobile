@@ -22,6 +22,7 @@ class AttendanceStudent {
   });
 
   factory AttendanceStudent.fromJson(Map<String, dynamic> json) {
+    print(json["type"]);
     return AttendanceStudent(
       id: json['id'] as int?,
       subjectAttendanceId: json['subject_attendance_id'] as int?,
@@ -44,17 +45,6 @@ class AttendanceStudent {
         'updated_at': updatedAt,
         'user': user?.toJson(),
       };
-
-  @override
-  String toString() {
-    return '''AttendanceStudent{
-    id: $id,
-    subjectAttendanceId: $subjectAttendanceId,
-    studentId: $studentId, 
-    type: $type,
-    note: $note
-  }''';
-  }
 
   bool isPresent() {
     return type == 1;

@@ -31,27 +31,6 @@ class SubjectAttendanceRepository {
         },
       );
 
-      print(classSectionId);
-      print(date);
-      print(timetableId);
-
-      print("CREDDDDDDDDDDDDDDDDDDSSSSSSSSSSSSSSSSSSSSSS");
-
-      // Tambahkan logging untuk mencetak respons dari server
-      print("DATA ASELI: $result");
-
-      // Pretty print full response
-      final JsonEncoder encoder = JsonEncoder.withIndent('  ');
-      print("\n=== DATA ASELI (Full Response) ===");
-      print(encoder.convert(result));
-
-      // Print detailed keys
-      print("\n=== Response Keys Detail ===");
-      result.forEach((key, value) {
-        print("\nKey: $key");
-        print(encoder.convert(value));
-      });
-
       if (result['data'] == null) {
         throw ApiException('Data is null');
       }
@@ -74,7 +53,7 @@ class SubjectAttendanceRepository {
 
       print("Lampiran di repository: $lampiran");
       print("Materi di repository: $materi");
-
+      print("Attendance Data: $attendanceData");
       return (
         attendance: attendanceData,
         isHoliday: result['is_holiday'] as bool,
@@ -124,16 +103,10 @@ class SubjectAttendanceRepository {
             attendance[i]['type'].toString();
       }
 
-      final JsonEncoder encoder = JsonEncoder.withIndent('  ');
-      print('\n=== Request Fields as JSON ===');
-      print(encoder.convert(request.fields));
-
       if (lampiran.isNotEmpty) {
-        print('\n=== Request Files ===');
         final filesInfo = {
           'lampiran': {'filename': basename(lampiran), 'path': lampiran}
         };
-        print(encoder.convert(filesInfo));
         request.files.add(await http.MultipartFile.fromPath(
           'lampiran',
           lampiran,

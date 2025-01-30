@@ -26,11 +26,16 @@ class AssignmentRepository {
       );
 
       print("Dari API le");
-      // Logging the result for debugging purposes
-      print(
-          'Assignments fetched: ${((result['data']['data'] ?? []) as List).map((e) => Assignment.fromJson(e)).toList()}');
-      print('Current Page: ${result["data"]["current_page"]}');
-      print('Total Page: ${result["data"]["last_page"]}');
+
+      String jsonString = JsonEncoder.withIndent('  ').convert(result);
+
+      List<String> jsonLines = jsonString.split('\n');
+
+      print("=======");
+      for (String line in jsonLines) {
+        print(line);
+      }
+      print("=======");
 
       return (
         assignments: ((result['data']['data'] ?? []) as List)
@@ -74,14 +79,19 @@ class AssignmentRepository {
     required String description,
     required int points,
     required int minPoints,
-    required int maxFile, // Add this line
+    required int maxFile,
     required int resubmission,
+    required String text,
     required int extraDayForResubmission,
     List<PlatformFile>? filePaths,
     required List<String> acceptedFile,
   }) async {
     try {
       print("OTEWE HIT");
+
+      print("due_date: ${dateTime}");
+      print("start_date: ${startDate}");
+      print("end_date: ${endDate}");
 
       List<MultipartFile> files = [];
       for (var filePath in filePaths!) {
@@ -99,12 +109,11 @@ class AssignmentRepository {
         "end_date": endDate,
         "points": points,
         "min_points": minPoints,
-        "max_file": maxFile, // Add this line
+        "max_file": maxFile,
         "resubmission": resubmission,
         "extra_days_for_resubmission": extraDayForResubmission,
         "file": files,
-        "accepted_file": acceptedFile,
-        "text": "text",
+        "text": int.parse(text),
       };
       if (description.isEmpty) {
         body.remove("description");
@@ -119,7 +128,20 @@ class AssignmentRepository {
         body.remove("extra_days_for_resubmission");
       }
 
-      print("REQUEST LE");
+      // Add accepted file types in array format
+      for (int i = 0; i < acceptedFile.length; i++) {
+        body["accepted_file[$i]"] = acceptedFile[i];
+      }
+
+      String jsonBody = jsonEncode(body);
+      var formattedJson =
+          const JsonEncoder.withIndent('  ').convert(jsonDecode(jsonBody));
+
+      // Mencetak setiap baris JSON
+      var lines = formattedJson.split('\n');
+      for (var line in lines) {
+        print(line);
+      }
 
       final response = await Api.post(
         body: body,
@@ -127,23 +149,11 @@ class AssignmentRepository {
         useAuthToken: true,
       );
 
-      print("Hasilnya nih le");
-
-      final jsonResponse = response.toString();
-      final jsonResponseIndented =
-          JsonEncoder.withIndent('  ').convert(json.decode(jsonResponse));
-      final jsonResponseLines = jsonResponse.split('\n');
-      for (var line in jsonResponseLines) {
-        print(line);
+      if (response['error'] != false) {
+        throw ApiException(response['message'] ?? 'Unknown error occurred');
       }
-
-      // if (response['error'] != false) {
-      //   throw ApiException(response['message'] ?? 'Unknown error occurred');
-      // }
     } catch (e) {
-      print("Error ternyata le");
-      print(e);
-      ApiException(e.toString());
+      throw ApiException(e.toString());
     }
   }
 

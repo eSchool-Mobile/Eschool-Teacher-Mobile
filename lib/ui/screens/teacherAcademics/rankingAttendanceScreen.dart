@@ -148,29 +148,30 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen> {
         children: [
           BlocBuilder<AttendanceRankingCubit, AttendanceRankingState>(
             builder: (context, state) {
-              if (state is AttendanceRankingFetchSuccess) {
-                return _buildRecapTable(state.attendanceRanking);
-              }
-              if (state is AttendanceRankingFetchFailure) {
+              if (state is AttendanceRankingInProgress) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is AttendanceRankingFetchFailure) {
                 return Center(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      top: topPaddingOfErrorAndLoadingContainer,
-                    ),
-                    child: Text('Failed to fetch attendance ranking data'),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const CustomTextContainer(
+                        textKey: "Failed to fetch attendance ranking data",
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Retry mechanism
+                          context.read<AttendanceRankingCubit>().getAttendanceRanking();
+                        },
+                        child: const CustomTextContainer(textKey: "Retry"),
+                      ),
+                    ],
                   ),
                 );
+              } else if (state is AttendanceRankingFetchSuccess) {
+                return _buildRecapTable(state.attendanceRanking);
               }
-              return Center(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    top: topPaddingOfErrorAndLoadingContainer,
-                  ),
-                  child: CustomCircularProgressIndicator(
-                    indicatorColor: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              );
+              return const SizedBox();
             },
           ),
           _buildAppbarAndFilters(),

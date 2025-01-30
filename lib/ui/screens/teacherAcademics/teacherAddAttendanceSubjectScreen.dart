@@ -224,12 +224,9 @@ class _TeacherAddAttendanceScreenSubjectState
               final matchedAttendance = attendance
                   .firstWhereOrNull((element) => element.studentId == e.id);
 
-              print("START");
-              print(attendance);
+              print(matchedAttendance);
 
-              print('Mapping student attendance:');
-              print('Student ID: ${e.student?.id}');
-              print('Found attendance type: ${matchedAttendance?.type}');
+              print('Found attendance record 1: ${matchedAttendance?.type}');
 
               return StudentAttendance.fromStudentDetails(
                 studentDetails: e,
