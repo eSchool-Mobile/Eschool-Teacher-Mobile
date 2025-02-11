@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/assignment.dart';
 import 'package:eschool_saas_staff/data/models/assignmentFiletype.dart';
+import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -24,18 +25,6 @@ class AssignmentRepository {
           "page": page ?? 0,
         },
       );
-
-      print("Dari API le");
-
-      String jsonString = JsonEncoder.withIndent('  ').convert(result);
-
-      List<String> jsonLines = jsonString.split('\n');
-
-      print("=======");
-      for (String line in jsonLines) {
-        print(line);
-      }
-      print("=======");
 
       return (
         assignments: ((result['data']['data'] ?? []) as List)
@@ -83,6 +72,7 @@ class AssignmentRepository {
     required int resubmission,
     required String text,
     required int extraDayForResubmission,
+    required List<StudyMaterial> studyMaterials,
     List<PlatformFile>? filePaths,
     required List<String> acceptedFile,
   }) async {
@@ -93,10 +83,7 @@ class AssignmentRepository {
       print("start_date: ${startDate}");
       print("end_date: ${endDate}");
 
-      List<MultipartFile> files = [];
-      for (var filePath in filePaths!) {
-        files.add(await MultipartFile.fromFile(filePath.path!));
-      }
+      print("SUS LE");
 
       var body = {
         "class_section_id": classSelectionId,
@@ -112,35 +99,31 @@ class AssignmentRepository {
         "max_file": maxFile,
         "resubmission": resubmission,
         "extra_days_for_resubmission": extraDayForResubmission,
-        "file": files,
         "text": int.parse(text),
       };
+
       if (description.isEmpty) {
         body.remove("description");
       }
       if (points == 0) {
         body.remove("points");
       }
-      if (filePaths.isEmpty) {
-        body.remove("file");
-      }
       if (resubmission == 0) {
         body.remove("extra_days_for_resubmission");
       }
 
-      // Add accepted file types in array format
-      for (int i = 0; i < acceptedFile.length; i++) {
-        body["accepted_file[$i]"] = acceptedFile[i];
+      for (int i = 0; i < studyMaterials.length; i++) {
+        body["uploaded_files[$i]"] = studyMaterials[i].id;
       }
 
-      String jsonBody = jsonEncode(body);
-      var formattedJson =
-          const JsonEncoder.withIndent('  ').convert(jsonDecode(jsonBody));
+      if (filePaths != null) {
+        for (int i = 0; i < filePaths.length; i++) {
+          body["file[$i]"] = await MultipartFile.fromFile(filePaths[i].path!);
+        }
+      }
 
-      // Mencetak setiap baris JSON
-      var lines = formattedJson.split('\n');
-      for (var line in lines) {
-        print(line);
+      for (int i = 0; i < acceptedFile.length; i++) {
+        body["accepted_file[$i]"] = acceptedFile[i];
       }
 
       final response = await Api.post(
@@ -149,10 +132,22 @@ class AssignmentRepository {
         useAuthToken: true,
       );
 
+      // String jsonString = JsonEncoder.withIndent("  ").convert(response);
+
+      // // Pecah JSON per baris
+      // List<String> jsonLines = jsonString.split("\n");
+
+      // // Cetak setiap baris dalam loop
+      // for (var line in jsonLines) {
+      //   print(line);
+      // }
+
       if (response['error'] != false) {
         throw ApiException(response['message'] ?? 'Unknown error occurred');
       }
     } catch (e) {
+      print("ERROR LE");
+      print(e);
       throw ApiException(e.toString());
     }
   }
@@ -175,11 +170,6 @@ class AssignmentRepository {
     required String text,
   }) async {
     try {
-      List<MultipartFile> files = [];
-      for (var filePath in filePaths!) {
-        files.add(await MultipartFile.fromFile(filePath.path!));
-      }
-
       // Create base body
       var bodyMap = {
         "class_section_id": classSectionId,
@@ -194,7 +184,6 @@ class AssignmentRepository {
         "max_file": maxFile,
         "resubmission": resubmission ? 1 : 0,
         "extra_days_for_resubmission": extraDayForResubmission,
-        "file": files,
         "text": text, // Pass the text value directly
       };
 
@@ -210,25 +199,30 @@ class AssignmentRepository {
       if (points == 0) {
         bodyMap.remove("points");
       }
-      if (files.isEmpty) {
-        bodyMap.remove("file");
-      }
       if (!resubmission) {
         bodyMap.remove("extra_days_for_resubmission");
+      }
+
+      if (filePaths != null) {
+        for (int i = 0; i < filePaths.length; i++) {
+          bodyMap["file[$i]"] =
+              await MultipartFile.fromFile(filePaths[i].path!);
+        }
       }
 
       // Convert to FormData
       final formData = FormData.fromMap(bodyMap);
 
-      await Api.post(
+      final response = await Api.post(
         url: Api.createAssignment,
-        body: formData.fields.fold<Map<String, dynamic>>({}, (map, field) {
-          map[field.key] = field.value;
-          return map;
-        }),
+        body: bodyMap,
         useAuthToken: true,
       );
+
+      print("SETTED DATA");
+      print(response);
     } catch (e) {
+      print("ERROR LE AWOKOKAOKWOKAOKO");
       throw ApiException(e.toString());
     }
   }

@@ -10,6 +10,7 @@ class ClassSection {
   final int? sectionId;
   final int? mediumId;
   final int? schoolId;
+  final int? pkl;
   final String? name;
   final String? fullName;
   final ClassDetails? classDetails;
@@ -26,6 +27,7 @@ class ClassSection {
       this.schoolId,
       this.name,
       this.fullName,
+      this.pkl,
       this.classDetails,
       this.medium,
       this.section,
@@ -38,6 +40,7 @@ class ClassSection {
       int? sectionId,
       int? mediumId,
       int? schoolId,
+      int? pkl,
       String? name,
       String? fullName,
       Medium? medium,
@@ -68,6 +71,7 @@ class ClassSection {
         schoolId = json['school_id'] as int?,
         name = json['name'] as String?,
         fullName = json['full_name'] as String?,
+        pkl = json['pkl'] as int?,
         classDetails = json['class'] != null
             ? ClassDetails.fromJson(Map.from(json['class']))
             : null,
@@ -93,6 +97,7 @@ class ClassSection {
         'school_id': schoolId,
         'name': name,
         'full_name': fullName,
+        'pkl': pkl,
         'class': classDetails?.toJson(),
         'medium': medium?.toJson(),
         'section': section?.toJson(),

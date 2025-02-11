@@ -1,4 +1,5 @@
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/createAssignmentCubit.dart';
+import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
 import 'package:eschool_saas_staff/data/repositories/assignmentRepository.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -39,6 +40,7 @@ class EditAssignmentCubit extends Cubit<EditAssignmentState> {
     required String endDate,
     required int maxFile,
     required String text,
+    required List<StudyMaterial> studyMaterials,
     required List<String> acceptedFile,
   }) async {
     print("Edit Assignment nih le");
@@ -62,6 +64,7 @@ class EditAssignmentCubit extends Cubit<EditAssignmentState> {
           startDate: startDate,
           endDate: endDate,
           acceptedFile: acceptedFile,
+          studyMaterials: studyMaterials,
           maxFile: maxFile,
           text: text);
       emit(EditAssignmentSuccess());

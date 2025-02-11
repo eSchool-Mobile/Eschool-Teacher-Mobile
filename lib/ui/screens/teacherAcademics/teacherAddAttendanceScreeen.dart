@@ -253,17 +253,38 @@ class _TeacherAddAttendanceScreenState
                       }
 
                       if (attendanceReport.isEmpty) {
+                        print('No attendance data to submit');
                         return;
                       }
-                      context.read<SubmitAttendanceCubit>().submitAttendance(
-                            isHoliday: _isHoliday,
-                            sendAbsentNotification:
-                                _isSendNotificationToGuardian,
-                            dateTime: _selectedDateTime,
-                            classSectionId: _selectedClassSection?.id ?? 0,
-                            attendanceReport:
-                                _isHoliday ? [] : attendanceReport,
-                          );
+
+                      // Print submission data
+                      print('Submitting attendance data:');
+                      print('Date: ${_selectedDateTime}');
+                      print('Class Section ID: ${_selectedClassSection?.id}');
+                      print('Is Holiday: $_isHoliday');
+                      print('Send Notification: $_isSendNotificationToGuardian');
+                      print('Attendance Report:');
+                      for (var record in attendanceReport) {
+                        print({
+                          'studentId': record.studentId,
+                          'status': record.status,
+                        });
+                      }
+
+                      try {
+                        context.read<SubmitAttendanceCubit>().submitAttendance(
+                              isHoliday: _isHoliday,
+                              sendAbsentNotification:
+                                  _isSendNotificationToGuardian,
+                              dateTime: _selectedDateTime,
+                              classSectionId: _selectedClassSection?.id ?? 0,
+                              attendanceReport:
+                                  _isHoliday ? [] : attendanceReport,
+                            );
+                      } catch (e) {
+                        print('Error submitting attendance: $e');
+                        print('Error details: ${e.toString()}');
+                      }
                     },
                     child: submitAttendanceState is SubmitAttendanceInProgress
                         ? const CustomCircularProgressIndicator(

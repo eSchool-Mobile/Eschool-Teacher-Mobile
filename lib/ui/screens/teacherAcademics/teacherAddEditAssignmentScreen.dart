@@ -99,6 +99,9 @@ class _TeacherAddEditAssignmentScreenState
     text: widget.assignment?.description ?? '', // Add null safety
   );
 
+  late final List<StudyMaterial> _assignmentUploadedFilesEditingController =
+      List.from(widget.assignment?.studyMaterial ?? []);
+
   late final TextEditingController _assignmentPointsTextEditingController =
       TextEditingController(
     text: widget.assignment?.points.toString(),
@@ -294,6 +297,10 @@ class _TeacherAddEditAssignmentScreenState
   }
 
   Future<void> _selectStartDate(BuildContext context) async {
+    start_date = (start_date ?? DateTime.now()).isBefore(DateTime.now())
+        ? DateTime.now()
+        : start_date;
+
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: start_date ?? DateTime.now(),
@@ -525,6 +532,11 @@ class _TeacherAddEditAssignmentScreenState
     final formattedEndDate = DateFormat('dd-MM-yyyy').format(end_date!);
     final textValue = _isTextAnswerAllowed ? "1" : "0";
 
+    print("Must Upload");
+    print(uploadedFiles);
+    print("====");
+    print(_assignmentUploadedFilesEditingController);
+
     context.read<EditAssignmentCubit>().editAssignment(
           classSelectionId: _selectedClassSection?.id ?? 0,
           classSubjectId: _selectedSubject?.classSubjectId ?? 0,
@@ -547,6 +559,7 @@ class _TeacherAddEditAssignmentScreenState
                   ? 1
                   : 0,
           filePaths: uploadedFiles,
+          studyMaterials: _assignmentUploadedFilesEditingController,
           assignmentId: widget.assignment!.id,
           // Update these lines to use the actual DateTime objects
           startDate: formattedStartDate,
@@ -656,61 +669,61 @@ class _TeacherAddEditAssignmentScreenState
     );
   }
 
-Widget _buildButtonContent({
-  required VoidCallback onTap,
-  required bool isLoading,
-  required String title,
-}) {
-  return InkWell(
-    onTap: onTap,
-    borderRadius: BorderRadius.circular(15),
-    splashColor: Colors.white.withOpacity(0.2),
-    highlightColor: Colors.white.withOpacity(0.1),
-    child: Container(
-      padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (isLoading) ...[
-            SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 2.5,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+  Widget _buildButtonContent({
+    required VoidCallback onTap,
+    required bool isLoading,
+    required String title,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(15),
+      splashColor: Colors.white.withOpacity(0.2),
+      highlightColor: Colors.white.withOpacity(0.1),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (isLoading) ...[
+              SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+              SizedBox(width: 12),
+            ],
+            Text(
+              isLoading ? 'Memproses...' : title,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
               ),
             ),
-            SizedBox(width: 12),
+            if (!isLoading) ...[
+              SizedBox(width: 8),
+              Icon(
+                Icons.arrow_forward_rounded,
+                color: Colors.white,
+                size: 22,
+              ).animate(onPlay: (controller) {
+                controller.repeat(reverse: true);
+              }).slideX(
+                begin: 0,
+                end: 0.3,
+                duration: Duration(milliseconds: 1000),
+                curve: Curves.easeInOut,
+              ),
+            ],
           ],
-          Text(
-            isLoading ? 'Memproses...' : title,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
-            ),
-          ),
-          if (!isLoading) ...[
-            SizedBox(width: 8),
-            Icon(
-              Icons.arrow_forward_rounded,
-              color: Colors.white,
-              size: 22,
-            ).animate(onPlay: (controller) {
-              controller.repeat(reverse: true);
-            }).slideX(
-              begin: 0,
-              end: 0.3,
-              duration: Duration(milliseconds: 1000),
-              curve: Curves.easeInOut,
-            ),
-          ],
-        ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildAnswerTypeSelection() {
     return Card(
@@ -933,23 +946,25 @@ Widget _buildButtonContent({
               Container(
                 padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,  
-                    colors: [
-                      Theme.of(context).colorScheme.primary.withOpacity(0.9),
-                      Theme.of(context).colorScheme.secondary.withOpacity(0.7),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 10,
-                      spreadRadius: 2,
-                    )
-                  ]
-                ),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Theme.of(context).colorScheme.primary.withOpacity(0.9),
+                        Theme.of(context)
+                            .colorScheme
+                            .secondary
+                            .withOpacity(0.7),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                      )
+                    ]),
                 child: Column(
                   children: [
                     FadeInDown(
@@ -958,29 +973,30 @@ Widget _buildButtonContent({
                         Icons.assignment_rounded,
                         size: 42,
                         color: Colors.white,
-                      ).animate()
-                        .scale(duration: 500.ms)
-                        .then()
-                        .shimmer(duration: 1000.ms),
+                      )
+                          .animate()
+                          .scale(duration: 500.ms)
+                          .then()
+                          .shimmer(duration: 1000.ms),
                     ),
                     SizedBox(height: 15),
                     FadeInUp(
-                      duration: Duration(milliseconds: 600), 
+                      duration: Duration(milliseconds: 600),
                       child: Text(
-                        widget.assignment != null ? "Edit Assignment" : "Create Assignment",
+                        widget.assignment != null
+                            ? "Edit Assignment"
+                            : "Create Assignment",
                         style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.5,
-                          color: Colors.white,
-                          shadows: [
-                            Shadow(
-                              blurRadius: 10,
-                              color: Colors.black26,
-                              offset: Offset(2,2)
-                            )
-                          ]
-                        ),
+                            fontSize: 26,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                            color: Colors.white,
+                            shadows: [
+                              Shadow(
+                                  blurRadius: 10,
+                                  color: Colors.black26,
+                                  offset: Offset(2, 2))
+                            ]),
                       ),
                     ),
                   ],
@@ -1297,6 +1313,26 @@ Widget _buildButtonContent({
                         ),
                       ),
                     ),
+
+                    // ...List.generate(
+                    //     _assignmentUploadedFilesEditingController.length,
+                    //     (index) => index).map(
+                    //   (index) => Padding(
+                    //     padding: const EdgeInsets.only(top: 15),
+                    //     child: CustomFileContainer(
+                    //       backgroundColor:
+                    //           Theme.of(context).scaffoldBackgroundColor,
+                    //       onDelete: () {
+                    //         _assignmentUploadedFilesEditingController
+                    //             .removeAt(index);
+                    //         setState(() {});
+                    //       },
+                    //       title:
+                    //           _assignmentUploadedFilesEditingController[index]
+                    //               .fileName,
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 );
         },
@@ -1306,6 +1342,9 @@ Widget _buildButtonContent({
 
   @override
   Widget build(BuildContext context) {
+    print("OK FETCHED");
+    print(_assignmentUploadedFilesEditingController);
+    print(widget.assignment?.studyMaterial);
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -1313,9 +1352,9 @@ Widget _buildButtonContent({
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-                Color(0xFF8B0000).withOpacity(0.9), // Dark red
-                Color(0xFF6B0000), // Darker red
-                Color(0xFF4B0000), // Very dark red
+              Color(0xFF8B0000).withOpacity(0.9), // Dark red
+              Color(0xFF6B0000), // Darker red
+              Color(0xFF4B0000), // Very dark red
               Theme.of(context).colorScheme.secondary,
             ],
             stops: [0.2, 0.4, 0.6, 1.0],
@@ -1336,7 +1375,9 @@ Widget _buildButtonContent({
                         onPressed: () => Get.back(),
                       ),
                       Text(
-                        widget.assignment != null ? 'Edit Assignment' : 'Create Assignment',
+                        widget.assignment != null
+                            ? 'Edit Assignment'
+                            : 'Create Assignment',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20,
@@ -1371,9 +1412,9 @@ Widget _buildButtonContent({
                             duration: Duration(milliseconds: 800),
                             child: _buildBasicInfoSection(),
                           ),
-                          
+
                           SizedBox(height: 25),
-                          
+
                           // Assignment Details Section
                           FadeInUp(
                             duration: Duration(milliseconds: 1000),
@@ -1386,7 +1427,7 @@ Widget _buildButtonContent({
 
                           SizedBox(height: 25),
 
-                          // Submission Settings Section  
+                          // Submission Settings Section
                           FadeInUp(
                             duration: Duration(milliseconds: 1200),
                             child: _buildSubmissionSettingsSection(),
@@ -1396,7 +1437,7 @@ Widget _buildButtonContent({
 
                           // Submit Button
                           _buildSubmitButton(),
-                          
+
                           SizedBox(height: 20),
                         ],
                       ),
@@ -1434,7 +1475,7 @@ Widget _buildButtonContent({
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-             color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.secondary,
             ),
           ),
           SizedBox(height: 20),
@@ -1453,30 +1494,30 @@ Widget _buildButtonContent({
   }
 
   Widget _buildClassSectionDropdown() {
-    return BlocBuilder<ClassSectionsAndSubjectsCubit, ClassSectionsAndSubjectsState>(
+    return BlocBuilder<ClassSectionsAndSubjectsCubit,
+        ClassSectionsAndSubjectsState>(
       builder: (context, state) {
         if (state is ClassSectionsAndSubjectsFetchSuccess) {
           return _buildAnimatedTextField(
             controller: TextEditingController(
-              text: _selectedClassSection?.fullName ?? 'Select Class Section'
-            ),
+                text:
+                    _selectedClassSection?.fullName ?? 'Select Class Section'),
             label: 'Bagian Kelas',
             icon: Icons.class_,
             readOnly: true,
             onTap: () {
               Utils.showBottomSheet(
-                child: FilterSelectionBottomsheet<ClassSection>(
-                  showFilterByLabel: false,
-                  onSelection: (value) {
-                    changeSelectedClassSection(value!);
-                    Get.back();
-                  },
-                  selectedValue: _selectedClassSection!,
-                  titleKey: classKey,
-                  values: state.classSections,
-                ),
-                context: context
-              );
+                  child: FilterSelectionBottomsheet<ClassSection>(
+                    showFilterByLabel: false,
+                    onSelection: (value) {
+                      changeSelectedClassSection(value!);
+                      Get.back();
+                    },
+                    selectedValue: _selectedClassSection!,
+                    titleKey: classKey,
+                    values: state.classSections,
+                  ),
+                  context: context);
             },
           );
         }
@@ -1491,30 +1532,30 @@ Widget _buildButtonContent({
   }
 
   Widget _buildSubjectDropdown() {
-    return BlocBuilder<ClassSectionsAndSubjectsCubit, ClassSectionsAndSubjectsState>(
+    return BlocBuilder<ClassSectionsAndSubjectsCubit,
+        ClassSectionsAndSubjectsState>(
       builder: (context, state) {
         if (state is ClassSectionsAndSubjectsFetchSuccess) {
           return _buildAnimatedTextField(
             controller: TextEditingController(
-              text: _selectedSubject?.subject.getSybjectNameWithType() ?? 'Select Subject'
-            ),
+                text: _selectedSubject?.subject.getSybjectNameWithType() ??
+                    'Select Subject'),
             label: 'Mata pelajaran',
             icon: Icons.subject,
             readOnly: true,
             onTap: () {
               Utils.showBottomSheet(
-                child: FilterSelectionBottomsheet<TeacherSubject>(
-                  showFilterByLabel: false,
-                  onSelection: (value) {
-                    changeSelectedTeacherSubject(value!);
-                    Get.back();
-                  },
-                  selectedValue: _selectedSubject!,
-                  titleKey: subjectKey,
-                  values: state.subjects,
-                ),
-                context: context
-              );
+                  child: FilterSelectionBottomsheet<TeacherSubject>(
+                    showFilterByLabel: false,
+                    onSelection: (value) {
+                      changeSelectedTeacherSubject(value!);
+                      Get.back();
+                    },
+                    selectedValue: _selectedSubject!,
+                    titleKey: subjectKey,
+                    values: state.subjects,
+                  ),
+                  context: context);
             },
           );
         }
@@ -1613,7 +1654,7 @@ Widget _buildButtonContent({
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-             color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.secondary,
             ),
           ),
           SizedBox(height: 20),
@@ -1690,17 +1731,19 @@ Widget _buildButtonContent({
         Wrap(
           spacing: 10,
           runSpacing: 10,
-          children: fileTypes.map((type) => 
-            FilterChip(
-              selected: type.isSelected,
-              label: Text(type.name.toUpperCase()),
-              onSelected: (selected) {
-                setState(() {
-                  type.isSelected = selected;
-                });
-              },
-            ),
-          ).toList(),
+          children: fileTypes
+              .map(
+                (type) => FilterChip(
+                  selected: type.isSelected,
+                  label: Text(type.name.toUpperCase()),
+                  onSelected: (selected) {
+                    setState(() {
+                      type.isSelected = selected;
+                    });
+                  },
+                ),
+              )
+              .toList(),
         ),
       ],
     );
@@ -1715,7 +1758,7 @@ Widget _buildButtonContent({
     VoidCallback? onTap,
     TextInputType? keyboardType,
     Color? iconColor,
-      Color? labelColor,
+    Color? labelColor,
   }) {
     return TextFormField(
       controller: controller,
@@ -1725,13 +1768,17 @@ Widget _buildButtonContent({
       keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle( // Add this
-        color: labelColor ?? Theme.of(context).colorScheme.secondary,
-      ),
-         prefixIcon: Icon(
-        icon, 
-        color: iconColor ?? Theme.of(context).colorScheme.primary, // Use passed color or theme color
-      ),
+        labelStyle: TextStyle(
+          // Add this
+          color: labelColor ?? Theme.of(context).colorScheme.secondary,
+        ),
+        prefixIcon: Icon(
+          icon,
+          color: iconColor ??
+              Theme.of(context)
+                  .colorScheme
+                  .primary, // Use passed color or theme color
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
           borderSide: BorderSide.none,
@@ -1739,8 +1786,9 @@ Widget _buildButtonContent({
         filled: true,
         fillColor: Colors.grey.shade50,
         focusedBorder: OutlineInputBorder(
-           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color:Theme.of(context).colorScheme.secondary),
+          borderRadius: BorderRadius.circular(10),
+          borderSide:
+              BorderSide(color: Theme.of(context).colorScheme.secondary),
         ),
       ),
       validator: (v) => v!.isEmpty ? 'Required' : null,
@@ -1772,11 +1820,11 @@ Widget _buildButtonContent({
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-               color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).colorScheme.secondary,
               ),
             ),
             SizedBox(height: 20),
-            
+
             // Due Date & Time
             Row(
               children: [
@@ -1786,8 +1834,8 @@ Widget _buildButtonContent({
                     onTap: () async {
                       final DateTime? picked = await showDatePicker(
                         context: context,
-                        initialDate: dueDate ?? DateTime.now(),
-                        firstDate: DateTime.now(),
+                        initialDate: dueDate,
+                        firstDate: DateTime(2000),
                         lastDate: DateTime(2101),
                       );
                       if (picked != null && picked != dueDate) {
@@ -1798,7 +1846,8 @@ Widget _buildButtonContent({
                     },
                     decoration: InputDecoration(
                       labelText: 'Tenggat Tanggal',
-                      prefixIcon: Icon(Icons.calendar_today, color: Theme.of(context).colorScheme.primary),
+                      prefixIcon: Icon(Icons.calendar_today,
+                          color: Theme.of(context).colorScheme.primary),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                         borderSide: BorderSide.none,
@@ -1807,7 +1856,9 @@ Widget _buildButtonContent({
                       fillColor: Colors.grey.shade50,
                     ),
                     controller: TextEditingController(
-                      text: dueDate != null ? DateFormat('dd-MM-yyyy').format(dueDate!) : '',
+                      text: dueDate != null
+                          ? DateFormat('dd-MM-yyyy').format(dueDate!)
+                          : '',
                     ),
                   ),
                 ),
@@ -1828,7 +1879,8 @@ Widget _buildButtonContent({
                     },
                     decoration: InputDecoration(
                       labelText: 'Tenggat waktu',
-                      prefixIcon: Icon(Icons.access_time, color: Theme.of(context).colorScheme.primary),
+                      prefixIcon: Icon(Icons.access_time,
+                          color: Theme.of(context).colorScheme.primary),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                         borderSide: BorderSide.none,
@@ -1843,9 +1895,9 @@ Widget _buildButtonContent({
                 ),
               ],
             ),
-            
+
             SizedBox(height: 15),
-            
+
             // Max File Settings
             Row(
               children: [
@@ -1868,9 +1920,9 @@ Widget _buildButtonContent({
                 ),
               ],
             ),
-            
+
             SizedBox(height: 20),
-            
+
             // File Upload Section
             Text(
               'File Terlampir',
@@ -1880,24 +1932,45 @@ Widget _buildButtonContent({
               ),
             ),
             SizedBox(height: 10),
-            
+
             // Display uploaded files
             if (uploadedFiles.isNotEmpty) ...[
-              ...uploadedFiles.map((file) => ListTile(
-                leading: Icon(Icons.insert_drive_file),
-                title: Text(file.name),
-                trailing: IconButton(
-                  icon: Icon(Icons.clear),
-                  onPressed: () {
-                    setState(() {
-                      uploadedFiles.remove(file);
-                    });
-                  },
-                ),
-              )).toList(),
+              ...uploadedFiles
+                  .map((file) => ListTile(
+                        leading: Icon(Icons.insert_drive_file),
+                        title: Text(file.name),
+                        trailing: IconButton(
+                          icon: Icon(Icons.clear),
+                          onPressed: () {
+                            setState(() {
+                              uploadedFiles.remove(file);
+                            });
+                          },
+                        ),
+                      ))
+                  .toList(),
               SizedBox(height: 10),
             ],
-            
+
+            if (_assignmentUploadedFilesEditingController.isNotEmpty) ...[
+              ..._assignmentUploadedFilesEditingController
+                  .map((file) => ListTile(
+                        leading: Icon(Icons.insert_drive_file),
+                        title: Text(file.fileName),
+                        trailing: IconButton(
+                          icon: Icon(Icons.clear),
+                          onPressed: () {
+                            setState(() {
+                              _assignmentUploadedFilesEditingController
+                                  .remove(file);
+                            });
+                          },
+                        ),
+                      ))
+                  .toList(),
+              SizedBox(height: 10),
+            ],
+
             // Upload button
             ElevatedButton.icon(
               onPressed: _addFiles,

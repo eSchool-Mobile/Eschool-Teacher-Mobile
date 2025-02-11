@@ -34,7 +34,8 @@ class RecapAttendanceSubjectScreen extends StatefulWidget {
 
 class _RecapAttendanceSubjectScreenState
     extends State<RecapAttendanceSubjectScreen> {
-  DateTime _selectedDateTime = DateTime.now();
+  // Replace _selectedDateTime with _selectedYear
+  int _selectedYear = DateTime.now().year;
   ClassSection? _selectedClassSection;
   List<ClassSection> _filteredClassSections = [];
   int? teacherId;
@@ -74,24 +75,61 @@ class _RecapAttendanceSubjectScreenState
     // Implement the logic to fetch recap data based on the selected class section and date
   }
 
+  void _showYearPicker() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Pilih Tahun'),
+          content: Container(
+            width: 300,
+            height: 300,
+            child: YearPicker(
+              firstDate: DateTime(2020),
+              lastDate: DateTime(DateTime.now().year + 1),
+              selectedDate: DateTime(_selectedYear),
+              onChanged: (DateTime dateTime) {
+                setState(() {
+                  _selectedYear = dateTime.year;
+                });
+                Navigator.pop(context);
+                getRecap();
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Update download method to handle year
   void downloadRecap(int classId, int classSectionId, int month) async {
     if (schoolId == null || email == null) {
       print('Ada parameter yang kosong');
+      return; // Add return to prevent further execution
     }
 
     final encodedEmail = Uri.encodeComponent(email!);
 
+    // Debug logs
+    print('Downloading recap for:');
+    print('Year: $_selectedYear');
+    print('Month: $month');
+    print('Class ID: $classId');
+    print('Class Section ID: $classSectionId');
+
     final url = Uri.parse('https://eschool.ac.id/recap-download'
-        // '_token=$token'
         '?school_id=$schoolId'
         '&class_id=$classId'
         '&class_section_id=$classSectionId'
         '&month=$month'
+        '&year=$_selectedYear' // This ensures we use the selected year
         '&email=$encodedEmail'
         '&gm=naowndoianwodinaiwondaoiwnd');
 
     try {
       if (await canLaunchUrl(url)) {
+        print('Launching URL: $url'); // Debug log
         await launchUrl(url);
       } else {
         throw 'Could not launch $url';
@@ -152,22 +190,23 @@ class _RecapAttendanceSubjectScreenState
         "Final filtered classes for teacher $teacherId: ${_filteredClassSections.map((e) => e.name).toList()}");
   }
 
+  // Di RecapAttendanceSubjectScreen, update _buildRecapTable untuk mengirim schoolId
   Widget _buildRecapTable(List<ClassSection> classes) {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.only(
-            top: Utils.appContentTopScrollPadding(context: context) + 100,
-            bottom: 25),
-        child: RecapAttendanceContainer(
-          classSections: classes,
-          onDownload: (classSection) {
-            final classId = classSection.classDetails?.id ?? 0;
-            final classSectionId = classSection.id ?? 0;
-            final month = _selectedDateTime.month;
-            downloadRecap(classId, classSectionId, month);
-          },
-        ),
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(
+        top: Utils.appContentTopScrollPadding(context: context) + 100,
+        bottom: 25,
+      ),
+      child: RecapAttendanceContainer(
+        classSections: classes,
+        selectedYear: _selectedYear,
+        email: email, // Tambahkan email
+        schoolId: schoolId, // Tambahkan schoolId
+        onDownload: (classSection, month) {
+          final classId = classSection.classDetails?.id ?? 0;
+          final classSectionId = classSection.id ?? 0;
+          downloadRecap(classId, classSectionId, month);
+        },
       ),
     );
   }
@@ -207,9 +246,8 @@ class _RecapAttendanceSubjectScreenState
                       SizedBox(
                         height: 40,
                         child: FilterButton(
-                          onTap: () async {},
-                          titleKey: Utils.getMonthFullName(_selectedDateTime
-                              .month), // Set titleKey hanya menampilkan nama bulan
+                          onTap: _showYearPicker,
+                          titleKey: 'Tahun $_selectedYear',
                           width: boxConstraints.maxWidth * (0.98),
                         ),
                       ),

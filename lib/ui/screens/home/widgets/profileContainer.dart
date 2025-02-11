@@ -194,10 +194,11 @@ class ProfileContainer extends StatelessWidget {
                         width: 15,
                       ),
                       Expanded(
-                          child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                           CustomTextContainer(
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -223,17 +224,18 @@ class ProfileContainer extends StatelessWidget {
                           const SizedBox(
                             height: 5,
                           ),
-                          CustomTextContainer(
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textKey:
-                                "${context.read<AuthCubit>().getUserDetails().school?.name ?? "-"} (${context.read<AuthCubit>().getUserDetails().school?.code ?? "-"})",
-                            style: TextStyle(
-                              height: 1.1,
-                              fontSize: Utils.getScaledValue(context, 15),
+                            CustomTextContainer(
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textKey:
+                                  "${context.read<AuthCubit>().getUserDetails().school?.name ?? "-"} (${context.read<AuthCubit>().getUserDetails().school?.code ?? "-"})",
+                              style: TextStyle(
+                                height: 1.1,
+                                fontSize: Utils.getScaledValue(context, 15),
+                              ),
                             ),
-                          )
-                        ],
+                          ],
+                        ),
                       )),
                     ],
                   ),

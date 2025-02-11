@@ -3,6 +3,7 @@ import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/sendPasswordResetEmailCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/signInCubit.dart';
 import 'package:eschool_saas_staff/ui/screens/login/widgets/forgotPasswordBottomsheet.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
@@ -325,70 +326,104 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildLoginButton(BuildContext context, SignInState state) {
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).colorScheme.primary,
-            Theme.of(context).colorScheme.primary.withOpacity(0.8),
-          ],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-            spreadRadius: 1,
-            blurRadius: 8,
-            offset: Offset(0, 3),
+      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: FadeInUp(
+        duration: Duration(milliseconds: 600),
+        child: Container(
+          height: 60,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+                colors: [
+                Color.fromARGB(255, 251, 44, 44),  // Light red
+                Color.fromARGB(255, 194, 15, 15),  // Slightly darker red
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                spreadRadius: 1,
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: CustomRoundedButton(
-        widthPercentage: 1.0,
-        backgroundColor:
-            Theme.of(context).colorScheme.primary,
-        buttonTitle: signInKey,
-        showBorder: false,
-        child: state is SignInInProgress
-            ? const CustomCircularProgressIndicator()
-            : null,
-        onTap: () {
-          if (state is SignInInProgress) {
-            return;
-          }
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                if (state is SignInInProgress) return;
+                
+                if (_schoolCodeController.text.trim().isEmpty) {
+                  Utils.showSnackBar(message: pleaseEnterSchoolCodeKey, context: context);
+                  return;
+                }
+                if (_emailTextEditingController.text.trim().isEmpty) {
+                  Utils.showSnackBar(message: pleaseEnterEmailKey, context: context);
+                  return;
+                }
+                if (_passwordTextEditingController.text.trim().isEmpty) {
+                  Utils.showSnackBar(message: pleaseEnterPasswordKey, context: context);
+                  return;
+                }
 
-          if (_schoolCodeController.text.trim().isEmpty) {
-            Utils.showSnackBar(
-              message: pleaseEnterSchoolCodeKey,
-              context: context,
-            );
-            return;
-          }
-
-          if (_emailTextEditingController.text
-              .trim()
-              .isEmpty) {
-            Utils.showSnackBar(
-                message: pleaseEnterEmailKey,
-                context: context);
-            return;
-          }
-          if (_passwordTextEditingController.text
-              .trim()
-              .isEmpty) {
-            Utils.showSnackBar(
-                message: pleaseEnterPasswordKey,
-                context: context);
-            return;
-          }
-
-          context.read<SignInCubit>().signInUser(
-                email:
-                    _emailTextEditingController.text.trim(),
-                password: _passwordTextEditingController.text
-                    .trim(),
-                schoolCode: _schoolCodeController.text.trim(),
-              );
-        },
+                context.read<SignInCubit>().signInUser(
+                  email: _emailTextEditingController.text.trim(),
+                  password: _passwordTextEditingController.text.trim(),
+                  schoolCode: _schoolCodeController.text.trim(),
+                );
+              },
+              borderRadius: BorderRadius.circular(15),
+              splashColor: Colors.white.withOpacity(0.2),
+              highlightColor: Colors.white.withOpacity(0.1),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (state is SignInInProgress) ...[
+                      SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                    ],
+                    Text(
+                        state is SignInInProgress ? 'Memproses...' : 'Masuk',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    if (!(state is SignInInProgress)) ...[
+                      SizedBox(width: 8),
+                      Icon(
+                        Icons.arrow_forward_rounded,
+                        color: Colors.white,
+                        size: 22,
+                      ).animate(onPlay: (controller) {
+                        controller.repeat(reverse: true);
+                      }).slideX(
+                        begin: 0,
+                        end: 0.3,
+                        duration: Duration(milliseconds: 1000),
+                        curve: Curves.easeInOut,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

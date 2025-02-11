@@ -42,6 +42,16 @@ class AnnouncementRepository {
         "page": page ?? 1,
         "class_section_id": classSectionId
       });
+
+      // print("GETTING");
+
+      // String formattedJson = JsonEncoder.withIndent("  ").convert(result);
+
+      // // Cetak per baris
+      // for (var line in formattedJson.split("\n")) {
+      //   print(line);
+      // }
+
       return (
         announcements: ((result['data']['data'] ?? []) as List)
             .map((announcement) =>

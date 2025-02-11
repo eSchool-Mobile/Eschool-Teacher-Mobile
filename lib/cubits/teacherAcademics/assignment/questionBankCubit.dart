@@ -1,112 +1,261 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/models/question.dart';
+import 'package:eschool_saas_staff/data/models/questionBank.dart';
 import 'package:eschool_saas_staff/data/models/subjectQuestion.dart';
 import 'package:eschool_saas_staff/data/repositories/questionBankRepository.dart';
 
-class QuestionBankState {
-  final List<SubjectQuestion> questions;
-  final bool isLoading;
-  final String? error;
+abstract class QuestionBankState {}
 
-  QuestionBankState({
-    this.questions = const [],
-    this.isLoading = false,
-    this.error,
-  });
+class QuestionBankInitial extends QuestionBankState {}
 
-  QuestionBankState copyWith({
-    List<SubjectQuestion>? questions,
-    bool? isLoading,
-    String? error,
-  }) {
-    return QuestionBankState(
-      questions: questions ?? this.questions,
-      isLoading: isLoading ?? this.isLoading,
-      error: error,
-    );
-  }
+class QuestionBankLoading extends QuestionBankState {}
+
+class QuestionBankError extends QuestionBankState {
+  final String message;
+  QuestionBankError(this.message);
+}
+
+class SubjectsFetchSuccess extends QuestionBankState {
+  final List<SubjectQuestion> subjects;
+  SubjectsFetchSuccess(this.subjects);
+}
+
+class BankQuestionsFetchSuccess extends QuestionBankState {
+  final List<Question> questions;
+  BankQuestionsFetchSuccess(this.questions);
+}
+
+// Add new state
+class BankSoalFetchSuccess extends QuestionBankState {
+  final List<BankSoal> bankSoal;
+  BankSoalFetchSuccess(this.bankSoal);
 }
 
 class QuestionBankCubit extends Cubit<QuestionBankState> {
   final QuestionBankRepository _repository;
 
-  QuestionBankCubit(this._repository) : super(QuestionBankState());
+  QuestionBankCubit({required QuestionBankRepository repository})
+      : _repository = repository,
+        super(QuestionBankInitial());
 
-  Future<void> getQuestions(int subjectId) async {
+  Future<void> fetchTeacherSubjects() async {
     try {
-      print("Cubit: Fetching questions"); // Debug print
-      emit(QuestionBankState(isLoading: true));
-      
-      final questions = await _repository.getQuestionsBySubject(subjectId);
-      print("Cubit: Got ${questions.length} subjects"); // Debug print
-      
-      emit(QuestionBankState(questions: questions));
+      emit(QuestionBankLoading());
+      print("Fetching teacher subjects...");
+
+      final subjects = await _repository.getTeacherSubjects();
+      print("Raw subjects data: $subjects");
+
+      emit(SubjectsFetchSuccess(subjects));
     } catch (e) {
-      print("Cubit error: $e"); // Debug print
-      emit(QuestionBankState(error: e.toString()));
+      print("Error in cubit: $e");
+      emit(QuestionBankError(e.toString()));
     }
   }
 
-  Future<void> createQuestion(Question question) async {
-    if (isClosed) return;
-    
+  Future<void> fetchBankQuestions(int subjectId, int bankId) async {
     try {
-      emit(state.copyWith(isLoading: true));
-      await _repository.createQuestion(question);
-      
-      // Refresh questions list setelah create
-      if (!isClosed) {
-        final questions = await _repository.getQuestionsBySubject(
-          int.parse(question.subjectId)
-        );
-        
-        emit(state.copyWith(
-          questions: questions,
-          isLoading: false,
-        ));
-      }
+      emit(QuestionBankLoading());
+      final questions = await _repository.getBankQuestions(subjectId, bankId);
+      emit(BankQuestionsFetchSuccess(questions));
     } catch (e) {
-      // ...error handling
+      emit(QuestionBankError(e.toString()));
     }
   }
 
-  Future<void> updateQuestion(Question question) async {
-    if (isClosed) return;
-    
+  // Add new method in QuestionBankCubit class
+  Future<void> fetchBankSoal(int subjectId) async {
     try {
-      emit(state.copyWith(isLoading: true));
-      
-      // Ensure subject_id exists
-      if (question.subjectId.isEmpty) {
-        throw Exception('Subject ID is required');
-      }
+      emit(QuestionBankLoading());
+      final bankSoal = await _repository.getBankSoal(subjectId);
+      emit(BankSoalFetchSuccess(bankSoal));
+    } catch (e) {
+      emit(QuestionBankError(e.toString()));
+    }
+  }
 
-      await _repository.updateQuestion(question);
-      
-      // Refresh questions list
-      final questions = await _repository.getQuestionsBySubject(
-        int.parse(question.subjectId)
+  // Add createQuestionBank method
+  Future<void> createQuestionBank({
+    required int subjectId,
+    required String name,
+  }) async {
+    try {
+      emit(QuestionBankLoading());
+      await _repository.createQuestionBank(
+        subjectId: subjectId,
+        name: name,
       );
-      
-      emit(state.copyWith(
-        questions: questions,
-        isLoading: false,
-      ));
+      // Fetch updated bank soal list after creation
+      final bankSoal = await _repository.getBankSoal(subjectId);
+      emit(BankSoalFetchSuccess(bankSoal));
     } catch (e) {
-      emit(state.copyWith(
-        error: e.toString(),
-        isLoading: false
-      ));
-      rethrow;
+      emit(QuestionBankError(e.toString()));
+      throw e; // Re-throw to handle in UI
     }
   }
 
-  Future<void> deleteQuestion(int subjectId, int questionId) async {
+  // Add updateQuestionBank method
+  Future<void> updateQuestionBank({
+    required int subjectId,
+    required int banksoalId,
+    required String name,
+  }) async {
     try {
-      await _repository.deleteQuestion(subjectId, questionId);
-      await getQuestions(subjectId);
+      emit(QuestionBankLoading());
+      await _repository.updateQuestionBank(
+        subjectId: subjectId,
+        banksoalId: banksoalId,
+        name: name,
+      );
+      // Fetch updated bank soal list after update
+      final bankSoal = await _repository.getBankSoal(subjectId);
+      emit(BankSoalFetchSuccess(bankSoal));
     } catch (e) {
-      emit(QuestionBankState(error: e.toString()));
+      emit(QuestionBankError(e.toString()));
+      throw e;
+    }
+  }
+
+  // Add createQuestion method
+  Future<void> createQuestion({
+    required int banksoalId,
+    required int subjectId,
+    required String name,
+    required String type,
+    required int defaultPoint,
+    required String question,
+    required String note,
+    required List<QuestionOption> options,
+  }) async {
+    try {
+      emit(QuestionBankLoading());
+      await _repository.createQuestion(
+        banksoalId: banksoalId,
+        subjectId: subjectId,
+        name: name,
+        type: type,
+        defaultPoint: defaultPoint,
+        question: question,
+        note: note,
+        options: options,
+      );
+      // Fetch updated questions after creation
+      final questions =
+          await _repository.getBankQuestions(subjectId, banksoalId);
+      emit(BankQuestionsFetchSuccess(questions));
+    } catch (e) {
+      emit(QuestionBankError(e.toString()));
+      throw e;
+    }
+  }
+
+  // Add updateQuestion method
+  Future<void> updateQuestion({
+    required int banksoalSoalId,
+    required int subjectId,
+    required int bankSoalId,
+    required String name,
+    required String type,
+    required int defaultPoint,
+    required String question,
+    required String note,
+    required List<QuestionOption> options,
+  }) async {
+    try {
+      emit(QuestionBankLoading());
+
+      print("OK 11");
+
+      print(banksoalSoalId);
+      print(subjectId);
+
+      await _repository.updateQuestion(
+        banksoalSoalId: banksoalSoalId,
+        subjectId: subjectId,
+        name: name,
+        type: type,
+        defaultPoint: defaultPoint,
+        question: question,
+        note: note,
+        options: options,
+      );
+
+      print("OK 12");
+
+      // Fetch updated questions after successful update
+      final questions =
+          await _repository.getBankQuestions(subjectId, bankSoalId);
+      print("OK 13");
+      emit(BankQuestionsFetchSuccess(questions));
+      print("OK 14");
+    } catch (e) {
+      // Check if error message indicates success
+      if (e.toString().contains('Soal Updated Successfully')) {
+        // Fetch updated questions even though we got an error
+        final questions =
+            await _repository.getBankQuestions(subjectId, banksoalSoalId);
+        emit(BankQuestionsFetchSuccess(questions));
+        return;
+      }
+
+      emit(QuestionBankError(e.toString()));
+      throw e;
+    }
+  }
+
+  Future<void> deleteBankSoal({
+    required int subjectId,
+    required int banksoalId,
+  }) async {
+    try {
+      print('📝 QuestionBankCubit: Starting delete process');
+      emit(QuestionBankLoading());
+
+      print('📊 Delete Parameters:');
+      print('Subject ID: $subjectId');
+      print('Bank Soal ID: $banksoalId');
+
+      await _repository.deleteBankSoal(
+        subjectId: subjectId,
+        banksoalId: banksoalId,
+      );
+
+      print('🔄 Refreshing bank soal list');
+      final bankSoal = await _repository.getBankSoal(subjectId);
+      emit(BankSoalFetchSuccess(bankSoal));
+      print('✅ Delete process completed successfully');
+    } catch (e) {
+      print('❌ Delete Error in Cubit: $e');
+      emit(QuestionBankError(e.toString()));
+      throw e;
+    }
+  }
+
+  // Add this method to QuestionBankCubit class
+  Future<void> deleteQuestion({
+    required int subjectId,
+    required int banksoalId,
+    required int banksoalSoalId,
+  }) async {
+    try {
+      print('📝 QuestionBankCubit: Starting delete question process');
+      emit(QuestionBankLoading());
+
+      await _repository.deleteQuestion(
+        subjectId: subjectId,
+        banksoalId: banksoalId,
+        banksoalSoalId: banksoalSoalId,
+      );
+
+      print('🔄 Refreshing questions list');
+      final questions =
+          await _repository.getBankQuestions(subjectId, banksoalId);
+      emit(BankQuestionsFetchSuccess(questions));
+      print('✅ Delete question process completed successfully');
+    } catch (e) {
+      print('❌ Delete Error in Cubit: $e');
+      emit(QuestionBankError(e.toString()));
+      throw e;
     }
   }
 }

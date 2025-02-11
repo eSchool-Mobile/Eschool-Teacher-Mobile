@@ -1,144 +1,281 @@
+import 'dart:convert';
 import 'package:eschool_saas_staff/data/models/question.dart' hide ApiException;
+import 'package:eschool_saas_staff/data/models/questionBank.dart';
 import 'package:eschool_saas_staff/data/models/subjectQuestion.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
-import 'dart:convert';
-import 'package:dio/dio.dart';
 
 class QuestionBankRepository {
-  Future<List<SubjectQuestion>> getQuestionsBySubject(int subjectId) async {
-    try { 
-      final result = await Api.get(
-        url: Api.getQuestionBank,
+  Future<List<SubjectQuestion>> getTeacherSubjects() async {
+    try {
+      final response = await Api.get(url: Api.getTeacherSubject);
+      print("API Raw Response: $response"); // Debug log
+
+      if (response['data'] == null) {
+        throw ApiException("Data is null");
+      }
+
+      final subjects = (response['data'] as List)
+          .map((json) => SubjectQuestion.fromJson(json))
+          .toList();
+      print("Parsed Subjects: $subjects"); // Debug log
+
+      return subjects;
+    } catch (e) {
+      print("Error fetching subjects: $e");
+      throw ApiException(e.toString());
+    }
+  }
+
+  Future<List<Question>> getBankQuestions(int subjectId, int bankId) async {
+    try {
+      final response = await Api.get(
+        url: Api.getBankQuestions,
+        queryParameters: {
+          'subject_id': subjectId,
+          'banksoal_id': bankId,
+        },
+      );
+
+      print("API Raw Response: $response"); // Debug log
+
+      if (response['data'] == null) {
+        throw ApiException("Data is null");
+      }
+
+      final questions = (response['data'] as List)
+          .map((json) => Question.fromJson(json))
+          .toList();
+
+      print("Parsed Questions: $questions"); // Debug log
+
+      return questions;
+    } catch (e) {
+      print("Error fetching questions: $e");
+      throw ApiException(e.toString());
+    }
+  }
+
+  Future<List<BankSoal>> getBankSoal(int subjectId) async {
+    try {
+      final response = await Api.get(
+        url: Api.getBankSoal,
         queryParameters: {'subject_id': subjectId},
-        useAuthToken: true,
       );
-      
-      print("RAW API RESPONSE: ${jsonEncode(result)}"); // Debug print
-      
-      final List dataList = result['data'] as List;
-      return dataList.map((item) {
-        print("Processing item: ${jsonEncode(item)}"); // Debug print
-        return SubjectQuestion.fromJson(item as Map<String, dynamic>);
-      }).toList();
+
+      if (response['data'] == null) {
+        throw ApiException("Data is null");
+      }
+
+      final bankSoal = (response['data'] as List)
+          .map((json) => BankSoal.fromJson(json))
+          .toList();
+
+      return bankSoal;
     } catch (e) {
-      print("Repository Error: $e"); 
-      throw e;
+      throw ApiException(e.toString());
     }
   }
 
-  Future<Question> getQuestionDetail(int subjectId, int questionId) async {
+  Future<void> createQuestionBank({
+    required int subjectId,
+    required String name,
+  }) async {
     try {
-      final result = await Api.get(
-        url: Api.getQuestionDetail,
-        queryParameters: {
-          'subject_id': subjectId,
-          'banksoal_id': questionId
+      print(
+          "Creating bank soal with: subject_id=$subjectId, name=$name"); // Debug log
+
+      final response = await Api.post(
+        url: Api.createQuestionBank,
+        body: {
+          'subject_id': subjectId.toString(), // Convert to string
+          'name': name,
         },
-        useAuthToken: true,  
       );
-      
-      return Question.fromJson(result['data']);
+
+      print("Create bank soal response: $response"); // Debug log
+
+      if (response['error'] == true) {
+        throw ApiException(response['message']);
+      }
+    } catch (e) {
+      print("Error creating bank soal: $e"); // Debug log
+      throw ApiException(e.toString());
+    }
+  }
+
+  Future<void> createQuestion({
+    required int banksoalId,
+    required int subjectId,
+    required String name,
+    required String type,
+    required int defaultPoint,
+    required String question,
+    String note = '', // Make note optional with default empty string
+    required List<QuestionOption> options,
+  }) async {
+    try {
+      final Map<String, dynamic> requestBody = {
+        'banksoal_id': banksoalId.toString(),
+        'subject_id': subjectId.toString(),
+        'name': name,
+        'type': type,
+        'default_point': defaultPoint.toString(),
+        'question': question,
+        'note': note, // No need to check if empty
+        'options': options
+            .map((opt) => {
+                  'text': opt.text,
+                  'percentage': opt.percentage,
+                  'feedback': opt.feedback,
+                })
+            .toList(),
+      };
+
+      await Api.post(url: Api.createQuestion, body: requestBody);
+    } catch (e) {
+      throw ApiException('Failed to create question: ${e.toString()}');
+    }
+  }
+
+  Future<void> updateQuestionBank({
+    required int subjectId,
+    required int banksoalId,
+    required String name,
+  }) async {
+    try {
+      final response = await Api.post(
+        url: Api.updateQuestionBank,
+        body: {
+          'subject_id': subjectId,
+          'banksoal_id': banksoalId,
+          'name': name,
+        },
+      );
+
+      if (response['error'] == true) {
+        throw ApiException(response['message']);
+      }
     } catch (e) {
       throw ApiException(e.toString());
     }
   }
 
-  Future<void> createQuestion(Question question) async {
+  Future<void> updateQuestion({
+    required int banksoalSoalId,
+    required int subjectId,
+    required String name,
+    required String type,
+    required int defaultPoint,
+    required String question,
+    String note = '',
+    required List<QuestionOption> options,
+  }) async {
     try {
-      // Validate options
-      if (question.options.isEmpty) {
-        throw ApiException('At least one option is required');
-      }
-
-      // Validate each option
-      for (var option in question.options) {
-        if (option.text.trim().isEmpty) {
-          throw ApiException('Option text is required');
-        }
-        if (option.feedback.trim().isEmpty) {
-          throw ApiException('Option feedback is required');
-        }
-        if (option.percentage.isEmpty) {
-          throw ApiException('Option percentage is required');
-        }
-      }
-
-      final formData = {
-        'subject_id': int.parse(question.subjectId),
-        'name': question.name.trim(),
-        'type': question.type.toLowerCase(),
-        'default_point': int.parse(question.defaultPoint),
-        'question': question.question.trim(),
-        'note': question.note.trim(),
-        'options': question.options.map((option) => {
-          'text': option.text.trim(),
-          'percentage': int.parse(option.percentage),
-          'feedback': option.feedback.trim()
-        }).toList(),
+      final Map<String, dynamic> requestBody = {
+        'banksoal_soal_id': banksoalSoalId.toString(),
+        'subject_id': subjectId.toString(),
+        'name': name,
+        'type': type,
+        'default_point': defaultPoint.toString(),
+        'question': question,
+        'note': note,
+        'options': options
+            .map((opt) => {
+                  'text': opt.text,
+                  'percentage': opt.percentage.toString(),
+                  'feedback': opt.feedback,
+                })
+            .toList(),
       };
 
-      print("Creating question with formData: $formData");
+      print("Updating question with data: $requestBody"); // Debug log
 
-      final result = await Api.post(
-        url: Api.createQuestion,
-        body: formData,
-        useAuthToken: true,  
-      );
+      final response =
+          await Api.post(url: Api.updateQuestion, body: requestBody);
 
-      if (result['error'] == true) {
-        throw ApiException(result['message'] ?? 'Failed to create question');
+      print("Update response: $response"); // Debug log
+
+      // Check response code and error flag
+      if (response['code'] == 200 && response['error'] == false) {
+        print("Question updated successfully");
+        return;
       }
+
+      throw ApiException(response['message'] ?? 'Failed to update question');
     } catch (e) {
-      print("Error creating question: $e");
+      print("Error updating question: $e"); // Debug log
+
+      // Check if response indicates success despite error
+      if (e.toString().contains('Soal Updated Successfully')) {
+        print("Update successful despite error");
+        return;
+      }
+
       throw ApiException(e.toString());
     }
   }
 
-  Future<void> updateQuestion(Question question) async {
+  Future<void> deleteBankSoal({
+    required int subjectId,
+    required int banksoalId,
+  }) async {
     try {
-      final requestBody = {
-        'banksoal_id': question.id,
-        'subject_id': int.parse(question.subjectId), // Convert string to int
-        'name': question.name,
-        'type': question.type,
-        'default_point': question.defaultPoint,
-        'question': question.question,
-        'note': question.note,
-        'options': question.options.map((option) => {
-          'text': option.text,
-          'percentage': option.percentage,
-          'feedback': option.feedback
-        }).toList(),
-      };
+      print('🗑️ Attempting to delete bank soal:');
+      print('Subject ID: $subjectId');
+      print('Bank Soal ID: $banksoalId');
 
-      print('Update Request: $requestBody');
-
-      final result = await Api.post(
-        url: Api.updateQuestion,
-        body: requestBody,
-        useAuthToken: true,
+      final response = await Api.delete(
+        url: Api.deleteQuestionBank,
+        body: {
+          'subject_id': subjectId.toString(),
+          'banksoal_id': banksoalId.toString(),
+        },
       );
 
-      if (result['error'] == true) {
-        throw ApiException(result['message']);
+      print('Delete Response: $response');
+
+      if (response['error'] == true) {
+        print('❌ Delete Error: ${response['message']}');
+        throw ApiException(response['message']);
       }
+
+      print('✅ Bank soal deleted successfully');
     } catch (e) {
-      print('Error updating question: $e');
-      rethrow;
+      print('❌ Delete Exception: $e');
+      throw ApiException(e.toString());
     }
   }
 
-  Future<void> deleteQuestion(int subjectId, int questionId) async {
+  Future<void> deleteQuestion({
+    required int subjectId,
+    required int banksoalId,
+    required int banksoalSoalId,
+  }) async {
     try {
-      await Api.get(
+      print('🗑️ Attempting to delete question:');
+      print('Subject ID: $subjectId');
+      print('Bank Soal ID: $banksoalId');
+      print('Question ID: $banksoalSoalId');
+
+      final response = await Api.delete(
         url: Api.deleteQuestion,
-        queryParameters: {
-          'subject_id': subjectId,
-          'banksoal_id': questionId  
+        body: {
+          'subject_id': subjectId.toString(),
+          'banksoal_id': banksoalId.toString(),
+          'banksoal_soal_id': banksoalSoalId.toString(),
         },
-        useAuthToken: true,
       );
+
+      print('Delete Response: $response');
+
+      if (response['error'] == true) {
+        print('❌ Delete Error: ${response['message']}');
+        throw ApiException(response['message']);
+      }
+
+      print('✅ Question deleted successfully');
     } catch (e) {
+      print('❌ Delete Exception: $e');
       throw ApiException(e.toString());
     }
   }

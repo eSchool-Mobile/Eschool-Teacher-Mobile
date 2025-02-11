@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/teacherAnnouncement.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
@@ -30,6 +32,15 @@ class TeacherAnnouncementRepository {
         queryParameters: queryParameters,
       );
 
+      print("GETTING");
+
+      String formattedJson = JsonEncoder.withIndent("  ").convert(result);
+
+      // Cetak per baris
+      for (var line in formattedJson.split("\n")) {
+        print(line);
+      }
+
       return (
         announcements: (result['data']['data'] as List)
             .map((e) => TeacherAnnouncement.fromJson(Map.from(e)))
@@ -58,14 +69,17 @@ class TeacherAnnouncementRepository {
         "class_section_id": classSectionId,
         "class_subject_id": classSubjectId,
         "title": title,
-        "description": description,
-        "file": files
+        "description": description
       };
       if (files.isEmpty) {
         body.remove('file');
       }
       if (description.isEmpty) {
         body.remove('description');
+      }
+
+      for (int i = 0; i < files.length; i++) {
+        body["file[$i]"] = files[i];
       }
 
       await Api.post(
@@ -96,8 +110,7 @@ class TeacherAnnouncementRepository {
         "class_section_id": classSectionId,
         "class_subject_id": classSubjectId,
         "title": title,
-        "description": description,
-        "file": files
+        "description": description
       };
       if (files.isEmpty) {
         body.remove('file');
@@ -105,6 +118,11 @@ class TeacherAnnouncementRepository {
       if (description.isEmpty) {
         body.remove('description');
       }
+
+      for (int i = 0; i < files.length; i++) {
+        body["file[$i]"] = files[i];
+      }
+
 
       await Api.post(
         body: body,

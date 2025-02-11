@@ -143,14 +143,20 @@ class Api {
   //-------------
 
   static String downloadStudentResult = "${databaseUrl}student-exan-result-pdf";
-  static String getTeacherSubjectId = "${databaseUrl}teacher/bank-soal/getTeacherSubject";
+  static String getTeacherSubjectId =
+      "${databaseUrl}teacher/bank-soal/getTeacherSubject";
 
   // Question Bank APIs
-  static String getQuestionBank = "${databaseUrl}teacher/bank-soal/get";
-  static String getQuestionDetail = "${databaseUrl}teacher/bank-soal/getSoal";
-  static String createQuestion = "${databaseUrl}teacher/bank-soal/create";
-  static String updateQuestion = "${databaseUrl}teacher/bank-soal/update";
-  static String deleteQuestion = "${databaseUrl}teacher/bank-soal/delete";
+  static String getTeacherSubject =
+      "${databaseUrl}teacher/bank-soal/getTeacherSubject";
+  static String getBankSoal = "${databaseUrl}teacher/bank-soal/get";
+  static String getBankQuestions = "${databaseUrl}teacher/bank-soal/getSoal";
+  static String createQuestionBank = "${databaseUrl}teacher/bank-soal/create";
+  static String createQuestion = "${databaseUrl}teacher/bank-soal/createSoal";
+  static String updateQuestionBank = "${databaseUrl}teacher/bank-soal/update";
+  static String updateQuestion = "${databaseUrl}teacher/bank-soal/updateSoal";
+  static String deleteQuestionBank = "${databaseUrl}teacher/bank-soal/delete";
+  static String deleteQuestion = "${databaseUrl}teacher/bank-soal/deleteSoal";
 
   static Map<String, String> headers({bool useAuthToken = false}) {
     final String jwtToken = AuthRepository.getAuthToken();
@@ -174,10 +180,10 @@ class Api {
     Function(int, int)? onSendProgress,
     Function(int, int)? onReceiveProgress,
   }) async {
-  try {
+    try {
       // if (kDebugMode) {
-        print(url);
-        print(body);
+      print(url);
+      print(body);
       // }
       final Dio dio = Dio();
 
@@ -199,7 +205,7 @@ class Api {
         onSendProgress: onSendProgress,
         options: options,
       );
-            if (bool.parse(response.data['error'].toString())) {
+      if (bool.parse(response.data['error'].toString())) {
         throw ApiException(response.data['message'].toString());
       }
 
@@ -212,7 +218,7 @@ class Api {
         throw ApiException(response.data['message']);
       }
 
-     return Map.from(response.data);
+      return Map.from(response.data);
     } on DioException catch (e) {
       if (kDebugMode) {
         print(e.response?.data);
@@ -236,8 +242,8 @@ class Api {
   }) async {
     try {
       // if (kDebugMode) {
-        print(url);
-        print(queryParameters);
+      print(url);
+      print(queryParameters);
       // }
       //
       final Dio dio = Dio();
@@ -285,6 +291,42 @@ class Api {
     } on ApiException catch (e) {
       throw ApiException(e.errorMessage);
     } catch (e) {
+      throw ApiException(defaultErrorMessageKey);
+    }
+  }
+
+  static Future<Map<String, dynamic>> delete({
+    required String url,
+    required Map<String, dynamic> body,
+    bool? useAuthToken,
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      print('DELETE Request to: $url');
+      print('Body: $body');
+
+      final Dio dio = Dio();
+      final response = await dio.delete(
+        url,
+        data: body,
+        queryParameters: queryParameters,
+        options: (useAuthToken ?? true) ? Options(headers: headers()) : null,
+      );
+
+      print('Delete Response: ${response.data}');
+
+      if (bool.parse(response.data['error'].toString())) {
+        throw ApiException(response.data['message'].toString());
+      }
+
+      return Map.from(response.data);
+    } on DioException catch (e) {
+      print('DioError: ${e.message}');
+      print('DioError Response: ${e.response?.data}');
+      throw ApiException(
+          e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
+    } catch (e) {
+      print('General Error: $e');
       throw ApiException(defaultErrorMessageKey);
     }
   }

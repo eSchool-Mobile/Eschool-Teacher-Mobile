@@ -189,22 +189,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             HomeContainer(key: HomeContainer.widgetKey),
                           ],
                           const AcademicsContainer(),
-                          if (chatModuleEnabled)
-                            // MultiBlocProvider(
-                            //   providers: [
-                            //     BlocProvider(
-                            //       create: (_) => ParentsUserChatHistoryCubit(),
-                            //     ),
-                            //     BlocProvider(
-                            //       create: (_) => StudentsUserChatHistoryCubit(),
-                            //     ),
-                            //     BlocProvider(
-                            //       create: (_) => StaffsUserChatHistoryCubit(),
-                            //     ),
-                            //   ],
-                            //   child: const ChatContainer(),
-                            // ),
-                            const ProfileContainer(),
+                          const ProfileContainer(),
                         ],
                       ),
                     ),

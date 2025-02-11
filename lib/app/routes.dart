@@ -20,6 +20,7 @@ import 'package:eschool_saas_staff/ui/screens/home/widgets/chatContainer/newChat
 import 'package:eschool_saas_staff/ui/screens/leaveRequestsScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/leaves/leavesScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/login/loginScreen.dart';
+
 import 'package:eschool_saas_staff/ui/screens/manageAnnouncement/manageAnnouncementScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/manageNotification/manageNotificationScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/managePayrolls/managePayrollsScreen.dart';
@@ -62,13 +63,18 @@ import 'package:eschool_saas_staff/ui/screens/teachersScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/termsAndConditionScreen.dart';
 import 'package:get/get.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/questionBankListScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/teacherAcademics/questionSubjectScreen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/questionBankCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/questionBankRepository.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/addQuestionScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/editQuestionScreen.dart';
 import 'package:eschool_saas_staff/data/models/question.dart';
+import 'package:eschool_saas_staff/data/models/subjectQuestion.dart';
 import 'package:dio/dio.dart';
+import 'package:eschool_saas_staff/data/models/questionBank.dart';
+import 'package:eschool_saas_staff/ui/screens/teacherAcademics/bankQuestionScreen.dart';
+
 
 // Nama route
 class Routes {
@@ -131,8 +137,11 @@ class Routes {
 
   // Question Bank routes
   static String questionBankScreen = "/questionBank";
+  static String questionSubjectScreen = "/questionSubject";
   static String addQuestionScreen = "/addQuestion"; 
   static String editQuestionScreen = "/editQuestion";
+  static String bankQuestionScreen = "/bankQuestion";
+  static const String addQuestionBank = '/addQuestionBank';
 
   static String teacherManageAssignmentScreen = "/teacherManageAssignment";
   static String teacherManageAssignmentSubmissionScreen =
@@ -224,6 +233,13 @@ class Routes {
     GetPage(
         name: changePasswordScreen,
         page: () => ChangePasswordScreen.getRouteInstance()),
+    GetPage(
+      name: questionSubjectScreen,
+      page: () => BlocProvider(
+        create: (context) => QuestionBankCubit(repository: QuestionBankRepository()),
+        child: QuestionSubjectScreen(),
+      ),
+    ),
     GetPage(name: aboutUsScreen, page: () => AboutUsScrren.getRouteInstance()),
     GetPage(
         name: contactUsScreen, page: () => ContactUsScreen.getRouteInstance()),
@@ -347,41 +363,114 @@ class Routes {
       page: () => ChatContainer.getRouteInstance(),
     ),
     GetPage(
+  name: questionSubjectScreen,
+  page: () => BlocProvider(
+    create: (context) => QuestionBankCubit(repository: QuestionBankRepository()),
+    child: QuestionSubjectScreen(),
+  ),
+),
+    GetPage(
       name: questionBankScreen,
       page: () => BlocProvider(
-        create: (context) => QuestionBankCubit(QuestionBankRepository()),
-        child: QuestionBankListScreen(),
+        create: (context) => QuestionBankCubit(
+          repository: QuestionBankRepository(),
+        ),
+        child: QuestionBankListScreen(
+          subject: Get.arguments as SubjectQuestion,
+        ),
       ),
     ),
-    GetPage(name: chatScreen, page: () => ChatScreen.getRouteInstance()),
+  //   GetPage(
+  //     name: questionBankScreen,
+  //     page: () => BlocProvider(
+  //       create: (context) => QuestionBankCubit(QuestionBankRepository()),
+  //       child: QuestionBankListScreen(),
+  //     ),
+  //   ),
+  //   GetPage(name: chatScreen, page: () => ChatScreen.getRouteInstance()),
+  //   GetPage(
+  //       name: newChatContactsScreen,
+  //       page: () => NewChatContactsScreen.getRouteInstance()),
+  //   GetPage(
+  //     name: addQuestionScreen,  
+  //     page: () => BlocProvider(
+  //       create: (context) => QuestionBankCubit(QuestionBankRepository()),
+  //       child: AddQuestionScreen(),
+  //     ),
+  //   ),
+  //  GetPage(
+  //   name: editQuestionScreen, // Route yang sudah didefinisikan
+  //   page: () => BlocProvider(
+  //     create: (context) => QuestionBankCubit(QuestionBankRepository()),
+  //     child: EditQuestionScreen(
+  //       question: Get.arguments as Question,
+  //     ),
+  //   ),
+  // ),
+  // GetPage(
+  //   name: editQuestionScreen,
+  //   page: () => BlocProvider(
+  //     create: (context) => QuestionBankCubit(QuestionBankRepository()),
+  //     child: EditQuestionScreen(
+  //       question: Get.arguments as Question,
+  //     ),
+  //   ),
+  // ),
     GetPage(
-        name: newChatContactsScreen,
-        page: () => NewChatContactsScreen.getRouteInstance()),
-    GetPage(
-      name: addQuestionScreen,  
+      name: bankQuestionScreen,
       page: () => BlocProvider(
-        create: (context) => QuestionBankCubit(QuestionBankRepository()),
-        child: AddQuestionScreen(),
+        create: (context) => QuestionBankCubit(repository: QuestionBankRepository()),
+        child: BankQuestionScreen(
+          bankSoal: Get.arguments['bankSoal'] as BankSoal,
+          subjectId: Get.arguments['subjectId'] as int,
+          subject: Get.arguments['subject'] as SubjectQuestion,
+        ),
       ),
     ),
-   GetPage(
-    name: editQuestionScreen, // Route yang sudah didefinisikan
-    page: () => BlocProvider(
-      create: (context) => QuestionBankCubit(QuestionBankRepository()),
-      child: EditQuestionScreen(
-        question: Get.arguments as Question,
+    // GetPage(
+    //   name: addQuestionBank,
+    //   page: () => BlocProvider(
+    //     create: (context) => QuestionBankCubit(repository: QuestionBankRepository()),
+    //     child: AddQuestionBank(subject: Get.arguments as SubjectQuestion),
+    //   ),
+    // ),
+  
+    GetPage(
+      name: bankQuestionScreen,
+      page: () => BlocProvider(
+        create: (context) => QuestionBankCubit(repository: QuestionBankRepository()),
+        child: BankQuestionScreen(
+          bankSoal: Get.arguments['bankSoal'] as BankSoal,
+          subjectId: Get.arguments['subjectId'] as int,
+          subject: Get.arguments['subject'] as SubjectQuestion,
+        ),
       ),
     ),
-  ),
-  GetPage(
-    name: editQuestionScreen,
-    page: () => BlocProvider(
-      create: (context) => QuestionBankCubit(QuestionBankRepository()),
-      child: EditQuestionScreen(
-        question: Get.arguments as Question,
+    GetPage(
+      name: addQuestionScreen,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return BlocProvider(
+          create: (context) => QuestionBankCubit(
+            repository: QuestionBankRepository(),
+          ),
+          child: AddQuestionScreen(
+            bankSoalId: args['bankSoalId'] as int,
+            subjectId: args['subjectId'] as int,
+          ),
+        );
+      },
+    ),
+    GetPage(
+      name: editQuestionScreen,
+      page: () => BlocProvider(
+        create: (context) => QuestionBankCubit(repository: QuestionBankRepository()),
+        child: EditQuestionScreen(
+          questionData: Get.arguments['questionData'], // Pass data this way
+        ),
       ),
     ),
-  ),
+    
 ];
 
   // /[This will check if user is login or not. If user is login then navigate to target screen]

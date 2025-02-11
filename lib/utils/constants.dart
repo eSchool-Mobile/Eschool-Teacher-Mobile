@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 const String baseUrl = "https://eschbeta.techflow.my.id";
 // const String baseUrl = "https://eschbeta.quantech.web.id";
 // const String baseUrl = "https://eschoolbeta.lucia.id";
-// const String baseUrl = "https://eschool.lucia.id";
+// // const String baseUrl = "https://eschool.lucia.id";
 // const String baseUrl = "https://eschool.ac.id";
 // const String baseUrl = "https://wrteam.net";
 
@@ -34,8 +34,12 @@ double topPaddingOfErrorAndLoadingContainer = 150;
 
 String defaultSchoolCode = "SCH20247";
 String defaultEmail = "agungcahyono533@gmail.com";
-// String defaultPassword = "081234234234";
 String defaultPassword = "081230093978";
+
+// String defaultSchoolCode = "";
+// String defaultEmail = "";
+// String defaultPassword = "";
+
 
 List<String> months = [
   januaryKey,
@@ -131,7 +135,7 @@ enum StudentAttendanceStatus { absent, present, sick, permission, alpa }
 
 StudentAttendanceStatus getStudentAttendanceStatusFromValue(int status) {
   print('Getting attendance status for value: $status');
-  
+
   StudentAttendanceStatus result;
   if (status == 0) {
     result = StudentAttendanceStatus.absent;
@@ -146,7 +150,7 @@ StudentAttendanceStatus getStudentAttendanceStatusFromValue(int status) {
   } else {
     result = StudentAttendanceStatus.absent;
   }
-  
+
   print('Attendance status resolved to: ${result.toString().split('.').last}');
   return result;
 }

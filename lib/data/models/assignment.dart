@@ -50,6 +50,8 @@ class Assignment {
   final List<String> acceptedFile;
 
   factory Assignment.fromJson(Map<String, dynamic> json) {
+    print("DATA ABIS HIT");
+    print(json);
     return Assignment(
       id: json['id'] ?? 0,
       classSectionId: json['class_section_id'] ?? 0,
