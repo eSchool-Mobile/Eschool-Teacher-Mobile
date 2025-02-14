@@ -28,6 +28,16 @@ class BankQuestionScreen extends StatefulWidget {
 }
 
 class _BankQuestionScreenState extends State<BankQuestionScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  List<q.Question> _filteredQuestions = [];
+  bool _showSearch = false;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   String parseHtmlString(String htmlString) {
     final document = parse(htmlString);
     return document.body?.text ?? htmlString;
@@ -144,6 +154,75 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
     }
   }
 
+  // Ubah method _buildHeader()
+  Widget _buildHeader() {
+    return Container(
+      padding: EdgeInsets.all(20),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              IconButton(
+                icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                onPressed: () => Get.back(),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.bankSoal.name,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black26,
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Bank Soal',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.8),
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Tambah Tombol di sini
+              ElevatedButton.icon(
+                onPressed: _navigateToAddQuestion,
+                icon: Icon(Icons.edit_note, size: 20),
+                label: Text('Tambah Soal'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.secondary,
+                  backgroundColor: Colors.white,
+                  elevation: 0,
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  textStyle: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Ubah method build() untuk menghapus FloatingActionButton
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -205,79 +284,84 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
           ),
         ),
       ),
-      floatingActionButton: _buildFAB(),
+      // Hapus floatingActionButton di sini
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      padding: EdgeInsets.all(20),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              IconButton(
-                icon: Icon(Icons.arrow_back_ios, color: Colors.white),
-                onPressed: () => Get.back(),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.bankSoal.name,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Bank Soal',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+  void _filterQuestions(String query, List<q.Question> questions) {
+    setState(() {
+      if (query.isEmpty) {
+        _filteredQuestions = questions;
+      } else {
+        _filteredQuestions = questions
+            .where((question) =>
+                question.versions.last.name
+                    .toLowerCase()
+                    .contains(query.toLowerCase()) ||
+                question.versions.last.question
+                    .toLowerCase()
+                    .contains(query.toLowerCase()))
+            .toList();
+      }
+    });
   }
 
   Widget _buildContent(List<q.Question> questions) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: kFloatingActionButtonMargin + 32),
-      child: GridView.builder(
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-        physics: BouncingScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio:
-              0.62, // Decreased from 0.68 to 0.62 to make cards taller
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 12,
+    _showSearch = questions.length > 5;
+    if (_filteredQuestions.isEmpty) {
+      _filteredQuestions = questions;
+    }
+
+    return Column(
+      children: [
+        if (_showSearch)
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (query) => _filterQuestions(query, questions),
+              decoration: InputDecoration(
+                hintText: 'Cari soal...',
+                prefixIcon: Icon(Icons.search, color: Colors.grey),
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+            ),
+          ),
+        Expanded(
+          child: GridView.builder(
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+            physics: BouncingScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio:
+                  0.62, // Decreased from 0.68 to 0.62 to make cards taller
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 12,
+            ),
+            itemCount: _filteredQuestions.length,
+            itemBuilder: (context, index) {
+              final question = _filteredQuestions[index];
+              final latestVersion = question.versions.last;
+              return FadeInUp(
+                duration: Duration(milliseconds: 600 + (index * 100)),
+                child: _buildQuestionCard(question, latestVersion),
+              );
+            },
+          ),
         ),
-        itemCount: questions.length,
-        itemBuilder: (context, index) {
-          final question = questions[index];
-          final latestVersion = question.versions.last;
-          return FadeInUp(
-            duration: Duration(milliseconds: 600 + (index * 100)),
-            child: _buildQuestionCard(question, latestVersion),
-          );
-        },
-      ),
+      ],
     );
   }
 
@@ -850,63 +934,6 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
               child: Text('Coba Lagi'),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFAB() {
-    return FadeInUp(
-      duration: Duration(milliseconds: 600),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.primary,
-              Theme.of(context).colorScheme.secondary,
-            ],
-          ),
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-              blurRadius: 12,
-              spreadRadius: 2,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: MaterialButton(
-          onPressed: _navigateToAddQuestion,
-          padding: EdgeInsets.symmetric(
-              horizontal: 28, vertical: 18), // Increased padding
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: EdgeInsets.all(10), // Increased padding
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(Icons.add,
-                    color: Colors.white, size: 24), // Increased icon size
-              ),
-              SizedBox(width: 16), // Increased spacing
-              Text(
-                'Tambah Soal',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18, // Increased font size
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.5, // Added letter spacing
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

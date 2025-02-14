@@ -36,10 +36,13 @@ String defaultSchoolCode = "SCH20247";
 String defaultEmail = "agungcahyono533@gmail.com";
 String defaultPassword = "081230093978";
 
+// String defaultSchoolCode = "SCH20247";
+// String defaultEmail = "adminsmk8malang@gmail.com";
+// String defaultPassword = "0341479148";
+
 // String defaultSchoolCode = "";
 // String defaultEmail = "";
 // String defaultPassword = "";
-
 
 List<String> months = [
   januaryKey,

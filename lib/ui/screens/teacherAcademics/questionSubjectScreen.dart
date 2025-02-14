@@ -6,20 +6,83 @@ import 'package:animate_do/animate_do.dart';
 import 'package:eschool_saas_staff/app/routes.dart';
 import '../../../cubits/teacherAcademics/assignment/questionBankCubit.dart';
 import '../../../data/models/question.dart';
+import '../../../data/models/subjectQuestion.dart';
+
+class CustomSearchBar extends StatelessWidget {
+  final TextEditingController controller;
+  final Function(String) onChanged;
+  final String hintText;
+
+  const CustomSearchBar({
+    Key? key,
+    required this.controller,
+    required this.onChanged,
+    required this.hintText,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      child: TextField(
+        controller: controller,
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          hintText: hintText,
+          prefixIcon: Icon(Icons.search),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        ),
+      ),
+    );
+  }
+}
 
 class QuestionSubjectScreen extends StatefulWidget {
+  final bool isStaffView;
+
+  const QuestionSubjectScreen({
+    Key? key,
+    this.isStaffView = false,
+  }) : super(key: key);
+
   @override
   State<QuestionSubjectScreen> createState() => _QuestionSubjectScreenState();
 }
 
 class _QuestionSubjectScreenState extends State<QuestionSubjectScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  List<SubjectQuestion> _filteredSubjects = [];
+  bool _showSearch = false;
 
   @override
   void initState() {
     super.initState();
-    // Add delay to ensure proper initialization
-    Future.delayed(Duration.zero, () {
-      context.read<QuestionBankCubit>().fetchTeacherSubjects();
+    // Fetch all subjects for staff, or only teacher's subjects for teachers
+    context
+        .read<QuestionBankCubit>()
+        .fetchTeacherSubjects(isStaffView: widget.isStaffView);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _filterSubjects(String query, List<SubjectQuestion> subjects) {
+    setState(() {
+      if (query.isEmpty) {
+        _filteredSubjects = subjects;
+      } else {
+        _filteredSubjects = subjects
+            .where((subject) => subject.subjectWithName
+                .toLowerCase()
+                .contains(query.toLowerCase()))
+            .toList();
+      }
     });
   }
 
@@ -84,10 +147,25 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen> {
                       }
 
                       if (state is SubjectsFetchSuccess) {
-                        if (state.subjects.isEmpty) {
-                          return _buildEmptyView();
+                        _showSearch = state.subjects.length > 5;
+                        if (_filteredSubjects.isEmpty) {
+                          _filteredSubjects = state.subjects;
                         }
-                        return _buildSubjectsList(state.subjects);
+
+                        return Column(
+                          children: [
+                            if (_showSearch)
+                              CustomSearchBar(
+                                controller: _searchController,
+                                onChanged: (query) =>
+                                    _filterSubjects(query, state.subjects),
+                                hintText: 'Cari mata pelajaran...',
+                              ),
+                            Expanded(
+                              child: _buildSubjectsList(_filteredSubjects),
+                            ),
+                          ],
+                        );
                       }
 
                       if (state is QuestionBankError) {
@@ -103,6 +181,15 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen> {
           ),
         ),
       ),
+      floatingActionButton: widget.isStaffView
+          ? null
+          : FloatingActionButton(
+              onPressed: () {
+                Get.toNamed(Routes.addQuestionScreen);
+              },
+              child: Icon(Icons.add),
+              backgroundColor: Theme.of(context).colorScheme.secondary,
+            ), // Hide FAB for staff
     );
   }
 
@@ -294,7 +381,8 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen> {
     if (name.contains('bahasa')) return Icons.language;
     if (name.contains('ipa') || name.contains('sains')) return Icons.science;
     if (name.contains('ips') || name.contains('sosial')) return Icons.public;
-    if (name.contains('komputer') || name.contains('informatika')) return Icons.computer;
+    if (name.contains('komputer') || name.contains('informatika'))
+      return Icons.computer;
     if (name.contains('olahraga')) return Icons.sports;
     if (name.contains('seni')) return Icons.palette;
     return Icons.subject;

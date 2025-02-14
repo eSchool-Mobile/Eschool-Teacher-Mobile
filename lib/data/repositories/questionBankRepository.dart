@@ -5,20 +5,51 @@ import 'package:eschool_saas_staff/data/models/subjectQuestion.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 
 class QuestionBankRepository {
-  Future<List<SubjectQuestion>> getTeacherSubjects() async {
+  Future<List<SubjectQuestion>> getTeacherSubjects(
+      {bool isStaffView = false}) async {
     try {
-      final response = await Api.get(url: Api.getTeacherSubject);
-      print("API Raw Response: $response"); // Debug log
+      final response = await Api.get(
+        url: Api.getTeacherSubject,
+        queryParameters:
+            isStaffView ? {'view_type': 'staff', 'all': true} : null,
+      );
+
+      print(
+          "Raw API Response for ${isStaffView ? 'Staff' : 'Teacher'}: $response");
 
       if (response['data'] == null) {
         throw ApiException("Data is null");
       }
 
-      final subjects = (response['data'] as List)
-          .map((json) => SubjectQuestion.fromJson(json))
-          .toList();
-      print("Parsed Subjects: $subjects"); // Debug log
+      // Handle the response structure
+      List<Map<String, dynamic>> subjectsData = [];
 
+      if (response['data'] is List) {
+        // If data is already a list, use it directly
+        subjectsData = (response['data'] as List)
+            .map((item) => item as Map<String, dynamic>)
+            .toList();
+      } else if (response['data'] is Map) {
+        // If data is a map, convert its values to a list
+        subjectsData = (response['data'] as Map)
+            .values
+            .map((item) => item as Map<String, dynamic>)
+            .toList();
+      }
+
+      print("Processed subjects data: $subjectsData");
+
+      final subjects = subjectsData.map((json) {
+        try {
+          return SubjectQuestion.fromJson(json);
+        } catch (e) {
+          print("Error parsing subject: $e");
+          print("Subject JSON: $json");
+          rethrow;
+        }
+      }).toList();
+
+      print("Successfully parsed ${subjects.length} subjects");
       return subjects;
     } catch (e) {
       print("Error fetching subjects: $e");

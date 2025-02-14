@@ -121,13 +121,15 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer> {
                     onTap: () {
                       Get.toNamed(Routes.teacherManageTopicScreen);
                     }),
-                CustomMenuTile(
-                    iconImageName: "question_bank.svg",
-                    titleKey: "Bank Soal",
-                    onTap: () {
-                      Get.toNamed(Routes.questionSubjectScreen);
-                    }),
               ]),
+            MenusWithTitleContainer(title: "Bank Soal", menus: [
+              CustomMenuTile(
+                  iconImageName: "question_bank.svg",
+                  titleKey: "Bank Soal",
+                  onTap: () {
+                    Get.toNamed(Routes.questionSubjectScreen);
+                  }),
+            ]),
             if (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
                 moduleId: assignmentManagementModuleId.toString()))
               MenusWithTitleContainer(title: studentAssignmentKey, menus: [
@@ -164,6 +166,14 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer> {
                       Get.toNamed(Routes.teacherExamResultScreen);
                     }),
               ]),
+            MenusWithTitleContainer(title: "Ujian Online", menus: [
+              CustomMenuTile(
+                  iconImageName: "online_exam.svg", // Add this icon to assets
+                  titleKey: "Ujian Online",
+                  onTap: () {
+                    Get.toNamed(Routes.onlineExamScreen);
+                  }),
+            ]),
           ],
         );
       },

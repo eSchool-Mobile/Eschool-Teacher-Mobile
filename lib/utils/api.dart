@@ -158,6 +158,17 @@ class Api {
   static String deleteQuestionBank = "${databaseUrl}teacher/bank-soal/delete";
   static String deleteQuestion = "${databaseUrl}teacher/bank-soal/deleteSoal";
 
+  // Online Exam APIs
+  static String getOnlineExamList =
+      "${databaseUrl}teacher/get-online-exam-list";
+  static String createOnlineExam = "${databaseUrl}teacher/store-online-exam";
+  static String updateOnlineExam = "${databaseUrl}teacher/update-online-exam";
+  static String deleteOnlineExam = "${databaseUrl}teacher/delete-online-exam";
+  static String getOnlineExamQuestions =
+      "${databaseUrl}teacher/get-online-exam-questions";
+  static String storeOnlineExamQuestions =
+      "${databaseUrl}teacher/store-online-exam-questions";
+
   static Map<String, String> headers({bool useAuthToken = false}) {
     final String jwtToken = AuthRepository.getAuthToken();
     final schoolCode = AuthRepository().schoolCode;
@@ -181,56 +192,43 @@ class Api {
     Function(int, int)? onReceiveProgress,
   }) async {
     try {
-      // if (kDebugMode) {
       print(url);
       print(body);
-      // }
-      final Dio dio = Dio();
 
-      // Enable array format for form data
+      final Dio dio = Dio();
       final options = Options(
         headers: (useAuthToken ?? true) ? headers() : null,
-        contentType: Headers.multipartFormDataContentType,
+        contentType: Headers.formUrlEncodedContentType, // Ubah content type
       );
-
-      // Create form data with array format support
-      final formData = FormData.fromMap(body, ListFormat.multi);
 
       final response = await dio.post(
         url,
-        data: formData,
+        data: FormData.fromMap(body),
         queryParameters: queryParameters,
         cancelToken: cancelToken,
         onReceiveProgress: onReceiveProgress,
         onSendProgress: onSendProgress,
         options: options,
       );
-      if (bool.parse(response.data['error'].toString())) {
-        throw ApiException(response.data['message'].toString());
-      }
 
-      print("Response Status: ${response.statusCode}");
       print("Response Data: ${response.data}");
-      print("Response Headers: ${response.headers}");
-      print("Response Status Code: ${response.statusCode}");
 
-      if (response.data['error'] == true) {
-        throw ApiException(response.data['message']);
+      if (response.statusCode != 200) {
+        throw Exception('Failed to create exam: ${response.statusMessage}');
       }
 
-      return Map.from(response.data);
+      if (response.data is Map) {
+        return Map<String, dynamic>.from(response.data);
+      } else {
+        throw Exception('Invalid response format');
+      }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print(e.response?.data);
-      }
+      print("Dio Error: ${e.response?.data}");
       throw ApiException(
-          e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
-    } on ApiException catch (e) {
-      throw ApiException(e.errorMessage);
+        e.error is SocketException ? noInternetKey : defaultErrorMessageKey,
+      );
     } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
+      print("General Error: $e");
       throw ApiException(defaultErrorMessageKey);
     }
   }
@@ -241,36 +239,34 @@ class Api {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
-      // if (kDebugMode) {
-      print(url);
-      print(queryParameters);
-      // }
-      //
       final Dio dio = Dio();
-      final response = await dio.get(url,
-          queryParameters: queryParameters,
-          options: (useAuthToken ?? true) ? Options(headers: headers()) : null);
+      final response = await dio.get(
+        url,
+        queryParameters: queryParameters,
+        options: Options(
+          headers: headers(useAuthToken: useAuthToken ?? true),
+          validateStatus: (status) => status! < 500,
+        ),
+      );
 
-      if (bool.parse(response.data['error'].toString())) {
-        if (kDebugMode) {
-          print(response.data);
+      print("Response Status Code: ${response.statusCode}");
+      print("Full Response Data: ${response.data}");
+
+      if (response.statusCode == 200) {
+        if (response.data is Map) {
+          return Map<String, dynamic>.from(response.data);
         }
-
-        throw ApiException(response.data['message'].toString());
+        throw ApiException("Invalid response format");
+      } else {
+        throw ApiException(response.data['message'] ?? defaultErrorMessageKey);
       }
-
-      return Map.from(response.data);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print(e.error?.toString());
-        print(e.response?.data);
-      }
-      throw ApiException(
-          e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
-    } on ApiException catch (e) {
-      throw ApiException(e.errorMessage);
+      print("Dio Error: ${e.message}");
+      print("Dio Error Response: ${e.response?.data}");
+      throw ApiException(e.message ?? defaultErrorMessageKey);
     } catch (e) {
-      throw ApiException(defaultErrorMessageKey);
+      print("General Error: $e");
+      throw ApiException(e.toString());
     }
   }
 

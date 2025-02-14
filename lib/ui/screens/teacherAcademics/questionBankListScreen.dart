@@ -31,6 +31,9 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
   final _nameController = TextEditingController();
   final _typeController = TextEditingController(text: 'multiple_choice');
   final _defaultPointController = TextEditingController(text: '10');
+  final TextEditingController _searchController = TextEditingController();
+  List<BankSoal> _filteredBanks = [];
+  bool _showSearch = false;
 
   @override
   void initState() {
@@ -47,6 +50,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
     _nameController.dispose();
     _typeController.dispose();
     _defaultPointController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -70,7 +74,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // Custom App Bar
+              // Custom App Bar with Add Button
               FadeInDown(
                 duration: Duration(milliseconds: 600),
                 child: Container(
@@ -81,12 +85,35 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                         icon: Icon(Icons.arrow_back_ios, color: Colors.white),
                         onPressed: () => Get.back(),
                       ),
-                      Text(
-                        'Bank Soal ${widget.subject.subjectWithName}',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Text(
+                          'Bank Soal ${widget.subject.subjectWithName}',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      // Ganti container IconButton dengan ElevatedButton
+                      ElevatedButton.icon(
+                        onPressed: _showAddBankDialog,
+                        icon: Icon(Icons.add_box_rounded, size: 20),
+                        label: Text('Bank Soal'),
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor:
+                              Theme.of(context).colorScheme.secondary,
+                          backgroundColor: Colors.white,
+                          elevation: 0,
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          textStyle: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ],
@@ -111,10 +138,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                       }
 
                       if (state is BankSoalFetchSuccess) {
-                        if (state.bankSoal.isEmpty) {
-                          return _buildEmptyView();
-                        }
-                        return _buildBankList(state);
+                        return _buildContent(state);
                       }
 
                       if (state is QuestionBankError) {
@@ -127,77 +151,6 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-      floatingActionButton: FadeInUp(
-        duration: Duration(milliseconds: 600),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFFE53935), // Light red
-                Color(0xFFC62828), // Darker red
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: [
-              BoxShadow(
-                color: Color(0xFFC62828).withOpacity(0.3),
-                blurRadius: 12,
-                spreadRadius: 2,
-                offset: Offset(0, 4),
-              ),
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 4,
-                spreadRadius: 1,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ),
-          child: MaterialButton(
-            onPressed: () => _showAddBankDialog(),
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white24,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.add,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-                SizedBox(width: 12),
-                Text(
-                  'Tambah Bank Soal',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black26,
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),
@@ -248,6 +201,20 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                 fontWeight: FontWeight.w500,
               ),
             ),
+            SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _showAddBankDialog,
+              icon: Icon(Icons.add),
+              label: Text('Tambah Bank Soal'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -282,13 +249,13 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
     );
   }
 
-  Widget _buildBankList(BankSoalFetchSuccess state) {
+  Widget _buildBankList(List<BankSoal> banks) {
     return ListView.builder(
       padding: EdgeInsets.all(20),
-      itemCount: state.bankSoal.length,
+      itemCount: banks.length,
       physics: BouncingScrollPhysics(),
       itemBuilder: (context, index) {
-        final bank = state.bankSoal[index];
+        final bank = banks[index];
         return FadeInUp(
           duration: Duration(milliseconds: 600 + (index * 100)),
           child: Container(
@@ -372,7 +339,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                               IconButton(
                                 icon: Icon(Icons.edit, color: Colors.white),
                                 onPressed: () =>
-                                    _showEditBankDialog(state, index),
+                                    _showEditBankDialog(banks, index),
                               ),
                               IconButton(
                                 icon: Icon(Icons.delete, color: Colors.white),
@@ -552,8 +519,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
     );
   }
 
-  void _showEditBankDialog(BankSoalFetchSuccess state, int index) {
-    final bank = state.bankSoal[index];
+  void _showEditBankDialog(List<BankSoal> banks, int index) {
+    final bank = banks[index];
     final _editController = TextEditingController(text: bank.name);
     final _editFormKey = GlobalKey<FormState>();
 
@@ -700,6 +667,49 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
           ],
         );
       },
+    );
+  }
+
+  void _filterBanks(String query, List<BankSoal> banks) {
+    setState(() {
+      if (query.isEmpty) {
+        _filteredBanks = banks;
+      } else {
+        _filteredBanks = banks
+            .where(
+                (bank) => bank.name.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
+    });
+  }
+
+  Widget _buildContent(BankSoalFetchSuccess state) {
+    _showSearch = state.bankSoal.length > 5;
+    if (_filteredBanks.isEmpty) {
+      _filteredBanks = state.bankSoal;
+    }
+
+    return Column(
+      children: [
+        if (_showSearch)
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (query) => _filterBanks(query, state.bankSoal),
+              decoration: InputDecoration(
+                hintText: 'Cari bank soal...',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        Expanded(
+          child: _buildBankList(_filteredBanks),
+        ),
+      ],
     );
   }
 }

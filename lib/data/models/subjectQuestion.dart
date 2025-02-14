@@ -3,7 +3,7 @@ import 'question.dart';
 class SubjectQuestion {
   final int? id;
   final int teacherId;
-  final int subjectId; 
+  final int subjectId;
   final String name;
   final int soalCount;
   final List<QuestionBank> banks;
@@ -24,20 +24,26 @@ class SubjectQuestion {
   });
 
   factory SubjectQuestion.fromJson(Map<String, dynamic> json) {
-    // Add debug print
-    print("Parsing JSON: $json"); 
-    
-    return SubjectQuestion(
-      id: json['id'],
-      teacherId: json['teacher_id'] ?? 0,
-      subjectId: json['subject_id'] ?? 0,
-      name: json['name'] ?? '',
-      soalCount: json['soal_count'] ?? 0,
-      banks: [], // Since banks are not in the API response
-      bankSoalCount: json['bank_soal_count'] ?? 0,
-      subjectWithName: json['subject_with_name'] ?? '',
-      subject: Subject.fromJson(json['subject'] ?? {}),
-    );
+    try {
+      final subject = json['subject'] ?? {};
+
+      return SubjectQuestion(
+        id: json['id'] ?? subject['id'],
+        teacherId: json['teacher_id'] ?? 0,
+        subjectId: subject['id'] ?? 0,
+        name: subject['name'] ?? '',
+        soalCount: json['bank_soal_count'] ?? 0,
+        banks: [],
+        bankSoalCount: json['bank_soal_count'] ?? 0,
+        subjectWithName: json['subject_with_name'] ??
+            "${subject['name']} (${subject['type'] ?? 'Theory'})",
+        subject: Subject.fromJson(subject),
+      );
+    } catch (e) {
+      print("Error parsing SubjectQuestion: ${json.toString()}");
+      print("Error details: $e");
+      rethrow;
+    }
   }
 }
 
@@ -60,8 +66,10 @@ class QuestionBank {
       name: json['name'] ?? '',
       subjectId: json['subject_id'] as int?,
       questions: json['questions'] != null
-        ? (json['questions'] as List).map((q) => Question.fromJson(q)).toList()
-        : [],
+          ? (json['questions'] as List)
+              .map((q) => Question.fromJson(q))
+              .toList()
+          : [],
     );
   }
 }
@@ -80,11 +88,18 @@ class Subject {
   });
 
   factory Subject.fromJson(Map<String, dynamic> json) {
-    return Subject(
-      id: json['id'] ?? 0,
-      name: json['name'] ?? '',
-      type: json['type'] ?? '',
-      nameWithType: json['name_with_type'] ?? '',
-    );
+    try {
+      return Subject(
+        id: json['id'] ?? 0,
+        name: json['name'] ?? '',
+        type: json['type'] ?? 'Theory',
+        nameWithType: json['name_with_type'] ??
+            "${json['name'] ?? ''} - ${json['type'] ?? 'Theory'}",
+      );
+    } catch (e) {
+      print("Error parsing Subject: $json");
+      print("Error details: $e");
+      rethrow;
+    }
   }
 }

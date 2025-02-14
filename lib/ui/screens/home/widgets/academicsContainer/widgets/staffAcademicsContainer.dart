@@ -151,6 +151,17 @@ class StaffAcademicsContainer extends StatelessWidget {
                     : const SizedBox(),
               ])
             : const SizedBox(),
+        MenusWithTitleContainer(title: "Bank Soal", menus: [
+          CustomMenuTile(
+              iconImageName: "question_bank.svg",
+              titleKey: "Bank Soal",
+              onTap: () {
+                if (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
+                    moduleId: lessonManagementModuleId.toString())) {
+                  Get.toNamed(Routes.questionSubjectScreen);
+                }
+              }),
+        ]),
         (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
                         moduleId: announcementManagementModuleId.toString()) &&
                     staffAllowedPermissionsAndModulesCubit.isPermissionGiven(

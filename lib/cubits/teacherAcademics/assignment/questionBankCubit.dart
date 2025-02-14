@@ -38,17 +38,23 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
       : _repository = repository,
         super(QuestionBankInitial());
 
-  Future<void> fetchTeacherSubjects() async {
+  Future<void> fetchTeacherSubjects({bool isStaffView = false}) async {
     try {
       emit(QuestionBankLoading());
-      print("Fetching teacher subjects...");
+      print("Fetching subjects for ${isStaffView ? 'staff' : 'teacher'}...");
 
-      final subjects = await _repository.getTeacherSubjects();
-      print("Raw subjects data: $subjects");
+      final subjects =
+          await _repository.getTeacherSubjects(isStaffView: isStaffView);
 
+      if (subjects.isEmpty) {
+        emit(QuestionBankError("Tidak ada mata pelajaran yang tersedia"));
+        return;
+      }
+
+      print("Successfully fetched ${subjects.length} subjects");
       emit(SubjectsFetchSuccess(subjects));
     } catch (e) {
-      print("Error in cubit: $e");
+      print("Error in QuestionBankCubit: $e");
       emit(QuestionBankError(e.toString()));
     }
   }
