@@ -78,8 +78,10 @@ import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/createOnlineExam.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
+import 'package:eschool_saas_staff/cubits/questionOnlineExam/questionOnlineExamCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/onlineExamRepository.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/questionOnlineExamScreen.dart';
 
 // Nama route
 class Routes {
@@ -169,6 +171,9 @@ class Routes {
 
   static String onlineExamScreen = "/onlineExam";
   static String createOnlineExam = "/create-exam";
+
+  // Tambahkan route baru
+  static const String questionOnlineExam = '/exam-questions/:id';
 
   // Nama page
   static final List<GetPage> getPages = [
@@ -511,6 +516,20 @@ class Routes {
           ),
         ],
         child: CreateOnlineExam(),
+      ),
+    ),
+    GetPage(
+      name: Routes.questionOnlineExam,
+      page: () => MultiBlocProvider(
+        providers: [
+          BlocProvider<QuestionOnlineExamCubit>(
+            create: (context) =>
+                QuestionOnlineExamCubit(OnlineExamRepository()),
+          ),
+        ],
+        child: QuestionOnlineExamScreen(
+          examId: int.parse(Get.parameters['id'] ?? '0'),
+        ),
       ),
     ),
   ];

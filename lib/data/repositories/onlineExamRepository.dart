@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:eschool_saas_staff/data/models/onlineExam.dart';
+import 'package:eschool_saas_staff/data/models/questionOnlineExam.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:dio/dio.dart';
 
@@ -131,6 +132,72 @@ class OnlineExamRepository {
       }
     } catch (e) {
       print('Error creating exam: $e');
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<List<QuestionOnlineExam>> getOnlineExamQuestions(int examId) async {
+    try {
+      final response = await Api.get(
+        url: "${Api.getOnlineExamQuestions}/$examId",
+        useAuthToken: true,
+      );
+
+      print('Questions Response: $response');
+
+      if (response['status'] == true) {
+        // Mengambil exam_questions dari nested response
+        final data = response['data'] as Map<String, dynamic>;
+        final examQuestions = data['exam_questions'] as List;
+
+        // Mengambil bank_soal jika diperlukan
+        final bankSoal = data['bank_soal'] as List;
+
+        // Convert exam_questions ke QuestionOnlineExam
+        final List<QuestionOnlineExam> questions =
+            examQuestions.map((question) {
+          return QuestionOnlineExam(
+            id: question['id'] ?? 0,
+            question: question['question'] ?? '',
+            optionA: question['option_a'] ?? '',
+            optionB: question['option_b'] ?? '',
+            optionC: question['option_c'] ?? '',
+            optionD: question['option_d'] ?? '',
+            correctAnswer: question['correct_answer'] ?? '',
+            marks: question['marks'] ?? 0,
+            onlineExamId: examId,
+          );
+        }).toList();
+
+        return questions;
+      } else {
+        throw Exception(response['message'] ?? 'Failed to fetch questions');
+      }
+    } catch (e) {
+      print('Error fetching questions: $e');
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<void> storeOnlineExamQuestions({
+    required int examId,
+    required List<QuestionOnlineExam> questions,
+  }) async {
+    try {
+      final response = await Api.post(
+        url: Api.storeOnlineExamQuestions,
+        useAuthToken: true,
+        body: {
+          'exam_id': examId,
+          'questions': questions.map((q) => q?.toJson()).toList(),
+        },
+      );
+
+      if (response['status'] != true) {
+        throw Exception(response['message'] ?? 'Failed to store questions');
+      }
+    } catch (e) {
+      print('Error storing questions: $e');
       throw Exception(e.toString());
     }
   }

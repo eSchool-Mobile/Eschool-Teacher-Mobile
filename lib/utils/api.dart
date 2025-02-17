@@ -159,15 +159,12 @@ class Api {
   static String deleteQuestion = "${databaseUrl}teacher/bank-soal/deleteSoal";
 
   // Online Exam APIs
-  static String getOnlineExamList =
-      "${databaseUrl}teacher/get-online-exam-list";
+  static String getOnlineExamList ="${databaseUrl}teacher/get-online-exam-list";
   static String createOnlineExam = "${databaseUrl}teacher/store-online-exam";
   static String updateOnlineExam = "${databaseUrl}teacher/update-online-exam";
   static String deleteOnlineExam = "${databaseUrl}teacher/delete-online-exam";
-  static String getOnlineExamQuestions =
-      "${databaseUrl}teacher/get-online-exam-questions";
-  static String storeOnlineExamQuestions =
-      "${databaseUrl}teacher/store-online-exam-questions";
+  static String getOnlineExamQuestions = "${databaseUrl}teacher/get-online-exam-questions";
+  static String storeOnlineExamQuestions ="${databaseUrl}teacher/store-online-exam-questions";
 
   static Map<String, String> headers({bool useAuthToken = false}) {
     final String jwtToken = AuthRepository.getAuthToken();

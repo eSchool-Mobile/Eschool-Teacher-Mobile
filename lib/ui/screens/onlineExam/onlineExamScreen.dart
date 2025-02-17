@@ -297,9 +297,18 @@ class _OnlineExamScreenState extends State<OnlineExamScreen> {
                       PopupMenuItem(
                         child: ListTile(
                           leading: Icon(Icons.add_circle_outline),
-                          title: Text('Tambah Soal'),
+                          title: Text('Soal ujian online'),
                         ),
                         value: 'add_question',
+                        onTap: () {
+                          // Delay navigasi untuk menghindari error popup menu
+                          Future.delayed(
+                            const Duration(milliseconds: 100),
+                            () => Get.toNamed(
+                              '/exam-questions/${exam.id}',
+                            ),
+                          );
+                        },
                       ),
                       PopupMenuItem(
                         child: ListTile(
