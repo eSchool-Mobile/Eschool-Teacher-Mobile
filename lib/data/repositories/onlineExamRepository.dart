@@ -136,40 +136,43 @@ class OnlineExamRepository {
     }
   }
 
-  Future<List<QuestionOnlineExam>> getOnlineExamQuestions(int examId) async {
+  Future<List<QuestionOnlineExam>> getOnlineExamQuestions(
+    int examId, {
+    int? bankId,
+  }) async {
     try {
       final response = await Api.get(
         url: "${Api.getOnlineExamQuestions}/$examId",
         useAuthToken: true,
+        queryParameters: bankId != null ? {'bank_id': bankId} : null,
       );
 
       print('Questions Response: $response');
 
       if (response['status'] == true) {
-        // Mengambil exam_questions dari nested response
         final data = response['data'] as Map<String, dynamic>;
         final examQuestions = data['exam_questions'] as List;
 
-        // Mengambil bank_soal jika diperlukan
-        final bankSoal = data['bank_soal'] as List;
+        return examQuestions.map((question) {
+          // Parse options
+          final options = (question['options'] as List?)?.first ?? {};
 
-        // Convert exam_questions ke QuestionOnlineExam
-        final List<QuestionOnlineExam> questions =
-            examQuestions.map((question) {
           return QuestionOnlineExam(
             id: question['id'] ?? 0,
-            question: question['question'] ?? '',
-            optionA: question['option_a'] ?? '',
-            optionB: question['option_b'] ?? '',
-            optionC: question['option_c'] ?? '',
-            optionD: question['option_d'] ?? '',
-            correctAnswer: question['correct_answer'] ?? '',
+            question: question['question_text'] ?? '',
+            optionA: options['option'] ?? '', // Menggunakan option dari options
+            optionB: '', // Sesuaikan dengan response API
+            optionC: '', // Sesuaikan dengan response API
+            optionD: '', // Sesuaikan dengan response API
+            correctAnswer: options['is_answer'] == 1
+                ? 'A'
+                : '', // Sesuaikan dengan response API
             marks: question['marks'] ?? 0,
+            title: '', // Bisa diambil dari exam['title'] jika diperlukan
+            version: '1.0', // Sesuaikan dengan kebutuhan
             onlineExamId: examId,
           );
         }).toList();
-
-        return questions;
       } else {
         throw Exception(response['message'] ?? 'Failed to fetch questions');
       }
@@ -198,6 +201,33 @@ class OnlineExamRepository {
       }
     } catch (e) {
       print('Error storing questions: $e');
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getBankSoal() async {
+    try {
+      final response = await Api.get(
+        url: Api.getBankSoal,
+        useAuthToken: true,
+      );
+
+      print('Bank Soal Response: $response');
+
+      if (response['status'] == true) {
+        final data = response['data'];
+        if (data is List) {
+          return List<Map<String, dynamic>>.from(data);
+        } else if (data is Map && data.containsKey('bank_soal')) {
+          return List<Map<String, dynamic>>.from(data['bank_soal']);
+        }
+        throw Exception('Invalid bank soal data format');
+      } else {
+        throw Exception(
+            response['message'] ?? 'Failed to fetch question banks');
+      }
+    } catch (e) {
+      print('Error fetching question banks: $e');
       throw Exception(e.toString());
     }
   }

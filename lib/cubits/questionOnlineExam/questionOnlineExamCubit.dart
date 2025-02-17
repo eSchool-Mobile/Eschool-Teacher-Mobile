@@ -18,10 +18,18 @@ class QuestionOnlineExamFailure extends QuestionOnlineExamState {
   QuestionOnlineExamFailure(this.message);
 }
 
+class QuestionBanksLoading extends QuestionOnlineExamState {}
+
+class QuestionBanksLoaded extends QuestionOnlineExamState {
+  final List<Map<String, dynamic>> banks;
+  QuestionBanksLoaded(this.banks);
+}
+
 class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
   final OnlineExamRepository _repository;
 
-  QuestionOnlineExamCubit(this._repository) : super(QuestionOnlineExamInitial());
+  QuestionOnlineExamCubit(this._repository)
+      : super(QuestionOnlineExamInitial());
 
   Future<void> getQuestions(int examId) async {
     try {
@@ -44,6 +52,27 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
         questions: questions,
       );
       await getQuestions(examId);
+    } catch (e) {
+      emit(QuestionOnlineExamFailure(e.toString()));
+    }
+  }
+
+  Future<void> getQuestionBanks() async {
+    try {
+      emit(QuestionBanksLoading());
+      final response = await _repository.getBankSoal();
+      emit(QuestionBanksLoaded(response));
+    } catch (e) {
+      emit(QuestionOnlineExamFailure(e.toString()));
+    }
+  }
+
+  Future<void> loadQuestionsFromBank(int examId, int bankId) async {
+    try {
+      emit(QuestionOnlineExamLoading());
+      final questions =
+          await _repository.getOnlineExamQuestions(examId, bankId: bankId);
+      emit(QuestionOnlineExamSuccess(questions));
     } catch (e) {
       emit(QuestionOnlineExamFailure(e.toString()));
     }

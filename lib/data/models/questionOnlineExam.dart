@@ -7,6 +7,8 @@ class QuestionOnlineExam {
   final String optionD;
   final String correctAnswer;
   final int marks;
+  final String? title;
+  final String? version;
   final int? onlineExamId;
 
   QuestionOnlineExam({
@@ -18,34 +20,41 @@ class QuestionOnlineExam {
     required this.optionD,
     required this.correctAnswer,
     required this.marks,
+    this.title,
+    this.version,
     this.onlineExamId,
   });
 
   factory QuestionOnlineExam.fromJson(Map<String, dynamic> json) {
+    final options = (json['options'] as List?)?.first ?? {};
+
     return QuestionOnlineExam(
       id: json['id'] ?? 0,
-      question: json['question'] ?? '',
-      optionA: json['option_a'] ?? '',
-      optionB: json['option_b'] ?? '',
-      optionC: json['option_c'] ?? '',
-      optionD: json['option_d'] ?? '',
-      correctAnswer: json['correct_answer'] ?? '',
+      question: json['question_text'] ?? '',
+      optionA: options['option'] ?? '',
+      optionB: '', // Sesuaikan dengan format API
+      optionC: '', // Sesuaikan dengan format API
+      optionD: '', // Sesuaikan dengan format API
+      correctAnswer: options['is_answer'] == 1 ? 'A' : '',
       marks: json['marks'] ?? 0,
-      onlineExamId: json['online_exam_id'],
+      title: '', // Sesuaikan jika diperlukan
+      version: '1.0', // Sesuaikan jika diperlukan
+      onlineExamId: json['exam_id'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'question': question,
-      'option_a': optionA,
-      'option_b': optionB,
-      'option_c': optionC,
-      'option_d': optionD,
-      'correct_answer': correctAnswer,
+      'question_text': question,
       'marks': marks,
-      'online_exam_id': onlineExamId,
+      'options': [
+        {
+          'option': optionA,
+          'is_answer': correctAnswer == 'A' ? 1 : 0,
+        }
+      ],
+      'exam_id': onlineExamId,
     };
   }
 }

@@ -4,20 +4,21 @@ class Question {
   final int id;
   final int bankSoalId;
   final int subjectId;
+  final int defaultPoint;
   final String createdAt;
   final String updatedAt;
   final BankSoalInfo bankSoal;
   final List<QuestionVersion> versions;
 
-  Question({
-    required this.id,
-    required this.bankSoalId,
-    required this.subjectId,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.bankSoal,
-    required this.versions,
-  });
+  Question(
+      {required this.id,
+      required this.bankSoalId,
+      required this.subjectId,
+      required this.createdAt,
+      required this.updatedAt,
+      required this.bankSoal,
+      required this.versions,
+      required this.defaultPoint});
 
   factory Question.fromJson(Map<String, dynamic> json) {
     return Question(
@@ -26,22 +27,24 @@ class Question {
       subjectId: json['subject_id'] ?? 0,
       createdAt: json['created_at'] ?? '',
       updatedAt: json['updated_at'] ?? '',
+      defaultPoint: json['default_point'] ?? 0,
       bankSoal: BankSoalInfo.fromJson(json['bank_soal'] ?? {}),
       versions: (json['versions'] as List?)
-          ?.map((v) => QuestionVersion.fromJson(v))
-          .toList() ?? [],
+              ?.map((v) => QuestionVersion.fromJson(v))
+              .toList() ??
+          [],
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'bank_soal_id': bankSoalId,
-    'subject_id': subjectId,
-    'created_at': createdAt,
-    'updated_at': updatedAt,
-    'bank_soal': bankSoal.toJson(),
-    'versions': versions.map((v) => v.toJson()).toList(),
-  };
+        'id': id,
+        'bank_soal_id': bankSoalId,
+        'subject_id': subjectId,
+        'created_at': createdAt,
+        'updated_at': updatedAt,
+        'bank_soal': bankSoal.toJson(),
+        'versions': versions.map((v) => v.toJson()).toList(),
+      };
 }
 
 class BankSoalInfo {
@@ -61,9 +64,9 @@ class BankSoalInfo {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-  };
+        'id': id,
+        'name': name,
+      };
 }
 
 class QuestionVersion {
@@ -106,20 +109,20 @@ class QuestionVersion {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'version': version,
-    'question': question,
-    'name': name,
-    'note': note,
-    'default_point': defaultPoint,
-    'type': type,
-    'options': options.map((o) => o.toJson()).toList(),
-  };
+        'id': id,
+        'version': version,
+        'question': question,
+        'name': name,
+        'note': note,
+        'default_point': defaultPoint,
+        'type': type,
+        'options': options.map((o) => o.toJson()).toList(),
+      };
 }
 
 class QuestionOption {
   final String text;
-  final int percentage; 
+  final int percentage;
   final String feedback;
   final String type;
 
@@ -140,9 +143,9 @@ class QuestionOption {
   }
 
   Map<String, dynamic> toJson() => {
-    'text': text,
-    'percentage': percentage,
-    'feedback': feedback,
-    'type': type,
-  };
+        'text': text,
+        'percentage': percentage,
+        'feedback': feedback,
+        'type': type,
+      };
 }

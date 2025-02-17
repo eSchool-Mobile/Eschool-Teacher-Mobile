@@ -67,6 +67,16 @@ class QuestionBankRepository {
         },
       );
 
+      String formattedJson = JsonEncoder.withIndent("\t").convert(response);
+
+      // Split per baris
+      List<String> lines = formattedJson.split("\n");
+
+      // Print dalam loop
+      for (var line in lines) {
+        print(line);
+      }
+
       print("API Raw Response: $response"); // Debug log
 
       if (response['data'] == null) {

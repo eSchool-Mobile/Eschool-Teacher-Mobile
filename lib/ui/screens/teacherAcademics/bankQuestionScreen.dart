@@ -335,7 +335,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
                 hintText: 'Cari soal...',
                 prefixIcon: Icon(Icons.search, color: Colors.grey),
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
             ),
           ),
