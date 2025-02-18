@@ -210,18 +210,20 @@ class OnlineExamRepository {
       final response = await Api.get(
         url: Api.getBankSoal,
         useAuthToken: true,
+        queryParameters: {
+          'status': 'active', // Add required parameters
+          'type': 'all'
+        },
       );
 
-      print('Bank Soal Response: $response');
-
-      if (response['status'] == true) {
+      if (response['status'] == true || response['error'] == false) {
         final data = response['data'];
         if (data is List) {
           return List<Map<String, dynamic>>.from(data);
         } else if (data is Map && data.containsKey('bank_soal')) {
           return List<Map<String, dynamic>>.from(data['bank_soal']);
         }
-        throw Exception('Invalid bank soal data format');
+        return [];
       } else {
         throw Exception(
             response['message'] ?? 'Failed to fetch question banks');

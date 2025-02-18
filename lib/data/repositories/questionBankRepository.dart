@@ -67,16 +67,6 @@ class QuestionBankRepository {
         },
       );
 
-      String formattedJson = JsonEncoder.withIndent("\t").convert(response);
-
-      // Split per baris
-      List<String> lines = formattedJson.split("\n");
-
-      // Print dalam loop
-      for (var line in lines) {
-        print(line);
-      }
-
       print("API Raw Response: $response"); // Debug log
 
       if (response['data'] == null) {
@@ -155,6 +145,7 @@ class QuestionBankRepository {
     required List<QuestionOption> options,
   }) async {
     try {
+      print(defaultPoint.toString());
       final Map<String, dynamic> requestBody = {
         'banksoal_id': banksoalId.toString(),
         'subject_id': subjectId.toString(),
@@ -162,7 +153,7 @@ class QuestionBankRepository {
         'type': type,
         'default_point': defaultPoint.toString(),
         'question': question,
-        'note': note, // No need to check if empty
+        'note': note,
         'options': options
             .map((opt) => {
                   'text': opt.text,
@@ -171,6 +162,9 @@ class QuestionBankRepository {
                 })
             .toList(),
       };
+
+      final prettyString = JsonEncoder.withIndent('  ').convert(requestBody);
+      prettyString.split('\n').forEach(print);
 
       await Api.post(url: Api.createQuestion, body: requestBody);
     } catch (e) {

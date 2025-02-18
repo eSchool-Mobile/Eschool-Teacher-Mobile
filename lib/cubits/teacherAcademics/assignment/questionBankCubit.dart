@@ -87,6 +87,7 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
   }) async {
     try {
       emit(QuestionBankLoading());
+
       await _repository.createQuestionBank(
         subjectId: subjectId,
         name: name,

@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/questionOnlineExam/questionOnlineExamCubit.dart';
 import 'package:eschool_saas_staff/data/models/questionOnlineExam.dart';
 import 'package:get/get.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:glassmorphism/glassmorphism.dart';
 
 class QuestionOnlineExamScreen extends StatefulWidget {
   final int examId;
@@ -29,52 +32,168 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Soal Ujian Online'),
-        actions: [
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF8B0000).withOpacity(0.9),
+              Color(0xFF6B0000),
+              Color(0xFF4B0000),
+              Theme.of(context).colorScheme.secondary,
+            ],
+            stops: [0.2, 0.4, 0.6, 1.0],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Custom App Bar
+              FadeInDown(
+                duration: Duration(milliseconds: 600),
+                child: _buildCustomAppBar(),
+              ),
+
+              // Main Content
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: BlocBuilder<QuestionOnlineExamCubit,
+                      QuestionOnlineExamState>(
+                    builder: (context, state) {
+                      if (state is QuestionOnlineExamLoading) {
+                        return _buildLoadingState();
+                      }
+
+                      if (state is QuestionOnlineExamFailure) {
+                        return _buildErrorState(state.message);
+                      }
+
+                      if (state is QuestionOnlineExamSuccess) {
+                        if (state.questions.isEmpty) {
+                          return _buildEmptyState();
+                        }
+                        return _buildQuestionsList(state.questions);
+                      }
+
+                      return SizedBox();
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCustomAppBar() {
+    return GlassmorphicContainer(
+      width: double.infinity,
+      height: 60,
+      borderRadius: 0,
+      blur: 20,
+      alignment: Alignment.center,
+      border: 0,
+      linearGradient: LinearGradient(
+        colors: [
+          Colors.white.withOpacity(0.1),
+          Colors.white.withOpacity(0.1),
+        ],
+      ),
+      borderGradient: LinearGradient(
+        colors: [Colors.transparent, Colors.transparent],
+      ),
+      child: Row(
+        children: [
           IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              _showBankSoalDialog();
-            },
+            icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+            onPressed: () => Get.back(),
+          ),
+          Text(
+            'Soal Ujian Online',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Spacer(),
+          IconButton(
+            icon: Icon(Icons.add_circle_outline, color: Colors.white),
+            onPressed: _showBankSoalDialog,
           ),
         ],
       ),
-      body: BlocBuilder<QuestionOnlineExamCubit, QuestionOnlineExamState>(
-        builder: (context, state) {
-          if (state is QuestionOnlineExamLoading) {
-            return Center(child: CircularProgressIndicator());
-          }
-
-          if (state is QuestionOnlineExamFailure) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(state.message),
-                  ElevatedButton(
-                    onPressed: () => context
-                        .read<QuestionOnlineExamCubit>()
-                        .getQuestions(widget.examId),
-                    child: Text('Coba Lagi'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (state is QuestionOnlineExamSuccess) {
-            if (state.questions.isEmpty) {
-              return _buildEmptyState();
-            }
-
-            return _buildQuestionsList(state.questions);
-          }
-
-          return SizedBox();
-        },
-      ),
     );
+  }
+
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(
+              Theme.of(context).colorScheme.secondary,
+            ),
+          ),
+          SizedBox(height: 16),
+          Text(
+            'Memuat soal...',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.secondary,
+              fontSize: 16,
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 600.ms);
+  }
+
+  Widget _buildErrorState(String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 64,
+            color: Colors.red[300],
+          ).animate().shake(),
+          SizedBox(height: 16),
+          Text(
+            message,
+            style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: () => context
+                .read<QuestionOnlineExamCubit>()
+                .getQuestions(widget.examId),
+            icon: Icon(Icons.refresh),
+            label: Text('Coba Lagi'),
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              backgroundColor: Theme.of(context).colorScheme.secondary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 600.ms);
   }
 
   Widget _buildEmptyState() {
@@ -108,8 +227,10 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
             padding: EdgeInsets.all(16),
             itemCount: questions.length,
             itemBuilder: (context, index) {
-              final question = questions[index];
-              return _buildQuestionCard(question, index + 1);
+              return FadeInUp(
+                duration: Duration(milliseconds: 400 + (index * 100)),
+                child: _buildQuestionCard(questions[index], index + 1),
+              );
             },
           ),
         ),
@@ -118,48 +239,108 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
   }
 
   Widget _buildBankSoalSelector() {
-    return Container(
-      padding: EdgeInsets.all(16),
-      color: Colors.grey[100],
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              'Bank Soal Terpilih: ${selectedBankId ?? "Belum dipilih"}',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: _showBankSoalDialog,
-            child: Text('Ganti Bank Soal'),
-          ),
+    return GlassmorphicContainer(
+      width: double.infinity,
+      height: 80,
+      borderRadius: 0,
+      blur: 20,
+      alignment: Alignment.center,
+      border: 0,
+      linearGradient: LinearGradient(
+        colors: [
+          Colors.white.withOpacity(0.1),
+          Colors.white.withOpacity(0.1),
         ],
       ),
-    );
+      borderGradient: LinearGradient(
+        colors: [Colors.transparent, Colors.transparent],
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            Icon(
+              Icons.library_books,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Bank Soal Terpilih: ${selectedBankId ?? "Belum dipilih"}',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            ElevatedButton.icon(
+              onPressed: _showBankSoalDialog,
+              icon: Icon(Icons.change_circle),
+              label: Text('Ganti Bank Soal'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ).animate().slideY(begin: -1, end: 0, duration: 600.ms);
   }
 
   Widget _buildQuestionCard(QuestionOnlineExam question, int index) {
     return Card(
       margin: EdgeInsets.only(bottom: 16),
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
           Container(
-            padding: EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).colorScheme.primary.withOpacity(0.9),
+                  Theme.of(context).colorScheme.secondary.withOpacity(0.9),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
             ),
+            padding: EdgeInsets.all(16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Soal $index',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '$index',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Text(
+                      'Soal $index',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
                 Row(
                   children: [
@@ -169,23 +350,36 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
                             EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         margin: EdgeInsets.only(right: 8),
                         decoration: BoxDecoration(
-                          color: Colors.purple[100],
+                          color: Colors.white.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Text(
-                          'v${question.version}',
-                          style: TextStyle(color: Colors.purple[900]),
+                        child: Row(
+                          children: [
+                            Icon(Icons.new_releases,
+                                color: Colors.white, size: 16),
+                            SizedBox(width: 4),
+                            Text(
+                              'v${question.version}',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
                         ),
                       ),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.blue[100],
+                        color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(
-                        'Nilai: ${question.marks}',
-                        style: TextStyle(color: Colors.blue[900]),
+                      child: Row(
+                        children: [
+                          Icon(Icons.star, color: Colors.white, size: 16),
+                          SizedBox(width: 4),
+                          Text(
+                            '${question.marks}',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -193,56 +387,19 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
               ],
             ),
           ),
-
-          // Content
           Padding(
             padding: EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Pertanyaan
                 Text(
                   question.question,
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[800],
                   ),
                 ),
                 SizedBox(height: 16),
-
-                // Pilihan Jawaban
-                _buildOption('A', question.optionA),
-                _buildOption('B', question.optionB),
-                _buildOption('C', question.optionC),
-                _buildOption('D', question.optionD),
-
-                Divider(height: 32),
-
-                // Jawaban Benar
-                Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.green[50],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.green[200]!),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.check_circle, color: Colors.green, size: 20),
-                      SizedBox(width: 8),
-                      Text(
-                        'Jawaban Benar: ${question.correctAnswer}',
-                        style: TextStyle(
-                          color: Colors.green[700],
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Action Buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -250,12 +407,20 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
                       icon: Icon(Icons.edit, color: Colors.blue),
                       onPressed: () => _editQuestion(question),
                       tooltip: 'Edit Soal',
-                    ),
+                    )
+                        .animate()
+                        .scale(duration: 300.ms)
+                        .then()
+                        .shimmer(duration: 1000.ms),
                     IconButton(
                       icon: Icon(Icons.delete, color: Colors.red),
                       onPressed: () => _deleteQuestion(question),
                       tooltip: 'Hapus Soal',
-                    ),
+                    )
+                        .animate()
+                        .scale(duration: 300.ms)
+                        .then()
+                        .shimmer(duration: 1000.ms),
                   ],
                 ),
               ],
@@ -263,48 +428,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildOption(String label, String text) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 8),
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 24,
-            height: 24,
-            margin: EdgeInsets.only(right: 12),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey[700],
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(fontSize: 15),
-            ),
-          ),
-        ],
-      ),
-    );
+    ).animate().fadeIn(duration: 600.ms).slideX(begin: 0.2, end: 0);
   }
 
   Future<void> _showBankSoalDialog() async {

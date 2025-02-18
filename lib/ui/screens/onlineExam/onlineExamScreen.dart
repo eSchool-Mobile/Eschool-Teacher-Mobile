@@ -471,215 +471,181 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(12), // Smaller radius
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 4),
+            blurRadius: 8,
+            offset: Offset(0, 2),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header (made slightly smaller)
+            // Header
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: cardColors['header'],
-              ),
+              padding: EdgeInsets.symmetric(
+                  horizontal: 8, vertical: 6), // Smaller padding
+              decoration: BoxDecoration(color: cardColors['header']),
               child: Row(
                 children: [
                   Container(
-                    padding: EdgeInsets.all(8),
+                    padding: EdgeInsets.all(6), // Smaller padding
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
                       _getExamIcon(exam),
                       color: cardColors['icon'],
-                      size: 20,
+                      size: 16, // Smaller icon
                     ),
                   ),
                 ],
               ),
             ),
 
-            // Content area with more space
+            // Content
             Expanded(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(12, 12, 12, 8),
+                padding: EdgeInsets.all(8), // Smaller padding
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Title
-                        Text(
-                          exam.title,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17,
-                            color: cardColors['text'],
-                            height: 1.2,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        SizedBox(height: 16),
+                    // Title
+                    Text(
+                      exam.title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13, // Smaller font
+                        color: cardColors['text'],
+                        height: 1.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 8), // Smaller spacing
 
-                        // Duration badge
-                        Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: cardColors['badge'],
-                            borderRadius: BorderRadius.circular(8),
+                    // Duration badge
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4), // Smaller padding
+                      decoration: BoxDecoration(
+                        color: cardColors['badge'],
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.timer_outlined,
+                              size: 14, color: cardColors['text']),
+                          SizedBox(width: 4),
+                          Text(
+                            '${exam.duration} Menit',
+                            style: TextStyle(
+                              color: cardColors['text'],
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.timer_outlined,
-                                size: 20,
-                                color: cardColors['text'],
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                '${exam.duration} Menit',
-                                style: TextStyle(
-                                  color: cardColors['text'],
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 16),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 8),
 
-                        // Dates with more padding
-                        Container(
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[50],
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: cardColors['badge']!),
+                    // Dates
+                    Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: cardColors['badge']!),
+                      ),
+                      child: Column(
+                        children: [
+                          _buildInfoRow(
+                            icon: Icons.event_outlined,
+                            text: DateFormat('dd MMM').format(exam.startDate),
+                            label: 'Mulai',
+                            color: cardColors['text']!,
+                            fontSize: 11, // Smaller font
                           ),
-                          child: Column(
-                            children: [
-                              _buildInfoRow(
-                                icon: Icons.event_outlined,
-                                text:
-                                    DateFormat('dd MMM').format(exam.startDate),
-                                label: 'Mulai',
-                                color: cardColors['text']!,
-                              ),
-                              SizedBox(height: 6),
-                              _buildInfoRow(
-                                icon: Icons.event_outlined,
-                                text: DateFormat('dd MMM').format(exam.endDate),
-                                label: 'Selesai',
-                                color: cardColors['text']!,
-                              ),
-                            ],
+                          SizedBox(height: 4),
+                          _buildInfoRow(
+                            icon: Icons.event_outlined,
+                            text: DateFormat('dd MMM').format(exam.endDate),
+                            label: 'Selesai',
+                            color: cardColors['text']!,
+                            fontSize: 11, // Smaller font
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
 
-            // Buttons section with consistent spacing
+            // Buttons
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Colors.white,
-                border: Border(
-                  top: BorderSide(color: Colors.grey[200]!),
-                ),
+                border: Border(top: BorderSide(color: Colors.grey[200]!)),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Primary Action - View Questions
-                  Container(
-                    height: 42,
+                  // View Questions Button
+                  SizedBox(
+                    height: 32, // Smaller height
                     width: double.infinity,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          cardColors['header']!,
-                          cardColors['header']!.withOpacity(0.9),
-                        ],
+                    child: ElevatedButton.icon(
+                      onPressed: () =>
+                          Get.toNamed('/exam-questions/${exam.id}'),
+                      icon: Icon(Icons.question_answer_rounded,
+                          size: 14, color: Colors.white),
+                      label: Text(
+                        'Lihat Soal',
+                        style: TextStyle(fontSize: 12, color: Colors.white),
                       ),
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: cardColors['header']!.withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                        child: InkWell(
-                        onTap: () => Get.toNamed('/exam-questions/${exam.id}'),
-                        borderRadius: BorderRadius.circular(8),
-                        child: Center(
-                          child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                            Icons.question_answer_rounded,
-                            color: Colors.white,
-                            size: 20,
-                            ),
-                              SizedBox(width: 8),
-                              Text(
-                                'Lihat Soal',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
-                          ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: cardColors['header'],
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
                         ),
                       ),
                     ),
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 6),
 
-                  // Secondary Actions Row
+                  // Action Buttons
                   Row(
                     children: [
                       Expanded(
-                        child: _buildGlassButton(
+                        child: _buildActionButton(
                           icon: Icons.edit_rounded,
                           label: 'Edit',
                           onTap: () {},
-                          color: Color(0xFF2E7D32),
+                          color: Colors.green[700]!,
+                          height: 28, // Tinggi tombol
+                          fontSize: 11, // Ukuran font
                         ),
                       ),
-                      SizedBox(width: 8),
+                      SizedBox(width: 6),
                       Expanded(
-                        child: _buildGlassButton(
+                        child: _buildActionButton(
                           icon: Icons.delete_rounded,
                           label: 'Hapus',
                           onTap: () {},
-                          color: Color(0xFFD32F2F),
+                          color: Colors.red[700]!,
+                          height: 28, // Smaller height
+                          fontSize: 11, // Smaller font
                         ),
                       ),
                     ],
@@ -693,24 +659,22 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     );
   }
 
+  // Update helper methods
   Widget _buildInfoRow({
     required IconData icon,
     required String text,
     required String label,
     required Color color,
+    double fontSize = 11, // Default smaller font size
   }) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 18,
-          color: color.withOpacity(0.8),
-        ),
-        SizedBox(width: 8),
+        Icon(icon, size: 14, color: color.withOpacity(0.8)),
+        SizedBox(width: 4),
         Text(
           '$label: ',
           style: TextStyle(
-            fontSize: 15,
+            fontSize: fontSize,
             color: Colors.grey[700],
             fontWeight: FontWeight.w500,
           ),
@@ -719,7 +683,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
           child: Text(
             text,
             style: TextStyle(
-              fontSize: 15,
+              fontSize: fontSize,
               color: color,
               fontWeight: FontWeight.w600,
             ),
@@ -735,90 +699,30 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     required String label,
     required VoidCallback onTap,
     required Color color,
+    required double height,
+    required double fontSize,
   }) {
     return SizedBox(
-      height: 36,
-      child: ElevatedButton(
+      height: height,
+      child: ElevatedButton.icon(
         onPressed: onTap,
+        icon: Icon(
+          icon,
+          size: 14,
+          color: Colors.white, // Warna ikon diubah menjadi putih
+        ),
+        label: Text(
+          label,
+          style: TextStyle(
+            fontSize: fontSize,
+            color: Colors.white, // Warna teks diubah menjadi putih
+          ),
+        ),
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
-          foregroundColor: Colors.white,
-          elevation: 1,
-          shadowColor: color.withOpacity(0.4),
-          padding: EdgeInsets.symmetric(horizontal: 12),
+          padding: EdgeInsets.symmetric(horizontal: 6),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 18),
-            SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.3,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGlassButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    required Color color,
-  }) {
-    return Container(
-      height: 36,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            color.withOpacity(0.9),
-            color.withOpacity(0.8),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.2),
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(8),
-          child: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 18,
-                ),
-                SizedBox(width: 6),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 0.3,
-                  ),
-                ),
-              ],
-            ),
+            borderRadius: BorderRadius.circular(6),
           ),
         ),
       ),

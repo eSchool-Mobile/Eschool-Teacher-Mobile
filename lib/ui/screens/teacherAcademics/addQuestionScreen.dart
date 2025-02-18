@@ -192,7 +192,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
               subjectId: widget.subjectId,
               name: _nameController.text.trim(),
               type: selectedType,
-              defaultPoint: 10,
+              defaultPoint: int.parse(_defaultPointController.text),
               question: _questionController.text.trim(),
               note: _noteController.text.trim(),
               options: options,
