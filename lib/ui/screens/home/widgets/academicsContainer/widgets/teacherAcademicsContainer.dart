@@ -173,6 +173,12 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer> {
                   onTap: () {
                     Get.toNamed(Routes.onlineExamScreen);
                   }),
+              CustomMenuTile(
+                  iconImageName: "online_exam.svg", // Add this icon to assets
+                  titleKey: "Hasil Ujian Online",
+                  onTap: () {
+                    Get.toNamed(Routes.onlineExamResultScreen);
+                  }),
             ]),
           ],
         );

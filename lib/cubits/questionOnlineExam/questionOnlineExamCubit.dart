@@ -1,6 +1,8 @@
+import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/models/questionOnlineExam.dart';
 import 'package:eschool_saas_staff/data/repositories/onlineExamRepository.dart';
+// import 'package:eschool_saas_staff/data/models/BankSoal.dart';
 
 abstract class QuestionOnlineExamState {}
 
@@ -21,7 +23,7 @@ class QuestionOnlineExamFailure extends QuestionOnlineExamState {
 class QuestionBanksLoading extends QuestionOnlineExamState {}
 
 class QuestionBanksLoaded extends QuestionOnlineExamState {
-  final List<Map<String, dynamic>> banks;
+  final List<BankSoalQuestion> banks;
   QuestionBanksLoaded(this.banks);
 }
 
@@ -57,22 +59,24 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
     }
   }
 
-  Future<void> getQuestionBanks() async {
+  Future<void> loadQuestionsFromBank(int examId, int bankId) async {
     try {
-      emit(QuestionBanksLoading());
-      final response = await _repository.getBankSoal();
-      emit(QuestionBanksLoaded(response));
+      emit(QuestionOnlineExamLoading());
+      final questions = await _repository.getOnlineExamQuestions(
+        examId,
+        bankId: bankId,
+      );
+      emit(QuestionOnlineExamSuccess(questions));
     } catch (e) {
       emit(QuestionOnlineExamFailure(e.toString()));
     }
   }
 
-  Future<void> loadQuestionsFromBank(int examId, int bankId) async {
+  Future<void> getBankSoal(int examId) async {
     try {
-      emit(QuestionOnlineExamLoading());
-      final questions =
-          await _repository.getOnlineExamQuestions(examId, bankId: bankId);
-      emit(QuestionOnlineExamSuccess(questions));
+      emit(QuestionBanksLoading());
+      final banks = await _repository.getBankSoal(examId);
+      emit(QuestionBanksLoaded(banks));
     } catch (e) {
       emit(QuestionOnlineExamFailure(e.toString()));
     }

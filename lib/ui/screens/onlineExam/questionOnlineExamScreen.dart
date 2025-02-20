@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/questionOnlineExam/questionOnlineExamCubit.dart';
 import 'package:eschool_saas_staff/data/models/questionOnlineExam.dart';
+import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -127,10 +128,6 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
             ),
           ),
           Spacer(),
-          IconButton(
-            icon: Icon(Icons.add_circle_outline, color: Colors.white),
-            onPressed: _showBankSoalDialog,
-          ),
         ],
       ),
     );
@@ -207,12 +204,20 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
             'Belum ada soal untuk ujian ini',
             style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
-          SizedBox(height: 16),
+          SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: () => _showBankSoalDialog(),
             icon: Icon(Icons.add),
             label: Text('Pilih Bank Soal'),
-          ),
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              backgroundColor: Theme.of(context).colorScheme.secondary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            onPressed: _selectBankSoal,
+          ).animate().scale(duration: 300.ms),
         ],
       ),
     );
@@ -274,17 +279,18 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
               ),
             ),
             ElevatedButton.icon(
-              onPressed: _showBankSoalDialog,
-              icon: Icon(Icons.change_circle),
-              label: Text('Ganti Bank Soal'),
+              icon: Icon(Icons.change_circle, size: 18),
+              label: Text('Ganti Bank'),
               style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 backgroundColor: Theme.of(context).colorScheme.secondary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
-            ),
+              onPressed: _selectBankSoal,
+            ).animate().scale(duration: 300.ms),
           ],
         ),
       ),
@@ -431,74 +437,22 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
     ).animate().fadeIn(duration: 600.ms).slideX(begin: 0.2, end: 0);
   }
 
-  Future<void> _showBankSoalDialog() async {
-    // Load bank soal data first
-    await context.read<QuestionOnlineExamCubit>().getQuestionBanks();
-
-    if (!mounted) return;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return BlocBuilder<QuestionOnlineExamCubit, QuestionOnlineExamState>(
-          builder: (context, state) {
-            if (state is QuestionBanksLoading) {
-              return Center(child: CircularProgressIndicator());
-            }
-
-            if (state is QuestionBanksLoaded) {
-              final banks = state.banks;
-
-              return AlertDialog(
-                title: Text('Pilih Bank Soal'),
-                content: Container(
-                  width: double.maxFinite,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: banks.length,
-                    itemBuilder: (context, index) {
-                      final bank = banks[index];
-                      return ListTile(
-                        title: Text(bank['name'] ?? ''),
-                        subtitle: Text(
-                            '${(bank['soal'] as List?)?.length ?? 0} soal'),
-                        onTap: () async {
-                          setState(() {
-                            selectedBankId = bank['id'];
-                          });
-                          // Load questions from selected bank
-                          await context
-                              .read<QuestionOnlineExamCubit>()
-                              .loadQuestionsFromBank(widget.examId, bank['id']);
-                          Navigator.pop(context);
-                        },
-                      );
-                    },
-                  ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text('Batal'),
-                  ),
-                ],
-              );
-            }
-
-            return AlertDialog(
-              title: Text('Error'),
-              content: Text('Gagal memuat bank soal'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Tutup'),
-                ),
-              ],
-            );
-          },
-        );
-      },
+  Future<void> _selectBankSoal() async {
+    final result = await Get.toNamed(
+      '/bank-soal-selection',
+      parameters: {'examId': widget.examId.toString()},
     );
+
+    if (result != null && result is BankSoalQuestion) {
+      setState(() {
+        selectedBankId = result.id;
+      });
+      // Load questions from selected bank
+      context.read<QuestionOnlineExamCubit>().loadQuestionsFromBank(
+            widget.examId,
+            result.id,
+          );
+    }
   }
 
   void _editQuestion(QuestionOnlineExam question) {

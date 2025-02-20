@@ -363,7 +363,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
 
   void _showAddBankDialog() {
     final questionBankCubit = context.read<QuestionBankCubit>();
-    BuildContext dialogContext;
+    bool isSubmitting = false;
 
     showGeneralDialog(
       context: context,
@@ -372,148 +372,180 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
       transitionDuration: Duration(milliseconds: 400),
       pageBuilder: (context, anim1, anim2) => Container(),
       transitionBuilder: (context, anim1, anim2, child) {
-        return ScaleTransition(
-          scale: CurvedAnimation(
-            parent: anim1,
-            curve: Curves.elasticOut,
-            reverseCurve: Curves.easeOutCubic,
-          ),
-          child: AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            title: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .secondary
-                        .withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.add_box_rounded,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
+        return StatefulBuilder(
+          // Wrap with StatefulBuilder to manage local state
+          builder: (context, setState) {
+            return ScaleTransition(
+              scale: CurvedAnimation(
+                parent: anim1,
+                curve: Curves.elasticOut,
+                reverseCurve: Curves.easeOutCubic,
+              ),
+              child: AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                SizedBox(width: 16),
-                Text(
-                  'Tambah Bank Soal',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            content: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      labelText: 'Nama Bank Soal',
-                      prefixIcon: Icon(Icons.folder_outlined),
-                      border: OutlineInputBorder(
+                title: Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .secondary
+                            .withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      child: Icon(
+                        Icons.add_box_rounded,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Theme.of(context).colorScheme.secondary,
-                          width: 2,
-                        ),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey.shade50,
                     ),
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'Nama bank soal tidak boleh kosong';
-                      }
-                      return null;
-                    },
+                    SizedBox(width: 16),
+                    Text(
+                      'Tambah Bank Soal',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                content: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: _nameController,
+                        enabled: !isSubmitting,
+                        decoration: InputDecoration(
+                          labelText: 'Nama Bank Soal',
+                          prefixIcon: Icon(Icons.folder_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.secondary,
+                              width: 2,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                        ),
+                        validator: (value) {
+                          if (value?.isEmpty ?? true) {
+                            return 'Nama bank soal tidak boleh kosong';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: isSubmitting
+                        ? null
+                        : () {
+                            _nameController.clear();
+                            Navigator.pop(context);
+                          },
+                    child: Text(
+                      'Batal',
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.secondary,
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: MaterialButton(
+                      onPressed: isSubmitting
+                          ? null
+                          : () async {
+                              if (_formKey.currentState!.validate()) {
+                                try {
+                                  setState(() {
+                                    isSubmitting = true;
+                                  });
+
+                                  await questionBankCubit.createQuestionBank(
+                                    subjectId: widget.subject.subject.id,
+                                    name: _nameController.text.trim(),
+                                  );
+
+                                  // Fetch updated bank list
+                                  await questionBankCubit.fetchBankSoal(
+                                    widget.subject.subject.id,
+                                  );
+
+                                  if (!mounted) return;
+                                  Navigator.pop(context);
+                                  _nameController.clear();
+
+                                  if (!mounted) return;
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(const SnackBar(
+                                    content: Text('Bank soal berhasil dibuat'),
+                                    backgroundColor: Colors.green,
+                                  ));
+                                } catch (e) {
+                                  if (!mounted) return;
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
+                                    content:
+                                        Text('Gagal membuat bank soal: $e'),
+                                    backgroundColor: Colors.red,
+                                  ));
+                                } finally {
+                                  if (mounted) {
+                                    setState(() {
+                                      isSubmitting = false;
+                                    });
+                                  }
+                                }
+                              }
+                            },
+                      child: isSubmitting
+                          ? SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : Text(
+                              'Simpan',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      elevation: 0,
+                    ),
                   ),
                 ],
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  _nameController.clear();
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  'Batal',
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Theme.of(context).colorScheme.primary,
-                      Theme.of(context).colorScheme.secondary,
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: MaterialButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      try {
-                        await questionBankCubit.createQuestionBank(
-                          subjectId: widget.subject.subject.id,
-                          name: _nameController.text.trim(),
-                        );
-
-                        if (!mounted) return;
-                        Navigator.pop(context);
-                        _nameController.clear();
-
-                        if (!mounted) return;
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(const SnackBar(
-                          content: Text('Bank soal berhasil dibuat'),
-                          backgroundColor: Colors.green,
-                        ));
-                      } catch (e) {
-                        if (!mounted) return;
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content:
-                              Text('Gagal membuat bank soal: ${e.toString()}'),
-                          backgroundColor: Colors.red,
-                        ));
-                      }
-                    }
-                  },
-                  child: Text(
-                    'Simpan',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  elevation: 0,
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -684,9 +716,12 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
   }
 
   Widget _buildContent(BankSoalFetchSuccess state) {
+    // Reset filtered banks when new content arrives
+    _filteredBanks = state.bankSoal;
     _showSearch = state.bankSoal.length > 5;
-    if (_filteredBanks.isEmpty) {
-      _filteredBanks = state.bankSoal;
+
+    if (state.bankSoal.isEmpty) {
+      return _buildEmptyView();
     }
 
     return Column(

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:eschool_saas_staff/data/models/onlineExam.dart';
 import 'package:eschool_saas_staff/data/models/questionOnlineExam.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
+import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart'; // Update this importimport 'package:eschool_saas_staff/data/models/bankSoalQuestion.dart';import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:dio/dio.dart';
 
 class OnlineExamRepository {
@@ -205,31 +205,23 @@ class OnlineExamRepository {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getBankSoal() async {
+  Future<List<BankSoalQuestion>> getBankSoal(int examId) async {
     try {
       final response = await Api.get(
-        url: Api.getBankSoal,
+        url: "${Api.getOnlineExamQuestions}/$examId",
         useAuthToken: true,
-        queryParameters: {
-          'status': 'active', // Add required parameters
-          'type': 'all'
-        },
       );
 
-      if (response['status'] == true || response['error'] == false) {
-        final data = response['data'];
-        if (data is List) {
-          return List<Map<String, dynamic>>.from(data);
-        } else if (data is Map && data.containsKey('bank_soal')) {
-          return List<Map<String, dynamic>>.from(data['bank_soal']);
-        }
-        return [];
+      print('Bank Soal Response: $response');
+
+      if (response['status'] == true) {
+        final List bankList = response['data']['bank_soal'] ?? [];
+        return bankList.map((bank) => BankSoalQuestion.fromJson(bank)).toList();
       } else {
-        throw Exception(
-            response['message'] ?? 'Failed to fetch question banks');
+        throw Exception(response['message'] ?? 'Failed to fetch bank soal');
       }
     } catch (e) {
-      print('Error fetching question banks: $e');
+      print('Error fetching bank soal: $e');
       throw Exception(e.toString());
     }
   }

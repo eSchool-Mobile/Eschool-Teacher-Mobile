@@ -27,6 +27,7 @@ import 'package:eschool_saas_staff/ui/screens/managePayrolls/managePayrollsScree
 import 'package:eschool_saas_staff/ui/screens/myPayrollScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/notificationsScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/offlineResult/offlineResultScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResult.dart';
 import 'package:eschool_saas_staff/ui/screens/paidFeesScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/privacyPolicyScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/searchTeachersScreen.dart';
@@ -64,7 +65,7 @@ import 'package:eschool_saas_staff/ui/screens/termsAndConditionScreen.dart';
 import 'package:get/get.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/questionBankListScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/questionSubjectScreen.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart' as bloc;
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/questionBankCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/questionBankRepository.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/addQuestionScreen.dart';
@@ -82,6 +83,9 @@ import 'package:eschool_saas_staff/cubits/questionOnlineExam/questionOnlineExamC
 import 'package:eschool_saas_staff/data/repositories/onlineExamRepository.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/questionOnlineExamScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/bankSoalSelectionScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/previewQuestionBankSoal.dart';
+import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
 
 // Nama route
 class Routes {
@@ -149,6 +153,8 @@ class Routes {
   static String editQuestionScreen = "/editQuestion";
   static String bankQuestionScreen = "/bankQuestion";
   static const String addQuestionBank = '/addQuestionBank';
+  static const String bankSoalSelection = '/bank-soal-selection';
+  static const String previewQuestionBank = '/preview-question-bank';
 
   static String teacherManageAssignmentScreen = "/teacherManageAssignment";
   static String teacherManageAssignmentSubmissionScreen =
@@ -170,6 +176,7 @@ class Routes {
   static String newChatContactsScreen = "/newChatContactsScreen";
 
   static String onlineExamScreen = "/onlineExam";
+  static String onlineExamResultScreen = "/onlineExamResult";
   static String createOnlineExam = "/create-exam";
 
   // Tambahkan route baru
@@ -433,6 +440,12 @@ class Routes {
     //     ),
     //   ),
     // ),
+
+    GetPage(
+      name: onlineExamResultScreen,
+      page: () => OnlineExamResultScreen(),
+      transitionDuration: Duration(milliseconds: 300),
+    ),
     GetPage(
       name: bankQuestionScreen,
       page: () => BlocProvider(
@@ -530,6 +543,23 @@ class Routes {
         child: QuestionOnlineExamScreen(
           examId: int.parse(Get.parameters['id'] ?? '0'),
         ),
+      ),
+    ),
+    GetPage(
+      name: bankSoalSelection,
+      page: () => BlocProvider(
+        create: (context) => QuestionOnlineExamCubit(
+          OnlineExamRepository(),
+        ),
+        child: BankSoalSelectionScreen(
+          examId: int.parse(Get.parameters['examId'] ?? '0'),
+        ),
+      ),
+    ),
+    GetPage(
+      name: previewQuestionBank,
+      page: () => PreviewQuestionBankSoal(
+        bank: Get.arguments as BankSoalQuestion, // Updated type
       ),
     ),
   ];

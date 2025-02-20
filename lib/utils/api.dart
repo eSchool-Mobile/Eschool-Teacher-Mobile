@@ -159,23 +159,33 @@ class Api {
   static String deleteQuestion = "${databaseUrl}teacher/bank-soal/deleteSoal";
 
   // Online Exam APIs
-  static String getOnlineExamList ="${databaseUrl}teacher/get-online-exam-list";
+  static String getOnlineExamList =
+      "${databaseUrl}teacher/get-online-exam-list";
   static String createOnlineExam = "${databaseUrl}teacher/store-online-exam";
   static String updateOnlineExam = "${databaseUrl}teacher/update-online-exam";
   static String deleteOnlineExam = "${databaseUrl}teacher/delete-online-exam";
-  static String getOnlineExamQuestions = "${databaseUrl}teacher/get-online-exam-questions";
-  static String storeOnlineExamQuestions ="${databaseUrl}teacher/store-online-exam-questions";
+  static String getOnlineExamQuestions =
+      "${databaseUrl}teacher/get-online-exam-questions";
+  static String storeOnlineExamQuestions =
+      "${databaseUrl}teacher/store-online-exam-questions";
 
   static Map<String, String> headers({bool useAuthToken = false}) {
     final String jwtToken = AuthRepository.getAuthToken();
     final schoolCode = AuthRepository().schoolCode;
 
-    print("JWT Token: ${AuthRepository.getAuthToken()}");
-    print("School Code: ${AuthRepository().schoolCode}");
-
     return {
       "Authorization": "Bearer $jwtToken",
       "school_code": schoolCode,
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "X-Requested-With": "XMLHttpRequest",
+      "role": "teacher",
+      "view_type": "teacher",
+      "all": "true",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers":
+          "Origin, Content-Type, Accept, Authorization, X-Request-With, role, view_type, all",
     };
   }
 
@@ -237,6 +247,15 @@ class Api {
   }) async {
     try {
       final Dio dio = Dio();
+
+      // Add default parameters
+      queryParameters = {
+        'role': 'teacher',
+        'view_type': 'teacher',
+        'all': 'true',
+        ...?queryParameters,
+      };
+
       final response = await dio.get(
         url,
         queryParameters: queryParameters,
@@ -251,6 +270,10 @@ class Api {
 
       if (response.statusCode == 200) {
         if (response.data is Map) {
+          if (response.data['error'] == true) {
+            throw ApiException(
+                response.data['message'] ?? defaultErrorMessageKey);
+          }
           return Map<String, dynamic>.from(response.data);
         }
         throw ApiException("Invalid response format");
