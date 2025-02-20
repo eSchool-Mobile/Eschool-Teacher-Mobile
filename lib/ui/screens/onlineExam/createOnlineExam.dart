@@ -3,6 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
 import 'package:eschool_saas_staff/data/models/subjectDetail.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:glassmorphism/glassmorphism.dart';
+import 'package:flutter/services.dart';
 
 class CreateOnlineExam extends StatefulWidget {
   @override
@@ -10,14 +15,6 @@ class CreateOnlineExam extends StatefulWidget {
 }
 
 class _CreateOnlineExamState extends State<CreateOnlineExam> {
-  @override
-  void initState() {
-    super.initState();
-    // Muat data subjects saat screen dibuka
-    context.read<OnlineExamCubit>().getOnlineExams();
-    print("HITTING");
-  }
-
   final _formKey = GlobalKey<FormState>();
 
   SubjectDetail? selectedSubject;
@@ -27,22 +24,267 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
   DateTime? startDate;
   DateTime? endDate;
 
-  PreferredSizeWidget _buildCustomAppBar() {
-    return AppBar(
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back),
-        onPressed: () => Get.back(),
-      ),
-      title: Text(
-        'Buat Ujian Online',
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _examKeyController = TextEditingController();
+  final TextEditingController _durationController = TextEditingController();
+  final TextEditingController _startDateController = TextEditingController();
+  final TextEditingController _endDateController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<OnlineExamCubit>().getOnlineExams();
+  }
+
+  Future<void> _selectStartDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: startDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != startDate) {
+      setState(() {
+        startDate = picked;
+        _startDateController.text = DateFormat('dd-MM-yyyy').format(picked);
+      });
+    }
+  }
+
+  Future<void> _selectEndDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: endDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != endDate) {
+      setState(() {
+        endDate = picked;
+        _endDateController.text = DateFormat('dd-MM-yyyy').format(picked);
+      });
+    }
+  }
+
+  Widget _buildAnimatedTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    int maxLines = 1,
+    bool readOnly = false,
+    VoidCallback? onTap,
+    TextInputType? keyboardType,
+    Color? iconColor,
+    Color? labelColor,
+    List<TextInputFormatter>? inputFormatters,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      readOnly: readOnly,
+      onTap: onTap,
+      keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(
+          color: labelColor ?? Theme.of(context).colorScheme.secondary,
+        ),
+        prefixIcon: Icon(
+          icon,
+          color: iconColor ?? Theme.of(context).colorScheme.primary,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide.none,
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide:
+              BorderSide(color: Theme.of(context).colorScheme.secondary),
         ),
       ),
-      elevation: 0,
-      backgroundColor: Theme.of(context).primaryColor,
-      centerTitle: true,
+      validator: (v) => v!.isEmpty ? 'Required' : null,
+    );
+  }
+
+  Widget _buildBasicInfoSection() {
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 5,
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Informasi Dasar',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          ),
+          SizedBox(height: 20),
+          _buildAnimatedTextField(
+            controller: _titleController,
+            label: 'Judul Ujian',
+            icon: Icons.title,
+          ),
+          SizedBox(height: 15),
+          _buildSubjectDropdown(),
+          SizedBox(height: 15),
+          _buildAnimatedTextField(
+            controller: _examKeyController,
+            label: 'Kunci Ujian',
+            icon: Icons.key,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExamDetailsSection() {
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 5,
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Detail Ujian',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          ),
+          SizedBox(height: 20),
+          _buildAnimatedTextField(
+            controller: _durationController,
+            label: 'Durasi (menit)',
+            icon: Icons.timer,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          ),
+          SizedBox(height: 15),
+          Row(
+            children: [
+              Expanded(
+                child: _buildAnimatedTextField(
+                  controller: _startDateController,
+                  label: 'Tanggal Mulai',
+                  icon: Icons.calendar_today,
+                  onTap: () => _selectStartDate(context),
+                  readOnly: true,
+                ),
+              ),
+              SizedBox(width: 15),
+              Expanded(
+                child: _buildAnimatedTextField(
+                  controller: _endDateController,
+                  label: 'Tanggal Berakhir',
+                  icon: Icons.calendar_today,
+                  onTap: () => _selectEndDate(context),
+                  readOnly: true,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: FadeInUp(
+        duration: Duration(milliseconds: 600),
+        child: Container(
+          height: 60,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).colorScheme.primary,
+                Theme.of(context).colorScheme.secondary,
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                spreadRadius: 1,
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: _submitForm,
+              borderRadius: BorderRadius.circular(15),
+              splashColor: Colors.white.withOpacity(0.2),
+              highlightColor: Colors.white.withOpacity(0.1),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Buat Ujian',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      color: Colors.white,
+                      size: 22,
+                    ).animate(onPlay: (controller) {
+                      controller.repeat(reverse: true);
+                    }).slideX(
+                      begin: 0,
+                      end: 0.3,
+                      duration: Duration(milliseconds: 1000),
+                      curve: Curves.easeInOut,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -54,35 +296,43 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
         } else if (state is OnlineExamSuccess) {
           final subjects = state.subjectDetails;
 
-          if (subjects.isEmpty) {
-            return Text('Tidak ada mata pelajaran yang tersedia');
-          }
-
-          return DropdownButtonFormField<SubjectDetail>(
-            value: selectedSubject,
-            decoration: InputDecoration(
-              labelText: 'Pilih Mata Pelajaran',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.subject),
+          return _buildAnimatedTextField(
+            controller: TextEditingController(
+              text: selectedSubject?.subject.name ?? 'Pilih Mata Pelajaran',
             ),
-            items: subjects.map((detail) {
-              final subjectDetail = SubjectDetail.fromJson(detail);
-              return DropdownMenuItem<SubjectDetail>(
-                value: subjectDetail,
-                child: Text(
-                  '${subjectDetail.classSection.name} - ${subjectDetail.subject.name}',
+            label: 'Mata Pelajaran',
+            icon: Icons.subject,
+            readOnly: true,
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('Pilih Mata Pelajaran'),
+                  content: Container(
+                    width: double.maxFinite,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: subjects.length,
+                      itemBuilder: (context, index) {
+                        final subjectDetail =
+                            SubjectDetail.fromJson(subjects[index]);
+                        return ListTile(
+                          title: Text(
+                            '${subjectDetail.classSection.name} - ${subjectDetail.subject.name}',
+                          ),
+                          onTap: () {
+                            setState(() {
+                              selectedSubject = subjectDetail;
+                            });
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                    ),
+                  ),
                 ),
               );
-            }).toList(),
-            onChanged: (value) {
-              setState(() {
-                selectedSubject = value;
-                print('Selected id: ${value?.id}'); // SubjectDetail id
-                print('Selected class_section_id: ${value?.classSection.id}');
-                print('Selected subject_id: ${value?.subject.id}');
-              });
             },
-            validator: (value) => value == null ? 'Pilih mata pelajaran' : null,
           );
         }
         return SizedBox();
@@ -90,151 +340,23 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildCustomAppBar(),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Subject Selection
-              _buildSubjectDropdown(),
-              SizedBox(height: 16),
-
-              // Title Field
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Judul Ujian',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) => title = value,
-                validator: (value) =>
-                    value?.isEmpty ?? true ? 'Masukkan judul ujian' : null,
-              ),
-              SizedBox(height: 16),
-
-              // Exam Key Field
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Kunci Ujian',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) => examKey = value,
-                validator: (value) =>
-                    value?.isEmpty ?? true ? 'Masukkan kunci ujian' : null,
-              ),
-              SizedBox(height: 16),
-
-              // Duration Field
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Durasi (menit)',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-                onChanged: (value) => duration = int.tryParse(value) ?? 0,
-                validator: (value) {
-                  if (value?.isEmpty ?? true) return 'Masukkan durasi';
-                  if (int.tryParse(value!) == null)
-                    return 'Masukkan angka yang valid';
-                  if (int.parse(value) < 1) return 'Durasi minimal 1 menit';
-                  return null;
-                },
-              ),
-              SizedBox(height: 16),
-
-              // Date Selection
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Tanggal Mulai',
-                        border: OutlineInputBorder(),
-                      ),
-                      readOnly: true,
-                      controller: TextEditingController(
-                        text: startDate?.toString().split(' ')[0] ?? '',
-                      ),
-                      onTap: () async {
-                        final date = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
-                          lastDate: DateTime.now().add(Duration(days: 365)),
-                        );
-                        if (date != null) setState(() => startDate = date);
-                      },
-                      validator: (value) =>
-                          startDate == null ? 'Pilih tanggal mulai' : null,
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Tanggal Selesai',
-                        border: OutlineInputBorder(),
-                      ),
-                      readOnly: true,
-                      controller: TextEditingController(
-                        text: endDate?.toString().split(' ')[0] ?? '',
-                      ),
-                      onTap: () async {
-                        final date = await showDatePicker(
-                          context: context,
-                          initialDate: startDate ?? DateTime.now(),
-                          firstDate: startDate ?? DateTime.now(),
-                          lastDate: DateTime.now().add(Duration(days: 365)),
-                        );
-                        if (date != null) setState(() => endDate = date);
-                      },
-                      validator: (value) {
-                        if (endDate == null) return 'Pilih tanggal selesai';
-                        if (startDate != null &&
-                            endDate!.isBefore(startDate!)) {
-                          return 'Tanggal selesai harus setelah tanggal mulai';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.all(16),
-        child: ElevatedButton(
-          onPressed: _submitForm,
-          child: Text('Buat Ujian'),
-          style: ElevatedButton.styleFrom(
-            minimumSize: Size(double.infinity, 50),
-          ),
-        ),
-      ),
-    );
-  }
-
   void _submitForm() {
-    print("classSectionId: ${selectedSubject!.classSection.id}");
-    print("classSubjectId: ${selectedSubject!.subject.id}");
     if (_formKey.currentState?.validate() ?? false) {
-      // Use the correct IDs from the selected subject
+      if (selectedSubject == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Pilih mata pelajaran terlebih dahulu')),
+        );
+        return;
+      }
+
       context
           .read<OnlineExamCubit>()
           .createOnlineExam(
             classSectionId: selectedSubject!.classSection.id,
             classSubjectId: selectedSubject!.class_subject_id,
-            title: title,
-            examKey: examKey,
-            duration: duration,
+            title: _titleController.text,
+            examKey: _examKeyController.text,
+            duration: int.parse(_durationController.text),
             startDate: startDate!,
             endDate: endDate!,
           )
@@ -255,5 +377,88 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
         );
       });
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF8B0000).withOpacity(0.9),
+              Color(0xFF6B0000),
+              Color(0xFF4B0000),
+              Theme.of(context).colorScheme.secondary,
+            ],
+            stops: [0.2, 0.4, 0.6, 1.0],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              FadeInDown(
+                duration: Duration(milliseconds: 600),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                        onPressed: () => Get.back(),
+                      ),
+                      Text(
+                        'Buat Ujian Online',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.all(20),
+                    physics: BouncingScrollPhysics(),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          FadeInUp(
+                            duration: Duration(milliseconds: 800),
+                            child: _buildBasicInfoSection(),
+                          ),
+                          SizedBox(height: 25),
+                          FadeInUp(
+                            duration: Duration(milliseconds: 1000),
+                            child: _buildExamDetailsSection(),
+                          ),
+                          SizedBox(height: 30),
+                          _buildSubmitButton(),
+                          SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

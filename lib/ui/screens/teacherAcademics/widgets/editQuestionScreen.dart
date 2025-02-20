@@ -4,6 +4,7 @@ import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/questionBa
 import 'package:eschool_saas_staff/data/models/question.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter/services.dart';
 
 class EditQuestionScreen extends StatefulWidget {
   final Map<String, dynamic>? questionData;
@@ -1200,8 +1201,146 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
   }
 
   Widget _buildNumericOption() {
-    // Gunakan tampilan yang sama dengan essay
-    return _buildEssayOption();
+    return Column(
+      children: [
+        ...List.generate(
+          options.length,
+          (index) => FadeInLeft(
+            delay: Duration(milliseconds: 100 * index),
+            child: Container(
+              margin: EdgeInsets.only(bottom: 16),
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 2,
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+                border: Border.all(
+                  color:
+                      Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .secondary
+                              .withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'Jawaban ${index + 1}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
+                        ),
+                      ),
+                      if (options.length > 1)
+                        IconButton(
+                          icon: Icon(Icons.delete_outline),
+                          color: Colors.red.shade400,
+                          onPressed: () => _removeAnswerOption(index),
+                          tooltip: 'Hapus jawaban ini',
+                        ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  TextFormField(
+                    initialValue: options[index]['text'],
+                    decoration: InputDecoration(
+                      labelText: 'Jawaban (Numerik)',
+                      prefixIcon: Icon(Icons.numbers,
+                          color: Theme.of(context).colorScheme.secondary),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                      helperText: 'Masukkan angka saja',
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                    ],
+                    validator: (v) {
+                      if (v?.isEmpty ?? true) return 'Wajib diisi';
+                      if (int.tryParse(v!) == null) return 'Harus berupa angka';
+                      return null;
+                    },
+                    onChanged: (value) => setState(() {
+                      options[index]['text'] = value;
+                    }),
+                  ),
+                  SizedBox(height: 12),
+                  TextFormField(
+                    initialValue: options[index]['percentage'].toString(),
+                    decoration: InputDecoration(
+                      labelText: 'Persentase Nilai',
+                      prefixIcon: Icon(Icons.percent,
+                          color: Theme.of(context).colorScheme.secondary),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                    ],
+                    validator: (v) => v?.isEmpty ?? true ? 'Wajib diisi' : null,
+                    onChanged: (value) => setState(() {
+                      options[index]['percentage'] = int.tryParse(value) ?? 0;
+                    }),
+                  ),
+                  SizedBox(height: 12),
+                  TextFormField(
+                    initialValue: options[index]['feedback'],
+                    decoration: InputDecoration(
+                      labelText: 'Feedback',
+                      prefixIcon: Icon(Icons.comment_outlined,
+                          color: Theme.of(context).colorScheme.secondary),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                      helperText: '* Wajib diisi',
+                      helperStyle: TextStyle(color: Colors.red),
+                    ),
+                    maxLines: 2,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Feedback tidak boleh kosong';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) => setState(() {
+                      options[index]['feedback'] = value;
+                    }),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildAnimatedTextField({

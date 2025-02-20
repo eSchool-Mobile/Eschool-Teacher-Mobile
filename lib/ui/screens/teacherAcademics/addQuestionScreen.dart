@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
@@ -640,10 +641,142 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
     return _buildEssayOption();
   }
 
+  // Modifikasi _buildNumericOption()
   Widget _buildNumericOption() {
-    // Gunakan tampilan yang sama dengan essay
-    return _buildEssayOption();
+    return Column(
+      children: [
+        ...List.generate(
+          _optionControllers.length,
+          (index) => FadeInLeft(
+            delay: Duration(milliseconds: 100 * index),
+            child: Container(
+              margin: EdgeInsets.only(bottom: 16),
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 2,
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+                border: Border.all(
+                  color:
+                      Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .secondary
+                              .withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'Jawaban ${index + 1}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
+                        ),
+                      ),
+                      if (_optionControllers.length > 1)
+                        IconButton(
+                          icon: Icon(Icons.delete_outline),
+                          color: Colors.red.shade400,
+                          onPressed: () => _removeAnswerOption(index),
+                          tooltip: 'Hapus jawaban ini',
+                        ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  TextFormField(
+                    controller: _optionControllers[index],
+                    decoration: InputDecoration(
+                      labelText: 'Jawaban (Numerik)',
+                      prefixIcon: Icon(Icons.numbers,
+                          color: Theme.of(context).colorScheme.secondary),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                      helperText: 'Masukkan angka saja',
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                    ],
+                    validator: (v) {
+                      if (v?.isEmpty ?? true) return 'Wajib diisi';
+                      if (int.tryParse(v!) == null) return 'Harus berupa angka';
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 12),
+                  TextFormField(
+                    controller: _percentageControllers[index],
+                    decoration: InputDecoration(
+                      labelText: 'Persentase Nilai',
+                      prefixIcon: Icon(Icons.percent,
+                          color: Theme.of(context).colorScheme.secondary),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                    ],
+                    validator: (v) => v?.isEmpty ?? true ? 'Wajib diisi' : null,
+                  ),
+                  SizedBox(height: 12),
+                  TextFormField(
+                    controller: _feedbackControllers[index],
+                    decoration: InputDecoration(
+                      labelText: 'Feedback',
+                      prefixIcon: Icon(Icons.comment_outlined,
+                          color: Theme.of(context).colorScheme.secondary),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                      helperText: '* Wajib diisi',
+                      helperStyle: TextStyle(color: Colors.red),
+                    ),
+                    maxLines: 2,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Feedback tidak boleh kosong';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
+
+  // Method removed as it was a duplicate of the one below
 
   Widget _buildAnswerTypeCard() {
     if (!['multiple_choice', 'true_false'].contains(selectedType)) {

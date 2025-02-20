@@ -72,7 +72,6 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         sessionYearId: sessionYearId,
       );
 
-      print('Subject Details from API:');
       if (result['subjectDetails'] is List) {
         for (var subject in result['subjectDetails']) {
           var prettyJson = JsonEncoder.withIndent('\t').convert(subject);

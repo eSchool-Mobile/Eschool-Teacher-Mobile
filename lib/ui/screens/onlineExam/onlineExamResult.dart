@@ -1,18 +1,23 @@
+import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:animate_do/animate_do.dart';
 import 'package:glassmorphism/glassmorphism.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:intl/intl.dart';
 
 class OnlineExamResultScreen extends StatefulWidget {
   @override
   _OnlineExamResultScreenState createState() => _OnlineExamResultScreenState();
-
-  static getRouteInstance() {}
 }
 
 class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<OnlineExamCubit>().getOnlineExams();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,7 +27,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF8B0000).withOpacity(0.9), // Dark red gradient
+              Color(0xFF8B0000).withOpacity(0.9),
               Color(0xFF6B0000),
               Color(0xFF4B0000),
               Theme.of(context).colorScheme.secondary,
@@ -33,10 +38,32 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              _buildAppBar(),
-              _buildSearchBar(),
+              _buildAnimatedHeader(),
               Expanded(
-                child: _buildExamList(),
+                child: Container(
+                  margin: EdgeInsets.only(top: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 10,
+                        spreadRadius: 5,
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                    child: _buildBody(),
+                  ),
+                ),
               ),
             ],
           ),
@@ -45,35 +72,93 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAnimatedHeader() {
     return FadeInDown(
-      duration: Duration(milliseconds: 500),
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              icon: Icon(Icons.arrow_back_ios, color: Colors.white),
-              onPressed: () => Get.back(),
-            ),
-            Text(
-              'Hasil Ujian Online',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            IconButton(
-              icon: Icon(Icons.filter_list, color: Colors.white),
-              onPressed: () {
-                // Show filter options
-              },
-            ),
+      duration: Duration(milliseconds: 800),
+      child: GlassmorphicContainer(
+        width: double.infinity,
+        height: 100,
+        borderRadius: 0,
+        blur: 20,
+        alignment: Alignment.center,
+        border: 0,
+        linearGradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white.withOpacity(0.1),
+            Colors.white.withOpacity(0.05),
           ],
         ),
+        borderGradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white.withOpacity(0.5),
+            Colors.white.withOpacity(0.2),
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                    onPressed: () => Get.back(),
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Hasil Ujian Online',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black26,
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Daftar Nilai Ujian',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              IconButton(
+                icon: Icon(Icons.filter_list, color: Colors.white),
+                onPressed: () {},
+              ),
+            ],
+          ),
+        ),
       ),
+    );
+  }
+
+  Widget _buildBody() {
+    return Column(
+      children: [
+        _buildSearchBar(),
+        Expanded(
+          child: _buildExamCard(),
+        ),
+      ],
     );
   }
 
@@ -81,12 +166,12 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
     return FadeInDown(
       delay: Duration(milliseconds: 200),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0),
+        padding: EdgeInsets.all(20),
         child: Container(
-          height: 50,
+          height: 55,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(25),
+            borderRadius: BorderRadius.circular(15),
             boxShadow: [
               BoxShadow(
                 color: Colors.black12,
@@ -96,9 +181,13 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
             ],
           ),
           child: TextField(
+            onChanged: (value) {
+              print("TEST");
+              context.read<OnlineExamCubit>().getOnlineExams(search: value);
+            },
             decoration: InputDecoration(
-              prefixIcon: Icon(Icons.search),
               hintText: 'Cari hasil ujian...',
+              prefixIcon: Icon(Icons.search, color: Color(0xFF8B0000)),
               border: InputBorder.none,
               contentPadding:
                   EdgeInsets.symmetric(horizontal: 20, vertical: 15),
@@ -109,108 +198,123 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
     );
   }
 
-  Widget _buildExamList() {
-    return ListView.builder(
-      padding: EdgeInsets.all(16),
-      itemCount: 10, // Replace with actual data length
-      itemBuilder: (context, index) {
-        return FadeInUp(
-          delay: Duration(milliseconds: 100 * index),
-          child: _buildExamCard(index),
-        );
+  Widget _buildExamCard() {
+    return BlocBuilder<OnlineExamCubit, OnlineExamState>(
+      builder: (context, state) {
+        if (state is OnlineExamLoading) {
+          return Center(child: CircularProgressIndicator());
+        }
+        if (state is OnlineExamFailure) {
+          return Center(child: Text('Error: ${state.message}'));
+        }
+        if (state is OnlineExamSuccess) {
+          return ListView.builder(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            itemCount: state.exams.length,
+            itemBuilder: (context, index) {
+              final exam = state.exams[index];
+              return Container(
+                margin: EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  exam.title ?? 'Tidak ada ujian',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF8B0000),
+                                  ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    'Pending',
+                                    style: TextStyle(
+                                      color: Colors.green,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              exam.title ?? 'Tidak ada judul',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 14,
+                              ),
+                            ),
+                            SizedBox(height: 12),
+                            Row(
+                              children: [
+                                _buildInfoRow(
+                                    Icons.calendar_today,
+                                    DateFormat('dd MM')
+                                            .format(exam.startDate) ??
+                                        'No date'),
+                                SizedBox(width: 16),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        }
+        return Center(child: Text('No data available'));
       },
     );
   }
 
-  Widget _buildExamCard(int index) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 16),
-      child: GlassmorphicContainer(
-        width: double.infinity,
-        height: 160,
-        borderRadius: 20,
-        blur: 10,
-        alignment: Alignment.center,
-        border: 2,
-        linearGradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withOpacity(0.2),
-            Colors.white.withOpacity(0.1),
-          ],
+  Widget _buildInfoRow(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 16,
+          color: Colors.grey[600],
         ),
-        borderGradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withOpacity(0.4),
-            Colors.white.withOpacity(0.2),
-          ],
+        SizedBox(width: 4),
+        Text(
+          text,
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 13,
+          ),
         ),
-        child: _buildExamCardContent(),
-      ),
-    );
-  }
-
-  Widget _buildExamCardContent() {
-    return Padding(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Matematika',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  'Selesai',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 12),
-          Text(
-            'Ujian Tengah Semester',
-            style: TextStyle(color: Colors.white70),
-          ),
-          SizedBox(height: 12),
-          Row(
-            children: [
-              Icon(Icons.calendar_today, color: Colors.white70, size: 16),
-              SizedBox(width: 8),
-              Text(
-                '20 Maret 2024',
-                style: TextStyle(color: Colors.white70),
-              ),
-              SizedBox(width: 16),
-              Icon(Icons.score, color: Colors.white70, size: 16),
-              SizedBox(width: 8),
-              Text(
-                'Nilai: 85',
-                style: TextStyle(color: Colors.white70),
-              ),
-            ],
-          ),
-        ],
-      ),
+      ],
     );
   }
 }

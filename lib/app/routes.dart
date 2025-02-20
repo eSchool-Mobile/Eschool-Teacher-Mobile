@@ -27,6 +27,8 @@ import 'package:eschool_saas_staff/ui/screens/managePayrolls/managePayrollsScree
 import 'package:eschool_saas_staff/ui/screens/myPayrollScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/notificationsScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/offlineResult/offlineResultScreen.dart';
+// import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResultScreen.dart';
+// import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResultScreen';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResult.dart';
 import 'package:eschool_saas_staff/ui/screens/paidFeesScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/privacyPolicyScreen.dart';
@@ -443,8 +445,18 @@ class Routes {
 
     GetPage(
       name: onlineExamResultScreen,
-      page: () => OnlineExamResultScreen(),
-      transitionDuration: Duration(milliseconds: 300),
+      page: () => MultiBlocProvider(
+        providers: [
+          BlocProvider<OnlineExamCubit>(
+            create: (context) => OnlineExamCubit(OnlineExamRepository()),
+          ),
+          BlocProvider<ClassSectionsAndSubjectsCubit>(
+            create: (context) => ClassSectionsAndSubjectsCubit(),
+          ),
+        ],
+        child: OnlineExamResultScreen(),
+      ),
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
       name: bankQuestionScreen,
