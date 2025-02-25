@@ -165,92 +165,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       try {
-        // Check for empty feedback fields
-        List<int> emptyFeedbackIndexes = [];
-
-        for (int i = 0; i < options.length; i++) {
-          if (options[i]['feedback'].toString().trim().isEmpty) {
-            emptyFeedbackIndexes.add(i + 1);
-          }
-        }
-
-        if (emptyFeedbackIndexes.isNotEmpty) {
-          await showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                title: Row(
-                  children: [
-                    Icon(
-                      Icons.warning_amber_rounded,
-                      color: Colors.orange,
-                      size: 30,
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      'Feedback Wajib Diisi',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Feedback belum diisi pada opsi:',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    SizedBox(height: 10),
-                    ...emptyFeedbackIndexes
-                        .map((index) => Padding(
-                              padding: EdgeInsets.only(left: 16, bottom: 4),
-                              child: Text(
-                                '• Opsi $index',
-                                style: TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ))
-                        .toList(),
-                    SizedBox(height: 16),
-                    Text(
-                      'Silakan isi feedback untuk setiap opsi jawaban sebelum menyimpan.',
-                      style: TextStyle(
-                        fontStyle: FontStyle.italic,
-                        color: Colors.grey[700],
-                      ),
-                    ),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(
-                      'Mengerti',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
-          );
-          return; // Stop form submission
-        }
-
-        // Continue with existing update logic
         await context.read<QuestionBankCubit>().updateQuestion(
               banksoalSoalId: widget.questionData!['banksoal_soal_id'],
               subjectId: widget.questionData!['subject_id'],
@@ -269,7 +183,15 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                   .toList(),
             );
 
-        Get.back(result: true);
+        // Return updated data
+        Get.back(result: {
+          'success': true,
+          'updatedData': {
+            'id': widget.questionData!['banksoal_soal_id'],
+            'defaultPoint': int.parse(pointController.text),
+          }
+        });
+
         Get.snackbar(
           'Berhasil',
           'Soal berhasil diperbarui',
@@ -277,7 +199,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
           colorText: Colors.white,
         );
       } catch (e) {
-        // Only show error if it's not validation.exists with successful update
         if (!e.toString().contains('validation.exists') ||
             !e.toString().toLowerCase().contains('updated')) {
           Get.snackbar(
@@ -1096,33 +1017,34 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                     ],
                   ),
                   SizedBox(height: 16),
-                    TextFormField(
+                  TextFormField(
                     initialValue: options[index]['text'],
                     decoration: InputDecoration(
                       labelText: 'Jawaban',
                       prefixIcon: Icon(Icons.edit_note,
-                        color: Theme.of(context).colorScheme.secondary),
+                          color: Theme.of(context).colorScheme.secondary),
                       border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
                       ),
                       filled: true,
                       fillColor: Colors.grey.shade50,
                     ),
-                    keyboardType: selectedType == 'numeric' 
-                      ? const TextInputType.numberWithOptions(decimal: false, signed: false)
-                      : TextInputType.text,
+                    keyboardType: selectedType == 'numeric'
+                        ? const TextInputType.numberWithOptions(
+                            decimal: false, signed: false)
+                        : TextInputType.text,
                     inputFormatters: selectedType == 'numeric'
-                      ? [FilteringTextInputFormatter.digitsOnly]
-                      : null,
+                        ? [FilteringTextInputFormatter.digitsOnly]
+                        : null,
                     maxLines: selectedType == 'numeric' ? 1 : 3,
                     validator: (v) => v?.isEmpty ?? true ? 'Wajib diisi' : null,
                     onChanged: (value) => setState(() {
                       options[index]['text'] = value;
                     }),
-                    ),
+                  ),
                   SizedBox(height: 12),
                   TextFormField(
                     initialValue: options[index]['percentage'].toString(),

@@ -387,14 +387,14 @@ class _OnlineExamResultQuestionsScreenState
                     ),
                     const SizedBox(width: 6),
                     Text(
-                    'Lihat',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF800000),
-                      letterSpacing: 0.3,
-                    ),
-                    ),
+                      'Lihat',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF800000),
+                          letterSpacing: 0.3,
+                        ),
+                      ),
                     ],
                   ),
                 ],

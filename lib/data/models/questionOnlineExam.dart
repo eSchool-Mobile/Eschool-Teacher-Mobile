@@ -18,12 +18,12 @@ class QuestionOnlineExam {
     this.title,
     this.version,
     this.onlineExamId,
-    required this.type, // Add this parameter
+    required this.type,
   });
 
   factory QuestionOnlineExam.fromJson(Map<String, dynamic> json) {
+    print("BELUM ERROR PT 2");
     final options = (json['options'] as List?)?.first ?? {};
-
     return QuestionOnlineExam(
       id: json['id'] ?? 0,
       question: json['question_text'] ?? '',

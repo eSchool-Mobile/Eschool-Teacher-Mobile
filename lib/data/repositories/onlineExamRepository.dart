@@ -157,6 +157,8 @@ class OnlineExamRepository {
           // Parse options
           final options = (question['options'] as List?)?.first ?? {};
 
+          print("OK BELUM ERROR");
+
           return QuestionOnlineExam(
             id: question['id'] ?? 0,
             question: question['question_text'] ?? '',
@@ -167,7 +169,7 @@ class OnlineExamRepository {
             options: question['options'],
             title: '', // Bisa diambil dari exam['title'] jika diperlukan
             version: '1.0', // Sesuaikan dengan kebutuhan
-            type: question["type"],
+            type: question["type"] ?? "multiple_choice",
             onlineExamId: examId,
           );
         }).toList();

@@ -149,8 +149,49 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
       },
     );
 
-    if (result == true) {
-      _loadQuestions();
+    if (result != null && result is Map<String, dynamic>) {
+      if (result['success'] == true) {
+        // Update the question in the local state
+        setState(() {
+          final updatedData = result['updatedData'];
+          final questionIndex = _filteredQuestions.indexWhere(
+            (q) => q.id == updatedData['id'],
+          );
+
+          if (questionIndex != -1) {
+            // Update the defaultPoint in the latest version
+            final updatedQuestion = _filteredQuestions[questionIndex];
+            final updatedVersions = List<q.QuestionVersion>.from(
+              updatedQuestion.versions,
+            );
+
+            // Update the last version with new default point
+            final lastVersion = updatedVersions.last;
+            updatedVersions[updatedVersions.length - 1] = q.QuestionVersion(
+              id: lastVersion.id,
+              version: lastVersion.version,
+              question: lastVersion.question,
+              name: lastVersion.name,
+              note: lastVersion.note,
+              defaultPoint: updatedData['defaultPoint'],
+              type: lastVersion.type,
+              options: lastVersion.options,
+            );
+
+            // Create updated question with new versions
+            _filteredQuestions[questionIndex] = q.Question(
+              id: updatedQuestion.id,
+              bankSoalId: updatedQuestion.bankSoalId,
+              subjectId: updatedQuestion.subjectId,
+              createdAt: updatedQuestion.createdAt,
+              updatedAt: updatedQuestion.updatedAt,
+              defaultPoint: updatedData['defaultPoint'],
+              bankSoal: updatedQuestion.bankSoal,
+              versions: updatedVersions,
+            );
+          }
+        });
+      }
     }
   }
 
@@ -670,6 +711,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
                 color: Colors.amber,
               ),
               SizedBox(width: 4),
+              // Menggunakan nilai default point terbaru
               Text(
                 '${latestVersion.defaultPoint}',
                 style: TextStyle(
