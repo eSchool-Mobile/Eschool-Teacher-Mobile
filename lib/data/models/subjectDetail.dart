@@ -12,6 +12,9 @@ class SubjectDetail {
   });
 
   factory SubjectDetail.fromJson(Map<String, dynamic> json) {
+    // Tambahkan debug print
+    print('Parsing SubjectDetail: ${json.toString()}');
+
     return SubjectDetail(
       id: json['id'] ?? 0,
       class_subject_id: json['class_subject']['id'] ?? 0,

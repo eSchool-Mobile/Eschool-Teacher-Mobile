@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/repositories/onlineExamRepository.dart';
 import 'package:eschool_saas_staff/data/models/onlineExam.dart';
-import 'package:eschool_saas_staff/data/models/subject.dart'; // Add SubjectDetail model
+import 'package:eschool_saas_staff/data/models/subject.dart' as subject_model; // Add SubjectDetail model
 import 'package:eschool_saas_staff/utils/api.dart'; // Add this import
 import 'package:dio/dio.dart'; // Add this import
+import 'package:eschool_saas_staff/data/models/onlineExam.dart';
+import 'package:eschool_saas_staff/data/models/subjectDetail.dart';
 
 abstract class OnlineExamState {}
 
@@ -23,8 +25,20 @@ class OnlineExamSuccess extends OnlineExamState {
   });
 }
 
+// Add this new state
+class OnlineExamLoaded extends OnlineExamState {
+  final OnlineExam exam;
+  final List<SubjectDetail> subjects;
+
+  OnlineExamLoaded({
+    required this.exam,
+    required this.subjects,
+  });
+}
+
 class OnlineExamFailure extends OnlineExamState {
   final String message;
+
   OnlineExamFailure(this.message);
 }
 
@@ -71,13 +85,6 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         classSectionId: classSectionId,
         sessionYearId: sessionYearId,
       );
-
-      if (result['subjectDetails'] is List) {
-        for (var subject in result['subjectDetails']) {
-          var prettyJson = JsonEncoder.withIndent('\t').convert(subject);
-          prettyJson.split('\n').forEach((line) => print(line));
-        }
-      }
 
       final List<OnlineExam> exams = [];
       if (result['exams'] is List) {
@@ -144,12 +151,46 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       );
 
       final subjects = (result['subjectDetails'] as List)
-          .map((subject) => Subject.fromJson(subject))
+          .map((subject) => subject_model.Subject.fromJson(subject))
           .toList();
 
       emit(SubjectsLoaded(subjects));
     } catch (e) {
       emit(SubjectsError(e.toString()));
+    }
+  }
+
+  // Add this method to the OnlineExamCubit class
+  Future<void> updateOnlineExam({
+    required int id,
+    required int classSectionId,
+    required int classSubjectId,
+    required String title,
+    required String examKey,
+    required int duration,
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    try {
+      emit(OnlineExamLoading());
+
+      await _repository.updateOnlineExam(
+        id: id,
+        classSectionId: classSectionId,
+        classSubjectId: classSubjectId,
+        title: title,
+        examKey: examKey,
+        duration: duration,
+        startDate: startDate,
+        endDate: endDate,
+      );
+
+      // Refresh the exams list after successful update
+      await getOnlineExams();
+
+      emit(OnlineExamSuccess(exams: [], subjectDetails: [])); // Temporary emit
+    } catch (e) {
+      emit(OnlineExamFailure(e.toString()));
     }
   }
 }

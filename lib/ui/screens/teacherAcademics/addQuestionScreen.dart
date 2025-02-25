@@ -559,7 +559,15 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                       filled: true,
                       fillColor: Colors.grey.shade50,
                     ),
-                    maxLines: 3,
+                    // Tambahkan konfigurasi keyboard numerik untuk soal tipe numerik
+                    keyboardType: selectedType == 'numeric'
+                        ? const TextInputType.numberWithOptions(
+                            decimal: false, signed: false)
+                        : TextInputType.text,
+                    inputFormatters: selectedType == 'numeric'
+                        ? [FilteringTextInputFormatter.digitsOnly]
+                        : null,
+                    maxLines: selectedType == 'numeric' ? 1 : 3,
                     validator: (v) => v?.isEmpty ?? true ? 'Wajib diisi' : null,
                   ),
                   SizedBox(height: 12),
@@ -715,7 +723,11 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                       fillColor: Colors.grey.shade50,
                       helperText: 'Masukkan angka saja',
                     ),
-                    keyboardType: TextInputType.number,
+                    // Update keyboard type dan input formatter
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: false,
+                      signed: false,
+                    ),
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
                     ],
@@ -738,7 +750,11 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                       filled: true,
                       fillColor: Colors.grey.shade50,
                     ),
-                    keyboardType: TextInputType.number,
+                    // Update keyboard type dan input formatter
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: false,
+                      signed: false,
+                    ),
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
                     ],
@@ -1527,7 +1543,11 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
+                    // Tambahkan konfigurasi keyboard numerik
                     keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                    ],
                   ),
                 ),
                 SizedBox(width: 16),
@@ -1540,7 +1560,11 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
+                    // Tambahkan konfigurasi keyboard numerik
                     keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                    ],
                   ),
                 ),
               ],
@@ -1556,6 +1580,9 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                 ),
               ),
               keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+              ],
             ),
             SizedBox(height: 12),
             TextFormField(

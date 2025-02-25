@@ -8,6 +8,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import 'package:flutter/services.dart';
+import 'dart:math';
 
 class CreateOnlineExam extends StatefulWidget {
   @override
@@ -66,6 +67,18 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
     }
   }
 
+  // Add this method to generate random exam key
+  String _generateExamKey() {
+    const chars = '0123456789'; // Changed to only numbers
+    final random = Random();
+    return List.generate(
+            6,
+            (index) => chars[random.nextInt(
+                chars.length)]) // Changed length to 6 for better readability
+        .join();
+  }
+
+  // Update the _buildAnimatedTextField method to accept a suffix icon
   Widget _buildAnimatedTextField({
     required TextEditingController controller,
     required String label,
@@ -77,6 +90,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
     Color? iconColor,
     Color? labelColor,
     List<TextInputFormatter>? inputFormatters,
+    Widget? suffixIcon, // Add this parameter
   }) {
     return TextFormField(
       controller: controller,
@@ -94,6 +108,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
           icon,
           color: iconColor ?? Theme.of(context).colorScheme.primary,
         ),
+        suffixIcon: suffixIcon, // Add this line
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
           borderSide: BorderSide.none,
@@ -137,18 +152,34 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
             ),
           ),
           SizedBox(height: 20),
+          // Subject dropdown moved above title input
+          _buildSubjectDropdown(),
+          SizedBox(height: 15),
           _buildAnimatedTextField(
             controller: _titleController,
             label: 'Judul Ujian',
             icon: Icons.title,
           ),
           SizedBox(height: 15),
-          _buildSubjectDropdown(),
-          SizedBox(height: 15),
           _buildAnimatedTextField(
             controller: _examKeyController,
             label: 'Kunci Ujian',
             icon: Icons.key,
+            keyboardType:
+                TextInputType.number, // Add this to show numeric keyboard
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly
+            ], // Add this to restrict input to numbers only
+            suffixIcon: IconButton(
+              icon: Icon(Icons.refresh_rounded),
+              onPressed: () {
+                setState(() {
+                  _examKeyController.text = _generateExamKey();
+                });
+              },
+              tooltip: 'Generate Kunci Ujian',
+              color: Color(0xFF8B0000),
+            ),
           ),
         ],
       ),
@@ -291,51 +322,60 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
   Widget _buildSubjectDropdown() {
     return BlocBuilder<OnlineExamCubit, OnlineExamState>(
       builder: (context, state) {
-        if (state is OnlineExamLoading) {
-          return Center(child: CircularProgressIndicator());
-        } else if (state is OnlineExamSuccess) {
-          final subjects = state.subjectDetails;
-
-          return _buildAnimatedTextField(
-            controller: TextEditingController(
-              text: selectedSubject?.subject.name ?? 'Pilih Mata Pelajaran',
-            ),
-            label: 'Mata Pelajaran',
-            icon: Icons.subject,
-            readOnly: true,
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: Text('Pilih Mata Pelajaran'),
-                  content: Container(
-                    width: double.maxFinite,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: subjects.length,
-                      itemBuilder: (context, index) {
-                        final subjectDetail =
-                            SubjectDetail.fromJson(subjects[index]);
-                        return ListTile(
-                          title: Text(
-                            '${subjectDetail.classSection.name} - ${subjectDetail.subject.name}',
-                          ),
-                          onTap: () {
-                            setState(() {
-                              selectedSubject = subjectDetail;
-                            });
-                            Navigator.pop(context);
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
+        List<SubjectDetail> subjects = [];
+        if (state is OnlineExamSuccess) {
+          subjects = state.subjectDetails
+              .map((e) => SubjectDetail.fromJson(e))
+              .toList();
         }
-        return SizedBox();
+
+        return DropdownButtonFormField<SubjectDetail>(
+          value: selectedSubject,
+          decoration: InputDecoration(
+            prefixIcon: Icon(Icons.school_rounded, color: Color(0xFF8B0000)),
+            labelText: 'Pilih Kelas & Mata Pelajaran',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Color(0xFF8B0000)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Color(0xFF8B0000)),
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade50,
+          ),
+          items: subjects.map((SubjectDetail detail) {
+            return DropdownMenuItem<SubjectDetail>(
+              value: detail,
+              child: Text(
+                '${detail.classSection.name} - ${detail.subject.name}',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[800],
+                ),
+              ),
+            );
+          }).toList(),
+          onChanged: (SubjectDetail? value) {
+            setState(() {
+              selectedSubject = value;
+            });
+          },
+          isExpanded: true,
+          hint: Text(
+            'Pilih Kelas & Mata Pelajaran',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
+            ),
+          ),
+          validator: (value) => value == null ? 'Pilih mata pelajaran' : null,
+        );
       },
     );
   }

@@ -160,16 +160,14 @@ class OnlineExamRepository {
           return QuestionOnlineExam(
             id: question['id'] ?? 0,
             question: question['question_text'] ?? '',
-            optionA: options['option'] ?? '', // Menggunakan option dari options
-            optionB: '', // Sesuaikan dengan response API
-            optionC: '', // Sesuaikan dengan response API
-            optionD: '', // Sesuaikan dengan response API
             correctAnswer: options['is_answer'] == 1
                 ? 'A'
                 : '', // Sesuaikan dengan response API
             marks: question['marks'] ?? 0,
+            options: question['options'],
             title: '', // Bisa diambil dari exam['title'] jika diperlukan
             version: '1.0', // Sesuaikan dengan kebutuhan
+            type: question["type"],
             onlineExamId: examId,
           );
         }).toList();
@@ -192,7 +190,7 @@ class OnlineExamRepository {
         useAuthToken: true,
         body: {
           'exam_id': examId,
-          'questions': questions.map((q) => q?.toJson()).toList(),
+          'questions': questions.map((q) => q.toJson()).toList(),
         },
       );
 

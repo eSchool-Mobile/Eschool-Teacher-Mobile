@@ -1,28 +1,24 @@
 class QuestionOnlineExam {
   final int id;
   final String question;
-  final String optionA;
-  final String optionB;
-  final String optionC;
-  final String optionD;
   final String correctAnswer;
   final int marks;
   final String? title;
   final String? version;
   final int? onlineExamId;
+  final String type;
+  final List<dynamic> options;
 
   QuestionOnlineExam({
     required this.id,
     required this.question,
-    required this.optionA,
-    required this.optionB,
-    required this.optionC,
-    required this.optionD,
     required this.correctAnswer,
     required this.marks,
+    required this.options,
     this.title,
     this.version,
     this.onlineExamId,
+    required this.type, // Add this parameter
   });
 
   factory QuestionOnlineExam.fromJson(Map<String, dynamic> json) {
@@ -31,15 +27,16 @@ class QuestionOnlineExam {
     return QuestionOnlineExam(
       id: json['id'] ?? 0,
       question: json['question_text'] ?? '',
-      optionA: options['option'] ?? '',
-      optionB: '', // Sesuaikan dengan format API
-      optionC: '', // Sesuaikan dengan format API
-      optionD: '', // Sesuaikan dengan format API
       correctAnswer: options['is_answer'] == 1 ? 'A' : '',
       marks: json['marks'] ?? 0,
-      title: '', // Sesuaikan jika diperlukan
-      version: '1.0', // Sesuaikan jika diperlukan
+      title: '',
+      options:
+          (json['type'] == 'multiple_choice' || json['type'] == 'true_false')
+              ? options
+              : null,
+      version: '1.0',
       onlineExamId: json['exam_id'],
+      type: json['type'] ?? 'multiple_choice',
     );
   }
 
@@ -48,12 +45,7 @@ class QuestionOnlineExam {
       'id': id,
       'question_text': question,
       'marks': marks,
-      'options': [
-        {
-          'option': optionA,
-          'is_answer': correctAnswer == 'A' ? 1 : 0,
-        }
-      ],
+      'options': [],
       'exam_id': onlineExamId,
     };
   }

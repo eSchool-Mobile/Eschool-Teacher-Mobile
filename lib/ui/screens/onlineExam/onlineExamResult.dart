@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,6 +14,8 @@ class OnlineExamResultScreen extends StatefulWidget {
 }
 
 class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
+  late String _searchController = "";
+
   @override
   void initState() {
     super.initState();
@@ -75,29 +79,29 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
   Widget _buildAnimatedHeader() {
     return FadeInDown(
       duration: Duration(milliseconds: 800),
-      child: GlassmorphicContainer(
+      child: Container(
         width: double.infinity,
         height: 100,
-        borderRadius: 0,
-        blur: 20,
-        alignment: Alignment.center,
-        border: 0,
-        linearGradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withOpacity(0.1),
-            Colors.white.withOpacity(0.05),
-          ],
-        ),
-        borderGradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withOpacity(0.5),
-            Colors.white.withOpacity(0.2),
-          ],
-        ),
+        // borderRadius: 0,
+        // blur: 20,
+        // alignment: Alignment.center,
+        // border: 0,
+        // linearGradient: LinearGradient(
+        //   begin: Alignment.topLeft,
+        //   end: Alignment.bottomRight,
+        //   colors: [
+        //     Colors.white.withOpacity(0.1),
+        //     Colors.white.withOpacity(0.05),
+        //   ],
+        // ),
+        // borderGradient: LinearGradient(
+        //   begin: Alignment.topLeft,
+        //   end: Alignment.bottomRight,
+        //   colors: [
+        //     Colors.white.withOpacity(0.5),
+        //     Colors.white.withOpacity(0.2),
+        //   ],
+        // ),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 20),
           child: Row(
@@ -152,13 +156,20 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
   }
 
   Widget _buildBody() {
-    return Column(
-      children: [
-        _buildSearchBar(),
-        Expanded(
-          child: _buildExamCard(),
-        ),
-      ],
+    return RefreshIndicator(
+      onRefresh: () async {
+        await context
+            .read<OnlineExamCubit>()
+            .getOnlineExams(search: _searchController);
+      },
+      child: Column(
+        children: [
+          _buildSearchBar(),
+          Expanded(
+            child: _buildExamCard(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -182,8 +193,8 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
           ),
           child: TextField(
             onChanged: (value) {
-              print("TEST");
               context.read<OnlineExamCubit>().getOnlineExams(search: value);
+              _searchController = value;
             },
             decoration: InputDecoration(
               hintText: 'Cari hasil ujian...',
@@ -213,83 +224,108 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
             itemCount: state.exams.length,
             itemBuilder: (context, index) {
               final exam = state.exams[index];
-              return Container(
-                margin: EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 8,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(15),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(16),
+              return GestureDetector(
+                  onTap: () {
+                    if (exam.status == 2) {
+                      Get.toNamed(
+                          "/OnlineExamResultQuestionsScreen/${exam.id}/${base64.encode(utf8.encode(exam.title))}");
+                    }
+                  },
+                  child: Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(15),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  exam.title ?? 'Tidak ada ujian',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF8B0000),
+                            Container(
+                              padding: EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        exam.title ?? 'Tidak ada ujian',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF8B0000),
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: exam.status == 0
+                                              ? Colors.orange.withOpacity(0.1)
+                                              : exam.status == 1
+                                                  ? Colors.blue.withOpacity(0.1)
+                                                  : Colors.green
+                                                      .withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        ),
+                                        child: Text(
+                                          (exam.status == 0
+                                              ? 'Belum Dimulai'
+                                              : exam.status == 1
+                                                  ? 'Sedang Berlangsung'
+                                                  : 'Selesai'),
+                                          style: TextStyle(
+                                            color: exam.status == 0
+                                                ? Colors.orange
+                                                : exam.status == 1
+                                                    ? Colors.blue
+                                                    : Colors.green,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    'Pending',
+                                  SizedBox(height: 8),
+                                  Text(
+                                    exam.title ?? 'Tidak ada judul',
                                     style: TextStyle(
-                                      color: Colors.green,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey[600],
+                                      fontSize: 14,
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              exam.title ?? 'Tidak ada judul',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 14,
+                                  SizedBox(height: 12),
+                                  Row(
+                                    children: [
+                                      _buildInfoRow(
+                                          Icons.calendar_today,
+                                          DateFormat('dd MMMM yyyy HH:mm',
+                                                      'id_ID')
+                                                  .format(exam.startDate) ??
+                                              'No date'),
+                                      SizedBox(width: 16),
+                                      _buildInfoRow(Icons.timer,
+                                          '${exam.duration} menit'),
+                                      SizedBox(width: 16),
+                                    ],
+                                  ),
+                                ],
                               ),
-                            ),
-                            SizedBox(height: 12),
-                            Row(
-                              children: [
-                                _buildInfoRow(
-                                    Icons.calendar_today,
-                                    DateFormat('dd MM')
-                                            .format(exam.startDate) ??
-                                        'No date'),
-                                SizedBox(width: 16),
-                              ],
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
+                      )));
             },
           );
         }

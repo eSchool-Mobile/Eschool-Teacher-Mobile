@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 class OnlineExam {
   final int id;
   final int classSectionId;
   final int classSubjectId;
+  final int status;
   final String title;
   final String examKey;
   final int duration;
@@ -18,19 +21,21 @@ class OnlineExam {
     required this.duration,
     required this.startDate,
     required this.endDate,
+    required this.status,
     required this.subjectName, // Add this parameter
   });
 
   factory OnlineExam.fromJson(Map<String, dynamic> json) {
     return OnlineExam(
       id: json['id'] ?? 0,
-      classSectionId: json['class_section_id'] ?? 0,
-      classSubjectId: json['class_subject_id'] ?? 0,
+      classSectionId: json['class_section']['id'] ?? 0,
+      classSubjectId: json['class_subject']['id'] ?? 0,
       title: json['title'] ?? '',
-      examKey: json['exam_key'] ?? '',
+      examKey: json['exam_key'].toString() ?? '',
       duration: json['duration'] ?? 0,
       startDate: DateTime.parse(json['start_date'] ?? ''),
       endDate: DateTime.parse(json['end_date'] ?? ''),
+      status: json['status'] ?? 0,
       subjectName: json['subject_name'] ?? '',
     );
   }
@@ -40,7 +45,7 @@ class OnlineExam {
       'class_section_id': classSectionId,
       'class_subject_id': classSubjectId,
       'title': title,
-      'exam_key': examKey,
+      'exam_key': examKey.toString(),
       'duration': duration,
       'start_date': startDate.toIso8601String(),
       'end_date': endDate.toIso8601String(),

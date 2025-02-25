@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:eschool_saas_staff/ui/screens/aboutUsScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/addAnnouncementScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/addNotification/addNotificationScreen.dart';
@@ -28,6 +30,7 @@ import 'package:eschool_saas_staff/ui/screens/myPayrollScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/notificationsScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/offlineResult/offlineResultScreen.dart';
 // import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResultScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResultQuestionsScreen.dart';
 // import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResultScreen';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResult.dart';
 import 'package:eschool_saas_staff/ui/screens/paidFeesScreen.dart';
@@ -79,6 +82,7 @@ import 'package:eschool_saas_staff/data/models/questionBank.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/bankQuestionScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/createOnlineExam.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/editOnlineExam.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
 import 'package:eschool_saas_staff/cubits/questionOnlineExam/questionOnlineExamCubit.dart';
@@ -179,10 +183,13 @@ class Routes {
 
   static String onlineExamScreen = "/onlineExam";
   static String onlineExamResultScreen = "/onlineExamResult";
+  static String onlineExamResultQuestionsScreen =
+      "/OnlineExamResultQuestionsScreen/:id/:nama";
   static String createOnlineExam = "/create-exam";
 
   // Tambahkan route baru
   static const String questionOnlineExam = '/exam-questions/:id';
+  static const String editOnlineExam = '/edit-exam';
 
   // Nama page
   static final List<GetPage> getPages = [
@@ -459,6 +466,23 @@ class Routes {
       transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
+      name: onlineExamResultQuestionsScreen,
+      page: () => MultiBlocProvider(
+        providers: [
+          BlocProvider<OnlineExamCubit>(
+            create: (context) => OnlineExamCubit(OnlineExamRepository()),
+          ),
+          BlocProvider<ClassSectionsAndSubjectsCubit>(
+            create: (context) => ClassSectionsAndSubjectsCubit(),
+          ),
+        ],
+        child: OnlineExamResultQuestionsScreen(
+            examId: int.parse(Get.parameters['id'] ?? '0'),
+            examName: utf8.decode(base64.decode(Get.parameters['nama'] ?? ''))),
+      ),
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
       name: bankQuestionScreen,
       page: () => BlocProvider(
         create: (context) =>
@@ -574,6 +598,22 @@ class Routes {
         bank: Get.arguments as BankSoalQuestion, // Updated type
       ),
     ),
+    GetPage(
+      name: editOnlineExam,
+      page: () => MultiBlocProvider(
+        providers: [
+          BlocProvider<OnlineExamCubit>(
+            create: (context) => OnlineExamCubit(OnlineExamRepository()),
+          ),
+          BlocProvider<ClassSectionsAndSubjectsCubit>(
+            create: (context) => ClassSectionsAndSubjectsCubit(),
+          ),
+        ],
+        child: EditOnlineExam(
+          exam: Get.arguments,
+        ),
+      ),
+    )
   ];
 
   // /[This will check if user is login or not. If user is login then navigate to target screen]

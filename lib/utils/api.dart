@@ -265,6 +265,7 @@ class Api {
         ),
       );
 
+      print(url);
       print("Response Status Code: ${response.statusCode}");
       print("Full Response Data: ${response.data}");
 

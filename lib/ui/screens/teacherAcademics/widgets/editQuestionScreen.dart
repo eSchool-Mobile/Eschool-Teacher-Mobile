@@ -1096,24 +1096,33 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                     ],
                   ),
                   SizedBox(height: 16),
-                  TextFormField(
+                    TextFormField(
                     initialValue: options[index]['text'],
                     decoration: InputDecoration(
                       labelText: 'Jawaban',
                       prefixIcon: Icon(Icons.edit_note,
-                          color: Theme.of(context).colorScheme.secondary),
+                        color: Theme.of(context).colorScheme.secondary),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                       ),
                       filled: true,
                       fillColor: Colors.grey.shade50,
                     ),
-                    maxLines: 3,
+                    keyboardType: selectedType == 'numeric' 
+                      ? const TextInputType.numberWithOptions(decimal: false, signed: false)
+                      : TextInputType.text,
+                    inputFormatters: selectedType == 'numeric'
+                      ? [FilteringTextInputFormatter.digitsOnly]
+                      : null,
+                    maxLines: selectedType == 'numeric' ? 1 : 3,
                     validator: (v) => v?.isEmpty ?? true ? 'Wajib diisi' : null,
                     onChanged: (value) => setState(() {
                       options[index]['text'] = value;
                     }),
-                  ),
+                    ),
                   SizedBox(height: 12),
                   TextFormField(
                     initialValue: options[index]['percentage'].toString(),
@@ -1273,7 +1282,11 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                       fillColor: Colors.grey.shade50,
                       helperText: 'Masukkan angka saja',
                     ),
-                    keyboardType: TextInputType.number,
+                    // Update konfigurasi keyboard untuk hanya menampilkan angka
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: false,
+                      signed: false,
+                    ),
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
                     ],
@@ -1299,7 +1312,11 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                       filled: true,
                       fillColor: Colors.grey.shade50,
                     ),
-                    keyboardType: TextInputType.number,
+                    // Update keyboard configuration
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: false,
+                      signed: false,
+                    ),
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
                     ],

@@ -631,7 +631,13 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                         child: _buildActionButton(
                           icon: Icons.edit_rounded,
                           label: 'Edit',
-                          onTap: () {},
+                          onTap: () {
+                            Get.toNamed(
+                              Routes.editOnlineExam,
+                              arguments:
+                                  exam, // Pass the exam object as argument
+                            );
+                          },
                           color: Colors.green[700]!,
                           height: 28, // Tinggi tombol
                           fontSize: 11, // Ukuran font
