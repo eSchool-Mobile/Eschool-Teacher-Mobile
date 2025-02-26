@@ -332,11 +332,17 @@ class Api {
 
       print('Delete Response: ${response.data}');
 
-      if (bool.parse(response.data['error'].toString())) {
-        throw ApiException(response.data['message'].toString());
+      // Ubah pengecekan response
+      if (response.data is Map<String, dynamic>) {
+        // Cek status dari response
+        if (response.data['status'] == false) {
+          throw ApiException(
+              response.data['message']?.toString() ?? defaultErrorMessageKey);
+        }
+        return Map<String, dynamic>.from(response.data);
+      } else {
+        throw ApiException('Invalid response format');
       }
-
-      return Map.from(response.data);
     } on DioException catch (e) {
       print('DioError: ${e.message}');
       print('DioError Response: ${e.response?.data}');
@@ -344,7 +350,7 @@ class Api {
           e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
     } catch (e) {
       print('General Error: $e');
-      throw ApiException(defaultErrorMessageKey);
+      throw ApiException(e.toString());
     }
   }
 }

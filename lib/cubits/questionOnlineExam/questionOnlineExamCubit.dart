@@ -78,9 +78,7 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
     try {
       emit(QuestionBanksLoading());
       final banks = await _repository.getBankSoal(examId);
-      print("OK ABIS HIT 1");
       emit(QuestionBanksLoaded(banks));
-      print("OK ABIS HIT 2");
     } catch (e) {
       emit(QuestionOnlineExamFailure(e.toString()));
     }

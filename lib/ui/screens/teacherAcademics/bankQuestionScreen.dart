@@ -85,9 +85,9 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
         return 'Essay';
       case 'true_false':
         return 'Benar/Salah';
-      case 'short_answer': // Add this
+      case 'short_answer':
         return 'Jawaban Singkat';
-      case 'numeric': // Add this
+      case 'numeric':
         return 'Numerik';
       default:
         return 'Lainnya';
@@ -348,8 +348,14 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
   }
 
   Widget _buildContent(List<q.Question> questions) {
+    if (questions.isEmpty) {
+      return _buildEmptyState();
+    }
+
     _showSearch = questions.length > 5;
-    if (_filteredQuestions.isEmpty) {
+
+    // Update filtered questions only if it's empty or search is not active
+    if (_filteredQuestions.isEmpty || _searchController.text.isEmpty) {
       _filteredQuestions = questions;
     }
 
@@ -363,8 +369,9 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 1,
+                  blurRadius: 5,
                   offset: Offset(0, 2),
                 ),
               ],
@@ -382,26 +389,27 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
             ),
           ),
         Expanded(
-          child: GridView.builder(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-            physics: BouncingScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio:
-                  0.62, // Decreased from 0.68 to 0.62 to make cards taller
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 12,
-            ),
-            itemCount: _filteredQuestions.length,
-            itemBuilder: (context, index) {
-              final question = _filteredQuestions[index];
-              final latestVersion = question.versions.last;
-              return FadeInUp(
-                duration: Duration(milliseconds: 600 + (index * 100)),
-                child: _buildQuestionCard(question, latestVersion),
-              );
-            },
-          ),
+          child: _filteredQuestions.isEmpty
+              ? _buildEmptyState()
+              : GridView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                  physics: BouncingScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.62,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 12,
+                  ),
+                  itemCount: _filteredQuestions.length,
+                  itemBuilder: (context, index) {
+                    final question = _filteredQuestions[index];
+                    final latestVersion = question.versions.last;
+                    return FadeInUp(
+                      duration: Duration(milliseconds: 600 + (index * 100)),
+                      child: _buildQuestionCard(question, latestVersion),
+                    );
+                  },
+                ),
         ),
       ],
     );
@@ -711,7 +719,6 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
                 color: Colors.amber,
               ),
               SizedBox(width: 4),
-              // Menggunakan nilai default point terbaru
               Text(
                 '${latestVersion.defaultPoint}',
                 style: TextStyle(
@@ -727,6 +734,11 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
                 onPressed: () =>
                     _navigateToEditQuestion(question, latestVersion),
                 color: Theme.of(context).colorScheme.secondary,
+              ),
+              IconButton(
+                icon: Icon(Icons.delete_outline, size: 20),
+                onPressed: () => _showDeleteQuestionConfirmation(question),
+                color: Colors.red,
               ),
             ],
           ),
@@ -988,82 +1000,57 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
           title: Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.red[50],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.delete_outline, color: Colors.red),
-              ),
-              const SizedBox(width: 16),
-              const Text(
-                'Hapus Soal',
-                style:
-                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-              ),
+              Icon(Icons.delete_outline, color: Colors.red),
+              SizedBox(width: 16),
+              Text('Hapus Soal'),
             ],
           ),
-          content: const Text(
+          content: Text(
             'Apakah Anda yakin ingin menghapus soal ini? Tindakan ini tidak dapat dibatalkan.',
-            style: TextStyle(fontSize: 16),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
               child: Text('Batal', style: TextStyle(color: Colors.grey[600])),
             ),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.red[400]!, Colors.red[700]!],
-                ),
-                borderRadius: BorderRadius.circular(30),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
               ),
-              child: MaterialButton(
-                onPressed: () async {
-                  try {
-                    Navigator.pop(dialogContext);
-                    await context.read<QuestionBankCubit>().deleteQuestion(
-                          subjectId: widget.subject.subject.id,
-                          banksoalId: widget.bankSoal.id,
-                          banksoalSoalId: question.id,
-                        );
+              onPressed: () async {
+                Navigator.pop(dialogContext); // Close dialog first
 
-                    if (!mounted) return;
+                try {
+                  await context.read<QuestionBankCubit>().deleteQuestion(
+                        subjectId: widget.subject.subject.id,
+                        banksoalId: widget.bankSoal.id,
+                        banksoalSoalId: question.id,
+                      );
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Soal berhasil dihapus'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  } catch (e) {
-                    if (!mounted) return;
+                  // Remove question from local state
+                  setState(() {
+                    _filteredQuestions.removeWhere((q) => q.id == question.id);
+                  });
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Gagal menghapus soal: ${e.toString()}'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                },
-                child: const Text(
-                  'Hapus',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                elevation: 0,
-              ),
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Soal berhasil dihapus'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(e.toString()),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: Text('Hapus'),
             ),
           ],
         );

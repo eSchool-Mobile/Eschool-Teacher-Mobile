@@ -3,10 +3,11 @@ import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/repositories/onlineExamRepository.dart';
 import 'package:eschool_saas_staff/data/models/onlineExam.dart';
-import 'package:eschool_saas_staff/data/models/subject.dart' as subject_model; // Add SubjectDetail model
+import 'package:eschool_saas_staff/data/models/subject.dart'
+    as subject_model; // Add SubjectDetail model
 import 'package:eschool_saas_staff/utils/api.dart'; // Add this import
 import 'package:dio/dio.dart'; // Add this import
-import 'package:eschool_saas_staff/data/models/onlineExam.dart';
+
 import 'package:eschool_saas_staff/data/models/subjectDetail.dart';
 
 abstract class OnlineExamState {}
@@ -17,10 +18,12 @@ class OnlineExamLoading extends OnlineExamState {}
 
 class OnlineExamSuccess extends OnlineExamState {
   final List<OnlineExam> exams;
+  final List<OnlineExam> archivedExams;
   final List<dynamic> subjectDetails;
 
   OnlineExamSuccess({
     required this.exams,
+    this.archivedExams = const [],
     required this.subjectDetails,
   });
 }
@@ -70,6 +73,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
 
   OnlineExamCubit(this._repository) : super(OnlineExamInitial());
 
+  // Method untuk mendapatkan ujian aktif
   Future<void> getOnlineExams({
     String? search,
     int? subjectId,
@@ -84,6 +88,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         subjectId: subjectId,
         classSectionId: classSectionId,
         sessionYearId: sessionYearId,
+        status: 'active', // Explicitly set status to active
       );
 
       final List<OnlineExam> exams = [];
@@ -99,6 +104,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
 
       emit(OnlineExamSuccess(
         exams: exams,
+        archivedExams: [],
         subjectDetails: result['subjectDetails'] ?? [],
       ));
     } catch (e) {
@@ -190,6 +196,59 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
 
       emit(OnlineExamSuccess(exams: [], subjectDetails: [])); // Temporary emit
     } catch (e) {
+      emit(OnlineExamFailure(e.toString()));
+    }
+  }
+
+  Future<void> deleteOnlineExam({
+    required int examId,
+    required String mode,
+  }) async {
+    try {
+      emit(OnlineExamLoading());
+
+      await _repository.deleteOnlineExam(examId, mode: mode);
+
+      // Refresh exam list after deletion
+      await getOnlineExams();
+    } catch (e) {
+      print('Delete Error in Cubit: $e');
+      if (e is ApiException) {
+        emit(OnlineExamFailure(e.toString()));
+      } else {
+        emit(OnlineExamFailure('Gagal menghapus ujian'));
+      }
+      throw e; // Re-throw to handle in UI
+    }
+  }
+
+  // Method khusus untuk mendapatkan ujian yang diarsipkan
+  Future<void> getArchivedExams() async {
+    try {
+      emit(OnlineExamLoading());
+
+      final result = await _repository.getOnlineExams(
+        status: 'archived', // Explicitly request archived exams
+      );
+
+      final List<OnlineExam> archivedExams = [];
+      if (result['exams'] is List) {
+        for (var examData in result['exams']) {
+          try {
+            archivedExams.add(OnlineExam.fromJson(examData));
+          } catch (e) {
+            print('Error parsing archived exam: $e');
+          }
+        }
+      }
+
+      emit(OnlineExamSuccess(
+        exams: [],
+        archivedExams: archivedExams,
+        subjectDetails: result['subjectDetails'] ?? [],
+      ));
+    } catch (e) {
+      print("Archive Error: $e");
       emit(OnlineExamFailure(e.toString()));
     }
   }

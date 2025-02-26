@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:eschool_saas_staff/ui/screens/aboutUsScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/addAnnouncementScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/addNotification/addNotificationScreen.dart';
@@ -22,16 +23,15 @@ import 'package:eschool_saas_staff/ui/screens/home/widgets/chatContainer/newChat
 import 'package:eschool_saas_staff/ui/screens/leaveRequestsScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/leaves/leavesScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/login/loginScreen.dart';
-
+import 'package:eschool_saas_staff/ui/screens/onlineExam/archiveOnlineExam.dart';
 import 'package:eschool_saas_staff/ui/screens/manageAnnouncement/manageAnnouncementScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/manageNotification/manageNotificationScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/managePayrolls/managePayrollsScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/myPayrollScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/notificationsScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/offlineResult/offlineResultScreen.dart';
-// import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResultScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResultQuestionsScreen.dart';
-// import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResultScreen';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResultAnswerScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResult.dart';
 import 'package:eschool_saas_staff/ui/screens/paidFeesScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/privacyPolicyScreen.dart';
@@ -185,11 +185,14 @@ class Routes {
   static String onlineExamResultScreen = "/onlineExamResult";
   static String onlineExamResultQuestionsScreen =
       "/OnlineExamResultQuestionsScreen/:id/:nama";
+  static String onlineExamResultAnswerScreen =
+      "/OnlineExamResultAnswerScreen/:examId/:questionId";
   static String createOnlineExam = "/create-exam";
 
   // Tambahkan route baru
   static const String questionOnlineExam = '/exam-questions/:id';
   static const String editOnlineExam = '/edit-exam';
+  static const String archiveOnlineExam = '/archive-online-exam';
 
   // Nama page
   static final List<GetPage> getPages = [
@@ -483,6 +486,24 @@ class Routes {
       transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
+      name: onlineExamResultAnswerScreen,
+      page: () => MultiBlocProvider(
+        providers: [
+          BlocProvider<OnlineExamCubit>(
+            create: (context) => OnlineExamCubit(OnlineExamRepository()),
+          ),
+          BlocProvider<ClassSectionsAndSubjectsCubit>(
+            create: (context) => ClassSectionsAndSubjectsCubit(),
+          ),
+        ],
+        child: OnlineExamResultAnswerScreen(
+            examId: int.parse(Get.parameters['id'] ?? '0'),
+            examName: utf8.decode(base64.decode(Get.parameters['nama'] ?? ''))),
+      ),
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+
+    GetPage(
       name: bankQuestionScreen,
       page: () => BlocProvider(
         create: (context) =>
@@ -613,8 +634,24 @@ class Routes {
           exam: Get.arguments,
         ),
       ),
-    )
-  ];
+    ),
+
+    GetPage(
+      name: archiveOnlineExam,
+      page: () => MultiBlocProvider(
+        providers: [
+          BlocProvider<OnlineExamCubit>(
+            create: (context) => OnlineExamCubit(OnlineExamRepository()),
+          ),
+          BlocProvider<ClassSectionsAndSubjectsCubit>(
+            create: (context) => ClassSectionsAndSubjectsCubit(),
+          ),
+        ],
+        child:
+            ArchiveOnlineExam(), // Replace Container() with ArchiveOnlineExam()
+      ),
+    ),
+  ]; // Add semicolon here
 
   // /[This will check if user is login or not. If user is login then navigate to target screen]
   // /[If user is not login then it will redirect user to login screen]

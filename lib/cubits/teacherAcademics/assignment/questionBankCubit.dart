@@ -254,14 +254,21 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
         banksoalSoalId: banksoalSoalId,
       );
 
-      print('🔄 Refreshing questions list');
-      final questions =
-          await _repository.getBankQuestions(subjectId, banksoalId);
-      emit(BankQuestionsFetchSuccess(questions));
+      // Get updated questions list
+      final updatedQuestions = await _repository.getBankQuestions(
+        subjectId,
+        banksoalId,
+      );
+
+      emit(BankQuestionsFetchSuccess(updatedQuestions));
       print('✅ Delete question process completed successfully');
     } catch (e) {
       print('❌ Delete Error in Cubit: $e');
-      emit(QuestionBankError(e.toString()));
+      if (e.toString().contains('validation.exists')) {
+        emit(QuestionBankError('Soal tidak ditemukan atau sudah dihapus'));
+      } else {
+        emit(QuestionBankError(e.toString()));
+      }
       throw e;
     }
   }

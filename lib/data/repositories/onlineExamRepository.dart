@@ -8,9 +8,10 @@ import 'package:dio/dio.dart';
 class OnlineExamRepository {
   Future<Map<String, dynamic>> getOnlineExams({
     String? search,
-    int? subjectId, // Ini adalah class_subject_id
+    int? subjectId,
     int? classSectionId,
     int? sessionYearId,
+    String status = 'active', // Parameter status untuk filter
     int offset = 0,
     int limit = 10,
   }) async {
@@ -24,19 +25,17 @@ class OnlineExamRepository {
           'sort': 'id',
           'order': 'DESC',
           if (search != null && search.isNotEmpty) 'search': search,
-          if (subjectId != null)
-            'class_subject_id':
-                subjectId.toString(), // Ubah ke class_subject_id
+          if (subjectId != null) 'class_subject_id': subjectId.toString(),
           if (classSectionId != null)
             'class_section_id': classSectionId.toString(),
           if (sessionYearId != null)
             'session_year_id': sessionYearId.toString(),
-          'status': 'active',
+          'status': status, // Tambahkan status ke query parameters
           'type': 'all',
         },
       );
 
-      print('API Response: $response');
+      print('API Response for status $status: $response');
 
       if (response is Map<String, dynamic>) {
         return {
@@ -63,7 +62,7 @@ class OnlineExamRepository {
     required DateTime endDate,
   }) async {
     try {
-      await Api.post(
+      final response = await Api.post(
         url: '${Api.updateOnlineExam}/$id',
         useAuthToken: true, // Enable authentication
         body: {
@@ -76,6 +75,8 @@ class OnlineExamRepository {
           'end_date': endDate.toIso8601String(),
         },
       );
+
+      print('Update Exam Response: $response');
     } catch (e) {
       print('Error updating online exam: $e');
       throw Exception('Failed to update online exam: $e');
@@ -84,15 +85,25 @@ class OnlineExamRepository {
 
   Future<void> deleteOnlineExam(int id, {String mode = 'archive'}) async {
     try {
-      await Api.delete(
+      final response = await Api.delete(
         url: '${Api.deleteOnlineExam}/$id',
-        useAuthToken: true, // Enable authentication
+        useAuthToken: true,
         body: {},
         queryParameters: {'mode': mode},
       );
+
+      print('Delete Response in Repository: $response');
+
+      if (response['status'] != true) {
+        throw ApiException(
+            response['message'] ?? 'Failed to delete online exam');
+      }
     } catch (e) {
       print('Error deleting online exam: $e');
-      throw Exception('Failed to delete online exam: $e');
+      if (e is ApiException) {
+        throw e;
+      }
+      throw ApiException('Failed to delete online exam: $e');
     }
   }
 
@@ -204,6 +215,8 @@ class OnlineExamRepository {
       throw Exception(e.toString());
     }
   }
+
+  // Future<List<QuestionOnlineExam>> getStudentAnswer()
 
   Future<List<BankSoalQuestion>> getBankSoal(int examId) async {
     try {

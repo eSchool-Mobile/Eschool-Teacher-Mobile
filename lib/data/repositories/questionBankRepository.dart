@@ -292,6 +292,14 @@ class QuestionBankRepository {
       print('Bank Soal ID: $banksoalId');
       print('Question ID: $banksoalSoalId');
 
+      // Verify question exists first
+      final questions = await getBankQuestions(subjectId, banksoalId);
+      final questionExists = questions.any((q) => q.id == banksoalSoalId);
+
+      if (!questionExists) {
+        throw ApiException('Soal tidak ditemukan atau sudah dihapus');
+      }
+
       final response = await Api.delete(
         url: Api.deleteQuestion,
         body: {
@@ -303,14 +311,23 @@ class QuestionBankRepository {
 
       print('Delete Response: $response');
 
+      // Handle specific validation error
       if (response['error'] == true) {
-        print('❌ Delete Error: ${response['message']}');
-        throw ApiException(response['message']);
+        if (response['message'] is Map &&
+            response['message']['banksoal_soal_id']
+                    ?.contains('validation.exists') ==
+                true) {
+          throw ApiException('Soal tidak ditemukan atau sudah dihapus');
+        }
+        throw ApiException(response['message'].toString());
       }
 
       print('✅ Question deleted successfully');
     } catch (e) {
       print('❌ Delete Exception: $e');
+      if (e is ApiException) {
+        throw e;
+      }
       throw ApiException(e.toString());
     }
   }

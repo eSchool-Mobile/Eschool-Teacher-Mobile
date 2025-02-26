@@ -135,48 +135,112 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
           ],
         ),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
+          padding: EdgeInsets.symmetric(horizontal: 16), // Reduced padding
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.arrow_back_ios, color: Colors.white),
-                    onPressed: () => Get.back(),
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Ujian Online',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black26,
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+              // Left side - Back button and title
+              Flexible(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                      onPressed: () => Get.back(),
+                      padding: EdgeInsets.zero, // Remove padding
+                      constraints: BoxConstraints(), // Remove constraints
+                    ),
+                    SizedBox(width: 8), // Reduced spacing
+                    Flexible(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Ujian Online',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20, // Slightly smaller
+                              fontWeight: FontWeight.bold,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black26,
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
+                                ),
+                              ],
                             ),
-                          ],
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          SizedBox(height: 2), // Reduced spacing
+                          Text(
+                            'Manajemen Ujian',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.8),
+                              fontSize: 14, // Smaller font
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Right side - Action buttons
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Archive Button
+                  SizedBox(
+                    height: 36, // Fixed height
+                    child: ElevatedButton.icon(
+                      onPressed: () => Get.toNamed(Routes.archiveOnlineExam),
+                      icon: Icon(Icons.archive_outlined, size: 18),
+                      label: Text('Arsip'),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor:
+                            Theme.of(context).colorScheme.secondary,
+                        backgroundColor: Colors.white.withOpacity(0.9),
+                        elevation: 0,
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        textStyle: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
                         ),
                       ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Manajemen Ujian',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
-                          fontSize: 16,
+                    ),
+                  ),
+                  SizedBox(width: 8), // Reduced spacing
+                  // Create Exam Button
+                  SizedBox(
+                    height: 36, // Fixed height
+                    child: ElevatedButton.icon(
+                      onPressed: () => Get.toNamed(Routes.createOnlineExam),
+                      icon: Icon(Icons.add, size: 18),
+                      label: Text('Buat'),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor:
+                            Theme.of(context).colorScheme.secondary,
+                        backgroundColor: Colors.white,
+                        elevation: 0,
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        textStyle: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ],
               ),
-              _buildCreateExamButton(),
             ],
           ),
         ),
@@ -646,12 +710,12 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                       SizedBox(width: 6),
                       Expanded(
                         child: _buildActionButton(
-                          icon: Icons.delete_rounded,
+                          icon: Icons.delete_outline,
                           label: 'Hapus',
-                          onTap: () {},
+                          onTap: () => _showDeleteConfirmation(exam),
                           color: Colors.red[700]!,
-                          height: 28, // Smaller height
-                          fontSize: 11, // Smaller font
+                          height: 36,
+                          fontSize: 12,
                         ),
                       ),
                     ],
@@ -909,5 +973,198 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     ];
 
     return defaultIcons[exam.title.length % defaultIcons.length];
+  }
+
+  // Tambahkan fungsi ini di dalam class _OnlineExamScreenState
+  void _showDeleteConfirmation(exam.OnlineExam exam) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded,
+                  color: Colors.orange[700], size: 28),
+              SizedBox(width: 10),
+              Text(
+                'Konfirmasi',
+                style: TextStyle(
+                  color: Colors.grey[800],
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Pilih tindakan untuk ujian "${exam.title}":',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        Navigator.pop(dialogContext);
+                        try {
+                          await context
+                              .read<OnlineExamCubit>()
+                              .deleteOnlineExam(
+                                examId: exam.id,
+                                mode: 'archive',
+                              );
+
+                          // Tampilkan snackbar sukses
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Ujian berhasil diarsipkan'),
+                              backgroundColor: Colors.green,
+                              action: SnackBarAction(
+                                label: 'Lihat Arsip',
+                                textColor: Colors.white,
+                                onPressed: () {
+                                  Get.toNamed(Routes.archiveOnlineExam);
+                                },
+                              ),
+                            ),
+                          );
+                        } catch (e) {
+                          // Tampilkan snackbar error
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Gagal mengarsipkan ujian'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      },
+                      icon: Icon(Icons.archive_outlined),
+                      label: Text('Arsipkan'),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.orange[700],
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(dialogContext);
+                        _showPermanentDeleteConfirmation(exam);
+                      },
+                      icon: Icon(Icons.delete_forever),
+                      label: Text('Hapus'),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.red[700],
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(
+                'Batal',
+                style: TextStyle(color: Colors.grey[600]),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showPermanentDeleteConfirmation(exam.OnlineExam exam) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.dangerous_outlined, color: Colors.red[900], size: 28),
+              SizedBox(width: 10),
+              Text(
+                'Hapus Permanen',
+                style: TextStyle(
+                  color: Colors.red[900],
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'Anda yakin ingin menghapus permanen ujian "${exam.title}"?\n\n'
+            'Tindakan ini tidak dapat dibatalkan!',
+            style: TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(
+                'Batal',
+                style: TextStyle(color: Colors.grey[600]),
+              ),
+            ),
+            ElevatedButton.icon(
+              onPressed: () async {
+                Navigator.pop(dialogContext);
+                try {
+                  await context.read<OnlineExamCubit>().deleteOnlineExam(
+                        examId: exam.id,
+                        mode: 'permanent',
+                      );
+
+                  // Tampilkan snackbar sukses
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Ujian berhasil dihapus permanen'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } catch (e) {
+                  // Tampilkan snackbar error
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Gagal menghapus ujian'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              icon: Icon(Icons.delete_forever),
+              label: Text('Hapus Permanen'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.red[900],
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:eschool_saas_staff/cubits/questionOnlineExam/questionOnlineExamCubit.dart';
 import 'package:eschool_saas_staff/data/models/questionOnlineExam.dart';
@@ -375,30 +377,34 @@ class _OnlineExamResultQuestionsScreenState
                 ),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                    Icon(
-                    Icons.remove_red_eye,
-                    size: 18,
-                    color: const Color(0xFF800000),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Lihat',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                  GestureDetector(
+                    onTap: () => Get.toNamed(
+                        "/OnlineExamResultAnswerScreen/${widget.examId}/${question.id}"),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.remove_red_eye,
+                          size: 18,
                           color: const Color(0xFF800000),
-                          letterSpacing: 0.3,
                         ),
-                      ),
-                    ],
-                  ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Lihat',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF800000),
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
                 ],
-                ),
+              ),
             ),
           ],
         ),
