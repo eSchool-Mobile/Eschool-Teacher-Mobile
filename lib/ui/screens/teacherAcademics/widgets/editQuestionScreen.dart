@@ -966,151 +966,241 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
             delay: Duration(milliseconds: 100 * index),
             child: Container(
               margin: EdgeInsets.only(bottom: 16),
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    spreadRadius: 2,
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
+              child: AnimatedContainer(
+                duration: Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.1),
+                      spreadRadius: 2,
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                  border: Border.all(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .secondary
+                        .withOpacity(0.2),
                   ),
-                ],
-                border: Border.all(
-                  color:
-                      Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header
+                    Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .secondary
+                            .withOpacity(0.1),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(14),
+                          topRight: Radius.circular(14),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Jawaban ${index + 1}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontSize: 16,
+                            ),
+                          ),
+                          if (options.length > 1)
+                            IconButton(
+                              icon: Icon(Icons.delete_outline),
+                              color: Colors.red.shade400,
+                              onPressed: () => _removeAnswerOption(index),
+                              tooltip: 'Hapus jawaban ini',
+                              padding: EdgeInsets.zero,
+                              constraints: BoxConstraints(),
+                            ),
+                        ],
+                      ),
+                    ),
+
+                    // Content
+                    Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Input Jawaban dengan AnimatedSize
+                          AnimatedSize(
+                            duration: Duration(milliseconds: 200),
+                            curve: Curves.easeInOut,
+                            child: TextFormField(
+                              initialValue: options[index]['text'],
+                              style: TextStyle(fontSize: 15),
+                              decoration: InputDecoration(
+                                labelText: selectedType == 'short_answer'
+                                    ? 'Jawaban Singkat'
+                                    : selectedType == 'numeric'
+                                        ? 'Jawaban Numerik'
+                                        : 'Jawaban Essay',
+                                prefixIcon: Icon(
+                                  selectedType == 'short_answer'
+                                      ? Icons.short_text
+                                      : selectedType == 'numeric'
+                                          ? Icons.numbers
+                                          : Icons.edit_note,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide:
+                                      BorderSide(color: Colors.grey.shade300),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
+                                  ),
+                                ),
+                                filled: true,
+                                fillColor: Colors.grey.shade50,
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 16,
+                                ),
+                              ),
+                              keyboardType: selectedType == 'numeric'
+                                  ? TextInputType.number
+                                  : TextInputType.multiline,
+                              inputFormatters: selectedType == 'numeric'
+                                  ? [FilteringTextInputFormatter.digitsOnly]
+                                  : null,
+                              maxLines: null, // Allow unlimited lines
+                              minLines: selectedType == 'essay' ? 3 : 1,
+                              textInputAction: selectedType == 'essay'
+                                  ? TextInputAction.newline
+                                  : TextInputAction.done,
+                              validator: (v) =>
+                                  v?.isEmpty ?? true ? 'Wajib diisi' : null,
+                              onChanged: (value) {
+                                setState(() {
+                                  options[index]['text'] = value;
+                                });
+                              },
+                            ),
+                          ),
+                          SizedBox(height: 16),
+
+                          // Persentase Nilai
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  initialValue:
+                                      options[index]['percentage'].toString(),
+                                  decoration: InputDecoration(
+                                    labelText: 'Persentase Nilai',
+                                    prefixIcon: Icon(Icons.percent),
+                                    suffixText: '%',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey.shade50,
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                  ],
+                                  validator: (v) =>
+                                      v?.isEmpty ?? true ? 'Wajib diisi' : null,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      options[index]['percentage'] =
+                                          int.tryParse(value) ?? 0;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 16),
+
+                          // Feedback
+                          AnimatedSize(
+                            duration: Duration(milliseconds: 200),
+                            curve: Curves.easeInOut,
+                            child: TextFormField(
+                              initialValue: options[index]['feedback'],
+                              decoration: InputDecoration(
+                                labelText: 'Feedback',
+                                prefixIcon: Icon(Icons.comment_outlined),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                filled: true,
+                                fillColor: Colors.grey.shade50,
+                                helperText: '*Wajib diisi',
+                                helperStyle: TextStyle(color: Colors.red),
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 16,
+                                ),
+                              ),
+                              maxLines: null,
+                              minLines: 2,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Feedback tidak boleh kosong';
+                                }
+                                return null;
+                              },
+                              onChanged: (value) {
+                                setState(() {
+                                  options[index]['feedback'] = value;
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .secondary
-                              .withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'Jawaban ${index + 1}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                        ),
-                      ),
-                      if (options.length > 1)
-                        IconButton(
-                          icon: Icon(Icons.delete_outline),
-                          color: Colors.red.shade400,
-                          onPressed: () => _removeAnswerOption(index),
-                          tooltip: 'Hapus jawaban ini',
-                        ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  TextFormField(
-                    initialValue: options[index]['text'],
-                    decoration: InputDecoration(
-                      labelText: 'Jawaban',
-                      prefixIcon: Icon(Icons.edit_note,
-                          color: Theme.of(context).colorScheme.secondary),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey.shade50,
-                    ),
-                    keyboardType: selectedType == 'numeric'
-                        ? const TextInputType.numberWithOptions(
-                            decimal: false, signed: false)
-                        : TextInputType.text,
-                    inputFormatters: selectedType == 'numeric'
-                        ? [FilteringTextInputFormatter.digitsOnly]
-                        : null,
-                    maxLines: selectedType == 'numeric' ? 1 : 3,
-                    validator: (v) => v?.isEmpty ?? true ? 'Wajib diisi' : null,
-                    onChanged: (value) => setState(() {
-                      options[index]['text'] = value;
-                    }),
-                  ),
-                  SizedBox(height: 12),
-                  TextFormField(
-                    initialValue: options[index]['percentage'].toString(),
-                    decoration: InputDecoration(
-                      labelText: 'Persentase Nilai',
-                      prefixIcon: Icon(Icons.percent,
-                          color: Theme.of(context).colorScheme.secondary),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey.shade50,
-                    ),
-                    keyboardType: TextInputType.number,
-                    validator: (v) => v?.isEmpty ?? true ? 'Wajib diisi' : null,
-                    onChanged: (value) => setState(() {
-                      options[index]['percentage'] = int.tryParse(value) ?? 0;
-                    }),
-                  ),
-                  SizedBox(height: 12),
-                  TextFormField(
-                    initialValue: options[index]['feedback'],
-                    decoration: InputDecoration(
-                      labelText: 'Feedback',
-                      prefixIcon: Icon(Icons.comment_outlined,
-                          color: Theme.of(context).colorScheme.secondary),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey.shade50,
-                      helperText: '* Wajib diisi',
-                      helperStyle: TextStyle(color: Colors.red),
-                    ),
-                    maxLines: 2,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Feedback tidak boleh kosong';
-                      }
-                      return null;
-                    },
-                    onChanged: (value) => setState(() {
-                      options[index]['feedback'] = value;
-                    }),
-                  ),
-                ],
-              ),
             ),
           ),
         ),
-        SizedBox(height: 16),
-        Center(
-          child: TextButton.icon(
-            icon: Icon(Icons.add_circle),
-            label: Text('Tambah Jawaban'),
-            onPressed: _addAnswerOption,
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.secondary,
-              textStyle: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+
+        // Tombol Tambah Jawaban
+        if (selectedType != 'true_false')
+          Center(
+            child: TextButton.icon(
+              icon: Icon(Icons.add_circle),
+              label: Text('Tambah Jawaban'),
+              onPressed: _addAnswerOption,
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.secondary,
+                textStyle: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),
           ),
-        ),
       ],
     );
   }
@@ -1132,154 +1222,8 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
   }
 
   Widget _buildNumericOption() {
-    return Column(
-      children: [
-        ...List.generate(
-          options.length,
-          (index) => FadeInLeft(
-            delay: Duration(milliseconds: 100 * index),
-            child: Container(
-              margin: EdgeInsets.only(bottom: 16),
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    spreadRadius: 2,
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-                border: Border.all(
-                  color:
-                      Theme.of(context).colorScheme.secondary.withOpacity(0.2),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .secondary
-                              .withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'Jawaban ${index + 1}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                        ),
-                      ),
-                      if (options.length > 1)
-                        IconButton(
-                          icon: Icon(Icons.delete_outline),
-                          color: Colors.red.shade400,
-                          onPressed: () => _removeAnswerOption(index),
-                          tooltip: 'Hapus jawaban ini',
-                        ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  TextFormField(
-                    initialValue: options[index]['text'],
-                    decoration: InputDecoration(
-                      labelText: 'Jawaban (Numerik)',
-                      prefixIcon: Icon(Icons.numbers,
-                          color: Theme.of(context).colorScheme.secondary),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey.shade50,
-                      helperText: 'Masukkan angka saja',
-                    ),
-                    // Update konfigurasi keyboard untuk hanya menampilkan angka
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: false,
-                      signed: false,
-                    ),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
-                    validator: (v) {
-                      if (v?.isEmpty ?? true) return 'Wajib diisi';
-                      if (int.tryParse(v!) == null) return 'Harus berupa angka';
-                      return null;
-                    },
-                    onChanged: (value) => setState(() {
-                      options[index]['text'] = value;
-                    }),
-                  ),
-                  SizedBox(height: 12),
-                  TextFormField(
-                    initialValue: options[index]['percentage'].toString(),
-                    decoration: InputDecoration(
-                      labelText: 'Persentase Nilai',
-                      prefixIcon: Icon(Icons.percent,
-                          color: Theme.of(context).colorScheme.secondary),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey.shade50,
-                    ),
-                    // Update keyboard configuration
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: false,
-                      signed: false,
-                    ),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
-                    validator: (v) => v?.isEmpty ?? true ? 'Wajib diisi' : null,
-                    onChanged: (value) => setState(() {
-                      options[index]['percentage'] = int.tryParse(value) ?? 0;
-                    }),
-                  ),
-                  SizedBox(height: 12),
-                  TextFormField(
-                    initialValue: options[index]['feedback'],
-                    decoration: InputDecoration(
-                      labelText: 'Feedback',
-                      prefixIcon: Icon(Icons.comment_outlined,
-                          color: Theme.of(context).colorScheme.secondary),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey.shade50,
-                      helperText: '* Wajib diisi',
-                      helperStyle: TextStyle(color: Colors.red),
-                    ),
-                    maxLines: 2,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Feedback tidak boleh kosong';
-                      }
-                      return null;
-                    },
-                    onChanged: (value) => setState(() {
-                      options[index]['feedback'] = value;
-                    }),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
+    // Gunakan tampilan yang sama dengan essay
+    return _buildEssayOption();
   }
 
   Widget _buildAnimatedTextField({

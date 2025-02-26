@@ -50,7 +50,7 @@ class OnlineExamRepository {
         print('Filtered Exams: $filteredExams');
 
         return {
-          'exams': filteredExams,
+          'exams': response['rows'],
           'subjectDetails': response['subjectDetails'] ?? [],
         };
       }

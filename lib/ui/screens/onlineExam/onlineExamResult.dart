@@ -19,7 +19,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<OnlineExamCubit>().getOnlineExams();
+    context.read<OnlineExamCubit>().getOnlineExams(getFull: true);
   }
 
   @override
@@ -160,7 +160,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
       onRefresh: () async {
         await context
             .read<OnlineExamCubit>()
-            .getOnlineExams(search: _searchController);
+            .getOnlineExams(getFull: true, search: _searchController);
       },
       child: Column(
         children: [
@@ -193,7 +193,9 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
           ),
           child: TextField(
             onChanged: (value) {
-              context.read<OnlineExamCubit>().getOnlineExams(search: value);
+              context
+                  .read<OnlineExamCubit>()
+                  .getOnlineExams(getFull: true, search: value);
               _searchController = value;
             },
             decoration: InputDecoration(

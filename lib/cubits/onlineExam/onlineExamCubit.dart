@@ -76,6 +76,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
   // Method untuk mendapatkan ujian aktif
   Future<void> getOnlineExams({
     String? search,
+    bool? getFull = false,
     int? subjectId,
     int? classSectionId,
     int? sessionYearId,
@@ -91,12 +92,15 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         status: 'active',
       );
 
+      print("FULL LE");
+      print(getFull);
+      print(result['exams'].length);
+
       final List<OnlineExam> exams = [];
       if (result['exams'] is List) {
         for (var examData in result['exams']) {
           try {
-            if (examData['status'].toString() == '1') {
-              // Hanya ambil yang aktif
+            if (examData['status'].toString() == '1' || getFull == true) {
               exams.add(OnlineExam.fromJson(examData));
             }
           } catch (e) {
