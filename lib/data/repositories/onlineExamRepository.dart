@@ -30,20 +30,24 @@ class OnlineExamRepository {
             'class_section_id': classSectionId.toString(),
           if (sessionYearId != null)
             'session_year_id': sessionYearId.toString(),
-          'status':
-              status == 'archived' ? '0' : '1', // Convert status to numeric
+          'status': status == 'archived' ? '2' : '1', // Update status value
           'type': 'all',
         },
       );
 
       print('API Response for status $status: $response');
 
+      // Filter berdasarkan status yang sesuai
       if (response is Map<String, dynamic> && response['rows'] is List) {
-        // Filter berdasarkan status
         final List filteredExams = (response['rows'] as List).where((exam) {
-          return exam['status'].toString() ==
-              (status == 'archived' ? '0' : '1');
+          // Konversi status ke string untuk perbandingan yang aman
+          final examStatus = exam['status']?.toString() ?? '1';
+          // Update status comparison
+          return status == 'archived' ? examStatus == '2' : examStatus == '1';
         }).toList();
+
+        print('Filtered Exams Count: ${filteredExams.length}');
+        print('Filtered Exams: $filteredExams');
 
         return {
           'exams': filteredExams,
@@ -109,6 +113,9 @@ class OnlineExamRepository {
         throw ApiException(
             response['message'] ?? 'Failed to delete online exam');
       }
+
+      // Tunggu sebentar sebelum melanjutkan
+      await Future.delayed(Duration(milliseconds: 1000));
     } catch (e) {
       print('Error deleting online exam: $e');
       if (e is ApiException) {

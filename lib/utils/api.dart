@@ -321,6 +321,7 @@ class Api {
     try {
       print('DELETE Request to: $url');
       print('Body: $body');
+      print('Query Parameters: $queryParameters');
 
       final Dio dio = Dio();
       final response = await dio.delete(
@@ -330,19 +331,15 @@ class Api {
         options: (useAuthToken ?? true) ? Options(headers: headers()) : null,
       );
 
-      print('Delete Response: ${response.data}');
+      print('Delete Response Raw: ${response.data}');
 
-      // Ubah pengecekan response
       if (response.data is Map<String, dynamic>) {
-        // Cek status dari response
-        if (response.data['status'] == false) {
-          throw ApiException(
-              response.data['message']?.toString() ?? defaultErrorMessageKey);
-        }
-        return Map<String, dynamic>.from(response.data);
-      } else {
-        throw ApiException('Invalid response format');
+        final responseData = Map<String, dynamic>.from(response.data);
+        print('Delete Response Processed: $responseData');
+        return responseData;
       }
+
+      throw ApiException('Invalid response format');
     } on DioException catch (e) {
       print('DioError: ${e.message}');
       print('DioError Response: ${e.response?.data}');

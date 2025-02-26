@@ -212,11 +212,18 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
 
       await _repository.deleteOnlineExam(examId, mode: mode);
 
-      // Refresh sesuai dengan mode
+      // Tunggu sebentar sebelum refresh data
+      await Future.delayed(Duration(milliseconds: 1000));
+
+      // Refresh data berdasarkan mode
       if (mode == 'archive') {
-        await getArchivedExams(); // Refresh archived exams jika mode archive
+        // Refresh kedua list
+        await Future.wait([
+          getArchivedExams(),
+          getOnlineExams(),
+        ]);
       } else {
-        await getOnlineExams(); // Refresh active exams jika mode permanent
+        await getOnlineExams();
       }
     } catch (e) {
       print('Delete Error in Cubit: $e');
@@ -234,19 +241,26 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         status: 'archived',
       );
 
+      print('Archived Exams Raw Result: $result');
+
       final List<OnlineExam> archivedExams = [];
       if (result['exams'] is List) {
         for (var examData in result['exams']) {
           try {
-            if (examData['status'].toString() == '0') {
-              // Hanya ambil yang diarsipkan
-              archivedExams.add(OnlineExam.fromJson(examData));
+            // Update status check to 2
+            if (examData['status'].toString() == '2') {
+              final exam = OnlineExam.fromJson(examData);
+              archivedExams.add(exam);
+              print(
+                  'Added archived exam: ${exam.title} with status: ${exam.status}');
             }
           } catch (e) {
             print('Error parsing archived exam: $e');
           }
         }
       }
+
+      print('Final archived exams count: ${archivedExams.length}');
 
       emit(OnlineExamSuccess(
         exams: [],

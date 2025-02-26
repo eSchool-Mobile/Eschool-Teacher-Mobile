@@ -12,8 +12,19 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam> {
   @override
   void initState() {
     super.initState();
-    // Load archived exams explicitly
-    context.read<OnlineExamCubit>().getArchivedExams();
+    _loadArchivedExams();
+  }
+
+  Future<void> _loadArchivedExams() async {
+    // Tambahkan delay kecil sebelum memuat data
+    await Future.delayed(Duration(milliseconds: 500));
+    if (mounted) {
+      context.read<OnlineExamCubit>().getArchivedExams();
+    }
+  }
+
+  Future<void> _refreshArchivedExams() async {
+    await context.read<OnlineExamCubit>().getArchivedExams();
   }
 
   @override
@@ -23,6 +34,13 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam> {
         title: Text('Arsip Ujian'),
         backgroundColor: Color(0xFF8B0000),
         elevation: 0,
+        actions: [
+          // Tambahkan tombol refresh
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: _refreshArchivedExams,
+          ),
+        ],
       ),
       body: Container(
         decoration: BoxDecoration(
