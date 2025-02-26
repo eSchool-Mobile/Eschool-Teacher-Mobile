@@ -21,8 +21,7 @@ class OnlineExamResultQuestionsScreen extends StatefulWidget {
       _OnlineExamResultQuestionsScreenState();
 }
 
-class _OnlineExamResultQuestionsScreenState
-    extends State<OnlineExamResultQuestionsScreen> {
+class _OnlineExamResultQuestionsScreenState extends State<OnlineExamResultQuestionsScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<QuestionOnlineExam> _filteredQuestions = [];
   bool _showSearch = false;
@@ -412,13 +411,16 @@ class _OnlineExamResultQuestionsScreenState
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    context.read<QuestionOnlineExamCubit>().getQuestions(widget.examId);
-  }
+@override
+void initState() {
+  super.initState();
+  context.read<QuestionOnlineExamCubit>().getOnlineExamResultQuestions(
+    examId: widget.examId,
+    search: '',
+  );
+}
 
-  @override
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(

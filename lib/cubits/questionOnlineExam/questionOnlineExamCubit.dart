@@ -74,6 +74,20 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
     }
   }
 
+  Future<void> getOnlineExamResultQuestions({
+    required int examId,
+    String? search,
+  }) async {
+    try {
+      emit(QuestionOnlineExamLoading());
+      final questions =
+          await _repository.getOnlineExamQuestionListCorrection(examId, search);
+      emit(QuestionOnlineExamSuccess(questions));
+    } catch (e) {
+      emit(QuestionOnlineExamFailure(e.toString()));
+    }
+  }
+
   Future<void> getBankSoal(int examId) async {
     try {
       emit(QuestionBanksLoading());

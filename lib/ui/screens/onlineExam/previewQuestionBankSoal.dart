@@ -213,12 +213,204 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
         ),
       ),
       floatingActionButton: _selectedQuestions.isNotEmpty
-          ? FloatingActionButton.extended(
-              onPressed: () {
-                // Handle selected questions
-              },
-              label: Text('${_selectedQuestions.length} Terpilih'),
-              icon: Icon(Icons.check_circle_outline),
+          ? Container(
+              margin: EdgeInsets.only(bottom: 16.0, right: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  SlideInLeft(
+                    duration: Duration(milliseconds: 300),
+                    child: Container(
+                      margin: EdgeInsets.only(right: 12.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(30),
+                          onTap: () {
+                            Get.dialog(
+                              AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                title: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.check_circle,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
+                                    ),
+                                    SizedBox(width: 10),
+                                    Text(
+                                      'Soal Terpilih',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Jumlah soal yang dipilih:',
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      '${_selectedQuestions.length} Soal',
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Get.back(),
+                                    child: Text('Tutup'),
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Text(
+                                    '${_selectedQuestions.length}',
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Terpilih',
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SlideInRight(
+                    duration: Duration(milliseconds: 300),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Theme.of(context).colorScheme.secondary,
+                            Theme.of(context)
+                                .colorScheme
+                                .secondary
+                                .withOpacity(0.8),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .secondary
+                                .withOpacity(0.3),
+                            blurRadius: 12,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(30),
+                          onTap: () {
+                            if (_selectedQuestions.isEmpty) {
+                              Get.snackbar(
+                                'Peringatan',
+                                'Pilih minimal 1 soal untuk disimpan',
+                                backgroundColor: Colors.orange,
+                                colorText: Colors.white,
+                                snackPosition: SnackPosition.TOP,
+                                margin: EdgeInsets.all(16),
+                                borderRadius: 12,
+                              );
+                              return;
+                            }
+
+                            List<dynamic> selectedQuestions = _selectedQuestions
+                                .map((index) => _filteredQuestions[index])
+                                .toList();
+
+                            Get.back(result: selectedQuestions);
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.save_rounded,
+                                  color: Colors.white,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Simpan',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             )
           : null,
     );

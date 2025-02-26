@@ -76,7 +76,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
   // Method untuk mendapatkan ujian aktif
   Future<void> getOnlineExams({
     String? search,
-    bool? getFull = false,
+    dynamic? getFull = false,
     int? subjectId,
     int? classSectionId,
     int? sessionYearId,
@@ -85,24 +85,30 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       emit(OnlineExamLoading());
 
       final result = await _repository.getOnlineExams(
-        search: search,
-        subjectId: subjectId,
-        classSectionId: classSectionId,
-        sessionYearId: sessionYearId,
-        status: 'active',
-      );
+          search: search,
+          subjectId: subjectId,
+          classSectionId: classSectionId,
+          sessionYearId: sessionYearId,
+          status: 'active',
+          archive: getFull);
 
-      print("FULL LE");
-      print(getFull);
-      print(result['exams'].length);
+      final List<OnlineExam> activeExams = [];
+      final List<OnlineExam> archivedExams = [];
 
-      final List<OnlineExam> exams = [];
+      print("DATA FULL");
+      String jsonString = JsonEncoder.withIndent("  ").convert(result);
+
+      // Split per baris dan cetak satu per satu
+      jsonString.split('\n').forEach(print);
+
       if (result['exams'] is List) {
         for (var examData in result['exams']) {
           try {
-            if (examData['status'].toString() == '1' || getFull == true) {
-              exams.add(OnlineExam.fromJson(examData));
-            }
+            final exam = OnlineExam.fromJson(examData);
+            // Status 1 = active, Status 2 = archived
+            // if (getFull == true) {
+            activeExams.add(exam);
+            // }
           } catch (e) {
             print('Error parsing exam: $e');
           }
@@ -110,8 +116,8 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       }
 
       emit(OnlineExamSuccess(
-        exams: exams,
-        archivedExams: [],
+        exams: activeExams,
+        archivedExams: archivedExams,
         subjectDetails: result['subjectDetails'] ?? [],
       ));
     } catch (e) {
@@ -242,21 +248,17 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       emit(OnlineExamLoading());
 
       final result = await _repository.getOnlineExams(
-        status: 'archived',
+        archive: true,
       );
-
-      print('Archived Exams Raw Result: $result');
 
       final List<OnlineExam> archivedExams = [];
       if (result['exams'] is List) {
         for (var examData in result['exams']) {
           try {
-            // Update status check to 2
-            if (examData['status'].toString() == '2') {
-              final exam = OnlineExam.fromJson(examData);
+            final exam = OnlineExam.fromJson(examData);
+            if (exam.status == 2) {
+              // Only get archived exams
               archivedExams.add(exam);
-              print(
-                  'Added archived exam: ${exam.title} with status: ${exam.status}');
             }
           } catch (e) {
             print('Error parsing archived exam: $e');
@@ -264,10 +266,8 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         }
       }
 
-      print('Final archived exams count: ${archivedExams.length}');
-
       emit(OnlineExamSuccess(
-        exams: [],
+        exams: [], // Keep active exams empty for archive view
         archivedExams: archivedExams,
         subjectDetails: result['subjectDetails'] ?? [],
       ));

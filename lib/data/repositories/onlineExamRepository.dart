@@ -9,6 +9,7 @@ class OnlineExamRepository {
   Future<Map<String, dynamic>> getOnlineExams({
     String? search,
     int? subjectId,
+    dynamic? archive = null,
     int? classSectionId,
     int? sessionYearId,
     String status = 'active',
@@ -30,32 +31,16 @@ class OnlineExamRepository {
             'class_section_id': classSectionId.toString(),
           if (sessionYearId != null)
             'session_year_id': sessionYearId.toString(),
-          'status': status == 'archived' ? '2' : '1', // Update status value
           'type': 'all',
+          if (archive != null) 'archive': archive,
         },
       );
 
-      print('API Response for status $status: $response');
-
-      // Filter berdasarkan status yang sesuai
-      if (response is Map<String, dynamic> && response['rows'] is List) {
-        final List filteredExams = (response['rows'] as List).where((exam) {
-          // Konversi status ke string untuk perbandingan yang aman
-          final examStatus = exam['status']?.toString() ?? '1';
-          // Update status comparison
-          return status == 'archived' ? examStatus == '2' : examStatus == '1';
-        }).toList();
-
-        print('Filtered Exams Count: ${filteredExams.length}');
-        print('Filtered Exams: $filteredExams');
-
-        return {
-          'exams': response['rows'],
-          'subjectDetails': response['subjectDetails'] ?? [],
-        };
-      }
-
-      throw Exception('Invalid response format');
+      // Return all exams without filtering
+      return {
+        'exams': response['rows'] ?? [],
+        'subjectDetails': response['subjectDetails'] ?? [],
+      };
     } catch (e) {
       print("Repository Error: $e");
       rethrow;
@@ -234,7 +219,52 @@ class OnlineExamRepository {
     }
   }
 
-  // Future<List<QuestionOnlineExam>> getStudentAnswer()
+  Future<List<QuestionOnlineExam>> getOnlineExamQuestionListCorrection(
+      int examId, String? search) async {
+    try {
+      final response = await Api.get(
+          url:
+              "${Api.getOnlineExamQuestionListCorrection}?examId=${examId.toString()}&&search=${search}",
+          useAuthToken: true,
+          queryParameters: {
+            "examId": examId.toString(),
+            if (search != null) "search": search,
+          });
+
+      print("RIL DATA");
+
+      String jsonString = JsonEncoder.withIndent("  ").convert(response);
+      jsonString.split('\n').forEach(print);
+
+      if (response['status'] == true) {
+        final data = response['data'] as Map<String, dynamic>;
+        final examQuestions = data['exam_questions'] as List;
+
+        return examQuestions.map((question) {
+          final options = (question['options'] as List?)?.first ?? {};
+
+          return QuestionOnlineExam(
+            id: question['id'] ?? 0,
+            question: question['question_text'] ?? '',
+            correctAnswer: options['is_answer'] == 1
+                ? 'A'
+                : '', // Sesuaikan dengan response API
+            marks: question['marks'] ?? 0,
+            options: question['options'],
+            title: '', // Bisa diambil dari exam['title'] jika diperlukan
+            version: '1.0', // Sesuaikan dengan kebutuhan
+            type: question["type"] ?? "multiple_choice",
+            onlineExamId: examId,
+          );
+        }).toList();
+      } else {
+        throw Exception(response['message'] ?? 'Failed to fetch questions');
+      }
+    } catch (e) {
+      print('Error fetching questions: $e');
+      throw Exception(e.toString());
+    }
+  }
 
   Future<List<BankSoalQuestion>> getBankSoal(int examId) async {
     try {

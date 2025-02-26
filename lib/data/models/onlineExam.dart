@@ -4,13 +4,13 @@ class OnlineExam {
   final int id;
   final int classSectionId;
   final int classSubjectId;
-  final int status; // 1 = active, 2 = archived
+  final int status;
   final String title;
   final String examKey;
   final int duration;
   final DateTime startDate;
   final DateTime endDate;
-  final String subjectName;
+  final String subjectName; // Add this field
 
   OnlineExam({
     required this.id,
@@ -22,21 +22,20 @@ class OnlineExam {
     required this.startDate,
     required this.endDate,
     required this.status,
-    required this.subjectName,
+    required this.subjectName, // Add this parameter
   });
 
   factory OnlineExam.fromJson(Map<String, dynamic> json) {
-    print('Parsing exam with status: ${json['status']}');
     return OnlineExam(
       id: json['id'] ?? 0,
       classSectionId: json['class_section']['id'] ?? 0,
       classSubjectId: json['class_subject']['id'] ?? 0,
       title: json['title'] ?? '',
-      examKey: json['exam_key'].toString(),
+      examKey: json['exam_key'].toString() ?? '',
       duration: json['duration'] ?? 0,
       startDate: DateTime.parse(json['start_date'] ?? ''),
       endDate: DateTime.parse(json['end_date'] ?? ''),
-      status: json['status'] ?? 1,
+      status: json['status'] ?? 0,
       subjectName: json['subject_name'] ?? '',
     );
   }

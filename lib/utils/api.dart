@@ -149,6 +149,8 @@ class Api {
   // Question Bank APIs
   static String getTeacherSubject =
       "${databaseUrl}teacher/bank-soal/getTeacherSubject";
+  static String getOnlineExamQuestionListCorrection =
+      "${databaseUrl}teacher/get-online-exam-question-list-correction";
   static String getBankSoal = "${databaseUrl}teacher/bank-soal/get";
   static String getBankQuestions = "${databaseUrl}teacher/bank-soal/getSoal";
   static String createQuestionBank = "${databaseUrl}teacher/bank-soal/create";
