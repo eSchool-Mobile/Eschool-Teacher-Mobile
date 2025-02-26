@@ -4,7 +4,7 @@ class OnlineExam {
   final int id;
   final int classSectionId;
   final int classSubjectId;
-  final int status;
+  final int status; // 0 = archived, 1 = active
   final String title;
   final String examKey;
   final int duration;
@@ -35,7 +35,7 @@ class OnlineExam {
       duration: json['duration'] ?? 0,
       startDate: DateTime.parse(json['start_date'] ?? ''),
       endDate: DateTime.parse(json['end_date'] ?? ''),
-      status: json['status'] ?? 0,
+      status: json['status'] ?? 1,
       subjectName: json['subject_name'] ?? '',
     );
   }

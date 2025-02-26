@@ -11,7 +11,7 @@ class OnlineExamRepository {
     int? subjectId,
     int? classSectionId,
     int? sessionYearId,
-    String status = 'active', // Parameter status untuk filter
+    String status = 'active',
     int offset = 0,
     int limit = 10,
   }) async {
@@ -30,21 +30,28 @@ class OnlineExamRepository {
             'class_section_id': classSectionId.toString(),
           if (sessionYearId != null)
             'session_year_id': sessionYearId.toString(),
-          'status': status, // Tambahkan status ke query parameters
+          'status':
+              status == 'archived' ? '0' : '1', // Convert status to numeric
           'type': 'all',
         },
       );
 
       print('API Response for status $status: $response');
 
-      if (response is Map<String, dynamic>) {
+      if (response is Map<String, dynamic> && response['rows'] is List) {
+        // Filter berdasarkan status
+        final List filteredExams = (response['rows'] as List).where((exam) {
+          return exam['status'].toString() ==
+              (status == 'archived' ? '0' : '1');
+        }).toList();
+
         return {
-          'exams': response['rows'] ?? [],
+          'exams': filteredExams,
           'subjectDetails': response['subjectDetails'] ?? [],
         };
-      } else {
-        throw Exception('Invalid response format');
       }
+
+      throw Exception('Invalid response format');
     } catch (e) {
       print("Repository Error: $e");
       rethrow;
@@ -88,8 +95,12 @@ class OnlineExamRepository {
       final response = await Api.delete(
         url: '${Api.deleteOnlineExam}/$id',
         useAuthToken: true,
-        body: {},
-        queryParameters: {'mode': mode},
+        body: {
+          'mode': mode,
+        },
+        queryParameters: {
+          'mode': mode,
+        },
       );
 
       print('Delete Response in Repository: $response');

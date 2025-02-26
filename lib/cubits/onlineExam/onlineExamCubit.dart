@@ -88,14 +88,17 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         subjectId: subjectId,
         classSectionId: classSectionId,
         sessionYearId: sessionYearId,
-        status: 'active', // Explicitly set status to active
+        status: 'active',
       );
 
       final List<OnlineExam> exams = [];
       if (result['exams'] is List) {
         for (var examData in result['exams']) {
           try {
-            exams.add(OnlineExam.fromJson(examData));
+            if (examData['status'].toString() == '1') {
+              // Hanya ambil yang aktif
+              exams.add(OnlineExam.fromJson(examData));
+            }
           } catch (e) {
             print('Error parsing exam: $e');
           }
@@ -209,16 +212,16 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
 
       await _repository.deleteOnlineExam(examId, mode: mode);
 
-      // Refresh exam list after deletion
-      await getOnlineExams();
+      // Refresh sesuai dengan mode
+      if (mode == 'archive') {
+        await getArchivedExams(); // Refresh archived exams jika mode archive
+      } else {
+        await getOnlineExams(); // Refresh active exams jika mode permanent
+      }
     } catch (e) {
       print('Delete Error in Cubit: $e');
-      if (e is ApiException) {
-        emit(OnlineExamFailure(e.toString()));
-      } else {
-        emit(OnlineExamFailure('Gagal menghapus ujian'));
-      }
-      throw e; // Re-throw to handle in UI
+      emit(OnlineExamFailure(e.toString()));
+      rethrow;
     }
   }
 
@@ -228,14 +231,17 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       emit(OnlineExamLoading());
 
       final result = await _repository.getOnlineExams(
-        status: 'archived', // Explicitly request archived exams
+        status: 'archived',
       );
 
       final List<OnlineExam> archivedExams = [];
       if (result['exams'] is List) {
         for (var examData in result['exams']) {
           try {
-            archivedExams.add(OnlineExam.fromJson(examData));
+            if (examData['status'].toString() == '0') {
+              // Hanya ambil yang diarsipkan
+              archivedExams.add(OnlineExam.fromJson(examData));
+            }
           } catch (e) {
             print('Error parsing archived exam: $e');
           }

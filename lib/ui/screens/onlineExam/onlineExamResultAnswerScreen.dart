@@ -10,10 +10,14 @@ import 'package:intl/intl.dart';
 
 class OnlineExamResultAnswerScreen extends StatefulWidget {
   final int examId;
+  final int questionId;
   final String examName;
 
   const OnlineExamResultAnswerScreen(
-      {Key? key, required this.examId, required this.examName})
+      {Key? key,
+      required this.examId,
+      required this.questionId,
+      required this.examName})
       : super(key: key);
 
   @override
@@ -91,26 +95,6 @@ class _OnlineExamResultAnswerScreenState
       child: Container(
         width: double.infinity,
         height: 100,
-        // borderRadius: 0,
-        // blur: 20,
-        // alignment: Alignment.center,
-        // border: 0,
-        // linearGradient: LinearGradient(
-        //   begin: Alignment.topLeft,
-        //   end: Alignment.bottomRight,
-        //   colors: [
-        //     Colors.white.withOpacity(0.1),
-        //     Colors.white.withOpacity(0.05),
-        //   ],
-        // ),
-        // borderGradient: LinearGradient(
-        //   begin: Alignment.topLeft,
-        //   end: Alignment.bottomRight,
-        //   colors: [
-        //     Colors.white.withOpacity(0.5),
-        //     Colors.white.withOpacity(0.2),
-        //   ],
-        // ),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 20),
           child: Row(
@@ -127,7 +111,7 @@ class _OnlineExamResultAnswerScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Hasil Ujian Online',
+                        'Lihat Jawaban Siswa',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -143,7 +127,7 @@ class _OnlineExamResultAnswerScreenState
                       ),
                       SizedBox(height: 4),
                       Text(
-                        'Daftar Nilai Ujian',
+                        '${widget.examName}',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.8),
                           fontSize: 16,
