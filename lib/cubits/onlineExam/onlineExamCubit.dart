@@ -10,6 +10,8 @@ import 'package:dio/dio.dart'; // Add this import
 
 import 'package:eschool_saas_staff/data/models/subjectDetail.dart';
 
+import 'package:eschool_saas_staff/data/models/questionOnlineExam.dart';
+
 abstract class OnlineExamState {}
 
 class OnlineExamInitial extends OnlineExamState {}
@@ -68,6 +70,11 @@ class SubjectsError extends OnlineExamState {
   SubjectsError(this.message);
 }
 
+// Add new states
+class StoringQuestions extends OnlineExamState {}
+
+class QuestionsStored extends OnlineExamState {}
+
 class OnlineExamCubit extends Cubit<OnlineExamState> {
   final OnlineExamRepository _repository;
 
@@ -120,6 +127,23 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         archivedExams: archivedExams,
         subjectDetails: result['subjectDetails'] ?? [],
       ));
+    } catch (e) {
+      print("Cubit Error: $e");
+      emit(OnlineExamFailure(e.toString()));
+    }
+  }
+
+  Future<void> getOnlineExamResultAnswer(int examId, int questionId) async {
+    try {
+      emit(OnlineExamLoading());
+
+      final result =
+          await _repository.getOnlineExamResultAnswer(examId, questionId);
+
+      // emit(OnlineExamSuccess(
+      //   exams: [],
+      //   subjectDetails: result ?? [],
+      // ));
     } catch (e) {
       print("Cubit Error: $e");
       emit(OnlineExamFailure(e.toString()));
@@ -276,4 +300,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       emit(OnlineExamFailure(e.toString()));
     }
   }
-}
+
+
+  }
+

@@ -158,9 +158,9 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
   Widget _buildBody() {
     return RefreshIndicator(
       onRefresh: () async {
-        await context
-            .read<OnlineExamCubit>()
-            .getOnlineExams(getFull: true, search: _searchController);
+        // await context
+        //     .read<OnlineExamCubit>()
+        //     .getOnlineExams(getFull: false, search: _searchController);
       },
       child: Column(
         children: [
@@ -193,9 +193,9 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
           ),
           child: TextField(
             onChanged: (value) {
-              context
-                  .read<OnlineExamCubit>()
-                  .getOnlineExams(getFull: true, search: value);
+              // context
+              //     .read<OnlineExamCubit>()
+              //     .getOnlineExams(getFull: false, search: value);
               _searchController = value;
             },
             decoration: InputDecoration(

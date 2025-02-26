@@ -2,6 +2,8 @@ import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/models/questionOnlineExam.dart';
 import 'package:eschool_saas_staff/data/repositories/onlineExamRepository.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
 // import 'package:eschool_saas_staff/data/models/BankSoal.dart';
 
 abstract class QuestionOnlineExamState {}
@@ -45,21 +47,7 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
     }
   }
 
-  Future<void> storeQuestions({
-    required int examId,
-    required List<QuestionOnlineExam> questions,
-  }) async {
-    try {
-      emit(QuestionOnlineExamLoading());
-      await _repository.storeOnlineExamQuestions(
-        examId: examId,
-        questions: questions,
-      );
-      await getQuestions(examId);
-    } catch (e) {
-      emit(QuestionOnlineExamFailure(e.toString()));
-    }
-  }
+  
 
   Future<void> loadQuestionsFromBank(int examId, int bankId) async {
     try {

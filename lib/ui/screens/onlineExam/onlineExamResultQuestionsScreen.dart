@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:animate_do/animate_do.dart';
@@ -21,7 +23,8 @@ class OnlineExamResultQuestionsScreen extends StatefulWidget {
       _OnlineExamResultQuestionsScreenState();
 }
 
-class _OnlineExamResultQuestionsScreenState extends State<OnlineExamResultQuestionsScreen> {
+class _OnlineExamResultQuestionsScreenState
+    extends State<OnlineExamResultQuestionsScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<QuestionOnlineExam> _filteredQuestions = [];
   bool _showSearch = false;
@@ -381,7 +384,7 @@ class _OnlineExamResultQuestionsScreenState extends State<OnlineExamResultQuesti
                 children: [
                   GestureDetector(
                     onTap: () => Get.toNamed(
-                        "/OnlineExamResultAnswerScreen/${widget.examId}/${question.id}/${widget.examName}"),
+                        "/OnlineExamResultAnswerScreen/${widget.examId}/${question.id}/${base64.encode(utf8.encode(widget.examName))}"),
                     child: Row(
                       children: [
                         Icon(
@@ -411,16 +414,16 @@ class _OnlineExamResultQuestionsScreenState extends State<OnlineExamResultQuesti
     );
   }
 
-@override
-void initState() {
-  super.initState();
-  context.read<QuestionOnlineExamCubit>().getOnlineExamResultQuestions(
-    examId: widget.examId,
-    search: '',
-  );
-}
+  @override
+  void initState() {
+    super.initState();
+    context.read<QuestionOnlineExamCubit>().getOnlineExamResultQuestions(
+          examId: widget.examId,
+          search: '',
+        );
+  }
 
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(

@@ -151,6 +151,8 @@ class Api {
       "${databaseUrl}teacher/bank-soal/getTeacherSubject";
   static String getOnlineExamQuestionListCorrection =
       "${databaseUrl}teacher/get-online-exam-question-list-correction";
+  static String getOnlineExamAnswerCorrection =
+      "${databaseUrl}teacher/get-online-exam-answer-list-correction";
   static String getBankSoal = "${databaseUrl}teacher/bank-soal/get";
   static String getBankQuestions = "${databaseUrl}teacher/bank-soal/getSoal";
   static String createQuestionBank = "${databaseUrl}teacher/bank-soal/create";

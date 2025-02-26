@@ -37,6 +37,9 @@ class OnlineExamRepository {
       );
 
       // Return all exams without filtering
+      print("DATA ASELI --");
+      print(response['rows']);
+
       return {
         'exams': response['rows'] ?? [],
         'subjectDetails': response['subjectDetails'] ?? [],
@@ -44,6 +47,21 @@ class OnlineExamRepository {
     } catch (e) {
       print("Repository Error: $e");
       rethrow;
+    }
+  }
+
+  Future<void> getOnlineExamResultAnswer(int? examId, int? questionId) async {
+    try {
+      final response = await Api.get(
+        url:
+            "${Api.getOnlineExamAnswerCorrection}?online_exam_id=${examId}&&question_id=${questionId}",
+        useAuthToken: true,
+      );
+
+      // return response;
+    } catch (e) {
+      print('Error getting online exam result answer: $e');
+      throw Exception('Failed to get online exam result answer: $e');
     }
   }
 
@@ -196,45 +214,13 @@ class OnlineExamRepository {
     }
   }
 
-  Future<void> storeOnlineExamQuestions({
-    required int examId,
-    required List<QuestionOnlineExam> questions,
-  }) async {
-    try {
-      final response = await Api.post(
-        url: Api.storeOnlineExamQuestions,
-        useAuthToken: true,
-        body: {
-          'exam_id': examId,
-          'questions': questions.map((q) => q.toJson()).toList(),
-        },
-      );
-
-      if (response['status'] != true) {
-        throw Exception(response['message'] ?? 'Failed to store questions');
-      }
-    } catch (e) {
-      print('Error storing questions: $e');
-      throw Exception(e.toString());
-    }
-  }
-
   Future<List<QuestionOnlineExam>> getOnlineExamQuestionListCorrection(
       int examId, String? search) async {
     try {
       final response = await Api.get(
           url:
-              "${Api.getOnlineExamQuestionListCorrection}?examId=${examId.toString()}&&search=${search}",
-          useAuthToken: true,
-          queryParameters: {
-            "examId": examId.toString(),
-            if (search != null) "search": search,
-          });
-
-      print("RIL DATA");
-
-      String jsonString = JsonEncoder.withIndent("  ").convert(response);
-      jsonString.split('\n').forEach(print);
+              "${Api.getOnlineExamQuestionListCorrection}?exam_id=${examId.toString()}&&search=${search}",
+          useAuthToken: true);
 
       if (response['status'] == true) {
         final data = response['data'] as Map<String, dynamic>;

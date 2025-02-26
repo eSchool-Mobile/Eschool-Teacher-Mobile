@@ -32,7 +32,9 @@ class _OnlineExamResultAnswerScreenState
   @override
   void initState() {
     super.initState();
-    context.read<OnlineExamCubit>().getOnlineExams();
+    context
+        .read<OnlineExamCubit>()
+        .getOnlineExamResultAnswer(widget.examId, widget.questionId);
   }
 
   @override

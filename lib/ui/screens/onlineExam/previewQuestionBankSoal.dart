@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
+import 'package:eschool_saas_staff/data/repositories/OnlineExamRepository.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:html/parser.dart' show parse;
 
 class PreviewQuestionBankSoal extends StatefulWidget {
   final BankSoalQuestion bank;
+  final int examId;
+  final int classSectionId;
+  final int classSubjectId;
 
   const PreviewQuestionBankSoal({
     Key? key,
     required this.bank,
+    required this.examId,
+    required this.classSectionId,
+    required this.classSubjectId,
   }) : super(key: key);
 
   @override
@@ -367,21 +374,14 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                             if (_selectedQuestions.isEmpty) {
                               Get.snackbar(
                                 'Peringatan',
-                                'Pilih minimal 1 soal untuk disimpan',
+                                'Pilih minimal satu soal',
                                 backgroundColor: Colors.orange,
                                 colorText: Colors.white,
-                                snackPosition: SnackPosition.TOP,
-                                margin: EdgeInsets.all(16),
-                                borderRadius: 12,
+                                snackPosition: SnackPosition.BOTTOM,
                               );
                               return;
                             }
-
-                            List<dynamic> selectedQuestions = _selectedQuestions
-                                .map((index) => _filteredQuestions[index])
-                                .toList();
-
-                            Get.back(result: selectedQuestions);
+                            _saveSelectedQuestions();
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(
@@ -389,16 +389,12 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
-                                  Icons.save_rounded,
-                                  color: Colors.white,
-                                ),
+                                Icon(Icons.save, color: Colors.white),
                                 SizedBox(width: 8),
                                 Text(
-                                  'Simpan',
+                                  'Simpan ${_selectedQuestions.length} Soal',
                                   style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -800,5 +796,72 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
         );
       },
     );
+  }
+
+  Future<void> _saveSelectedQuestions() async {
+    try {
+      // Show loading dialog
+      Get.dialog(
+        Center(
+          child: Container(
+            padding: EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Menyimpan soal...'),
+              ],
+            ),
+          ),
+        ),
+        barrierDismissible: false,
+      );
+
+      // Prepare selected questions data
+      Map<String, Map<String, dynamic>> assignQuestions = {};
+
+      for (int index in _selectedQuestions) {
+        final question = _filteredQuestions[index];
+        assignQuestions[question.id.toString()] = {
+          'question_id': question.id,
+          'marks': question.marks,
+          'from_bank': true,
+        };
+      }
+
+   
+
+      // Close loading dialog
+      Get.back();
+
+      // Show success message
+      Get.snackbar(
+        'Berhasil',
+        'Soal berhasil disimpan',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      // Navigate back to previous screen
+      Get.back(result: true);
+    } catch (e) {
+      // Close loading dialog
+      Get.back();
+
+      // Show error message
+      Get.snackbar(
+        'Error',
+        'Gagal menyimpan soal: ${e.toString()}',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 }
