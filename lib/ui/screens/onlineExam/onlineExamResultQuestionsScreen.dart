@@ -137,51 +137,57 @@ class _OnlineExamResultQuestionsScreenState
 
     return Column(
       children: [
-        if (_showSearch)
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+      if (true)
+        Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        child: Container(
+          height: 50,
+          decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
             ),
-            child: TextField(
-              controller: _searchController,
-              onChanged: (query) => _filterQuestions(query, questions),
-              decoration: const InputDecoration(
-                hintText: 'Cari soal...',
-                prefixIcon: Icon(Icons.search, color: Colors.grey),
-                border: InputBorder.none,
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
+          ],
+          ),
+          child: TextField(
+          controller: _searchController,
+          onChanged: (query) => _filterQuestions(query, questions),
+          decoration: InputDecoration(
+            hintText: 'Cari soal...',
+            hintStyle: TextStyle(color: Colors.grey[400]),
+            prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 15,
             ),
           ),
-        Expanded(
-          child: GridView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.62,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 12,
-            ),
-            itemCount: _filteredQuestions.length,
-            itemBuilder: (context, index) {
-              final question = _filteredQuestions[index];
-              return FadeInUp(
-                duration: Duration(milliseconds: 600 + (index * 100)),
-                child: _buildQuestionCard(question),
-              );
-            },
           ),
         ),
+        ),
+      Expanded(
+        child: GridView.builder(
+        padding: const EdgeInsets.all(16),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 0.62,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 16,
+        ),
+        itemCount: _filteredQuestions.length,
+        itemBuilder: (context, index) {
+          final question = _filteredQuestions[index];
+          return FadeInUp(
+          duration: Duration(milliseconds: 600 + (index * 100)),
+          child: _buildQuestionCard(question),
+          );
+        },
+        ),
+      ),
       ],
     );
   }

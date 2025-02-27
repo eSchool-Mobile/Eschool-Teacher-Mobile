@@ -710,7 +710,25 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
   }
 
   Future<void> _saveSelectedQuestions() async {
+    // Validasi data
+    if (widget.classSectionId <= 0 || widget.classSubjectId <= 0) {
+      Get.snackbar(
+        'Error',
+        'Data kelas atau mata pelajaran tidak valid',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
     try {
+      // Debug print
+      print('Saving questions with:');
+      print('Exam ID: ${widget.examId}');
+      print('Class Section ID: ${widget.classSectionId}');
+      print('Class Subject ID: ${widget.classSubjectId}');
+
       // Show loading dialog
       Get.dialog(
         Center(
@@ -745,6 +763,15 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
         };
       }
 
+      // Debug print request data
+      print('Request data:');
+      print({
+        'exam_id': widget.examId,
+        'class_section_id': widget.classSectionId,
+        'class_subject_id': widget.classSubjectId,
+        'assign_questions': assignQuestions,
+      });
+
       // Save questions using repository
       final repository = OnlineExamRepository();
       await repository.storeOnlineExamQuestions(
@@ -772,13 +799,14 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
       // Close loading dialog
       Get.back();
 
-      // Show error message
+      // Show error message with more details
       Get.snackbar(
         'Error',
         'Gagal menyimpan soal: ${e.toString()}',
         backgroundColor: Colors.red,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 5),
       );
     }
   }

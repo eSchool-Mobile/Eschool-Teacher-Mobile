@@ -210,24 +210,7 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen> {
           child: Container(
             margin: EdgeInsets.only(bottom: 16),
             child: GestureDetector(
-              onTap: () {
-                // Debug print untuk memastikan data yang dikirim
-                print('Selected Bank: ${bank.name}');
-                print('Exam ID: ${widget.examId}');
-                print('Class Section ID: ${bank.classSectionId}');
-                print('Class Subject ID: ${bank.classSubjectId}');
-
-                // Perbaiki navigasi menggunakan Get.toNamed
-                getx.Get.toNamed(
-                  Routes.previewQuestionBank,
-                  arguments: {
-                    'bank': bank,
-                    'examId': widget.examId,
-                    'classSectionId': bank.classSectionId,
-                    'classSubjectId': bank.classSubjectId,
-                  },
-                );
-              },
+              onTap: () => navigateToPreview(bank),
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -350,6 +333,36 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen> {
           child: _buildBankList(_filteredBanks),
         ),
       ],
+    );
+  }
+
+  void navigateToPreview(BankSoalQuestion bank) {
+    print('Navigating to preview with:');
+    print('Bank ID: ${bank.id}');
+    print('Exam ID: ${widget.examId}');
+    print('Class Section ID: ${bank.classSectionId}');
+    print('Class Subject ID: ${bank.classSubjectId}');
+
+    // Validasi data sebelum navigasi
+    if (bank.classSectionId == 0 || bank.classSubjectId == 0) {
+      getx.Get.snackbar(
+        'Error',
+        'Data kelas atau mata pelajaran tidak valid',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: getx.SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    getx.Get.toNamed(
+      Routes.previewQuestionBank,
+      arguments: {
+        'bank': bank,
+        'examId': widget.examId,
+        'classSectionId': bank.classSectionId,
+        'classSubjectId': bank.classSubjectId,
+      },
     );
   }
 }

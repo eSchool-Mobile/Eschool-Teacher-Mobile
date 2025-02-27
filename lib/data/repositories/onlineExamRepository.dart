@@ -274,9 +274,21 @@ class OnlineExamRepository {
 
       print('Bank Soal Response: $response');
 
-      if (response['status'] == true) {
+      if (response['status'] == true && response['data'] != null) {
+        // Extract exam data untuk mendapatkan class_section_id dan class_subject_id
+        final examData = response['data']['exam'] as Map<String, dynamic>?;
+        final classSectionId = examData?['class_section']?['id'] ?? 0;
+        final classSubjectId = examData?['subject']?['id'] ?? 0;
+
+        // Parse bank soal list
         final List bankList = response['data']['bank_soal'] ?? [];
-        return bankList.map((bank) => BankSoalQuestion.fromJson(bank)).toList();
+        return bankList.map((bank) {
+          // Tambahkan class_section_id dan class_subject_id ke setiap bank soal
+          final bankData = Map<String, dynamic>.from(bank);
+          bankData['class_section_id'] = classSectionId;
+          bankData['class_subject_id'] = classSubjectId;
+          return BankSoalQuestion.fromJson(bankData);
+        }).toList();
       } else {
         throw Exception(response['message'] ?? 'Failed to fetch bank soal');
       }
@@ -293,6 +305,11 @@ class OnlineExamRepository {
     required Map<String, Map<String, dynamic>> assignQuestions,
   }) async {
     try {
+      // Validate input
+      if (examId <= 0 || classSectionId <= 0 || classSubjectId <= 0) {
+        throw ApiException('Invalid input parameters');
+      }
+
       final response = await Api.post(
         url: Api.storeOnlineExamQuestions,
         useAuthToken: true,
@@ -303,6 +320,8 @@ class OnlineExamRepository {
           'assign_questions': assignQuestions,
         },
       );
+
+      print('Store questions response: $response');
 
       if (response['status'] != true) {
         throw ApiException(response['message'] ?? 'Failed to store questions');

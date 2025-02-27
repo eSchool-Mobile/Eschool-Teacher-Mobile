@@ -2,26 +2,58 @@ class BankSoalQuestion {
   final int id;
   final String name;
   final List<SoalQuestion> soal;
-  final int classSectionId; // Tambahkan properti ini
-  final int classSubjectId; // Tambahkan properti ini
+  // Defaultkan ke 0 untuk menghindari null
+  final int classSectionId;
+  final int classSubjectId;
+  final String? subjectName;
 
   BankSoalQuestion({
     required this.id,
     required this.name,
     required this.soal,
-    required this.classSectionId, // Tambahkan parameter ini
-    required this.classSubjectId, // Tambahkan parameter ini
+    this.classSectionId = 0, // Default value
+    this.classSubjectId = 0, // Default value
+    this.subjectName,
   });
 
   factory BankSoalQuestion.fromJson(Map<String, dynamic> json) {
-    var soalList = json['soal'] as List? ?? [];
-    return BankSoalQuestion(
-      id: json['id'] ?? 0,
-      name: json['name'] ?? '',
-      soal: soalList.map((s) => SoalQuestion.fromJson(s)).toList(),
-      classSectionId: json['class_section_id'] ?? 0, // Tambahkan parsing ini
-      classSubjectId: json['class_subject_id'] ?? 0, // Tambahkan parsing ini
-    );
+    print('Raw JSON for BankSoalQuestion: $json');
+
+    try {
+      // Parse soal list safely
+      List<SoalQuestion> parsedSoal = [];
+      if (json['soal'] != null && json['soal'] is List) {
+        parsedSoal = (json['soal'] as List)
+            .map((s) => SoalQuestion.fromJson(s))
+            .toList();
+      }
+
+      // Get class_section_id and class_subject_id from nested objects if available
+      int sectionId =
+          (json['class_section']?['id'] ?? json['class_section_id'] ?? 0);
+
+      int subjectId =
+          (json['class_subject']?['id'] ?? json['class_subject_id'] ?? 0);
+
+      return BankSoalQuestion(
+        id: json['id'] ?? 0,
+        name: json['name'] ?? '',
+        soal: parsedSoal,
+        classSectionId: sectionId,
+        classSubjectId: subjectId,
+        subjectName: json['subject_name'],
+      );
+    } catch (e) {
+      print('Error parsing BankSoalQuestion: $e');
+      // Return a default object in case of error
+      return BankSoalQuestion(
+        id: 0,
+        name: 'Error',
+        soal: [],
+        classSectionId: 0,
+        classSubjectId: 0,
+      );
+    }
   }
 }
 
@@ -43,15 +75,33 @@ class SoalQuestion {
   });
 
   factory SoalQuestion.fromJson(Map<String, dynamic> json) {
-    var optionsList = json['options'] as List? ?? [];
-    return SoalQuestion(
-      id: json['id'] ?? 0,
-      question: json['question'] ?? '',
-      type: json['type'] ?? '',
-      options: optionsList.map((opt) => SoalOption.fromJson(opt)).toList(),
-      marks: json['marks'] ?? 0,
-      version: json['version']?.toString() ?? '1',
-    );
+    try {
+      List<SoalOption> parsedOptions = [];
+      if (json['options'] != null && json['options'] is List) {
+        parsedOptions = (json['options'] as List)
+            .map((opt) => SoalOption.fromJson(opt))
+            .toList();
+      }
+
+      return SoalQuestion(
+        id: json['id'] ?? 0,
+        question: json['question'] ?? '',
+        type: json['type'] ?? 'multiple_choice',
+        options: parsedOptions,
+        marks: json['marks'] ?? 0,
+        version: json['version']?.toString() ?? '1',
+      );
+    } catch (e) {
+      print('Error parsing SoalQuestion: $e');
+      return SoalQuestion(
+        id: 0,
+        question: 'Error',
+        type: 'multiple_choice',
+        options: [],
+        marks: 0,
+        version: '1',
+      );
+    }
   }
 }
 

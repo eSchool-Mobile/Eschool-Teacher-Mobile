@@ -158,9 +158,9 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
   Widget _buildBody() {
     return RefreshIndicator(
       onRefresh: () async {
-        // await context
-        //     .read<OnlineExamCubit>()
-        //     .getOnlineExams(getFull: false, search: _searchController);
+        await context
+            .read<OnlineExamCubit>()
+            .getOnlineExams(search: _searchController);
       },
       child: Column(
         children: [
@@ -174,40 +174,45 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
   }
 
   Widget _buildSearchBar() {
-    return FadeInDown(
-      delay: Duration(milliseconds: 200),
-      child: Padding(
-        padding: EdgeInsets.all(20),
-        child: Container(
+    return BlocBuilder<OnlineExamCubit, OnlineExamState>(
+      builder: (context, state) {
+      if (state is OnlineExamSuccess && state.exams.length > 5) {
+        return FadeInDown(
+        delay: Duration(milliseconds: 200),
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Container(
           height: 55,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(15),
             boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 10,
-                offset: Offset(0, 5),
-              ),
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 10,
+              offset: Offset(0, 5),
+            ),
             ],
           ),
           child: TextField(
             onChanged: (value) {
-              // context
-              //     .read<OnlineExamCubit>()
-              //     .getOnlineExams(getFull: false, search: value);
-              _searchController = value;
+            context.read<OnlineExamCubit>().getOnlineExams(search: value);
+            _searchController = value;
             },
             decoration: InputDecoration(
-              hintText: 'Cari hasil ujian...',
-              prefixIcon: Icon(Icons.search, color: Color(0xFF8B0000)),
-              border: InputBorder.none,
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            hintText: 'Cari hasil ujian...',
+            prefixIcon: Icon(Icons.search, color: Color(0xFF8B0000)),
+            border: InputBorder.none,
+            contentPadding:
+              EdgeInsets.symmetric(horizontal: 20, vertical: 15),
             ),
           ),
+          ),
         ),
-      ),
+        );
+      }
+      return SizedBox(height: 20); // Added fixed height spacing when no search bar
+      },
     );
   }
 
