@@ -499,7 +499,8 @@ class Routes {
         child: OnlineExamResultAnswerScreen(
             examId: int.parse(Get.parameters['examId'] ?? '0'),
             questionId: int.parse(Get.parameters['questionId'] ?? '0'),
-            examName: utf8.decode(base64.decode(Get.parameters['nama'] ?? ''))),
+            examName:
+                utf8.decode(base64.decode(Get.parameters['examName'] ?? ''))),
       ),
       transitionDuration: const Duration(milliseconds: 300),
     ),
@@ -614,12 +615,12 @@ class Routes {
         ),
       ),
     ),
-    // GetPage(
-    //   name: previewQuestionBank,
-    //   page: () => PreviewQuestionBankSoal(
-    //     bank: Get.arguments as BankSoalQuestion, // Updated type
-    //   ),
-    // ),
+    GetPage(
+      name: previewQuestionBank,
+      page: () => PreviewQuestionBankSoal(
+        bank: Get.arguments as BankSoalQuestion, // Updated type
+      ),
+    ),
     GetPage(
       name: editOnlineExam,
       page: () => MultiBlocProvider(

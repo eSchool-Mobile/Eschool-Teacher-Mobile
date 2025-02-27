@@ -83,13 +83,15 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
   // Method untuk mendapatkan ujian aktif
   Future<void> getOnlineExams({
     String? search,
-    dynamic? getFull = false,
+    dynamic? getFull = null,
     int? subjectId,
     int? classSectionId,
     int? sessionYearId,
   }) async {
     try {
       emit(OnlineExamLoading());
+
+      print("BELUM HIT");
 
       final result = await _repository.getOnlineExams(
           search: search,
@@ -103,10 +105,6 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       final List<OnlineExam> archivedExams = [];
 
       print("DATA FULL");
-      String jsonString = JsonEncoder.withIndent("  ").convert(result);
-
-      // Split per baris dan cetak satu per satu
-      jsonString.split('\n').forEach(print);
 
       if (result['exams'] is List) {
         for (var examData in result['exams']) {
@@ -140,10 +138,10 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       final result =
           await _repository.getOnlineExamResultAnswer(examId, questionId);
 
-      // emit(OnlineExamSuccess(
-      //   exams: [],
-      //   subjectDetails: result ?? [],
-      // ));
+      emit(OnlineExamSuccess(
+        exams: [],
+        subjectDetails: result ?? [],
+      ));
     } catch (e) {
       print("Cubit Error: $e");
       emit(OnlineExamFailure(e.toString()));
@@ -300,7 +298,4 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       emit(OnlineExamFailure(e.toString()));
     }
   }
-
-
-  }
-
+}

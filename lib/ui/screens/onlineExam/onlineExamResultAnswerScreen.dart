@@ -113,7 +113,7 @@ class _OnlineExamResultAnswerScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Lihat Jawaban Siswa',
+                        'Lihat Jawaban Siswaa',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,

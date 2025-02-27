@@ -19,7 +19,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<OnlineExamCubit>().getOnlineExams(getFull: false);
+    context.read<OnlineExamCubit>().getOnlineExams();
   }
 
   @override

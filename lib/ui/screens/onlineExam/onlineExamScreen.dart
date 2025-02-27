@@ -669,8 +669,10 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                     height: 32, // Smaller height
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () =>
-                          Get.toNamed('/exam-questions/${exam.id}'),
+                      onPressed: () {
+                        // Using Get.toNamed() to navigate with exam ID parameter
+                        Get.toNamed('/exam-questions/${exam.id}');
+                      },
                       icon: Icon(Icons.question_answer_rounded,
                           size: 14, color: Colors.white),
                       label: Text(

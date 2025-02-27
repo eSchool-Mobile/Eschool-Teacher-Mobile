@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class QuestionOnlineExam {
   final int id;
   final String question;
@@ -22,14 +24,13 @@ class QuestionOnlineExam {
   });
 
   factory QuestionOnlineExam.fromJson(Map<String, dynamic> json) {
-    print("BELUM ERROR PT 2");
     final options = (json['options'] as List?)?.first ?? {};
     return QuestionOnlineExam(
       id: json['id'] ?? 0,
       question: json['question_text'] ?? '',
       correctAnswer: options['is_answer'] == 1 ? 'A' : '',
       marks: json['marks'] ?? 0,
-      title: '',
+      title: 'Ini soal',
       options:
           (json['type'] == 'multiple_choice' || json['type'] == 'true_false')
               ? options
@@ -50,5 +51,3 @@ class QuestionOnlineExam {
     };
   }
 }
-
-

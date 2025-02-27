@@ -38,7 +38,19 @@ class OnlineExamRepository {
 
       // Return all exams without filtering
       print("DATA ASELI --");
-      print(response['rows']);
+      print({
+        'offset': offset.toString(),
+        'limit': limit.toString(),
+        'sort': 'id',
+        'order': 'DESC',
+        if (search != null && search.isNotEmpty) 'search': search,
+        if (subjectId != null) 'class_subject_id': subjectId.toString(),
+        if (classSectionId != null)
+          'class_section_id': classSectionId.toString(),
+        if (sessionYearId != null) 'session_year_id': sessionYearId.toString(),
+        'type': 'all',
+        if (archive != null) 'archive': archive,
+      });
 
       return {
         'exams': response['rows'] ?? [],
@@ -50,7 +62,8 @@ class OnlineExamRepository {
     }
   }
 
-  Future<void> getOnlineExamResultAnswer(int? examId, int? questionId) async {
+  Future<List<dynamic>> getOnlineExamResultAnswer(
+      int? examId, int? questionId) async {
     try {
       final response = await Api.get(
         url:
@@ -58,7 +71,14 @@ class OnlineExamRepository {
         useAuthToken: true,
       );
 
-      // return response;
+      String jsonData = JsonEncoder.withIndent("\t").convert(response);
+
+      // Cetak per baris
+      for (String line in jsonData.split('\n')) {
+        print(line);
+      }
+
+      return response["data"];
     } catch (e) {
       print('Error getting online exam result answer: $e');
       throw Exception('Failed to get online exam result answer: $e');
@@ -237,9 +257,9 @@ class OnlineExamRepository {
                 : '', // Sesuaikan dengan response API
             marks: question['marks'] ?? 0,
             options: question['options'],
-            title: '', // Bisa diambil dari exam['title'] jika diperlukan
+            title: '',
             version: '1.0', // Sesuaikan dengan kebutuhan
-            type: question["type"] ?? "multiple_choice",
+            type: question["question_type"] ?? "multiple_choice",
             onlineExamId: examId,
           );
         }).toList();

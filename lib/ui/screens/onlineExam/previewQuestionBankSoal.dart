@@ -7,16 +7,10 @@ import 'package:html/parser.dart' show parse;
 
 class PreviewQuestionBankSoal extends StatefulWidget {
   final BankSoalQuestion bank;
-  final int examId;
-  final int classSectionId;
-  final int classSubjectId;
 
   const PreviewQuestionBankSoal({
-    Key? key,
     required this.bank,
-    required this.examId,
-    required this.classSectionId,
-    required this.classSubjectId,
+    Key? key,
   }) : super(key: key);
 
   @override
