@@ -220,16 +220,52 @@ class _OnlineExamResultAnswerScreenState
             itemCount: state.answers.length,
             itemBuilder: (context, index) {
               final answer = state.answers[index];
-              return Card(
-                child: ListTile(
-                  title: Text('ID: ${answer.id}'),
-                  subtitle: Text('Answer: ${answer.answer}'),
+              return FadeInUp(
+                delay: Duration(milliseconds: index * 100),
+                child: Card(
+                  margin: EdgeInsets.symmetric(vertical: 8),
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 8),
+                        Text(
+                          'Jawaban:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Container(
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '${answer.answer}',
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Row(
+                          children: [],
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               );
             },
           );
         }
-        return Center(child: Text('No data available'));
+        return Center(child: Text('Tidak ada data'));
       },
     );
   }

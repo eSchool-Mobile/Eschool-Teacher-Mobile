@@ -285,4 +285,31 @@ class OnlineExamRepository {
       throw Exception(e.toString());
     }
   }
+
+  Future<void> storeOnlineExamQuestions({
+    required int examId,
+    required int classSectionId,
+    required int classSubjectId,
+    required Map<String, Map<String, dynamic>> assignQuestions,
+  }) async {
+    try {
+      final response = await Api.post(
+        url: Api.storeOnlineExamQuestions,
+        useAuthToken: true,
+        body: {
+          'exam_id': examId,
+          'class_section_id': classSectionId,
+          'class_subject_id': classSubjectId,
+          'assign_questions': assignQuestions,
+        },
+      );
+
+      if (response['status'] != true) {
+        throw ApiException(response['message'] ?? 'Failed to store questions');
+      }
+    } catch (e) {
+      print('Error storing questions: $e');
+      throw ApiException(e.toString());
+    }
+  }
 }

@@ -7,9 +7,15 @@ import 'package:html/parser.dart' show parse;
 
 class PreviewQuestionBankSoal extends StatefulWidget {
   final BankSoalQuestion bank;
+  final int examId;
+  final int classSectionId;
+  final int classSubjectId;
 
   const PreviewQuestionBankSoal({
     required this.bank,
+    required this.examId,
+    required this.classSectionId,
+    required this.classSubjectId,
     Key? key,
   }) : super(key: key);
 
@@ -230,100 +236,30 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                           BoxShadow(
                             color: Colors.black.withOpacity(0.1),
                             blurRadius: 10,
-                            offset: Offset(0, 4),
                           ),
                         ],
                       ),
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          borderRadius: BorderRadius.circular(30),
                           onTap: () {
-                            Get.dialog(
-                              AlertDialog(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                title: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.check_circle,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
-                                    ),
-                                    SizedBox(width: 10),
-                                    Text(
-                                      'Soal Terpilih',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Jumlah soal yang dipilih:',
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    SizedBox(height: 8),
-                                    Text(
-                                      '${_selectedQuestions.length} Soal',
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Get.back(),
-                                    child: Text('Tutup'),
-                                    style: TextButton.styleFrom(
-                                      foregroundColor: Colors.grey[600],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
+                            setState(() {
+                              _selectedQuestions.clear();
+                            });
                           },
-                          child: Container(
+                          borderRadius: BorderRadius.circular(30),
+                          child: Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 12),
                             child: Row(
-                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Container(
-                                  padding: EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.withOpacity(0.1),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Text(
-                                    '${_selectedQuestions.length}',
-                                    style: TextStyle(
-                                      color: Colors.blue,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
+                                Icon(Icons.clear, color: Colors.grey[700]),
                                 SizedBox(width: 8),
                                 Text(
-                                  'Terpilih',
+                                  'Batal',
                                   style: TextStyle(
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ],
@@ -340,10 +276,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         gradient: LinearGradient(
                           colors: [
                             Theme.of(context).colorScheme.secondary,
-                            Theme.of(context)
-                                .colorScheme
-                                .secondary
-                                .withOpacity(0.8),
+                            Theme.of(context).primaryColor,
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -351,37 +284,21 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .secondary
-                                .withOpacity(0.3),
-                            blurRadius: 12,
-                            offset: Offset(0, 4),
+                            color:
+                                Theme.of(context).primaryColor.withOpacity(0.3),
+                            blurRadius: 10,
                           ),
                         ],
                       ),
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
+                          onTap: _saveSelectedQuestions,
                           borderRadius: BorderRadius.circular(30),
-                          onTap: () {
-                            if (_selectedQuestions.isEmpty) {
-                              Get.snackbar(
-                                'Peringatan',
-                                'Pilih minimal satu soal',
-                                backgroundColor: Colors.orange,
-                                colorText: Colors.white,
-                                snackPosition: SnackPosition.BOTTOM,
-                              );
-                              return;
-                            }
-                            _saveSelectedQuestions();
-                          },
-                          child: Container(
+                          child: Padding(
                             padding: EdgeInsets.symmetric(
-                                horizontal: 24, vertical: 12),
+                                horizontal: 20, vertical: 12),
                             child: Row(
-                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(Icons.save, color: Colors.white),
                                 SizedBox(width: 8),
@@ -828,7 +745,14 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
         };
       }
 
-   
+      // Save questions using repository
+      final repository = OnlineExamRepository();
+      await repository.storeOnlineExamQuestions(
+        examId: widget.examId,
+        classSectionId: widget.classSectionId,
+        classSubjectId: widget.classSubjectId,
+        assignQuestions: assignQuestions,
+      );
 
       // Close loading dialog
       Get.back();
@@ -842,7 +766,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
         snackPosition: SnackPosition.BOTTOM,
       );
 
-      // Navigate back to previous screen
+      // Navigate back with success result
       Get.back(result: true);
     } catch (e) {
       // Close loading dialog

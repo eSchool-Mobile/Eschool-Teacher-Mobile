@@ -716,55 +716,6 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
 
     // Process deletion
     Future.delayed(Duration(milliseconds: 800), () {
-      // context
-      //     .read<QuestionOnlineExamCubit>()
-      //     .deleteQuestion(
-      //       widget.examId,
-      //       question.id,
-      //     )
-      //     .then((_) {
-      //   Navigator.pop(context); // Close loading dialog
-
-      //   // Show success message with animation
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(
-      //       content: Row(
-      //         children: [
-      //           Icon(Icons.delete_forever, color: Colors.white),
-      //           SizedBox(width: 8),
-      //           Text('Soal berhasil dihapus'),
-      //         ],
-      //       ),
-      //       backgroundColor: Colors.red[400],
-      //       behavior: SnackBarBehavior.floating,
-      //       shape: RoundedRectangleBorder(
-      //         borderRadius: BorderRadius.circular(10),
-      //       ),
-      //       margin: EdgeInsets.all(16),
-      //       duration: Duration(seconds: 2),
-      //     ),
-      //   );
-      // }).catchError((error) {
-      //   Navigator.pop(context); // Close loading dialog
-      //   // Show error message
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(
-      //       content: Row(
-      //         children: [
-      //           Icon(Icons.error_outline, color: Colors.white),
-      //           SizedBox(width: 8),
-      //           Text('Gagal menghapus soal'),
-      //         ],
-      //       ),
-      //       backgroundColor: Colors.red[700],
-      //       behavior: SnackBarBehavior.floating,
-      //       shape: RoundedRectangleBorder(
-      //         borderRadius: BorderRadius.circular(10),
-      //       ),
-      //       margin: EdgeInsets.all(16),
-      //     ),
-      //   );
-      // });
     });
   }
 

@@ -211,10 +211,21 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen> {
             margin: EdgeInsets.only(bottom: 16),
             child: GestureDetector(
               onTap: () {
-                // Navigate to preview screen with correct typing
+                // Debug print untuk memastikan data yang dikirim
+                print('Selected Bank: ${bank.name}');
+                print('Exam ID: ${widget.examId}');
+                print('Class Section ID: ${bank.classSectionId}');
+                print('Class Subject ID: ${bank.classSubjectId}');
+
+                // Perbaiki navigasi menggunakan Get.toNamed
                 getx.Get.toNamed(
                   Routes.previewQuestionBank,
-                  arguments: bank, // bank is of type BankSoalQuestion
+                  arguments: {
+                    'bank': bank,
+                    'examId': widget.examId,
+                    'classSectionId': bank.classSectionId,
+                    'classSubjectId': bank.classSubjectId,
+                  },
                 );
               },
               child: Container(

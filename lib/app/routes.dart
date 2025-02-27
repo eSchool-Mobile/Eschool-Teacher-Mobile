@@ -499,7 +499,8 @@ class Routes {
         child: OnlineExamResultAnswerScreen(
             examId: int.parse(Get.parameters['examId'] ?? '0'),
             questionId: int.parse(Get.parameters['questionId'] ?? '0'),
-            examName: 'UJIAN'),
+            examName:
+                utf8.decode(base64.decode(Get.parameters['examName'] ?? ''))),
       ),
       transitionDuration: const Duration(milliseconds: 300),
     ),
@@ -650,6 +651,18 @@ class Routes {
         child:
             ArchiveOnlineExam(), // Replace Container() with ArchiveOnlineExam()
       ),
+    ),
+    GetPage(
+      name: previewQuestionBank,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return PreviewQuestionBankSoal(
+          bank: args['bank'] as BankSoalQuestion,
+          examId: args['examId'] as int,
+          classSectionId: args['classSectionId'] as int,
+          classSubjectId: args['classSubjectId'] as int,
+        );
+      },
     ),
   ]; // Add semicolon here
 

@@ -2,11 +2,15 @@ class BankSoalQuestion {
   final int id;
   final String name;
   final List<SoalQuestion> soal;
+  final int classSectionId; // Tambahkan properti ini
+  final int classSubjectId; // Tambahkan properti ini
 
   BankSoalQuestion({
     required this.id,
     required this.name,
     required this.soal,
+    required this.classSectionId, // Tambahkan parameter ini
+    required this.classSubjectId, // Tambahkan parameter ini
   });
 
   factory BankSoalQuestion.fromJson(Map<String, dynamic> json) {
@@ -15,6 +19,8 @@ class BankSoalQuestion {
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
       soal: soalList.map((s) => SoalQuestion.fromJson(s)).toList(),
+      classSectionId: json['class_section_id'] ?? 0, // Tambahkan parsing ini
+      classSubjectId: json['class_subject_id'] ?? 0, // Tambahkan parsing ini
     );
   }
 }
