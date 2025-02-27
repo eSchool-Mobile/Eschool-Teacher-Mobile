@@ -18,6 +18,24 @@ class OnlineExamInitial extends OnlineExamState {}
 
 class OnlineExamLoading extends OnlineExamState {}
 
+class OnlineExamAnswer extends OnlineExamState {
+  final int id;
+  final String answer;
+
+  OnlineExamAnswer({
+    required this.id,
+    required this.answer,
+  });
+}
+
+class OnlineExamAnswersSuccess extends OnlineExamState {
+  final List<OnlineExamAnswer> answers;
+
+  OnlineExamAnswersSuccess({
+    required this.answers,
+  });
+}
+
 class OnlineExamSuccess extends OnlineExamState {
   final List<OnlineExam> exams;
   final List<OnlineExam> archivedExams;
@@ -138,9 +156,11 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       final result =
           await _repository.getOnlineExamResultAnswer(examId, questionId);
 
-      emit(OnlineExamSuccess(
-        exams: [],
-        subjectDetails: result ?? [],
+      emit(OnlineExamAnswersSuccess(
+        answers: result?.map((answer) => OnlineExamAnswer(
+          id: answer['id'] ?? 0,
+          answer: answer['answer'] ?? ''
+        )).toList() ?? []
       ));
     } catch (e) {
       print("Cubit Error: $e");

@@ -71,13 +71,6 @@ class OnlineExamRepository {
         useAuthToken: true,
       );
 
-      String jsonData = JsonEncoder.withIndent("\t").convert(response);
-
-      // Cetak per baris
-      for (String line in jsonData.split('\n')) {
-        print(line);
-      }
-
       return response["data"];
     } catch (e) {
       print('Error getting online exam result answer: $e');

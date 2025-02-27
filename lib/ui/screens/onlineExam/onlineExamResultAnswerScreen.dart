@@ -32,6 +32,7 @@ class _OnlineExamResultAnswerScreenState
   @override
   void initState() {
     super.initState();
+    print("OKK");
     context
         .read<OnlineExamCubit>()
         .getOnlineExamResultAnswer(widget.examId, widget.questionId);
@@ -213,109 +214,18 @@ class _OnlineExamResultAnswerScreenState
         if (state is OnlineExamFailure) {
           return Center(child: Text('Error: ${state.message}'));
         }
-        if (state is OnlineExamSuccess) {
+        if (state is OnlineExamAnswersSuccess) {
           return ListView.builder(
             padding: EdgeInsets.symmetric(horizontal: 16),
-            itemCount: state.exams.length,
+            itemCount: state.answers.length,
             itemBuilder: (context, index) {
-              final exam = state.exams[index];
-              return GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(15),
-                        child: Column(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        exam.title ?? 'Tidak ada ujian',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFF8B0000),
-                                        ),
-                                      ),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 12, vertical: 6),
-                                        decoration: BoxDecoration(
-                                          color: exam.status == 0
-                                              ? Colors.orange.withOpacity(0.1)
-                                              : exam.status == 1
-                                                  ? Colors.blue.withOpacity(0.1)
-                                                  : Colors.green
-                                                      .withOpacity(0.1),
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                        ),
-                                        child: Text(
-                                          (exam.status == 0
-                                              ? 'Belum Dimulai'
-                                              : exam.status == 1
-                                                  ? 'Sedang Berlangsung'
-                                                  : 'Selesai'),
-                                          style: TextStyle(
-                                            color: exam.status == 0
-                                                ? Colors.orange
-                                                : exam.status == 1
-                                                    ? Colors.blue
-                                                    : Colors.green,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    exam.title ?? 'Tidak ada judul',
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  SizedBox(height: 12),
-                                  Row(
-                                    children: [
-                                      _buildInfoRow(
-                                          Icons.calendar_today,
-                                          DateFormat('dd MMMM yyyy HH:mm',
-                                                      'id_ID')
-                                                  .format(exam.startDate) ??
-                                              'No date'),
-                                      SizedBox(width: 16),
-                                      _buildInfoRow(Icons.timer,
-                                          '${exam.duration} menit'),
-                                      SizedBox(width: 16),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )));
+              final answer = state.answers[index];
+              return Card(
+                child: ListTile(
+                  title: Text('ID: ${answer.id}'),
+                  subtitle: Text('Answer: ${answer.answer}'),
+                ),
+              );
             },
           );
         }

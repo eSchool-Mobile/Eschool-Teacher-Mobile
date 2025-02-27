@@ -159,7 +159,6 @@ class Routes {
   static String editQuestionScreen = "/editQuestion";
   static String bankQuestionScreen = "/bankQuestion";
   static const String addQuestionBank = '/addQuestionBank';
-  static const String bankSoalSelection = '/bank-soal-selection';
   static const String previewQuestionBank = '/preview-question-bank';
 
   static String teacherManageAssignmentScreen = "/teacherManageAssignment";
@@ -186,13 +185,14 @@ class Routes {
   static String onlineExamResultQuestionsScreen =
       "/OnlineExamResultQuestionsScreen/:id/:nama";
   static String onlineExamResultAnswerScreen =
-      "/OnlineExamResultAnswerScreen/:examId/:questionId";
+      "/OnlineExamResultAnswerScreen/:examId/:questionId/:examName";
   static String createOnlineExam = "/create-exam";
 
   // Tambahkan route baru
   static const String questionOnlineExam = '/exam-questions/:id';
   static const String editOnlineExam = '/edit-exam';
   static const String archiveOnlineExam = '/archive-online-exam';
+  static const String bankSoalSelection = '/bank-soal-selection';
 
   // Nama page
   static final List<GetPage> getPages = [
@@ -499,8 +499,7 @@ class Routes {
         child: OnlineExamResultAnswerScreen(
             examId: int.parse(Get.parameters['examId'] ?? '0'),
             questionId: int.parse(Get.parameters['questionId'] ?? '0'),
-            examName:
-                utf8.decode(base64.decode(Get.parameters['examName'] ?? ''))),
+            examName: 'UJIAN'),
       ),
       transitionDuration: const Duration(milliseconds: 300),
     ),
@@ -576,6 +575,7 @@ class Routes {
         child: OnlineExamScreen(),
       ),
     ),
+
     GetPage(
       name: createOnlineExam,
       page: () => MultiBlocProvider(
@@ -615,12 +615,10 @@ class Routes {
         ),
       ),
     ),
-    GetPage(
-      name: previewQuestionBank,
-      page: () => PreviewQuestionBankSoal(
-        bank: Get.arguments as BankSoalQuestion, // Updated type
-      ),
-    ),
+
+    // GetPage(
+    //   name: bankSoalSelection,
+
     GetPage(
       name: editOnlineExam,
       page: () => MultiBlocProvider(

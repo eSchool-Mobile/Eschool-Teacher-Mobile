@@ -30,6 +30,57 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
     context.read<QuestionOnlineExamCubit>().getQuestions(widget.examId);
   }
 
+  Color _getTypeColor(String type) {
+    switch (type.toLowerCase()) {
+      case 'multiple_choice':
+        return Colors.blue;
+      case 'essay':
+        return Colors.green;
+      case 'true_false':
+        return Colors.orange;
+      case 'short_answer':
+        return Colors.purple;
+      case 'numeric':
+        return Colors.indigo;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getTypeIcon(String type) {
+    switch (type.toLowerCase()) {
+      case 'multiple_choice':
+        return Icons.radio_button_checked;
+      case 'essay':
+        return Icons.edit_note;
+      case 'true_false':
+        return Icons.check_circle;
+      case 'short_answer':
+        return Icons.short_text;
+      case 'numeric':
+        return Icons.numbers;
+      default:
+        return Icons.help;
+    }
+  }
+
+  String _getTypeName(String type) {
+    switch (type.toLowerCase()) {
+      case 'multiple_choice':
+        return 'Pilihan Ganda';
+      case 'essay':
+        return 'Essay';
+      case 'true_false':
+        return 'Benar/Salah';
+      case 'short_answer':
+        return 'Jawaban Singkat';
+      case 'numeric':
+        return 'Numerik';
+      default:
+        return 'Lainnya';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,37 +148,44 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
   }
 
   Widget _buildCustomAppBar() {
-    return GlassmorphicContainer(
-      width: double.infinity,
-      height: 60,
-      borderRadius: 0,
-      blur: 20,
-      alignment: Alignment.center,
-      border: 0,
-      linearGradient: LinearGradient(
-        colors: [
-          Colors.white.withOpacity(0.1),
-          Colors.white.withOpacity(0.1),
-        ],
-      ),
-      borderGradient: LinearGradient(
-        colors: [Colors.transparent, Colors.transparent],
-      ),
+    return Container(
+      padding: const EdgeInsets.all(20),
       child: Row(
         children: [
           IconButton(
-            icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
             onPressed: () => Get.back(),
           ),
-          Text(
-            'Soal Ujian Online',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Soal Ujian Online',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black26,
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Bank Soal: ${selectedBankId ?? "Belum dipilih"}',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 16,
+                  ),
+                ),
+              ],
             ),
           ),
-          Spacer(),
         ],
       ),
     );
@@ -228,12 +286,18 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
       children: [
         _buildBankSoalSelector(),
         Expanded(
-          child: ListView.builder(
-            padding: EdgeInsets.all(16),
+          child: GridView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.62,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 12,
+            ),
             itemCount: questions.length,
             itemBuilder: (context, index) {
               return FadeInUp(
-                duration: Duration(milliseconds: 400 + (index * 100)),
+                duration: Duration(milliseconds: 600 + (index * 100)),
                 child: _buildQuestionCard(questions[index], index + 1),
               );
             },
@@ -244,195 +308,328 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
   }
 
   Widget _buildBankSoalSelector() {
-    return GlassmorphicContainer(
-      width: double.infinity,
-      height: 80,
-      borderRadius: 0,
-      blur: 20,
-      alignment: Alignment.center,
-      border: 0,
-      linearGradient: LinearGradient(
-        colors: [
-          Colors.white.withOpacity(0.1),
-          Colors.white.withOpacity(0.1),
+    // Define custom colors that match the maroon theme
+    final maroonLight = Color(0xFF8B0000).withOpacity(0.1);
+    final maroonPrimary = Color(0xFF8B0000);
+    final maroonDark = Color(0xFF6B0000);
+
+    return Container(
+      margin: EdgeInsets.fromLTRB(16, 0, 16, 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: maroonPrimary.withOpacity(0.08),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
         ],
       ),
-      borderGradient: LinearGradient(
-        colors: [Colors.transparent, Colors.transparent],
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            Icon(
-              Icons.library_books,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'Bank Soal Terpilih: ${selectedBankId ?? "Belum dipilih"}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-            ElevatedButton.icon(
-              icon: Icon(Icons.change_circle, size: 18),
-              label: Text('Ganti Bank'),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                backgroundColor: Theme.of(context).colorScheme.secondary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              onPressed: _selectBankSoal,
-            ).animate().scale(duration: 300.ms),
-          ],
-        ),
-      ),
-    ).animate().slideY(begin: -1, end: 0, duration: 600.ms);
-  }
-
-  Widget _buildQuestionCard(QuestionOnlineExam question, int index) {
-    return Card(
-      margin: EdgeInsets.only(bottom: 16),
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Theme.of(context).colorScheme.primary.withOpacity(0.9),
-                  Theme.of(context).colorScheme.secondary.withOpacity(0.9),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-            ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          onTap: _selectBankSoal,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
             padding: EdgeInsets.all(16),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        '$index',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Text(
-                      'Soal $index',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
+                // Icon Container
+                Container(
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: maroonLight,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.library_books,
+                    color: maroonPrimary,
+                    size: 24,
+                  ),
                 ),
-                Row(
-                  children: [
-                    if (question.version != null)
+                SizedBox(width: 16),
+
+                // Content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Status Label
                       Container(
                         padding:
                             EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        margin: EdgeInsets.only(right: 8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
+                          color: selectedBankId != null
+                              ? maroonLight
+                              : Colors.orange[50],
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: selectedBankId != null
+                                ? maroonPrimary.withOpacity(0.2)
+                                : Colors.orange[200]!,
+                            width: 1,
+                          ),
                         ),
-                        child: Row(
+                        child: Text(
+                          selectedBankId != null
+                              ? 'Bank Soal Terpilih'
+                              : 'Belum Ada Bank Soal',
+                          style: TextStyle(
+                            color: selectedBankId != null
+                                ? maroonPrimary
+                                : Colors.orange[800],
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+
+                      // Bank Soal Info
+                      Text(
+                        selectedBankId != null
+                            ? 'Bank Soal #$selectedBankId'
+                            : 'Pilih bank soal untuk menambahkan soal ujian',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[800],
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Action Button
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        maroonPrimary,
+                        maroonDark,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: maroonPrimary.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        selectedBankId != null
+                            ? Icons.change_circle
+                            : Icons.add_circle,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        selectedBankId != null ? 'Ganti Bank' : 'Pilih Bank',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ).animate().scale(
+                      duration: 300.ms,
+                      curve: Curves.easeInOut,
+                    ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ).animate().slideY(
+          begin: -0.2,
+          end: 0,
+          duration: 600.ms,
+          curve: Curves.easeOutQuart,
+        );
+  }
+
+  Widget _buildQuestionCard(QuestionOnlineExam question, int index) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 10,
+            spreadRadius: 5,
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    _getTypeColor(question.type).withOpacity(0.8),
+                    _getTypeColor(question.type).withOpacity(0.6),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              padding: EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      _getTypeIcon(question.type),
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _getTypeName(question.type),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.star,
+                                  size: 14, color: Colors.amber[100]),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${question.marks} poin',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Soal ${index}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[800],
+                        height: 1.3,
+                        letterSpacing: 0.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[50],
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey[100]!),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.new_releases,
-                                color: Colors.white, size: 16),
-                            SizedBox(width: 4),
-                            Text(
-                              'v${question.version}',
-                              style: TextStyle(color: Colors.white),
+                            Expanded(
+                              child: Text(
+                                question.question,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[700],
+                                  height: 1.5,
+                                  letterSpacing: 0.1,
+                                ),
+                                maxLines: 4,
+                                overflow: TextOverflow.fade,
+                              ),
+                            ),
+                            Column(
+                              children: [
+                                Divider(
+                                  height: 16,
+                                  thickness: 1,
+                                  color: Colors.grey[200],
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.check_circle_outline,
+                                      size: 16,
+                                      color: Colors.green[400],
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      '${question.options.length} Opsi',
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.star, color: Colors.white, size: 16),
-                          SizedBox(width: 4),
-                          Text(
-                            '${question.marks}',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  question.question,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[800],
-                  ),
-                ),
-                SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.edit, color: Colors.blue),
-                      onPressed: () => _editQuestion(question),
-                      tooltip: 'Edit Soal',
-                    )
-                        .animate()
-                        .scale(duration: 300.ms)
-                        .then()
-                        .shimmer(duration: 1000.ms),
-                    IconButton(
-                      icon: Icon(Icons.delete, color: Colors.red),
-                      onPressed: () => _deleteQuestion(question),
-                      tooltip: 'Hapus Soal',
-                    )
-                        .animate()
-                        .scale(duration: 300.ms)
-                        .then()
-                        .shimmer(duration: 1000.ms),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     ).animate().fadeIn(duration: 600.ms).slideX(begin: 0.2, end: 0);
   }
@@ -456,10 +653,166 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
   }
 
   void _editQuestion(QuestionOnlineExam question) {
-    // TODO: Implement question editing
+    Get.toNamed(
+      '/edit-question',
+      arguments: question,
+      parameters: {'examId': widget.examId.toString()},
+    )?.then((edited) {
+      if (edited == true) {
+        // Refresh questions list
+        context.read<QuestionOnlineExamCubit>().getQuestions(widget.examId);
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 8),
+                Text('Soal berhasil diperbarui'),
+              ],
+            ),
+            backgroundColor: Colors.green[600],
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: EdgeInsets.all(16),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    });
   }
 
   void _deleteQuestion(QuestionOnlineExam question) {
-    // TODO: Implement question deletion
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: Container(
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF8B0000)),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Menghapus soal...',
+                style: TextStyle(color: Colors.grey[800]),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    // Process deletion
+    Future.delayed(Duration(milliseconds: 800), () {
+      // context
+      //     .read<QuestionOnlineExamCubit>()
+      //     .deleteQuestion(
+      //       widget.examId,
+      //       question.id,
+      //     )
+      //     .then((_) {
+      //   Navigator.pop(context); // Close loading dialog
+
+      //   // Show success message with animation
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(
+      //       content: Row(
+      //         children: [
+      //           Icon(Icons.delete_forever, color: Colors.white),
+      //           SizedBox(width: 8),
+      //           Text('Soal berhasil dihapus'),
+      //         ],
+      //       ),
+      //       backgroundColor: Colors.red[400],
+      //       behavior: SnackBarBehavior.floating,
+      //       shape: RoundedRectangleBorder(
+      //         borderRadius: BorderRadius.circular(10),
+      //       ),
+      //       margin: EdgeInsets.all(16),
+      //       duration: Duration(seconds: 2),
+      //     ),
+      //   );
+      // }).catchError((error) {
+      //   Navigator.pop(context); // Close loading dialog
+      //   // Show error message
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(
+      //       content: Row(
+      //         children: [
+      //           Icon(Icons.error_outline, color: Colors.white),
+      //           SizedBox(width: 8),
+      //           Text('Gagal menghapus soal'),
+      //         ],
+      //       ),
+      //       backgroundColor: Colors.red[700],
+      //       behavior: SnackBarBehavior.floating,
+      //       shape: RoundedRectangleBorder(
+      //         borderRadius: BorderRadius.circular(10),
+      //       ),
+      //       margin: EdgeInsets.all(16),
+      //     ),
+      //   );
+      // });
+    });
+  }
+
+  void _showDeleteConfirmation(
+      BuildContext context, QuestionOnlineExam question) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.warning_rounded, color: Colors.orange),
+              SizedBox(width: 8),
+              Text('Konfirmasi Hapus'),
+            ],
+          ),
+          content: Text('Apakah Anda yakin ingin menghapus soal ini?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Batal',
+                style: TextStyle(color: Colors.grey[600]),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _deleteQuestion(question);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red[400],
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text('Hapus'),
+            ),
+          ],
+        ).animate().scale(
+              duration: 200.ms,
+              curve: Curves.easeOut,
+            );
+      },
+    );
   }
 }
