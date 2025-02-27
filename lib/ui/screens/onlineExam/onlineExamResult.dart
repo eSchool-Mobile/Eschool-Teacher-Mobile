@@ -134,7 +134,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        'Daftar Nilai Ujian',
+                        'Daftar Ujian Online',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.8),
                           fontSize: 16,
@@ -176,7 +176,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
   Widget _buildSearchBar() {
     return BlocBuilder<OnlineExamCubit, OnlineExamState>(
       builder: (context, state) {
-        if (state is OnlineExamSuccess) {
+        if (state is OnlineExamSuccess && state.exams.length > 5) {
           return FadeInDown(
             delay: Duration(milliseconds: 200),
             child: Padding(

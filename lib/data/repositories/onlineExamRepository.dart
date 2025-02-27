@@ -62,19 +62,25 @@ class OnlineExamRepository {
     }
   }
 
-  Future<List<dynamic>> getOnlineExamResultAnswer(
-      int? examId, int? questionId) async {
+  Future<List<dynamic>> getOnlineExamResultAnswer({
+    required int examId,
+    required int questionId,
+    String? search, // Optional search parameter
+  }) async {
     try {
       final response = await Api.get(
         url:
-            "${Api.getOnlineExamAnswerCorrection}?online_exam_id=${examId}&&question_id=${questionId}",
+            "${Api.getOnlineExamAnswerCorrection}?online_exam_id=$examId&question_id=$questionId",
         useAuthToken: true,
       );
 
-      return response["data"];
+      if (response['status'] == true && response['data'] != null) {
+        return response["data"];
+      }
+      throw ApiException(response['message'] ?? 'Failed to get answer data');
     } catch (e) {
       print('Error getting online exam result answer: $e');
-      throw Exception('Failed to get online exam result answer: $e');
+      throw ApiException(e.toString());
     }
   }
 
@@ -86,7 +92,6 @@ class OnlineExamRepository {
     required String examKey,
     required int duration,
     required DateTime startDate,
-    required DateTime endDate,
   }) async {
     try {
       final response = await Api.post(
@@ -98,8 +103,6 @@ class OnlineExamRepository {
           'title': title,
           'exam_key': examKey,
           'duration': duration,
-          'start_date': startDate.toIso8601String(),
-          'end_date': endDate.toIso8601String(),
         },
       );
 
@@ -146,9 +149,8 @@ class OnlineExamRepository {
     required int classSubjectId,
     required String title,
     required String examKey,
-    required int duration,
+    required int duration, // Add duration parameter
     required DateTime startDate,
-    required DateTime endDate,
   }) async {
     try {
       final response = await Api.post(
@@ -159,20 +161,16 @@ class OnlineExamRepository {
           'class_subject_id': classSubjectId.toString(),
           'title': title,
           'exam_key': examKey,
-          'duration': duration.toString(),
+          'duration': duration.toString(), // Add duration to request body
           'start_date': startDate.toIso8601String(),
-          'end_date': endDate.toIso8601String(),
         },
       );
 
       print('Create Exam Response: $response');
 
-      // Perbaiki pengecekan response
       if (response['status'] == true) {
-        // Berhasil
         return;
       } else {
-        // Gagal
         throw Exception(response['message'] ?? 'Failed to create online exam');
       }
     } catch (e) {

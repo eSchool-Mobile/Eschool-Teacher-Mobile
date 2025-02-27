@@ -20,10 +20,12 @@ class OnlineExamLoading extends OnlineExamState {}
 
 class OnlineExamAnswer extends OnlineExamState {
   final int id;
+  final bool isCorrect;
   final String answer;
 
   OnlineExamAnswer({
     required this.id,
+    required this.isCorrect,
     required this.answer,
   });
 }
@@ -149,34 +151,41 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
     }
   }
 
-  Future<void> getOnlineExamResultAnswer(int examId, int questionId) async {
+  Future<void> getOnlineExamResultAnswer({
+    required int examId,
+    required int questionId,
+    String? search,
+  }) async {
     try {
       emit(OnlineExamLoading());
 
-      final result =
-          await _repository.getOnlineExamResultAnswer(examId, questionId);
+      final result = await _repository.getOnlineExamResultAnswer(
+        examId: examId,
+        questionId: questionId,
+        search: search,
+      );
 
       emit(OnlineExamAnswersSuccess(
-        answers: result?.map((answer) => OnlineExamAnswer(
-          id: answer['id'] ?? 0,
-          answer: answer['answer'] ?? ''
-        )).toList() ?? []
-      ));
+          answers: result
+              .map((answer) => OnlineExamAnswer(
+                  id: answer['id'] ?? 0,
+                  answer: answer['answer'] ?? '',
+                  isCorrect: answer['is_answer'] ? true : false))
+              .toList()));
     } catch (e) {
-      print("Cubit Error: $e");
+      // TODO: Use proper logging framework
       emit(OnlineExamFailure(e.toString()));
     }
   }
 
-  // Add this method to OnlineExamCubit class
+  // Update the createOnlineExam method in OnlineExamCubit
   Future<void> createOnlineExam({
     required int classSectionId,
     required int classSubjectId,
     required String title,
     required String examKey,
-    required int duration,
+    required int duration, // Add duration parameter
     required DateTime startDate,
-    required DateTime endDate,
   }) async {
     try {
       emit(CreateOnlineExamLoading());
@@ -186,14 +195,11 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         classSubjectId: classSubjectId,
         title: title,
         examKey: examKey,
-        duration: duration,
+        duration: duration, // Pass duration to repository
         startDate: startDate,
-        endDate: endDate,
       );
 
       emit(CreateOnlineExamSuccess());
-
-      // Refresh data setelah berhasil membuat ujian
       await getOnlineExams();
     } catch (e) {
       print('Create Exam Error: $e');
@@ -230,7 +236,6 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
     required String examKey,
     required int duration,
     required DateTime startDate,
-    required DateTime endDate,
   }) async {
     try {
       emit(OnlineExamLoading());
@@ -243,7 +248,6 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         examKey: examKey,
         duration: duration,
         startDate: startDate,
-        endDate: endDate,
       );
 
       // Refresh the exams list after successful update

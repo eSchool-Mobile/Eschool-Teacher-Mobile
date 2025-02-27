@@ -137,7 +137,7 @@ class _OnlineExamResultQuestionsScreenState
 
     return Column(
       children: [
-        if (true)
+        if (_showSearch)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Container(
@@ -453,6 +453,44 @@ class _OnlineExamResultQuestionsScreenState
                 return const Center(child: CircularProgressIndicator());
               }
               if (state is QuestionOnlineExamSuccess) {
+                if (state.questions.isEmpty) {
+                  return Column(
+                    children: [
+                      FadeInDown(
+                        duration: const Duration(milliseconds: 600),
+                        child: _buildHeader(),
+                      ),
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[50],
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(30),
+                              topRight: Radius.circular(30),
+                            ),
+                          ),
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.search_off, size: 80, color: Colors.grey[400]),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Tidak ada soal tersedia',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
                 return Column(
                   children: [
                     FadeInDown(

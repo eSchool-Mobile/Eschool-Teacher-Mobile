@@ -154,7 +154,7 @@ class _EditOnlineExamState extends State<EditOnlineExam> {
             examKey: _examKeyController.text,
             duration: int.parse(_durationController.text),
             startDate: startDate!,
-            endDate: endDate!,
+     
           )
           .then((_) {
         ScaffoldMessenger.of(context).showSnackBar(

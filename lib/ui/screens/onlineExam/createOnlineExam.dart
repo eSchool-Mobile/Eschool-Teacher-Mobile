@@ -23,13 +23,11 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
   String examKey = '';
   int duration = 0;
   DateTime? startDate;
-  DateTime? endDate;
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _examKeyController = TextEditingController();
   final TextEditingController _durationController = TextEditingController();
   final TextEditingController _startDateController = TextEditingController();
-  final TextEditingController _endDateController = TextEditingController();
 
   @override
   void initState() {
@@ -48,21 +46,6 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
       setState(() {
         startDate = picked;
         _startDateController.text = DateFormat('dd-MM-yyyy').format(picked);
-      });
-    }
-  }
-
-  Future<void> _selectEndDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: endDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != endDate) {
-      setState(() {
-        endDate = picked;
-        _endDateController.text = DateFormat('dd-MM-yyyy').format(picked);
       });
     }
   }
@@ -221,28 +204,12 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           ),
           SizedBox(height: 15),
-          Row(
-            children: [
-              Expanded(
-                child: _buildAnimatedTextField(
-                  controller: _startDateController,
-                  label: 'Tanggal Mulai',
-                  icon: Icons.calendar_today,
-                  onTap: () => _selectStartDate(context),
-                  readOnly: true,
-                ),
-              ),
-              SizedBox(width: 15),
-              Expanded(
-                child: _buildAnimatedTextField(
-                  controller: _endDateController,
-                  label: 'Tanggal Berakhir',
-                  icon: Icons.calendar_today,
-                  onTap: () => _selectEndDate(context),
-                  readOnly: true,
-                ),
-              ),
-            ],
+          _buildAnimatedTextField(
+            controller: _startDateController,
+            label: 'Tanggal Mulai',
+            icon: Icons.calendar_today,
+            onTap: () => _selectStartDate(context),
+            readOnly: true,
           ),
         ],
       ),
@@ -398,7 +365,6 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
             examKey: _examKeyController.text,
             duration: int.parse(_durationController.text),
             startDate: startDate!,
-            endDate: endDate!,
           )
           .then((_) {
         ScaffoldMessenger.of(context).showSnackBar(

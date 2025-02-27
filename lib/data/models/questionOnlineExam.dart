@@ -24,7 +24,9 @@ class QuestionOnlineExam {
   });
 
   factory QuestionOnlineExam.fromJson(Map<String, dynamic> json) {
+    print("OK DARI SINI 1");
     final options = (json['options'] as List?)?.first ?? {};
+    print("OK DARI SINI 2");
     return QuestionOnlineExam(
       id: json['id'] ?? 0,
       question: json['question_text'] ?? '',

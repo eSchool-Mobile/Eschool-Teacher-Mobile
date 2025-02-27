@@ -27,15 +27,15 @@ class OnlineExamResultAnswerScreen extends StatefulWidget {
 
 class _OnlineExamResultAnswerScreenState
     extends State<OnlineExamResultAnswerScreen> {
-  late String _searchController = "";
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    print("OKK");
-    context
-        .read<OnlineExamCubit>()
-        .getOnlineExamResultAnswer(widget.examId, widget.questionId);
+    context.read<OnlineExamCubit>().getOnlineExamResultAnswer(
+        examId: widget.examId,
+        questionId: widget.questionId,
+        search: _searchController.text);
   }
 
   @override
@@ -114,7 +114,7 @@ class _OnlineExamResultAnswerScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Lihat Jawaban Siswaa',
+                        'Lihat Jawaban Siswa',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -140,10 +140,6 @@ class _OnlineExamResultAnswerScreenState
                   ),
                 ],
               ),
-              IconButton(
-                icon: Icon(Icons.filter_list, color: Colors.white),
-                onPressed: () {},
-              ),
             ],
           ),
         ),
@@ -154,9 +150,10 @@ class _OnlineExamResultAnswerScreenState
   Widget _buildBody() {
     return RefreshIndicator(
       onRefresh: () async {
-        await context
-            .read<OnlineExamCubit>()
-            .getOnlineExams(search: _searchController);
+        await context.read<OnlineExamCubit>().getOnlineExamResultAnswer(
+            examId: widget.examId,
+            questionId: widget.questionId,
+            search: _searchController.text);
       },
       child: Column(
         children: [
@@ -171,33 +168,39 @@ class _OnlineExamResultAnswerScreenState
 
   Widget _buildSearchBar() {
     return FadeInDown(
-      delay: Duration(milliseconds: 200),
+      delay: const Duration(milliseconds: 200),
       child: Padding(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
         child: Container(
-          height: 55,
+          height: 50,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(25),
             boxShadow: [
               BoxShadow(
-                color: Colors.black12,
-                blurRadius: 10,
-                offset: Offset(0, 5),
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
           child: TextField(
+            controller: _searchController,
             onChanged: (value) {
-              context.read<OnlineExamCubit>().getOnlineExams(search: value);
-              _searchController = value;
+              context.read<OnlineExamCubit>().getOnlineExamResultAnswer(
+                  examId: widget.examId,
+                  questionId: widget.questionId,
+                  search: value);
             },
             decoration: InputDecoration(
-              hintText: 'Cari hasil ujian...',
-              prefixIcon: Icon(Icons.search, color: Color(0xFF8B0000)),
+              hintText: 'Cari jawaban spesifik...',
+              hintStyle: TextStyle(color: Colors.grey[400]),
+              prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
               border: InputBorder.none,
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 15,
+              ),
             ),
           ),
         ),
@@ -255,7 +258,24 @@ class _OnlineExamResultAnswerScreenState
                         ),
                         SizedBox(height: 8),
                         Row(
-                          children: [],
+                          children: [
+                            Checkbox(
+                              value: answer.isCorrect ?? false,
+                              onChanged: null, // Read-only checkbox
+                              activeColor: Colors.green,
+                            ),
+                            Text(
+                              answer.isCorrect == true
+                                  ? 'Jawaban Benar'
+                                  : 'Jawaban Salah',
+                              style: TextStyle(
+                                color: answer.isCorrect == true
+                                    ? Colors.green
+                                    : Colors.red,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
