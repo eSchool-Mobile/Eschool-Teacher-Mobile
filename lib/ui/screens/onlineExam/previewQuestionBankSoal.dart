@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
 import 'package:eschool_saas_staff/data/repositories/OnlineExamRepository.dart';
 import 'package:get/get.dart';
+import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:html/parser.dart' show parse;
 
@@ -710,25 +711,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
   }
 
   Future<void> _saveSelectedQuestions() async {
-    // Validasi data
-    if (widget.classSectionId <= 0 || widget.classSubjectId <= 0) {
-      Get.snackbar(
-        'Error',
-        'Data kelas atau mata pelajaran tidak valid',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      return;
-    }
-
     try {
-      // Debug print
-      print('Saving questions with:');
-      print('Exam ID: ${widget.examId}');
-      print('Class Section ID: ${widget.classSectionId}');
-      print('Class Subject ID: ${widget.classSubjectId}');
-
       // Show loading dialog
       Get.dialog(
         Center(
@@ -763,15 +746,6 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
         };
       }
 
-      // Debug print request data
-      print('Request data:');
-      print({
-        'exam_id': widget.examId,
-        'class_section_id': widget.classSectionId,
-        'class_subject_id': widget.classSubjectId,
-        'assign_questions': assignQuestions,
-      });
-
       // Save questions using repository
       final repository = OnlineExamRepository();
       await repository.storeOnlineExamQuestions(
@@ -784,22 +758,86 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
       // Close loading dialog
       Get.back();
 
-      // Show success message
-      Get.snackbar(
-        'Berhasil',
-        'Soal berhasil disimpan',
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
+      // Show success dialog
+      await Get.dialog(
+        Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    color: Colors.green[50],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.check_circle,
+                    color: Colors.green,
+                    size: 50,
+                  ),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Berhasil!',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Soal berhasil disimpan',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[700],
+                  ),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back(); // Close success dialog
+                    Get.back(); // Back to previous screen
+                    Get.toNamed(
+                      Routes.questionOnlineExamScreen,
+                      arguments: {
+                        'examId': widget.examId,
+                      },
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                  ),
+                  child: Text(
+                    'OK',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        barrierDismissible: false,
       );
-
-      // Navigate back with success result
-      Get.back(result: true);
     } catch (e) {
-      // Close loading dialog
-      Get.back();
+      // Close loading dialog if open
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      }
 
-      // Show error message with more details
+      // Show error message
       Get.snackbar(
         'Error',
         'Gagal menyimpan soal: ${e.toString()}',

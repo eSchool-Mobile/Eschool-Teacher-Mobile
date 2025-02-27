@@ -176,42 +176,47 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
   Widget _buildSearchBar() {
     return BlocBuilder<OnlineExamCubit, OnlineExamState>(
       builder: (context, state) {
-      if (state is OnlineExamSuccess && state.exams.length > 5) {
-        return FadeInDown(
-        delay: Duration(milliseconds: 200),
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: Container(
-          height: 55,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(15),
-            boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 10,
-              offset: Offset(0, 5),
+        if (state is OnlineExamSuccess) {
+          return FadeInDown(
+            delay: Duration(milliseconds: 200),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+              child: Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(25),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  onChanged: (value) {
+                    context
+                        .read<OnlineExamCubit>()
+                        .getOnlineExams(search: value);
+                    _searchController = value;
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Cari hasil ujian...',
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 15,
+                    ),
+                  ),
+                ),
+              ),
             ),
-            ],
-          ),
-          child: TextField(
-            onChanged: (value) {
-            context.read<OnlineExamCubit>().getOnlineExams(search: value);
-            _searchController = value;
-            },
-            decoration: InputDecoration(
-            hintText: 'Cari hasil ujian...',
-            prefixIcon: Icon(Icons.search, color: Color(0xFF8B0000)),
-            border: InputBorder.none,
-            contentPadding:
-              EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-            ),
-          ),
-          ),
-        ),
-        );
-      }
-      return SizedBox(height: 20); // Added fixed height spacing when no search bar
+          );
+        }
+        return SizedBox(height: 20);
       },
     );
   }

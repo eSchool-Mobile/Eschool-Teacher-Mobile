@@ -193,6 +193,7 @@ class Routes {
   static const String editOnlineExam = '/edit-exam';
   static const String archiveOnlineExam = '/archive-online-exam';
   static const String bankSoalSelection = '/bank-soal-selection';
+  static const String questionOnlineExamScreen = '/question-online-exam';
 
   // Nama page
   static final List<GetPage> getPages = [
@@ -661,6 +662,15 @@ class Routes {
           examId: args['examId'] as int,
           classSectionId: args['classSectionId'] as int,
           classSubjectId: args['classSubjectId'] as int,
+        );
+      },
+    ),
+    GetPage(
+      name: questionOnlineExamScreen,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return QuestionOnlineExamScreen(
+          examId: args['examId'] as int,
         );
       },
     ),

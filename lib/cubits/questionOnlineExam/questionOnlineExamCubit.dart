@@ -47,8 +47,6 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
     }
   }
 
-  
-
   Future<void> loadQuestionsFromBank(int examId, int bankId) async {
     try {
       emit(QuestionOnlineExamLoading());
@@ -68,8 +66,10 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
   }) async {
     try {
       emit(QuestionOnlineExamLoading());
+      print("BELUM ERROR 1");
       final questions =
           await _repository.getOnlineExamQuestionListCorrection(examId, search);
+      print("BELUM ERROR 2");
       emit(QuestionOnlineExamSuccess(questions));
     } catch (e) {
       emit(QuestionOnlineExamFailure(e.toString()));
