@@ -390,7 +390,7 @@ class _OnlineExamResultQuestionsScreenState
                 children: [
                   GestureDetector(
                     onTap: () => Get.toNamed(
-                        "/OnlineExamResultAnswerScreen/${widget.examId}/${question.id}/${base64.encode(utf8.encode(widget.examName))}"),
+                        "/OnlineExamResultAnswerScreen/${widget.examId}/${question.question_id}/${base64.encode(utf8.encode(widget.examName))}"),
                     child: Row(
                       children: [
                         Icon(
@@ -473,7 +473,8 @@ class _OnlineExamResultQuestionsScreenState
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.search_off, size: 80, color: Colors.grey[400]),
+                                Icon(Icons.search_off,
+                                    size: 80, color: Colors.grey[400]),
                                 const SizedBox(height: 16),
                                 Text(
                                   'Tidak ada soal tersedia',

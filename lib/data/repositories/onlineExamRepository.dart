@@ -36,22 +36,6 @@ class OnlineExamRepository {
         },
       );
 
-      // Return all exams without filtering
-      print("DATA ASELI --");
-      print({
-        'offset': offset.toString(),
-        'limit': limit.toString(),
-        'sort': 'id',
-        'order': 'DESC',
-        if (search != null && search.isNotEmpty) 'search': search,
-        if (subjectId != null) 'class_subject_id': subjectId.toString(),
-        if (classSectionId != null)
-          'class_section_id': classSectionId.toString(),
-        if (sessionYearId != null) 'session_year_id': sessionYearId.toString(),
-        'type': 'all',
-        if (archive != null) 'archive': archive,
-      });
-
       return {
         'exams': response['rows'] ?? [],
         'subjectDetails': response['subjectDetails'] ?? [],
@@ -63,24 +47,38 @@ class OnlineExamRepository {
   }
 
   Future<List<dynamic>> getOnlineExamResultAnswer({
-    required int examId,
+    required int onlineExamId,
     required int questionId,
-    String? search, // Optional search parameter
+    String? search,
   }) async {
     try {
+      // Convert null search to empty string to avoid 'null' in URL
+      final searchQuery = search ?? '';
+
       final response = await Api.get(
-        url:
-            "${Api.getOnlineExamAnswerCorrection}?online_exam_id=$examId&question_id=$questionId",
+        url: Api.getOnlineExamAnswerCorrection,
         useAuthToken: true,
+        queryParameters: {
+          'online_exam_id': onlineExamId,
+          'question_id': questionId,
+          'search': searchQuery,
+        },
       );
 
-      if (response['status'] == true && response['data'] != null) {
-        return response["data"];
+      // Check for error response
+      if (response['error'] == true) {
+        throw Exception(response['message'] ?? 'Unknown error occurred');
       }
-      throw ApiException(response['message'] ?? 'Failed to get answer data');
+
+      // Check for valid data structure
+      if (response['status'] == true && response['data'] != null) {
+        return response['data']['answers'] as List<dynamic>;
+      }
+
+      return []; // Return empty list if no answers found
     } catch (e) {
       print('Error getting online exam result answer: $e');
-      throw ApiException(e.toString());
+      throw Exception('Failed to fetch exam answers: ${e.toString()}');
     }
   }
 
@@ -204,6 +202,7 @@ class OnlineExamRepository {
 
           return QuestionOnlineExam(
             id: question['id'] ?? 0,
+            question_id: question['question_id'] ?? 0,
             question: question['question_text'] ?? '',
             correctAnswer: options['is_answer'] == 1
                 ? 'A'
@@ -242,6 +241,7 @@ class OnlineExamRepository {
 
           return QuestionOnlineExam(
             id: question['id'] ?? 0,
+            question_id: question['question_id'] ?? 0,
             question: question['question_text'] ?? '',
             correctAnswer: options['is_answer'] == 1
                 ? 'A'

@@ -261,17 +261,12 @@ class _OnlineExamResultAnswerScreenState
                           children: [
                             Checkbox(
                               value: answer.isCorrect ?? false,
-                              onChanged: null, // Read-only checkbox
+                              onChanged: null,
                               activeColor: Colors.green,
                             ),
                             Text(
-                              answer.isCorrect == true
-                                  ? 'Jawaban Benar'
-                                  : 'Jawaban Salah',
+                              'Jawaban Benar',
                               style: TextStyle(
-                                color: answer.isCorrect == true
-                                    ? Colors.green
-                                    : Colors.red,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),

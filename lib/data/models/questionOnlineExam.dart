@@ -2,6 +2,7 @@ import 'dart:convert';
 
 class QuestionOnlineExam {
   final int id;
+  final int question_id;
   final String question;
   final String correctAnswer;
   final int marks;
@@ -13,6 +14,7 @@ class QuestionOnlineExam {
 
   QuestionOnlineExam({
     required this.id,
+    required this.question_id,
     required this.question,
     required this.correctAnswer,
     required this.marks,
@@ -29,6 +31,7 @@ class QuestionOnlineExam {
     print("OK DARI SINI 2");
     return QuestionOnlineExam(
       id: json['id'] ?? 0,
+      question_id: json['question_id'] ?? 0,
       question: json['question_text'] ?? '',
       correctAnswer: options['is_answer'] == 1 ? 'A' : '',
       marks: json['marks'] ?? 0,

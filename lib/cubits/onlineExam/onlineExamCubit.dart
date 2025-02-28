@@ -21,10 +21,12 @@ class OnlineExamLoading extends OnlineExamState {}
 class OnlineExamAnswer extends OnlineExamState {
   final int id;
   final bool isCorrect;
+  final String studentName;
   final String answer;
 
   OnlineExamAnswer({
     required this.id,
+    required this.studentName,
     required this.isCorrect,
     required this.answer,
   });
@@ -160,7 +162,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       emit(OnlineExamLoading());
 
       final result = await _repository.getOnlineExamResultAnswer(
-        examId: examId,
+        onlineExamId: examId,
         questionId: questionId,
         search: search,
       );
@@ -169,6 +171,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
           answers: result
               .map((answer) => OnlineExamAnswer(
                   id: answer['id'] ?? 0,
+                  studentName: answer['student_name'] ?? '',
                   answer: answer['answer'] ?? '',
                   isCorrect: answer['is_answer'] ? true : false))
               .toList()));
