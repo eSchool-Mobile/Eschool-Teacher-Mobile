@@ -276,8 +276,8 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            Theme.of(context).colorScheme.secondary,
-                            Theme.of(context).primaryColor,
+                            Colors.blue[600]!, // Ubah warna gradient
+                            Colors.blue[800]!, // Ubah warna gradient
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -285,8 +285,8 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                            color:
-                                Theme.of(context).primaryColor.withOpacity(0.3),
+                            color: Colors.blue[600]!
+                                .withOpacity(0.3), // Sesuaikan warna shadow
                             blurRadius: 10,
                           ),
                         ],
@@ -714,24 +714,69 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
     try {
       // Show loading dialog
       Get.dialog(
-        Center(
+        Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
           child: Container(
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: Offset(0, 10),
+                ),
+              ],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CircularProgressIndicator(),
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.blue[50],
+                    shape: BoxShape.circle,
+                  ),
+                  child: SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: CircularProgressIndicator(
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(Colors.blue[600]!),
+                      strokeWidth: 3,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 24),
+                Text(
+                  'Menyimpan Soal',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[800],
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Mohon tunggu sebentar...',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
                 SizedBox(height: 16),
-                Text('Menyimpan soal...'),
+                LinearProgressIndicator(
+                  backgroundColor: Colors.blue[50],
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue[400]!),
+                ),
               ],
             ),
           ),
         ),
         barrierDismissible: false,
+        barrierColor: Colors.black.withOpacity(0.5),
       );
 
       // Get existing questions first
@@ -811,12 +856,21 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                           .replaceAll(':id', widget.examId.toString()),
                     );
                   },
-                  child: Text('Lihat Daftar Soal'),
+                  child: Text(
+                    'Lihat Daftar Soal',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
+                    backgroundColor:
+                        Colors.green[600], // Ubah warna menjadi hijau
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
+                    elevation: 2,
                   ),
                 ),
               ],

@@ -153,6 +153,7 @@ class Api {
       "${databaseUrl}teacher/get-online-exam-question-list-correction";
   static String getOnlineExamAnswerCorrection =
       "${databaseUrl}teacher/get-online-exam-answer-list-correction";
+  static String updateOnlineExamAnswerCorrection = "${databaseUrl}teacher/update-online-exam-answer-correction";
   static String getBankSoal = "${databaseUrl}teacher/bank-soal/get";
   static String getBankQuestions = "${databaseUrl}teacher/bank-soal/getSoal";
   static String createQuestionBank = "${databaseUrl}teacher/bank-soal/create";

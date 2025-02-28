@@ -715,8 +715,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                             );
                           },
                           color: Colors.green[700]!,
-                          height: 28, // Tinggi tombol
-                          fontSize: 11, // Ukuran font
+                          height: 36, // Tinggi tombol
+                          fontSize: 12, // Ukuran font
                         ),
                       ),
                       SizedBox(width: 6),

@@ -166,12 +166,16 @@ class _EditOnlineExamState extends State<EditOnlineExam> {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
+                      color: const Color.fromARGB(255, 8, 0, 0),
                     ),
                   ),
                   SizedBox(height: 10),
                   Text(
                     'Ujian berhasil diperbarui',
                     textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: const Color.fromARGB(255, 80, 80, 80),
+                    ),
                   ),
                   SizedBox(height: 20),
                   ElevatedButton(
@@ -182,9 +186,9 @@ class _EditOnlineExamState extends State<EditOnlineExam> {
                       // Refresh exam list
                       context.read<OnlineExamCubit>().getOnlineExams();
                     },
-                    child: Text('OK'),
+                    child: Text('OK', style: TextStyle(color: Colors.white)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor,
+                      backgroundColor: Colors.green,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -312,17 +316,27 @@ class _EditOnlineExamState extends State<EditOnlineExam> {
       inputFormatters: inputFormatters,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: labelColor),
-        prefixIcon: Icon(icon, color: iconColor),
-        border: OutlineInputBorder(),
+        labelStyle: TextStyle(
+          color: labelColor ?? Theme.of(context).colorScheme.secondary,
+        ),
+        prefixIcon: Icon(
+          icon,
+          color: iconColor ?? Theme.of(context).colorScheme.primary,
+        ),
         suffixIcon: suffixIcon,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide.none,
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide:
+              BorderSide(color: Theme.of(context).colorScheme.secondary),
+        ),
       ),
-      validator: (value) {
-        if (value?.isEmpty ?? true) {
-          return '$label tidak boleh kosong';
-        }
-        return null;
-      },
+      validator: (v) => v!.isEmpty ? 'Required' : null,
     );
   }
 
@@ -365,7 +379,7 @@ class _EditOnlineExamState extends State<EditOnlineExam> {
           _buildAnimatedTextField(
             controller: _examKeyController,
             label: 'Kode Ujian',
-            icon: Icons.vpn_key,
+            icon: Icons.key,
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             suffixIcon: IconButton(
@@ -393,34 +407,49 @@ class _EditOnlineExamState extends State<EditOnlineExam> {
   }
 
   Widget _buildExamDetailsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Detail Ujian',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 5,
+            blurRadius: 10,
+            offset: Offset(0, 3),
           ),
-        ),
-        SizedBox(height: 15),
-        _buildAnimatedTextField(
-          controller: _durationController,
-          label: 'Durasi (menit)',
-          icon: Icons.timer,
-          keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        ),
-        SizedBox(height: 15),
-        _buildAnimatedTextField(
-          controller: _startDateController,
-          label: 'Tanggal Mulai',
-          icon: Icons.calendar_today,
-          readOnly: true,
-          onTap: () => _selectStartDate(context),
-          suffixIcon: Icon(Icons.calendar_today),
-        ),
-      ],
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Detail Ujian',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          ),
+          SizedBox(height: 20),
+          _buildAnimatedTextField(
+            controller: _durationController,
+            label: 'Durasi (menit)',
+            icon: Icons.timer,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          ),
+          SizedBox(height: 15),
+          _buildAnimatedTextField(
+            controller: _startDateController,
+            label: 'Tanggal Mulai',
+            icon: Icons.calendar_today,
+            onTap: () => _selectStartDate(context),
+            readOnly: true,
+          ),
+        ],
+      ),
     );
   }
 

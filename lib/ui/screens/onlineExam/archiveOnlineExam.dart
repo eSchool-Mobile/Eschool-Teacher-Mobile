@@ -76,10 +76,6 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam> {
                   ),
                 ],
               ),
-              IconButton(
-                icon: Icon(Icons.refresh, color: Colors.white),
-                onPressed: _loadArchivedExams,
-              ),
             ],
           ),
         ),
@@ -407,145 +403,295 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam> {
 
   void _showDeleteConfirmation(BuildContext context, OnlineExam exam) {
     Get.dialog(
-      AlertDialog(
+      Dialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        title: Row(
-          children: [
-            Icon(
-              Icons.warning_amber_rounded,
-              color: Colors.red,
-            ),
-            SizedBox(width: 10),
-            Text('Hapus Permanen'),
-          ],
-        ),
-        content: Text(
-          'Anda yakin ingin menghapus ujian ini secara permanen? Tindakan ini tidak dapat dibatalkan.',
-        ),
-        actions: [
-          TextButton(
-            child: Text('Batal'),
-            onPressed: () => Get.back(),
+        child: Container(
+          padding: EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.white,
           ),
-          TextButton(
-            child: Text(
-              'Hapus',
-              style: TextStyle(color: Colors.red),
-            ),
-            onPressed: () async {
-              Get.back();
-              try {
-                await context.read<OnlineExamCubit>().deleteOnlineExam(
-                      examId: exam.id,
-                      mode: 'permanent',
-                    );
-                Get.snackbar(
-                  'Berhasil',
-                  'Ujian berhasil dihapus permanen',
-                  backgroundColor: Colors.green,
-                  colorText: Colors.white,
-                  snackPosition: SnackPosition.TOP,
-                );
-              } catch (e) {
-                Get.snackbar(
-                  'Gagal',
-                  'Gagal menghapus ujian',
-                  backgroundColor: Colors.red,
-                  colorText: Colors.white,
-                  snackPosition: SnackPosition.TOP,
-                );
-              }
-            },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red[50],
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.delete_forever_rounded,
+                  color: Colors.red[600],
+                  size: 32,
+                ),
+              ),
+              SizedBox(height: 24),
+              Text(
+                'Hapus Permanen',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[800],
+                ),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Apakah Anda yakin ingin menghapus ujian ini secara permanen? Tindakan ini tidak dapat dibatalkan.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  height: 1.5,
+                ),
+              ),
+              SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Get.back(),
+                      child: Text('Batal'),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          side: BorderSide(color: Colors.grey[300]!),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Get.back();
+                        try {
+                          // Show loading
+                          Get.dialog(
+                            Dialog(
+                              backgroundColor: Colors.transparent,
+                              elevation: 0,
+                              child: Center(
+                                child: Container(
+                                  padding: EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.red),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            barrierDismissible: false,
+                          );
+
+                          await context
+                              .read<OnlineExamCubit>()
+                              .deleteOnlineExam(
+                                examId: exam.id,
+                                mode: 'permanent',
+                              );
+
+                          Get.back(); // Close loading
+
+                          Get.snackbar(
+                            'Berhasil',
+                            'Ujian berhasil dihapus permanen',
+                            backgroundColor: Colors.green,
+                            colorText: Colors.white,
+                            snackPosition: SnackPosition.TOP,
+                          );
+                        } catch (e) {
+                          Get.back(); // Close loading
+                          Get.snackbar(
+                            'Gagal',
+                            'Gagal menghapus ujian',
+                            backgroundColor: Colors.red,
+                            colorText: Colors.white,
+                            snackPosition: SnackPosition.TOP,
+                          );
+                        }
+                      },
+                      child: Text(
+                        'Hapus',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
+      barrierDismissible: false,
     );
   }
 
   void _showRestoreConfirmation(OnlineExam exam) {
     Get.dialog(
-      AlertDialog(
+      Dialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        title: Row(
-          children: [
-            Icon(
-              Icons.restore,
-              color: Colors.blue,
-            ),
-            SizedBox(width: 10),
-            Text('Pulihkan Ujian'),
-          ],
-        ),
-        content: Text(
-          'Apakah Anda yakin ingin memulihkan ujian ini?',
-        ),
-        actions: [
-          TextButton(
-            child: Text('Batal'),
-            onPressed: () => Get.back(),
+        child: Container(
+          padding: EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.white,
           ),
-          TextButton(
-            child: Text(
-              'Pulihkan',
-              style: TextStyle(color: Colors.blue),
-            ),
-            onPressed: () async {
-              Get.back();
-              try {
-                // Show loading indicator
-                Get.dialog(
-                  Center(
-                    child: CircularProgressIndicator(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.blue[50],
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.restore_rounded,
+                  color: Colors.blue[600],
+                  size: 32,
+                ),
+              ),
+              SizedBox(height: 24),
+              Text(
+                'Pulihkan Ujian',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[800],
+                ),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Apakah Anda yakin ingin memulihkan ujian ini?',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  height: 1.5,
+                ),
+              ),
+              SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Get.back(),
+                      child: Text('Batal'),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          side: BorderSide(color: Colors.grey[300]!),
+                        ),
+                      ),
+                    ),
                   ),
-                  barrierDismissible: false,
-                );
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Get.back();
+                        try {
+                          // Show loading
+                          Get.dialog(
+                            Dialog(
+                              backgroundColor: Colors.transparent,
+                              elevation: 0,
+                              child: Container(
+                                padding: EdgeInsets.all(24),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.blue),
+                                    ),
+                                    SizedBox(height: 20),
+                                    Text(
+                                      'Memulihkan ujian...',
+                                      style: TextStyle(
+                                        color: Colors.grey[800],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            barrierDismissible: false,
+                          );
 
-                await context
-                    .read<OnlineExamCubit>()
-                    .restoreOnlineExam(exam.id);
+                          await context
+                              .read<OnlineExamCubit>()
+                              .restoreOnlineExam(exam.id);
 
-                // Close loading indicator
-                if (Get.isDialogOpen ?? false) {
-                  Get.back();
-                }
+                          Get.back(); // Close loading
 
-                // Show success message
-                Get.snackbar(
-                  'Berhasil',
-                  'Ujian berhasil dipulihkan',
-                  backgroundColor: Colors.green,
-                  colorText: Colors.white,
-                  snackPosition: SnackPosition.TOP,
-                  duration: Duration(seconds: 2),
-                );
+                          Get.snackbar(
+                            'Berhasil',
+                            'Ujian berhasil dipulihkan',
+                            backgroundColor: Colors.green,
+                            colorText: Colors.white,
+                            snackPosition: SnackPosition.TOP,
+                            duration: Duration(seconds: 2),
+                          );
 
-                // Refresh screen after short delay
-                await Future.delayed(Duration(milliseconds: 500));
-
-                // Navigate to online exam screen
-                Get.offAllNamed(Routes.onlineExamScreen);
-              } catch (e) {
-                // Close loading indicator if open
-                if (Get.isDialogOpen ?? false) {
-                  Get.back();
-                }
-
-                Get.snackbar(
-                  'Gagal',
-                  'Gagal memulihkan ujian: ${e.toString()}',
-                  backgroundColor: Colors.red,
-                  colorText: Colors.white,
-                  snackPosition: SnackPosition.TOP,
-                  duration: Duration(seconds: 3),
-                );
-              }
-            },
+                          await Future.delayed(Duration(milliseconds: 500));
+                          Get.offAllNamed(Routes.onlineExamScreen);
+                        } catch (e) {
+                          Get.back(); // Close loading
+                          Get.snackbar(
+                            'Gagal',
+                            'Gagal memulihkan ujian: ${e.toString()}',
+                            backgroundColor: Colors.red,
+                            colorText: Colors.white,
+                            snackPosition: SnackPosition.TOP,
+                            duration: Duration(seconds: 3),
+                          );
+                        }
+                      },
+                      child: Text(
+                        'Pulihkan',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
       barrierDismissible: false,
     );

@@ -21,12 +21,14 @@ class OnlineExamLoading extends OnlineExamState {}
 class OnlineExamAnswer extends OnlineExamState {
   final int id;
   final String studentName;
+  final int studentId;
   final String answer;
   late bool isCorrect;
 
   OnlineExamAnswer({
     required this.id,
     required this.studentName,
+    required this.studentId,
     required this.isCorrect,
     required this.answer,
   });
@@ -117,8 +119,6 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
     try {
       emit(OnlineExamLoading());
 
-      print("BELUM HIT");
-
       final result = await _repository.getOnlineExams(
           search: search,
           subjectId: subjectId,
@@ -129,8 +129,6 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
 
       final List<OnlineExam> activeExams = [];
       final List<OnlineExam> archivedExams = [];
-
-      print("DATA FULL");
 
       if (result['exams'] is List) {
         for (var examData in result['exams']) {
@@ -175,6 +173,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
           answers: result
               .map((answer) => OnlineExamAnswer(
                   id: answer['id'] ?? 0,
+                  studentId: answer['student_id'] ?? 0,
                   studentName: answer['student_name'] ?? '',
                   answer: answer['answer'] ?? '',
                   isCorrect: answer['is_answer'] ? true : false))
@@ -249,6 +248,31 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       emit(SubjectsLoaded(subjects));
     } catch (e) {
       emit(SubjectsError(e.toString()));
+    }
+  }
+
+  Future<bool> updateOnlineExamAnswerCorrection({
+    required int examId,
+    required int studentId,
+    required int questionId,
+    required int answerId,
+    required int isAnswer,
+  }) async {
+    try {
+      await _repository.updateOnlineExamAnswerCorrection(
+        onlineExamId: examId,
+        data: [
+          {
+            'student_id': studentId,
+            'question_id': questionId,
+            'answer_id': answerId,
+            'is_answer': isAnswer
+          }
+        ],
+      );
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 

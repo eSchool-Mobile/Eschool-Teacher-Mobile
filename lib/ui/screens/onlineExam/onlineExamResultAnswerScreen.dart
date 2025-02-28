@@ -336,8 +336,18 @@ class _OnlineExamResultAnswerScreenState
                             children: [
                               Expanded(
                                 child: InkWell(
-                                  onTap: () {
-                                    setState(() {
+                                  onTap: () async {
+                                    setState(() async {
+                                      final result = await context.read<OnlineExamCubit>().updateOnlineExamAnswerCorrection(examId: widget.examId, studentId: answer.studentId, questionId: widget.questionId, answerId: answer.id, isAnswer: 1);
+                                      if (!result) {
+                                        Get.snackbar(
+                                          'Gagal',
+                                          'Terjadi kesalahan saat memperbarui jawaban',
+                                          backgroundColor: Colors.red,
+                                          colorText: Colors.white,
+                                        );
+
+                                      }
                                       answer.isCorrect = true;
                                     });
                                   },
@@ -383,8 +393,18 @@ class _OnlineExamResultAnswerScreenState
                               Expanded(
                                 child: InkWell(
                                   onTap: () {
-                                    setState(() {
-                                      answer.isCorrect = false;
+                                    setState(() async {
+                                      final result = await context.read<OnlineExamCubit>().updateOnlineExamAnswerCorrection(examId: widget.examId, studentId: answer.studentId, questionId: widget.questionId, answerId: answer.id, isAnswer: 0);
+                                      if (!result) {
+                                        Get.snackbar(
+                                          'Gagal',
+                                          'Terjadi kesalahan saat memperbarui jawaban',
+                                          backgroundColor: Colors.red,
+                                          colorText: Colors.white,
+                                        );
+
+                                      }
+                                      answer.isCorrect = true;
                                     });
                                   },
                                   child: Container(

@@ -82,6 +82,31 @@ class OnlineExamRepository {
     }
   }
 
+  Future<void> updateOnlineExamAnswerCorrection({
+    required int onlineExamId,
+    required List<Map<String, int>> data,
+  }) async {
+    try {
+      final response = await Api.post(
+        url: Api.updateOnlineExamAnswerCorrection,
+        useAuthToken: true,
+        body: {
+          'online_exam_id': onlineExamId,
+          'data': data,
+        },
+      );
+
+      print("ERROR UPDATE ANSWER: $response");
+
+      if (response['status'] != true) {
+        throw ApiException(
+            response['message'] ?? 'Failed to update online exam question');
+      }
+    } catch (e) {
+      throw ApiException(e.toString());
+    }
+  }
+
   Future<void> updateOnlineExam({
     required int id,
     required int classSectionId,
