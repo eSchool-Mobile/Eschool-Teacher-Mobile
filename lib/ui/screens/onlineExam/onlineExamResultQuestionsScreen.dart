@@ -390,7 +390,7 @@ class _OnlineExamResultQuestionsScreenState
                 children: [
                   GestureDetector(
                     onTap: () => Get.toNamed(
-                        "/OnlineExamResultAnswerScreen/${widget.examId}/${question.question_id}/${base64.encode(utf8.encode(widget.examName))}"),
+                        "/OnlineExamResultAnswerScreen/${widget.examId}/${question.question_id}/${base64.encode(utf8.encode(widget.examName))}/${question.type}"),
                     child: Row(
                       children: [
                         Icon(

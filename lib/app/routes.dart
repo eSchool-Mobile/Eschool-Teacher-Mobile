@@ -185,7 +185,7 @@ class Routes {
   static String onlineExamResultQuestionsScreen =
       "/OnlineExamResultQuestionsScreen/:id/:nama";
   static String onlineExamResultAnswerScreen =
-      "/OnlineExamResultAnswerScreen/:examId/:questionId/:examName";
+      "/OnlineExamResultAnswerScreen/:examId/:questionId/:examName/:questionType";
   static String createOnlineExam = "/create-exam";
 
   // Tambahkan route baru
@@ -501,7 +501,8 @@ class Routes {
             examId: int.parse(Get.parameters['examId'] ?? '0'),
             questionId: int.parse(Get.parameters['questionId'] ?? '0'),
             examName:
-                utf8.decode(base64.decode(Get.parameters['examName'] ?? ''))),
+                utf8.decode(base64.decode(Get.parameters['examName'] ?? '')),
+            questionType: Get.parameters['questionType'] ?? ''),
       ),
       transitionDuration: const Duration(milliseconds: 300),
     ),

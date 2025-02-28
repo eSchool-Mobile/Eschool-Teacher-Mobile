@@ -273,38 +273,72 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam> {
                                                                   .grey[600],
                                                             ),
                                                             itemBuilder:
-                                                                (context) => [
+                                                              (context) => [
                                                               PopupMenuItem(
-                                                                child: ListTile(
-                                                                  leading: Icon(
-                                                                      Icons
-                                                                          .restore),
-                                                                  title: Text(
-                                                                      'Pulihkan'),
-                                                                  contentPadding:
-                                                                      EdgeInsets
-                                                                          .zero,
+                                                              child: Container(
+                                                                decoration: BoxDecoration(
+                                                                borderRadius: BorderRadius.circular(8),
+                                                                color: Colors.blue.withOpacity(0.1),
                                                                 ),
-                                                                value:
-                                                                    'restore',
+                                                                child: ListTile(
+                                                                leading: Container(
+                                                                  padding: EdgeInsets.all(8),
+                                                                  decoration: BoxDecoration(
+                                                                  color: Colors.blue.withOpacity(0.2),
+                                                                  borderRadius: BorderRadius.circular(8),
+                                                                  ),
+                                                                  child: Icon(
+                                                                  Icons.restore,
+                                                                  color: Colors.blue,
+                                                                  ),
+                                                                ),
+                                                                title: Text(
+                                                                  'Pulihkan',
+                                                                  style: TextStyle(
+                                                                  color: Colors.blue,
+                                                                  fontWeight: FontWeight.w600,
+                                                                  ),
+                                                                ),
+                                                                contentPadding: EdgeInsets.symmetric(
+                                                                  horizontal: 12,
+                                                                  vertical: 4,
+                                                                ),
+                                                                ),
+                                                              ),
+                                                              value: 'restore',
                                                               ),
                                                               PopupMenuItem(
-                                                                child: ListTile(
-                                                                  leading: Icon(
-                                                                      Icons
-                                                                          .delete_forever,
-                                                                      color: Colors
-                                                                          .red),
-                                                                  title: Text(
-                                                                      'Hapus Permanen',
-                                                                      style: TextStyle(
-                                                                          color:
-                                                                              Colors.red)),
-                                                                  contentPadding:
-                                                                      EdgeInsets
-                                                                          .zero,
+                                                              child: Container(
+                                                                decoration: BoxDecoration(
+                                                                borderRadius: BorderRadius.circular(8),
+                                                                color: Colors.red.withOpacity(0.1),
                                                                 ),
-                                                                value: 'delete',
+                                                                child: ListTile(
+                                                                leading: Container(
+                                                                  padding: EdgeInsets.all(8),
+                                                                  decoration: BoxDecoration(
+                                                                  color: Colors.red.withOpacity(0.2),
+                                                                  borderRadius: BorderRadius.circular(8),
+                                                                  ),
+                                                                  child: Icon(
+                                                                  Icons.delete_forever,
+                                                                  color: Colors.red,
+                                                                  ),
+                                                                ),
+                                                                title: Text(
+                                                                  'Hapus Permanen',
+                                                                  style: TextStyle(
+                                                                  color: Colors.red,
+                                                                  fontWeight: FontWeight.w600,
+                                                                  ),
+                                                                ),
+                                                                contentPadding: EdgeInsets.symmetric(
+                                                                  horizontal: 12,
+                                                                  vertical: 4,
+                                                                ),
+                                                                ),
+                                                              ),
+                                                              value: 'delete',
                                                               ),
                                                             ],
                                                             onSelected:
@@ -315,8 +349,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam> {
                                                                     exam);
                                                               } else if (value ==
                                                                   'delete') {
-                                                                _showDeleteConfirmation(
-                                                                    context,
+                                                                _showPermanentDeleteConfirmation(
                                                                     exam);
                                                               }
                                                             },
@@ -401,7 +434,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam> {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, OnlineExam exam) {
+  void _showDeleteConfirmation(OnlineExam exam) {
     Get.dialog(
       Dialog(
         shape: RoundedRectangleBorder(
@@ -452,12 +485,11 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam> {
                   Expanded(
                     child: TextButton(
                       onPressed: () => Get.back(),
-                      child: Text('Batal'),
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(color: Colors.grey[300]!),
+                      child: Text(
+                        'Batal',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -466,27 +498,12 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
-                        Get.back();
                         try {
-                          // Show loading
+                          Get.back(); // Tutup dialog konfirmasi
+
+                          // Tampilkan loading
                           Get.dialog(
-                            Dialog(
-                              backgroundColor: Colors.transparent,
-                              elevation: 0,
-                              child: Center(
-                                child: Container(
-                                  padding: EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.red),
-                                  ),
-                                ),
-                              ),
-                            ),
+                            Center(child: CircularProgressIndicator()),
                             barrierDismissible: false,
                           );
 
@@ -497,38 +514,39 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam> {
                                 mode: 'permanent',
                               );
 
-                          Get.back(); // Close loading
+                          // Tutup loading
+                          Get.back();
 
                           Get.snackbar(
                             'Berhasil',
-                            'Ujian berhasil dihapus permanen',
+                            'Ujian berhasil dihapus secara permanen',
                             backgroundColor: Colors.green,
                             colorText: Colors.white,
-                            snackPosition: SnackPosition.TOP,
+                            snackPosition: SnackPosition.BOTTOM,
                           );
                         } catch (e) {
-                          Get.back(); // Close loading
+                          // Tutup loading jika masih terbuka
+                          if (Get.isDialogOpen ?? false) {
+                            Get.back();
+                          }
+
                           Get.snackbar(
                             'Gagal',
-                            'Gagal menghapus ujian',
+                            'Gagal menghapus ujian: ${e.toString()}',
                             backgroundColor: Colors.red,
                             colorText: Colors.white,
-                            snackPosition: SnackPosition.TOP,
+                            snackPosition: SnackPosition.BOTTOM,
                           );
                         }
                       },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                      ),
                       child: Text(
                         'Hapus',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                     ),
@@ -683,6 +701,135 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam> {
                         padding: EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+  }
+
+  void _showPermanentDeleteConfirmation(OnlineExam exam) {
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Container(
+          padding: EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.white,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red[50],
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.delete_forever_rounded,
+                  color: Colors.red[600],
+                  size: 32,
+                ),
+              ),
+              SizedBox(height: 24),
+              Text(
+                'Hapus Permanen',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[800],
+                ),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Apakah Anda yakin ingin menghapus ujian ini secara permanen?\nTindakan ini tidak dapat dibatalkan.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  height: 1.5,
+                ),
+              ),
+              SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Get.back(),
+                      child: Text(
+                        'Batal',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        try {
+                          Get.back(); // Tutup dialog konfirmasi
+
+                          // Tampilkan loading
+                          Get.dialog(
+                            Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                            barrierDismissible: false,
+                          );
+
+                          await context
+                              .read<OnlineExamCubit>()
+                              .deleteOnlineExam(
+                                examId: exam.id,
+                                mode: 'permanent',
+                              );
+
+                          // Tutup loading
+                          Get.back();
+
+                          Get.snackbar(
+                            'Berhasil',
+                            'Ujian berhasil dihapus secara permanen',
+                            backgroundColor: Colors.green,
+                            colorText: Colors.white,
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
+                        } catch (e) {
+                          // Tutup loading jika masih terbuka
+                          if (Get.isDialogOpen ?? false) {
+                            Get.back();
+                          }
+
+                          Get.snackbar(
+                            'Gagal',
+                            e.toString(),
+                            backgroundColor: Colors.red,
+                            colorText: Colors.white,
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                      ),
+                      child: Text(
+                        'Hapus',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),

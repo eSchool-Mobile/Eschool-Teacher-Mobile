@@ -12,12 +12,14 @@ class OnlineExamResultAnswerScreen extends StatefulWidget {
   final int examId;
   final int questionId;
   final String examName;
+  final String questionType;
 
   const OnlineExamResultAnswerScreen(
       {Key? key,
       required this.examId,
       required this.questionId,
-      required this.examName})
+      required this.examName,
+      required this.questionType})
       : super(key: key);
 
   @override
@@ -227,229 +229,251 @@ class _OnlineExamResultAnswerScreenState
 
               return FadeInUp(
                 delay: Duration(milliseconds: index * 100),
-                child: Container(
-                  margin: EdgeInsets.symmetric(vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
-                        blurRadius: 10,
-                        spreadRadius: 5,
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Header with student name and status
-                        Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: localIsCorrect
-                                  ? [
-                                      Colors.green.shade400,
-                                      Colors.green.shade300
-                                    ]
-                                  : [Colors.red.shade400, Colors.red.shade300],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                          ),
-                          padding: EdgeInsets.all(16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                answer.studentName ?? 'Unknown',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              Row(
-                                children: [
-                                  Icon(
-                                    localIsCorrect
-                                        ? Icons.check_circle
-                                        : Icons.cancel,
-                                    color: Colors.white,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    localIsCorrect ? 'Benar' : 'Salah',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        Container(
-                            padding: EdgeInsets.only(left: 16, right: 16, top: 16),
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              minHeight: 50,
-                              maxHeight: 200,
-                            ),
-                            child: SingleChildScrollView(
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[50],
-                                    borderRadius: BorderRadius.circular(12),
-                                    border:
-                                        Border.all(color: Colors.grey[200]!),
-                                  ),
-                                  padding: EdgeInsets.all(12),
-                                  child: Text(
-                                    answer.answer,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey[700],
-                                      height: 1.5,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          margin: EdgeInsets.zero,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () async {
-                                    setState(() async {
-                                      final result = await context.read<OnlineExamCubit>().updateOnlineExamAnswerCorrection(examId: widget.examId, studentId: answer.studentId, questionId: widget.questionId, answerId: answer.id, isAnswer: 1);
-                                      if (!result) {
-                                        Get.snackbar(
-                                          'Gagal',
-                                          'Terjadi kesalahan saat memperbarui jawaban',
-                                          backgroundColor: Colors.red,
-                                          colorText: Colors.white,
-                                        );
-
-                                      }
-                                      answer.isCorrect = true;
-                                    });
-                                  },
-                                  child: Container(
-                                    height: 48,
-                                    margin: EdgeInsets.only(left: 16, right: 8),
-                                    decoration: BoxDecoration(
-                                      color: localIsCorrect
-                                          ? Colors.green.shade50
-                                          : Colors.white,
-                                      border: Border.all(
-                                        color: localIsCorrect
-                                            ? Colors.green
-                                            : Colors.grey[300]!,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.check_circle,
-                                          color: localIsCorrect
-                                              ? Colors.green
-                                              : Colors.grey[600],
-                                        ),
-                                        SizedBox(width: 8),
-                                        Text(
-                                          'Benar',
-                                          style: TextStyle(
-                                            color: localIsCorrect
-                                                ? Colors.green
-                                                : Colors.grey[600],
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () {
-                                    setState(() async {
-                                      final result = await context.read<OnlineExamCubit>().updateOnlineExamAnswerCorrection(examId: widget.examId, studentId: answer.studentId, questionId: widget.questionId, answerId: answer.id, isAnswer: 0);
-                                      if (!result) {
-                                        Get.snackbar(
-                                          'Gagal',
-                                          'Terjadi kesalahan saat memperbarui jawaban',
-                                          backgroundColor: Colors.red,
-                                          colorText: Colors.white,
-                                        );
-
-                                      }
-                                      answer.isCorrect = true;
-                                    });
-                                  },
-                                  child: Container(
-                                    height: 48,
-                                    margin: EdgeInsets.only(left: 8, right: 16),
-                                    decoration: BoxDecoration(
-                                      color: !localIsCorrect
-                                          ? Colors.red.shade50
-                                          : Colors.white,
-                                      border: Border.all(
-                                        color: !localIsCorrect
-                                            ? Colors.red
-                                            : Colors.grey[300]!,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.cancel,
-                                          color: !localIsCorrect
-                                              ? Colors.red
-                                              : Colors.grey[600],
-                                        ),
-                                        SizedBox(width: 8),
-                                        Text(
-                                          'Salah',
-                                          style: TextStyle(
-                                            color: !localIsCorrect
-                                                ? Colors.red
-                                                : Colors.grey[600],
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                child: StatefulBuilder(
+                  // Added StatefulBuilder
+                  builder: (context, setState) => Container(
+                    margin: EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.1),
+                          blurRadius: 10,
+                          spreadRadius: 5,
                         ),
                       ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header with student name and status
+                          Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: localIsCorrect
+                                    ? [
+                                        Colors.green.shade400,
+                                        Colors.green.shade300
+                                      ]
+                                    : [
+                                        Colors.red.shade400,
+                                        Colors.red.shade300
+                                      ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
+                            padding: EdgeInsets.all(16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  answer.studentName ?? 'Unknown',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      localIsCorrect
+                                          ? Icons.check_circle
+                                          : Icons.cancel,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      localIsCorrect ? 'Benar' : 'Salah',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding:
+                                EdgeInsets.only(left: 16, right: 16, top: 16),
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                minHeight: 50,
+                                maxHeight: 200,
+                              ),
+                              child: SingleChildScrollView(
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[50],
+                                      borderRadius: BorderRadius.circular(12),
+                                      border:
+                                          Border.all(color: Colors.grey[200]!),
+                                    ),
+                                    padding: EdgeInsets.all(12),
+                                    child: Text(
+                                      answer.answer,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[700],
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(
+                                vertical:
+                                    (widget.questionType != 'multiple_choice' &&
+                                            widget.questionType != 'true_false')
+                                        ? 16
+                                        : 8),
+                            margin: EdgeInsets.zero,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                            ),
+                            child: widget.questionType != 'multiple_choice' &&
+                                    widget.questionType != 'true_false'
+                                ? Row(
+                                    children: [
+                                      Expanded(
+                                        child: InkWell(
+                                          onTap: () async {
+                                            final result = await context
+                                                .read<OnlineExamCubit>()
+                                                .updateOnlineExamAnswerCorrection(
+                                                    examId: widget.examId,
+                                                    studentId: answer.studentId,
+                                                    questionId:
+                                                        widget.questionId,
+                                                    answerId: answer.id,
+                                                    isAnswer: 1);
+                                            if (result) {
+                                              setState(() {
+                                                answer.isCorrect = true;
+                                                localIsCorrect = true;
+                                              });
+                                            }
+                                          },
+                                          child: Container(
+                                            height: 48,
+                                            margin: EdgeInsets.only(
+                                                left: 16, right: 8),
+                                            decoration: BoxDecoration(
+                                              color: localIsCorrect
+                                                  ? Colors.green.shade50
+                                                  : Colors.white,
+                                              border: Border.all(
+                                                color: localIsCorrect
+                                                    ? Colors.green
+                                                    : Colors.grey[300]!,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  Icons.check_circle,
+                                                  color: localIsCorrect
+                                                      ? Colors.green
+                                                      : Colors.grey[600],
+                                                ),
+                                                SizedBox(width: 8),
+                                                Text(
+                                                  'Benar',
+                                                  style: TextStyle(
+                                                    color: localIsCorrect
+                                                        ? Colors.green
+                                                        : Colors.grey[600],
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: InkWell(
+                                          onTap: () async {
+                                            final result = await context
+                                                .read<OnlineExamCubit>()
+                                                .updateOnlineExamAnswerCorrection(
+                                                    examId: widget.examId,
+                                                    studentId: answer.studentId,
+                                                    questionId:
+                                                        widget.questionId,
+                                                    answerId: answer.id,
+                                                    isAnswer: 0);
+                                            if (result) {
+                                              setState(() {
+                                                answer.isCorrect = false;
+                                                localIsCorrect = false;
+                                              });
+                                            }
+                                          },
+                                          child: Container(
+                                            height: 48,
+                                            margin: EdgeInsets.only(
+                                                left: 8, right: 16),
+                                            decoration: BoxDecoration(
+                                              color: !localIsCorrect
+                                                  ? Colors.red.shade50
+                                                  : Colors.white,
+                                              border: Border.all(
+                                                color: !localIsCorrect
+                                                    ? Colors.red
+                                                    : Colors.grey[300]!,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  Icons.cancel,
+                                                  color: !localIsCorrect
+                                                      ? Colors.red
+                                                      : Colors.grey[600],
+                                                ),
+                                                SizedBox(width: 8),
+                                                Text(
+                                                  'Salah',
+                                                  style: TextStyle(
+                                                    color: !localIsCorrect
+                                                        ? Colors.red
+                                                        : Colors.grey[600],
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : const SizedBox(),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

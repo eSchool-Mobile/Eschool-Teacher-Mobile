@@ -153,7 +153,8 @@ class Api {
       "${databaseUrl}teacher/get-online-exam-question-list-correction";
   static String getOnlineExamAnswerCorrection =
       "${databaseUrl}teacher/get-online-exam-answer-list-correction";
-  static String updateOnlineExamAnswerCorrection = "${databaseUrl}teacher/update-online-exam-answer-correction";
+  static String updateOnlineExamAnswerCorrection =
+      "${databaseUrl}teacher/update-online-exam-answer-correction";
   static String getBankSoal = "${databaseUrl}teacher/bank-soal/get";
   static String getBankQuestions = "${databaseUrl}teacher/bank-soal/getSoal";
   static String createQuestionBank = "${databaseUrl}teacher/bank-soal/create";
@@ -333,25 +334,34 @@ class Api {
         url,
         data: body,
         queryParameters: queryParameters,
-        options: (useAuthToken ?? true) ? Options(headers: headers()) : null,
+        options: Options(
+          headers: headers(useAuthToken: useAuthToken ?? false),
+          validateStatus: (status) {
+            return status! < 500;
+          },
+        ),
       );
 
-      print('Delete Response Raw: ${response.data}');
+      print('DELETE Response: ${response.data}');
 
-      if (response.data is Map<String, dynamic>) {
-        final responseData = Map<String, dynamic>.from(response.data);
-        print('Delete Response Processed: $responseData');
-        return responseData;
+      if (response.statusCode == 404) {
+        throw ApiException(response.data['message'] ?? 'Exam not found');
+      }
+
+      if (response.data is Map) {
+        return response.data;
       }
 
       throw ApiException('Invalid response format');
     } on DioException catch (e) {
-      print('DioError: ${e.message}');
       print('DioError Response: ${e.response?.data}');
-      throw ApiException(
-          e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
+      if (e.response?.data is Map) {
+        throw ApiException(
+            e.response?.data['message'] ?? defaultErrorMessageKey);
+      }
+      throw ApiException(e.message ?? defaultErrorMessageKey);
     } catch (e) {
-      print('General Error: $e');
+      print('Error: $e');
       throw ApiException(e.toString());
     }
   }

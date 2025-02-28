@@ -144,6 +144,20 @@ class OnlineExamRepository {
 
   Future<void> deleteOnlineExam(int id, {String mode = 'archive'}) async {
     try {
+      // Cek apakah ujian masih ada sebelum dihapus
+      final checkExam = await Api.get(
+        url: '${Api.getOnlineExamList}',
+        useAuthToken: true,
+        queryParameters: {
+          'exam_id': id.toString(),
+        },
+      );
+
+      if (checkExam['rows']?.isEmpty ?? true) {
+        throw ApiException(
+            'Ujian tidak ditemukan atau sudah dihapus sebelumnya');
+      }
+
       final response = await Api.delete(
         url: '${Api.deleteOnlineExam}/$id',
         useAuthToken: true,
@@ -155,21 +169,23 @@ class OnlineExamRepository {
         },
       );
 
-      print('Delete Response in Repository: $response');
-
       if (response['status'] != true) {
-        throw ApiException(
-            response['message'] ?? 'Failed to delete online exam');
+        throw ApiException(response['message'] ?? 'Gagal menghapus ujian');
       }
 
       // Tunggu sebentar sebelum melanjutkan
-      await Future.delayed(Duration(milliseconds: 1000));
+      await Future.delayed(Duration(milliseconds: 500));
     } catch (e) {
       print('Error deleting online exam: $e');
-      if (e is ApiException) {
-        throw e;
+      if (e is DioException) {
+        final response = e.response?.data;
+        if (e.response?.statusCode == 404) {
+          throw ApiException(
+              'Ujian tidak ditemukan atau sudah dihapus sebelumnya');
+        }
+        throw ApiException(response?['message'] ?? 'Gagal menghapus ujian');
       }
-      throw ApiException('Failed to delete online exam: $e');
+      throw ApiException(e.toString());
     }
   }
 

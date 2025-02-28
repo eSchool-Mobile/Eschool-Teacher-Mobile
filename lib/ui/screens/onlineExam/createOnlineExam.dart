@@ -404,9 +404,12 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
                       Get.offAllNamed(
                           Routes.onlineExamScreen); // Navigate to exam list
                     },
-                    child: Text('Lihat Daftar Ujian'),
+                    child: Text(
+                      'Lihat Daftar Ujian',
+                      style: TextStyle(color: Colors.white),
+                    ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor,
+                        backgroundColor: Colors.green,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),

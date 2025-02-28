@@ -176,7 +176,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
                   studentId: answer['student_id'] ?? 0,
                   studentName: answer['student_name'] ?? '',
                   answer: answer['answer'] ?? '',
-                  isCorrect: answer['is_answer'] ? true : false))
+                  isCorrect: answer['is_answer'] ?? false))
               .toList()));
     } catch (e) {
       // TODO: Use proper logging framework
@@ -338,18 +338,20 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       await Future.delayed(Duration(milliseconds: 1000));
 
       // Refresh data berdasarkan mode
-      if (mode == 'archive') {
-        // Refresh kedua list
-        await Future.wait([
-          getArchivedExams(),
-          getOnlineExams(),
-        ]);
+      if (mode == 'permanent') {
+        await getArchivedExams(); // Refresh archived list untuk mode permanent
       } else {
-        await getOnlineExams();
+        await getOnlineExams(); // Refresh active list untuk mode archive
       }
     } catch (e) {
       print('Delete Error in Cubit: $e');
-      emit(OnlineExamFailure(e.toString()));
+      String errorMessage = 'Gagal menghapus ujian';
+
+      if (e is ApiException) {
+        errorMessage = e.errorMessage;
+      }
+
+      emit(OnlineExamFailure(errorMessage));
       rethrow;
     }
   }
