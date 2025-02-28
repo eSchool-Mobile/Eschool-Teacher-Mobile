@@ -212,14 +212,14 @@ class _OnlineExamResultAnswerScreenState
     return BlocBuilder<OnlineExamCubit, OnlineExamState>(
       builder: (context, state) {
         if (state is OnlineExamLoading) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
         if (state is OnlineExamFailure) {
           return Center(child: Text('Error: ${state.message}'));
         }
         if (state is OnlineExamAnswersSuccess) {
           return ListView.builder(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: state.answers.length,
             itemBuilder: (context, index) {
               final answer = state.answers[index];
@@ -272,63 +272,161 @@ class _OnlineExamResultAnswerScreenState
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    answer.isCorrect = !localIsCorrect;
-                                  });
-                                },
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      localIsCorrect
-                                          ? Icons.check_circle
-                                          : Icons.cancel,
+                              Row(
+                                children: [
+                                  Icon(
+                                    localIsCorrect
+                                        ? Icons.check_circle
+                                        : Icons.cancel,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    localIsCorrect ? 'Benar' : 'Salah',
+                                    style: TextStyle(
                                       color: Colors.white,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      localIsCorrect ? 'Benar' : 'Salah',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ),
 
                         Container(
-                          padding: EdgeInsets.all(16),
+                            padding: EdgeInsets.only(left: 16, right: 16, top: 16),
                           child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minHeight: 50,
-                            maxHeight: 200, // Maximum height before scrolling
-                          ),
+                            constraints: BoxConstraints(
+                              minHeight: 50,
+                              maxHeight: 200,
+                            ),
                             child: SingleChildScrollView(
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.grey[50],
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.grey[200]!),
-                              ),
-                              padding: EdgeInsets.all(12),
-                              child: Text(
-                                answer.answer,
-                                style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[700],
-                                height: 1.5,
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[50],
+                                    borderRadius: BorderRadius.circular(12),
+                                    border:
+                                        Border.all(color: Colors.grey[200]!),
+                                  ),
+                                  padding: EdgeInsets.all(12),
+                                  child: Text(
+                                    answer.answer,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[700],
+                                      height: 1.5,
+                                    ),
+                                  ),
                                 ),
                               ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          margin: EdgeInsets.zero,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      answer.isCorrect = true;
+                                    });
+                                  },
+                                  child: Container(
+                                    height: 48,
+                                    margin: EdgeInsets.only(left: 16, right: 8),
+                                    decoration: BoxDecoration(
+                                      color: localIsCorrect
+                                          ? Colors.green.shade50
+                                          : Colors.white,
+                                      border: Border.all(
+                                        color: localIsCorrect
+                                            ? Colors.green
+                                            : Colors.grey[300]!,
+                                      ),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.check_circle,
+                                          color: localIsCorrect
+                                              ? Colors.green
+                                              : Colors.grey[600],
+                                        ),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          'Benar',
+                                          style: TextStyle(
+                                            color: localIsCorrect
+                                                ? Colors.green
+                                                : Colors.grey[600],
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                            ),
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      answer.isCorrect = false;
+                                    });
+                                  },
+                                  child: Container(
+                                    height: 48,
+                                    margin: EdgeInsets.only(left: 8, right: 16),
+                                    decoration: BoxDecoration(
+                                      color: !localIsCorrect
+                                          ? Colors.red.shade50
+                                          : Colors.white,
+                                      border: Border.all(
+                                        color: !localIsCorrect
+                                            ? Colors.red
+                                            : Colors.grey[300]!,
+                                      ),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.cancel,
+                                          color: !localIsCorrect
+                                              ? Colors.red
+                                              : Colors.grey[600],
+                                        ),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          'Salah',
+                                          style: TextStyle(
+                                            color: !localIsCorrect
+                                                ? Colors.red
+                                                : Colors.grey[600],
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],

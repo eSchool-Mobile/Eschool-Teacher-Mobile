@@ -364,4 +364,55 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       emit(OnlineExamFailure(e.toString()));
     }
   }
+
+  Future<void> restoreOnlineExam(int examId) async {
+    try {
+      emit(OnlineExamLoading());
+
+      await _repository.restoreOnlineExam(examId);
+
+      // Refresh both active and archived exam lists
+      final result = await _repository.getOnlineExams();
+      final archivedResult = await _repository.getOnlineExams(archive: true);
+
+      final List<OnlineExam> activeExams = [];
+      final List<OnlineExam> archivedExams = [];
+
+      // Process active exams
+      if (result['exams'] is List) {
+        for (var examData in result['exams']) {
+          try {
+            final exam = OnlineExam.fromJson(examData);
+            activeExams.add(exam);
+          } catch (e) {
+            print('Error parsing active exam: $e');
+          }
+        }
+      }
+
+      // Process archived exams
+      if (archivedResult['exams'] is List) {
+        for (var examData in archivedResult['exams']) {
+          try {
+            final exam = OnlineExam.fromJson(examData);
+            if (exam.status == 2) {
+              archivedExams.add(exam);
+            }
+          } catch (e) {
+            print('Error parsing archived exam: $e');
+          }
+        }
+      }
+
+      emit(OnlineExamSuccess(
+        exams: activeExams,
+        archivedExams: archivedExams,
+        subjectDetails: result['subjectDetails'] ?? [],
+      ));
+    } catch (e) {
+      print('Restore Error: $e');
+      emit(OnlineExamFailure(e.toString()));
+      rethrow;
+    }
+  }
 }

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
 import 'package:eschool_saas_staff/data/models/onlineExam.dart';
 import 'package:get/get.dart';
+import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:intl/intl.dart';
 
@@ -314,7 +315,8 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam> {
                                                                 (value) async {
                                                               if (value ==
                                                                   'restore') {
-                                                                // TODO: Implement restore
+                                                                _showRestoreConfirmation(
+                                                                    exam);
                                                               } else if (value ==
                                                                   'delete') {
                                                                 _showDeleteConfirmation(
@@ -459,6 +461,93 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showRestoreConfirmation(OnlineExam exam) {
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: Row(
+          children: [
+            Icon(
+              Icons.restore,
+              color: Colors.blue,
+            ),
+            SizedBox(width: 10),
+            Text('Pulihkan Ujian'),
+          ],
+        ),
+        content: Text(
+          'Apakah Anda yakin ingin memulihkan ujian ini?',
+        ),
+        actions: [
+          TextButton(
+            child: Text('Batal'),
+            onPressed: () => Get.back(),
+          ),
+          TextButton(
+            child: Text(
+              'Pulihkan',
+              style: TextStyle(color: Colors.blue),
+            ),
+            onPressed: () async {
+              Get.back();
+              try {
+                // Show loading indicator
+                Get.dialog(
+                  Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                  barrierDismissible: false,
+                );
+
+                await context
+                    .read<OnlineExamCubit>()
+                    .restoreOnlineExam(exam.id);
+
+                // Close loading indicator
+                if (Get.isDialogOpen ?? false) {
+                  Get.back();
+                }
+
+                // Show success message
+                Get.snackbar(
+                  'Berhasil',
+                  'Ujian berhasil dipulihkan',
+                  backgroundColor: Colors.green,
+                  colorText: Colors.white,
+                  snackPosition: SnackPosition.TOP,
+                  duration: Duration(seconds: 2),
+                );
+
+                // Refresh screen after short delay
+                await Future.delayed(Duration(milliseconds: 500));
+
+                // Navigate to online exam screen
+                Get.offAllNamed(Routes.onlineExamScreen);
+              } catch (e) {
+                // Close loading indicator if open
+                if (Get.isDialogOpen ?? false) {
+                  Get.back();
+                }
+
+                Get.snackbar(
+                  'Gagal',
+                  'Gagal memulihkan ujian: ${e.toString()}',
+                  backgroundColor: Colors.red,
+                  colorText: Colors.white,
+                  snackPosition: SnackPosition.TOP,
+                  duration: Duration(seconds: 3),
+                );
+              }
+            },
+          ),
+        ],
+      ),
+      barrierDismissible: false,
     );
   }
 }

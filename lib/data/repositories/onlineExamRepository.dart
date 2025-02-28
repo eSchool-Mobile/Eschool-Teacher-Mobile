@@ -148,6 +148,35 @@ class OnlineExamRepository {
     }
   }
 
+  Future<void> restoreOnlineExam(int id) async {
+    try {
+      final response = await Api.delete(
+        // Ubah dari post ke delete
+        url: '${Api.deleteOnlineExam}/$id',
+        useAuthToken: true,
+        body: {
+          'mode': 'restore',
+        },
+        queryParameters: {
+          'mode': 'restore', // Tambahkan query parameter
+        },
+      );
+
+      print('Restore Exam Response: $response');
+
+      if (response['status'] != true) {
+        throw ApiException(
+            response['message'] ?? 'Failed to restore online exam');
+      }
+
+      // Tunggu sebentar sebelum melanjutkan
+      await Future.delayed(Duration(milliseconds: 500));
+    } catch (e) {
+      print('Error restoring online exam: $e');
+      throw ApiException(e.toString());
+    }
+  }
+
   Future<Map<String, dynamic>> createOnlineExam({
     required int classSectionId,
     required int classSubjectId,
