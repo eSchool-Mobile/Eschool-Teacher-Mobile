@@ -225,57 +225,7 @@ class _OnlineExamResultAnswerScreenState
               final answer = state.answers[index];
               return FadeInUp(
                 delay: Duration(milliseconds: index * 100),
-                child: Card(
-                  margin: EdgeInsets.symmetric(vertical: 8),
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 8),
-                        Text(
-                          'Jawaban:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Container(
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            '${answer.answer}',
-                            style: TextStyle(fontSize: 15),
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: answer.isCorrect ?? false,
-                              onChanged: null,
-                              activeColor: Colors.green,
-                            ),
-                            Text(
-                              'Jawaban Benar',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                child: _buildAnswerCard(answer),
               );
             },
           );
@@ -285,19 +235,131 @@ class _OnlineExamResultAnswerScreenState
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String text) {
+  Widget _buildAnswerCard(dynamic answer) {
+    return GlassmorphicContainer(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      borderRadius: 20,
+      blur: 20,
+      border: 2,
+      linearGradient: LinearGradient(
+        colors: [
+          Colors.white.withOpacity(0.2),
+          Colors.white.withOpacity(0.1),
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+      borderGradient: LinearGradient(
+        colors: [
+          Colors.white.withOpacity(0.2),
+          Colors.white.withOpacity(0.1),
+        ],
+      ),
+      height: double.infinity,
+      width: double.infinity,
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                  child: Text(
+                    answer.studentName?[0] ?? 'U',
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        answer.studentName ?? 'Unknown',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          _buildInfoRow(
+                            Icons.check_circle,
+                            answer.isCorrect ?? false ? 'Jawaban Benar' : 'Jawaban Salah',
+                            answer.isCorrect ?? false ? Colors.green : Colors.red,
+                          ),
+                          Spacer(),
+                          Switch(
+                            value: answer.isCorrect ?? false,
+                            onChanged: (bool value) {
+                              // TODO: Implement the logic to update answer correctness
+                              // context.read<OnlineExamCubit>().updateAnswerCorrectness(
+                              //   answerId: answer.id,
+                              //   isCorrect: value,
+                              // );
+                            },
+                            activeColor: Colors.green,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Divider(height: 24),
+            Text(
+              'Jawaban:',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[600],
+              ),
+            ),
+            SizedBox(height: 8),
+            Container(
+              constraints: BoxConstraints(maxHeight: 200),
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: SingleChildScrollView(
+                child: Text(
+                  answer.answer,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String text, Color color) {
     return Row(
       children: [
         Icon(
           icon,
           size: 16,
-          color: Colors.grey[600],
+          color: color,
         ),
         SizedBox(width: 4),
         Text(
           text,
           style: TextStyle(
-            color: Colors.grey[600],
+            color: color,
             fontSize: 13,
           ),
         ),

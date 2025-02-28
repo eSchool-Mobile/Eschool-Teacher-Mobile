@@ -303,7 +303,7 @@ class OnlineExamRepository {
     required Map<String, Map<String, dynamic>> assignQuestions,
   }) async {
     try {
-      // Validate input
+      // Add additional validation
       if (examId <= 0 || classSectionId <= 0 || classSubjectId <= 0) {
         throw ApiException('Invalid input parameters');
       }
@@ -316,6 +316,7 @@ class OnlineExamRepository {
           'class_section_id': classSectionId,
           'class_subject_id': classSubjectId,
           'assign_questions': assignQuestions,
+          'merge_existing': true, // Add flag to merge with existing questions
         },
       );
 

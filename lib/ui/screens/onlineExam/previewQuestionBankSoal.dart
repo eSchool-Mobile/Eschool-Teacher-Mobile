@@ -734,9 +734,24 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
         barrierDismissible: false,
       );
 
-      // Prepare selected questions data
+      // Get existing questions first
+      final repository = OnlineExamRepository();
+      final existingQuestions =
+          await repository.getOnlineExamQuestions(widget.examId);
+
+      // Prepare questions data including existing ones
       Map<String, Map<String, dynamic>> assignQuestions = {};
 
+      // Add existing questions to the map
+      for (var question in existingQuestions) {
+        assignQuestions[question.id.toString()] = {
+          'question_id': question.question_id,
+          'marks': question.marks,
+          'from_bank': false,
+        };
+      }
+
+      // Add newly selected questions
       for (int index in _selectedQuestions) {
         final question = _filteredQuestions[index];
         assignQuestions[question.id.toString()] = {
@@ -746,8 +761,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
         };
       }
 
-      // Save questions using repository
-      final repository = OnlineExamRepository();
+      // Save all questions
       await repository.storeOnlineExamQuestions(
         examId: widget.examId,
         classSectionId: widget.classSectionId,
@@ -769,17 +783,10 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  padding: EdgeInsets.all(15),
-                  decoration: BoxDecoration(
-                    color: Colors.green[50],
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.check_circle,
-                    color: Colors.green,
-                    size: 50,
-                  ),
+                Icon(
+                  Icons.check_circle_outline,
+                  color: Colors.green,
+                  size: 60,
                 ),
                 SizedBox(height: 20),
                 Text(
@@ -791,37 +798,24 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                 ),
                 SizedBox(height: 10),
                 Text(
-                  'Soal berhasil disimpan',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[700],
-                  ),
+                  'Soal berhasil ditambahkan ke ujian',
+                  textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    Get.back(); // Close success dialog
-                    Get.back(); // Back to previous screen
+                    Get.back();
+                    // Navigate back to question list screen
                     Get.toNamed(
-                      Routes.questionOnlineExamScreen,
-                      arguments: {
-                        'examId': widget.examId,
-                      },
+                      Routes.questionOnlineExam
+                          .replaceAll(':id', widget.examId.toString()),
                     );
                   },
+                  child: Text('Lihat Daftar Soal'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: Theme.of(context).primaryColor,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                  ),
-                  child: Text(
-                    'OK',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                 ),
