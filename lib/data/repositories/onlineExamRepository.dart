@@ -96,18 +96,24 @@ class OnlineExamRepository {
         url: '${Api.updateOnlineExam}/$id',
         useAuthToken: true, // Enable authentication
         body: {
-          'class_section_id': classSectionId,
-          'class_subject_id': classSubjectId,
+          'class_section_id': classSectionId.toString(),
+          'class_subject_id': classSubjectId.toString(),
           'title': title,
           'exam_key': examKey,
-          'duration': duration,
+          'duration': duration.toString(),
+          'start_date': startDate.toIso8601String(), // Add this
         },
       );
 
       print('Update Exam Response: $response');
+
+      if (response['status'] != true) {
+        throw ApiException(
+            response['message'] ?? 'Failed to update online exam');
+      }
     } catch (e) {
       print('Error updating online exam: $e');
-      throw Exception('Failed to update online exam: $e');
+      throw ApiException(e.toString());
     }
   }
 
@@ -142,12 +148,12 @@ class OnlineExamRepository {
     }
   }
 
-  Future<void> createOnlineExam({
+  Future<Map<String, dynamic>> createOnlineExam({
     required int classSectionId,
     required int classSubjectId,
     required String title,
     required String examKey,
-    required int duration, // Add duration parameter
+    required int duration,
     required DateTime startDate,
   }) async {
     try {
@@ -159,7 +165,7 @@ class OnlineExamRepository {
           'class_subject_id': classSubjectId.toString(),
           'title': title,
           'exam_key': examKey,
-          'duration': duration.toString(), // Add duration to request body
+          'duration': duration.toString(),
           'start_date': startDate.toIso8601String(),
         },
       );
@@ -167,7 +173,7 @@ class OnlineExamRepository {
       print('Create Exam Response: $response');
 
       if (response['status'] == true) {
-        return;
+        return response['data'] ?? {};
       } else {
         throw Exception(response['message'] ?? 'Failed to create online exam');
       }

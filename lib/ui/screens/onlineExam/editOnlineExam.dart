@@ -6,6 +6,7 @@ import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
 import 'package:eschool_saas_staff/data/models/subjectDetail.dart';
 import 'package:eschool_saas_staff/data/models/onlineExam.dart';
 import 'package:get/get.dart';
+import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:intl/intl.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -29,11 +30,9 @@ class _EditOnlineExamState extends State<EditOnlineExam> {
   SubjectDetail? selectedSubject;
   late TextEditingController _titleController;
   late TextEditingController _examKeyController;
-  late TextEditingController _durationController;
+  late TextEditingController _durationController; // Add this
   late TextEditingController _startDateController;
-  late TextEditingController _endDateController;
   DateTime? startDate;
-  DateTime? endDate;
 
   @override
   void initState() {
@@ -44,12 +43,9 @@ class _EditOnlineExamState extends State<EditOnlineExam> {
     _durationController =
         TextEditingController(text: widget.exam.duration.toString());
     startDate = widget.exam.startDate;
-    endDate = widget.exam.endDate;
+
     _startDateController = TextEditingController(
       text: DateFormat('dd-MM-yyyy').format(widget.exam.startDate),
-    );
-    _endDateController = TextEditingController(
-      text: DateFormat('dd-MM-yyyy').format(widget.exam.endDate),
     );
 
     // Load subjects and set selected subject
@@ -100,7 +96,6 @@ class _EditOnlineExamState extends State<EditOnlineExam> {
     _examKeyController.dispose();
     _durationController.dispose();
     _startDateController.dispose();
-    _endDateController.dispose();
     super.dispose();
   }
 
@@ -120,26 +115,19 @@ class _EditOnlineExamState extends State<EditOnlineExam> {
     }
   }
 
-  Future<void> _selectEndDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: endDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != endDate) {
-      setState(() {
-        endDate = picked;
-        _endDateController.text = DateFormat('dd-MM-yyyy').format(picked);
-      });
-    }
-  }
-
   void _submitForm() {
     if (_formKey.currentState?.validate() ?? false) {
       if (selectedSubject == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Pilih mata pelajaran terlebih dahulu')),
+        );
+        return;
+      }
+
+      // Validasi startDate
+      if (startDate == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Pilih tanggal mulai terlebih dahulu')),
         );
         return;
       }
@@ -154,16 +142,60 @@ class _EditOnlineExamState extends State<EditOnlineExam> {
             examKey: _examKeyController.text,
             duration: int.parse(_durationController.text),
             startDate: startDate!,
-     
           )
           .then((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Ujian berhasil diperbarui'),
-            backgroundColor: Colors.green,
+        // Show success dialog
+        Get.dialog(
+          Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Container(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.green,
+                    size: 60,
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Berhasil!',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Ujian berhasil diperbarui',
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      Get.back(); // Close dialog
+                      Get.offAllNamed(
+                          Routes.onlineExamScreen); // Navigate and clear stack
+                      // Refresh exam list
+                      context.read<OnlineExamCubit>().getOnlineExams();
+                    },
+                    child: Text('OK'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
+          barrierDismissible: false,
         );
-        Get.back(); // Return to previous screen
       }).catchError((error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -386,15 +418,6 @@ class _EditOnlineExamState extends State<EditOnlineExam> {
           icon: Icons.calendar_today,
           readOnly: true,
           onTap: () => _selectStartDate(context),
-          suffixIcon: Icon(Icons.calendar_today),
-        ),
-        SizedBox(height: 15),
-        _buildAnimatedTextField(
-          controller: _endDateController,
-          label: 'Tanggal Selesai',
-          icon: Icons.calendar_today,
-          readOnly: true,
-          onTap: () => _selectEndDate(context),
           suffixIcon: Icon(Icons.calendar_today),
         ),
       ],

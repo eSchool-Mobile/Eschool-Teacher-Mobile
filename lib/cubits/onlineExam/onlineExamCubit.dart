@@ -20,9 +20,9 @@ class OnlineExamLoading extends OnlineExamState {}
 
 class OnlineExamAnswer extends OnlineExamState {
   final int id;
-  final bool isCorrect;
   final String studentName;
   final String answer;
+  late bool isCorrect;
 
   OnlineExamAnswer({
     required this.id,
@@ -72,7 +72,11 @@ class OnlineExamFailure extends OnlineExamState {
 // Add these states
 class CreateOnlineExamLoading extends OnlineExamState {}
 
-class CreateOnlineExamSuccess extends OnlineExamState {}
+// Add new state
+class CreateOnlineExamSuccess extends OnlineExamState {
+  final OnlineExam exam;
+  CreateOnlineExamSuccess(this.exam);
+}
 
 class CreateOnlineExamFailure extends OnlineExamState {
   final String message;
@@ -202,8 +206,26 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         startDate: startDate,
       );
 
-      emit(CreateOnlineExamSuccess());
-      await getOnlineExams();
+      // After successful creation, immediately fetch updated exam list
+      final result = await _repository.getOnlineExams();
+
+      final List<OnlineExam> exams = [];
+      if (result['exams'] is List) {
+        for (var examData in result['exams']) {
+          try {
+            final exam = OnlineExam.fromJson(examData);
+            exams.add(exam);
+          } catch (e) {
+            print('Error parsing exam: $e');
+          }
+        }
+      }
+
+      // Emit success state with updated exam list
+      emit(OnlineExamSuccess(
+        exams: exams,
+        subjectDetails: result['subjectDetails'] ?? [],
+      ));
     } catch (e) {
       print('Create Exam Error: $e');
       emit(CreateOnlineExamFailure(e.toString()));
@@ -253,12 +275,29 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         startDate: startDate,
       );
 
-      // Refresh the exams list after successful update
-      await getOnlineExams();
+      // Fetch updated exam list immediately
+      final result = await _repository.getOnlineExams();
 
-      emit(OnlineExamSuccess(exams: [], subjectDetails: [])); // Temporary emit
+      final List<OnlineExam> exams = [];
+      if (result['exams'] is List) {
+        for (var examData in result['exams']) {
+          try {
+            final exam = OnlineExam.fromJson(examData);
+            exams.add(exam);
+          } catch (e) {
+            print('Error parsing exam: $e');
+          }
+        }
+      }
+
+      // Emit success state with updated exam list
+      emit(OnlineExamSuccess(
+        exams: exams,
+        subjectDetails: result['subjectDetails'] ?? [],
+      ));
     } catch (e) {
       emit(OnlineExamFailure(e.toString()));
+      rethrow;
     }
   }
 

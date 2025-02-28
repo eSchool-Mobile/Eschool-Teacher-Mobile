@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
 import 'package:eschool_saas_staff/data/models/subjectDetail.dart';
 import 'package:get/get.dart';
+import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:intl/intl.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -367,13 +368,56 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
             startDate: startDate!,
           )
           .then((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Ujian berhasil dibuat'),
-            backgroundColor: Colors.green,
+        // Show success dialog
+        Get.dialog(
+          Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Container(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.green,
+                    size: 60,
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Berhasil!',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Ujian online berhasil dibuat',
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      Get.back(); // Close dialog
+                      Get.offAllNamed(
+                          Routes.onlineExamScreen); // Navigate to exam list
+                    },
+                    child: Text('Lihat Daftar Ujian'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
+          barrierDismissible: false,
         );
-        Get.back();
       }).catchError((error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

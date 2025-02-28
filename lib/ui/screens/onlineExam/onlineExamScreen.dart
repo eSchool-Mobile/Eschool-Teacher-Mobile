@@ -32,6 +32,16 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   void initState() {
     super.initState();
     _refreshExams();
+
+    // Add listener for state changes
+    context.read<OnlineExamCubit>().stream.listen((state) {
+      if (state is OnlineExamSuccess) {
+        setState(() {
+          // Update UI when new data arrives
+        });
+      }
+    });
+
     _animationController = AnimationController(
       duration: Duration(milliseconds: 1000),
       vsync: this,
