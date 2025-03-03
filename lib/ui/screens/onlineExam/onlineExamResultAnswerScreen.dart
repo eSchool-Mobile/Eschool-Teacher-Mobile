@@ -30,14 +30,33 @@ class OnlineExamResultAnswerScreen extends StatefulWidget {
 class _OnlineExamResultAnswerScreenState
     extends State<OnlineExamResultAnswerScreen> {
   final TextEditingController _searchController = TextEditingController();
+  List<dynamic> _allAnswers = []; // Store all answers locally
+  List<dynamic> _filteredAnswers = []; // Store filtered answers
+  bool _isSearching = false;
 
   @override
   void initState() {
     super.initState();
+    // Initial load of all answers
     context.read<OnlineExamCubit>().getOnlineExamResultAnswer(
-        examId: widget.examId,
-        questionId: widget.questionId,
-        search: _searchController.text);
+        examId: widget.examId, questionId: widget.questionId, search: '');
+  }
+
+  // Filter answers locally based on search text
+  void _filterAnswers(String query) {
+    setState(() {
+      _isSearching = true;
+      if (query.isEmpty) {
+        _filteredAnswers = List.from(_allAnswers);
+      } else {
+        _filteredAnswers = _allAnswers
+            .where((answer) =>
+                (answer.studentName?.toLowerCase() ?? '')
+                    .contains(query.toLowerCase()) ||
+                (answer.answer.toLowerCase()).contains(query.toLowerCase()))
+            .toList();
+      }
+    });
   }
 
   @override
@@ -150,27 +169,32 @@ class _OnlineExamResultAnswerScreenState
   }
 
   Widget _buildBody() {
-    return RefreshIndicator(
-      onRefresh: () async {
-        await context.read<OnlineExamCubit>().getOnlineExamResultAnswer(
-            examId: widget.examId,
-            questionId: widget.questionId,
-            search: _searchController.text);
-      },
-      child: Column(
-        children: [
-          _buildSearchBar(),
-          Expanded(
-            child: _buildExamCard(),
-          ),
-        ],
-      ),
+    return Column(
+      children: [
+        _buildSearchBar(),
+        Expanded(
+          child: _buildExamCard(),
+        ),
+      ],
     );
   }
 
   Widget _buildSearchBar() {
-    return FadeInDown(
-      delay: const Duration(milliseconds: 200),
+    return BlocListener<OnlineExamCubit, OnlineExamState>(
+      listener: (context, state) {
+        if (state is OnlineExamAnswersSuccess) {
+          setState(() {
+            _allAnswers = state.answers;
+            // When initial load, reset filtered answers to show all
+            if (!_isSearching) {
+              _filteredAnswers = List.from(_allAnswers);
+            } else {
+              // When already searching, maintain the current filter
+              _filterAnswers(_searchController.text);
+            }
+          });
+        }
+      },
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
         child: Container(
@@ -189,15 +213,24 @@ class _OnlineExamResultAnswerScreenState
           child: TextField(
             controller: _searchController,
             onChanged: (value) {
-              context.read<OnlineExamCubit>().getOnlineExamResultAnswer(
-                  examId: widget.examId,
-                  questionId: widget.questionId,
-                  search: value);
+              _filterAnswers(value);
             },
             decoration: InputDecoration(
               hintText: 'Cari jawaban spesifik...',
               hintStyle: TextStyle(color: Colors.grey[400]),
               prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
+              suffixIcon: _searchController.text.isNotEmpty
+                  ? IconButton(
+                      icon: Icon(Icons.clear, color: Colors.grey[400]),
+                      onPressed: () {
+                        setState(() {
+                          _searchController.clear();
+                          _filterAnswers('');
+                          _isSearching = false;
+                        });
+                      },
+                    )
+                  : null,
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 20,
@@ -213,24 +246,60 @@ class _OnlineExamResultAnswerScreenState
   Widget _buildExamCard() {
     return BlocBuilder<OnlineExamCubit, OnlineExamState>(
       builder: (context, state) {
-        if (state is OnlineExamLoading) {
+        if (state is OnlineExamLoading && _allAnswers.isEmpty) {
+          // Only show loading indicator on initial load
           return const Center(child: CircularProgressIndicator());
         }
-        if (state is OnlineExamFailure) {
+
+        if (state is OnlineExamFailure && _allAnswers.isEmpty) {
           return Center(child: Text('Error: ${state.message}'));
         }
-        if (state is OnlineExamAnswersSuccess) {
+
+        // If we're in searching mode or have loaded data, show the filtered data
+        if (_isSearching || _allAnswers.isNotEmpty) {
+          if (_filteredAnswers.isEmpty) {
+            return Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.search_off, size: 80, color: Colors.grey[400]),
+                      const SizedBox(height: 16),
+                      Text(
+                        _isSearching
+                            ? 'Tidak ada jawaban yang cocok'
+                            : 'Tidak ada jawaban tersedia',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
+
           return ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: state.answers.length,
+            itemCount: _filteredAnswers.length,
             itemBuilder: (context, index) {
-              final answer = state.answers[index];
+              final answer = _filteredAnswers[index];
               bool localIsCorrect = answer.isCorrect ?? false;
 
               return FadeInUp(
                 delay: Duration(milliseconds: index * 100),
                 child: StatefulBuilder(
-                  // Added StatefulBuilder
                   builder: (context, setState) => Container(
                     margin: EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
@@ -364,6 +433,16 @@ class _OnlineExamResultAnswerScreenState
                                               setState(() {
                                                 answer.isCorrect = true;
                                                 localIsCorrect = true;
+
+                                                // Update in the original list as well
+                                                final originalIndex =
+                                                    _allAnswers.indexWhere(
+                                                        (a) =>
+                                                            a.id == answer.id);
+                                                if (originalIndex != -1) {
+                                                  _allAnswers[originalIndex]
+                                                      .isCorrect = true;
+                                                }
                                               });
                                             }
                                           },
@@ -424,6 +503,16 @@ class _OnlineExamResultAnswerScreenState
                                               setState(() {
                                                 answer.isCorrect = false;
                                                 localIsCorrect = false;
+
+                                                // Update in the original list as well
+                                                final originalIndex =
+                                                    _allAnswers.indexWhere(
+                                                        (a) =>
+                                                            a.id == answer.id);
+                                                if (originalIndex != -1) {
+                                                  _allAnswers[originalIndex]
+                                                      .isCorrect = false;
+                                                }
                                               });
                                             }
                                           },
@@ -481,6 +570,7 @@ class _OnlineExamResultAnswerScreenState
             },
           );
         }
+
         return Center(child: Text('Tidak ada data'));
       },
     );

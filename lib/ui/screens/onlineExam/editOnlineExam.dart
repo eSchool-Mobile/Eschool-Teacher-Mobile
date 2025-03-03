@@ -306,6 +306,8 @@ class _EditOnlineExamState extends State<EditOnlineExam> {
     Color? labelColor,
     List<TextInputFormatter>? inputFormatters,
     Widget? suffixIcon,
+    String? Function(String?)? validator,
+    void Function(String)? onChanged, // Add this line
   }) {
     return TextFormField(
       controller: controller,
@@ -314,6 +316,8 @@ class _EditOnlineExamState extends State<EditOnlineExam> {
       onTap: onTap,
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
+      validator: validator ?? (v) => v!.isEmpty ? 'Required' : null,
+      onChanged: onChanged, // Add this line
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(
@@ -336,7 +340,6 @@ class _EditOnlineExamState extends State<EditOnlineExam> {
               BorderSide(color: Theme.of(context).colorScheme.secondary),
         ),
       ),
-      validator: (v) => v!.isEmpty ? 'Required' : null,
     );
   }
 
@@ -435,10 +438,42 @@ class _EditOnlineExamState extends State<EditOnlineExam> {
           SizedBox(height: 20),
           _buildAnimatedTextField(
             controller: _durationController,
-            label: 'Durasi (menit)',
+            label: 'Durasi (menit) Max 999 menit',
             icon: Icons.timer,
             keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(3),
+            ],
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Durasi harus diisi';
+              }
+              if (value.length > 3) {
+                return 'Durasi tidak boleh lebih dari 3 digit';
+              }
+              final duration = int.tryParse(value);
+              if (duration == null || duration <= 0) {
+                return 'Durasi harus lebih dari 0';
+              }
+              return null;
+            },
+            onChanged: (value) {
+              if (value.length > 3) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Maksimal durasi adalah 999 menit'),
+                    backgroundColor: Colors.red,
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+                // Truncate to 3 digits
+                _durationController.text = value.substring(0, 3);
+                _durationController.selection = TextSelection.fromPosition(
+                  TextPosition(offset: _durationController.text.length),
+                );
+              }
+            },
           ),
           SizedBox(height: 15),
           _buildAnimatedTextField(

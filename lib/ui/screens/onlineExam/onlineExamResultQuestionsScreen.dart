@@ -130,10 +130,18 @@ class _OnlineExamResultQuestionsScreenState
   }
 
   Widget _buildContent(List<QuestionOnlineExam> questions) {
-    _showSearch = questions.length > 5;
-    if (_filteredQuestions.isEmpty) {
-      _filteredQuestions = questions;
-    }
+    _showSearch = true;
+
+    _filteredQuestions = questions.where((question) {
+      final titleMatch = question.title
+              ?.toLowerCase()
+              .contains(_searchController.text.toLowerCase()) ??
+          false;
+      final questionMatch = question.question
+          .toLowerCase()
+          .contains(_searchController.text.toLowerCase());
+      return titleMatch || questionMatch;
+    }).toList();
 
     return Column(
       children: [
@@ -169,40 +177,61 @@ class _OnlineExamResultQuestionsScreenState
               ),
             ),
           ),
-        Expanded(
-          child: GridView.builder(
-            padding: const EdgeInsets.all(16),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.62,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 16,
+        if (_filteredQuestions.isEmpty)
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.search_off, size: 80, color: Colors.grey[400]),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Tidak ada soal tersedia',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            itemCount: _filteredQuestions.length,
-            itemBuilder: (context, index) {
-              final question = _filteredQuestions[index];
-              return FadeInUp(
-                duration: Duration(milliseconds: 600 + (index * 100)),
-                child: _buildQuestionCard(question),
-              );
-            },
           ),
-        ),
+        if (!_filteredQuestions.isEmpty)
+          Expanded(
+            child: GridView.builder(
+              padding: const EdgeInsets.all(16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.62,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: _filteredQuestions.length,
+              itemBuilder: (context, index) {
+                final question = _filteredQuestions[index];
+                return FadeInUp(
+                  duration: Duration(milliseconds: 600 + (index * 100)),
+                  child: _buildQuestionCard(question),
+                );
+              },
+            ),
+          ),
       ],
     );
   }
 
   void _filterQuestions(String query, List<QuestionOnlineExam> questions) {
-    setState(() {
-      _filteredQuestions = questions.where((question) {
-        final titleMatch =
-            question.title?.toLowerCase().contains(query.toLowerCase()) ??
-                false;
-        final questionMatch =
-            question.question.toLowerCase().contains(query.toLowerCase());
-        return titleMatch || questionMatch;
-      }).toList();
-    });
+    setState(() {});
   }
 
   Widget _buildQuestionCard(QuestionOnlineExam question) {
@@ -425,7 +454,7 @@ class _OnlineExamResultQuestionsScreenState
     super.initState();
     context.read<QuestionOnlineExamCubit>().getOnlineExamResultQuestions(
           examId: widget.examId,
-          search: '',
+          search: _searchController.text,
         );
   }
 

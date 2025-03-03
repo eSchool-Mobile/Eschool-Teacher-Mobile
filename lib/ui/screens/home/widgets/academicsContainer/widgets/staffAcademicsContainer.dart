@@ -162,6 +162,23 @@ class StaffAcademicsContainer extends StatelessWidget {
                 }
               }),
         ]),
+
+ MenusWithTitleContainer(title: "Ujian Online", menus: [
+              CustomMenuTile(
+                  iconImageName: "online_exam.svg", // Add this icon to assets
+                  titleKey: "Ujian Online",
+                  onTap: () {
+                    Get.toNamed(Routes.onlineExamScreen);
+                  }),
+              if (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
+                  moduleId: assignmentManagementModuleId.toString()))
+                CustomMenuTile(
+                    iconImageName: "online_exam.svg", // Add this icon to assets
+                    titleKey: "Hasil Ujian Online",
+                    onTap: () {
+                      Get.toNamed(Routes.onlineExamResultScreen);
+                    }),
+            ]),
         (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
                         moduleId: announcementManagementModuleId.toString()) &&
                     staffAllowedPermissionsAndModulesCubit.isPermissionGiven(

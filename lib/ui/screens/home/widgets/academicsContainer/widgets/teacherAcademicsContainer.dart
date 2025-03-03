@@ -122,6 +122,9 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer> {
                       Get.toNamed(Routes.teacherManageTopicScreen);
                     }),
               ]),
+
+
+
             MenusWithTitleContainer(title: "Bank Soal", menus: [
               CustomMenuTile(
                   iconImageName: "question_bank.svg",
@@ -132,6 +135,8 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer> {
             ]),
             if (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
                 moduleId: assignmentManagementModuleId.toString()))
+
+
               MenusWithTitleContainer(title: studentAssignmentKey, menus: [
                 CustomMenuTile(
                     iconImageName: "manage_assignment.svg",
@@ -166,6 +171,9 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer> {
                       Get.toNamed(Routes.teacherExamResultScreen);
                     }),
               ]),
+
+
+
             MenusWithTitleContainer(title: "Ujian Online", menus: [
               CustomMenuTile(
                   iconImageName: "online_exam.svg", // Add this icon to assets
@@ -173,12 +181,14 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer> {
                   onTap: () {
                     Get.toNamed(Routes.onlineExamScreen);
                   }),
-              CustomMenuTile(
-                  iconImageName: "online_exam.svg", // Add this icon to assets
-                  titleKey: "Hasil Ujian Online",
-                  onTap: () {
-                    Get.toNamed(Routes.onlineExamResultScreen);
-                  }),
+              if (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
+                  moduleId: assignmentManagementModuleId.toString()))
+                CustomMenuTile(
+                    iconImageName: "online_exam.svg", // Add this icon to assets
+                    titleKey: "Hasil Ujian Online",
+                    onTap: () {
+                      Get.toNamed(Routes.onlineExamResultScreen);
+                    }),
             ]),
           ],
         );
