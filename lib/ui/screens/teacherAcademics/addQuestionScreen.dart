@@ -446,7 +446,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
             ),
             SizedBox(height: 20),
 
-            // Gunakan kondisi untuk menentukan tampilan
+            // Different layouts based on question type
             if (selectedType == 'multiple_choice') ...[
               ...List.generate(_optionControllers.length,
                   (index) => _buildMultipleChoiceOption(index)),
@@ -464,8 +464,11 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
             ] else if (selectedType == 'true_false') ...[
               _buildTrueFalseOption(0, 'Benar'),
               _buildTrueFalseOption(1, 'Salah'),
+            ] else if (selectedType == 'numeric') ...[
+              // Gunakan _buildNumericOption() untuk tipe soal numerik
+              _buildNumericOption(),
             ] else ...[
-              // Untuk essay, short_answer, dan numeric menggunakan tampilan yang sama
+              // Untuk essay dan short_answer
               _buildEssayOption(),
             ],
           ],
@@ -768,7 +771,6 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                       fillColor: Colors.grey.shade50,
                       helperText: 'Masukkan angka saja',
                     ),
-                    // Update keyboard type dan input formatter
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: false,
                       signed: false,
@@ -795,7 +797,6 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                       filled: true,
                       fillColor: Colors.grey.shade50,
                     ),
-                    // Update keyboard type dan input formatter
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: false,
                       signed: false,
