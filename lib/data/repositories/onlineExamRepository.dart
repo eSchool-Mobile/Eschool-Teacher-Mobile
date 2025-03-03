@@ -406,4 +406,25 @@ class OnlineExamRepository {
       throw ApiException(e.toString());
     }
   }
+
+  Future<void> deleteOnlineExamQuestions(
+      int examId, List<int> questionIds) async {
+    try {
+      final response = await Api.post(
+        url: Api.deleteQuestionOnlineExam,
+        useAuthToken: true,
+        body: {
+          'exam_id': examId,
+          'question_ids': questionIds,
+        },
+      );
+
+      if (response['status'] != true) {
+        throw ApiException(response['message'] ?? 'Failed to delete questions');
+      }
+    } catch (e) {
+      print('Error deleting questions: $e');
+      throw ApiException(e.toString());
+    }
+  }
 }

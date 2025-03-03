@@ -83,4 +83,21 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
       emit(QuestionOnlineExamFailure(e.toString()));
     }
   }
+
+  Future<void> deleteQuestions(int examId, Set<int> questionIndexes,
+      List<QuestionOnlineExam> questions) async {
+    try {
+      // Convert indexes to question IDs
+      List<int> questionIds =
+          questionIndexes.map((index) => questions[index].id).toList();
+
+      // Delete questions
+      await _repository.deleteOnlineExamQuestions(examId, questionIds);
+
+      // Refresh questions list
+      await getQuestions(examId);
+    } catch (e) {
+      emit(QuestionOnlineExamFailure(e.toString()));
+    }
+  }
 }

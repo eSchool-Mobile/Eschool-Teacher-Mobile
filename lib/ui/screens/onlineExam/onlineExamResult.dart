@@ -12,10 +12,13 @@ class OnlineExamResultScreen extends StatefulWidget {
   @override
   _OnlineExamResultScreenState createState() => _OnlineExamResultScreenState();
 }
+
 class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
   late String _searchController = "";
-  bool _showSearchBar = false; // Variabel state lokal untuk menampilkan search bar
-  bool _isSearching = false; // Variabel state lokal untuk menentukan apakah sedang mencari
+  bool _showSearchBar =
+      false; // Variabel state lokal untuk menampilkan search bar
+  bool _isSearching =
+      false; // Variabel state lokal untuk menentukan apakah sedang mencari
 
   @override
   void initState() {
@@ -125,10 +128,6 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
                   ),
                 ],
               ),
-              IconButton(
-                icon: Icon(Icons.filter_list, color: Colors.white),
-                onPressed: () {},
-              ),
             ],
           ),
         ),
@@ -140,7 +139,8 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
     return RefreshIndicator(
       onRefresh: () async {
         setState(() {
-          _isSearching = _searchController.isNotEmpty; // Set _isSearching berdasarkan apakah ada teks di search bar
+          _isSearching = _searchController
+              .isNotEmpty; // Set _isSearching berdasarkan apakah ada teks di search bar
         });
         await context
             .read<OnlineExamCubit>()
@@ -148,7 +148,8 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
       },
       child: Column(
         children: [
-          if (_showSearchBar) _buildSearchBar(), // Tampilkan search bar jika _showSearchBar true
+          if (_showSearchBar)
+            _buildSearchBar(), // Tampilkan search bar jika _showSearchBar true
           Expanded(
             child: _buildExamCard(),
           ),
@@ -178,11 +179,10 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
           child: TextField(
             onChanged: (value) {
               setState(() {
-                _isSearching = value.isNotEmpty; // Set _isSearching berdasarkan apakah ada teks di search bar
+                _isSearching = value
+                    .isNotEmpty; // Set _isSearching berdasarkan apakah ada teks di search bar
               });
-              context
-                  .read<OnlineExamCubit>()
-                  .getOnlineExams(search: value);
+              context.read<OnlineExamCubit>().getOnlineExams(search: value);
               _searchController = value;
             },
             decoration: InputDecoration(
@@ -290,7 +290,8 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     exam.title ?? 'Tidak ada ujian',
@@ -347,8 +348,8 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
                                               .format(exam.startDate) ??
                                           'No date'),
                                   SizedBox(width: 16),
-                                  _buildInfoRow(Icons.timer,
-                                      '${exam.duration} menit'),
+                                  _buildInfoRow(
+                                      Icons.timer, '${exam.duration} menit'),
                                   SizedBox(width: 16),
                                 ],
                               ),

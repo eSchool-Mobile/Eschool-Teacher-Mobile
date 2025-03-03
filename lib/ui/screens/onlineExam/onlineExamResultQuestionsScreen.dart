@@ -34,14 +34,15 @@ class _OnlineExamResultQuestionsScreenState
     return document.body?.text ?? htmlString;
   }
 
+
   Color _getTypeColor(String type) {
     switch (type.toLowerCase()) {
       case 'multiple_choice':
-        return Colors.blue;
+        return const Color.fromARGB(255, 5, 120, 214);
       case 'essay':
-        return Colors.green;
+        return const Color.fromARGB(255, 19, 122, 22);
       case 'true_false':
-        return Colors.orange;
+        return const Color.fromARGB(255, 227, 136, 0);
       case 'short_answer':
         return Colors.purple;
       case 'numeric':

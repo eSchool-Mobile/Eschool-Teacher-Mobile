@@ -170,6 +170,7 @@ class Api {
   static String createOnlineExam = "${databaseUrl}teacher/store-online-exam";
   static String updateOnlineExam = "${databaseUrl}teacher/update-online-exam";
   static String deleteOnlineExam = "${databaseUrl}teacher/delete-online-exam";
+  static String deleteQuestionOnlineExam = "${databaseUrl}teacher/delete-online-exam-question";
   static String getOnlineExamQuestions =
       "${databaseUrl}teacher/get-online-exam-questions";
   static String storeOnlineExamQuestions =
