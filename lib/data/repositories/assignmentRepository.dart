@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/assignment.dart';
-import 'package:eschool_saas_staff/data/models/assignmentFiletype.dart';
+import 'package:eschool_saas_staff/data/models/AssignmentFiletype.dart';
 import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:file_picker/file_picker.dart';

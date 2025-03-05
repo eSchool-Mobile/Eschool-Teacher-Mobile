@@ -135,7 +135,7 @@ class ProfileContainer extends StatelessWidget {
                     //           context: context);
                     //     },
                     //     titleKey: shareAppKey),
-                  ], title: personalSettingsKey),
+                  ], title: termsAndConditionKey),
                   CustomRoundedButton(
                     widthPercentage: 1.0,
                     backgroundColor: Theme.of(context).scaffoldBackgroundColor,

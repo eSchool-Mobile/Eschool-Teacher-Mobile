@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:eschool_saas_staff/cubits/settingCubit.dart';
 import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
@@ -46,6 +48,48 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
     });
   }
 
+String generateRandomString(int length) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  final random = Random();
+  return List.generate(length, (index) => chars[random.nextInt(chars.length)]).join();
+}
+
+String parseCustomHtml(String input) {
+  String placeholderBold = generateRandomString(10);
+  String placeholderItalic = generateRandomString(10);
+
+  while (placeholderItalic == placeholderBold) {
+    placeholderItalic = generateRandomString(10);
+    placeholderBold = generateRandomString(10);
+  }
+
+  input = input
+               .replaceAll('\\*', placeholderBold)
+               .replaceAll('\\/', placeholderItalic);
+
+  bool isBold = false;
+  bool isItalic = false;
+  String output = '';
+
+  for (int i = 0; i < input.length; i++) {
+    if (input[i] == '*') {
+      isBold = !isBold;
+      output += isBold ? '<b>' : '</b>';
+    } else if (input[i] == '/') {
+      isItalic = !isItalic;
+      output += isItalic ? '<i>' : '</i>';
+    } else {
+      output += input[i];
+    }
+  }
+
+  output = output.replaceAll(placeholderBold, '*')
+                 .replaceAll(placeholderItalic, '/')
+                 .replaceAll("\n", "<br/>");
+
+  return output;
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,7 +115,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                     padding: EdgeInsets.all(appContentHorizontalPadding),
                     child: state is SettingsSuccess
                         ? HtmlWidget(
-                            state.data,
+                            parseCustomHtml(state.data),
                           )
                         : const CustomCircularProgressIndicator()),
               ),

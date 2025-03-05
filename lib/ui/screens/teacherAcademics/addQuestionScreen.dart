@@ -223,7 +223,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString()),
+            content: Text("Gagal membuat soal, mohon periksa koneksi internet anda dan coba lagi"),
             backgroundColor: Colors.red,
           ),
         );
