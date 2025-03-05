@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherClassSectionScreen.dart';
 
 class AttendanceRankingContainer extends StatefulWidget {
   final AttendanceRanking attendanceRankings;
@@ -27,14 +28,32 @@ class _AttendanceRankingContainerState
     extends State<AttendanceRankingContainer> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          _buildHeaderSection(),
-          _buildLeaderboard(),
-        ],
-      ),
+    return Stack(
+      children: [
+        // Background Pattern
+        Positioned.fill(
+          child: AnimatedOpacity(
+            duration: Duration(seconds: 1),
+            opacity: 0.1,
+            child: CustomPaint(
+              painter: BackgroundPainter(
+                color: AppColorPalette.primaryMaroon,
+              ),
+            ),
+          ),
+        ),
+
+        // Main Content
+        Container(
+          margin: EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              _buildHeaderSection(),
+              _buildLeaderboard(),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -43,91 +62,118 @@ class _AttendanceRankingContainerState
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF1E3C72), Color(0xFF2A5298)],
+          colors: [
+            AppColorPalette.primaryMaroon,
+            AppColorPalette.secondaryMaroon,
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
-      child: Column(
+      child: Stack(
         children: [
-          Row(
+          // Background Icon
+          Positioned(
+            right: -20,
+            bottom: -20,
+            child: Icon(
+              Icons.school,
+              size: 100,
+              color: Colors.white.withOpacity(0.1),
+            ),
+          ),
+
+          // Content
+          Column(
             children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    Icon(Icons.emoji_events_rounded,
-                        color: Colors.amber, size: 24),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Peringkat Kehadiran",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+              Row(
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Icon(Icons.emoji_events_rounded,
+                            color: Colors.amber, size: 24),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Peringkat Kehadiran",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                "Berdasarkan tingkat kehadiran siswa",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ),
-                          Text(
-                            "Berdasarkan tingkat kehadiran siswa",
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
+                  ),
+                  SizedBox(width: 8),
+                  _buildFilterButton(),
+                ],
+              ),
+              SizedBox(height: 20),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(width: 8),
+                    _buildTopThreeItem(
+                        widget.showAllStudents
+                            ? ((widget.attendanceRankings.allStudents?.length ??
+                                        0) >
+                                    1
+                                ? widget.attendanceRankings.allStudents![1]
+                                : null)
+                            : _getTopStudent(2),
+                        2),
+                    _buildTopThreeItem(
+                        widget.showAllStudents
+                            ? ((widget.attendanceRankings.allStudents
+                                        ?.isNotEmpty ??
+                                    false)
+                                ? widget.attendanceRankings.allStudents![0]
+                                : null)
+                            : _getTopStudent(1),
+                        1),
+                    _buildTopThreeItem(
+                        widget.showAllStudents
+                            ? ((widget.attendanceRankings.allStudents?.length ??
+                                        0) >
+                                    2
+                                ? widget.attendanceRankings.allStudents![2]
+                                : null)
+                            : _getTopStudent(3),
+                        3),
+                    SizedBox(width: 8),
                   ],
                 ),
               ),
-              SizedBox(width: 8),
-              _buildFilterButton(),
             ],
-          ),
-          SizedBox(height: 20),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(width: 8),
-                _buildTopThreeItem(
-                    widget.showAllStudents
-                        ? ((widget.attendanceRankings.allStudents?.length ??
-                                    0) >
-                                1
-                            ? widget.attendanceRankings.allStudents![1]
-                            : null)
-                        : _getTopStudent(2),
-                    2),
-                _buildTopThreeItem(
-                    widget.showAllStudents
-                        ? ((widget.attendanceRankings.allStudents?.isNotEmpty ??
-                                false)
-                            ? widget.attendanceRankings.allStudents![0]
-                            : null)
-                        : _getTopStudent(1),
-                    1),
-                _buildTopThreeItem(
-                    widget.showAllStudents
-                        ? ((widget.attendanceRankings.allStudents?.length ??
-                                    0) >
-                                2
-                            ? widget.attendanceRankings.allStudents![2]
-                            : null)
-                        : _getTopStudent(3),
-                    3),
-                SizedBox(width: 8),
-              ],
-            ),
           ),
         ],
       ),
@@ -243,13 +289,25 @@ class _AttendanceRankingContainerState
   List<Color> _getPositionColors(int position) {
     switch (position) {
       case 1:
-        return [Color(0xFFFFD700), Color(0xFFFFA000)];
+        return [
+          Color(0xFFFFD700), // Bright Gold
+          Color(0xFFDAA520), // Golden Rod
+        ];
       case 2:
-        return [Color(0xFFC0C0C0), Color(0xFF9E9E9E)];
+        return [
+          Color(0xFF90CDF4), // Light Sky Blue
+          Color(0xFF63B3ED), // Sky Blue
+        ];
       case 3:
-        return [Color(0xFFCD7F32), Color(0xFFBF360C)];
+        return [
+          Color(0xFF9AE6B4), // Light Green
+          Color(0xFF68D391), // Medium Green
+        ];
       default:
-        return [Colors.blue, Colors.blueAccent];
+        return [
+          Color(0xFFE2E8F0),
+          Color(0xFFCBD5E1),
+        ];
     }
   }
 

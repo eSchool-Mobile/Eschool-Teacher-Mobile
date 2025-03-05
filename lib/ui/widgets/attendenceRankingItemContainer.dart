@@ -88,42 +88,101 @@ class _AttendanceRankingItemContainerState
 
   Widget _buildRankIndicator() {
     final rank = widget.topStudents.rank ?? 0;
+    final colors = _getGradientColors(rank);
+    IconData rankIcon;
+
+    switch (rank) {
+      case 1:
+        rankIcon = Icons.emoji_events_rounded;
+        break;
+      case 2:
+        rankIcon = Icons.workspace_premium_rounded;
+        break;
+      case 3:
+        rankIcon = Icons.military_tech_rounded;
+        break;
+      default:
+        rankIcon = Icons.stars_rounded;
+    }
+
     return Container(
-      width: 32,
-      height: 32,
+      width: 40,
+      height: 40,
       decoration: BoxDecoration(
-        color: rank <= 3 ? _getRankColor(rank) : Colors.grey.shade200,
-        shape: BoxShape.circle,
-      ),
-      child: Center(
-        child: Text(
-          '$rank',
-          style: TextStyle(
-            color: rank <= 3 ? Colors.white : Colors.grey[600],
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          ),
+        gradient: LinearGradient(
+          colors: colors,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: colors[0].withOpacity(0.3),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Icon(
+            rankIcon,
+            color: Colors.white.withOpacity(0.3),
+            size: 24,
+          ),
+          Text(
+            '$rank',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildPointsBadge() {
+    final rank = widget.topStudents.rank ?? 0;
+    final colors = _getGradientColors(rank);
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        '${widget.topStudents.point ?? 0}',
-        style: TextStyle(
-          color: Theme.of(context).primaryColor,
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
+        gradient: LinearGradient(
+          colors: colors,
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
         ),
-        textAlign: TextAlign.center,
-        maxLines: 1,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: colors[0].withOpacity(0.3),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            rank <= 3 ? _getRankIcon(rank) : Icons.stars_rounded,
+            size: 16,
+            color: Colors.white,
+          ),
+          SizedBox(width: 4),
+          Text(
+            '${widget.topStudents.point ?? 0}',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -131,13 +190,51 @@ class _AttendanceRankingItemContainerState
   Color _getRankColor(int rank) {
     switch (rank) {
       case 1:
-        return Color(0xFFFFD700);
+        return Color(0xFFFFD700); // Bright Gold
       case 2:
-        return Color(0xFFC0C0C0);
+        return Color(0xFF90CDF4); // Light Sky Blue
       case 3:
-        return Color(0xFFCD7F32);
+        return Color(0xFF9AE6B4); // Light Green
       default:
-        return Colors.grey;
+        return Color(0xFFE2E8F0); // Neutral Gray
+    }
+  }
+
+  List<Color> _getGradientColors(int rank) {
+    switch (rank) {
+      case 1:
+        return [
+          Color(0xFFFFD700), // Bright Gold
+          Color(0xFFDAA520), // Golden Rod
+        ];
+      case 2:
+        return [
+          Color(0xFF90CDF4), // Light Sky Blue
+          Color(0xFF63B3ED), // Sky Blue
+        ];
+      case 3:
+        return [
+          Color(0xFF9AE6B4), // Light Green
+          Color(0xFF68D391), // Medium Green
+        ];
+      default:
+        return [
+          Color(0xFF64748B), // Light Slate
+          Color(0xFF475569), // Dark Slate
+        ];
+    }
+  }
+
+  IconData _getRankIcon(int rank) {
+    switch (rank) {
+      case 1:
+        return Icons.emoji_events_rounded;
+      case 2:
+        return Icons.workspace_premium_rounded;
+      case 3:
+        return Icons.military_tech_rounded;
+      default:
+        return Icons.stars_rounded;
     }
   }
 
