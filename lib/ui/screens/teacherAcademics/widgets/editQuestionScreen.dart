@@ -203,7 +203,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
             !e.toString().toLowerCase().contains('updated')) {
           Get.snackbar(
             'Error',
-            e.toString(),
+            "Gagal mengedit pertanyaan, periksa koneksi anda dan coba lagi",
             backgroundColor: Colors.red,
             colorText: Colors.white,
           );

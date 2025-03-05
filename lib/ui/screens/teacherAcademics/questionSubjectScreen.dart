@@ -1,3 +1,4 @@
+import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -169,7 +170,17 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen> {
                       }
 
                       if (state is QuestionBankError) {
-                        return _buildErrorView(state.message);
+                        return Center(
+                          child: ErrorContainer(
+                            errorMessage:
+                                "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
+                            onTapRetry: () {
+                              context
+                                  .read<QuestionBankCubit>()
+                                  .fetchTeacherSubjects();
+                            },
+                          ),
+                        );
                       }
 
                       return SizedBox();

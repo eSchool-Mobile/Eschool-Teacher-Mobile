@@ -396,7 +396,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam> {
                                   );
                                 }
                                 return Center(
-                                  child: Text('Terjadi kesalahan'),
+                                  child: Text(''),
                                 );
                               },
                             ),

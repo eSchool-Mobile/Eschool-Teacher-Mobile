@@ -10,6 +10,8 @@ class ClassSection {
   final int? sectionId;
   final int? mediumId;
   final int? schoolId;
+  String? createdAt;
+  String? updatedAt;
   final int? pkl;
   final String? name;
   final String? fullName;

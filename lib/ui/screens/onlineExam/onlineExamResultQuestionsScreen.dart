@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:animate_do/animate_do.dart';
@@ -33,7 +34,6 @@ class _OnlineExamResultQuestionsScreenState
     final document = parse(htmlString);
     return document.body?.text ?? htmlString;
   }
-
 
   Color _getTypeColor(String type) {
     switch (type.toLowerCase()) {
@@ -477,29 +477,30 @@ class _OnlineExamResultQuestionsScreenState
           ),
         ),
         child: SafeArea(
-          child: BlocBuilder<QuestionOnlineExamCubit, QuestionOnlineExamState>(
-            builder: (context, state) {
-              if (state is QuestionOnlineExamLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (state is QuestionOnlineExamSuccess) {
-                if (state.questions.isEmpty) {
-                  return Column(
-                    children: [
-                      FadeInDown(
-                        duration: const Duration(milliseconds: 600),
-                        child: _buildHeader(),
-                      ),
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey[50],
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(30),
-                              topRight: Radius.circular(30),
-                            ),
-                          ),
-                          child: Center(
+          child: Column(
+            children: [
+              FadeInDown(
+                duration: const Duration(milliseconds: 600),
+                child: _buildHeader(),
+              ),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: BlocBuilder<QuestionOnlineExamCubit,
+                      QuestionOnlineExamState>(
+                    builder: (context, state) {
+                      if (state is QuestionOnlineExamLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (state is QuestionOnlineExamSuccess) {
+                        if (state.questions.isEmpty) {
+                          return Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -516,38 +517,33 @@ class _OnlineExamResultQuestionsScreenState
                                 ),
                               ],
                             ),
+                          );
+                        }
+                        return _buildContent(state.questions);
+                      }
+                      if (state is QuestionOnlineExamFailure) {
+                        return Center(
+                          child: ErrorContainer(
+                            errorMessage:
+                                "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
+                            onTapRetry: () {
+                              context
+                                  .read<QuestionOnlineExamCubit>()
+                                  .getOnlineExamResultQuestions(
+                                    examId: widget.examId,
+                                    search: _searchController.text,
+                                  );
+                            },
                           ),
-                        ),
-                      ),
-                    ],
-                  );
-                }
-                return Column(
-                  children: [
-                    FadeInDown(
-                      duration: const Duration(milliseconds: 600),
-                      child: _buildHeader(),
-                    ),
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey[50],
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(30),
-                            topRight: Radius.circular(30),
-                          ),
-                        ),
-                        child: _buildContent(state.questions),
-                      ),
-                    ),
-                  ],
-                );
-              }
-              if (state is QuestionOnlineExamFailure) {
-                return Center(child: Text(state.message));
-              }
-              return const Center(child: Text('No questions available'));
-            },
+                        );
+                      }
+                      return const Center(
+                          child: Text('No questions available'));
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

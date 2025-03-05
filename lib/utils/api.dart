@@ -170,7 +170,8 @@ class Api {
   static String createOnlineExam = "${databaseUrl}teacher/store-online-exam";
   static String updateOnlineExam = "${databaseUrl}teacher/update-online-exam";
   static String deleteOnlineExam = "${databaseUrl}teacher/delete-online-exam";
-  static String deleteQuestionOnlineExam = "${databaseUrl}teacher/delete-online-exam-question";
+  static String deleteQuestionOnlineExam =
+      "${databaseUrl}teacher/delete-online-exam-questions";
   static String getOnlineExamQuestions =
       "${databaseUrl}teacher/get-online-exam-questions";
   static String storeOnlineExamQuestions =
@@ -206,13 +207,16 @@ class Api {
     Function(int, int)? onReceiveProgress,
   }) async {
     try {
-      print(url);
-      print(body);
+      print('\n=== API POST REQUEST ===');
+      print('URL: $url');
+      print('Headers: ${headers(useAuthToken: useAuthToken ?? true)}');
+      print('Body: $body');
+      print('Query Parameters: $queryParameters');
 
       final Dio dio = Dio();
       final options = Options(
         headers: (useAuthToken ?? true) ? headers() : null,
-        contentType: Headers.formUrlEncodedContentType, // Ubah content type
+        contentType: Headers.formUrlEncodedContentType,
       );
 
       final response = await dio.post(
@@ -225,24 +229,36 @@ class Api {
         options: options,
       );
 
-      print("Response Data: ${response.data}");
+      print('\n=== API POST RESPONSE ===');
+      print('Status Code: ${response.statusCode}');
+      print('Headers: ${response.headers}');
+      print('Data: ${response.data}');
 
       if (response.statusCode != 200) {
-        throw Exception('Failed to create exam: ${response.statusMessage}');
+        throw Exception(
+            'Failed with status code: ${response.statusCode}\nMessage: ${response.statusMessage}');
       }
 
       if (response.data is Map) {
         return Map<String, dynamic>.from(response.data);
       } else {
+        print(
+            'Invalid response format. Response data type: ${response.data.runtimeType}');
         throw Exception('Invalid response format');
       }
     } on DioException catch (e) {
-      print("Dio Error: ${e.response?.data}");
+      print('\n=== API POST DIO ERROR ===');
+      print('Error Type: ${e.type}');
+      print('Error Message: ${e.message}');
+      print('Error Response: ${e.response?.data}');
+      print('Status Code: ${e.response?.statusCode}');
       throw ApiException(
         e.error is SocketException ? noInternetKey : defaultErrorMessageKey,
       );
     } catch (e) {
-      print("General Error: $e");
+      print('\n=== API POST GENERAL ERROR ===');
+      print('Error Type: ${e.runtimeType}');
+      print('Error Message: $e');
       throw ApiException(defaultErrorMessageKey);
     }
   }

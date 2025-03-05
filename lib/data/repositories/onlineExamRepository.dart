@@ -4,6 +4,7 @@ import 'package:eschool_saas_staff/data/models/onlineExam.dart';
 import 'package:eschool_saas_staff/data/models/questionOnlineExam.dart';
 import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart'; // Update this importimport 'package:eschool_saas_staff/data/models/bankSoalQuestion.dart';import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:dio/dio.dart';
+import 'package:intl/intl.dart';
 
 class OnlineExamRepository {
   Future<Map<String, dynamic>> getOnlineExams({
@@ -126,7 +127,7 @@ class OnlineExamRepository {
           'title': title,
           'exam_key': examKey,
           'duration': duration.toString(),
-          'start_date': startDate.toIso8601String(), // Add this
+          'start_date': DateFormat('yyyy-MM-dd HH:mm').format(startDate),
         },
       );
 
@@ -236,7 +237,7 @@ class OnlineExamRepository {
           'title': title,
           'exam_key': examKey,
           'duration': duration.toString(),
-          'start_date': startDate.toIso8601String(),
+          'start_date': DateFormat('yyyy-MM-dd HH:mm').format(startDate),
         },
       );
 
@@ -410,20 +411,32 @@ class OnlineExamRepository {
   Future<void> deleteOnlineExamQuestions(
       int examId, List<int> questionIds) async {
     try {
-      final response = await Api.post(
+      print('=== DELETE QUESTIONS REQUEST ===');
+      print('URL: ${Api.deleteQuestionOnlineExam}');
+      print('Exam ID: $examId');
+      print('Question IDs: $questionIds');
+
+      final response = await Api.delete(
         url: Api.deleteQuestionOnlineExam,
         useAuthToken: true,
         body: {
           'exam_id': examId,
-          'question_ids': questionIds,
+          'question_id': questionIds,
         },
       );
+
+      print('=== DELETE QUESTIONS RESPONSE ===');
+      print('Status: ${response['status']}');
+      print('Message: ${response['message']}');
+      print('Full Response: $response');
 
       if (response['status'] != true) {
         throw ApiException(response['message'] ?? 'Failed to delete questions');
       }
     } catch (e) {
-      print('Error deleting questions: $e');
+      print('=== DELETE QUESTIONS ERROR ===');
+      print('Error Type: ${e.runtimeType}');
+      print('Error Message: $e');
       throw ApiException(e.toString());
     }
   }

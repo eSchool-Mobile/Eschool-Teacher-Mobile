@@ -24,11 +24,13 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
   String examKey = '';
   int duration = 0;
   DateTime? startDate;
+  TimeOfDay? startTime;
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _examKeyController = TextEditingController();
   final TextEditingController _durationController = TextEditingController();
   final TextEditingController _startDateController = TextEditingController();
+  final TextEditingController _startTimeController = TextEditingController();
 
   @override
   void initState() {
@@ -47,6 +49,25 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
       setState(() {
         startDate = picked;
         _startDateController.text = DateFormat('dd-MM-yyyy').format(picked);
+      });
+    }
+  }
+
+  Future<void> _selectStartTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: startTime ?? TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != startTime) {
+      setState(() {
+        startTime = picked;
+        _startTimeController.text = picked.format(context);
       });
     }
   }
@@ -200,6 +221,30 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
               color: Theme.of(context).colorScheme.secondary,
             ),
           ),
+          SizedBox(height: 15),
+          Row(
+            children: [
+              Expanded(
+                child: _buildAnimatedTextField(
+                  controller: _startDateController,
+                  label: 'Tanggal Mulai',
+                  icon: Icons.calendar_today,
+                  onTap: () => _selectStartDate(context),
+                  readOnly: true,
+                ),
+              ),
+              SizedBox(width: 15),
+              Expanded(
+                child: _buildAnimatedTextField(
+                  controller: _startTimeController,
+                  label: 'Jam Mulai',
+                  icon: Icons.access_time,
+                  onTap: () => _selectStartTime(context),
+                  readOnly: true,
+                ),
+              ),
+            ],
+          ),
           SizedBox(height: 20),
           _buildAnimatedTextField(
             controller: _durationController,
@@ -239,14 +284,6 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
                 );
               }
             },
-          ),
-          SizedBox(height: 15),
-          _buildAnimatedTextField(
-            controller: _startDateController,
-            label: 'Tanggal Mulai',
-            icon: Icons.calendar_today,
-            onTap: () => _selectStartDate(context),
-            readOnly: true,
           ),
         ],
       ),
@@ -393,6 +430,13 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
         return;
       }
 
+      if (startDate == null || startTime == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Pilih tanggal dan waktu ujian')),
+        );
+        return;
+      }
+
       context
           .read<OnlineExamCubit>()
           .createOnlineExam(
@@ -401,7 +445,13 @@ class _CreateOnlineExamState extends State<CreateOnlineExam> {
             title: _titleController.text,
             examKey: _examKeyController.text,
             duration: int.parse(_durationController.text),
-            startDate: startDate!,
+            startDate: DateTime(
+              startDate!.year,
+              startDate!.month,
+              startDate!.day,
+              startTime!.hour,
+              startTime!.minute,
+            ),
           )
           .then((_) {
         // Show success dialog

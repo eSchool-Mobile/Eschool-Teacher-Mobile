@@ -231,7 +231,8 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
                         color: Colors.transparent,
                         child: InkWell(
                           onTap: () {
-                            final currentState = context.read<QuestionOnlineExamCubit>().state;
+                            final currentState =
+                                context.read<QuestionOnlineExamCubit>().state;
                             if (currentState is QuestionOnlineExamSuccess) {
                               _showDeleteSelectedConfirmation(
                                   context, currentState.questions);
@@ -1017,7 +1018,8 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
       BuildContext context, List<QuestionOnlineExam> questions) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
+        // Use dialogContext instead of context
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -1033,7 +1035,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
               'Apakah Anda yakin ingin menghapus ${_selectedQuestions.length} soal yang dipilih?'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: Text(
                 'Batal',
                 style: TextStyle(color: Colors.grey[600]),
@@ -1041,38 +1043,35 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
-                Navigator.pop(context);
-
-                // Show loading dialog
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (context) => Center(
-                    child: Container(
-                      padding: EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                                Color(0xFF8B0000)),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Menghapus soal...',
-                            style: TextStyle(color: Colors.grey[800]),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
+                // Close confirmation dialog
+                Navigator.pop(dialogContext);
 
                 try {
+                  // Show loading dialog
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (BuildContext loadingContext) {
+                      return Center(
+                        child: Container(
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircularProgressIndicator(),
+                              SizedBox(height: 8),
+                              Text('Menghapus soal...'),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+
                   // Delete questions
                   await context.read<QuestionOnlineExamCubit>().deleteQuestions(
                         widget.examId,
@@ -1080,35 +1079,23 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
                         questions,
                       );
 
-                  // Close loading dialog
+                  // Pop loading dialog
                   Navigator.pop(context);
-
-                  // Show success message
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Row(
-                        children: [
-                          Icon(Icons.check_circle, color: Colors.white),
-                          SizedBox(width: 8),
-                          Text('Soal berhasil dihapus'),
-                        ],
-                      ),
-                      backgroundColor: Colors.green[600],
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      margin: EdgeInsets.all(16),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
 
                   // Clear selection
                   setState(() {
                     _selectedQuestions.clear();
                   });
+
+                  // Show success message
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Soal berhasil dihapus'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
                 } catch (e) {
-                  // Close loading dialog if open
+                  // Pop loading dialog if showing
                   if (Navigator.canPop(context)) {
                     Navigator.pop(context);
                   }
@@ -1116,20 +1103,8 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
                   // Show error message
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Row(
-                        children: [
-                          Icon(Icons.error_outline, color: Colors.white),
-                          SizedBox(width: 8),
-                          Text('Gagal menghapus soal'),
-                        ],
-                      ),
-                      backgroundColor: Colors.red[600],
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      margin: EdgeInsets.all(16),
-                      duration: Duration(seconds: 2),
+                      content: Text('Gagal menghapus soal: ${e.toString()}'),
+                      backgroundColor: Colors.red,
                     ),
                   );
                 }
@@ -1137,9 +1112,6 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red[400],
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
               ),
               child: Text('Hapus'),
             ),

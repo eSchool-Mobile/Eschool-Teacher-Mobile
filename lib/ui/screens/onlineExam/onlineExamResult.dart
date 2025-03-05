@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
+import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -208,7 +209,15 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
           return Center(child: CircularProgressIndicator());
         }
         if (state is OnlineExamFailure) {
-          return Center(child: Text('Error: ${state.message}'));
+          return Center(
+            child: ErrorContainer(
+              errorMessage:
+                  "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
+              onTapRetry: () {
+                context.read<OnlineExamCubit>().getOnlineExams();
+              },
+            ),
+          );
         }
         if (state is OnlineExamSuccess) {
           // Setel _showSearchBar berdasarkan jumlah data
