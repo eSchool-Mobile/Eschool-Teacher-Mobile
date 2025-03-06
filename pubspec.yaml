@@ -93,6 +93,8 @@ dependencies:
   lottie: ^2.7.0
   animations: ^2.0.8
   font_awesome_flutter: ^10.8.0
+  animated_text_kit: ^4.2.2
+
   
 dependency_overrides:
   chewie:
