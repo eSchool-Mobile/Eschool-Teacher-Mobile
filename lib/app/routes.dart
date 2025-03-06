@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:eschool_saas_staff/ui/screens/AboutUsScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/PrivacyPolicyScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/TermsAndConditionScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:eschool_saas_staff/ui/screens/aboutUsScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/addAnnouncementScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/addNotification/addNotificationScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/allowancesAndDeductionsScreen.dart';
@@ -34,7 +36,7 @@ import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResultQuestio
 import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResultAnswerScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResult.dart';
 import 'package:eschool_saas_staff/ui/screens/paidFeesScreen.dart';
-import 'package:eschool_saas_staff/ui/screens/privacyPolicyScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/PrivacyPolicyScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/searchTeachersScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/searchUsersScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/sessionYearsScreen.dart';
@@ -66,7 +68,7 @@ import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherViewAttend
 import 'package:eschool_saas_staff/ui/screens/teacherProfileScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherTimeTableDetailsScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teachersScreen.dart';
-import 'package:eschool_saas_staff/ui/screens/termsAndConditionScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/TermsAndConditionScreen.dart';
 import 'package:get/get.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/questionBankListScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/questionSubjectScreen.dart';
@@ -89,7 +91,7 @@ import 'package:eschool_saas_staff/cubits/questionOnlineExam/questionOnlineExamC
 import 'package:eschool_saas_staff/data/repositories/onlineExamRepository.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/questionOnlineExamScreen.dart';
-import 'package:eschool_saas_staff/ui/screens/onlineExam/bankSoalSelectionScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/BankSoalSelectionScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/previewQuestionBankSoal.dart';
 import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
 
@@ -276,7 +278,7 @@ class Routes {
         child: QuestionSubjectScreen(isStaffView: true),
       ),
     ),
-    GetPage(name: aboutUsScreen, page: () => AboutUsScrren.getRouteInstance()),
+    GetPage(name: aboutUsScreen, page: () => AboutUsScreen.getRouteInstance()),
     GetPage(
         name: contactUsScreen, page: () => ContactUsScreen.getRouteInstance()),
     GetPage(

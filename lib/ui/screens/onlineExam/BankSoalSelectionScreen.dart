@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
 import 'package:eschool_saas_staff/cubits/questionOnlineExam/questionOnlineExamCubit.dart';
-import 'package:eschool_saas_staff/ui/screens/onlineExam/PreviewQuestionBankSoal.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/previewQuestionBankSoal.dart';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:get/get.dart' as getx;
 import 'package:animate_do/animate_do.dart';

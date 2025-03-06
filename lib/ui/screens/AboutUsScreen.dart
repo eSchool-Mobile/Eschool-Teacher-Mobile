@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:eschool_saas_staff/cubits/settingCubit.dart';
 import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
@@ -10,14 +12,14 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/route_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AboutUsScrren extends StatefulWidget {
-  const AboutUsScrren({super.key});
+class AboutUsScreen extends StatefulWidget {
+  const AboutUsScreen({super.key});
 
   static Widget getRouteInstance() {
     //final arguments = Get.arguments as Map<String,dynamic>;
     return BlocProvider(
       create: (context) => SettingsCubit(),
-      child: const AboutUsScrren(),
+      child: const AboutUsScreen(),
     );
   }
 
@@ -26,10 +28,10 @@ class AboutUsScrren extends StatefulWidget {
   }
 
   @override
-  State<AboutUsScrren> createState() => _AboutUsScrrenState();
+  State<AboutUsScreen> createState() => _AboutUsScreenState();
 }
 
-class _AboutUsScrrenState extends State<AboutUsScrren> {
+class _AboutUsScreenState extends State<AboutUsScreen> {
   String? cachedData;
 
   @override
@@ -45,6 +47,49 @@ class _AboutUsScrrenState extends State<AboutUsScrren> {
       cachedData = prefs.getString("about_us");
     });
   }
+
+  String generateRandomString(int length) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  final random = Random();
+  return List.generate(length, (index) => chars[random.nextInt(chars.length)]).join();
+}
+
+String parseCustomHtml(String input) {
+  String placeholderBold = generateRandomString(10);
+  String placeholderItalic = generateRandomString(10);
+
+  while (placeholderItalic == placeholderBold) {
+    placeholderItalic = generateRandomString(10);
+    placeholderBold = generateRandomString(10);
+  }
+
+  input = input
+               .replaceAll('\\*', placeholderBold)
+               .replaceAll('\\/', placeholderItalic);
+
+  bool isBold = false;
+  bool isItalic = false;
+  String output = '';
+
+  for (int i = 0; i < input.length; i++) {
+    if (input[i] == '*') {
+      isBold = !isBold;
+      output += isBold ? '<b>' : '</b>';
+    } else if (input[i] == '/') {
+      isItalic = !isItalic;
+      output += isItalic ? '<i>' : '</i>';
+    } else {
+      output += input[i];
+    }
+  }
+
+  output = output.replaceAll(placeholderBold, '*')
+                 .replaceAll(placeholderItalic, '/')
+                 .replaceAll("\n", "<br/>");
+
+  return output;
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +116,7 @@ class _AboutUsScrrenState extends State<AboutUsScrren> {
                     padding: EdgeInsets.all(appContentHorizontalPadding),
                     child: state is SettingsSuccess
                         ? HtmlWidget(
-                            state.data,
+                            parseCustomHtml(state.data),
                           )
                         : const CustomCircularProgressIndicator()),
               ),

@@ -1058,7 +1058,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(e.toString()),
+                      content: Text("Tidak dapat menghapus soal, mohon periksa koneksi internet anda dan coba lagi"),
                       backgroundColor: Colors.red,
                     ),
                   );

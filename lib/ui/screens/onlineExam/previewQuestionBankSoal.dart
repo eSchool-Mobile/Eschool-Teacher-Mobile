@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
-import 'package:eschool_saas_staff/data/repositories/OnlineExamRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/onlineExamRepository.dart';
 import 'package:get/get.dart';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:animate_do/animate_do.dart';

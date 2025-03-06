@@ -282,7 +282,7 @@ class _TeacherAddAttendanceScreenSubjectState
       child: SingleChildScrollView(
         padding: EdgeInsets.only(
             top: Utils.appContentTopScrollPadding(context: context) +
-                Utils().getResponsiveHeight(context, 345),
+                Utils().getResponsiveHeight(context, _isWithinTeachingHours ? 345 : 137),
             bottom: 75),
         child: BlocBuilder<SubjectAttendanceCubit, SubjectAttendanceState>(
           builder: (context, state) {
@@ -432,7 +432,7 @@ class _TeacherAddAttendanceScreenSubjectState
               const CustomAppbar(titleKey: addAttendanceSubjectKey),
               AppbarFilterBackgroundContainer(
                 height: Utils().getResponsiveHeight(
-                    context, 338), // Increased height to accommodate the layout
+                    context, _isWithinTeachingHours ? 338 : 130), // Increased height to accommodate the layout
                 child: LayoutBuilder(
                   builder: (context, boxConstraints) {
                     return Column(
@@ -577,92 +577,94 @@ class _TeacherAddAttendanceScreenSubjectState
                             ],
                           ),
                         ),
-                        const SizedBox(height: 15),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.98,
-                          child: TextFormField(
-                            controller: _materiController,
-                            enabled:
-                                _isWithinTeachingHours, // Disable editing if outside teaching hours
-                            readOnly:
-                                !_isWithinTeachingHours, // Make readonly when outside teaching hours
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              filled: true,
-                              fillColor: Theme.of(context).colorScheme.surface,
-                              hintText: 'Isi Materi',
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 15),
-                            ),
-                            keyboardType: TextInputType.text,
-                            onChanged: _isWithinTeachingHours
-                                ? (value) {
-                                    // Update _selectedMateri with the new value
-                                    setState(() {
-                                      _selectedMateri = value;
-                                    });
-                                  }
-                                : null,
-                            maxLines: 2,
-                            style: TextStyle(
-                              color: _isWithinTeachingHours
-                                  ? Colors.black
-                                  : Colors.grey[
-                                      700], // Adjust text color for readonly state
-                            ),
-                            inputFormatters: [
-                              LengthLimitingTextInputFormatter(
-                                  300), // Limit to 300 characters
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Input file lampiran
-                        SizedBox(
-                          width: boxConstraints.maxWidth *
-                              0.98, // 50% width for text field
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (uploadedFiles.isEmpty)
-                                UploadImageOrFileLimitButton(
-                                  uploadFile: true,
-                                  includeImageFileOnlyAllowedNoteLimit:
-                                      uploadedFiles.isEmpty,
-                                  onTap: () async {
-                                    FilePickerResult? result =
-                                        await FilePicker.platform.pickFiles();
-                                    if (result != null) {
+                        if (_isWithinTeachingHours)
+                          const SizedBox(height: 15),
+                        if (_isWithinTeachingHours)
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.98,
+                            child: TextFormField(
+                              controller: _materiController,
+                              enabled:
+                                  _isWithinTeachingHours, // Disable editing if outside teaching hours
+                              readOnly:
+                                  !_isWithinTeachingHours, // Make readonly when outside teaching hours
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                filled: true,
+                                fillColor: Theme.of(context).colorScheme.surface,
+                                hintText: 'Isi Materi',
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 15),
+                              ),
+                              keyboardType: TextInputType.text,
+                              onChanged: _isWithinTeachingHours
+                                  ? (value) {
+                                      // Update _selectedMateri with the new value
                                       setState(() {
-                                        uploadedFiles.add(result.files.single);
-                                        _selectedLampiran = result.files.single
-                                            .path; // Simpan file path
+                                        _selectedMateri = value;
                                       });
                                     }
-                                  },
-                                ),
-                              // User's added study materials
-                              ...List.generate(
-                                  uploadedFiles.length, (index) => index).map(
-                                (index) => CustomFileContainer(
-                                  backgroundColor:
-                                      Theme.of(context).scaffoldBackgroundColor,
-                                  onDelete: () {
-                                    setState(() {
-                                      uploadedFiles.removeAt(index);
-                                      if (uploadedFiles.isEmpty) {
-                                        _selectedLampiran =
-                                            null; // Reset file path jika tidak ada file
-                                      }
-                                    });
-                                  },
-                                  title: uploadedFiles[index].name,
-                                ),
+                                  : null,
+                              maxLines: 2,
+                              style: TextStyle(
+                                color: _isWithinTeachingHours
+                                    ? Colors.black
+                                    : Colors.grey[
+                                        700], // Adjust text color for readonly state
                               ),
-                            ],
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(
+                                    300), // Limit to 300 characters
+                              ],
+                            ),
                           ),
-                        ),
+                        if (_isWithinTeachingHours)
+                          const SizedBox(height: 20),
+                        if (_isWithinTeachingHours)
+                          SizedBox(
+                            width: boxConstraints.maxWidth *
+                                0.98, // 50% width for text field
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (uploadedFiles.isEmpty)
+                                  UploadImageOrFileLimitButton(
+                                    uploadFile: true,
+                                    includeImageFileOnlyAllowedNoteLimit:
+                                        uploadedFiles.isEmpty,
+                                    onTap: () async {
+                                      FilePickerResult? result =
+                                          await FilePicker.platform.pickFiles();
+                                      if (result != null) {
+                                        setState(() {
+                                          uploadedFiles.add(result.files.single);
+                                          _selectedLampiran = result.files.single
+                                              .path; // Simpan file path
+                                        });
+                                      }
+                                    },
+                                  ),
+                                // User's added study materials
+                                ...List.generate(
+                                    uploadedFiles.length, (index) => index).map(
+                                  (index) => CustomFileContainer(
+                                    backgroundColor:
+                                        Theme.of(context).scaffoldBackgroundColor,
+                                    onDelete: () {
+                                      setState(() {
+                                        uploadedFiles.removeAt(index);
+                                        if (uploadedFiles.isEmpty) {
+                                          _selectedLampiran =
+                                              null; // Reset file path jika tidak ada file
+                                        }
+                                      });
+                                    },
+                                    title: uploadedFiles[index].name,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                       ],
                     );
                   },
