@@ -22,6 +22,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class TeacherAddEditAnnouncementScreen extends StatefulWidget {
   final TeacherAnnouncement? announcement;
@@ -217,293 +218,578 @@ class _TeacherAddEditAnnouncementScreenState
         );
   }
 
-  Widget _buildSubmitButton() {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Container(
-        padding: EdgeInsets.all(appContentHorizontalPadding),
-        decoration: BoxDecoration(boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 1, spreadRadius: 1)
-        ], color: Theme.of(context).colorScheme.surface),
-        width: MediaQuery.of(context).size.width,
-        height: Utils().getResponsiveHeight(context, 80),
-        child: widget.announcement != null
-            ? BlocConsumer<TeacherEditAnnouncementCubit,
-                TeacherEditAnnouncementState>(
-                listener: (context, state) {
-                  if (state is TeacherEditAnnouncementSuccess) {
-                    Get.back(result: true);
-                    Utils.showSnackBar(
-                        context: context,
-                        message: announcementEditedSuccessfullyKey);
-                  } else if (state is TeacherEditAnnouncementFailure) {
-                    Utils.showSnackBar(
-                        context: context, message: state.errorMessage);
-                  }
-                },
-                builder: (context, state) {
-                  return CustomRoundedButton(
-                      height: 40,
-                      widthPercentage: 1.0,
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      buttonTitle: submitKey,
-                      showBorder: false,
-                      onTap: () {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        if (state is TeacherEditAnnouncementInProgress) {
-                          return;
-                        }
-                        editAnnouncement();
-                      },
-                      child: state is TeacherEditAnnouncementInProgress
-                          ? const CustomCircularProgressIndicator(
-                              strokeWidth: 2,
-                              widthAndHeight: 20,
-                            )
-                          : null);
-                },
-              )
-            : BlocConsumer<TeacherCreateAnnouncementCubit,
-                TeacherCreateAnnouncementState>(
-                listener: (context, state) {
-                  if (state is TeacherCreateAnnouncementSuccess) {
-                    Utils.showSnackBar(
-                        context: context,
-                        message: announcementAddedSuccessfullyKey);
-                    _announcementTitleTextEditingController.text = "";
-                    _announcementDescriptionTextEditingController.text = "";
-                    uploadedFiles = [];
-                    announcementAttachments = [];
-                    refreshAnnouncementsInPreviousPage = true;
-                    Navigator.pop(context, true);
-                    setState(() {});
-                  } else if (state is TeacherCreateAnnouncementFailure) {
-                    Utils.showSnackBar(
-                      context: context,
-                      message: state.errorMessage,
-                    );
-                  }
-                },
-                builder: (context, state) {
-                  return CustomRoundedButton(
-                      height: 40,
-                      widthPercentage: 1.0,
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      buttonTitle: submitKey,
-                      showBorder: false,
-                      onTap: () {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        if (state is TeacherCreateAnnouncementInProgress) {
-                          return;
-                        }
-                        createAnnouncement();
-                      },
-                      child: state is TeacherCreateAnnouncementInProgress
-                          ? const CustomCircularProgressIndicator(
-                              strokeWidth: 2,
-                              widthAndHeight: 20,
-                            )
-                          : null);
-                },
-              ),
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (didPop) {
+          return;
+        }
+        Get.back(result: refreshAnnouncementsInPreviousPage);
+      },
+      child: Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF8B0000).withOpacity(0.9),
+                Color(0xFF6B0000),
+                Color(0xFF4B0000),
+                Theme.of(context).colorScheme.secondary,
+              ],
+              stops: [0.2, 0.4, 0.6, 1.0],
+            ),
+          ),
+          child: SafeArea(
+            child: Column(
+              children: [
+                // Custom App Bar
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                        onPressed: () => Get.back(
+                            result: refreshAnnouncementsInPreviousPage),
+                      ),
+                      Expanded(
+                        child: Text(
+                          widget.announcement != null
+                              ? 'Edit Pengumuman'
+                              : 'Buat Pengumuman',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Content
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30),
+                      ),
+                    ),
+                    child: _buildAddEditAnnouncementForm(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildAddEditAnnouncementForm() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.only(
-            bottom: 100,
-            left: appContentHorizontalPadding,
-            right: appContentHorizontalPadding,
-            top: Utils.appContentTopScrollPadding(context: context) + 20),
-        child: BlocConsumer<ClassSectionsAndSubjectsCubit,
-            ClassSectionsAndSubjectsState>(
-          listener: (context, state) {
-            if (state is ClassSectionsAndSubjectsFetchSuccess) {
-              if (_selectedClassSection == null) {
-                changeSelectedClassSection(state.classSections.firstOrNull,
-                    fetchNewSubjects: false);
-              }
-              if (_selectedSubject == null) {
-                changeSelectedTeacherSubject(state.subjects.firstOrNull);
-              }
-            }
-          },
-          builder: (context, state) {
-            return state is ClassSectionsAndSubjectsFetchFailure
-                ? Center(
-                    child: ErrorContainer(
-                    errorMessage: state.errorMessage,
-                    onTapRetry: () {
-                      context
-                          .read<ClassSectionsAndSubjectsCubit>()
-                          .getClassSectionsAndSubjects();
-                    },
-                  ))
-                : Column(
-                    children: [
-                      CustomSelectionDropdownSelectionButton(
-                        isDisabled: widget.announcement !=
-                            null, //if user is editing, they can't change class
-                        onTap: () {
-                          if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                            Utils.showBottomSheet(
-                                child: FilterSelectionBottomsheet<ClassSection>(
-                                  showFilterByLabel: false,
-                                  onSelection: (value) {
-                                    changeSelectedClassSection(value!);
-                                    Get.back();
-                                  },
-                                  selectedValue: _selectedClassSection!,
-                                  titleKey: classKey,
-                                  values: state.classSections,
-                                ),
-                                context: context);
-                          }
-                        },
-                        titleKey: _selectedClassSection?.id == null
-                            ? classKey
-                            : (_selectedClassSection?.fullName ?? ""),
-                        backgroundColor:
-                            Theme.of(context).scaffoldBackgroundColor,
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      CustomSelectionDropdownSelectionButton(
-                        isDisabled: widget.announcement !=
-                            null, //if user is editing, they can't change subject
-                        onTap: () {
-                          if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                            Utils.showBottomSheet(
-                                child:
-                                    FilterSelectionBottomsheet<TeacherSubject>(
-                                  showFilterByLabel: false,
-                                  selectedValue: _selectedSubject!,
-                                  titleKey: subjectKey,
-                                  values: state.subjects,
-                                  onSelection: (value) {
-                                    changeSelectedTeacherSubject(value!);
-                                    Get.back();
-                                  },
-                                ),
-                                context: context);
-                          }
-                        },
-                        titleKey: _selectedSubject?.id == null
-                            ? subjectKey
-                            : _selectedSubject?.subject
-                                    .getSybjectNameWithType() ??
-                                "",
-                        backgroundColor:
-                            Theme.of(context).scaffoldBackgroundColor,
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      CustomTextFieldContainer(
-                          textEditingController:
-                              _announcementTitleTextEditingController,
-                          backgroundColor:
-                              Theme.of(context).scaffoldBackgroundColor,
-                          hintTextKey: titleKey),
-                      CustomTextFieldContainer(
-                          textEditingController:
-                              _announcementDescriptionTextEditingController,
-                          maxLines: 5,
-                          backgroundColor:
-                              Theme.of(context).scaffoldBackgroundColor,
-                          hintTextKey: descriptionKey),
-
-                      //pre-added study materials
-                      widget.announcement != null
-                          ? Column(
-                              children: announcementAttachments
-                                  .map(
-                                    (studyMaterial) => Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 15),
-                                      child: StudyMaterialContainer(
-                                        onDeleteStudyMaterial: (fileId) {
-                                          announcementAttachments.removeWhere(
-                                              (element) =>
-                                                  element.id == fileId);
-                                          refreshAnnouncementsInPreviousPage =
-                                              true;
-                                          setState(() {});
-                                        },
-                                        showOnlyStudyMaterialTitles: true,
-                                        showEditAndDeleteButton: true,
-                                        studyMaterial: studyMaterial,
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
-                            )
-                          : const SizedBox(),
-
-                      UploadImageOrFileButton(
-                        uploadFile: true,
-                        includeImageFileOnlyAllowedNote: true,
-                        onTap: () {
-                          _addFiles();
-                        },
-                      ),
-
-                      //user's added study materials
-                      ...List.generate(uploadedFiles.length, (index) => index)
-                          .map(
-                        (index) => Padding(
-                          padding: const EdgeInsets.only(top: 15),
-                          child: CustomFileContainer(
-                            backgroundColor:
-                                Theme.of(context).scaffoldBackgroundColor,
-                            onDelete: () {
-                              uploadedFiles.removeAt(index);
-                              setState(() {});
-                            },
-                            title: uploadedFiles[index].name,
-                          ),
-                        ),
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(20),
+      physics: BouncingScrollPhysics(),
+      child: Column(
+        children: [
+          // Header with Icon
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 25, horizontal: 20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Theme.of(context).colorScheme.primary.withOpacity(0.9),
+                  Theme.of(context).colorScheme.secondary.withOpacity(0.7),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                )
+              ],
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.campaign_rounded,
+                  size: 42,
+                  color: Colors.white,
+                )
+                    .animate()
+                    .scale(duration: 500.ms)
+                    .then()
+                    .shimmer(duration: 1000.ms),
+                SizedBox(height: 15),
+                Text(
+                  widget.announcement != null
+                      ? "Edit Pengumuman"
+                      : "Buat Pengumuman",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 10,
+                        color: Colors.black26,
+                        offset: Offset(2, 2),
                       ),
                     ],
-                  );
-          },
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          SizedBox(height: 25),
+
+          // Form Content
+          BlocConsumer<ClassSectionsAndSubjectsCubit,
+              ClassSectionsAndSubjectsState>(
+            listener: (context, state) {
+              if (state is ClassSectionsAndSubjectsFetchSuccess) {
+                if (_selectedClassSection == null) {
+                  changeSelectedClassSection(state.classSections.firstOrNull,
+                      fetchNewSubjects: false);
+                }
+                if (_selectedSubject == null) {
+                  changeSelectedTeacherSubject(state.subjects.firstOrNull);
+                }
+              }
+            },
+            builder: (context, state) {
+              return state is ClassSectionsAndSubjectsFetchFailure
+                  ? Center(
+                      child: ErrorContainer(
+                      errorMessage: state.errorMessage,
+                      onTapRetry: () {
+                        context
+                            .read<ClassSectionsAndSubjectsCubit>()
+                            .getClassSectionsAndSubjects();
+                      },
+                    ))
+                  : _buildFormContent(state);
+            },
+          ),
+
+          SizedBox(height: 30),
+
+          // Submit Button
+          _buildSubmitButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormContent(ClassSectionsAndSubjectsState state) {
+    return Column(
+      children: [
+        // Basic Info Section
+        Container(
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 5,
+                blurRadius: 10,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Informasi Dasar',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 20),
+
+              // Class Selection
+              _buildAnimatedTextField(
+                controller: TextEditingController(
+                    text: _selectedClassSection?.fullName ?? 'Pilih Kelas'),
+                label: 'Bagian Kelas',
+                icon: Icons.class_,
+                readOnly: true,
+                onTap: () {
+                  if (state is ClassSectionsAndSubjectsFetchSuccess) {
+                    Utils.showBottomSheet(
+                        child: FilterSelectionBottomsheet<ClassSection>(
+                          showFilterByLabel: false,
+                          onSelection: (value) {
+                            changeSelectedClassSection(value);
+                            Get.back();
+                          },
+                          selectedValue: _selectedClassSection!,
+                          titleKey: classKey,
+                          values: state.classSections,
+                        ),
+                        context: context);
+                  }
+                },
+              ),
+              SizedBox(height: 15),
+
+              // Subject Selection
+              _buildAnimatedTextField(
+                controller: TextEditingController(
+                    text: _selectedSubject?.subject.getSybjectNameWithType() ??
+                        'Pilih Mata Pelajaran'),
+                label: 'Mata Pelajaran',
+                icon: Icons.subject,
+                readOnly: true,
+                onTap: () {
+                  if (state is ClassSectionsAndSubjectsFetchSuccess) {
+                    Utils.showBottomSheet(
+                        child: FilterSelectionBottomsheet<TeacherSubject>(
+                          showFilterByLabel: false,
+                          selectedValue: _selectedSubject!,
+                          titleKey: subjectKey,
+                          values: state.subjects,
+                          onSelection: (value) {
+                            changeSelectedTeacherSubject(value!);
+                            Get.back();
+                          },
+                        ),
+                        context: context);
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+
+        SizedBox(height: 20),
+
+        // Announcement Details Section
+        Container(
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 5,
+                blurRadius: 10,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Detail Pengumuman',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 20),
+              _buildAnimatedTextField(
+                controller: _announcementTitleTextEditingController,
+                label: 'Judul Pengumuman',
+                icon: Icons.title,
+              ),
+              SizedBox(height: 15),
+              _buildAnimatedTextField(
+                controller: _announcementDescriptionTextEditingController,
+                label: 'Deskripsi',
+                icon: Icons.description,
+                maxLines: 5,
+              ),
+            ],
+          ),
+        ),
+
+        SizedBox(height: 20),
+
+        // Attachments Section
+        Container(
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 5,
+                blurRadius: 10,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Lampiran',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 20),
+
+              // Existing attachments
+              if (widget.announcement != null) ...[
+                ...announcementAttachments.map(
+                  (attachment) => Padding(
+                    padding: const EdgeInsets.only(bottom: 15),
+                    child: StudyMaterialContainer(
+                      onDeleteStudyMaterial: (fileId) {
+                        announcementAttachments
+                            .removeWhere((element) => element.id == fileId);
+                        refreshAnnouncementsInPreviousPage = true;
+                        setState(() {});
+                      },
+                      showOnlyStudyMaterialTitles: true,
+                      showEditAndDeleteButton: true,
+                      studyMaterial: attachment,
+                    ),
+                  ),
+                ),
+              ],
+
+              // New attachments
+              ...List.generate(uploadedFiles.length, (index) => index).map(
+                (index) => Padding(
+                  padding: const EdgeInsets.only(top: 15),
+                  child: CustomFileContainer(
+                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                    onDelete: () {
+                      uploadedFiles.removeAt(index);
+                      setState(() {});
+                    },
+                    title: uploadedFiles[index].name,
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 15),
+
+              // Add attachment button
+              UploadImageOrFileButton(
+                uploadFile: true,
+                includeImageFileOnlyAllowedNote: true,
+                onTap: () {
+                  _addFiles();
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Container(
+        height: 60,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).colorScheme.primary,
+              Theme.of(context).colorScheme.secondary,
+            ],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              spreadRadius: 1,
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: widget.announcement != null
+              ? BlocConsumer<TeacherEditAnnouncementCubit,
+                  TeacherEditAnnouncementState>(
+                  listener: (context, state) {
+                    if (state is TeacherEditAnnouncementSuccess) {
+                      Get.back(result: true);
+                      Utils.showSnackBar(
+                          context: context,
+                          message: announcementEditedSuccessfullyKey);
+                    } else if (state is TeacherEditAnnouncementFailure) {
+                      Utils.showSnackBar(
+                          context: context, message: state.errorMessage);
+                    }
+                  },
+                  builder: (context, state) {
+                    return _buildButtonContent(
+                      onTap: () {
+                        if (state is TeacherEditAnnouncementInProgress) return;
+                        editAnnouncement();
+                      },
+                      isLoading: state is TeacherEditAnnouncementInProgress,
+                      title: 'Perbarui Pengumuman',
+                    );
+                  },
+                )
+              : BlocConsumer<TeacherCreateAnnouncementCubit,
+                  TeacherCreateAnnouncementState>(
+                  listener: (context, state) {
+                    if (state is TeacherCreateAnnouncementSuccess) {
+                      Utils.showSnackBar(
+                          context: context,
+                          message: announcementAddedSuccessfullyKey);
+                      _announcementTitleTextEditingController.text = "";
+                      _announcementDescriptionTextEditingController.text = "";
+                      uploadedFiles = [];
+                      announcementAttachments = [];
+                      refreshAnnouncementsInPreviousPage = true;
+                      Navigator.pop(context, true);
+                    } else if (state is TeacherCreateAnnouncementFailure) {
+                      Utils.showSnackBar(
+                        context: context,
+                        message: state.errorMessage,
+                      );
+                    }
+                  },
+                  builder: (context, state) {
+                    return _buildButtonContent(
+                      onTap: () {
+                        if (state is TeacherCreateAnnouncementInProgress)
+                          return;
+                        createAnnouncement();
+                      },
+                      isLoading: state is TeacherCreateAnnouncementInProgress,
+                      title: 'Buat Pengumuman',
+                    );
+                  },
+                ),
         ),
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        Get.back(result: refreshAnnouncementsInPreviousPage);
-        return false;
-      },
-      child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: Stack(
+  Widget _buildButtonContent({
+    required VoidCallback onTap,
+    required bool isLoading,
+    required String title,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(15),
+      splashColor: Colors.white.withOpacity(0.2),
+      highlightColor: Colors.white.withOpacity(0.1),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildAddEditAnnouncementForm(),
-            _buildSubmitButton(),
-            Align(
-              alignment: Alignment.topCenter,
-              child: CustomAppbar(
-                titleKey: widget.announcement != null
-                    ? editAnnouncementKey
-                    : addAnnouncementKey,
-                onBackButtonTap: () {
-                  Get.back(result: refreshAnnouncementsInPreviousPage);
-                },
+            if (isLoading) ...[
+              SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+              SizedBox(width: 12),
+            ],
+            Text(
+              isLoading ? 'Memproses...' : title,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
               ),
             ),
+            if (!isLoading) ...[
+              SizedBox(width: 8),
+              Icon(
+                Icons.arrow_forward_rounded,
+                color: Colors.white,
+                size: 22,
+              ).animate(onPlay: (controller) {
+                controller.repeat(reverse: true);
+              }).slideX(
+                begin: 0,
+                end: 0.3,
+                duration: Duration(milliseconds: 1000),
+                curve: Curves.easeInOut,
+              ),
+            ],
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildAnimatedTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    int maxLines = 1,
+    bool readOnly = false,
+    VoidCallback? onTap,
+    TextInputType? keyboardType,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      readOnly: readOnly,
+      onTap: onTap,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(
+          color: Theme.of(context).colorScheme.secondary,
+        ),
+        prefixIcon: Icon(
+          icon,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide.none,
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide:
+              BorderSide(color: Theme.of(context).colorScheme.secondary),
+        ),
+      ),
+      validator: (v) => v!.isEmpty ? 'Required' : null,
     );
   }
 }
