@@ -282,7 +282,8 @@ class _TeacherAddAttendanceScreenSubjectState
       child: SingleChildScrollView(
         padding: EdgeInsets.only(
             top: Utils.appContentTopScrollPadding(context: context) +
-                Utils().getResponsiveHeight(context, _isWithinTeachingHours ? 345 : 137),
+                Utils().getResponsiveHeight(
+                    context, _isWithinTeachingHours ? 345 : 225),
             bottom: 75),
         child: BlocBuilder<SubjectAttendanceCubit, SubjectAttendanceState>(
           builder: (context, state) {
@@ -336,10 +337,15 @@ class _TeacherAddAttendanceScreenSubjectState
               listener: (context, submitAttendanceSubjectState) {
             if (submitAttendanceSubjectState
                 is SubmitAttendanceSubjectSuccess) {
-              Utils.showSnackBar(
+                SnackBarUtils.showSnackBar(
                 context: context,
-                message: attendanceSubmittedSuccessfullyKey,
-              );
+                message: "✅ Berhasil menyimpan absensi pelajaran!",
+                backgroundColor: Colors.green.shade700,
+                textColor: Colors.white,
+                );
+
+                // Optional: Add haptic feedback
+                HapticFeedback.mediumImpact();
               resetForm();
               Navigator.pop(context);
             } else if (submitAttendanceSubjectState
@@ -376,11 +382,12 @@ class _TeacherAddAttendanceScreenSubjectState
                       return;
                     }
 
-                    // Remove materi validation
+                    // // Update validation message
                     // if (_selectedMateri.isEmpty) {
-                    //   Utils.showSnackBar(
-                    //     message: requiredLearningKey,
+                    //   Utils.showAnimatedSnackBar(
+                    //     message: "Materi pembelajaran wajib diisi! ✏️",
                     //     context: context,
+                    //     isSuccess: false,
                     //   );
                     //   return;
                     // }
@@ -432,7 +439,7 @@ class _TeacherAddAttendanceScreenSubjectState
               const CustomAppbar(titleKey: addAttendanceSubjectKey),
               AppbarFilterBackgroundContainer(
                 height: Utils().getResponsiveHeight(
-                    context, _isWithinTeachingHours ? 338 : 130), // Increased height to accommodate the layout
+                    context, _isWithinTeachingHours ? 338 : 215),
                 child: LayoutBuilder(
                   builder: (context, boxConstraints) {
                     return Column(
@@ -577,49 +584,48 @@ class _TeacherAddAttendanceScreenSubjectState
                             ],
                           ),
                         ),
-                        if (_isWithinTeachingHours)
-                          const SizedBox(height: 15),
-                        if (_isWithinTeachingHours)
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.98,
-                            child: TextFormField(
-                              controller: _materiController,
-                              enabled:
-                                  _isWithinTeachingHours, // Disable editing if outside teaching hours
-                              readOnly:
-                                  !_isWithinTeachingHours, // Make readonly when outside teaching hours
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                filled: true,
-                                fillColor: Theme.of(context).colorScheme.surface,
-                                hintText: 'Isi Materi',
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 15),
-                              ),
-                              keyboardType: TextInputType.text,
-                              onChanged: _isWithinTeachingHours
-                                  ? (value) {
-                                      // Update _selectedMateri with the new value
-                                      setState(() {
-                                        _selectedMateri = value;
-                                      });
-                                    }
-                                  : null,
-                              maxLines: 2,
-                              style: TextStyle(
-                                color: _isWithinTeachingHours
-                                    ? Colors.black
-                                    : Colors.grey[
-                                        700], // Adjust text color for readonly state
-                              ),
-                              inputFormatters: [
-                                LengthLimitingTextInputFormatter(
-                                    300), // Limit to 300 characters
-                              ],
+                        const SizedBox(height: 15),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.98,
+                          child: TextFormField(
+                            controller: _materiController,
+                            enabled:
+                                _isWithinTeachingHours, // Disable editing if outside teaching hours
+                            readOnly:
+                                !_isWithinTeachingHours, // Make readonly when outside teaching hours
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface,
+                              hintText: _isWithinTeachingHours
+                                  ? 'Isi Materi'
+                                  : 'Tidak Ada Materi',
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 15),
                             ),
+                            keyboardType: TextInputType.text,
+                            onChanged: _isWithinTeachingHours
+                                ? (value) {
+                                    // Update _selectedMateri with the new value
+                                    setState(() {
+                                      _selectedMateri = value;
+                                    });
+                                  }
+                                : null,
+                            maxLines: 2,
+                            style: TextStyle(
+                              color: _isWithinTeachingHours
+                                  ? Colors.black
+                                  : Colors.grey[
+                                      700], // Adjust text color for readonly state
+                            ),
+                            inputFormatters: [
+                              LengthLimitingTextInputFormatter(
+                                  300), // Limit to 300 characters
+                            ],
                           ),
-                        if (_isWithinTeachingHours)
-                          const SizedBox(height: 20),
+                        ),
+                        if (_isWithinTeachingHours) const SizedBox(height: 20),
                         if (_isWithinTeachingHours)
                           SizedBox(
                             width: boxConstraints.maxWidth *
@@ -637,9 +643,10 @@ class _TeacherAddAttendanceScreenSubjectState
                                           await FilePicker.platform.pickFiles();
                                       if (result != null) {
                                         setState(() {
-                                          uploadedFiles.add(result.files.single);
-                                          _selectedLampiran = result.files.single
-                                              .path; // Simpan file path
+                                          uploadedFiles
+                                              .add(result.files.single);
+                                          _selectedLampiran = result.files
+                                              .single.path; // Simpan file path
                                         });
                                       }
                                     },
@@ -648,8 +655,8 @@ class _TeacherAddAttendanceScreenSubjectState
                                 ...List.generate(
                                     uploadedFiles.length, (index) => index).map(
                                   (index) => CustomFileContainer(
-                                    backgroundColor:
-                                        Theme.of(context).scaffoldBackgroundColor,
+                                    backgroundColor: Theme.of(context)
+                                        .scaffoldBackgroundColor,
                                     onDelete: () {
                                       setState(() {
                                         uploadedFiles.removeAt(index);
@@ -685,6 +692,8 @@ class _TeacherAddAttendanceScreenSubjectState
         children: [
           BlocBuilder<ClassesCubit, ClassesState>(
             builder: (context, state) {
+              print("EMITT");
+              print(state);
               if (state is ClassesFetchSuccess) {
                 return Stack(children: [
                   _buildStudentsContainer(),
@@ -700,6 +709,7 @@ class _TeacherAddAttendanceScreenSubjectState
                   },
                 ));
               }
+              print("LOADING");
               return Center(
                 child: CustomCircularProgressIndicator(
                   indicatorColor: Theme.of(context).colorScheme.primary,
@@ -709,6 +719,26 @@ class _TeacherAddAttendanceScreenSubjectState
           ),
           _buildAppbarAndFilters(),
         ],
+      ),
+    );
+  }
+}
+
+class SnackBarUtils {
+  static void showSnackBar({
+    required BuildContext context,
+    required String message,
+    Color backgroundColor = Colors.black87, // Default color
+    Color textColor = Colors.white, // Default text color
+  }) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(color: textColor),
+        ),
+        backgroundColor: backgroundColor,
+        duration: const Duration(seconds: 2),
       ),
     );
   }

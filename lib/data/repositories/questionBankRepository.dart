@@ -1,8 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:eschool_saas_staff/data/models/question.dart' hide ApiException;
 import 'package:eschool_saas_staff/data/models/questionBank.dart';
 import 'package:eschool_saas_staff/data/models/subjectQuestion.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
+import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
 
 class QuestionBankRepository {
   Future<List<SubjectQuestion>> getTeacherSubjects(
@@ -141,12 +145,16 @@ class QuestionBankRepository {
     required String type,
     required int defaultPoint,
     required String question,
-    String note = '', // Make note optional with default empty string
+    String note = '',
     required List<QuestionOption> options,
+    File? image,
   }) async {
     try {
-      print(defaultPoint.toString());
-      final Map<String, dynamic> requestBody = {
+      print('\n=== CREATE QUESTION WITH IMAGE ===');
+      print('Starting question creation process...');
+
+      // Create FormData manually to ensure correct format
+      final formData = FormData.fromMap({
         'banksoal_id': banksoalId.toString(),
         'subject_id': subjectId.toString(),
         'name': name,
@@ -154,20 +162,72 @@ class QuestionBankRepository {
         'default_point': defaultPoint.toString(),
         'question': question,
         'note': note,
-        'options': options
-            .map((opt) => {
-                  'text': opt.text,
-                  'percentage': opt.percentage,
-                  'feedback': opt.feedback,
-                })
-            .toList(),
+      });
+
+      // Add options as individual form fields
+      for (var i = 0; i < options.length; i++) {
+        formData.fields.addAll([
+          MapEntry('options[$i][text]', options[i].text),
+          MapEntry('options[$i][percentage]', options[i].percentage.toString()),
+          MapEntry('options[$i][feedback]', options[i].feedback),
+        ]);
+      }
+
+      // Add image if exists
+      if (image != null) {
+        print('\n=== IMAGE DETAILS ===');
+        print('Image Path: ${image.path}');
+        print(
+            'Image Size: ${(image.lengthSync() / 1024).toStringAsFixed(2)} KB');
+        print('Image Name: ${image.path.split('/').last}');
+
+        formData.files.add(
+          MapEntry(
+            'image',
+            await MultipartFile.fromFile(
+              image.path,
+              filename: image.path.split('/').last,
+              contentType: MediaType('image', 'jpeg'),
+            ),
+          ),
+        );
+        print('Image successfully added to form data');
+      }
+
+      print('\n=== SENDING REQUEST ===');
+      print('Request URL: ${Api.createQuestion}');
+      print('Form Data Fields: ${formData.fields}');
+
+      // Use Dio with custom headers
+      final dio = Dio();
+      dio.options.headers = {
+        ...Api.headers(),
+        'Content-Type': 'multipart/form-data',
       };
 
-      final prettyString = JsonEncoder.withIndent('  ').convert(requestBody);
-      prettyString.split('\n').forEach(print);
+      final response = await dio.post(
+        Api.createQuestion,
+        data: formData,
+        options: Options(
+          followRedirects: false,
+          validateStatus: (status) => status! < 500,
+        ),
+      );
 
-      await Api.post(url: Api.createQuestion, body: requestBody);
+      print('\n=== RESPONSE DETAILS ===');
+      print('Response Status: ${response.statusCode}');
+      print('Response Data: ${response.data}');
+
+      if (response.data['error'] == true) {
+        throw ApiException(
+            response.data['message'] ?? 'Failed to create question');
+      }
+
+      print('\n=== QUESTION CREATED SUCCESSFULLY ===');
     } catch (e) {
+      print('\n=== ERROR CREATING QUESTION ===');
+      print('Error Type: ${e.runtimeType}');
+      print('Error Message: $e');
       throw ApiException('Failed to create question: ${e.toString()}');
     }
   }
@@ -204,6 +264,7 @@ class QuestionBankRepository {
     required String question,
     String note = '',
     required List<QuestionOption> options,
+    File? image, // Tambahkan parameter image
   }) async {
     try {
       final Map<String, dynamic> requestBody = {
@@ -223,14 +284,17 @@ class QuestionBankRepository {
             .toList(),
       };
 
-      print("Updating question with data: $requestBody"); // Debug log
+      // Add image if provided
+      if (image != null) {
+        requestBody['image'] = await MultipartFile.fromFile(
+          image.path,
+          filename: 'question_image.jpg',
+        );
+      }
 
       final response =
           await Api.post(url: Api.updateQuestion, body: requestBody);
 
-      print("Update response: $response"); // Debug log
-
-      // Check response code and error flag
       if (response['code'] == 200 && response['error'] == false) {
         print("Question updated successfully");
         return;
@@ -238,9 +302,8 @@ class QuestionBankRepository {
 
       throw ApiException(response['message'] ?? 'Failed to update question');
     } catch (e) {
-      print("Error updating question: $e"); // Debug log
+      print("Error updating question: $e");
 
-      // Check if response indicates success despite error
       if (e.toString().contains('Soal Updated Successfully')) {
         print("Update successful despite error");
         return;
@@ -325,10 +388,6 @@ class QuestionBankRepository {
       print('✅ Question deleted successfully');
     } catch (e) {
       print('❌ Delete Exception: $e');
-      if (e is ApiException) {
-        throw e;
-      }
-      throw ApiException(e.toString());
     }
   }
 }

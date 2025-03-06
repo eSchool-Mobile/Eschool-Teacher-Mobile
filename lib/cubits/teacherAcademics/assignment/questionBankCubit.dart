@@ -3,6 +3,16 @@ import 'package:eschool_saas_staff/data/models/question.dart';
 import 'package:eschool_saas_staff/data/models/questionBank.dart';
 import 'package:eschool_saas_staff/data/models/subjectQuestion.dart';
 import 'package:eschool_saas_staff/data/repositories/questionBankRepository.dart';
+// Tambahkan import File
+import 'dart:io';
+
+class ApiException implements Exception {
+  final String message;
+  ApiException(this.message);
+
+  @override
+  String toString() => message;
+}
 
 abstract class QuestionBankState {}
 
@@ -133,9 +143,34 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
     required String question,
     required String note,
     required List<QuestionOption> options,
+    File? image,
   }) async {
     try {
       emit(QuestionBankLoading());
+
+      print('\n=== QUESTION BANK CUBIT: CREATE QUESTION ===');
+      print('Starting question creation in cubit...');
+
+      // Validate image if exists
+      if (image != null) {
+        print('\n=== IMAGE VALIDATION ===');
+        final imageSize = await image.length();
+        final imageSizeInMB = imageSize / (1024 * 1024);
+        print('Image Size: ${imageSizeInMB.toStringAsFixed(2)} MB');
+
+        if (imageSizeInMB > 2) {
+          throw ApiException('Ukuran gambar harus kurang dari 2MB');
+        }
+
+        final extension = image.path.split('.').last.toLowerCase();
+        print('Image Extension: $extension');
+
+        if (!['jpg', 'jpeg', 'png'].contains(extension)) {
+          throw ApiException(
+              'Hanya file JPG, JPEG, dan PNG yang diperbolehkan');
+        }
+      }
+
       await _repository.createQuestion(
         banksoalId: banksoalId,
         subjectId: subjectId,
@@ -145,12 +180,16 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
         question: question,
         note: note,
         options: options,
+        image: image,
       );
-      // Fetch updated questions after creation
+
       final questions =
           await _repository.getBankQuestions(subjectId, banksoalId);
       emit(BankQuestionsFetchSuccess(questions));
     } catch (e) {
+      print('\n=== ERROR IN CUBIT ===');
+      print('Error Type: ${e.runtimeType}');
+      print('Error Message: $e');
       emit(QuestionBankError(e.toString()));
       throw e;
     }
@@ -167,6 +206,7 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
     required String question,
     required String note,
     required List<QuestionOption> options,
+    File? image, // Tambahkan parameter image
   }) async {
     try {
       emit(QuestionBankLoading());
@@ -185,6 +225,7 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
         question: question,
         note: note,
         options: options,
+        image: image, // Pass image ke repository
       );
 
       print("OK 12");

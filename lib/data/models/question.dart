@@ -78,6 +78,7 @@ class QuestionVersion {
   final int defaultPoint;
   final String type;
   final List<QuestionOption> options;
+  final String? image; // Add this field
 
   QuestionVersion({
     required this.id,
@@ -88,6 +89,7 @@ class QuestionVersion {
     required this.defaultPoint,
     required this.type,
     required this.options,
+    this.image, // Add this parameter
   });
 
   factory QuestionVersion.fromJson(Map<String, dynamic> json) {
@@ -105,6 +107,7 @@ class QuestionVersion {
       defaultPoint: json['default_point'] ?? 0,
       type: json['type'] ?? '',
       options: parseOptions(json['options'] ?? '[]'),
+      image: json['image'], // Add this field
     );
   }
 
@@ -117,6 +120,7 @@ class QuestionVersion {
         'default_point': defaultPoint,
         'type': type,
         'options': options.map((o) => o.toJson()).toList(),
+        'image': image, // Add this field
       };
 }
 
@@ -125,12 +129,14 @@ class QuestionOption {
   final int percentage;
   final String feedback;
   final String type;
+  final String? image;
 
   QuestionOption({
     required this.text,
     required this.percentage,
     required this.feedback,
     this.type = '',
+    this.image,
   });
 
   factory QuestionOption.fromJson(Map<String, dynamic> json) {
@@ -139,13 +145,15 @@ class QuestionOption {
       percentage: int.tryParse(json['percentage'].toString()) ?? 0,
       feedback: json['feedback'] ?? '',
       type: json['type'] ?? '',
+      image: json['image'], // Parse image
     );
   }
 
   Map<String, dynamic> toJson() => {
         'text': text,
-        'percentage': percentage,
+        'percentage': percentage.toString(), // Make sure percentage is string
         'feedback': feedback,
         'type': type,
+        'image': image,
       };
 }

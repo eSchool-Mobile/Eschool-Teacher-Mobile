@@ -420,7 +420,7 @@ const String pleaseEnterPointsKey = "pleaseAddPoints";
 const String cannotGiveMorePointsThenTotalKey = "cannotGiveMorePointsThenTotal";
 
 const String attendanceSubmittedSuccessfullyKey =
-    "attendanceSubmittedSuccessfully";
+    "Kehadiran Berhasil Dikirim";
 const String attendanceViewEditNotPossibleKey = "attendanceViewEditNotPossible";
 const String pleaseAddMarksToAllStudentsKey = "pleaseAddMarksToAllStudents";
 const String resultAddedSuccessfullyKey = "resultAddedSuccessfully";

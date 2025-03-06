@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../../../cubits/teacherAcademics/assignment/questionBankCubit.dart';
 import 'package:eschool_saas_staff/data/models/question.dart';
 import '../../../data/models/subjectQuestion.dart';
@@ -41,6 +43,9 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
 
   // Tambahkan variabel untuk mengontrol status pengiriman
   bool _isSubmitting = false;
+
+  File? _imageFile;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -109,6 +114,102 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
   }
 
   int _selectedCorrectAnswer = 0;
+
+  Future<void> _pickImage() async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+
+      if (pickedFile != null) {
+        setState(() {
+          _imageFile = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+    }
+  }
+
+  Widget _buildImageSection() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 3,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Gambar Pertanyaan',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+          SizedBox(height: 12),
+          if (_imageFile != null) ...[
+            Stack(
+              alignment: Alignment.topRight,
+              children: [
+                Container(
+                  height: 200,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    image: DecorationImage(
+                      image: FileImage(_imageFile!),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.close, color: Colors.red),
+                  onPressed: () => setState(() => _imageFile = null),
+                ),
+              ],
+            ),
+          ] else
+            InkWell(
+              onTap: _pickImage,
+              child: Container(
+                height: 100,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.add_photo_alternate_outlined,
+                          size: 40, color: Colors.grey),
+                      SizedBox(height: 8),
+                      Text(
+                        'Tambah Gambar',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 
   // Modifikasi _submitForm
   void _submitForm() async {
@@ -197,6 +298,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
               question: _questionController.text.trim(),
               note: _noteController.text.trim(),
               options: options,
+              image: _imageFile, // Add image file
             );
 
         // Tutup dialog loading
@@ -223,7 +325,8 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Gagal membuat soal, mohon periksa koneksi internet anda dan coba lagi"),
+            content: Text(
+                "Gagal membuat soal, mohon periksa koneksi internet anda dan coba lagi"),
             backgroundColor: Colors.red,
           ),
         );
@@ -307,6 +410,11 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
 
                           // Answer Options Card
                           _buildAnswerOptionsCard(),
+
+                          SizedBox(height: 30),
+
+                          // Image Section
+                          _buildImageSection(),
 
                           SizedBox(height: 30),
 
