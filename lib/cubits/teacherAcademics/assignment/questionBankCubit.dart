@@ -73,6 +73,8 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
     try {
       emit(QuestionBankLoading());
       final questions = await _repository.getBankQuestions(subjectId, bankId);
+      print("OK DARI SINI");
+      print(questions);
       emit(BankQuestionsFetchSuccess(questions));
     } catch (e) {
       emit(QuestionBankError(e.toString()));
@@ -206,7 +208,7 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
     required String question,
     required String note,
     required List<QuestionOption> options,
-    File? image, // Tambahkan parameter image
+    dynamic? image, // Tambahkan parameter image
   }) async {
     try {
       emit(QuestionBankLoading());

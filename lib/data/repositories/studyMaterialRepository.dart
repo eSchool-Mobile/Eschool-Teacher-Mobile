@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
+import 'package:eschool_saas_staff/utils/constants.dart';
 
 class StudyMaterialRepository {
   Future<void> deleteStudyMaterial({required int fileId}) async {
@@ -46,13 +47,23 @@ class StudyMaterialRepository {
     required Function updateDownloadedPercentage,
   }) async {
     try {
+
+      final regex = RegExp(r'https?:\/\/[^\/]+\/storage\/\/storage\/');
+      if (regex.hasMatch(url)) {
+        url = storageUrl + url.replaceFirst(regex, '');
+      }
+
+
       await Api.download(
         cancelToken: cancelToken,
         url: url,
         savePath: savePath,
         updateDownloadedPercentage: updateDownloadedPercentage,
       );
+      print("OK GA ERROR");
     } catch (e) {
+      print("OK ERROR");
+      print(e);
       throw ApiException(e.toString());
     }
   }

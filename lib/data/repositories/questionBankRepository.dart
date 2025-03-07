@@ -7,6 +7,7 @@ import 'package:eschool_saas_staff/data/models/subjectQuestion.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:image_picker/image_picker.dart';
 
 class QuestionBankRepository {
   Future<List<SubjectQuestion>> getTeacherSubjects(
@@ -71,8 +72,6 @@ class QuestionBankRepository {
         },
       );
 
-      print("API Raw Response: $response"); // Debug log
-
       if (response['data'] == null) {
         throw ApiException("Data is null");
       }
@@ -80,8 +79,6 @@ class QuestionBankRepository {
       final questions = (response['data'] as List)
           .map((json) => Question.fromJson(json))
           .toList();
-
-      print("Parsed Questions: $questions"); // Debug log
 
       return questions;
     } catch (e) {
@@ -264,7 +261,7 @@ class QuestionBankRepository {
     required String question,
     String note = '',
     required List<QuestionOption> options,
-    File? image, // Tambahkan parameter image
+    dynamic? image, // Tambahkan parameter image
   }) async {
     try {
       final Map<String, dynamic> requestBody = {
@@ -286,10 +283,20 @@ class QuestionBankRepository {
 
       // Add image if provided
       if (image != null) {
-        requestBody['image'] = await MultipartFile.fromFile(
-          image.path,
-          filename: 'question_image.jpg',
-        );
+        if (image is XFile) {
+          requestBody['image'] = MultipartFile.fromBytes(
+            await (image as XFile).readAsBytes(),
+            filename: image.name.isNotEmpty ? image.name : 'default_image.jpg',
+          );
+        } else {
+          requestBody['image'] = await MultipartFile.fromFile(
+            (image as File).path,
+          );
+        }
+      }
+
+      else {
+        requestBody['image'] = null;
       }
 
       final response =

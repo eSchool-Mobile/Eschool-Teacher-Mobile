@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/questionBankCubit.dart';
@@ -5,6 +8,10 @@ import 'package:eschool_saas_staff/data/models/question.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'package:eschool_saas_staff/utils/api.dart';
 
 class EditQuestionScreen extends StatefulWidget {
   final Map<String, dynamic>? questionData;
@@ -26,6 +33,16 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
   List<Map<String, dynamic>> options = [];
   late int version;
 
+  dynamic? _imageFile;
+  final ImagePicker _picker = ImagePicker();
+
+  void _loadImage() async {
+        _imageFile = await Api.fetchImg(widget.questionData?["image"]);
+    setState(() {}); // Perbarui UI setelah gambar dimuat
+  }
+
+  bool _isSubmitting = false;
+
   @override
   void initState() {
     super.initState();
@@ -40,6 +57,20 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
     idBankSoal = widget.questionData?['idBankSoal'];
     selectedType = widget.questionData?['type'] ?? 'multiple_choice';
     version = 1;
+
+    print("RIEL");
+
+    String jsonString = JsonEncoder.withIndent("  ").convert(widget.questionData);
+
+      for (var line in jsonString.split("\n")) {
+    print(line);
+  }
+
+
+    if (widget.questionData?["image"] != null) {
+    _loadImage();
+    }
+
 
     if (widget.questionData?['options'] != null) {
       options =
@@ -164,6 +195,16 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+    if (_isSubmitting) return;
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+
+      await Future.delayed(Duration(seconds: 2));
+
       try {
         await context.read<QuestionBankCubit>().updateQuestion(
               banksoalSoalId: widget.questionData!['banksoal_soal_id'],
@@ -174,6 +215,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
               defaultPoint: int.parse(pointController.text),
               question: questionController.text.trim(),
               note: noteController.text.trim(),
+              image: _imageFile,
               options: options
                   .map((opt) => QuestionOption(
                         text: opt['text'].toString(),
@@ -183,7 +225,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                   .toList(),
             );
 
-        // Return updated data
         Get.back(result: {
           'success': true,
           'updatedData': {
@@ -209,8 +250,34 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
           );
         }
       }
+
+      } finally {
+      setState(() {
+        _isSubmitting = false;
+      });
+    }
     }
   }
+
+    Future<void> _pickImage() async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+
+      if (pickedFile != null) {
+        setState(() {
+          _imageFile = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -290,6 +357,92 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                           _buildAnswerOptionsCard(),
 
                           SizedBox(height: 30),
+
+                          Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 3,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Gambar Pertanyaan',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+          SizedBox(height: 12),
+          if (_imageFile != null) ...[
+            Stack(
+              alignment: Alignment.topRight,
+              children: [
+                Container(
+                  height: 200,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: _imageFile != null
+                      ? (_imageFile is File
+                          ? Image.file(_imageFile as File, fit: BoxFit.cover)
+                          : FutureBuilder<Uint8List>(
+                              future: (_imageFile as XFile).readAsBytes(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return Center(child: CircularProgressIndicator());
+                                }
+                                if (snapshot.hasError || !snapshot.hasData) {
+                                  return Center(child: Icon(Icons.error));
+                                }
+                                return Image.memory(snapshot.data!, fit: BoxFit.cover);
+                              },
+                            ))
+                      : null,
+                ),
+                IconButton(
+                  icon: Icon(Icons.close, color: Colors.red),
+                  onPressed: () => setState(() => _imageFile = null),
+                ),
+              ],
+            ),
+          ] else
+            InkWell(
+              onTap: _pickImage,
+              child: Container(
+                height: 100,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.add_photo_alternate_outlined,
+                          size: 40, color: Colors.grey),
+                      SizedBox(height: 8),
+                      Text(
+                        'Tambah Gambar',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
+      )),
 
                           // Submit Button
                           FadeInUp(
@@ -806,7 +959,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 20),
         child: ElevatedButton(
-          onPressed: _submitForm,
+          onPressed: _isSubmitting ? null : _submitForm, // Disable jika sedang submit
           style: ElevatedButton.styleFrom(
             padding: EdgeInsets.zero,
             shape: RoundedRectangleBorder(
@@ -815,35 +968,49 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
           ),
           child: Ink(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Theme.of(context).colorScheme.secondary,
-                  Color(0xFF8B0000),
-                ],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
+              gradient: _isSubmitting
+                  ? null // Hapus gradient jika disable
+                  : LinearGradient(
+                      colors: [
+                        Theme.of(context).colorScheme.secondary,
+                        Color(0xFF8B0000),
+                      ],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
               borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0xFF8B0000).withOpacity(0.3),
-                  offset: Offset(0, 4),
-                  blurRadius: 12,
-                ),
-              ],
+              boxShadow: _isSubmitting
+                  ? [] // Hapus shadow saat disable
+                  : [
+                      BoxShadow(
+                        color: Color(0xFF8B0000).withOpacity(0.3),
+                        offset: Offset(0, 4),
+                        blurRadius: 12,
+                      ),
+                    ],
             ),
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.update_rounded,
-                    color: Colors.white,
-                  ),
+                  if (_isSubmitting)
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  else
+                    Icon(
+                      Icons.update_rounded,
+                      color: Colors.white,
+                    ),
                   SizedBox(width: 12),
                   Text(
-                    'Update Question',
+                    _isSubmitting ? 'Updating...' : 'Update Question',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
