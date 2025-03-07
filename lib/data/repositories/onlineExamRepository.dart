@@ -308,13 +308,20 @@ class OnlineExamRepository {
           url:
               "${Api.getOnlineExamQuestionListCorrection}?exam_id=${examId.toString()}&&search=${search}",
           useAuthToken: true);
+      
+      print("AMAN SINI 1");
 
       if (response['status'] == true) {
         final data = response['data'] as Map<String, dynamic>;
+        print("AMAN SINI 2");
         final examQuestions = data['exam_questions'] as List;
 
+        print("AMAN SINI 3");
+
         return examQuestions.map((question) {
-          final options = (question['options'] as List?)?.first ?? {};
+final options = (question['options'] as List?)?.isNotEmpty == true
+    ? question['options']!.first
+    : {};
 
           return QuestionOnlineExam(
             id: question['id'] ?? 0,

@@ -360,24 +360,6 @@ class _OnlineExamResultAnswerScreenState
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      localIsCorrect
-                                          ? Icons.check_circle
-                                          : Icons.cancel,
-                                      color: Colors.white,
-                                    ),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      localIsCorrect ? 'Benar' : 'Salah',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
                               ],
                             ),
                           ),
