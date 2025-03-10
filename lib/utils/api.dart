@@ -4,6 +4,8 @@ import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/repositories/authRepository.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
 
 class ApiException implements Exception {
@@ -195,6 +197,16 @@ class Api {
       "Access-Control-Allow-Headers":
           "Origin, Content-Type, Accept, Authorization, X-Request-With, role, view_type, all",
     };
+  }
+
+  static Future<XFile> fetchImg(String url) async {
+    var response = await http.get(Uri.parse("${storageUrl}${url}"));
+
+    if (response.statusCode == 200) {
+      return XFile.fromData(response.bodyBytes, mimeType: 'image/jpeg');
+    } else {
+      throw Exception("Gagal mengunduh gambar");
+    }
   }
 
   static Future<Map<String, dynamic>> post({

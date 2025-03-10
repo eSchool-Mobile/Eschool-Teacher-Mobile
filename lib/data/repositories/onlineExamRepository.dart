@@ -47,7 +47,7 @@ class OnlineExamRepository {
     }
   }
 
-  Future<List<dynamic>> getOnlineExamResultAnswer({
+  Future<Map<String, dynamic>> getOnlineExamResultAnswer({
     required int onlineExamId,
     required int questionId,
     String? search,
@@ -73,10 +73,10 @@ class OnlineExamRepository {
 
       // Check for valid data structure
       if (response['status'] == true && response['data'] != null) {
-        return response['data']['answers'] as List<dynamic>;
+        return { "marks": response['data']['marks'], "answers": response['data']['answers'] as List<dynamic> };
       }
 
-      return []; // Return empty list if no answers found
+      return { "marks": response['data']['marks'] ?? 0, "answers": [] };
     } catch (e) {
       print('Error getting online exam result answer: $e');
       throw Exception('Failed to fetch exam answers: ${e.toString()}');
@@ -308,13 +308,20 @@ class OnlineExamRepository {
           url:
               "${Api.getOnlineExamQuestionListCorrection}?exam_id=${examId.toString()}&&search=${search}",
           useAuthToken: true);
+      
+      print("AMAN SINI 1");
 
       if (response['status'] == true) {
         final data = response['data'] as Map<String, dynamic>;
+        print("AMAN SINI 2");
         final examQuestions = data['exam_questions'] as List;
 
+        print("AMAN SINI 3");
+
         return examQuestions.map((question) {
-          final options = (question['options'] as List?)?.first ?? {};
+final options = (question['options'] as List?)?.isNotEmpty == true
+    ? question['options']!.first
+    : {};
 
           return QuestionOnlineExam(
             id: question['id'] ?? 0,

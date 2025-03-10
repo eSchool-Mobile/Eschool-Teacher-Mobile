@@ -14,6 +14,7 @@ const String baseUrl = "https://esbeta.deanry.my.id";
 // const String baseUrl = "https://wrteam.net";
 
 const String databaseUrl = "$baseUrl/api/";
+const String storageUrl = "$baseUrl/storage/";
 
 // Socket url
 const socketUrl = "ws://193.203.162.252:8090";

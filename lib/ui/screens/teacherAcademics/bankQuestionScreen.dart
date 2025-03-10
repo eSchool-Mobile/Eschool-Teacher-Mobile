@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -127,6 +129,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
 
   void _navigateToEditQuestion(
       q.Question question, q.QuestionVersion version) async {
+          String jsonString = JsonEncoder.withIndent("  ").convert(question);
+
     final result = await Get.toNamed(
       Routes.editQuestionScreen,
       arguments: {
@@ -139,6 +143,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
           'question': version.question,
           'default_point': version.defaultPoint,
           'note': version.note,
+          'image': version?.image,
           'options': version.options
               .map((opt) => {
                     'text': opt.text,
@@ -152,7 +157,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
 
     if (result != null && result is Map<String, dynamic>) {
       if (result['success'] == true) {
-        // Update the question in the local state
+        _loadQuestions();
         setState(() {
           final updatedData = result['updatedData'];
           final questionIndex = _filteredQuestions.indexWhere(

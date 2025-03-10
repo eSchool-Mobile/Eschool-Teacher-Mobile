@@ -56,6 +56,7 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
       );
       emit(QuestionOnlineExamSuccess(questions));
     } catch (e) {
+      print("ELOL 1");
       emit(QuestionOnlineExamFailure(e.toString()));
     }
   }
@@ -68,8 +69,10 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
       emit(QuestionOnlineExamLoading());
       final questions =
           await _repository.getOnlineExamQuestionListCorrection(examId, search);
+      print("AMAN NIEH");
       emit(QuestionOnlineExamSuccess(questions));
     } catch (e) {
+      print("ELOL 2");
       emit(QuestionOnlineExamFailure(e.toString()));
     }
   }
@@ -80,6 +83,7 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
       final banks = await _repository.getBankSoal(examId);
       emit(QuestionBanksLoaded(banks));
     } catch (e) {
+      print("ELOL 3");
       emit(QuestionOnlineExamFailure(e.toString()));
     }
   }

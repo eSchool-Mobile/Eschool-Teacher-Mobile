@@ -23,6 +23,8 @@ class OnlineExamAnswer extends OnlineExamState {
   final String studentName;
   final int studentId;
   final String answer;
+  final int marks;
+  final int totalMarks;
   late bool isCorrect;
 
   OnlineExamAnswer({
@@ -30,6 +32,8 @@ class OnlineExamAnswer extends OnlineExamState {
     required this.studentName,
     required this.studentId,
     required this.isCorrect,
+    required this.totalMarks,
+    required this.marks,
     required this.answer,
   });
 }
@@ -169,17 +173,23 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         search: search,
       );
 
-      emit(OnlineExamAnswersSuccess(
-          answers: result
-              .map((answer) => OnlineExamAnswer(
-                  id: answer['id'] ?? 0,
-                  studentId: answer['student_id'] ?? 0,
-                  studentName: answer['student_name'] ?? '',
-                  answer: answer['answer'] ?? '',
-                  isCorrect: answer['is_answer'] ?? false))
-              .toList()));
+emit(OnlineExamAnswersSuccess(
+    answers: (result['answers'] as List<dynamic>)
+        .map((answer) => OnlineExamAnswer(
+              id: answer['id'] ?? 0,
+              marks: answer['marks'] ?? 0,
+              totalMarks: result['marks'] ?? 0,
+              studentId: answer['student_id'] ?? 0,
+              studentName: answer['student_name'] ?? '',
+              answer: answer['answer'] ?? '',
+              isCorrect: answer['is_answer'] ?? false,
+            ))
+        .toList(),
+));
+
     } catch (e) {
-      // TODO: Use proper logging framework
+      print("ERROR SINI");
+      print(e);
       emit(OnlineExamFailure(e.toString()));
     }
   }
