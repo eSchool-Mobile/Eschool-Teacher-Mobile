@@ -47,7 +47,7 @@ class OnlineExamRepository {
     }
   }
 
-  Future<List<dynamic>> getOnlineExamResultAnswer({
+  Future<Map<String, dynamic>> getOnlineExamResultAnswer({
     required int onlineExamId,
     required int questionId,
     String? search,
@@ -73,10 +73,10 @@ class OnlineExamRepository {
 
       // Check for valid data structure
       if (response['status'] == true && response['data'] != null) {
-        return response['data']['answers'] as List<dynamic>;
+        return { "marks": response['data']['marks'], "answers": response['data']['answers'] as List<dynamic> };
       }
 
-      return []; // Return empty list if no answers found
+      return { "marks": response['data']['marks'] ?? 0, "answers": [] };
     } catch (e) {
       print('Error getting online exam result answer: $e');
       throw Exception('Failed to fetch exam answers: ${e.toString()}');

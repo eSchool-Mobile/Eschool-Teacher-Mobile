@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
+import 'package:flutter/services.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -409,149 +410,52 @@ class _OnlineExamResultAnswerScreenState
                             ),
                             child: widget.questionType != 'multiple_choice' &&
                                     widget.questionType != 'true_false'
-                                ? Row(
-                                    children: [
-                                      Expanded(
-                                        child: InkWell(
-                                          onTap: () async {
-                                            final result = await context
-                                                .read<OnlineExamCubit>()
-                                                .updateOnlineExamAnswerCorrection(
-                                                    examId: widget.examId,
-                                                    studentId: answer.studentId,
-                                                    questionId:
-                                                        widget.questionId,
-                                                    answerId: answer.id,
-                                                    isAnswer: 1);
-                                            if (result) {
-                                              setState(() {
-                                                answer.isCorrect = true;
-                                                localIsCorrect = true;
-
-                                                // Update in the original list as well
-                                                final originalIndex =
-                                                    _allAnswers.indexWhere(
-                                                        (a) =>
-                                                            a.id == answer.id);
-                                                if (originalIndex != -1) {
-                                                  _allAnswers[originalIndex]
-                                                      .isCorrect = true;
-                                                }
-                                              });
-                                            }
-                                          },
-                                          child: Container(
-                                            height: 48,
-                                            margin: EdgeInsets.only(
-                                                left: 16, right: 8),
-                                            decoration: BoxDecoration(
-                                              color: localIsCorrect
-                                                  ? Colors.green.shade50
-                                                  : Colors.white,
-                                              border: Border.all(
-                                                color: localIsCorrect
-                                                    ? Colors.green
-                                                    : Colors.grey[300]!,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Icon(
-                                                  Icons.check_circle,
-                                                  color: localIsCorrect
-                                                      ? Colors.green
-                                                      : Colors.grey[600],
-                                                ),
-                                                SizedBox(width: 8),
-                                                Text(
-                                                  'Benar',
-                                                  style: TextStyle(
-                                                    color: localIsCorrect
-                                                        ? Colors.green
-                                                        : Colors.grey[600],
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                              ],
+                                ? Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            "Nilai jawaban berkisar antara 0 hingga ${answer.totalMarks}",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 14,
+                                              color: Colors.grey[700], // Warna teks lebih lembut
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      Expanded(
-                                        child: InkWell(
-                                          onTap: () async {
-                                            final result = await context
-                                                .read<OnlineExamCubit>()
-                                                .updateOnlineExamAnswerCorrection(
-                                                    examId: widget.examId,
-                                                    studentId: answer.studentId,
-                                                    questionId:
-                                                        widget.questionId,
-                                                    answerId: answer.id,
-                                                    isAnswer: 0);
-                                            if (result) {
-                                              setState(() {
-                                                answer.isCorrect = false;
-                                                localIsCorrect = false;
-
-                                                // Update in the original list as well
-                                                final originalIndex =
-                                                    _allAnswers.indexWhere(
-                                                        (a) =>
-                                                            a.id == answer.id);
-                                                if (originalIndex != -1) {
-                                                  _allAnswers[originalIndex]
-                                                      .isCorrect = false;
-                                                }
-                                              });
-                                            }
-                                          },
-                                          child: Container(
-                                            height: 48,
-                                            margin: EdgeInsets.only(
-                                                left: 8, right: 16),
-                                            decoration: BoxDecoration(
-                                              color: !localIsCorrect
-                                                  ? Colors.red.shade50
-                                                  : Colors.white,
-                                              border: Border.all(
-                                                color: !localIsCorrect
-                                                    ? Colors.red
-                                                    : Colors.grey[300]!,
+                                        SizedBox(
+                                          width: 80,
+                                          height: 40,
+                                          child: TextField(
+                                            controller: TextEditingController(text: answer.marks.toString()),
+                                            keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                                            decoration: InputDecoration(
+                                              filled: true,
+                                              fillColor: Colors.grey[50], // Warna latar belakang lebih soft
+                                              border: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(12),
+                                                borderSide: BorderSide(color: Colors.grey[200]!),
                                               ),
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
+                                              contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
                                             ),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Icon(
-                                                  Icons.cancel,
-                                                  color: !localIsCorrect
-                                                      ? Colors.red
-                                                      : Colors.grey[600],
-                                                ),
-                                                SizedBox(width: 8),
-                                                Text(
-                                                  'Salah',
-                                                  style: TextStyle(
-                                                    color: !localIsCorrect
-                                                        ? Colors.red
-                                                        : Colors.grey[600],
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter.digitsOnly, // Hanya angka
+                                              TextInputFormatter.withFunction((oldValue, newValue) {
+                                                if (newValue.text.isEmpty) return newValue;
+                                                final intValue = int.tryParse(newValue.text) ?? 0;
+                                                if (intValue < 0) return TextEditingValue(text: '0');
+                                                if (intValue > answer.totalMarks) return TextEditingValue(text: answer.totalMarks.toString());
+                                                return newValue;
+                                              }),
+                                            ],
                                           ),
-                                        ),
-                                      ),
-                                    ],
+                                        )
+                                      ],
+                                    ),
                                   )
                                 : const SizedBox(),
                           ),
