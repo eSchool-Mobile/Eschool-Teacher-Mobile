@@ -85,7 +85,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.only(
-                  top: 120,
+                  top: 16, // Changed from 120 to 16
                   left: 16,
                   right: 16,
                   bottom: 100,
@@ -98,8 +98,6 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                       child: FadeInAnimation(child: widget),
                     ),
                     children: [
-                      const SizedBox(height: 16),
-
                       // Welcome Section
                       _buildWelcomeSection(context, isWalas),
 
@@ -336,9 +334,6 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
             );
           },
         ),
-
-        // Enhanced Glassmorphic AppBar
-        _buildEnhancedAppBar(context: context),
       ],
     );
   }
@@ -409,40 +404,6 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildEnhancedAppBar({required BuildContext context}) {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.white.withOpacity(0.95),
-                  Colors.white.withOpacity(0.9),
-                ],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  offset: const Offset(0, 2),
-                  blurRadius: 8,
-                ),
-              ],
-            ),
-            child: const CustomAppbar(
-              titleKey: "Akademik",
-              showBackButton: false,
-            ),
-          ),
-        ),
       ),
     );
   }

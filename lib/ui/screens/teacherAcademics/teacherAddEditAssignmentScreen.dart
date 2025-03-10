@@ -656,7 +656,8 @@ class _TeacherAddEditAssignmentScreenState
                     listener: (context, state) {
                       if (state is EditAssignmentSuccess) {
                         Get.back(result: true);
-                        Utils.showSnackBar(
+                        // Show custom success overlay
+                        _showOverlayMessage(
                           context: context,
                           message: assignmentEditedSuccessfullyKey,
                         );

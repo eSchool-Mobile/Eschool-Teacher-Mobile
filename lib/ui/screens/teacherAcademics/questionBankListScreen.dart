@@ -566,66 +566,191 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
     final bank = banks[index];
     final _editController = TextEditingController(text: bank.name);
     final _editFormKey = GlobalKey<FormState>();
+    bool isSubmitting = false;
 
-    showDialog(
+    showGeneralDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text('Edit Bank Soal'),
-        content: Form(
-          key: _editFormKey,
-          child: TextFormField(
-            controller: _editController,
-            decoration: InputDecoration(
-              labelText: 'Nama Bank Soal',
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) {
-              if (value?.isEmpty ?? true) {
-                return 'Nama bank soal tidak boleh kosong';
-              }
-              return null;
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (_editFormKey.currentState?.validate() ?? false) {
-                try {
-                  await context.read<QuestionBankCubit>().updateQuestionBank(
-                        subjectId: widget.subject.subject.id,
-                        banksoalId: bank.id,
-                        name: _editController.text.trim(),
-                      );
-
-                  Navigator.pop(dialogContext);
-
-                  // Refresh bank soal list
-                  context.read<QuestionBankCubit>().fetchBankSoal(
-                        widget.subject.subject.id,
-                      );
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Bank soal berhasil diperbarui')),
-                  );
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Gagal memperbarui: ${e.toString()}'),
-                      backgroundColor: Colors.red,
+      barrierDismissible: true,
+      barrierLabel: '',
+      transitionDuration: Duration(milliseconds: 400),
+      pageBuilder: (context, anim1, anim2) => Container(),
+      transitionBuilder: (context, anim1, anim2, child) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return ScaleTransition(
+              scale: CurvedAnimation(
+                parent: anim1,
+                curve: Curves.elasticOut,
+                reverseCurve: Curves.easeOutCubic,
+              ),
+              child: AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                title: Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .secondary
+                            .withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.edit_outlined,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                     ),
-                  );
-                }
-              }
-            },
-            child: Text('Simpan'),
-          ),
-        ],
-      ),
+                    SizedBox(width: 16),
+                    Text(
+                      'Edit Bank Soal',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                content: Form(
+                  key: _editFormKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: _editController,
+                        enabled: !isSubmitting,
+                        decoration: InputDecoration(
+                          labelText: 'Nama Bank Soal',
+                          prefixIcon: Icon(Icons.folder_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.secondary,
+                              width: 2,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                        ),
+                        validator: (value) {
+                          if (value?.isEmpty ?? true) {
+                            return 'Nama bank soal tidak boleh kosong';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed:
+                        isSubmitting ? null : () => Navigator.pop(context),
+                    child: Text(
+                      'Batal',
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.secondary,
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: MaterialButton(
+                      onPressed: isSubmitting
+                          ? null
+                          : () async {
+                              if (_editFormKey.currentState?.validate() ??
+                                  false) {
+                                try {
+                                  setState(() {
+                                    isSubmitting = true;
+                                  });
+
+                                  await context
+                                      .read<QuestionBankCubit>()
+                                      .updateQuestionBank(
+                                        subjectId: widget.subject.subject.id,
+                                        banksoalId: bank.id,
+                                        name: _editController.text.trim(),
+                                      );
+
+                                  Navigator.pop(context);
+
+                                  // Refresh bank soal list
+                                  context
+                                      .read<QuestionBankCubit>()
+                                      .fetchBankSoal(
+                                        widget.subject.subject.id,
+                                      );
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content:
+                                          Text('Bank soal berhasil diperbarui'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          'Gagal memperbarui: ${e.toString()}'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                } finally {
+                                  if (mounted) {
+                                    setState(() {
+                                      isSubmitting = false;
+                                    });
+                                  }
+                                }
+                              }
+                            },
+                      child: isSubmitting
+                          ? SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : Text(
+                              'Simpan',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      elevation: 0,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
