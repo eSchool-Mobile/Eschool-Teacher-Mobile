@@ -94,6 +94,7 @@ dependencies:
   animations: ^2.0.8
   font_awesome_flutter: ^10.8.0
   animated_text_kit: ^4.2.2
+  animated_card: ^2.0.0
 
   
 dependency_overrides:

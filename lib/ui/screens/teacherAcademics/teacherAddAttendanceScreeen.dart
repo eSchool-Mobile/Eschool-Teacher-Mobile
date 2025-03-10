@@ -219,10 +219,37 @@ class _TeacherAddAttendanceScreenState
           return BlocConsumer<SubmitAttendanceCubit, SubmitAttendanceState>(
               listener: (context, submitAttendanceState) {
             if (submitAttendanceState is SubmitAttendanceSuccess) {
-              Utils.showSnackBar(
-                context: context,
-                message: attendanceSubmittedSuccessfullyKey,
-              );
+                // Show auto-dismissing success banner
+                ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Container(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center, 
+                    children: [
+                    Icon(Icons.check_circle, color: Colors.white),
+                    SizedBox(width: 12),
+                    Text(
+                      'Presensi berhasil disimpan!',
+                      style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    ],
+                  ),
+                  ),
+                  backgroundColor: Colors.green.shade400,
+                  duration: Duration(seconds: 2),
+                  behavior: SnackBarBehavior.floating,
+                  margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  ),
+                  elevation: 4,
+                ),
+                );
               Navigator.pop(context);
             } else if (submitAttendanceState is SubmitAttendanceFailure) {
               Utils.showSnackBar(

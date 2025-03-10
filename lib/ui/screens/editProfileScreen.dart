@@ -303,8 +303,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (state is EditProfileSuccess) {
         context.read<AuthCubit>().updateuserDetail(state.userDetails);
         Navigator.pop(context);
-        Utils.showSnackBar(
-            message: updateProfileSuccessfullyKey, context: context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Container(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.check_circle, color: Colors.white),
+                  SizedBox(width: 12),
+                  Text(
+                    'Profil berhasil diperbarui!',
+                    style: TextStyle(
+                      color: Colors.white, 
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            backgroundColor: Colors.green.shade400,
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            elevation: 4,
+          ),
+        );
       } else if (state is EditProfileFailure) {
         Utils.showSnackBar(message: state.errorMessage, context: context);
       }

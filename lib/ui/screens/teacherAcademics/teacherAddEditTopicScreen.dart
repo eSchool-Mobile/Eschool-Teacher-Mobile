@@ -360,8 +360,44 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen> {
               : BlocConsumer<CreateTopicCubit, CreateTopicState>(
                   listener: (context, state) {
                     if (state is CreateTopicSuccess) {
-                      Utils.showSnackBar(
-                          context: context, message: topicAddedSuccessfullyKey);
+                        // Show auto-dismissing success banner
+                        ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Container(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                            Icon(Icons.check_circle, color: Colors.white),
+                            SizedBox(width: 12),
+                            Text(
+                              'Topik berhasil ditambahkan!',
+                              style: TextStyle(
+                              color: Colors.white, 
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            ],
+                          ),
+                          ),
+                          backgroundColor: Colors.green.shade400,
+                          duration: Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
+                          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                        ),
+                        );
+
+                        // Clear form and pop with slight delay
+                        Future.delayed(Duration(milliseconds: 2200), () {
+                        if (context.mounted) {
+                          Navigator.pop(context, true); 
+                        }
+                        });
                       _topicNameTextEditingController.text = "";
                       _topicDescriptionTextEditingController.text = "";
                       _addedStudyMaterials = [];

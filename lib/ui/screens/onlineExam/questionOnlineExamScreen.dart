@@ -1048,29 +1048,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
 
                 try {
                   // Show loading dialog
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (BuildContext loadingContext) {
-                      return Center(
-                        child: Container(
-                          padding: EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              CircularProgressIndicator(),
-                              SizedBox(height: 8),
-                              Text('Menghapus soal...'),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  );
+                  _showDeleteLoadingDialog(context);
 
                   // Delete questions
                   await context.read<QuestionOnlineExamCubit>().deleteQuestions(
@@ -1208,5 +1186,98 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
         ),
       );
     }
+  }
+
+  void _showDeleteLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: GlassmorphicContainer(
+            width: 300,
+            height: 180,
+            borderRadius: 20,
+            blur: 5,
+            alignment: Alignment.center,
+            border: 2,
+            linearGradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withOpacity(0.2),
+                Colors.white.withOpacity(0.1),
+              ],
+            ),
+            borderGradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withOpacity(0.2),
+                Colors.white.withOpacity(0.1),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Custom animated loading indicator
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CircularProgressIndicator(
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Colors.red[400]!),
+                        strokeWidth: 3,
+                      ),
+                      Icon(
+                        Icons.delete_outline,
+                        color: Colors.white,
+                        size: 30,
+                      )
+                          .animate(
+                            onPlay: (controller) => controller.repeat(),
+                          )
+                          .shake(
+                            duration: 1500.ms,
+                            hz: 2,
+                          ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 24),
+                Text(
+                  'Menghapus Soal',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Mohon tunggu sebentar...',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ).animate().scale(
+              duration: 300.ms,
+              curve: Curves.easeOutBack,
+            );
+      },
+    );
   }
 }

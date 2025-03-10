@@ -27,6 +27,14 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 
+class AppColorPalette {
+  static const Color primaryMaroon = Color(0xFF8B1F41);
+  static const Color secondaryMaroon = Color(0xFFA84B5C);
+  static const Color lightMaroon = Color(0xFFE7C8CD);
+  static const Color accentPink = Color(0xFFF4D0D9);
+  static const Color warmBeige = Color(0xFFF5E6E8);
+}
+
 class ProfileContainer extends StatefulWidget {
   const ProfileContainer({super.key});
 
@@ -34,12 +42,12 @@ class ProfileContainer extends StatefulWidget {
   State<ProfileContainer> createState() => _ProfileContainerState();
 }
 
-class _ProfileContainerState extends State<ProfileContainer> 
+class _ProfileContainerState extends State<ProfileContainer>
     with SingleTickerProviderStateMixin {
   int _hoveredMenuIndex = -1;
   late AnimationController _animationController;
   late Animation<double> _animation;
-  
+
   @override
   void initState() {
     super.initState();
@@ -47,10 +55,11 @@ class _ProfileContainerState extends State<ProfileContainer>
       vsync: this,
       duration: const Duration(seconds: 30),
     )..repeat();
-    
-    _animation = Tween<double>(begin: 0, end: 2 * pi).animate(_animationController);
+
+    _animation =
+        Tween<double>(begin: 0, end: 2 * pi).animate(_animationController);
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -68,12 +77,14 @@ class _ProfileContainerState extends State<ProfileContainer>
               animation: _animationController,
               builder: (context, child) {
                 return CustomPaint(
-                  size: Size(MediaQuery.of(context).size.width, 
-                       MediaQuery.of(context).size.height),
+                  size: Size(MediaQuery.of(context).size.width,
+                      MediaQuery.of(context).size.height),
                   painter: BackgroundPatternPainter(
                     animation: _animation,
-                    primaryColor: AppColorPalette.primaryMaroon.withOpacity(0.03),
-                    accentColor: AppColorPalette.secondaryMaroon.withOpacity(0.02),
+                    primaryColor:
+                        AppColorPalette.primaryMaroon.withOpacity(0.03),
+                    accentColor:
+                        AppColorPalette.secondaryMaroon.withOpacity(0.02),
                   ),
                 );
               },
@@ -123,7 +134,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                             icon: Icons.lock_outline,
                             title: "Ubah Kata Sandi",
                             index: 1,
-                            onTap: () => Get.toNamed(Routes.changePasswordScreen),
+                            onTap: () =>
+                                Get.toNamed(Routes.changePasswordScreen),
                           ),
                         ],
                       ),
@@ -158,7 +170,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                         context: context,
                         title: "Penggajian",
                         icon: Icons.account_balance_wallet,
-                        iconColor: AppColorPalette.accentPink.withOpacity(0.8),
+                        iconColor: AppColorPalette.secondaryMaroon,
                         index: 2,
                         menus: [
                           _buildMenuItem(
@@ -183,7 +195,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                         context: context,
                         title: "Informasi",
                         icon: Icons.info_outline,
-                        iconColor: AppColorPalette.lightMaroon,
+                        iconColor: AppColorPalette.secondaryMaroon,
                         index: 3,
                         menus: [
                           _buildMenuItem(
@@ -288,7 +300,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      context.read<AuthCubit>().getUserDetails().firstName ?? "Pengguna",
+                      context.read<AuthCubit>().getUserDetails().firstName ??
+                          "Pengguna",
                       style: GoogleFonts.poppins(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -300,34 +313,35 @@ class _ProfileContainerState extends State<ProfileContainer>
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildQuickStatCard(
-                  context, 
-                  "Kehadiran Bulan Ini", 
-                  "87%",
-                  Icons.calendar_today,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildQuickStatCard(
-                  context, 
-                  "Cuti Tersedia", 
-                  "12 hari",
-                  Icons.event_available,
-                ),
-              ),
-            ],
-          ),
+          // const SizedBox(height: 16),
+          // Row(
+          //   children: [
+          //     Expanded(
+          //       child: _buildQuickStatCard(
+          //         context,
+          //         "Kehadiran Bulan Ini",
+          //         "87%",
+          //         Icons.calendar_today,
+          //       ),
+          //     ),
+          //     const SizedBox(width: 12),
+          //     Expanded(
+          //       child: _buildQuickStatCard(
+          //         context,
+          //         "Cuti Tersedia",
+          //         "12 hari",
+          //         Icons.event_available,
+          //       ),
+          //     ),
+          //   ],
+          // ),
         ],
       ),
     );
   }
 
-  Widget _buildQuickStatCard(BuildContext context, String title, String value, IconData icon) {
+  Widget _buildQuickStatCard(
+      BuildContext context, String title, String value, IconData icon) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -434,7 +448,7 @@ class _ProfileContainerState extends State<ProfileContainer>
               ),
             ),
           ),
-          
+
           // Content
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -459,7 +473,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                           ),
                         ),
                       ),
-                      
+
                       // Actual image
                       Container(
                         height: 80,
@@ -472,7 +486,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+                              color: AppColorPalette.primaryMaroon
+                                  .withOpacity(0.2),
                               blurRadius: 10,
                               spreadRadius: 2,
                               offset: const Offset(0, 3),
@@ -480,11 +495,15 @@ class _ProfileContainerState extends State<ProfileContainer>
                           ],
                         ),
                         child: ProfileImageContainer(
-                          imageUrl: context.read<AuthCubit>().getUserDetails().image ?? "",
+                          imageUrl: context
+                                  .read<AuthCubit>()
+                                  .getUserDetails()
+                                  .image ??
+                              "",
                           heightAndWidth: 80,
                         ),
                       ),
-                      
+
                       // Status indicator
                       Positioned(
                         bottom: 0,
@@ -515,7 +534,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                           Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+                              color: AppColorPalette.primaryMaroon
+                                  .withOpacity(0.1),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -543,7 +563,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                           Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+                              color: AppColorPalette.primaryMaroon
+                                  .withOpacity(0.1),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -555,7 +576,12 @@ class _ProfileContainerState extends State<ProfileContainer>
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              context.read<AuthCubit>().getUserDetails().school?.name ?? "-",
+                              context
+                                      .read<AuthCubit>()
+                                      .getUserDetails()
+                                      .school
+                                      ?.name ??
+                                  "-",
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 color: AppColorPalette.primaryMaroon,
@@ -565,14 +591,14 @@ class _ProfileContainerState extends State<ProfileContainer>
                           ),
                         ],
                       ),
-                      
                       const SizedBox(height: 8),
                       Row(
                         children: [
                           Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+                              color: AppColorPalette.primaryMaroon
+                                  .withOpacity(0.1),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -584,7 +610,11 @@ class _ProfileContainerState extends State<ProfileContainer>
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              context.read<AuthCubit>().getUserDetails().email ?? "-",
+                              context
+                                      .read<AuthCubit>()
+                                      .getUserDetails()
+                                      .email ??
+                                  "-",
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 color: AppColorPalette.primaryMaroon,
@@ -757,7 +787,8 @@ class _ProfileContainerState extends State<ProfileContainer>
               splashColor: AppColorPalette.primaryMaroon.withOpacity(0.1),
               highlightColor: Colors.transparent,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 child: Row(
                   children: [
                     AnimatedContainer(
@@ -771,7 +802,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                         boxShadow: isHovered
                             ? [
                                 BoxShadow(
-                                  color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+                                  color: AppColorPalette.primaryMaroon
+                                      .withOpacity(0.1),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -792,7 +824,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                         title,
                         style: GoogleFonts.poppins(
                           fontSize: 16,
-                          fontWeight: isHovered ? FontWeight.w600 : FontWeight.w500,
+                          fontWeight:
+                              isHovered ? FontWeight.w600 : FontWeight.w500,
                           color: isHovered
                               ? AppColorPalette.primaryMaroon
                               : AppColorPalette.secondaryMaroon,
@@ -873,8 +906,8 @@ class BackgroundPatternPainter extends CustomPainter {
   final Color accentColor;
 
   BackgroundPatternPainter({
-    required this.animation, 
-    required this.primaryColor, 
+    required this.animation,
+    required this.primaryColor,
     required this.accentColor,
   }) : super(repaint: animation);
 

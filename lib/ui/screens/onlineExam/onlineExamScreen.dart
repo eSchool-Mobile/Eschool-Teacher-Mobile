@@ -723,7 +723,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                       Expanded(
                         child: _buildActionButton(
                           icon: Icons.delete_outline,
-                          label: 'Hapus',
+                          label: 'Archive',
                           onTap: () => _showDeleteConfirmation(exam),
                           color: Colors.red[700]!,
                           height: 36,
@@ -1064,27 +1064,12 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                       label: Text('Arsipkan'),
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
-                        backgroundColor: Colors.orange[700],
+                        backgroundColor: Colors.red,
                         padding: EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
                   ),
                   SizedBox(width: 10),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(dialogContext);
-                        _showPermanentDeleteConfirmation(exam);
-                      },
-                      icon: Icon(Icons.delete_forever),
-                      label: Text('Hapus'),
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.red[700],
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ],
@@ -1103,80 +1088,4 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     );
   }
 
-  void _showPermanentDeleteConfirmation(exam.OnlineExam exam) {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          title: Row(
-            children: [
-              Icon(Icons.dangerous_outlined, color: Colors.red[900], size: 28),
-              SizedBox(width: 10),
-              Text(
-                'Hapus Permanen',
-                style: TextStyle(
-                  color: Colors.red[900],
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          content: Text(
-            'Anda yakin ingin menghapus permanen ujian "${exam.title}"?\n\n'
-            'Tindakan ini tidak dapat dibatalkan!',
-            style: TextStyle(fontSize: 16),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(
-                'Batal',
-                style: TextStyle(color: Colors.grey[600]),
-              ),
-            ),
-            ElevatedButton.icon(
-              onPressed: () async {
-                Navigator.pop(dialogContext);
-                try {
-                  await context.read<OnlineExamCubit>().deleteOnlineExam(
-                        examId: exam.id,
-                        mode: 'permanent',
-                      );
-
-                  // Tampilkan snackbar sukses
-                  if (!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Ujian berhasil dihapus permanen'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                } catch (e) {
-                  // Tampilkan snackbar error
-                  if (!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Gagal menghapus ujian'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
-              icon: Icon(Icons.delete_forever),
-              label: Text('Hapus Permanen'),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.red[900],
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }

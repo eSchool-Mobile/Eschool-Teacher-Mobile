@@ -373,6 +373,58 @@ class _TeacherAddEditAssignmentScreenState
     }
   }
 
+  void _showOverlayMessage({required BuildContext context, required String message}) {
+    OverlayEntry overlayEntry;
+    
+    overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: MediaQuery.of(context).size.height * 0.1,
+        width: MediaQuery.of(context).size.width,
+        child: Material(
+          color: Colors.transparent,
+          child: Center(
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 20),
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.green.shade400,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    offset: Offset(0, 5),
+                  )
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.check_circle, color: Colors.white),
+                  SizedBox(width: 12),
+                  Text(
+                    "Tugas Berhasil Ditambahkan",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(overlayEntry);
+
+    Future.delayed(Duration(seconds: 2), () {
+      overlayEntry.remove();
+    });
+  }
+
   void createAssignment() {
     FocusManager.instance.primaryFocus?.unfocus();
 
@@ -628,11 +680,70 @@ class _TeacherAddEditAssignmentScreenState
                   )
                 : BlocConsumer<CreateAssignmentCubit, CreateAssignmentState>(
                     listener: (context, state) {
+                      // if (state is CreateAssignmentSuccess) {
+                      //   // Utils.showSnackBar(
+                      //   //   context: context,
+                      //   //   message: assignmentAddedSuccessfullyKey,
+                      //   // );
                       if (state is CreateAssignmentSuccess) {
-                        Utils.showSnackBar(
+                        // Show custom success overlay
+                        _showOverlayMessage(
                           context: context,
                           message: assignmentAddedSuccessfullyKey,
                         );
+
+            // Add this function somewhere in the class:
+            void showOverlayMessage({required BuildContext context, required String message}) {
+              OverlayEntry overlayEntry;
+              
+              overlayEntry = OverlayEntry(
+              builder: (context) => Positioned(
+                top: MediaQuery.of(context).size.height * 0.1,
+                width: MediaQuery.of(context).size.width,
+                child: Material(
+                color: Colors.transparent,
+                child: Center(
+                  child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 20),
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade400,
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 10,
+                      offset: Offset(0, 5),
+                    )
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                    Icon(Icons.check_circle, color: Colors.white),
+                    SizedBox(width: 12),
+                    Text(
+                      message,
+                      style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    ],
+                  ),
+                  ),
+                ),
+                ),
+              ),
+              );
+
+              Overlay.of(context).insert(overlayEntry);
+
+              Future.delayed(Duration(seconds: 2), () {
+              overlayEntry.remove();
+              });
+            }
                         _assignmentNameTextEditingController.text = "";
                         _assignmentDescriptionTextEditingController.text = "";
                         _assignmentPointsTextEditingController.text = "";

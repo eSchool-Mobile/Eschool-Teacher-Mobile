@@ -1,20 +1,26 @@
+import 'dart:math';
+import 'dart:ui';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/menusWithTitleContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customMenuTile.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/systemModulesAndPermissions.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:flutter/services.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+
+class AppColorPalette {
+  static const Color primaryMaroon = Color(0xFF8B1F41);
+  static const Color secondaryMaroon = Color(0xFFA84B5C);
+  static const Color lightMaroon = Color(0xFFE7C8CD);
+  static const Color accentPink = Color(0xFFF4D0D9);
+  static const Color warmBeige = Color(0xFFF5E6E8);
+}
 
 class TeacherAcademicsContainer extends StatefulWidget {
   const TeacherAcademicsContainer({super.key});
@@ -25,496 +31,694 @@ class TeacherAcademicsContainer extends StatefulWidget {
 }
 
 class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
-    with TickerProviderStateMixin {
-  late final AnimationController _fadeController;
-  late final AnimationController _scaleController;
-  bool _isInitialized = false;
+    with SingleTickerProviderStateMixin {
+  int _hoveredMenuIndex = -1;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
-    _setupAnimations();
-    _loadData();
-  }
-
-  void _setupAnimations() {
-    _fadeController = AnimationController(
+    context.read<ClassesCubit>().getClasses();
+    _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
+      duration: const Duration(seconds: 30),
+    )..repeat();
 
-    _scaleController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-      value: 1.0,
-    );
-
-    _fadeController.forward();
-    setState(() => _isInitialized = true);
+    _animation =
+        Tween<double>(begin: 0, end: 2 * pi).animate(_animationController);
   }
 
-  void _loadData() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<ClassesCubit>().getClasses();
-      }
-    });
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
-  // Add BackgroundPainter for consistent styling
-  Widget _buildBackground() {
-    return AnimatedPositioned(
-      duration: Duration(seconds: 2),
-      curve: Curves.easeInOut,
-      top: 0,
-      left: 0,
-      right: 0,
-      height: MediaQuery.of(context).size.height,
-      child: AnimatedOpacity(
-        duration: Duration(seconds: 1),
-        opacity: 0.1,
-        child: CustomPaint(
-          painter: BackgroundPainter(
-            color: AppColorPalette.primaryMaroon,
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Updated modern menu container
-  Widget _buildModernMenuContainer({
-    required String title,
-    required List<Widget> menus,
-    required int index,
-  }) {
-    return AnimationConfiguration.staggeredList(
-      position: index,
-      duration: const Duration(milliseconds: 475),
-      child: SlideAnimation(
-        horizontalOffset: 50.0,
-        child: FadeInAnimation(
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            child: Card(
-              elevation: 12,
-              shadowColor: AppColorPalette.primaryMaroon.withOpacity(0.2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // Animated Background Pattern
+        AnimatedBuilder(
+          animation: _animationController,
+          builder: (context, child) {
+            return CustomPaint(
+              size: Size(MediaQuery.of(context).size.width,
+                  MediaQuery.of(context).size.height),
+              painter: BackgroundPatternPainter(
+                animation: _animation,
+                primaryColor: AppColorPalette.primaryMaroon.withOpacity(0.03),
+                accentColor: AppColorPalette.secondaryMaroon.withOpacity(0.02),
               ),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColorPalette.primaryMaroon.withOpacity(0.08),
-                      blurRadius: 24,
-                      offset: const Offset(0, 12),
-                    ),
-                  ],
+            );
+          },
+        ),
+
+        // Main Content
+        BlocBuilder<ClassesCubit, ClassesState>(
+          builder: (context, classState) {
+            final isWalas = classState is ClassesFetchSuccess &&
+                classState.primaryClasses.isNotEmpty;
+
+            return AnimationLimiter(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.only(
+                  top: 120,
+                  left: 16,
+                  right: 16,
+                  bottom: 100,
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildHeaderCard(title),
-                    ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: menus.length,
-                      separatorBuilder: (context, index) => Divider(
-                        height: 1,
-                        color: AppColorPalette.primaryMaroon.withOpacity(0.1),
-                      ),
-                      itemBuilder: (context, index) =>
-                          _buildEnhancedMenuItem(menus[index]),
+                  children: AnimationConfiguration.toStaggeredList(
+                    duration: const Duration(milliseconds: 600),
+                    childAnimationBuilder: (widget) => SlideAnimation(
+                      verticalOffset: 30.0,
+                      child: FadeInAnimation(child: widget),
                     ),
-                  ],
+                    children: [
+                      const SizedBox(height: 16),
+
+                      // Welcome Section
+                      _buildWelcomeSection(context, isWalas),
+
+                      const SizedBox(height: 32),
+
+                      // Timetable Section
+                      _buildMenuSection(
+                        context: context,
+                        title: "Jadwal", // Ganti dari timetableKey
+                        icon: Icons.schedule,
+                        iconColor: AppColorPalette.primaryMaroon,
+                        index: 0,
+                        menus: [
+                          _buildMenuItem(
+                            context: context,
+                            icon: Icons.calendar_today,
+                            title: "Jadwal Saya", // Ganti dari myTimetableKey
+                            index: 0,
+                            onTap: () =>
+                                Get.toNamed(Routes.teacherMyTimetableScreen),
+                          ),
+                          if (isWalas)
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.class_,
+                              title: "Kelas", // Ganti dari classSectionKey
+                              index: 1,
+                              onTap: () =>
+                                  Get.toNamed(Routes.teacherClassSectionScreen),
+                            ),
+                        ],
+                      ),
+
+                      // Attendance Section
+                      if (isWalas) ...[
+                        _buildMenuSection(
+                          context: context,
+                          title: "Kehadiran", // Ganti dari attendanceKey
+                          icon: Icons.people,
+                          iconColor: AppColorPalette.secondaryMaroon,
+                          index: 1,
+                          menus: [
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.add_circle_outline,
+                              title:
+                                  "Tambah Kehadiran", // Ganti dari addAttendanceKey
+                              index: 2,
+                              onTap: () => Get.toNamed(
+                                  Routes.teacherAddAttendanceScreen),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.visibility,
+                              title:
+                                  "Lihat Kehadiran", // Ganti dari viewAttendanceKey
+                              index: 3,
+                              onTap: () => Get.toNamed(
+                                  Routes.teacherViewAttendanceScreen),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.subject,
+                              title:
+                                  "Kehadiran per Mata Pelajaran", // Ganti dari viewAttendanceSubjectKey
+                              index: 4,
+                              onTap: () => Get.toNamed(
+                                  Routes.teacherViewAttendanceSubjectScreen),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.summarize,
+                              title:
+                                  "Rekap Kehadiran", // Ganti dari recapAttendanceSubjectKey
+                              index: 5,
+                              onTap: () => Get.toNamed(
+                                  Routes.recapAttendanceSubjectScreen),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.leaderboard,
+                              title:
+                                  "Peringkat Ketidakhadiran", // Ganti dari rankingAbsentKey
+                              index: 6,
+                              onTap: () =>
+                                  Get.toNamed(Routes.attendanceRankingScreen),
+                            ),
+                          ],
+                        ),
+                      ],
+
+                      // Lesson Section
+                      _buildMenuSection(
+                        context: context,
+                        title: "Pembelajaran", // Ganti dari subjectLessonKey
+                        icon: Icons.book,
+                        iconColor: AppColorPalette.primaryMaroon,
+                        index: 2,
+                        menus: [
+                          _buildMenuItem(
+                            context: context,
+                            icon: Icons.edit,
+                            title:
+                                "Kelola Pembelajaran", // Ganti dari manageLessonKey
+                            index: 7,
+                            onTap: () =>
+                                Get.toNamed(Routes.teacherManageLessonScreen),
+                          ),
+                          _buildMenuItem(
+                            context: context,
+                            icon: Icons.topic,
+                            title: "Kelola Topik", // Ganti dari manageTopicKey
+                            index: 8,
+                            onTap: () =>
+                                Get.toNamed(Routes.teacherManageTopicScreen),
+                          ),
+                        ],
+                      ),
+
+                      // Question Bank Section
+                      _buildMenuSection(
+                        context: context,
+                        title: "Bank Soal",
+                        icon: Icons.quiz,
+                        iconColor: AppColorPalette.secondaryMaroon,
+                        index: 3,
+                        menus: [
+                          _buildMenuItem(
+                            context: context,
+                            icon: Icons.question_answer,
+                            title: "Bank Soal",
+                            index: 9,
+                            onTap: () =>
+                                Get.toNamed(Routes.questionSubjectScreen),
+                          ),
+                        ],
+                      ),
+
+                      // Assignment Section
+                      _buildMenuSection(
+                        context: context,
+                        title: "Tugas", // Ganti dari studentAssignmentKey
+                        icon: Icons.assignment,
+                        iconColor: AppColorPalette.primaryMaroon,
+                        index: 4,
+                        menus: [
+                          _buildMenuItem(
+                            context: context,
+                            icon: Icons.edit_note,
+                            title:
+                                "Kelola Tugas", // Ganti dari manageAssignmentKey
+                            index: 10,
+                            onTap: () => Get.toNamed(
+                                Routes.teacherManageAssignmentScreen),
+                          ),
+                        ],
+                      ),
+
+                      // Announcement Section
+                      _buildMenuSection(
+                        context: context,
+                        title: "Pengumuman", // Ganti dari messageKey
+                        icon: Icons.announcement,
+                        iconColor: AppColorPalette.secondaryMaroon,
+                        index: 5,
+                        menus: [
+                          _buildMenuItem(
+                            context: context,
+                            icon: Icons.campaign,
+                            title:
+                                "Kelola Pengumuman", // Ganti dari manageAnnouncementKey
+                            index: 11,
+                            onTap: () => Get.toNamed(
+                                Routes.teacherManageAnnouncementScreen),
+                          ),
+                        ],
+                      ),
+
+                      // Offline Exam Section
+                      _buildMenuSection(
+                        context: context,
+                        title: "Ujian Offline", // Ganti dari offlineExamKey
+                        icon: Icons.school,
+                        iconColor: AppColorPalette.primaryMaroon,
+                        index: 6,
+                        menus: [
+                          _buildMenuItem(
+                            context: context,
+                            icon: Icons.edit_document,
+                            title: "Ujian", // Ganti dari examsKey
+                            index: 12,
+                            onTap: () => Get.toNamed(Routes.examsScreen),
+                          ),
+                          _buildMenuItem(
+                            context: context,
+                            icon: Icons.analytics,
+                            title: "Hasil Ujian", // Ganti dari examResultKey
+                            index: 13,
+                            onTap: () =>
+                                Get.toNamed(Routes.teacherExamResultScreen),
+                          ),
+                        ],
+                      ),
+
+                      // Online Exam Section
+                      _buildMenuSection(
+                        context: context,
+                        title: "Ujian Online",
+                        icon: Icons.computer,
+                        iconColor: AppColorPalette.secondaryMaroon,
+                        index: 7,
+                        menus: [
+                          _buildMenuItem(
+                            context: context,
+                            icon: Icons.quiz,
+                            title: "Ujian Online",
+                            index: 14,
+                            onTap: () => Get.toNamed(Routes.onlineExamScreen),
+                          ),
+                          _buildMenuItem(
+                            context: context,
+                            icon: Icons.assessment,
+                            title: "Hasil Ujian Online",
+                            index: 15,
+                            onTap: () =>
+                                Get.toNamed(Routes.onlineExamResultScreen),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         ),
-      ),
+
+        // Enhanced Glassmorphic AppBar
+        _buildEnhancedAppBar(context: context),
+      ],
     );
   }
 
-  // Updated header card
-  Widget _buildHeaderCard(String title) {
+  Widget _buildWelcomeSection(BuildContext context, bool isWalas) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColorPalette.primaryMaroon,
-            AppColorPalette.secondaryMaroon,
+            Colors.white,
+            AppColorPalette.warmBeige.withOpacity(0.4),
           ],
         ),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: AppColorPalette.primaryMaroon.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: Text(
-                  title.tr,
-                  style: GoogleFonts.poppins(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: AppColorPalette.primaryMaroon.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
-                  _getIconForTitle(title),
-                  color: Colors.white,
-                  size: 24,
+                  Icons.school,
+                  color: AppColorPalette.secondaryMaroon,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isWalas ? "Wali Kelas" : "Guru Mata Pelajaran",
+                      style: GoogleFonts.poppins(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: AppColorPalette.primaryMaroon.withOpacity(0.7),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "Akademik",
+                      style: GoogleFonts.poppins(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: AppColorPalette.primaryMaroon,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
-          ),
-          Positioned(
-            right: -20,
-            bottom: -20,
-            child: Icon(
-              _getIconForTitle(title),
-              size: 80,
-              color: Colors.white.withOpacity(0.1),
-            ),
           ),
         ],
       ),
     );
   }
 
-  // Updated menu item
-  Widget _buildEnhancedMenuItem(Widget menuItem) {
-    if (menuItem is CustomMenuTile) {
-      return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(16),
-            onTap: () {
-              HapticFeedback.lightImpact();
-              menuItem.onTap?.call();
-            },
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColorPalette.primaryMaroon.withOpacity(0.1),
-                          AppColorPalette.secondaryMaroon.withOpacity(0.1),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: SvgPicture.asset(
-                      'assets/images/${menuItem.iconImageName}',
-                      height: 24,
-                      width: 24,
-                      color: AppColorPalette.primaryMaroon,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text(
-                      menuItem.titleKey.tr,
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    color: AppColorPalette.primaryMaroon.withOpacity(0.5),
-                    size: 20,
-                  ),
+  Widget _buildEnhancedAppBar({required BuildContext context}) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.white.withOpacity(0.95),
+                  Colors.white.withOpacity(0.9),
                 ],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  offset: const Offset(0, 2),
+                  blurRadius: 8,
+                ),
+              ],
+            ),
+            child: const CustomAppbar(
+              titleKey: "Akademik",
+              showBackButton: false,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuSection({
+    required BuildContext context,
+    required String title,
+    required IconData icon,
+    required Color iconColor,
+    required int index,
+    required List<Widget> menus,
+  }) {
+    return AnimationConfiguration.staggeredList(
+      position: index,
+      duration: const Duration(milliseconds: 400),
+      child: SlideAnimation(
+        verticalOffset: 40,
+        child: FadeInAnimation(
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white,
+                  Colors.white.withOpacity(0.95),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: iconColor.withOpacity(0.1),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+              border: Border.all(
+                color: iconColor.withOpacity(0.05),
+                width: 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              iconColor.withOpacity(0.2),
+                              iconColor.withOpacity(0.1),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: iconColor.withOpacity(0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          icon,
+                          color: iconColor,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Text(
+                        title,
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: iconColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  height: 1,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        iconColor.withOpacity(0.05),
+                        iconColor.withOpacity(0.2),
+                        iconColor.withOpacity(0.05),
+                      ],
+                    ),
+                  ),
+                ),
+                ...menus,
+                const SizedBox(height: 4),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuItem({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required int index,
+    required VoidCallback onTap,
+  }) {
+    final isHovered = _hoveredMenuIndex == index;
+
+    return StatefulBuilder(builder: (context, setState) {
+      return MouseRegion(
+        onEnter: (_) => this.setState(() => _hoveredMenuIndex = index),
+        onExit: (_) => this.setState(() => _hoveredMenuIndex = -1),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            gradient: isHovered
+                ? LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      AppColorPalette.primaryMaroon.withOpacity(0.05),
+                      AppColorPalette.secondaryMaroon.withOpacity(0.1),
+                    ],
+                  )
+                : null,
+            borderRadius: BorderRadius.circular(16),
+            border: isHovered
+                ? Border.all(
+                    color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+                    width: 1,
+                  )
+                : null,
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: onTap,
+              splashColor: AppColorPalette.primaryMaroon.withOpacity(0.1),
+              highlightColor: Colors.transparent,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                child: Row(
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: isHovered
+                            ? AppColorPalette.primaryMaroon.withOpacity(0.1)
+                            : AppColorPalette.warmBeige.withOpacity(0.5),
+                        shape: BoxShape.circle,
+                        boxShadow: isHovered
+                            ? [
+                                BoxShadow(
+                                  color: AppColorPalette.primaryMaroon
+                                      .withOpacity(0.1),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: Icon(
+                        icon,
+                        color: isHovered
+                            ? AppColorPalette.primaryMaroon
+                            : AppColorPalette.secondaryMaroon,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight:
+                              isHovered ? FontWeight.w600 : FontWeight.w500,
+                          color: isHovered
+                              ? AppColorPalette.primaryMaroon
+                              : AppColorPalette.secondaryMaroon,
+                        ),
+                      ),
+                    ),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      transform: Matrix4.translationValues(
+                          isHovered ? 8.0 : 0.0, 0.0, 0.0),
+                      child: Icon(
+                        Icons.arrow_forward_ios,
+                        color: isHovered
+                            ? AppColorPalette.primaryMaroon
+                            : AppColorPalette.secondaryMaroon.withOpacity(0.5),
+                        size: 16,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
         ),
       );
-    }
-    return menuItem;
-  }
-
-  void _onTapDown() {
-    if (_isInitialized && mounted) {
-      HapticFeedback.mediumImpact();
-      _scaleController.reverse();
-    }
-  }
-
-  void _onTapUp() {
-    if (_isInitialized && mounted) {
-      _scaleController.forward();
-    }
-  }
-
-  IconData _getIconForTitle(String title) {
-    switch (title.toLowerCase()) {
-      case 'timetable':
-        return Icons.schedule;
-      case 'attendance':
-        return Icons.people;
-      case 'subject lesson':
-        return Icons.book;
-      case 'bank soal':
-        return Icons.quiz;
-      case 'student assignment':
-        return Icons.assignment;
-      case 'message':
-        return Icons.message;
-      case 'offline exam':
-        return Icons.edit_note;
-      case 'ujian online':
-        return Icons.computer;
-      default:
-        return Icons.menu_book;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final StaffAllowedPermissionsAndModulesCubit
-        staffAllowedPermissionsAndModulesCubit =
-        context.read<StaffAllowedPermissionsAndModulesCubit>();
-
-    return BlocBuilder<ClassesCubit, ClassesState>(
-      builder: (context, classState) {
-        print("ClassState: $classState");
-
-        // Debug data yang diterima
-        if (classState is ClassesFetchSuccess) {
-          print(
-              "Primary Classes: ${classState.primaryClasses.map((e) => e.name).toList()}");
-          print(
-              "Other Classes: ${classState.classes.map((e) => e.name).toList()}");
-        }
-
-        final isWalas = classState is ClassesFetchSuccess &&
-            classState.primaryClasses.isNotEmpty;
-
-        print("Is Wali Kelas: $isWalas");
-        return AnimationLimiter(
-          child: ListView(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            children: [
-              _buildModernMenuContainer(
-                title: timetableKey,
-                index: 0,
-                menus: [
-                  if (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
-                      moduleId: timetableManagementModuleId.toString()))
-                    CustomMenuTile(
-                      iconImageName: "timetable.svg",
-                      titleKey: myTimetableKey,
-                      onTap: () {
-                        Get.toNamed(Routes.teacherMyTimetableScreen);
-                      },
-                    ),
-                  if (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
-                          moduleId: timetableManagementModuleId.toString()) &&
-                      isWalas) ...[
-                    CustomMenuTile(
-                        iconImageName: "class_section.svg",
-                        titleKey: classSectionKey,
-                        onTap: () {
-                          Get.toNamed(Routes.teacherClassSectionScreen);
-                        }),
-                  ]
-                ],
-              ),
-              if (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
-                      moduleId: attendanceManagementModuleId.toString()) &&
-                  isWalas) ...[
-                _buildModernMenuContainer(
-                  title: attendanceKey,
-                  index: 1,
-                  menus: [
-                    CustomMenuTile(
-                        iconImageName: "add_attendance.svg",
-                        titleKey: addAttendanceKey,
-                        onTap: () {
-                          Get.toNamed(Routes.teacherAddAttendanceScreen);
-                        }),
-                    CustomMenuTile(
-                        iconImageName: "view_attendance.svg",
-                        titleKey: viewAttendanceKey,
-                        onTap: () {
-                          Get.toNamed(Routes.teacherViewAttendanceScreen);
-                        }),
-                    CustomMenuTile(
-                        iconImageName: "view_attendance_subject.svg",
-                        titleKey: viewAttendanceSubjectKey,
-                        onTap: () {
-                          Get.toNamed(
-                              Routes.teacherViewAttendanceSubjectScreen);
-                        }),
-                    CustomMenuTile(
-                        iconImageName: "recap_attendance.svg",
-                        titleKey: recapAttendanceSubjectKey,
-                        onTap: () {
-                          Get.toNamed(Routes.recapAttendanceSubjectScreen);
-                        }),
-                    CustomMenuTile(
-                        iconImageName: "ranking_absent.svg",
-                        titleKey: rankingAbsentKey,
-                        onTap: () {
-                          Get.toNamed(Routes.attendanceRankingScreen);
-                        }),
-                  ],
-                ),
-              ],
-              if (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
-                  moduleId: lessonManagementModuleId.toString()))
-                _buildModernMenuContainer(
-                  title: subjectLessonKey,
-                  index: 2,
-                  menus: [
-                    CustomMenuTile(
-                        iconImageName: "manage_lesson.svg",
-                        titleKey: manageLessonKey,
-                        onTap: () {
-                          Get.toNamed(Routes.teacherManageLessonScreen);
-                        }),
-                    CustomMenuTile(
-                        iconImageName: "manage_topic.svg",
-                        titleKey: manageTopicKey,
-                        onTap: () {
-                          Get.toNamed(Routes.teacherManageTopicScreen);
-                        }),
-                  ],
-                ),
-              _buildModernMenuContainer(
-                title: "Bank Soal",
-                index: 3,
-                menus: [
-                  CustomMenuTile(
-                      iconImageName: "question_bank.svg",
-                      titleKey: "Bank Soal",
-                      onTap: () {
-                        Get.toNamed(Routes.questionSubjectScreen);
-                      }),
-                ],
-              ),
-              if (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
-                  moduleId: assignmentManagementModuleId.toString()))
-                _buildModernMenuContainer(
-                  title: studentAssignmentKey,
-                  index: 4,
-                  menus: [
-                    CustomMenuTile(
-                        iconImageName: "manage_assignment.svg",
-                        titleKey: manageAssignmentKey,
-                        onTap: () {
-                          Get.toNamed(Routes.teacherManageAssignmentScreen);
-                        }),
-                  ],
-                ),
-              if (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
-                  moduleId: announcementManagementModuleId.toString()))
-                _buildModernMenuContainer(
-                  title: messageKey,
-                  index: 5,
-                  menus: [
-                    CustomMenuTile(
-                        iconImageName: "announcement.svg",
-                        titleKey: manageAnnouncementKey,
-                        onTap: () {
-                          Get.toNamed(Routes.teacherManageAnnouncementScreen);
-                        }),
-                  ],
-                ),
-              if (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
-                  moduleId: examManagementModuleId.toString()))
-                _buildModernMenuContainer(
-                  title: offlineExamKey,
-                  index: 6,
-                  menus: [
-                    CustomMenuTile(
-                        iconImageName: "exam.svg",
-                        titleKey: examsKey,
-                        onTap: () {
-                          Get.toNamed(Routes.examsScreen);
-                        }),
-                    CustomMenuTile(
-                        iconImageName: "result.svg",
-                        titleKey: examResultKey,
-                        onTap: () {
-                          Get.toNamed(Routes.teacherExamResultScreen);
-                        }),
-                  ],
-                ),
-              _buildModernMenuContainer(
-                title: "Ujian Online",
-                index: 7,
-                menus: [
-                  CustomMenuTile(
-                      iconImageName: "online_exam.svg",
-                      titleKey: "Ujian Online",
-                      onTap: () {
-                        Get.toNamed(Routes.onlineExamScreen);
-                      }),
-                  if (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
-                      moduleId: assignmentManagementModuleId.toString()))
-                    CustomMenuTile(
-                        iconImageName: "online_exam.svg",
-                        titleKey: "Hasil Ujian Online",
-                        onTap: () {
-                          Get.toNamed(Routes.onlineExamResultScreen);
-                        }),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
+    });
   }
 }
 
-class AppColorPalette {
-  static const Color primaryMaroon = Color(0xFF8B1F41);
-  static const Color secondaryMaroon = Color(0xFFA84B5C);
-  static const Color lightMaroon = Color(0xFFE7C8CD);
-  static const Color accentPink = Color(0xFFF4D0D9);
-  static const Color warmBeige = Color(0xFFF5E6E8);
-}
+class BackgroundPatternPainter extends CustomPainter {
+  final Animation<double> animation;
+  final Color primaryColor;
+  final Color accentColor;
 
-class BackgroundPainter extends CustomPainter {
-  final Color color;
-  BackgroundPainter({required this.color});
+  BackgroundPatternPainter({
+    required this.animation,
+    required this.primaryColor,
+    required this.accentColor,
+  }) : super(repaint: animation);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
+    final width = size.width;
+    final height = size.height;
+
+    // Draw dots pattern
+    final dotPaint = Paint()
+      ..color = primaryColor
       ..style = PaintingStyle.fill;
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint);
+
+    for (var x = 0; x < width; x += 30) {
+      for (var y = 0; y < height; y += 30) {
+        final offset = sin(x * 0.05 + y * 0.05 + animation.value) * 3;
+        final radius = 1 + sin(x * 0.04 + y * 0.04 + animation.value) * 0.5;
+        canvas.drawCircle(
+          Offset(x + offset, y + offset),
+          radius,
+          dotPaint,
+        );
+      }
+    }
+
+    // Draw animated wave
+    final wavePaint = Paint()
+      ..color = accentColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    for (var startY = 0; startY < height; startY += 200) {
+      final path = Path();
+      var startX = 0.0;
+      path.moveTo(startX, startY.toDouble());
+
+      for (var x = 0; x < width; x += 10) {
+        final y = startY + sin(x * 0.02 + animation.value) * 20;
+        path.lineTo(x.toDouble(), y);
+      }
+
+      canvas.drawPath(path, wavePaint);
+    }
   }
 
   @override
-  bool shouldRepaint(BackgroundPainter oldDelegate) => color != oldDelegate.color;
+  bool shouldRepaint(BackgroundPatternPainter oldDelegate) => true;
 }
