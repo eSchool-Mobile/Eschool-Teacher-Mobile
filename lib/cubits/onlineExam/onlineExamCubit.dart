@@ -176,7 +176,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
 emit(OnlineExamAnswersSuccess(
     answers: (result['answers'] as List<dynamic>)
         .map((answer) => OnlineExamAnswer(
-              id: answer['id'] ?? 0,
+              id: answer['answer_id'] ?? 0,
               marks: answer['marks'] ?? 0,
               totalMarks: result['marks'] ?? 0,
               studentId: answer['student_id'] ?? 0,
@@ -263,25 +263,17 @@ emit(OnlineExamAnswersSuccess(
 
   Future<bool> updateOnlineExamAnswerCorrection({
     required int examId,
-    required int studentId,
-    required int questionId,
-    required int answerId,
-    required int isAnswer,
+    required List<Map<String, int>> data,
   }) async {
+    print("OK DARI SISNI");
     try {
       await _repository.updateOnlineExamAnswerCorrection(
         onlineExamId: examId,
-        data: [
-          {
-            'student_id': studentId,
-            'question_id': questionId,
-            'answer_id': answerId,
-            'is_answer': isAnswer
-          }
-        ],
+        data: data,
       );
       return true;
     } catch (e) {
+      print(e);
       return false;
     }
   }

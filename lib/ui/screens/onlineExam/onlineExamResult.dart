@@ -151,6 +151,8 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
         children: [
           if (_showSearchBar)
             _buildSearchBar(), // Tampilkan search bar jika _showSearchBar true
+          if (!_showSearchBar)
+            SizedBox(height: 20,),
           Expanded(
             child: _buildExamCard(),
           ),

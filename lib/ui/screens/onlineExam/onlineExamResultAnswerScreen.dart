@@ -34,7 +34,9 @@ class _OnlineExamResultAnswerScreenState
   final TextEditingController _searchController = TextEditingController();
   List<dynamic> _allAnswers = []; // Store all answers locally
   List<dynamic> _filteredAnswers = []; // Store filtered answers
+  Map<String, TextEditingController> marksControllers = {};
   bool _isSearching = false;
+  bool showSearchBar = false;
 
   @override
   void initState() {
@@ -177,6 +179,7 @@ class _OnlineExamResultAnswerScreenState
         Expanded(
           child: _buildExamCard(),
         ),
+        _buildBottomSheet(context),
       ],
     );
   }
@@ -187,133 +190,137 @@ class _OnlineExamResultAnswerScreenState
         if (state is OnlineExamAnswersSuccess) {
           setState(() {
             _allAnswers = state.answers;
-            // When initial load, reset filtered answers to show all
+            showSearchBar = state.answers.length >= 5;
             if (!_isSearching) {
               _filteredAnswers = List.from(_allAnswers);
             } else {
-              // When already searching, maintain the current filter
               _filterAnswers(_searchController.text);
             }
           });
         }
       },
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-        child: Container(
-          height: 50,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(25),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+      child: showSearchBar ?
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            child: Container(
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: TextField(
-            controller: _searchController,
-            onChanged: (value) {
-              _filterAnswers(value);
-            },
-            decoration: InputDecoration(
-              hintText: 'Cari jawaban spesifik...',
-              hintStyle: TextStyle(color: Colors.grey[400]),
-              prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
-              suffixIcon: _searchController.text.isNotEmpty
-                  ? IconButton(
-                      icon: Icon(Icons.clear, color: Colors.grey[400]),
-                      onPressed: () {
-                        setState(() {
-                          _searchController.clear();
-                          _filterAnswers('');
-                          _isSearching = false;
-                        });
-                      },
-                    )
-                  : null,
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 15,
+              child: TextField(
+                controller: _searchController,
+                onChanged: (value) {
+                  _filterAnswers(value);
+                },
+                decoration: InputDecoration(
+                  hintText: 'Cari jawaban spesifik...',
+                  hintStyle: TextStyle(color: Colors.grey[400]),
+                  prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: Icon(Icons.clear, color: Colors.grey[400]),
+                          onPressed: () {
+                            setState(() {
+                              _searchController.clear();
+                              _filterAnswers('');
+                              _isSearching = false;
+                            });
+                          },
+                        )
+                      : null,
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 15,
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ),
+          ) : SizedBox(height: 10)
     );
   }
 
   Widget _buildExamCard() {
-    return BlocBuilder<OnlineExamCubit, OnlineExamState>(
-      builder: (context, state) {
-        if (state is OnlineExamLoading && _allAnswers.isEmpty) {
-          // Only show loading indicator on initial load
-          return const Center(child: CircularProgressIndicator());
-        }
+  return BlocBuilder<OnlineExamCubit, OnlineExamState>(
+    builder: (context, state) {
+      if (state is OnlineExamLoading && _allAnswers.isEmpty) {
+        return const Center(child: CircularProgressIndicator());
+      }
 
-        if (state is OnlineExamFailure && _allAnswers.isEmpty) {
-          return Center(
-            child: ErrorContainer(
-              errorMessage:
-                  "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
-              onTapRetry: () {
-                context.read<OnlineExamCubit>().getOnlineExamResultAnswer(
-                    examId: widget.examId,
-                    questionId: widget.questionId,
-                    search: '');
-              },
+      if (state is OnlineExamFailure && _allAnswers.isEmpty) {
+        return Center(
+          child: ErrorContainer(
+            errorMessage:
+                "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
+            onTapRetry: () {
+              context.read<OnlineExamCubit>().getOnlineExamResultAnswer(
+                  examId: widget.examId,
+                  questionId: widget.questionId,
+                  search: '');
+            },
+          ),
+        );
+      }
+
+      if (_isSearching || _allAnswers.isNotEmpty) {
+        if (_filteredAnswers.isEmpty) {
+          return Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.search_off, size: 80, color: Colors.grey[400]),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Tidak ada jawaban tersedia',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           );
         }
 
-        // If we're in searching mode or have loaded data, show the filtered data
-        if (_isSearching || _allAnswers.isNotEmpty) {
-          if (_filteredAnswers.isEmpty) {
-            return Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  ),
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.search_off, size: 80, color: Colors.grey[400]),
-                      const SizedBox(height: 16),
-                      Text(
-                        _isSearching
-                            ? 'Tidak ada jawaban yang cocok'
-                            : 'Tidak ada jawaban tersedia',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }
+        return ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: _filteredAnswers.length,
+          itemBuilder: (context, index) {
+            final answer = _filteredAnswers[index];
+            final controller = marksControllers.putIfAbsent(
+                "${answer.studentId}:${answer.id}",
+                () => TextEditingController(text: answer.marks.toString()));
 
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: _filteredAnswers.length,
-            itemBuilder: (context, index) {
-              final answer = _filteredAnswers[index];
-              bool localIsCorrect = answer.isCorrect ?? false;
+            return StatefulBuilder(
+              builder: (context, setState) {
+                bool localIsCorrect = double.parse(controller.text.isNotEmpty
+                        ? controller.text
+                        : '0') >=
+                    (answer.totalMarks / 2);
 
-              return FadeInUp(
-                delay: Duration(milliseconds: index * 100),
-                child: StatefulBuilder(
-                  builder: (context, setState) => Container(
+                return FadeInUp(
+                  delay: Duration(milliseconds: index * 100),
+                  child: Container(
                     margin: EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -331,7 +338,7 @@ class _OnlineExamResultAnswerScreenState
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Header with student name and status
+                          // Header dengan status nilai
                           Container(
                             width: double.infinity,
                             decoration: BoxDecoration(
@@ -350,18 +357,13 @@ class _OnlineExamResultAnswerScreenState
                               ),
                             ),
                             padding: EdgeInsets.all(16),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  answer.studentName ?? 'Unknown',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
+                            child: Text(
+                              answer.studentName ?? 'Unknown',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                           Container(
@@ -411,9 +413,11 @@ class _OnlineExamResultAnswerScreenState
                             child: widget.questionType != 'multiple_choice' &&
                                     widget.questionType != 'true_false'
                                 ? Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16),
                                     child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: [
                                         Expanded(
                                           child: Text(
@@ -421,7 +425,7 @@ class _OnlineExamResultAnswerScreenState
                                             style: TextStyle(
                                               fontWeight: FontWeight.w500,
                                               fontSize: 14,
-                                              color: Colors.grey[700], // Warna teks lebih lembut
+                                              color: Colors.grey[700],
                                             ),
                                           ),
                                         ),
@@ -429,26 +433,56 @@ class _OnlineExamResultAnswerScreenState
                                           width: 80,
                                           height: 40,
                                           child: TextField(
-                                            controller: TextEditingController(text: answer.marks.toString()),
+                                            controller: controller,
+                                            onChanged: (value) {
+                                              setState(() {}); // Memperbarui UI lokal
+                                            },
+  onEditingComplete: () {
+    if (controller.text.isEmpty) {
+      controller.text = '0';
+    }
+  },
+
                                             keyboardType: TextInputType.number,
                                             textAlign: TextAlign.center,
-                                            style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey[700],
+                                              height: 1.5,
+                                            ),
                                             decoration: InputDecoration(
                                               filled: true,
-                                              fillColor: Colors.grey[50], // Warna latar belakang lebih soft
+                                              fillColor: Colors.grey[50],
                                               border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(12),
-                                                borderSide: BorderSide(color: Colors.grey[200]!),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                                borderSide: BorderSide(
+                                                    color: Colors.grey[200]!),
                                               ),
-                                              contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                      vertical: 10,
+                                                      horizontal: 8),
                                             ),
                                             inputFormatters: [
-                                              FilteringTextInputFormatter.digitsOnly, // Hanya angka
-                                              TextInputFormatter.withFunction((oldValue, newValue) {
-                                                if (newValue.text.isEmpty) return newValue;
-                                                final intValue = int.tryParse(newValue.text) ?? 0;
-                                                if (intValue < 0) return TextEditingValue(text: '0');
-                                                if (intValue > answer.totalMarks) return TextEditingValue(text: answer.totalMarks.toString());
+                                              FilteringTextInputFormatter
+                                                  .digitsOnly,
+                                              TextInputFormatter.withFunction(
+                                                  (oldValue, newValue) {
+                                                if (newValue.text.isEmpty)
+                                                  return newValue;
+                                                final intValue =
+                                                    int.tryParse(
+                                                            newValue.text) ??
+                                                        0;
+                                                if (intValue < 0)
+                                                  return TextEditingValue(
+                                                      text: '0');
+                                                if (intValue >
+                                                    answer.totalMarks)
+                                                  return TextEditingValue(
+                                                      text: answer.totalMarks
+                                                          .toString());
                                                 return newValue;
                                               }),
                                             ],
@@ -463,14 +497,77 @@ class _OnlineExamResultAnswerScreenState
                       ),
                     ),
                   ),
-                ),
-              );
-            },
-          );
-        }
+                );
+              },
+            );
+          },
+        );
+      }
 
-        return Center(child: Text('Tidak ada data'));
-      },
-    );
-  }
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.search_off, size: 80, color: Colors.grey[400]),
+            const SizedBox(height: 16),
+            Text(
+              'Tidak ada jawaban tersedia',
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+Widget _buildBottomSheet(BuildContext context) {
+  return Container(
+    width: double.infinity, // Lebar penuh
+    decoration: BoxDecoration(
+      color: Colors.white, // Latar belakang tetap putih
+      border: Border(
+        top: BorderSide(color: Colors.grey.shade400, width: 2), // Border garis atas
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black26,
+          blurRadius: 2,
+          offset: Offset(0, -2), // Bayangan ke atas
+        ),
+      ],
+    ),
+    padding: EdgeInsets.all(16),
+    child: SizedBox(
+      width: double.infinity, // Lebar penuh
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Color(0xFF8B0000), // Warna maroon
+          foregroundColor: Colors.white, // Warna teks putih
+          padding: EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        onPressed: () {
+          context.read<OnlineExamCubit>().updateOnlineExamAnswerCorrection(examId: widget.examId, data: marksControllers.entries.map((entry) {
+            return {
+              'student_id': int.tryParse(entry.key.split(":")[0]) ?? 0,
+              'marks': int.tryParse(entry.value.text) ?? 0,
+              "question_id": widget.questionId ?? 0,
+              "answer_id": int.tryParse(entry.key.split(":")[1]) ?? 0,
+              "is_answer": (int.tryParse(entry.value.text) ?? 0) > 0 ? 1 : 0
+            };
+          }).toList());
+        },
+        child: Text(
+          "Simpan",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      ),
+    ),
+  );
+}
 }

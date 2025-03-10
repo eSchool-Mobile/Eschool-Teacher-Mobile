@@ -66,6 +66,14 @@ class OnlineExamRepository {
         },
       );
 
+      print("===");
+        var encoder = JsonEncoder.withIndent("  "); // Indentasi 2 spasi
+  String prettyJson = encoder.convert(response);
+
+  // Split per baris dan print satu per satu
+  prettyJson.split('\n').forEach(print);
+
+
       // Check for error response
       if (response['error'] == true) {
         throw Exception(response['message'] ?? 'Unknown error occurred');

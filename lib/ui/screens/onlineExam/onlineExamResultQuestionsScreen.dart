@@ -131,7 +131,7 @@ class _OnlineExamResultQuestionsScreenState
   }
 
   Widget _buildContent(List<QuestionOnlineExam> questions) {
-    _showSearch = true;
+    _showSearch = questions.length > 5;
 
     _filteredQuestions = questions.where((question) {
       final titleMatch = question.title

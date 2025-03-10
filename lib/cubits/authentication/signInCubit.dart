@@ -53,6 +53,8 @@ class SignInCubit extends Cubit<SignInState> {
         ),
       );
     } catch (e) {
+      print("ERRORNYA PT 2");
+      print(e);
       emit(SignInFailure(e.toString()));
     }
   }

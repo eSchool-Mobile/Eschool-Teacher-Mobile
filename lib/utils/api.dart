@@ -219,58 +219,38 @@ class Api {
     Function(int, int)? onReceiveProgress,
   }) async {
     try {
-      print('\n=== API POST REQUEST ===');
-      print('URL: $url');
-      print('Headers: ${headers(useAuthToken: useAuthToken ?? true)}');
-      print('Body: $body');
-      print('Query Parameters: $queryParameters');
-
+      if (kDebugMode) {
+        print(url);
+        print(body);
+      }
       final Dio dio = Dio();
-      final options = Options(
-        headers: (useAuthToken ?? true) ? headers() : null,
-        contentType: Headers.formUrlEncodedContentType,
-      );
+      final FormData formData =
+          FormData.fromMap(body, ListFormat.multiCompatible);
 
-      final response = await dio.post(
-        url,
-        data: FormData.fromMap(body),
-        queryParameters: queryParameters,
-        cancelToken: cancelToken,
-        onReceiveProgress: onReceiveProgress,
-        onSendProgress: onSendProgress,
-        options: options,
-      );
+      final response = await dio.post(url,
+          data: formData,
+          queryParameters: queryParameters,
+          cancelToken: cancelToken,
+          onReceiveProgress: onReceiveProgress,
+          onSendProgress: onSendProgress,
+          options: (useAuthToken ?? true) ? Options(headers: headers()) : null);
 
-      print('\n=== API POST RESPONSE ===');
-      print('Status Code: ${response.statusCode}');
-      print('Headers: ${response.headers}');
-      print('Data: ${response.data}');
-
-      if (response.statusCode != 200) {
-        throw Exception(
-            'Failed with status code: ${response.statusCode}\nMessage: ${response.statusMessage}');
+      if (bool.parse(response.data['error'].toString())) {
+        throw ApiException(response.data['message'].toString());
       }
-
-      if (response.data is Map) {
-        return Map<String, dynamic>.from(response.data);
-      } else {
-        print(
-            'Invalid response format. Response data type: ${response.data.runtimeType}');
-        throw Exception('Invalid response format');
-      }
+      return Map.from(response.data);
     } on DioException catch (e) {
-      print('\n=== API POST DIO ERROR ===');
-      print('Error Type: ${e.type}');
-      print('Error Message: ${e.message}');
-      print('Error Response: ${e.response?.data}');
-      print('Status Code: ${e.response?.statusCode}');
+      if (kDebugMode) {
+        print(e.response?.data);
+      }
       throw ApiException(
-        e.error is SocketException ? noInternetKey : defaultErrorMessageKey,
-      );
+          e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
+    } on ApiException catch (e) {
+      throw ApiException(e.errorMessage);
     } catch (e) {
-      print('\n=== API POST GENERAL ERROR ===');
-      print('Error Type: ${e.runtimeType}');
-      print('Error Message: $e');
+      if (kDebugMode) {
+        print(e.toString());
+      }
       throw ApiException(defaultErrorMessageKey);
     }
   }

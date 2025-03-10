@@ -73,6 +73,8 @@ class AuthRepository {
     } on ApiException catch (e) {
       throw ApiException(e.toString());
     } catch (e) {
+      print("ERRORNYA");
+      print(e);
       throw ApiException(defaultErrorMessageKey);
     }
   }
