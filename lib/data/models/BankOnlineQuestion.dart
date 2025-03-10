@@ -64,6 +64,7 @@ class SoalQuestion {
   final List<SoalOption> options;
   final int marks;
   final String version;
+  final bool selected; // Add this field
 
   SoalQuestion({
     required this.id,
@@ -72,6 +73,7 @@ class SoalQuestion {
     required this.options,
     required this.marks,
     required this.version,
+    this.selected = false, // Default value
   });
 
   factory SoalQuestion.fromJson(Map<String, dynamic> json) {
@@ -90,6 +92,7 @@ class SoalQuestion {
         options: parsedOptions,
         marks: json['marks'] ?? 0,
         version: json['version']?.toString() ?? '1',
+        selected: json['selected'] ?? false, // Parse selected field
       );
     } catch (e) {
       print('Error parsing SoalQuestion: $e');
@@ -100,6 +103,7 @@ class SoalQuestion {
         options: [],
         marks: 0,
         version: '1',
+        selected: false,
       );
     }
   }

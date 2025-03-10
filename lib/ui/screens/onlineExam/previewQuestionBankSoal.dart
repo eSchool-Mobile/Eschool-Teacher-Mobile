@@ -121,6 +121,11 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
   }
 
   void _toggleQuestionSelection(int index) {
+    final question = _filteredQuestions[index];
+    if (question.selected) {
+      return; // Don't allow selection of disabled questions
+    }
+
     setState(() {
       if (_selectedQuestions.contains(index)) {
         _selectedQuestions.remove(index);
@@ -414,6 +419,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
 
   Widget _buildQuestionCard(dynamic question, int index) {
     bool isSelected = _selectedQuestions.contains(index);
+    bool isDisabled = question.selected;
 
     return TweenAnimationBuilder<double>(
       duration: Duration(milliseconds: 300),
@@ -425,13 +431,27 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
         return Transform.scale(
           scale: 1.0 - (value * 0.02),
           child: InkWell(
-            onTap: () => _toggleQuestionSelection(index),
+            onTap: isDisabled
+                ? () {
+                    // Show notification for disabled questions
+                    Get.snackbar(
+                      'Soal Sudah Ditambahkan',
+                      'Soal ini sudah ada dalam ujian',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.orange,
+                      colorText: Colors.white,
+                      margin: EdgeInsets.all(16),
+                      borderRadius: 8,
+                      duration: Duration(seconds: 2),
+                    );
+                  }
+                : () => _toggleQuestionSelection(index),
             borderRadius: BorderRadius.circular(20),
             child: AnimatedContainer(
               duration: Duration(milliseconds: 300),
               curve: Curves.easeInOut,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isDisabled ? Colors.grey[100] : Colors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: isSelected
@@ -639,6 +659,36 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                       ],
                     ),
                   ),
+                  if (isDisabled)
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.lock,
+                                color: Colors.white,
+                                size: 32,
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Soal sudah ditambahkan',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   if (isSelected)
                     Positioned(
                       top: 8,
