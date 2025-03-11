@@ -119,7 +119,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                         context: context,
                         title: "Pengaturan Personal",
                         icon: Icons.person_outline,
-                        iconColor: AppColorPalette.primaryMaroon,
+                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
                         index: 0,
                         menus: [
                           _buildMenuItem(
@@ -144,7 +144,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                         context: context,
                         title: "Cuti",
                         icon: Icons.event_available,
-                        iconColor: AppColorPalette.secondaryMaroon,
+                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
                         index: 1,
                         menus: [
                           _buildMenuItem(
@@ -170,7 +170,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                         context: context,
                         title: "Penggajian",
                         icon: Icons.account_balance_wallet,
-                        iconColor: AppColorPalette.secondaryMaroon,
+                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
                         index: 2,
                         menus: [
                           _buildMenuItem(
@@ -195,7 +195,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                         context: context,
                         title: "Informasi",
                         icon: Icons.info_outline,
-                        iconColor: AppColorPalette.secondaryMaroon,
+                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
                         index: 3,
                         menus: [
                           _buildMenuItem(
@@ -281,7 +281,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                 ),
                 child: Icon(
                   Icons.waving_hand_rounded,
-                  color: AppColorPalette.secondaryMaroon,
+                  color: Color(0xFF8B0000).withOpacity(0.9),
                   size: 22,
                 ),
               ),
@@ -295,7 +295,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                       style: GoogleFonts.poppins(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: AppColorPalette.primaryMaroon.withOpacity(0.7),
+                        color:
+                            Colors.black.withOpacity(0.7), // Changed to black
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -305,7 +306,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                       style: GoogleFonts.poppins(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: AppColorPalette.primaryMaroon,
+                        color: Colors.black, // Changed to black
                       ),
                     ),
                   ],
@@ -429,10 +430,10 @@ class _ProfileContainerState extends State<ProfileContainer>
     );
   }
 
-  String getRoles(BuildContext context) {
-    final roles = context.read<AuthCubit>().getUserDetails().roles ?? [];
-    return roles.join(", ");
-  }
+  // String getRoles(BuildContext context) {
+  //   final roles = context.read<AuthCubit>().getUserDetails().roles ?? [];
+  //   return roles.join(", ");
+  // }
 
   Widget _buildProfileHeader(BuildContext context) {
     return Container(
@@ -529,34 +530,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: AppColorPalette.primaryMaroon
-                                  .withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.badge_outlined,
-                              size: 14,
-                              color: AppColorPalette.primaryMaroon,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              "${getRoles(context)}",
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: AppColorPalette.primaryMaroon,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    
                       const SizedBox(height: 8),
                       Row(
                         children: [
@@ -584,7 +558,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                                   "-",
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
-                                color: AppColorPalette.primaryMaroon,
+                                color: Colors.black, // Changed to black
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -617,7 +591,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                                   "-",
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
-                                color: AppColorPalette.primaryMaroon,
+                                color: Colors.black, // Changed to black
                                 fontWeight: FontWeight.w600,
                               ),
                               overflow: TextOverflow.ellipsis,
@@ -713,7 +687,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                         style: GoogleFonts.poppins(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: iconColor,
+                          color: Colors.black, // Changed to black
                         ),
                       ),
                     ],
@@ -827,8 +801,9 @@ class _ProfileContainerState extends State<ProfileContainer>
                           fontWeight:
                               isHovered ? FontWeight.w600 : FontWeight.w500,
                           color: isHovered
-                              ? AppColorPalette.primaryMaroon
-                              : AppColorPalette.secondaryMaroon,
+                              ? Colors.black
+                              : Colors.black
+                                  .withOpacity(0.8), // Changed to black
                         ),
                       ),
                     ),

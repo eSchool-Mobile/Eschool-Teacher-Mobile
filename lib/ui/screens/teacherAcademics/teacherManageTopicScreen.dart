@@ -155,11 +155,36 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen> {
         return BlocConsumer<DeleteTopicCubit, DeleteTopicState>(
           listener: (context, state) {
             if (state is DeleteTopicSuccess) {
-              Utils.showSnackBar(
-                context: context,
-                message:
-                    "${Utils.getTranslatedLabel(topicDeletedSuccessfullyKey)} ${topic.name}",
-              );
+                ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Container(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center, 
+                    children: [
+                    Icon(Icons.check_circle, color: Colors.white),
+                    SizedBox(width: 12),
+                    Text(
+                      "${Utils.getTranslatedLabel(topicDeletedSuccessfullyKey)} ${topic.name}",
+                      style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    ],
+                  ),
+                  ),
+                  backgroundColor: Colors.green.shade400,
+                  duration: Duration(seconds: 2),
+                  behavior: SnackBarBehavior.floating,
+                  margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  ),
+                  elevation: 4,
+                ),
+                );
               context.read<TopicsCubit>().deleteTopic(topic.id);
             } else if (state is DeleteTopicFailure) {
               Utils.showSnackBar(

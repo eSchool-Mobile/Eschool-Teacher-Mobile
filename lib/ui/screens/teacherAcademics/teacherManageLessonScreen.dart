@@ -116,11 +116,36 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen> {
         return BlocConsumer<DeleteLessonCubit, DeleteLessonState>(
           listener: (context, state) {
             if (state is DeleteLessonSuccess) {
-              Utils.showSnackBar(
-                context: context,
-                message:
-                    "${Utils.getTranslatedLabel(lessonDeletedSuccessfullyKey)} ${lesson.name}",
-              );
+                ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Container(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                    Icon(Icons.check_circle, color: Colors.white),
+                    SizedBox(width: 12),
+                    Text(
+                      "${Utils.getTranslatedLabel(lessonDeletedSuccessfullyKey)} ${lesson.name}",
+                      style: TextStyle(
+                      color: Colors.white, 
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    ],
+                  ),
+                  ),
+                  backgroundColor: Colors.green.shade400,
+                  duration: Duration(seconds: 2),
+                  behavior: SnackBarBehavior.floating,
+                  margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  ),
+                  elevation: 4,
+                ),
+                );
               context.read<LessonsCubit>().deleteLesson(lesson.id);
             } else if (state is DeleteLessonFailure) {
               Utils.showSnackBar(

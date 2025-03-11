@@ -477,7 +477,7 @@ class _TeacherAddEditLessonScreenState
                     .shimmer(duration: 1000.ms),
                   SizedBox(height: 15),
                   Text(
-                    widget.lesson != null ? "Edit Lesson" : "Create Lesson",
+                    widget.lesson != null ? "Edit Pelajaran" : "Buat Pelajaran",
                     style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.w600,
@@ -837,7 +837,7 @@ class _TeacherAddEditLessonScreenState
                           onPressed: () => Get.back(result: refreshLessonsInPreviousPage),
                         ),
                         Text(
-                          widget.lesson != null ? 'Edit Lesson' : 'Create Lesson',
+                            widget.lesson != null ? 'Edit Pelajaran' : 'Buat Pelajaran',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,

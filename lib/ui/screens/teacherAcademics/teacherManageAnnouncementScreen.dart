@@ -143,10 +143,37 @@ class _TeacherManageAnnouncementScreenState
               context
                   .read<TeacherAnnouncementsCubit>()
                   .deleteTeacherAnnouncement(announcementId: announcement.id);
-              Utils.showSnackBar(
-                context: context,
-                message: deleteAnnouncementSuccessfullyKey,
-              );
+                // Show auto-dismissing success banner
+                ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Container(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                    Icon(Icons.check_circle, color: Colors.white),
+                    SizedBox(width: 12),
+                    Text(
+                      'Pengumuman berhasil dihapus!',
+                      style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    ],
+                  ),
+                  ),
+                  backgroundColor: Colors.green.shade400,
+                  duration: Duration(seconds: 2),
+                  behavior: SnackBarBehavior.floating,
+                  margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  ),
+                  elevation: 4,
+                ),
+                );
             } else if (state is TeacherDeleteAnnouncementFailure) {
               Utils.showSnackBar(
                 context: context,

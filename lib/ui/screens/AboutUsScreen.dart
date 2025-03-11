@@ -259,7 +259,7 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                                               BorderRadius.circular(20),
                                         ),
                                         child: Text(
-                                          'Transforming Education Through Technology',
+                                            'Transformasi Pendidikan Melalui Teknologi',
                                           style: GoogleFonts.poppins(
                                             fontSize: 16,
                                             color: Colors.white,
@@ -277,44 +277,44 @@ class _AboutUsScreenState extends State<AboutUsScreen>
 
                       // Stats Section with new design
 
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _buildStatCard(
-                              icon: Icons.people,
-                              label: 'Students',
-                              value: '1000+',
-                              gradient: [
-                                AppColorPalette.primaryMaroon.withOpacity(0.1),
-                                AppColorPalette.secondaryMaroon
-                                    .withOpacity(0.2),
-                              ],
-                            ),
-                            _buildStatCard(
-                              icon: Icons.school,
-                              label: 'Schools',
-                              value: '50+',
-                              gradient: [
-                                AppColorPalette.secondaryMaroon
-                                    .withOpacity(0.1),
-                                AppColorPalette.primaryMaroon.withOpacity(0.2),
-                              ],
-                            ),
-                            _buildStatCard(
-                              icon: Icons.star,
-                              label: 'Rating',
-                              value: '4.8',
-                              gradient: [
-                                AppColorPalette.primaryMaroon.withOpacity(0.1),
-                                AppColorPalette.secondaryMaroon
-                                    .withOpacity(0.2),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
+                      // Padding(
+                      //   padding: const EdgeInsets.symmetric(vertical: 20),
+                      //   child: Row(
+                      //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      //     children: [
+                      //       _buildStatCard(
+                      //         icon: Icons.people,
+                      //         label: 'Students',
+                      //         value: '1000+',
+                      //         gradient: [
+                      //           AppColorPalette.primaryMaroon.withOpacity(0.1),
+                      //           AppColorPalette.secondaryMaroon
+                      //               .withOpacity(0.2),
+                      //         ],
+                      //       ),
+                      //       _buildStatCard(
+                      //         icon: Icons.school,
+                      //         label: 'Schools',
+                      //         value: '50+',
+                      //         gradient: [
+                      //           AppColorPalette.secondaryMaroon
+                      //               .withOpacity(0.1),
+                      //           AppColorPalette.primaryMaroon.withOpacity(0.2),
+                      //         ],
+                      //       ),
+                      //       _buildStatCard(
+                      //         icon: Icons.star,
+                      //         label: 'Rating',
+                      //         value: '4.8',
+                      //         gradient: [
+                      //           AppColorPalette.primaryMaroon.withOpacity(0.1),
+                      //           AppColorPalette.secondaryMaroon
+                      //               .withOpacity(0.2),
+                      //         ],
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
 
                       // Feature Cards with new design
 
@@ -324,9 +324,9 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                           children: [
                             _buildFeatureCard(
                               icon: Icons.computer,
-                              title: 'Modern Learning',
-                              description:
-                                  'State-of-the-art digital learning platform',
+                                title: 'Pembelajaran Modern',
+                                description:
+                                  'Platform pembelajaran digital yang modern',
                               gradient: [
                                 AppColorPalette.warmBeige,
                                 AppColorPalette.lightMaroon.withOpacity(0.3),
@@ -334,9 +334,9 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                             ),
                             _buildFeatureCard(
                               icon: Icons.analytics,
-                              title: 'Smart Analytics',
-                              description:
-                                  'Real-time performance tracking and insights',
+                                title: 'Analisis Cerdas',
+                                description:
+                                  'Pemantauan kinerja dan wawasan secara langsung',
                               gradient: [
                                 AppColorPalette.warmBeige,
                                 AppColorPalette.accentPink.withOpacity(0.3),

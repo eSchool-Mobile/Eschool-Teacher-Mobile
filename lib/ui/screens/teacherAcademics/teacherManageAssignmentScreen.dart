@@ -143,11 +143,37 @@ class _TeacherManageAssignmentScreenState
           return BlocConsumer<DeleteAssignmentCubit, DeleteAssignmentState>(
               listener: (context, state) {
             if (state is DeleteAssignmentSuccess) {
-              Utils.showSnackBar(
-                context: context,
-                message:
-                    "${Utils.getTranslatedLabel('Tugas Berhasil Dihapus')} ${assignment.name}",
-              );
+                // Show auto-dismissing success banner
+                ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Container(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                    Icon(Icons.check_circle, color: Colors.white),
+                    SizedBox(width: 12),
+                    Text(
+                      'Tugas "${assignment.name}" berhasil dihapus!',
+                      style: TextStyle(
+                      color: Colors.white, 
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    ],
+                  ),
+                  ),
+                  backgroundColor: Colors.green.shade400,
+                  duration: Duration(seconds: 2),
+                  behavior: SnackBarBehavior.floating,
+                  margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  ),
+                  elevation: 4,
+                ),
+                );
               context.read<AssignmentCubit>().deleteAssignment(assignment.id);
             } else if (state is DeleteAssignmentFailure) {
               Utils.showSnackBar(

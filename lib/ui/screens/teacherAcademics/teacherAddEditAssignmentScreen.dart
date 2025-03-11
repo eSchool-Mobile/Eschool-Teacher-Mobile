@@ -1096,8 +1096,8 @@ class _TeacherAddEditAssignmentScreenState
                       duration: Duration(milliseconds: 600),
                       child: Text(
                         widget.assignment != null
-                            ? "Edit Assignment"
-                            : "Create Assignment",
+                            ? "Edit Tugas"
+                            : "Buat Tugas",
                         style: TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.w600,
@@ -1488,8 +1488,8 @@ class _TeacherAddEditAssignmentScreenState
                       ),
                       Text(
                         widget.assignment != null
-                            ? 'Edit Assignment'
-                            : 'Create Assignment',
+                            ? 'Edit Tugas'
+                            : 'Buat Tugas',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20,

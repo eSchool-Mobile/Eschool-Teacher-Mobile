@@ -98,17 +98,11 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                       child: FadeInAnimation(child: widget),
                     ),
                     children: [
-                      // Welcome Section
-                      _buildWelcomeSection(context, isWalas),
-
-                      const SizedBox(height: 32),
-
-                      // Timetable Section
                       _buildMenuSection(
                         context: context,
-                        title: "Jadwal", // Ganti dari timetableKey
+                        title: "Jadwal",
                         icon: Icons.schedule,
-                        iconColor: AppColorPalette.primaryMaroon,
+                        iconColor:Color(0xFF8B0000).withOpacity(0.9),
                         index: 0,
                         menus: [
                           _buildMenuItem(
@@ -137,14 +131,14 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                           context: context,
                           title: "Kehadiran", // Ganti dari attendanceKey
                           icon: Icons.people,
-                          iconColor: AppColorPalette.secondaryMaroon,
+                          iconColor: Color(0xFF8B0000).withOpacity(0.9),
                           index: 1,
                           menus: [
                             _buildMenuItem(
                               context: context,
                               icon: Icons.add_circle_outline,
                               title:
-                                  "Tambah Kehadiran", // Ganti dari addAttendanceKey
+                                  "Absensi Kegiatan Khusus", // Ganti dari addAttendanceKey
                               index: 2,
                               onTap: () => Get.toNamed(
                                   Routes.teacherAddAttendanceScreen),
@@ -153,7 +147,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                               context: context,
                               icon: Icons.visibility,
                               title:
-                                  "Lihat Kehadiran", // Ganti dari viewAttendanceKey
+                                  "Laporan Absensi Kegiatan Khusus", // Ganti dari viewAttendanceKey
                               index: 3,
                               onTap: () => Get.toNamed(
                                   Routes.teacherViewAttendanceScreen),
@@ -162,7 +156,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                               context: context,
                               icon: Icons.subject,
                               title:
-                                  "Kehadiran per Mata Pelajaran", // Ganti dari viewAttendanceSubjectKey
+                                  "Laporan Kehadiran per Mata Pelajaran", // Ganti dari viewAttendanceSubjectKey
                               index: 4,
                               onTap: () => Get.toNamed(
                                   Routes.teacherViewAttendanceSubjectScreen),
@@ -180,7 +174,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                               context: context,
                               icon: Icons.leaderboard,
                               title:
-                                  "Peringkat Ketidakhadiran", // Ganti dari rankingAbsentKey
+                                  "Peringkat Absensi", // Ganti dari rankingAbsentKey
                               index: 6,
                               onTap: () =>
                                   Get.toNamed(Routes.attendanceRankingScreen),
@@ -192,16 +186,16 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                       // Lesson Section
                       _buildMenuSection(
                         context: context,
-                        title: "Pembelajaran", // Ganti dari subjectLessonKey
+                        title: "Mata Pelajaran", // Ganti dari subjectLessonKey
                         icon: Icons.book,
-                        iconColor: AppColorPalette.primaryMaroon,
+                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
                         index: 2,
                         menus: [
                           _buildMenuItem(
                             context: context,
                             icon: Icons.edit,
                             title:
-                                "Kelola Pembelajaran", // Ganti dari manageLessonKey
+                                "Kelola Pelajaran (Bab)", // Ganti dari manageLessonKey
                             index: 7,
                             onTap: () =>
                                 Get.toNamed(Routes.teacherManageLessonScreen),
@@ -209,7 +203,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                           _buildMenuItem(
                             context: context,
                             icon: Icons.topic,
-                            title: "Kelola Topik", // Ganti dari manageTopicKey
+                            title: "Kelola Topik (Sub Bab)", // Ganti dari manageTopicKey
                             index: 8,
                             onTap: () =>
                                 Get.toNamed(Routes.teacherManageTopicScreen),
@@ -222,7 +216,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         context: context,
                         title: "Bank Soal",
                         icon: Icons.quiz,
-                        iconColor: AppColorPalette.secondaryMaroon,
+                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
                         index: 3,
                         menus: [
                           _buildMenuItem(
@@ -239,9 +233,9 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                       // Assignment Section
                       _buildMenuSection(
                         context: context,
-                        title: "Tugas", // Ganti dari studentAssignmentKey
+                        title: "Tugas Siswa", // Ganti dari studentAssignmentKey
                         icon: Icons.assignment,
-                        iconColor: AppColorPalette.primaryMaroon,
+                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
                         index: 4,
                         menus: [
                           _buildMenuItem(
@@ -261,7 +255,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         context: context,
                         title: "Pengumuman", // Ganti dari messageKey
                         icon: Icons.announcement,
-                        iconColor: AppColorPalette.secondaryMaroon,
+                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
                         index: 5,
                         menus: [
                           _buildMenuItem(
@@ -281,13 +275,13 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         context: context,
                         title: "Ujian Offline", // Ganti dari offlineExamKey
                         icon: Icons.school,
-                        iconColor: AppColorPalette.primaryMaroon,
+                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
                         index: 6,
                         menus: [
                           _buildMenuItem(
                             context: context,
                             icon: Icons.edit_document,
-                            title: "Ujian", // Ganti dari examsKey
+                            title: "Jadwal Ujian", // Ganti dari examsKey
                             index: 12,
                             onTap: () => Get.toNamed(Routes.examsScreen),
                           ),
@@ -307,7 +301,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         context: context,
                         title: "Ujian Online",
                         icon: Icons.computer,
-                        iconColor: AppColorPalette.secondaryMaroon,
+                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
                         index: 7,
                         menus: [
                           _buildMenuItem(
@@ -341,66 +335,11 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
   Widget _buildWelcomeSection(BuildContext context, bool isWalas) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white,
-            AppColorPalette.warmBeige.withOpacity(0.4),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppColorPalette.primaryMaroon.withOpacity(0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppColorPalette.primaryMaroon.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.school,
-                  color: AppColorPalette.secondaryMaroon,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      isWalas ? "Wali Kelas" : "Guru Mata Pelajaran",
-                      style: GoogleFonts.poppins(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: AppColorPalette.primaryMaroon.withOpacity(0.7),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      "Akademik",
-                      style: GoogleFonts.poppins(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: AppColorPalette.primaryMaroon,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            children: [ 
             ],
           ),
         ],
@@ -485,7 +424,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         style: GoogleFonts.poppins(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: iconColor,
+                          color: Colors.black, // Changed to black
                         ),
                       ),
                     ],
@@ -598,9 +537,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                           fontSize: 16,
                           fontWeight:
                               isHovered ? FontWeight.w600 : FontWeight.w500,
-                          color: isHovered
-                              ? AppColorPalette.primaryMaroon
-                              : AppColorPalette.secondaryMaroon,
+                          color: Colors.black, // Changed to black
                         ),
                       ),
                     ),
@@ -610,9 +547,8 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                           isHovered ? 8.0 : 0.0, 0.0, 0.0),
                       child: Icon(
                         Icons.arrow_forward_ios,
-                        color: isHovered
-                            ? AppColorPalette.primaryMaroon
-                            : AppColorPalette.secondaryMaroon.withOpacity(0.5),
+                        color: Colors.black
+                            .withOpacity(0.5), // Changed to black with opacity
                         size: 16,
                       ),
                     ),

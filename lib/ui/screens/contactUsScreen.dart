@@ -169,18 +169,18 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                 children: [
                                   _buildContactCard(
                                     Icons.email_rounded,
-                                    'Email Us',
+                                    'Kirim Email',
                                     'support@eschool.com',
                                   ),
                                   _buildContactCard(
                                     Icons.phone_rounded,
-                                    'Call Us',
-                                    '+1 234 567 890',
+                                    'Hubungi Kami',
+                                    '+62 812-3430-6725',
                                   ),
                                   _buildContactCard(
                                     Icons.location_on_rounded,
-                                    'Visit Us',
-                                    '123 Education Street',
+                                    'Kunjungi Kami',
+                                    'UBIG ',
                                   ),
                                   if (state is SettingsSuccess) ...[
                                     const SizedBox(height: 24),
@@ -273,7 +273,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
             AnimatedTextKit(
               animatedTexts: [
                 TypewriterAnimatedText(
-                  'How can we help you?',
+                    'Bagaimana kami dapat membantu Anda?',
                   textStyle: GoogleFonts.poppins(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -286,7 +286,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              'We\'re here to assist you with any questions',
+                'Kami siap membantu Anda dengan segala pertanyaan',
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 color: AppColorPalette.lightMaroon,
