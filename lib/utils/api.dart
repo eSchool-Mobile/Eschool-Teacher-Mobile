@@ -235,9 +235,13 @@ class Api {
           onSendProgress: onSendProgress,
           options: (useAuthToken ?? true) ? Options(headers: headers()) : null);
 
-      if (bool.parse(response.data['error'].toString())) {
+      print(">> RESPONSE <<");
+      print(response);
+
+      if (response.data.containsKey('error') && response.data['error'] == true) {
         throw ApiException(response.data['message'].toString());
       }
+
       return Map.from(response.data);
     } on DioException catch (e) {
       if (kDebugMode) {

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
+import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherAddAttendanceSubjectScreen.dart';
 import 'package:flutter/services.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:flutter/material.dart';
@@ -179,7 +180,8 @@ class _OnlineExamResultAnswerScreenState
         Expanded(
           child: _buildExamCard(),
         ),
-        _buildBottomSheet(context),
+        if (widget.questionType != 'multiple_choice' && widget.questionType != 'true_false')
+          _buildBottomSheet(context),
       ],
     );
   }
@@ -551,8 +553,8 @@ Widget _buildBottomSheet(BuildContext context) {
           padding: EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
-        onPressed: () {
-          context.read<OnlineExamCubit>().updateOnlineExamAnswerCorrection(examId: widget.examId, data: marksControllers.entries.map((entry) {
+        onPressed: () async {
+          if (await context.read<OnlineExamCubit>().updateOnlineExamAnswerCorrection(examId: widget.examId, data: marksControllers.entries.map((entry) {
             return {
               'student_id': int.tryParse(entry.key.split(":")[0]) ?? 0,
               'marks': int.tryParse(entry.value.text) ?? 0,
@@ -560,7 +562,22 @@ Widget _buildBottomSheet(BuildContext context) {
               "answer_id": int.tryParse(entry.key.split(":")[1]) ?? 0,
               "is_answer": (int.tryParse(entry.value.text) ?? 0) > 0 ? 1 : 0
             };
-          }).toList());
+          }).toList())) {
+            SnackBarUtils.showSnackBar(
+              context: context,
+              message: "Nilai berhasil disimpan!",
+              backgroundColor: Colors.green.shade700,
+              textColor: Colors.white,
+            );
+          }
+          else {
+            SnackBarUtils.showSnackBar(
+              context: context,
+              message: "Gagal menyimpan nilai!",
+              backgroundColor: Colors.red.shade700,
+              textColor: Colors.white,
+          );
+          }
         },
         child: Text(
           "Simpan",
