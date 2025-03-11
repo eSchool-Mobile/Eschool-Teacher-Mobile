@@ -291,6 +291,8 @@ emit(OnlineExamAnswersSuccess(
     try {
       emit(OnlineExamLoading());
 
+      print("BELUM ELOL 0");
+
       await _repository.updateOnlineExam(
         id: id,
         classSectionId: classSectionId,
@@ -302,7 +304,9 @@ emit(OnlineExamAnswersSuccess(
       );
 
       // Fetch updated exam list immediately
+      print("BELUM ELOL 1");
       final result = await _repository.getOnlineExams();
+      print("BELUM ELOL 2");
 
       final List<OnlineExam> exams = [];
       if (result['exams'] is List) {
@@ -322,6 +326,7 @@ emit(OnlineExamAnswersSuccess(
         subjectDetails: result['subjectDetails'] ?? [],
       ));
     } catch (e) {
+      print("ELOL");
       emit(OnlineExamFailure(e.toString()));
       rethrow;
     }
