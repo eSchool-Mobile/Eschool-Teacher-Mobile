@@ -105,7 +105,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
       for (int i = 0; i < _optionControllers.length; i++) {
         options.add(QuestionOption(
           text: _optionControllers[i].text,
-          percentage: _correctAnswers[i] ? 100 : 0,
+          percentage: int.tryParse(_percentageControllers[i].text) ?? 0,
           feedback: _feedbackControllers[i].text,
         ));
       }

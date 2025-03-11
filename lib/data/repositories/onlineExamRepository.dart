@@ -141,7 +141,7 @@ class OnlineExamRepository {
 
       print('Update Exam Response: $response');
 
-      if (response['status'] != true) {
+      if (response.containsKey('status') && response['status'] != true) {
         throw ApiException(
             response['message'] ?? 'Failed to update online exam');
       }

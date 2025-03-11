@@ -238,6 +238,8 @@ class _EditOnlineExamState extends State<EditOnlineExam> {
           barrierDismissible: false,
         );
       }).catchError((error) {
+        print("PESAN ERRORNYA");
+        print(error);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Gagal memperbarui ujian: ${error.toString()}'),
