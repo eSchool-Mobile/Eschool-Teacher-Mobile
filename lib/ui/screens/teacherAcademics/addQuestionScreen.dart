@@ -275,7 +275,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
               return AlertDialog(
                 title: Text('Peringatan'),
                 content: Text(
-                    'Feedback untuk opsi ${emptyFeedbackIndexes.join(", ")} wajib diisi'),
+                    'Umpan Balik untuk opsi ${emptyFeedbackIndexes.join(", ")} wajib diisi'),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
@@ -752,7 +752,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                           TextFormField(
                             controller: _feedbackControllers[index],
                             decoration: InputDecoration(
-                              labelText: 'Feedback',
+                              labelText: 'Umpan Balik',
                               prefixIcon: Icon(Icons.comment_outlined),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -766,7 +766,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                             minLines: 2,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Feedback tidak boleh kosong';
+                                return 'Umpan Balik tidak boleh kosong';
                               }
                               return null;
                             },
@@ -933,7 +933,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                           TextFormField(
                             controller: _feedbackControllers[index],
                             decoration: InputDecoration(
-                              labelText: 'Feedback',
+                              labelText: 'Umpan Balik',
                               prefixIcon: Icon(Icons.comment_outlined),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -947,7 +947,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                             minLines: 2,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Feedback tidak boleh kosong';
+                                return 'Umpan Balik tidak boleh kosong';
                               }
                               return null;
                             },
@@ -1125,7 +1125,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
           TextFormField(
             controller: _feedbackControllers[index],
             decoration: InputDecoration(
-              labelText: 'Feedback',
+              labelText: 'Umpan Balik',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -1137,7 +1137,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
             maxLines: 2,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Feedback tidak boleh kosong';
+                return 'Umpan Balik tidak boleh kosong';
               }
               return null;
             },
@@ -1261,19 +1261,19 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
           TextFormField(
             controller: _feedbackControllers[index],
             decoration: InputDecoration(
-              labelText: 'Feedback untuk jawaban ini',
+              labelText: 'Umpan Balik untuk jawaban ini',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
               filled: true,
               fillColor: Colors.grey.shade50,
-              helperText: '* Wajib diisi',
+              helperText: '*Umpan Balik Wab diisi',
               helperStyle: TextStyle(color: Colors.red),
             ),
             maxLines: 2,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Feedback tidak boleh kosong';
+                return 'Umpan Balik tidak boleh kosong';
               }
               return null;
             },
@@ -1623,7 +1623,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
             TextFormField(
               controller: _feedbackControllers[index],
               decoration: InputDecoration(
-                labelText: 'Feedback',
+                labelText: 'Umpan Balik',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -1635,7 +1635,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
               maxLines: 2,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Feedback tidak boleh kosong';
+                  return 'Umpan Balik tidak boleh kosong';
                 }
                 return null;
               },
@@ -1698,7 +1698,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
             TextFormField(
               controller: _feedbackControllers[0],
               decoration: InputDecoration(
-                labelText: 'Feedback',
+                labelText: 'Umpan Balik',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -1706,7 +1706,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
               maxLines: 3,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Feedback tidak boleh kosong';
+                  return 'Umpan Balik tidak boleh kosong';
                 }
                 return null;
               },
@@ -1752,7 +1752,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
             TextFormField(
               controller: _feedbackControllers[0],
               decoration: InputDecoration(
-                labelText: 'Feedback',
+                labelText: 'Umpan Balik',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -1760,7 +1760,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
               maxLines: 2,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Feedback tidak boleh kosong';
+                  return 'Umpan Balik tidak boleh kosong';
                 }
                 return null;
               },
@@ -1837,7 +1837,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
             TextFormField(
               controller: _feedbackControllers[0],
               decoration: InputDecoration(
-                labelText: 'Feedback',
+                labelText: 'Umpan Balik',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -1845,7 +1845,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
               maxLines: 2,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Feedback tidak boleh kosong';
+                  return 'Umpan Balik tidak boleh kosong';
                 }
                 return null;
               },
