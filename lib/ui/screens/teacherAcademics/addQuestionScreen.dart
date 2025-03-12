@@ -1110,18 +1110,18 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
             ],
           ),
           SizedBox(height: 12),
-          TextFormField(
-            controller: _percentageControllers[index],
-            decoration: InputDecoration(
-              labelText: 'Persentase Nilai',
-              suffixText: '%',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            keyboardType: TextInputType.number,
-          ),
-          SizedBox(height: 12),
+          // TextFormField(
+          //   controller: _percentageControllers[index],
+          //   decoration: InputDecoration(
+          //     labelText: 'Persentase Nilai',
+          //     suffixText: '%',
+          //     border: OutlineInputBorder(
+          //       borderRadius: BorderRadius.circular(10),
+          //     ),
+          //   ),
+          //   keyboardType: TextInputType.number,
+          // ),
+          // SizedBox(height: 12),
           TextFormField(
             controller: _feedbackControllers[index],
             decoration: InputDecoration(

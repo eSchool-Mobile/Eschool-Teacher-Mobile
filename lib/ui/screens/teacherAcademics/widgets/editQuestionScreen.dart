@@ -1113,23 +1113,23 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
               ],
             ),
             SizedBox(height: 12),
-            TextFormField(
-              initialValue: options[index]['percentage'].toString(),
-              decoration: InputDecoration(
-                labelText: 'Persentase Nilai',
-                suffixText: '%',
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                filled: true,
-                fillColor: Colors.grey.shade50,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (v) => v?.isEmpty ?? true ? 'Wajib diisi' : null,
-              onChanged: (value) => setState(() {
-                options[index]['percentage'] = int.tryParse(value) ?? 0;
-              }),
-            ),
-            SizedBox(height: 12),
+            // TextFormField(
+            //   initialValue: options[index]['percentage'].toString(),
+            //   decoration: InputDecoration(
+            //     labelText: 'Persentase Nilai',
+            //     suffixText: '%',
+            //     border:
+            //         OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            //     filled: true,
+            //     fillColor: Colors.grey.shade50,
+            //   ),
+            //   keyboardType: TextInputType.number,
+            //   validator: (v) => v?.isEmpty ?? true ? 'Wajib diisi' : null,
+            //   onChanged: (value) => setState(() {
+            //     options[index]['percentage'] = int.tryParse(value) ?? 0;
+            //   }),
+            // ),
+            // SizedBox(height: 12),
             TextFormField(
               initialValue: options[index]['feedback'],
               decoration: InputDecoration(
