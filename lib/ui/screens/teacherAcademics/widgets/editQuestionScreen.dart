@@ -802,7 +802,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
             TextFormField(
               initialValue: options[index]['feedback'],
               decoration: InputDecoration(
-                labelText: 'Feedback',
+                labelText: 'Umpan Balik',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -814,7 +814,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
               maxLines: 2,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Feedback tidak boleh kosong';
+                  return 'Umpan Balik tidak boleh kosong';
                 }
                 return null;
               },
@@ -950,7 +950,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
             TextFormField(
               initialValue: options[index]['feedback'],
               decoration: InputDecoration(
-                labelText: 'Feedback untuk jawaban ini',
+                labelText: 'Umpan Balik untuk jawaban ini',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -962,7 +962,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
               maxLines: 2,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Feedback tidak boleh kosong';
+                  return 'Umpan Balik tidak boleh kosong';
                 }
                 return null;
               },
@@ -1133,7 +1133,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
             TextFormField(
               initialValue: options[index]['feedback'],
               decoration: InputDecoration(
-                labelText: 'Feedback',
+                labelText: 'Umpan Balik',
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 filled: true,
@@ -1144,7 +1144,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
               maxLines: 2,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Feedback tidak boleh kosong';
+                  return 'Umpan Balik tidak boleh kosong';
                 }
                 return null;
               },
@@ -1346,7 +1346,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                             child: TextFormField(
                               initialValue: options[index]['feedback'],
                               decoration: InputDecoration(
-                                labelText: 'Feedback',
+                                labelText: 'Umpan Balik',
                                 prefixIcon: Icon(Icons.comment_outlined),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -1364,7 +1364,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                               minLines: 2,
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
-                                  return 'Feedback tidak boleh kosong';
+                                  return 'Umpan Balik tidak boleh kosong';
                                 }
                                 return null;
                               },
