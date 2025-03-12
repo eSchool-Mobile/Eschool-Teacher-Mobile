@@ -301,50 +301,52 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    exam.title ?? 'Tidak ada ujian',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF8B0000),
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      color: exam.status == 0
-                                          ? Colors.orange.withOpacity(0.1)
-                                          : exam.status == 1
-                                              ? Colors.blue.withOpacity(0.1)
-                                              : Colors.green.withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Text(
-                                      (exam.status == 0
-                                          ? 'Belum Dimulai'
-                                          : exam.status == 1
-                                              ? 'Sedang Berlangsung'
-                                              : 'Selesai'),
-                                      style: TextStyle(
-                                        color: exam.status == 0
-                                            ? Colors.orange
-                                            : exam.status == 1
-                                                ? Colors.blue
-                                                : Colors.green,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Flexible( // Tambahkan Flexible agar teks bisa membungkus
+                                      child: Text(
+                                        exam.title ?? 'Tidak ada Judul',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF8B0000),
+                                          overflow: TextOverflow.visible, // Memungkinkan teks terlihat meski overflow
+                                          // softWrap: true sudah default true, tapi bisa ditegaskan jika perlu
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
+                                    Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: exam.status == 0
+                                            ? Colors.orange.withOpacity(0.1)
+                                            : exam.status == 1
+                                                ? Colors.blue.withOpacity(0.1)
+                                                : Colors.green.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Text(
+                                        (exam.status == 0
+                                            ? 'Belum Dimulai'
+                                            : exam.status == 1
+                                                ? 'Sedang Berlangsung'
+                                                : 'Selesai'),
+                                        style: TextStyle(
+                                          color: exam.status == 0
+                                              ? Colors.orange
+                                              : exam.status == 1
+                                                  ? Colors.blue
+                                                  : Colors.green,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               SizedBox(height: 8),
                               Text(
-                                exam.title ?? 'Tidak ada judul',
+                                exam.subjectName ?? 'Tidak ada Nama Mata Pelajaran',
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                   fontSize: 14,
