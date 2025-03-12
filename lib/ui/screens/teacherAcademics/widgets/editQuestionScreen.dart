@@ -232,12 +232,44 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
             }
           });
 
-          Get.snackbar(
-            'Berhasil',
-            'Soal berhasil diperbarui',
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
+          // Show auto-dismissing success snackbar
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Container(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.white),
+                    SizedBox(width: 12),
+                    Text(
+                      'Soal berhasil diperbarui!',
+                      style: TextStyle(
+                        color: Colors.white, 
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              backgroundColor: Colors.green.shade400,
+              duration: Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              elevation: 4,
+            ),
           );
+
+          // Add slight delay before popping
+          Future.delayed(Duration(milliseconds: 2200), () {
+            if (context.mounted) {
+              Get.back(result: true); 
+            }
+          });
         } catch (e) {
           if (!e.toString().contains('validation.exists') ||
               !e.toString().toLowerCase().contains('updated')) {

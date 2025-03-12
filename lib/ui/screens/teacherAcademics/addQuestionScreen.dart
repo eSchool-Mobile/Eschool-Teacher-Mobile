@@ -309,10 +309,35 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
         Get.back(result: true);
 
         // Tampilkan snackbar sukses
+        // Show auto-dismissing success snackbar
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Soal berhasil ditambahkan'),
-            backgroundColor: Colors.green,
+            content: Container(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.check_circle, color: Colors.white),
+            SizedBox(width: 12),
+            Text(
+              'Soal berhasil ditambahkan!',
+              style: TextStyle(
+                color: Colors.white, 
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+              ),
+            ),
+            backgroundColor: Colors.green.shade400,
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            elevation: 4,
           ),
         );
       } catch (e) {

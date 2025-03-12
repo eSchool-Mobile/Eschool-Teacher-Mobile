@@ -121,9 +121,9 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
 
     if (result == true) {
       _loadQuestions(); // Refresh questions list
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Soal berhasil ditambahkan')),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('Soal berhasil ditambahkan')),
+      // );
     }
   }
 
