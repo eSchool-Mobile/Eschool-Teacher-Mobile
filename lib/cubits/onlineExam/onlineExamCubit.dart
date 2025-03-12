@@ -119,6 +119,8 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
     int? subjectId,
     int? classSectionId,
     int? sessionYearId,
+    DateTime? startDate,
+    DateTime? endDate
   }) async {
     try {
       emit(OnlineExamLoading());
@@ -128,6 +130,8 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
           subjectId: subjectId,
           classSectionId: classSectionId,
           sessionYearId: sessionYearId,
+          startDate: startDate,
+          endDate: endDate,
           status: 'active',
           archive: getFull);
 
@@ -137,6 +141,8 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       if (result['exams'] is List) {
         for (var examData in result['exams']) {
           try {
+            print(examData);
+            print("___");
             final exam = OnlineExam.fromJson(examData);
             // Status 1 = active, Status 2 = archived
             // if (getFull == true) {
@@ -265,6 +271,13 @@ emit(OnlineExamAnswersSuccess(
     required int examId,
     required List<Map<String, int>> data,
   }) async {
+    print(data);
+    String formattedJson = JsonEncoder.withIndent("  ").convert(data);
+
+    // Cetak per baris
+    for (var line in formattedJson.split("\n")) {
+      print(line);
+    }
     print("OK DARI SISNI");
     try {
       await _repository.updateOnlineExamAnswerCorrection(

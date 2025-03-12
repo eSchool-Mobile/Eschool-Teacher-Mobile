@@ -14,6 +14,8 @@ class OnlineExamRepository {
     int? classSectionId,
     int? sessionYearId,
     String status = 'active',
+    DateTime? startDate,
+    DateTime? endDate,
     int offset = 0,
     int limit = 10,
   }) async {
@@ -26,6 +28,8 @@ class OnlineExamRepository {
           'limit': limit.toString(),
           'sort': 'id',
           'order': 'DESC',
+          if (startDate != null) 'start_date': startDate,
+          if (endDate != null) 'end_date': endDate,
           if (search != null && search.isNotEmpty) 'search': search,
           if (subjectId != null) 'class_subject_id': subjectId.toString(),
           if (classSectionId != null)
