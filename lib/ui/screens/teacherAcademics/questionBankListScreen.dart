@@ -490,60 +490,29 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                               if (_formKey.currentState!.validate()) {
                                 try {
                                   setState(() {
-                                  isSubmitting = true;
+                                    isSubmitting = true;
                                   });
 
                                   await questionBankCubit.createQuestionBank(
-                                  subjectId: widget.subject.subject.id,
-                                  name: _nameController.text.trim(),
+                                    subjectId: widget.subject.subject.id,
+                                    name: _nameController.text.trim(),
                                   );
 
-                                  // Fetch updated bank list 
+                                  // Fetch updated bank list
                                   await questionBankCubit.fetchBankSoal(
-                                  widget.subject.subject.id,
+                                    widget.subject.subject.id,
                                   );
 
                                   if (!mounted) return;
-                                  
-                                  // Show auto-dismissing success snackbar
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Container(
-                                    padding: EdgeInsets.symmetric(vertical: 8),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                      Icon(Icons.check_circle, color: Colors.white),
-                                      SizedBox(width: 12),
-                                      Text(
-                                        'Bank soal berhasil ditambahkan!',
-                                        style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      ],
-                                    ),
-                                    ),
-                                    backgroundColor: Colors.green.shade400,
-                                    duration: Duration(seconds: 2),
-                                    behavior: SnackBarBehavior.floating,
-                                    margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                                    shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                    ),
-                                    elevation: 4,
-                                  ),
-                                  );
-
-                                  // Clear form and pop with slight delay
+                                  Navigator.pop(context);
                                   _nameController.clear();
-                                  Future.delayed(Duration(milliseconds: 2200), () {
-                                  if (mounted) {
-                                    Navigator.pop(context);
-                                  }
-                                  });
+
+                                  if (!mounted) return;
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(const SnackBar(
+                                    content: Text('Bank soal berhasil dibuat'),
+                                    backgroundColor: Colors.green,
+                                  ));
                                 } catch (e) {
                                   if (!mounted) return;
                                   ScaffoldMessenger.of(context)
@@ -839,36 +808,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                       banksoalId: bank.id!,
                     );
 
-                    // Show auto-dismissing success snackbar
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                      content: Container(
-                        padding: EdgeInsets.symmetric(vertical: 8),
-                        child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.check_circle, color: Colors.white),
-                          SizedBox(width: 12),
-                          Text(
-                          'Bank soal berhasil dihapus!',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          ),
-                        ],
-                        ),
-                      ),
-                      backgroundColor: Colors.green.shade400,
-                      duration: Duration(seconds: 2),
-                      behavior: SnackBarBehavior.floating,
-                      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      elevation: 4,
-                      ),
+                    scaffoldMessenger.showSnackBar(
+                      SnackBar(content: Text('Bank soal berhasil dihapus')),
                     );
                   } catch (e) {
                     scaffoldMessenger.showSnackBar(
