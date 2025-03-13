@@ -1,7 +1,10 @@
 import 'dart:convert';
-
+import 'dart:ffi';
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
+import 'package:eschool_saas_staff/data/models/exam.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
+import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -16,10 +19,11 @@ class OnlineExamResultScreen extends StatefulWidget {
 
 class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
   late String _searchController = "";
-  bool _showSearchBar =
-      false; // Variabel state lokal untuk menampilkan search bar
-  bool _isSearching =
-      false; // Variabel state lokal untuk menentukan apakah sedang mencari
+  bool _showSearchBar = false;
+  bool _isSearching = false;
+  String _selectedFilter = "Semua"; // Variabel baru untuk filter (default Semua)
+  DateTime? _startDate; // Pindah ke state utama
+  DateTime? _endDate;   // Pindah ke state utama
 
   @override
   void initState() {
@@ -129,6 +133,12 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
                   ),
                 ],
               ),
+              IconButton(
+                icon: Icon(Icons.filter_list, color: Colors.white),
+                onPressed: () {
+                  _showFilterBottomSheet(context);
+                },
+              ),
             ],
           ),
         ),
@@ -136,23 +146,211 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
     );
   }
 
+void _showFilterBottomSheet(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    backgroundColor: Colors.white, // Background putih
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setModalState) {
+          return Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Handle Bar di tengah atas
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: EdgeInsets.only(bottom: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[400],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+
+                // Judul
+                Text(
+                  'Filter Status Ujian',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF8B0000),
+                  ),
+                ),
+                SizedBox(height: 16),
+
+                // Input Tanggal dengan Dash
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Tanggal Dari
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () async {
+                          final DateTime? picked = await showDatePicker(
+                            context: context,
+                            initialDate: _startDate ?? DateTime.now(),
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime(2030),
+                          );
+                          if (picked != null) {
+                            setState(() {
+                              _startDate = picked;
+                              // Panggil Cubit pas tanggal dipilih
+                              context.read<OnlineExamCubit>().getOnlineExams(
+                                    search: _searchController,
+                                    startDate: _startDate,
+                                    endDate: _endDate,
+                                  );
+                            });
+                            // setModalState(() {});
+                          }
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            _startDate != null
+                                ? DateFormat('dd/MM/yyyy').format(_startDate!)
+                                : 'Dari',
+                            style: TextStyle(fontSize: 16, color: Colors.grey[800]),
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Dash
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      child: Text(
+                        '-',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    // Tanggal Sampai
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () async {
+                          final DateTime? picked = await showDatePicker(
+                            context: context,
+                            initialDate: _endDate ?? DateTime.now(),
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime(2030),
+                          );
+                          if (picked != null) {
+                            setState(() {
+                              _endDate = picked;
+                              // Panggil Cubit pas tanggal dipilih
+                              context.read<OnlineExamCubit>().getOnlineExams(
+                                    search: _searchController,
+                                    startDate: _startDate,
+                                    endDate: _endDate,
+                                  );
+                            });
+                            // setModalState(() {});
+                          }
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            _endDate != null
+                                ? DateFormat('dd/MM/yyyy').format(_endDate!)
+                                : 'Sampai',
+                            style: TextStyle(fontSize: 16, color: Colors.grey[800]),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16),
+
+                // Opsi Filter dengan Radio di Kanan dan Divider
+                Column(
+                  children: [
+                    _buildFilterOption('Semua', setModalState),
+                    _buildFilterOption('Selesai', setModalState),
+                    _buildFilterOption('Belum Dimulai', setModalState),
+                    _buildFilterOption('Sedang Berlangsung', setModalState),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
+Widget _buildFilterOption(String label, StateSetter setModalState) {
+  return Column(
+    children: [
+      InkWell(
+        onTap: () {
+          setState(() {
+            _selectedFilter = label;
+          });
+          setModalState(() {});
+          Navigator.pop(context);
+        },
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(vertical: 8),
+          color: Colors.transparent,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                label,
+                style: TextStyle(fontSize: 16, color: Colors.grey[800]),
+              ),
+              Radio<String>(
+                value: label,
+                groupValue: _selectedFilter,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedFilter = value ?? 'Semua';
+                  });
+                  setModalState(() {});
+                  Navigator.pop(context);
+                },
+                activeColor: Color(0xFF8B0000),
+              ),
+            ],
+          ),
+        ),
+      ),
+      Divider(height: 1, color: Colors.grey[300]),
+    ],
+  );
+}
+
   Widget _buildBody() {
     return RefreshIndicator(
       onRefresh: () async {
         setState(() {
-          _isSearching = _searchController
-              .isNotEmpty; // Set _isSearching berdasarkan apakah ada teks di search bar
+          _isSearching = _searchController.isNotEmpty;
         });
-        await context
-            .read<OnlineExamCubit>()
-            .getOnlineExams(search: _searchController);
+        await context.read<OnlineExamCubit>().getOnlineExams(search: _searchController, startDate: _startDate, endDate: _endDate);
       },
       child: Column(
         children: [
-          if (_showSearchBar)
-            _buildSearchBar(), // Tampilkan search bar jika _showSearchBar true
-          if (!_showSearchBar)
-            SizedBox(height: 20,),
+          if (_showSearchBar) _buildSearchBar(),
+          if (!_showSearchBar) SizedBox(height: 20),
           Expanded(
             child: _buildExamCard(),
           ),
@@ -182,10 +380,9 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
           child: TextField(
             onChanged: (value) {
               setState(() {
-                _isSearching = value
-                    .isNotEmpty; // Set _isSearching berdasarkan apakah ada teks di search bar
+                _isSearching = value.isNotEmpty;
               });
-              context.read<OnlineExamCubit>().getOnlineExams(search: value);
+              context.read<OnlineExamCubit>().getOnlineExams(search: value, startDate: _startDate, endDate: _endDate,);
               _searchController = value;
             },
             decoration: InputDecoration(
@@ -231,8 +428,17 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
             });
           }
 
-          // Jika tidak ada data, tampilkan pesan
-          if (state.exams.isEmpty) {
+          // Filter data berdasarkan _selectedFilter
+          final filteredExams = state.exams.where((exam) {
+            if (_selectedFilter == "Semua") return true;
+            if (_selectedFilter == "Belum Dimulai") return exam.status == 0;
+            if (_selectedFilter == "Sedang Berlangsung") return exam.status == 1;
+            if (_selectedFilter == "Selesai") return exam.status == 2;
+            return false;
+          }).toList() ..sort((a, b) => b.startDate.compareTo(a.startDate));
+
+          // Jika tidak ada data setelah filter
+          if (filteredExams.isEmpty) {
             return Expanded(
               child: Container(
                 decoration: BoxDecoration(
@@ -251,7 +457,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
                       Text(
                         _isSearching
                             ? 'Tidak ada ujian yang cocok'
-                            : 'Tidak ada ujian tersedia',
+                            : 'Tidak ada ujian tersedia untuk filter ini',
                         style: TextStyle(
                           fontSize: 18,
                           color: Colors.grey[600],
@@ -265,12 +471,12 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
             );
           }
 
-          // Jika ada data, tampilkan daftar ujian
+          // Tampilkan daftar ujian yang sudah difilter
           return ListView.builder(
             padding: EdgeInsets.symmetric(horizontal: 16),
-            itemCount: state.exams.length,
+            itemCount: filteredExams.length,
             itemBuilder: (context, index) {
-              final exam = state.exams[index];
+              final exam = filteredExams[index];
               return GestureDetector(
                 onTap: () {
                   if (exam.status == 2) {
@@ -301,49 +507,48 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Flexible( // Tambahkan Flexible agar teks bisa membungkus
-                                      child: Text(
-                                        exam.title ?? 'Tidak ada Judul',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFF8B0000),
-                                          overflow: TextOverflow.visible, // Memungkinkan teks terlihat meski overflow
-                                          // softWrap: true sudah default true, tapi bisa ditegaskan jika perlu
-                                        ),
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      exam.title ?? 'Tidak ada Judul',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF8B0000),
+                                        overflow: TextOverflow.visible,
                                       ),
                                     ),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                      decoration: BoxDecoration(
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: exam.status == 0
+                                          ? Colors.orange.withOpacity(0.1)
+                                          : exam.status == 1
+                                              ? Colors.blue.withOpacity(0.1)
+                                              : Colors.green.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      (exam.status == 0
+                                          ? 'Belum Dimulai'
+                                          : exam.status == 1
+                                              ? 'Sedang Berlangsung'
+                                              : 'Selesai'),
+                                      style: TextStyle(
                                         color: exam.status == 0
-                                            ? Colors.orange.withOpacity(0.1)
+                                            ? Colors.orange
                                             : exam.status == 1
-                                                ? Colors.blue.withOpacity(0.1)
-                                                : Colors.green.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Text(
-                                        (exam.status == 0
-                                            ? 'Belum Dimulai'
-                                            : exam.status == 1
-                                                ? 'Sedang Berlangsung'
-                                                : 'Selesai'),
-                                        style: TextStyle(
-                                          color: exam.status == 0
-                                              ? Colors.orange
-                                              : exam.status == 1
-                                                  ? Colors.blue
-                                                  : Colors.green,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                                ? Colors.blue
+                                                : Colors.green,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
+                              ),
                               SizedBox(height: 8),
                               Text(
                                 exam.subjectName ?? 'Tidak ada Nama Mata Pelajaran',

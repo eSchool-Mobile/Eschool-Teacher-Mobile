@@ -460,45 +460,47 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen> {
     );
   }
 
-  Widget _buildAnimatedTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    int maxLines = 1,
-    bool readOnly = false,
-    VoidCallback? onTap,
-    TextInputType? keyboardType,
-  }) {
-    return TextFormField(
-      controller: controller,
-      maxLines: maxLines,
-      readOnly: readOnly,
-      onTap: onTap,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(
-          color: Theme.of(context).colorScheme.secondary,
-        ),
-        prefixIcon: Icon(
-          icon,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide.none,
-        ),
-        filled: true,
-        fillColor: Colors.grey.shade50,
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide:
-              BorderSide(color: Theme.of(context).colorScheme.secondary),
-        ),
+Widget _buildAnimatedTextField({
+  required TextEditingController controller,
+  required String label,
+  required IconData icon,
+  int maxLines = 1,
+  int? maxLength, // Tambahkan parameter maxLength
+  bool readOnly = false,
+  VoidCallback? onTap,
+  TextInputType? keyboardType,
+}) {
+  return TextFormField(
+    controller: controller,
+    maxLines: maxLines,
+    maxLength: maxLength, // Batasi jumlah karakter
+    readOnly: readOnly,
+    onTap: onTap,
+    keyboardType: keyboardType,
+    decoration: InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(
+        color: Theme.of(context).colorScheme.secondary,
       ),
-      validator: (v) => v!.isEmpty ? 'Required' : null,
-    );
-  }
+      prefixIcon: Icon(
+        icon,
+        color: Theme.of(context).colorScheme.primary,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide.none,
+      ),
+      filled: true,
+      fillColor: Colors.grey.shade50,
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary),
+      ),
+      counterText: "", // Menyembunyikan indikator jumlah karakter
+    ),
+    validator: (v) => v!.isEmpty ? 'Required' : null,
+  );
+}
 
   Widget _buildFormContent(ClassSectionsAndSubjectsState state) {
     return state is ClassSectionsAndSubjectsFetchFailure
@@ -664,6 +666,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen> {
                       controller: _topicNameTextEditingController,
                       label: 'Nama Topik',
                       icon: Icons.topic,
+                      maxLength: 128
                     ),
                     SizedBox(height: 15),
                     _buildAnimatedTextField(
@@ -671,6 +674,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen> {
                       label: 'Deskripsi',
                       icon: Icons.description,
                       maxLines: 5,
+                      maxLength: 1024
                     ),
                   ],
                 ),
