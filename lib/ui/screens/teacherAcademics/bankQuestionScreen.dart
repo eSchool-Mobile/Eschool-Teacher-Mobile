@@ -30,6 +30,30 @@ class BankQuestionScreen extends StatefulWidget {
   State<BankQuestionScreen> createState() => _BankQuestionScreenState();
 }
 
+class PatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+
+    final double spacing = 15;
+
+    // Draw diagonal lines for premium pattern effect
+    for (double i = -size.width; i < size.width * 2; i += spacing) {
+      canvas.drawLine(
+        Offset(i, 0),
+        Offset(i + size.height, size.height),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
 class _BankQuestionScreenState extends State<BankQuestionScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<q.Question> _filteredQuestions = [];
@@ -129,7 +153,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
 
   void _navigateToEditQuestion(
       q.Question question, q.QuestionVersion version) async {
-          String jsonString = JsonEncoder.withIndent("  ").convert(question);
+    String jsonString = JsonEncoder.withIndent("  ").convert(question);
 
     final result = await Get.toNamed(
       Routes.editQuestionScreen,
@@ -143,7 +167,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
           'question': version.question,
           'default_point': version.defaultPoint,
           'note': version.note,
-          'image': version?.image,
+          'image': version.image,
           'options': version.options
               .map((opt) => {
                     'text': opt.text,
@@ -209,58 +233,106 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
         children: [
           Row(
             children: [
-              IconButton(
-                icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+              // Back button with enhanced styling
+              Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: IconButton(
+                icon: Icon(Icons.arrow_back_ios, color: Colors.white, size: 18),
                 onPressed: () => Get.back(),
               ),
+              ),
+              SizedBox(width: 16),
+              // Title section with improved typography
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.bankSoal.name,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black26,
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Bank Soal',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: 16,
-                      ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                Text(
+                  widget.bankSoal.name,
+                  style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2,
+                  shadows: [
+                    Shadow(
+                    color: Colors.black38,
+                    offset: Offset(0, 2),
+                    blurRadius: 4,
                     ),
                   ],
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 6),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                  'Bank Soal',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  ),
+                ),
+                ],
+              ),
+              ),
+              // Add Question button with premium styling
+              Container(
+              height: 46,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                colors: [Colors.white, Colors.white.withOpacity(0.9)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                borderRadius: BorderRadius.circular(14),
+                onTap: _navigateToAddQuestion,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                  children: [
+                    Icon(
+                    Icons.add_circle_rounded,
+                    color: Theme.of(context).colorScheme.secondary,
+                    size: 20,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                    'Soal',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                    ),
+                  ],
+                  ),
+                ),
                 ),
               ),
-              // Tambah Tombol di sini
-              ElevatedButton.icon(
-                onPressed: _navigateToAddQuestion,
-                icon: Icon(Icons.edit_note, size: 20),
-                label: Text('Tambah Soal'),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.secondary,
-                  backgroundColor: Colors.white,
-                  elevation: 0,
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  textStyle: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
               ),
             ],
           ),
@@ -382,16 +454,16 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
       children: [
         if (_showSearch)
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  spreadRadius: 1,
-                  blurRadius: 5,
-                  offset: Offset(0, 2),
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  spreadRadius: 0,
+                  offset: Offset(0, 5),
                 ),
               ],
             ),
@@ -400,31 +472,29 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
               onChanged: (query) => _filterQuestions(query, questions),
               decoration: InputDecoration(
                 hintText: 'Cari soal...',
-                prefixIcon: Icon(Icons.search, color: Colors.grey),
+                hintStyle: TextStyle(
+                  color: Colors.grey[400],
+                  fontSize: 15,
+                ),
+                prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
                 border: InputBorder.none,
                 contentPadding:
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               ),
             ),
           ),
         Expanded(
           child: _filteredQuestions.isEmpty
               ? _buildEmptyState()
-              : GridView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+              : ListView.builder(
+                  padding: EdgeInsets.only(top: 8, bottom: 24),
                   physics: BouncingScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.62,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 12,
-                  ),
                   itemCount: _filteredQuestions.length,
                   itemBuilder: (context, index) {
                     final question = _filteredQuestions[index];
                     final latestVersion = question.versions.last;
                     return FadeInUp(
-                      duration: Duration(milliseconds: 600 + (index * 100)),
+                      duration: Duration(milliseconds: 400 + (index * 50)),
                       child: _buildQuestionCard(question, latestVersion),
                     );
                   },
@@ -436,88 +506,217 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
 
   Widget _buildQuestionCard(q.Question question, dynamic latestVersion) {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 10,
-            spreadRadius: 5,
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Gradient Header
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    _getTypeColor(latestVersion.type).withOpacity(0.8),
-                    _getTypeColor(latestVersion.type).withOpacity(0.6),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      child: Stack(
+        children: [
+          // Main Card with enhanced shadow
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(28),
+              boxShadow: [
+                BoxShadow(
+                  color: _getTypeColor(latestVersion.type).withOpacity(0.07),
+                  blurRadius: 30,
+                  offset: Offset(0, 10),
+                  spreadRadius: 5,
                 ),
-              ),
-              padding: EdgeInsets.all(16),
-              child: Row(
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 10,
+                  offset: Offset(0, 5),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(28),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Type Icon Badge
+                  // Premium Header with Dynamic Glass Effect
                   Container(
-                    padding: EdgeInsets.all(8),
+                    height: 140, // Increased height
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          _getTypeColor(latestVersion.type),
+                          _getTypeColor(latestVersion.type).withOpacity(0.85),
+                          _getTypeColor(latestVersion.type).withOpacity(0.7),
+                        ],
+                        stops: [0.2, 0.6, 1.0],
+                      ),
                     ),
-                    child: Icon(
-                      _getTypeIcon(latestVersion.type),
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                  SizedBox(width: 12),
-
-                  // Type & Points
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Stack(
+                      fit: StackFit.expand,
                       children: [
-                        Text(
-                          _getTypeName(latestVersion.type),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                        // Enhanced Premium Pattern
+                        CustomPaint(
+                          painter: LuxuryPatternPainter(
+                            color: Colors.white.withOpacity(0.08),
                           ),
                         ),
-                        SizedBox(height: 4),
-                        Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.star,
-                                size: 14,
-                                color: Colors.amber[100],
+
+                        // Light beam effect (top right)
+                        Positioned(
+                          top: -20,
+                          right: -20,
+                          child: Container(
+                            height: 100,
+                            width: 100,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: RadialGradient(
+                                colors: [
+                                  Colors.white.withOpacity(0.4),
+                                  Colors.white.withOpacity(0),
+                                ],
+                                stops: [0.1, 1.0],
                               ),
-                              SizedBox(width: 4),
+                            ),
+                          ),
+                        ),
+
+                        // Type Badge with enhanced styling
+                        Positioned(
+                          top: 18,
+                          left: 20,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.5),
+                                width: 1,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: _getTypeColor(latestVersion.type)
+                                      .withOpacity(0.2),
+                                  blurRadius: 12,
+                                  spreadRadius: -2,
+                                ),
+                              ],
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Colors.white.withOpacity(0.3),
+                                  Colors.white.withOpacity(0.1),
+                                ],
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  _getTypeIcon(latestVersion.type),
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  _getTypeName(latestVersion.type),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.3,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Points Badge with premium styling
+                        Positioned(
+                          top: 18,
+                          right: 20,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.15),
+                                  blurRadius: 8,
+                                  offset: Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.star_rounded,
+                                      color: Colors.amber.shade200,
+                                      size: 22,
+                                    ),
+                                    Icon(
+                                      Icons.star_rounded,
+                                      color: Colors.amber,
+                                      size: 18,
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  '${latestVersion.defaultPoint} poin',
+                                  style: TextStyle(
+                                    color: Colors.grey[800],
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Question Title with elegant styling
+                        Positioned(
+                          bottom: 20,
+                          left: 20,
+                          right: 20,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 4,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.7),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                              SizedBox(height: 10),
                               Text(
-                                '${latestVersion.defaultPoint} poin',
+                                latestVersion.name,
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 12,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.3,
+                                  letterSpacing: 0.2,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black.withOpacity(0.3),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                    ),
+                                  ],
                                 ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
@@ -525,161 +724,387 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
 
-            // Question Content
-            Expanded(
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Question Title with elegant ellipsis
-                    Text(
-                      latestVersion.name,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[800],
-                        height: 1.3,
-                        letterSpacing: 0.2,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-
-                    SizedBox(height: 10),
-
-                    // Question Preview in contained box
-                    Expanded(
-                      child: Container(
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[50],
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey[100]!),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                  // Question Content with enhanced styling
+                  Container(
+                    padding: EdgeInsets.fromLTRB(24, 24, 24, 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Section title with premium styling
+                        Row(
                           children: [
-                            // Question preview text
-                            Expanded(
-                              child: Text(
-                                parseHtmlString(latestVersion.question),
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[700],
-                                  height: 1.5,
-                                  letterSpacing: 0.1,
-                                ),
-                                maxLines: 4, // Show more preview lines
-                                overflow:
-                                    TextOverflow.fade, // Smoother fade effect
-                              ),
-                            ),
-
-                            // Options count with divider
-                            Column(
-                              children: [
-                                Divider(
-                                  height: 16,
-                                  thickness: 1,
-                                  color: Colors.grey[200],
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.check_circle_outline,
-                                        size: 16, color: Colors.green[400]),
-                                    SizedBox(width: 6),
-                                    Text(
-                                      '${latestVersion.options.length} Opsi',
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
+                            Container(
+                              width: 4,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(2),
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    _getTypeColor(latestVersion.type),
+                                    _getTypeColor(latestVersion.type)
+                                        .withOpacity(0.7),
                                   ],
                                 ),
-                              ],
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: _getTypeColor(latestVersion.type)
+                                        .withOpacity(0.3),
+                                    blurRadius: 6,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Text(
+                              "Konten Pertanyaan",
+                              style: TextStyle(
+                                color: Colors.grey[800],
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.3,
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
 
-            // Footer
-            Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Colors.grey[100]!),
-                ),
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Point: ${latestVersion.defaultPoint}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.secondary,
+                        SizedBox(height: 16),
+
+                        // Question content with enhanced styling
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 14),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.grey.shade100),
+                          ),
+                          child: Text(
+                            parseHtmlString(latestVersion.question),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.grey[800],
+                              height: 1.5,
+                              letterSpacing: 0.2,
+                              fontFamily: 'Roboto',
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+
+                        SizedBox(height: 22),
+
+                        // Options Information with enhanced styling
+                        Container(
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Colors.white,
+                                Colors.grey.shade50,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.03),
+                                blurRadius: 10,
+                                spreadRadius: 0,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                            border: Border.all(
+                              color: _getTypeColor(latestVersion.type)
+                                  .withOpacity(0.15),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: _getTypeColor(latestVersion.type)
+                                      .withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: _getTypeColor(latestVersion.type)
+                                        .withOpacity(0.3),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.check_circle_outline_rounded,
+                                  color: _getTypeColor(latestVersion.type),
+                                  size: 22,
+                                ),
+                              ),
+                              SizedBox(width: 16),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Pilihan Jawaban',
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    '${latestVersion.options.length} opsi tersedia',
+                                    style: TextStyle(
+                                      color: Colors.grey[800],
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Spacer(),
+                              Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                color: _getTypeColor(latestVersion.type)
+                                    .withOpacity(0.7),
+                                size: 16,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Row(
-                    children: [
-                      _buildActionButton(
-                        icon: Icons.edit,
-                        tooltip: 'Edit Soal',
-                        onPressed: () =>
-                            _navigateToEditQuestion(question, latestVersion),
+
+                  // Enhanced Action Footer
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      border: Border(
+                        top: BorderSide(
+                          color: Colors.grey.shade100,
+                          width: 1.5,
+                        ),
                       ),
-                      SizedBox(width: 8),
-                      _buildActionButton(
-                        icon: Icons.delete_outline,
-                        tooltip: 'Hapus Soal',
-                        onPressed: () =>
-                            _showDeleteQuestionConfirmation(question),
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(28),
+                        bottomRight: Radius.circular(28),
                       ),
-                    ],
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Question ID with premium styling
+                        Container(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(
+                              color: Colors.grey.shade200,
+                              width: 1.5,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.02),
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.tag_rounded,
+                                size: 16,
+                                color: Colors.grey[500],
+                              ),
+                              SizedBox(width: 6),
+                              Text(
+                                'ID: ${question.id}',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Action Buttons with enhanced styling
+                        Row(
+                          children: [
+                            // Edit Button - Enhanced with premium styling
+                            Material(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(14),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(14),
+                                onTap: () => _navigateToEditQuestion(question, latestVersion),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        _getTypeColor(latestVersion.type).withOpacity(0.9),
+                                        _getTypeColor(latestVersion.type).withOpacity(0.7),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: _getTypeColor(latestVersion.type).withOpacity(0.3),
+                                        blurRadius: 10,
+                                        offset: Offset(0, 4),
+                                        spreadRadius: 0,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.edit_rounded,
+                                        size: 18,
+                                        color: Colors.white,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Edit',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14,
+                                          letterSpacing: 0.3,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            SizedBox(width: 12),
+
+                            // Delete Button - Enhanced with premium styling
+                            Material(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(14),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(14),
+                                onTap: () => _showDeleteQuestionConfirmation(question),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.white,
+                                        Colors.grey.shade50,
+                                      ],
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                    ),
+                                    border: Border.all(
+                                      color: Colors.red.shade300,
+                                      width: 1.5,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.05),
+                                        blurRadius: 10,
+                                        offset: Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.delete_outline_rounded,
+                                        size: 18,
+                                        color: Colors.red.shade700,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Hapus',
+                                        style: TextStyle(
+                                          color: Colors.red.shade700,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14,
+                                          letterSpacing: 0.3,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required String tooltip,
-    required VoidCallback onPressed,
-  }) {
-    return Tooltip(
-      message: tooltip,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(8),
-          child: Padding(
-            padding: EdgeInsets.all(8),
-            child: Icon(
-              icon,
-              size: 20,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
           ),
-        ),
+
+          // Premium Badge (optional)
+          // Positioned(
+          //   top: 0,
+          //   right: 30,
+          //   child: Container(
+          //     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          //     decoration: BoxDecoration(
+          //       color: Colors.amber.shade700,
+          //       borderRadius: BorderRadius.only(
+          //         bottomLeft: Radius.circular(10),
+          //         bottomRight: Radius.circular(10),
+          //       ),
+          //       boxShadow: [
+          //         BoxShadow(
+          //           color: Colors.amber.withOpacity(0.3),
+          //           blurRadius: 8,
+          //           offset: Offset(0, 2),
+          //         ),
+          //       ],
+          //     ),
+          //     child: Row(
+          //       mainAxisSize: MainAxisSize.min,
+          //       children: [
+          //         Icon(
+          //           Icons.school_rounded,
+          //           color: Colors.white,
+          //           size: 14,
+          //         ),
+          //         SizedBox(width: 4),
+          //         Text(
+          //           'PREMIUM',
+          //           style: TextStyle(
+          //             color: Colors.white,
+          //             fontSize: 10,
+          //             fontWeight: FontWeight.bold,
+          //             letterSpacing: 0.5,
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ),
+        ],
       ),
     );
   }
@@ -812,13 +1237,33 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
       highlightColor: Colors.grey[100]!,
       child: ListView.builder(
         padding: EdgeInsets.all(16),
-        itemCount: 5,
+        itemCount: 3,
         itemBuilder: (_, __) => Container(
-          margin: EdgeInsets.only(bottom: 16),
-          height: 100,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(15),
+          margin: EdgeInsets.only(bottom: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 140,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(28),
+                    topRight: Radius.circular(28),
+                  ),
+                ),
+              ),
+              Container(
+                height: 120,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(28),
+                    bottomRight: Radius.circular(28),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -830,13 +1275,30 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.question_mark_rounded, size: 64, color: Colors.grey),
-          SizedBox(height: 16),
+          Container(
+            padding: EdgeInsets.all(25),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.question_mark_rounded,
+                size: 70, color: Colors.grey.shade400),
+          ),
+          SizedBox(height: 24),
           Text(
             'Belum ada soal',
             style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey[600],
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[700],
+            ),
+          ),
+          SizedBox(height: 12),
+          Text(
+            'Tambahkan soal baru untuk memulai',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[500],
             ),
           ),
         ],
@@ -861,29 +1323,15 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
     );
   }
 
-  Widget _buildModalActionButton(
-      IconData icon, Color color, VoidCallback onPressed) {
-    return Material(
-      color: color,
-      borderRadius: BorderRadius.circular(8),
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: Colors.white, size: 20),
-              SizedBox(width: 4),
-              Text(
-                icon == Icons.edit ? 'Edit' : 'Hapus',
-                style: TextStyle(color: Colors.white),
-              ),
-            ],
-          ),
-        ),
-      ),
+  Widget _buildActionButton({
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback onPressed,
+  }) {
+    return IconButton(
+      icon: Icon(icon),
+      tooltip: tooltip,
+      onPressed: onPressed,
     );
   }
 
@@ -1063,7 +1511,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text("Tidak dapat menghapus soal, mohon periksa koneksi internet anda dan coba lagi"),
+                      content: Text(
+                          "Tidak dapat menghapus soal, mohon periksa koneksi internet anda dan coba lagi"),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -1076,4 +1525,51 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
       },
     );
   }
+}
+
+// Enhanced luxury pattern painter
+class LuxuryPatternPainter extends CustomPainter {
+  final Color color;
+
+  LuxuryPatternPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+
+    // Draw diagonal lines for premium pattern effect
+    final double spacing = 20;
+    for (double i = -size.width; i < size.width * 2; i += spacing) {
+      canvas.drawLine(
+        Offset(i, 0),
+        Offset(i + size.height, size.height),
+        paint,
+      );
+    }
+
+    // Add curved lines for more luxurious effect
+    final path = Path();
+    for (double i = 0; i < size.width; i += spacing * 2) {
+      path.moveTo(i, 0);
+      path.quadraticBezierTo(i + spacing, size.height / 2, i, size.height);
+    }
+    canvas.drawPath(path, paint);
+
+    // Add circles for decorative elements
+    for (int i = 0; i < 3; i++) {
+      final circlePaint = Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.8;
+
+      canvas.drawCircle(
+          Offset(size.width - 40, 40), 15 + (i * 10), circlePaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
