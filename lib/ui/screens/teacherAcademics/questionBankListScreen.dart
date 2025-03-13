@@ -10,6 +10,31 @@ import '../../../data/models/questionBank.dart';
 import '../../../data/models/subjectQuestion.dart';
 import 'package:eschool_saas_staff/data/repositories/questionBankRepository.dart';
 
+// Controller GetX untuk lifecycle
+class QuestionBankListController extends GetxController {
+  final BuildContext context;
+  final int subjectId;
+
+  QuestionBankListController(this.context, this.subjectId);
+
+  @override
+  void onInit() {
+    super.onInit();
+    _reloadData();
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    _reloadData(); // Reload saat halaman siap
+  }
+
+  void _reloadData() {
+    print("Reloading QuestionBankListScreen for subject ID: $subjectId");
+    context.read<QuestionBankCubit>().fetchBankSoal(subjectId);
+  }
+}
+
 class QuestionBankListScreen extends StatefulWidget {
   final SubjectQuestion subject;
 
@@ -36,15 +61,13 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<BankSoal> _filteredBanks = [];
   bool _showSearch = false;
+  late QuestionBankListController _controller;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context
-          .read<QuestionBankCubit>()
-          .fetchBankSoal(widget.subject.subject.id);
-    });
+    _controller = Get.put(QuestionBankListController(context, widget.subject.subject.id));
+    _reloadData(); // Load pertama kali
   }
 
   @override
@@ -53,12 +76,27 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
     _typeController.dispose();
     _defaultPointController.dispose();
     _searchController.dispose();
+    Get.delete<QuestionBankListController>(); // Hapus controller saat dispose
     super.dispose();
+  }
+
+  void _reloadData() {
+    print("Manual reload triggered for QuestionBankListScreen");
+    _searchController.clear();
+    _filteredBanks = [];
+    _showSearch = false;
+    context.read<QuestionBankCubit>().fetchBankSoal(widget.subject.subject.id);
   }
 
   void _filterBanks(String query, List<BankSoal> banks) {
     setState(() {
-
+      if (query.isEmpty) {
+        _filteredBanks = banks;
+      } else {
+        _filteredBanks = banks
+            .where((bank) => bank.name.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
     });
   }
 
@@ -108,12 +146,10 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                         icon: Icon(Icons.add_box_rounded, size: 20),
                         label: Text('Bank Soal'),
                         style: ElevatedButton.styleFrom(
-                          foregroundColor:
-                              Theme.of(context).colorScheme.secondary,
+                          foregroundColor: Theme.of(context).colorScheme.secondary,
                           backgroundColor: Colors.white,
                           elevation: 0,
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -153,11 +189,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                           child: ErrorContainer(
                             errorMessage:
                                 "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
-                            onTapRetry: () {
-                              context.read<QuestionBankCubit>().fetchBankSoal(
-                                    widget.subject.subject.id,
-                                  );
-                            },
+                            onTapRetry: _reloadData,
                           ),
                         );
                       }
@@ -239,10 +271,14 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
   }
 
   Widget _buildContent(BankSoalFetchSuccess state) {
-    // Inisialisasi _filteredBanks hanya jika belum diinisialisasi
+    // Inisialisasi _filteredBanks hanya jika belum diinisialisasi atau search berubah
+    if (_filteredBanks.isEmpty && _searchController.text.isEmpty) {
+      _filteredBanks = state.bankSoal;
+    } else {
       _filteredBanks = state.bankSoal
-            .where((bank) => bank.name.toLowerCase().contains(_searchController.text.toLowerCase()))
-            .toList();
+          .where((bank) => bank.name.toLowerCase().contains(_searchController.text.toLowerCase()))
+          .toList();
+    }
 
     _showSearch = state.bankSoal.length > 5;
 
@@ -292,10 +328,11 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
         return FadeInUp(
           duration: Duration(milliseconds: 600 + (index * 100)),
           child: Container(
-            margin: EdgeInsets.only(bottom: 16), // Harusnya 'bottom', typo dipertahankan sesuai kode asli
+            margin: EdgeInsets.only(bottom: 16), // Harusnya 'bottom', typo dipertahankan
             child: GestureDetector(
-              onTap: () {
-                Get.toNamed(
+              onTap: () async {
+                // Tunggu navigasi selesai, lalu reload
+                await Get.toNamed(
                   Routes.bankQuestionScreen,
                   arguments: {
                     'bankSoal': bank,
@@ -303,6 +340,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                     'subject': widget.subject,
                   },
                 );
+                _reloadData();
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -371,13 +409,11 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                             children: [
                               IconButton(
                                 icon: Icon(Icons.edit, color: Colors.white),
-                                onPressed: () =>
-                                    _showEditBankDialog(banks, index),
+                                onPressed: () => _showEditBankDialog(banks, index),
                               ),
                               IconButton(
                                 icon: Icon(Icons.delete, color: Colors.white),
-                                onPressed: () =>
-                                    _showDeleteConfirmation(context, bank),
+                                onPressed: () => _showDeleteConfirmation(context, bank),
                               ),
                             ],
                           ),
@@ -422,10 +458,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                     Container(
                       padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .secondary
-                            .withOpacity(0.1),
+                        color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
@@ -529,17 +562,14 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                                   _nameController.clear();
 
                                   if (!mounted) return;
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(const SnackBar(
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                                     content: Text('Bank soal berhasil dibuat'),
                                     backgroundColor: Colors.green,
                                   ));
                                 } catch (e) {
                                   if (!mounted) return;
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(SnackBar(
-                                    content:
-                                        Text('Gagal membuat bank soal: $e'),
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                    content: Text('Gagal membuat bank soal: $e'),
                                     backgroundColor: Colors.red,
                                   ));
                                 } finally {
@@ -557,8 +587,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
                           : Text(
@@ -613,10 +642,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                     Container(
                       padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .secondary
-                            .withOpacity(0.1),
+                        color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
@@ -674,8 +700,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                 ),
                 actions: [
                   TextButton(
-                    onPressed:
-                        isSubmitting ? null : () => Navigator.pop(context),
+                    onPressed: isSubmitting ? null : () => Navigator.pop(context),
                     child: Text(
                       'Batal',
                       style: TextStyle(color: Colors.grey[600]),
@@ -695,16 +720,13 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                       onPressed: isSubmitting
                           ? null
                           : () async {
-                              if (_editFormKey.currentState?.validate() ??
-                                  false) {
+                              if (_editFormKey.currentState?.validate() ?? false) {
                                 try {
                                   setState(() {
                                     isSubmitting = true;
                                   });
 
-                                  await context
-                                      .read<QuestionBankCubit>()
-                                      .updateQuestionBank(
+                                  await context.read<QuestionBankCubit>().updateQuestionBank(
                                         subjectId: widget.subject.subject.id,
                                         banksoalId: bank.id,
                                         name: _editController.text.trim(),
@@ -713,24 +735,18 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                                   Navigator.pop(context);
 
                                   // Refresh bank soal list
-                                  context
-                                      .read<QuestionBankCubit>()
-                                      .fetchBankSoal(
-                                        widget.subject.subject.id,
-                                      );
+                                  _reloadData();
 
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content:
-                                          Text('Bank soal berhasil diperbarui'),
+                                      content: Text('Bank soal berhasil diperbarui'),
                                       backgroundColor: Colors.green,
                                     ),
                                   );
                                 } catch (e) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(
-                                          'Gagal memperbarui: ${e.toString()}'),
+                                      content: Text('Gagal memperbarui: ${e.toString()}'),
                                       backgroundColor: Colors.red,
                                     ),
                                   );
@@ -749,8 +765,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
                           : Text(
@@ -799,8 +814,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
               SizedBox(width: 16),
               Text(
                 'Hapus Bank Soal',
-                style:
-                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -829,14 +843,16 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                       banksoalId: bank.id!,
                     );
 
+                    // Refresh setelah delete
+                    _reloadData();
+
                     scaffoldMessenger.showSnackBar(
                       SnackBar(content: Text('Bank soal berhasil dihapus')),
                     );
                   } catch (e) {
                     scaffoldMessenger.showSnackBar(
                       SnackBar(
-                        content:
-                            Text('Gagal menghapus bank soal: ${e.toString()}'),
+                        content: Text('Gagal menghapus bank soal: ${e.toString()}'),
                         backgroundColor: Colors.red,
                       ),
                     );
@@ -844,8 +860,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                 },
                 child: Text(
                   'Hapus',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),

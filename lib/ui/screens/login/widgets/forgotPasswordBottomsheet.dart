@@ -19,11 +19,13 @@ class ForgotPasswordBottomsheet extends StatefulWidget {
 }
 
 class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet> {
-  final TextEditingController _textEditingController = TextEditingController();
+  final TextEditingController _emailEditingController = TextEditingController();
+  final TextEditingController _schoolCodeEditingController = TextEditingController();
 
   @override
   void dispose() {
-    _textEditingController.dispose();
+    _emailEditingController.dispose();
+    _schoolCodeEditingController.dispose();
     super.dispose();
   }
 
@@ -39,9 +41,17 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet> {
               height: 15,
             ),
             CustomTextFieldContainer(
+              prefixWidget: const Icon(Icons.school_outlined),
+              hintTextKey: schoolCodeKey,
+              textEditingController: _schoolCodeEditingController,
+            ),
+            const SizedBox(
+              height: 15,
+            ),
+            CustomTextFieldContainer(
               prefixWidget: const Icon(Icons.email_outlined),
               hintTextKey: emailKey,
-              textEditingController: _textEditingController,
+              textEditingController: _emailEditingController,
             ),
             const SizedBox(
               height: 15,
@@ -75,15 +85,22 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet> {
                         return;
                       }
 
-                      if (_textEditingController.text.trim().isEmpty) {
+                      if (_emailEditingController.text.trim().isEmpty) {
                         Utils.showSnackBar(
                             message: pleaseEnterEmailKey, context: context);
                         return;
                       }
+
+                      if (_schoolCodeEditingController.text.trim().isEmpty) {
+                        Utils.showSnackBar(
+                            message: pleaseEnterSchoolCodeKey, context: context);
+                        return;
+                      }
+
                       context
                           .read<SendPasswordResetEmailCubit>()
                           .sendPasswordResetEmail(
-                              email: _textEditingController.text.trim());
+                              email: _emailEditingController.text.trim(), schoolCode: _schoolCodeEditingController.text.trim());
                     },
                   ),
                 );

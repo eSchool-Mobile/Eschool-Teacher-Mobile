@@ -91,12 +91,12 @@ class AuthRepository {
     }
   }
 
-  Future<void> sendPasswordResetEmail({required String email}) async {
+  Future<void> sendPasswordResetEmail({required String email, required String schoolCode}) async {
     try {
       await Api.post(
           url: Api.passwordResetEmail,
           useAuthToken: false,
-          body: {"email": email});
+          body: {"email": email, "school_code": schoolCode});
     } catch (e) {
       throw ApiException(e.toString());
     }

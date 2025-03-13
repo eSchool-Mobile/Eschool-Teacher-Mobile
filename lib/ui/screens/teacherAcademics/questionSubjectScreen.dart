@@ -41,6 +41,33 @@ class CustomSearchBar extends StatelessWidget {
   }
 }
 
+// Controller GetX untuk lifecycle
+class QuestionSubjectController extends GetxController {
+  final BuildContext context;
+  final bool isStaffView;
+
+  QuestionSubjectController(this.context, this.isStaffView);
+
+  @override
+  void onInit() {
+    super.onInit();
+    _reloadData();
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    _reloadData(); // Reload saat halaman siap
+  }
+
+  void _reloadData() {
+    print("Reloading QuestionSubjectScreen");
+    context
+        .read<QuestionBankCubit>()
+        .fetchTeacherSubjects(isStaffView: isStaffView);
+  }
+}
+
 class QuestionSubjectScreen extends StatefulWidget {
   final bool isStaffView;
 
@@ -57,20 +84,30 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<SubjectQuestion> _filteredSubjects = [];
   bool _showSearch = false;
+  late QuestionSubjectController _controller;
 
   @override
   void initState() {
     super.initState();
-    // Fetch all subjects for staff, or only teacher's subjects for teachers
-    context
-        .read<QuestionBankCubit>()
-        .fetchTeacherSubjects(isStaffView: widget.isStaffView);
+    _controller = Get.put(QuestionSubjectController(context, widget.isStaffView));
+    _reloadData(); // Load pertama kali
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    Get.delete<QuestionSubjectController>(); // Hapus controller saat dispose
     super.dispose();
+  }
+
+  void _reloadData() {
+    print("Manual reload triggered");
+    _searchController.clear();
+    _filteredSubjects = [];
+    _showSearch = false;
+    context
+        .read<QuestionBankCubit>()
+        .fetchTeacherSubjects(isStaffView: widget.isStaffView);
   }
 
   void _filterSubjects(String query, List<SubjectQuestion> subjects) {
@@ -174,11 +211,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen> {
                           child: ErrorContainer(
                             errorMessage:
                                 "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
-                            onTapRetry: () {
-                              context
-                                  .read<QuestionBankCubit>()
-                                  .fetchTeacherSubjects();
-                            },
+                            onTapRetry: _reloadData,
                           ),
                         );
                       }
@@ -195,12 +228,14 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen> {
       floatingActionButton: widget.isStaffView
           ? null
           : FloatingActionButton(
-              onPressed: () {
-                Get.toNamed(Routes.addQuestionScreen);
+              onPressed: () async {
+                // Tunggu hasil dari navigasi, lalu reload
+                await Get.toNamed(Routes.addQuestionScreen);
+                _reloadData();
               },
               child: Icon(Icons.add),
               backgroundColor: Theme.of(context).colorScheme.secondary,
-            ), // Hide FAB for staff
+            ),
     );
   }
 
@@ -254,48 +289,10 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen> {
     );
   }
 
-  Widget _buildErrorView(String message) {
-    return FadeInUp(
-      duration: Duration(milliseconds: 800),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 80,
-              color: Colors.red[300],
-            ),
-            SizedBox(height: 16),
-            Text(
-              message,
-              style: TextStyle(
-                color: Colors.red,
-                fontSize: 16,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: () {
-                context.read<QuestionBankCubit>().fetchTeacherSubjects();
-              },
-              icon: Icon(Icons.refresh),
-              label: Text('Coba Lagi'),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildSubjectsList(List<dynamic> subjects) {
+    if (subjects.isEmpty) {
+      return _buildEmptyView();
+    }
     return ListView.builder(
       padding: EdgeInsets.all(20),
       physics: BouncingScrollPhysics(),
@@ -305,13 +302,15 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen> {
         return FadeInUp(
           duration: Duration(milliseconds: 600 + (index * 100)),
           child: GestureDetector(
-            onTap: () {
+            onTap: () async {
               if (subject.subject.id != 0) {
-                Get.toNamed(Routes.questionBankScreen, arguments: subject);
+                // Tunggu hasil dari navigasi, lalu reload
+                await Get.toNamed(Routes.questionBankScreen, arguments: subject);
+                _reloadData();
               }
             },
             child: Container(
-              margin: EdgeInsets.only(bottom: 16),
+              margin: EdgeInsets.only(bottom: 16), // Ganti 'custom' jadi 'bottom' kalau typo
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [

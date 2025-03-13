@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
 import 'package:eschool_saas_staff/data/models/exam.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,17 +16,23 @@ class OnlineExamResultScreen extends StatefulWidget {
 }
 
 class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
-  late String _searchController = "";
+  late final _searchController = TextEditingController(); // Diubah jadi TextEditingController
   bool _showSearchBar = false;
   bool _isSearching = false;
-  String _selectedFilter = "Semua"; // Variabel baru untuk filter (default Semua)
-  DateTime? _startDate; // Pindah ke state utama
-  DateTime? _endDate;   // Pindah ke state utama
+  String _selectedFilter = "Semua"; // Variabel untuk filter (default Semua)
+  DateTime? _startDate; // State utama
+  DateTime? _endDate;   // State utama
 
   @override
   void initState() {
     super.initState();
     context.read<OnlineExamCubit>().getOnlineExams();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose(); // Dispose controller
+    super.dispose();
   }
 
   @override
@@ -51,7 +55,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              _buildAnimatedHeader(),
+              _buildAnimatedHeader(context),
               Expanded(
                 child: Container(
                   margin: EdgeInsets.only(top: 20),
@@ -85,7 +89,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
     );
   }
 
-  Widget _buildAnimatedHeader() {
+  Widget _buildAnimatedHeader(BuildContext context) {
     return FadeInDown(
       duration: Duration(milliseconds: 800),
       child: Container(
@@ -136,7 +140,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
               IconButton(
                 icon: Icon(Icons.filter_list, color: Colors.white),
                 onPressed: () {
-                  _showFilterBottomSheet(context);
+                  _showFilterBottomSheet(context); // Panggil dengan context utama
                 },
               ),
             ],
@@ -146,206 +150,210 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
     );
   }
 
-void _showFilterBottomSheet(BuildContext context) {
-  // Deklarasi variabel lokal untuk bottom sheet
-  // DateTime? _startDate;
-  // DateTime? _endDate;
+  void _showFilterBottomSheet(BuildContext parentContext) {
+    showModalBottomSheet(
+      context: parentContext,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      backgroundColor: Colors.white,
+      builder: (BuildContext modalContext) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Handle Bar
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: EdgeInsets.only(top: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  // Judul
+                  Text(
+                    'Filter Status Ujian',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF8B0000),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  // Input Tanggal
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () async {
+                            final DateTime? picked = await showDatePicker(
+                              context: modalContext,
+                              initialDate: _startDate ?? DateTime.now(),
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime(2030),
+                            );
+                            if (picked != null) {
+                              setModalState(() {
+                                _startDate = picked;
+                                parentContext.read<OnlineExamCubit>().getOnlineExams(
+                                  search: _searchController.text,
+                                  startDate: _startDate,
+                                  endDate: _endDate,
+                                );
+                              });
+                            }
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              _startDate != null
+                                  ? DateFormat('dd/MM/yyyy').format(_startDate!)
+                                  : 'Dari',
+                              style: TextStyle(fontSize: 16, color: Colors.grey[800]),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        child: Text(
+                          '-',
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () async {
+                            final DateTime? picked = await showDatePicker(
+                              context: modalContext,
+                              initialDate: _endDate ?? DateTime.now(),
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime(2030),
+                            );
+                            if (picked != null) {
+                              setModalState(() {
+                                _endDate = picked;
+                                parentContext.read<OnlineExamCubit>().getOnlineExams(
+                                  search: _searchController.text,
+                                  startDate: _startDate,
+                                  endDate: _endDate,
+                                );
+                              });
+                            }
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              _endDate != null
+                                  ? DateFormat('dd/MM/yyyy').format(_endDate!)
+                                  : 'Sampai',
+                              style: TextStyle(fontSize: 16, color: Colors.grey[800]),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  // Filter Status
+                  Column(
+                    children: [
+                      _buildFilterOption('Semua', setModalState, parentContext),
+                      _buildFilterOption('Selesai', setModalState, parentContext),
+                      _buildFilterOption('Belum Dimulai', setModalState, parentContext),
+                      _buildFilterOption('Sedang Berlangsung', setModalState, parentContext),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
-  showModalBottomSheet(
-    context: context,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    backgroundColor: Colors.white,
-    builder: (BuildContext context) {
-      return StatefulBuilder(
-        builder: (BuildContext context, StateSetter setModalState) {
-          return Padding(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildFilterOption(String label, StateSetter setModalState, BuildContext parentContext) {
+    return Column(
+      children: [
+        InkWell(
+          onTap: () {
+            setState(() {
+              _selectedFilter = label;
+              parentContext.read<OnlineExamCubit>().getOnlineExams(
+                search: _searchController.text,
+                startDate: _startDate,
+                endDate: _endDate,
+              );
+            });
+            setModalState(() {});
+            Navigator.pop(context);
+          },
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(vertical: 8),
+            color: Colors.transparent,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Handle Bar di tengah atas
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    margin: EdgeInsets.only(top: 8), // Perbaikan typo 'custom'
-                    decoration: BoxDecoration(
-                      color: Colors.grey[400],
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-
-                // Judul
                 Text(
-                  'Filter Status Ujian',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF8B0000),
-                  ),
+                  label,
+                  style: TextStyle(fontSize: 16, color: Colors.grey[800]),
                 ),
-                SizedBox(height: 16),
-
-                // Input Tanggal dengan Dash
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Tanggal Dari
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () async {
-                          final DateTime? picked = await showDatePicker(
-                            context: context,
-                            initialDate: _startDate ?? DateTime.now(),
-                            firstDate: DateTime(2020),
-                            lastDate: DateTime(2030),
-                          );
-                          if (picked != null) {
-                            setModalState(() {
-                              _startDate = picked; // Update state di dalam bottom sheet
-                            });
-                          }
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            _startDate != null
-                                ? DateFormat('dd/MM/yyyy').format(_startDate!)
-                                : 'Dari',
-                            style: TextStyle(fontSize: 16, color: Colors.grey[800]),
-                          ),
-                        ),
-                      ),
-                    ),
-                    // Dash
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
-                      child: Text(
-                        '-',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    // Tanggal Sampai
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () async {
-                          final DateTime? picked = await showDatePicker(
-                            context: context,
-                            initialDate: _endDate ?? DateTime.now(),
-                            firstDate: DateTime(2020),
-                            lastDate: DateTime(2030),
-                          );
-                          if (picked != null) {
-                            setModalState(() {
-                              _endDate = picked; // Update state di dalam bottom sheet
-                            });
-                          }
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            _endDate != null
-                                ? DateFormat('dd/MM/yyyy').format(_endDate!)
-                                : 'Sampai',
-                            style: TextStyle(fontSize: 16, color: Colors.grey[800]),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16),
-
-                // Opsi Filter dengan Radio di Kanan dan Divider
-                Column(
-                  children: [
-                    _buildFilterOption('Semua', setModalState),
-                    _buildFilterOption('Selesai', setModalState),
-                    _buildFilterOption('Belum Dimulai', setModalState),
-                    _buildFilterOption('Sedang Berlangsung', setModalState),
-                  ],
+                Radio<String>(
+                  value: label,
+                  groupValue: _selectedFilter,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedFilter = value ?? 'Semua';
+                      parentContext.read<OnlineExamCubit>().getOnlineExams(
+                        search: _searchController.text,
+                        startDate: _startDate,
+                        endDate: _endDate,
+                      );
+                    });
+                    setModalState(() {});
+                    Navigator.pop(context);
+                  },
+                  activeColor: Color(0xFF8B0000),
                 ),
               ],
             ),
-          );
-        },
-      );
-    },
-  ).whenComplete(() {
-    // Jika ingin menyimpan ke state induk atau Cubit setelah bottom sheet ditutup
-    if (_startDate != null || _endDate != null) {
-      // Misalnya panggil Cubit di sini
-      context.read<OnlineExamCubit>().getOnlineExams(
-        search: _searchController,
-        startDate: _startDate,
-        endDate: _endDate,
-      );
-      print('Start Date: $_startDate, End Date: $_endDate');
-    }
-  });
-}
-Widget _buildFilterOption(String label, StateSetter setModalState) {
-  return Column(
-    children: [
-      InkWell(
-        onTap: () {
-          setState(() {
-            _selectedFilter = label;
-          });
-          setModalState(() {});
-          Navigator.pop(context);
-        },
-        child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(vertical: 8),
-          color: Colors.transparent,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                label,
-                style: TextStyle(fontSize: 16, color: Colors.grey[800]),
-              ),
-              Radio<String>(
-                value: label,
-                groupValue: _selectedFilter,
-                onChanged: (value) {
-                  setState(() {
-                    _selectedFilter = value ?? 'Semua';
-                  });
-                  setModalState(() {});
-                  Navigator.pop(context);
-                },
-                activeColor: Color(0xFF8B0000),
-              ),
-            ],
           ),
         ),
-      ),
-      Divider(height: 1, color: Colors.grey[300]),
-    ],
-  );
-}
+        Divider(height: 1, color: Colors.grey[300]),
+      ],
+    );
+  }
 
   Widget _buildBody() {
     return RefreshIndicator(
       onRefresh: () async {
         setState(() {
-          _isSearching = _searchController.isNotEmpty;
+          _isSearching = _searchController.text.isNotEmpty;
         });
-        await context.read<OnlineExamCubit>().getOnlineExams(search: _searchController, startDate: _startDate, endDate: _endDate);
+        await context.read<OnlineExamCubit>().getOnlineExams(
+          search: _searchController.text,
+          startDate: _startDate,
+          endDate: _endDate,
+        );
       },
       child: Column(
         children: [
@@ -378,12 +386,16 @@ Widget _buildFilterOption(String label, StateSetter setModalState) {
             ],
           ),
           child: TextField(
+            controller: _searchController, // Gunakan controller
             onChanged: (value) {
               setState(() {
                 _isSearching = value.isNotEmpty;
               });
-              context.read<OnlineExamCubit>().getOnlineExams(search: value, startDate: _startDate, endDate: _endDate,);
-              _searchController = value;
+              context.read<OnlineExamCubit>().getOnlineExams(
+                search: value,
+                startDate: _startDate,
+                endDate: _endDate,
+              );
             },
             decoration: InputDecoration(
               hintText: 'Cari hasil ujian...',
@@ -419,7 +431,6 @@ Widget _buildFilterOption(String label, StateSetter setModalState) {
           );
         }
         if (state is OnlineExamSuccess) {
-          // Setel _showSearchBar berdasarkan jumlah data
           if (state.exams.length > 5 && !_showSearchBar) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               setState(() {
@@ -428,16 +439,14 @@ Widget _buildFilterOption(String label, StateSetter setModalState) {
             });
           }
 
-          // Filter data berdasarkan _selectedFilter
           final filteredExams = state.exams.where((exam) {
             if (_selectedFilter == "Semua") return true;
             if (_selectedFilter == "Belum Dimulai") return exam.status == 0;
             if (_selectedFilter == "Sedang Berlangsung") return exam.status == 1;
             if (_selectedFilter == "Selesai") return exam.status == 2;
             return false;
-          }).toList() ..sort((a, b) => b.startDate.compareTo(a.startDate));
+          }).toList()..sort((a, b) => b.startDate.compareTo(a.startDate));
 
-          // Jika tidak ada data setelah filter
           if (filteredExams.isEmpty) {
             return Expanded(
               child: Container(
@@ -471,7 +480,6 @@ Widget _buildFilterOption(String label, StateSetter setModalState) {
             );
           }
 
-          // Tampilkan daftar ujian yang sudah difilter
           return ListView.builder(
             padding: EdgeInsets.symmetric(horizontal: 16),
             itemCount: filteredExams.length,
@@ -485,7 +493,7 @@ Widget _buildFilterOption(String label, StateSetter setModalState) {
                   }
                 },
                 child: Container(
-                  margin: const EdgeInsets.only(bottom: 16),
+                  margin: const EdgeInsets.only(bottom: 16), // Ganti 'custom' jadi 'bottom' kalau typo
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(15),

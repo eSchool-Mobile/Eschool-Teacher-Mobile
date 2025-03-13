@@ -43,7 +43,7 @@ String defaultPassword = "081230093978";
 // String defaultEmail = "adminsmk8malang@gmail.com";
 // String defaultPassword = "0341479148";
 
-// String defaultSchoolCode = "";
+//R String defaultSchoolCode = "";
 // String defaultEmail = "";
 // String defaultPassword = "";
 
