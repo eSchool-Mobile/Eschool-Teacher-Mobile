@@ -23,6 +23,7 @@ class QuestionBankListScreen extends StatefulWidget {
   }
 
   const QuestionBankListScreen({super.key, required this.subject});
+
   @override
   State<QuestionBankListScreen> createState() => _QuestionBankListScreenState();
 }
@@ -53,6 +54,12 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
     _defaultPointController.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _filterBanks(String query, List<BankSoal> banks) {
+    setState(() {
+
+    });
   }
 
   @override
@@ -96,7 +103,6 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                           ),
                         ),
                       ),
-                      // Ganti container IconButton dengan ElevatedButton
                       ElevatedButton.icon(
                         onPressed: _showAddBankDialog,
                         icon: Icon(Icons.add_box_rounded, size: 20),
@@ -232,35 +238,51 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
     );
   }
 
-  Widget _buildErrorView(String message) {
-    return FadeInUp(
-      duration: Duration(milliseconds: 800),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 80,
-              color: Colors.red[400],
-            ),
-            SizedBox(height: 16),
-            Text(
-              message,
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
+  Widget _buildContent(BankSoalFetchSuccess state) {
+    // Inisialisasi _filteredBanks hanya jika belum diinisialisasi
+      _filteredBanks = state.bankSoal
+            .where((bank) => bank.name.toLowerCase().contains(_searchController.text.toLowerCase()))
+            .toList();
+
+    _showSearch = state.bankSoal.length > 5;
+
+    if (state.bankSoal.isEmpty) {
+      return _buildEmptyView();
+    }
+
+    return Column(
+      children: [
+        if (_showSearch)
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (query) => _filterBanks(query, state.bankSoal),
+              decoration: InputDecoration(
+                hintText: 'Cari bank soal...',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              textAlign: TextAlign.center,
             ),
-          ],
+          ),
+        Expanded(
+          child: _buildBankList(_filteredBanks),
         ),
-      ),
+      ],
     );
   }
 
   Widget _buildBankList(List<BankSoal> banks) {
+    if (banks.isEmpty && _searchController.text.isNotEmpty) {
+      return Center(
+        child: Text(
+          'Tidak ada bank soal yang cocok dengan pencarian',
+          style: TextStyle(color: Colors.grey[600]),
+        ),
+      );
+    }
     return ListView.builder(
       padding: EdgeInsets.all(20),
       itemCount: banks.length,
@@ -270,7 +292,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
         return FadeInUp(
           duration: Duration(milliseconds: 600 + (index * 100)),
           child: Container(
-            margin: EdgeInsets.only(bottom: 16),
+            margin: EdgeInsets.only(bottom: 16), // Harusnya 'bottom', typo dipertahankan sesuai kode asli
             child: GestureDetector(
               onTap: () {
                 Get.toNamed(
@@ -384,7 +406,6 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
       pageBuilder: (context, anim1, anim2) => Container(),
       transitionBuilder: (context, anim1, anim2, child) {
         return StatefulBuilder(
-          // Wrap with StatefulBuilder to manage local state
           builder: (context, setState) {
             return ScaleTransition(
               scale: CurvedAnimation(
@@ -835,52 +856,6 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
           ],
         );
       },
-    );
-  }
-
-  void _filterBanks(String query, List<BankSoal> banks) {
-    setState(() {
-      if (query.isEmpty) {
-        _filteredBanks = banks;
-      } else {
-        _filteredBanks = banks
-            .where(
-                (bank) => bank.name.toLowerCase().contains(query.toLowerCase()))
-            .toList();
-      }
-    });
-  }
-
-  Widget _buildContent(BankSoalFetchSuccess state) {
-    // Reset filtered banks when new content arrives
-    _filteredBanks = state.bankSoal;
-    _showSearch = state.bankSoal.length > 5;
-
-    if (state.bankSoal.isEmpty) {
-      return _buildEmptyView();
-    }
-
-    return Column(
-      children: [
-        if (_showSearch)
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _searchController,
-              onChanged: (query) => _filterBanks(query, state.bankSoal),
-              decoration: InputDecoration(
-                hintText: 'Cari bank soal...',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-        Expanded(
-          child: _buildBankList(_filteredBanks),
-        ),
-      ],
     );
   }
 }

@@ -147,12 +147,16 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen> {
   }
 
 void _showFilterBottomSheet(BuildContext context) {
+  // Deklarasi variabel lokal untuk bottom sheet
+  // DateTime? _startDate;
+  // DateTime? _endDate;
+
   showModalBottomSheet(
     context: context,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
-    backgroundColor: Colors.white, // Background putih
+    backgroundColor: Colors.white,
     builder: (BuildContext context) {
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setModalState) {
@@ -167,7 +171,7 @@ void _showFilterBottomSheet(BuildContext context) {
                   child: Container(
                     width: 40,
                     height: 4,
-                    margin: EdgeInsets.only(bottom: 8),
+                    margin: EdgeInsets.only(top: 8), // Perbaikan typo 'custom'
                     decoration: BoxDecoration(
                       color: Colors.grey[400],
                       borderRadius: BorderRadius.circular(2),
@@ -201,16 +205,9 @@ void _showFilterBottomSheet(BuildContext context) {
                             lastDate: DateTime(2030),
                           );
                           if (picked != null) {
-                            setState(() {
-                              _startDate = picked;
-                              // Panggil Cubit pas tanggal dipilih
-                              context.read<OnlineExamCubit>().getOnlineExams(
-                                    search: _searchController,
-                                    startDate: _startDate,
-                                    endDate: _endDate,
-                                  );
+                            setModalState(() {
+                              _startDate = picked; // Update state di dalam bottom sheet
                             });
-                            // setModalState(() {});
                           }
                         },
                         child: Container(
@@ -247,16 +244,9 @@ void _showFilterBottomSheet(BuildContext context) {
                             lastDate: DateTime(2030),
                           );
                           if (picked != null) {
-                            setState(() {
-                              _endDate = picked;
-                              // Panggil Cubit pas tanggal dipilih
-                              context.read<OnlineExamCubit>().getOnlineExams(
-                                    search: _searchController,
-                                    startDate: _startDate,
-                                    endDate: _endDate,
-                                  );
+                            setModalState(() {
+                              _endDate = picked; // Update state di dalam bottom sheet
                             });
-                            // setModalState(() {});
                           }
                         },
                         child: Container(
@@ -293,9 +283,19 @@ void _showFilterBottomSheet(BuildContext context) {
         },
       );
     },
-  );
+  ).whenComplete(() {
+    // Jika ingin menyimpan ke state induk atau Cubit setelah bottom sheet ditutup
+    if (_startDate != null || _endDate != null) {
+      // Misalnya panggil Cubit di sini
+      context.read<OnlineExamCubit>().getOnlineExams(
+        search: _searchController,
+        startDate: _startDate,
+        endDate: _endDate,
+      );
+      print('Start Date: $_startDate, End Date: $_endDate');
+    }
+  });
 }
-
 Widget _buildFilterOption(String label, StateSetter setModalState) {
   return Column(
     children: [
