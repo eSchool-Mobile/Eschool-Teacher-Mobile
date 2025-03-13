@@ -260,8 +260,7 @@ class _OnlineExamResultAnswerScreenState
       if (state is OnlineExamFailure && _allAnswers.isEmpty) {
         return Center(
           child: ErrorContainer(
-            errorMessage:
-                "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
+            errorMessage: state.message ?? "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
             onTapRetry: () {
               context.read<OnlineExamCubit>().getOnlineExamResultAnswer(
                   examId: widget.examId,
