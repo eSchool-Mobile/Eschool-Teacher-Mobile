@@ -235,104 +235,106 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
             children: [
               // Back button with enhanced styling
               Container(
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: IconButton(
-                icon: Icon(Icons.arrow_back_ios, color: Colors.white, size: 18),
-                onPressed: () => Get.back(),
-              ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: IconButton(
+                  icon:
+                      Icon(Icons.arrow_back_ios, color: Colors.white, size: 18),
+                  onPressed: () => Get.back(),
+                ),
               ),
               SizedBox(width: 16),
               // Title section with improved typography
               Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                Text(
-                  widget.bankSoal.name,
-                  style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.2,
-                  shadows: [
-                    Shadow(
-                    color: Colors.black38,
-                    offset: Offset(0, 2),
-                    blurRadius: 4,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.bankSoal.name,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.2,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black38,
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 6),
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        'Bank Soal',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
                   ],
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 6),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                  'Bank Soal',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  ),
-                ),
-                ],
-              ),
               ),
               // Add Question button with premium styling
               Container(
-              height: 46,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                colors: [Colors.white, Colors.white.withOpacity(0.9)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
-                ),
-                ],
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                borderRadius: BorderRadius.circular(14),
-                onTap: _navigateToAddQuestion,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                  children: [
-                    Icon(
-                    Icons.add_circle_rounded,
-                    color: Theme.of(context).colorScheme.secondary,
-                    size: 20,
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                    'Soal',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                    ),
+                height: 46,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.white, Colors.white.withOpacity(0.9)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
                     ),
                   ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(14),
+                    onTap: _navigateToAddQuestion,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.add_circle_rounded,
+                            color: Theme.of(context).colorScheme.secondary,
+                            size: 20,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Soal',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-                ),
-              ),
               ),
             ],
           ),
@@ -509,601 +511,654 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       child: Stack(
         children: [
-          // Main Card with enhanced shadow
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(28),
-              boxShadow: [
-                BoxShadow(
-                  color: _getTypeColor(latestVersion.type).withOpacity(0.07),
-                  blurRadius: 30,
-                  offset: Offset(0, 10),
-                  spreadRadius: 5,
-                ),
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 10,
-                  offset: Offset(0, 5),
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(28),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Premium Header with Dynamic Glass Effect
-                  Container(
-                    height: 140, // Increased height
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          _getTypeColor(latestVersion.type),
-                          _getTypeColor(latestVersion.type).withOpacity(0.85),
-                          _getTypeColor(latestVersion.type).withOpacity(0.7),
-                        ],
-                        stops: [0.2, 0.6, 1.0],
-                      ),
-                    ),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        // Enhanced Premium Pattern
-                        CustomPaint(
-                          painter: LuxuryPatternPainter(
-                            color: Colors.white.withOpacity(0.08),
-                          ),
-                        ),
-
-                        // Light beam effect (top right)
-                        Positioned(
-                          top: -20,
-                          right: -20,
-                          child: Container(
-                            height: 100,
-                            width: 100,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: RadialGradient(
-                                colors: [
-                                  Colors.white.withOpacity(0.4),
-                                  Colors.white.withOpacity(0),
-                                ],
-                                stops: [0.1, 1.0],
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Type Badge with enhanced styling
-                        Positioned(
-                          top: 18,
-                          left: 20,
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.5),
-                                width: 1,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: _getTypeColor(latestVersion.type)
-                                      .withOpacity(0.2),
-                                  blurRadius: 12,
-                                  spreadRadius: -2,
-                                ),
-                              ],
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Colors.white.withOpacity(0.3),
-                                  Colors.white.withOpacity(0.1),
-                                ],
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  _getTypeIcon(latestVersion.type),
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  _getTypeName(latestVersion.type),
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: 0.3,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Points Badge with premium styling
-                        Positioned(
-                          top: 18,
-                          right: 20,
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.15),
-                                  blurRadius: 8,
-                                  offset: Offset(0, 3),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.star_rounded,
-                                      color: Colors.amber.shade200,
-                                      size: 22,
-                                    ),
-                                    Icon(
-                                      Icons.star_rounded,
-                                      color: Colors.amber,
-                                      size: 18,
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(width: 6),
-                                Text(
-                                  '${latestVersion.defaultPoint} poin',
-                                  style: TextStyle(
-                                    color: Colors.grey[800],
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Question Title with elegant styling
-                        Positioned(
-                          bottom: 20,
-                          left: 20,
-                          right: 20,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: 40,
-                                height: 4,
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.7),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                              SizedBox(height: 10),
-                              Text(
-                                latestVersion.name,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                  height: 1.3,
-                                  letterSpacing: 0.2,
-                                  shadows: [
-                                    Shadow(
-                                      color: Colors.black.withOpacity(0.3),
-                                      offset: Offset(0, 2),
-                                      blurRadius: 4,
-                                    ),
-                                  ],
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+          // Main Card with enhanced shadow and animation
+          GestureDetector(
+            onTap: () => _showDetailQuestionSheet(question, latestVersion),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [
+                  BoxShadow(
+                    color: _getTypeColor(latestVersion.type).withOpacity(0.12),
+                    blurRadius: 40,
+                    offset: Offset(0, 15),
+                    spreadRadius: 0,
                   ),
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 12,
+                    offset: Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(28),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Stunning 3D Header with Parallax Effect
+                    Container(
+                      height: 160, // Increased for more impact
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            _getTypeColor(latestVersion.type),
+                            Color.lerp(_getTypeColor(latestVersion.type),
+                                Colors.black, 0.2)!,
+                            _getTypeColor(latestVersion.type).withOpacity(0.85),
+                          ],
+                          stops: [0.2, 0.6, 0.9],
+                        ),
+                      ),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          // Advanced geometric pattern effect
+                          CustomPaint(
+                            painter: UltraModernPatternPainter(
+                              primaryColor: Colors.white.withOpacity(0.12),
+                              secondaryColor: Colors.white.withOpacity(0.06),
+                            ),
+                          ),
 
-                  // Question Content with enhanced styling
-                  Container(
-                    padding: EdgeInsets.fromLTRB(24, 24, 24, 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Section title with premium styling
-                        Row(
-                          children: [
-                            Container(
-                              width: 4,
-                              height: 20,
+                          // Radial glow effect (adds depth)
+                          Positioned(
+                            top: -40,
+                            right: -40,
+                            child: Container(
+                              height: 180,
+                              width: 180,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(2),
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
+                                shape: BoxShape.circle,
+                                gradient: RadialGradient(
                                   colors: [
-                                    _getTypeColor(latestVersion.type),
-                                    _getTypeColor(latestVersion.type)
-                                        .withOpacity(0.7),
+                                    Colors.white.withOpacity(0.3),
+                                    Colors.white.withOpacity(0),
                                   ],
+                                  stops: [0.1, 1.0],
+                                ),
+                              ),
+                            ),
+                          ),
+
+
+
+                          // Glass-effect Type Badge with ultra-modern styling
+                          Positioned(
+                            top: 20,
+                            left: 20,
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.5),
+                                  width: 1,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: _getTypeColor(latestVersion.type)
-                                        .withOpacity(0.3),
-                                    blurRadius: 6,
-                                    offset: Offset(0, 2),
+                                    color: Colors.black.withOpacity(0.15),
+                                    blurRadius: 15,
+                                    spreadRadius: -5,
+                                  ),
+                                ],
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Colors.white.withOpacity(0.4),
+                                    Colors.white.withOpacity(0.1),
+                                  ],
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      // Outer glow
+                                      Container(
+                                        width: 26,
+                                        height: 26,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.white.withOpacity(0.2),
+                                        ),
+                                      ),
+                                      // Icon with glow effect
+                                      Icon(
+                                        _getTypeIcon(latestVersion.type),
+                                        color: Colors.white,
+                                        size: 18,
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(width: 10),
+                                  Text(
+                                    _getTypeName(latestVersion.type),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13.5,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 0.4,
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
-                            SizedBox(width: 12),
-                            Text(
-                              "Konten Pertanyaan",
-                              style: TextStyle(
-                                color: Colors.grey[800],
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.3,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(height: 16),
-
-                        // Question content with enhanced styling
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 14),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade50,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.grey.shade100),
                           ),
-                          child: Text(
-                            parseHtmlString(latestVersion.question),
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.grey[800],
-                              height: 1.5,
-                              letterSpacing: 0.2,
-                              fontFamily: 'Roboto',
-                            ),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
 
-                        SizedBox(height: 22),
-
-                        // Options Information with enhanced styling
-                        Container(
-                          padding: EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                Colors.white,
-                                Colors.grey.shade50,
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.03),
-                                blurRadius: 10,
-                                spreadRadius: 0,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                            border: Border.all(
-                              color: _getTypeColor(latestVersion.type)
-                                  .withOpacity(0.15),
-                              width: 1.5,
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: _getTypeColor(latestVersion.type)
-                                      .withOpacity(0.1),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
+                          // Premium Points Badge with floating effect
+                          Positioned(
+                            top: 20,
+                            right: 20,
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(18),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    blurRadius: 12,
+                                    offset: Offset(0, 5),
+                                  ),
+                                  BoxShadow(
                                     color: _getTypeColor(latestVersion.type)
                                         .withOpacity(0.3),
-                                    width: 1.5,
+                                    blurRadius: 16,
+                                    offset: Offset(0, 2),
+                                    spreadRadius: -5,
                                   ),
-                                ),
-                                child: Icon(
-                                  Icons.check_circle_outline_rounded,
-                                  color: _getTypeColor(latestVersion.type),
-                                  size: 22,
-                                ),
+                                ],
                               ),
-                              SizedBox(width: 16),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text(
-                                    'Pilihan Jawaban',
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                  // 3D star effect
+                                  Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.star_rounded,
+                                        color: Colors.amber.shade100,
+                                        size: 26,
+                                      ),
+                                      Icon(
+                                        Icons.star_rounded,
+                                        color: Colors.amber.shade300,
+                                        size: 22,
+                                      ),
+                                      Icon(
+                                        Icons.star_rounded,
+                                        color: Colors.amber,
+                                        size: 18,
+                                      ),
+                                    ],
                                   ),
-                                  SizedBox(height: 4),
+                                  SizedBox(width: 8),
                                   Text(
-                                    '${latestVersion.options.length} opsi tersedia',
+                                    '${latestVersion.defaultPoint} poin',
                                     style: TextStyle(
                                       color: Colors.grey[800],
-                                      fontSize: 16,
+                                      fontSize: 14.5,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                 ],
                               ),
-                              Spacer(),
-                              Icon(
-                                Icons.arrow_forward_ios_rounded,
-                                color: _getTypeColor(latestVersion.type)
-                                    .withOpacity(0.7),
-                                size: 16,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Enhanced Action Footer
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      border: Border(
-                        top: BorderSide(
-                          color: Colors.grey.shade100,
-                          width: 1.5,
-                        ),
-                      ),
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(28),
-                        bottomRight: Radius.circular(28),
-                      ),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Question ID with premium styling
-                        Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(
-                              color: Colors.grey.shade200,
-                              width: 1.5,
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.02),
-                                blurRadius: 4,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
                           ),
-                          child: Row(
+
+                          // Question Title with cinematic styling
+                          Positioned(
+                            bottom: 22,
+                            left: 20,
+                            right: 20,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Decorative element
+                                Container(
+                                  width: 40,
+                                  height: 4,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.8),
+                                    borderRadius: BorderRadius.circular(2),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.white.withOpacity(0.3),
+                                        blurRadius: 4,
+                                        spreadRadius: 1,
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 12),
+                                Text(
+                                  latestVersion.name,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 19,
+                                    fontWeight: FontWeight.w700,
+                                    height: 1.3,
+                                    letterSpacing: 0.3,
+                                    shadows: [
+                                      Shadow(
+                                        color: Colors.black.withOpacity(0.4),
+                                        offset: Offset(0, 2),
+                                        blurRadius: 5,
+                                      ),
+                                      Shadow(
+                                        color: _getTypeColor(latestVersion.type)
+                                            .withOpacity(0.6),
+                                        offset: Offset(0, 1),
+                                        blurRadius: 8,
+                                      ),
+                                    ],
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Question Content with premium styling
+                    Container(
+                      padding: EdgeInsets.fromLTRB(24, 26, 24, 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Section title with modern accent
+                          Row(
                             children: [
-                              Icon(
-                                Icons.tag_rounded,
-                                size: 16,
-                                color: Colors.grey[500],
+                              // Modern vertical line with gradient and glow
+                              Container(
+                                width: 4,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(2),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      _getTypeColor(latestVersion.type),
+                                      _getTypeColor(latestVersion.type)
+                                          .withOpacity(0.6),
+                                    ],
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: _getTypeColor(latestVersion.type)
+                                          .withOpacity(0.4),
+                                      blurRadius: 8,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              SizedBox(width: 6),
+                              SizedBox(width: 12),
                               Text(
-                                'ID: ${question.id}',
+                                "Konten Pertanyaan",
                                 style: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey[800],
+                                  fontSize: 15.5,
+                                  fontWeight: FontWeight.w700,
                                   letterSpacing: 0.3,
                                 ),
                               ),
                             ],
                           ),
-                        ),
 
-                        // Action Buttons with enhanced styling
-                        Row(
-                          children: [
-                            // Edit Button - Enhanced with premium styling
-                            Material(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(14),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(14),
-                                onTap: () => _navigateToEditQuestion(question, latestVersion),
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(14),
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        _getTypeColor(latestVersion.type).withOpacity(0.9),
-                                        _getTypeColor(latestVersion.type).withOpacity(0.7),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: _getTypeColor(latestVersion.type).withOpacity(0.3),
-                                        blurRadius: 10,
-                                        offset: Offset(0, 4),
-                                        spreadRadius: 0,
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.edit_rounded,
-                                        size: 18,
-                                        color: Colors.white,
-                                      ),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        'Edit',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 14,
-                                          letterSpacing: 0.3,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                          SizedBox(height: 18),
+
+                          // Question content with enhanced styling
+                          Container(
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade50,
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(color: Colors.grey.shade100),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.02),
+                                  blurRadius: 8,
+                                  offset: Offset(0, 4),
                                 ),
+                              ],
+                            ),
+                            child: Text(
+                              parseHtmlString(latestVersion.question),
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.grey[800],
+                                height: 1.5,
+                                letterSpacing: 0.2,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+
+                          SizedBox(height: 24),
+
+                          // Options Information with stunning styling
+                          Container(
+                            padding: EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Colors.white,
+                                  Colors.grey.shade50,
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(22),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.04),
+                                  blurRadius: 12,
+                                  spreadRadius: 0,
+                                  offset: Offset(0, 4),
+                                ),
+                              ],
+                              border: Border.all(
+                                color: _getTypeColor(latestVersion.type)
+                                    .withOpacity(0.2),
+                                width: 1.5,
                               ),
                             ),
-
-                            SizedBox(width: 12),
-
-                            // Delete Button - Enhanced with premium styling
-                            Material(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(14),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(14),
-                                onTap: () => _showDeleteQuestionConfirmation(question),
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(14),
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        Colors.white,
-                                        Colors.grey.shade50,
-                                      ],
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                    ),
-                                    border: Border.all(
-                                      color: Colors.red.shade300,
-                                      width: 1.5,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.05),
-                                        blurRadius: 10,
-                                        offset: Offset(0, 4),
+                            child: Row(
+                              children: [
+                                // Animated pulse container (simulated with Stack)
+                                Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Container(
+                                      width: 48,
+                                      height: 48,
+                                      decoration: BoxDecoration(
+                                        color: _getTypeColor(latestVersion.type)
+                                            .withOpacity(0.08),
+                                        shape: BoxShape.circle,
                                       ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.delete_outline_rounded,
-                                        size: 18,
-                                        color: Colors.red.shade700,
+                                    ),
+                                    Container(
+                                      width: 42,
+                                      height: 42,
+                                      decoration: BoxDecoration(
+                                        color: _getTypeColor(latestVersion.type)
+                                            .withOpacity(0.12),
+                                        shape: BoxShape.circle,
                                       ),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        'Hapus',
-                                        style: TextStyle(
-                                          color: Colors.red.shade700,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 14,
-                                          letterSpacing: 0.3,
+                                    ),
+                                    Container(
+                                      width: 36,
+                                      height: 36,
+                                      decoration: BoxDecoration(
+                                        color: _getTypeColor(latestVersion.type)
+                                            .withOpacity(0.15),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color:
+                                              _getTypeColor(latestVersion.type)
+                                                  .withOpacity(0.3),
+                                          width: 1.5,
                                         ),
                                       ),
-                                    ],
+                                      child: Icon(
+                                        Icons.check_circle_outline_rounded,
+                                        color:
+                                            _getTypeColor(latestVersion.type),
+                                        size: 22,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(width: 18),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Pilihan Jawaban',
+                                      style: TextStyle(
+                                        color: Colors.grey[500],
+                                        fontSize: 13.5,
+                                        fontWeight: FontWeight.w500,
+                                        letterSpacing: 0.3,
+                                      ),
+                                    ),
+                                    SizedBox(height: 6),
+                                    Text(
+                                      '${latestVersion.options.length} opsi tersedia',
+                                      style: TextStyle(
+                                        color: Colors.grey[800],
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 0.2,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Spacer(),
+                                // Stunning arrow indicator
+                                Container(
+                                  width: 32,
+                                  height: 32,
+                                  decoration: BoxDecoration(
+                                    color: _getTypeColor(latestVersion.type)
+                                        .withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    color: _getTypeColor(latestVersion.type),
+                                    size: 14,
                                   ),
                                 ),
-                              ),
+                              ],
                             ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Ultra-modern Action Footer
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.grey.shade50,
+                            Colors.grey.shade100,
                           ],
                         ),
-                      ],
+                        border: Border(
+                          top: BorderSide(
+                            color: Colors.grey.shade200,
+                            width: 1.5,
+                          ),
+                        ),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(28),
+                          bottomRight: Radius.circular(28),
+                        ),
+                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment
+                            .end, // Changed from spaceBetween to end
+                        children: [
+                          // Question ID section has been removed
+
+                          // Action Buttons with premium styling
+                          Row(
+                            children: [
+                              // Edit Button - Ultra-premium styling
+                              Material(
+                                color: Colors.transparent,
+                                borderRadius: BorderRadius.circular(16),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(16),
+                                  onTap: () => _navigateToEditQuestion(
+                                      question, latestVersion),
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 18, vertical: 13),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          _getTypeColor(latestVersion.type),
+                                          Color.lerp(
+                                              _getTypeColor(latestVersion.type),
+                                              Colors.black,
+                                              0.15)!,
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color:
+                                              _getTypeColor(latestVersion.type)
+                                                  .withOpacity(0.4),
+                                          blurRadius: 12,
+                                          offset: Offset(0, 5),
+                                          spreadRadius: -2,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        // Layered icon effect
+                                        Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.edit_rounded,
+                                              size: 20,
+                                              color:
+                                                  Colors.white.withOpacity(0.6),
+                                            ),
+                                            Icon(
+                                              Icons.edit_rounded,
+                                              size: 18,
+                                              color: Colors.white,
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          'Edit',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14.5,
+                                            letterSpacing: 0.4,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              SizedBox(width: 14),
+
+                              // Delete Button - Ultra-premium styling
+                              Material(
+                                color: Colors.transparent,
+                                borderRadius: BorderRadius.circular(16),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(16),
+                                  onTap: () =>
+                                      _showDeleteQuestionConfirmation(question),
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 18, vertical: 13),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.white,
+                                          Colors.grey.shade50,
+                                        ],
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                      ),
+                                      border: Border.all(
+                                        color: Colors.red.shade300,
+                                        width: 1.5,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.06),
+                                          blurRadius: 12,
+                                          offset: Offset(0, 5),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        // Layered icon effect for delete
+                                        Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.delete_outline_rounded,
+                                              size: 20,
+                                              color: Colors.red.shade300,
+                                            ),
+                                            Icon(
+                                              Icons.delete_outline_rounded,
+                                              size: 18,
+                                              color: Colors.red.shade700,
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          'Hapus',
+                                          style: TextStyle(
+                                            color: Colors.red.shade700,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14.5,
+                                            letterSpacing: 0.4,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-
-          // Premium Badge (optional)
-          // Positioned(
-          //   top: 0,
-          //   right: 30,
-          //   child: Container(
-          //     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          //     decoration: BoxDecoration(
-          //       color: Colors.amber.shade700,
-          //       borderRadius: BorderRadius.only(
-          //         bottomLeft: Radius.circular(10),
-          //         bottomRight: Radius.circular(10),
-          //       ),
-          //       boxShadow: [
-          //         BoxShadow(
-          //           color: Colors.amber.withOpacity(0.3),
-          //           blurRadius: 8,
-          //           offset: Offset(0, 2),
-          //         ),
-          //       ],
-          //     ),
-          //     child: Row(
-          //       mainAxisSize: MainAxisSize.min,
-          //       children: [
-          //         Icon(
-          //           Icons.school_rounded,
-          //           color: Colors.white,
-          //           size: 14,
-          //         ),
-          //         SizedBox(width: 4),
-          //         Text(
-          //           'PREMIUM',
-          //           style: TextStyle(
-          //             color: Colors.white,
-          //             fontSize: 10,
-          //             fontWeight: FontWeight.bold,
-          //             letterSpacing: 0.5,
-          //           ),
-          //         ),
-          //       ],
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );
@@ -1525,6 +1580,794 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
       },
     );
   }
+
+  // Add this new method to show the question detail sheet
+  void _showDetailQuestionSheet(
+      q.Question question, q.QuestionVersion version) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => FractionallySizedBox(
+        heightFactor: 0.92,
+        child: ClipRRect(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
+          ),
+          child: Container(
+            color: Colors.white,
+            child: _buildDetailQuestionContent(question, version),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailQuestionContent(
+      q.Question question, q.QuestionVersion version) {
+    return Stack(
+      children: [
+        // Gradient background top decoration
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 180,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  _getTypeColor(version.type),
+                  Color.lerp(_getTypeColor(version.type), Colors.black, 0.2)!,
+                ],
+              ),
+            ),
+            child: CustomPaint(
+              painter: UltraModernPatternPainter(
+                primaryColor: Colors.white.withOpacity(0.12),
+                secondaryColor: Colors.white.withOpacity(0.06),
+              ),
+            ),
+          ),
+        ),
+
+        // Main content
+        SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Container(
+                padding: EdgeInsets.fromLTRB(24, 60, 24, 30),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Question type badge
+                    Container(
+                      padding:
+                        EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.5),
+                        width: 1,
+                      ),
+                      ),
+                      child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                        _getTypeIcon(version.type),
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            _getTypeName(version.type),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.4,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 20),
+
+                    // Question name/title with shadow
+                    Text(
+                      version.name,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        height: 1.3,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.4),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 10),
+
+                    // Stats row
+                    Row(
+                      children: [
+                        // Points badge
+                        Container(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 10,
+                                offset: Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.star_rounded,
+                                color: Colors.amber,
+                                size: 18,
+                              ),
+                              SizedBox(width: 6),
+                              Text(
+                                '${version.defaultPoint} points',
+                                style: TextStyle(
+                                  color: Colors.grey[800],
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(width: 12),
+
+                        // Options count badge
+                        // Container(
+                        //   padding:
+                        //       EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        //   decoration: BoxDecoration(
+                        //     color: Colors.white.withOpacity(0.2),
+                        //     borderRadius: BorderRadius.circular(14),
+                        //     border: Border.all(
+                        //       color: Colors.white.withOpacity(0.3),
+                        //       width: 1,
+                        //     ),
+                        //   ),
+                        //   child: Row(
+                        //     children: [
+                        //       Icon(
+                        //         Icons.check_circle_outline,
+                        //         color: Colors.white,
+                        //         size: 16,
+                        //       ),
+                        //       SizedBox(width: 6),
+                        //       Text(
+                        //         '${version.options.length} options',
+                        //         style: TextStyle(
+                        //           color: Colors.white,
+                        //           fontWeight: FontWeight.w600,
+                        //           fontSize: 13,
+                        //         ),
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // Content
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 20,
+                      offset: Offset(0, -5),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Question title bar
+                      Container(
+                        padding: EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Colors.white, Colors.grey.shade50],
+                          ),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(30),
+                            topRight: Radius.circular(30),
+                          ),
+                          border: Border(
+                            bottom: BorderSide(color: Colors.grey.shade100),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: _getTypeColor(version.type)
+                                    .withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                Icons.help_outline_rounded,
+                                color: _getTypeColor(version.type),
+                                size: 20,
+                              ),
+                            ),
+                            SizedBox(width: 16),
+                            Text(
+                              "Pertanyaan",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.grey.shade800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Question content
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.fromLTRB(24, 20, 24, 24),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                        ),
+                        child: Container(
+                          padding: EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                                color: Colors.grey.shade200, width: 1),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.03),
+                                blurRadius: 10,
+                                offset: Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            parseHtmlString(version.question),
+                            style: TextStyle(
+                              fontSize: 16,
+                              height: 1.5,
+                              color: Colors.grey.shade800,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // Options section
+                      Container(
+                        padding: EdgeInsets.all(24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Options header
+                            Row(
+                              children: [
+                                Container(
+                                  width: 38,
+                                  height: 38,
+                                  decoration: BoxDecoration(
+                                    color: _getTypeColor(version.type)
+                                        .withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    Icons.check_circle_outline,
+                                    color: _getTypeColor(version.type),
+                                    size: 20,
+                                  ),
+                                ),
+                                SizedBox(width: 16),
+                                Text(
+                                  "Opsi Jawaban",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.grey.shade800,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            SizedBox(height: 24),
+
+                            // Options list
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: version.options.length,
+                              itemBuilder: (context, index) {
+                                final option = version.options[index];
+                                final isCorrect = option.percentage == 100;
+
+                                return Container(
+                                  margin: EdgeInsets.only(bottom: 16),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: isCorrect
+                                          ? Colors.green.shade200
+                                          : Colors.grey.shade200,
+                                      width: 1.5,
+                                    ),
+                                    color: isCorrect
+                                        ? Colors.green.shade50
+                                        : Colors.white,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: isCorrect
+                                            ? Colors.green.withOpacity(0.1)
+                                            : Colors.black.withOpacity(0.03),
+                                        blurRadius: 10,
+                                        offset: Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      // Option content
+                                      Padding(
+                                        padding: EdgeInsets.all(16),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            // Option indicator (letter or number)
+                                            Container(
+                                              width: 36,
+                                              height: 36,
+                                              margin: EdgeInsets.only(
+                                                  top: 2, right: 16),
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: isCorrect
+                                                    ? Colors.green
+                                                        .withOpacity(0.2)
+                                                    : _getTypeColor(
+                                                            version.type)
+                                                        .withOpacity(0.1),
+                                                border: Border.all(
+                                                  color: isCorrect
+                                                      ? Colors.green
+                                                      : _getTypeColor(
+                                                          version.type),
+                                                  width: 1.5,
+                                                ),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  String.fromCharCode(65 +
+                                                      index), // A, B, C, etc.
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: isCorrect
+                                                        ? Colors.green
+                                                        : _getTypeColor(
+                                                            version.type),
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+
+                                            // Option text
+                                            Expanded(
+                                              child: Text(
+                                                parseHtmlString(option.text),
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  color: Colors.grey.shade800,
+                                                  height: 1.4,
+                                                ),
+                                              ),
+                                            ),
+
+                                            // Correct indicator
+                                            if (isCorrect)
+                                              Container(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                  vertical: 6,
+                                                ),
+                                                margin:
+                                                    EdgeInsets.only(left: 10),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.green,
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                ),
+                                                child: Text(
+                                                  "BENAR",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ),
+
+                                            // Percentage badge (if not 100% or 0%)
+                                            if (!isCorrect &&
+                                                option.percentage > 0)
+                                              Container(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                  vertical: 6,
+                                                ),
+                                                margin:
+                                                    EdgeInsets.only(left: 10),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.orange,
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                ),
+                                                child: Text(
+                                                  "${option.percentage}%",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+
+                                      // Feedback section (if any)
+                                      if (option.feedback.isNotEmpty)
+                                        Container(
+                                          width: double.infinity,
+                                          padding: EdgeInsets.all(16),
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey.shade50,
+                                            borderRadius: BorderRadius.only(
+                                              bottomLeft: Radius.circular(15),
+                                              bottomRight: Radius.circular(15),
+                                            ),
+                                            border: Border(
+                                              top: BorderSide(
+                                                  color: Colors.grey.shade200),
+                                            ),
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Feedback:",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 13,
+                                                  color: Colors.grey.shade600,
+                                                ),
+                                              ),
+                                              SizedBox(height: 8),
+                                              Text(
+                                                option.feedback,
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.grey.shade700,
+                                                  height: 1.4,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Note section (if available)
+                      if (version.note != null && version.note.isNotEmpty)
+                        Container(
+                          padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Note header
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 38,
+                                    height: 38,
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      Icons.notes,
+                                      color: Colors.blue,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  SizedBox(width: 16),
+                                  Text(
+                                    "Catatan Soal",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.grey.shade800,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              SizedBox(height: 16),
+
+                              // Note content
+                              Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.shade50,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: Colors.blue.shade100,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Text(
+                                  version.note,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    height: 1.5,
+                                    color: Colors.grey.shade800,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      // Image section (if available)
+                      if (version.image != null &&
+                          version.image?.isNotEmpty == true)
+                        Container(
+                          padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Image header
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 38,
+                                    height: 38,
+                                    decoration: BoxDecoration(
+                                      color: Colors.purple.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      Icons.image,
+                                      color: Colors.purple,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  SizedBox(width: 16),
+                                  Text(
+                                    "Gambar Soal",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.grey.shade800,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              SizedBox(height: 16),
+
+                              // Image content
+                              Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: Colors.grey.shade200,
+                                    width: 1,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 15,
+                                      offset: Offset(0, 10),
+                                    ),
+                                  ],
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: version.image != null
+                                      ? Image.network(
+                                          version.image!,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Container(
+                                              height: 120,
+                                              color: Colors.grey.shade200,
+                                              child: Center(
+                                                child: Icon(
+                                                  Icons.broken_image,
+                                                  color: Colors.grey,
+                                                  size: 40,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        )
+                                      : Container(
+                                          height: 120,
+                                          color: Colors.grey.shade200,
+                                          child: Center(
+                                            child: Icon(
+                                              Icons.image_not_supported,
+                                              color: Colors.grey,
+                                              size: 40,
+                                            ),
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      // Action buttons
+                      Container(
+                        padding: EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(30),
+                            topRight: Radius.circular(30),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: Offset(0, -5),
+                              spreadRadius: 0,
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Close button
+                            Expanded(
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                  padding: EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    side:
+                                        BorderSide(color: Colors.grey.shade300),
+                                  ),
+                                ),
+                                onPressed: () => Navigator.pop(context),
+                                child: Text(
+                                  "Tutup",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey.shade700,
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            SizedBox(width: 16),
+
+                            // Edit button
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.symmetric(vertical: 16),
+                                  backgroundColor: _getTypeColor(version.type),
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  _navigateToEditQuestion(question, version);
+                                },
+                                child: Text(
+                                  "Edit Soal",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Bottom padding
+                      SizedBox(height: 30),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Close button at top
+        Positioned(
+          top: 20,
+          right: 20,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              icon: Icon(Icons.close, color: Colors.white),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 // Enhanced luxury pattern painter
@@ -1572,4 +2415,50 @@ class LuxuryPatternPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// Add this advanced pattern painter class for a stunning effect
+class UltraModernPatternPainter extends CustomPainter {
+  final Color primaryColor;
+  final Color secondaryColor;
+
+  UltraModernPatternPainter({
+    required this.primaryColor,
+    required this.secondaryColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Diagonal lines for a premium pattern effect
+    final paint = Paint()
+      ..color = primaryColor
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+
+    final double spacing = 30;
+    for (double i = -size.width; i < size.width * 2; i += spacing) {
+      canvas.drawLine(
+        Offset(i, 0),
+        Offset(i + size.height, size.height),
+        paint,
+      );
+    }
+
+    // Add some perpendicular lines for a grid effect
+    final secondPaint = Paint()
+      ..color = secondaryColor
+      ..strokeWidth = 0.8
+      ..style = PaintingStyle.stroke;
+
+    for (double i = spacing; i < size.width; i += spacing * 2) {
+      canvas.drawLine(
+        Offset(i, 0),
+        Offset(i, size.height),
+        secondPaint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
