@@ -141,8 +141,6 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       if (result['exams'] is List) {
         for (var examData in result['exams']) {
           try {
-            print(examData);
-            print("___");
             final exam = OnlineExam.fromJson(examData);
             // Status 1 = active, Status 2 = archived
             // if (getFull == true) {
@@ -194,9 +192,7 @@ emit(OnlineExamAnswersSuccess(
 ));
 
     } catch (e) {
-      print("ERROR SINI");
-      print(e);
-      emit(OnlineExamFailure(e.toString()));
+      emit(OnlineExamFailure(e.toString().replaceFirst(RegExp(r'^[^:]+: '), '')));
     }
   }
 

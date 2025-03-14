@@ -91,7 +91,7 @@ class OnlineExamRepository {
       return { "marks": response['data']['marks'] ?? 0, "answers": [] };
     } catch (e) {
       print('Error getting online exam result answer: $e');
-      throw Exception('Failed to fetch exam answers: ${e.toString()}');
+      throw Exception(e.toString());
     }
   }
 
