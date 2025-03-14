@@ -442,11 +442,6 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                             state.subjects.length > 5)
                           _buildSearchBar(state.subjects),
 
-                        // Filter tabs with animations
-                        if (state is SubjectsFetchSuccess &&
-                            state.subjects.length > 3)
-                          _buildFilterTabs(),
-
                         // Main content with curved container and 3D effect
                         Expanded(
                           child: Container(
@@ -726,76 +721,19 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFilterTabs() {
-    final tabs = ["Semua", "Terbanyak", "Terbaru"];
-
-    return FadeInDown(
-      delay: Duration(milliseconds: 400),
-      duration: Duration(milliseconds: 800),
-      child: Container(
-        height: 45,
-        margin: EdgeInsets.only(top: 10),
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          physics: BouncingScrollPhysics(),
-          itemCount: tabs.length,
-          itemBuilder: (context, index) {
-            final isSelected = _selectedTabIndex == index;
-            return GestureDetector(
-              onTap: () {
-                HapticFeedback.lightImpact();
-                setState(() {
-                  _selectedTabIndex = index;
-                });
-              },
-              child: AnimatedContainer(
-                duration: Duration(milliseconds: 300),
-                margin: EdgeInsets.only(right: 15),
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  gradient: isSelected
-                      ? LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            _highlightColor,
-                            _accentColor,
-                          ],
-                        )
-                      : null,
-                  color: isSelected ? null : Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: _accentColor.withOpacity(0.5),
-                            blurRadius: 10,
-                            spreadRadius: 0,
-                            offset: Offset(0, 3),
-                          )
-                        ]
-                      : null,
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  tabs[index],
-                  style: TextStyle(
-                    color: isSelected
-                        ? Colors.white
-                        : Colors.white.withOpacity(0.8),
-                    fontSize: isSelected ? 14 : 13,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  ),
-                ),
-              ),
-            );
-          },
+          child: TextField(
+            controller: _searchController,
+            onChanged: (query) => _filterSubjects(query, subjects),
+            style: TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: 'Cari mata pelajaran...',
+              hintStyle: TextStyle(color: Colors.white70),
+              prefixIcon: Icon(Icons.search, color: Colors.white70),
+              border: InputBorder.none,
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            ),
+          ),
         ),
       ),
     );
@@ -857,7 +795,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
             ),
             SizedBox(height: 25),
             Text(
-              'Memuat Bank Soal',
+              'Memuat Mata Pelajaran',
               style: TextStyle(
                 color: _primaryColor,
                 fontSize: 20,

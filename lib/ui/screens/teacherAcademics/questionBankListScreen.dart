@@ -1,8 +1,13 @@
+import 'dart:math' as math;
+import 'dart:ui';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:flutter/services.dart';
+import 'package:lottie/lottie.dart';
 import 'package:eschool_saas_staff/app/routes.dart';
 import '../../../cubits/teacherAcademics/assignment/questionBankCubit.dart';
 import '../../../data/models/question.dart';
@@ -35,6 +40,114 @@ class QuestionBankListController extends GetxController {
   }
 }
 
+// Animated particle system
+class ParticleModel {
+  Offset position;
+  Color color;
+  double radius;
+  double speed;
+  double theta;
+  double opacity;
+  double rotationSpeed;
+
+  ParticleModel({
+    required this.position,
+    required this.color,
+    required this.radius,
+    required this.speed,
+    required this.theta,
+    required this.opacity,
+    required this.rotationSpeed,
+  });
+
+  void move() {
+    position += Offset(speed * math.cos(theta), speed * math.sin(theta));
+    theta += rotationSpeed;
+    opacity += (math.Random().nextDouble() - 0.5) * 0.03;
+    opacity = opacity.clamp(0.1, 0.9);
+  }
+}
+
+// Light rays painter
+class LightRaysPainter extends CustomPainter {
+  final Color color;
+
+  LightRaysPainter(this.color);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    // Draw multiple rays from center
+    final center = Offset(size.width / 2, size.height / 2);
+    final rays = 12; // Number of rays
+    final maxLength = size.width > size.height ? size.width : size.height;
+
+    for (int i = 0; i < rays; i++) {
+      final angle = (i * 2 * math.pi / rays);
+      final x = math.cos(angle) * maxLength;
+      final y = math.sin(angle) * maxLength;
+
+      // Draw triangular ray
+      final path = Path()
+        ..moveTo(center.dx, center.dy)
+        ..lineTo(center.dx + x * 0.2, center.dy + y * 0.2)
+        ..lineTo(center.dx + x, center.dy + y)
+        ..close();
+
+      canvas.drawPath(path, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
+}
+
+class ParticlesPainter extends CustomPainter {
+  final List<ParticleModel> particles;
+  final double time;
+
+  ParticlesPainter(this.particles, this.time);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (var i = 0; i < particles.length; i++) {
+      final particle = particles[i];
+      final paint = Paint()
+        ..color = particle.color.withOpacity(particle.opacity)
+        ..style = PaintingStyle.fill;
+
+      // Draw glow effect around particles
+      if (i % 3 == 0) {
+        final glowPaint = Paint()
+          ..color = particle.color.withOpacity(particle.opacity * 0.3)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, 8.0);
+        canvas.drawCircle(particle.position, particle.radius * 2, glowPaint);
+      }
+
+      canvas.drawCircle(particle.position, particle.radius, paint);
+
+      // Add connecting lines between nearby particles
+      if (i < particles.length - 1) {
+        final nextParticle = particles[i + 1];
+        final distance = (particle.position - nextParticle.position).distance;
+        if (distance < 80) {
+          final linePaint = Paint()
+            ..color = particle.color
+                .withOpacity(particle.opacity * 0.2 * (1 - distance / 80))
+            ..strokeWidth = 1.0;
+          canvas.drawLine(particle.position, nextParticle.position, linePaint);
+        }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
+}
+
 class QuestionBankListScreen extends StatefulWidget {
   final SubjectQuestion subject;
 
@@ -53,7 +166,8 @@ class QuestionBankListScreen extends StatefulWidget {
   State<QuestionBankListScreen> createState() => _QuestionBankListScreenState();
 }
 
-class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
+class _QuestionBankListScreenState extends State<QuestionBankListScreen>
+    with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _typeController = TextEditingController(text: 'multiple_choice');
@@ -63,11 +177,195 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
   bool _showSearch = false;
   late QuestionBankListController _controller;
 
+  // Animation controllers
+  late AnimationController _backgroundAnimationController;
+  late AnimationController _waveAnimationController;
+  late AnimationController _floatingIconsController;
+  late AnimationController _cardHoverController;
+  late AnimationController _breathingController;
+  late AnimationController _rotationController;
+  late AnimationController _pulseController;
+  late AnimationController _loadingController;
+  late AnimationController _tabTransitionController;
+  late AnimationController _searchExpandController;
+
+  // Animations
+  late Animation<double> _backgroundAnimation;
+  late Animation<double> _waveAnimation;
+  late Animation<double> _breathingAnimation;
+  late Animation<double> _rotationAnimation;
+  late Animation<double> _pulseAnimation;
+  late Animation<double> _searchWidthAnimation;
+
+  int _selectedTabIndex = 0;
+  int _hoveredCardIndex = -1;
+  double _dragPosition = 0;
+
+  // Particles
+  final List<ParticleModel> _particles = [];
+
+  // Theme colors - Softer Maroon palette
+  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
+  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
+  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
+  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
+
+  final List<Color> _cardGradients = [
+    Color(0xFF7A2828), // Softer dark maroon
+    Color(0xFF9D3C3C), // Softer classic maroon
+    Color(0xFFAF4F4F), // Softer rich maroon
+    Color(0xFFB84D4D), // Softer brown-maroon
+    Color(0xFFC65454), // Softer firebrick
+    Color(0xFFAA3939), // Softer dark red
+    Color(0xFF8F2D2D), // Softer deep maroon
+    Color(0xFFB14040), // Softer bright maroon
+  ];
+
+  // Track if the screen is initially loaded for animations
+  bool _isFirstLoad = true;
+
   @override
   void initState() {
     super.initState();
-    _controller = Get.put(QuestionBankListController(context, widget.subject.subject.id));
-    _reloadData(); // Load pertama kali
+    _controller =
+        Get.put(QuestionBankListController(context, widget.subject.subject.id));
+
+    // Setup animation controllers
+    _backgroundAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 30000),
+    )..repeat();
+
+    _waveAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 7000),
+    )..repeat();
+
+    _floatingIconsController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
+
+    _cardHoverController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 200),
+    );
+
+    _breathingController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 3000),
+    )..repeat(reverse: true);
+
+    _rotationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 10000),
+    )..repeat();
+
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+
+    _loadingController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1500),
+    )..repeat();
+
+    _tabTransitionController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 400),
+    );
+
+    _searchExpandController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300),
+    );
+
+    // Setup animations
+    _backgroundAnimation = CurvedAnimation(
+      parent: _backgroundAnimationController,
+      curve: Curves.linear,
+    );
+
+    _waveAnimation = CurvedAnimation(
+      parent: _waveAnimationController,
+      curve: Curves.easeInOut,
+    );
+
+    _breathingAnimation = CurvedAnimation(
+      parent: _breathingController,
+      curve: Curves.easeInOut,
+    );
+
+    _rotationAnimation = CurvedAnimation(
+      parent: _rotationController,
+      curve: Curves.linear,
+    );
+
+    _pulseAnimation = CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    );
+
+    _searchWidthAnimation = Tween<double>(
+      begin: 0.7,
+      end: 0.9,
+    ).animate(
+      CurvedAnimation(
+        parent: _searchExpandController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+
+    // Initialize particles with enhanced properties
+    _initializeParticles();
+
+    _reloadData();
+
+    // Add device orientation listener for responsive design
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+
+    // Set system UI style for immersive experience
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: _primaryColor,
+      systemNavigationBarIconBrightness: Brightness.light,
+    ));
+
+    // Delay to ensure animations look good on first load
+    Future.delayed(Duration(milliseconds: 100), () {
+      if (mounted) {
+        setState(() {
+          _isFirstLoad = false;
+        });
+      }
+    });
+  }
+
+  void _initializeParticles() {
+    final random = math.Random();
+    for (int i = 0; i < 40; i++) {
+      // More particles for denser effect
+      _particles.add(
+        ParticleModel(
+          position: Offset(
+            random.nextDouble() * Get.width,
+            random.nextDouble() * Get.height / 1.5,
+          ),
+          color: [_highlightColor, _accentColor, _glowColor][random.nextInt(3)],
+          radius: random.nextDouble() * 3.5 + 0.5,
+          speed: random.nextDouble() * 0.5 + 0.1,
+          theta: random.nextDouble() * math.pi * 2,
+          opacity: random.nextDouble() * 0.5 + 0.3,
+          rotationSpeed:
+              (random.nextDouble() * 0.04) * (random.nextBool() ? 1 : -1),
+        ),
+      );
+    }
   }
 
   @override
@@ -76,7 +374,17 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
     _typeController.dispose();
     _defaultPointController.dispose();
     _searchController.dispose();
-    Get.delete<QuestionBankListController>(); // Hapus controller saat dispose
+    _backgroundAnimationController.dispose();
+    _waveAnimationController.dispose();
+    _floatingIconsController.dispose();
+    _cardHoverController.dispose();
+    _breathingController.dispose();
+    _rotationController.dispose();
+    _pulseController.dispose();
+    _loadingController.dispose();
+    _tabTransitionController.dispose();
+    _searchExpandController.dispose();
+    Get.delete<QuestionBankListController>();
     super.dispose();
   }
 
@@ -94,137 +402,510 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
         _filteredBanks = banks;
       } else {
         _filteredBanks = banks
-            .where((bank) => bank.name.toLowerCase().contains(query.toLowerCase()))
+            .where(
+                (bank) => bank.name.toLowerCase().contains(query.toLowerCase()))
             .toList();
+
+        // Extra haptic feedback on results found
+        if (_filteredBanks.isNotEmpty) {
+          HapticFeedback.selectionClick();
+        }
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF8B0000).withOpacity(0.9),
-              Color(0xFF6B0000),
-              Color(0xFF4B0000),
-              Theme.of(context).colorScheme.secondary,
-            ],
-            stops: [0.2, 0.4, 0.6, 1.0],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: _primaryColor,
+        extendBodyBehindAppBar: true,
+        body: BlocBuilder<QuestionBankCubit, QuestionBankState>(
+          builder: (context, state) {
+            return Stack(
+              children: [
+                // Animated background with advanced effects
+                _buildAnimatedBackground(),
+
+                // Content with parallax scroll effect
+                SafeArea(
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (notification) {
+                      if (notification is ScrollUpdateNotification) {
+                        setState(() {
+                          _dragPosition = notification.metrics.pixels / 10;
+                        });
+                      }
+                      return false;
+                    },
+                    child: Column(
+                      children: [
+                        // Custom app bar with advanced animated elements
+                        _buildCustomAppBar(),
+
+                        // Animated search bar
+                        if (state is BankSoalFetchSuccess &&
+                            state.bankSoal.length > 5)
+                          _buildSearchBar(state.bankSoal),
+
+                        // Main content with curved container and 3D effect
+                        Expanded(
+                          child: Container(
+                            margin: EdgeInsets.only(top: 15),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.white.withOpacity(0.95),
+                                  Color(0xFFFFF0F0),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(40),
+                                topRight: Radius.circular(40),
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: _glowColor.withOpacity(0.2),
+                                  blurRadius: 20,
+                                  spreadRadius: 5,
+                                  offset: Offset(0, -5),
+                                ),
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 30,
+                                  offset: Offset(0, -10),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(40),
+                                topRight: Radius.circular(40),
+                              ),
+                              child: _buildContentArea(state),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+        // Hapus FloatingActionButton di sini
+        // floatingActionButton: _buildAddButton(),
+      ),
+    );
+  }
+
+  Widget _buildCustomAppBar() {
+    return SlideInDown(
+      duration: Duration(milliseconds: 800),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(15, 15, 15, 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                // Back button with advanced ripple and glow effects
+                _buildGlowingIconButton(
+                  Icons.arrow_back_rounded,
+                  () {
+                    HapticFeedback.mediumImpact();
+                    Get.back();
+                  },
+                ),
+                SizedBox(width: 15),
+
+                // Title with animated gradients and text effects
+                Expanded(
+                  child: Text(
+                    ' ${widget.subject.subjectWithName}',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.8,
+                      color: Colors.white,
+                      height: 1.2,
+                    ),
+                    softWrap: true,
+                    overflow: TextOverflow.visible,
+                  ),
+                ),
+
+                // Tambahkan tombol Add di sini
+                _buildAddButtonForAppBar(),
+              ],
+            ),
+            SizedBox(height: 20),
+
+            // Subtitle with animated elements
+            Padding(
+              padding: EdgeInsets.only(left: 15),
+              child: Row(
+                children: [
+                  Text(
+                    'Kelola Bank Soal',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Tombol tambah bank soal untuk app bar
+  Widget _buildAddButtonForAppBar() {
+    return AnimatedBuilder(
+      animation: _pulseAnimation,
+      builder: (context, child) {
+        final scale = 1.0 + 0.05 * _pulseAnimation.value;
+        return GestureDetector(
+          onTap: () {
+            HapticFeedback.mediumImpact();
+            _showAddBankDialog();
+          },
+          child: Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.15),
+              boxShadow: [
+                BoxShadow(
+                  color: _highlightColor
+                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
+                  blurRadius: 12 * (1 + _pulseAnimation.value),
+                  spreadRadius: 2 * _pulseAnimation.value,
+                )
+              ],
+              border: Border.all(
+                color: Colors.white
+                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
+                width: 1.5,
+              ),
+            ),
+            child: Transform.scale(
+              scale: scale,
+              child: Icon(
+                Icons.add,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAnimatedBackground() {
+    return Stack(
+      children: [
+        // Base gradient with softer maroon colors
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+              colors: [
+                _primaryColor,
+                Color(0xFF5A2223), // Softer deeper maroon
+              ],
+            ),
           ),
         ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Custom App Bar with Add Button
-              FadeInDown(
-                duration: Duration(milliseconds: 600),
+
+        // Advanced particles system
+        AnimatedBuilder(
+          animation: _backgroundAnimationController,
+          builder: (context, child) {
+            for (var particle in _particles) {
+              particle.move();
+              // Keep particles within bounds
+              if (particle.position.dx < 0 ||
+                  particle.position.dx > Get.width ||
+                  particle.position.dy < 0 ||
+                  particle.position.dy > Get.height / 1.5) {
+                particle.theta = math.Random().nextDouble() * math.pi * 2;
+              }
+            }
+
+            return CustomPaint(
+              painter: ParticlesPainter(_particles, _backgroundAnimation.value),
+              size: Size(Get.width, Get.height),
+            );
+          },
+        ),
+
+        // Glowing orbs and decorative elements
+        Positioned(
+          top: -60,
+          right: -40,
+          child: AnimatedBuilder(
+            animation: _breathingAnimation,
+            builder: (context, child) {
+              final scale = 1.0 + 0.1 * _breathingAnimation.value;
+              return Transform.scale(
+                scale: scale,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.arrow_back_ios, color: Colors.white),
-                        onPressed: () => Get.back(),
-                      ),
-                      Expanded(
-                        child: Text(
-                          'Bank Soal ${widget.subject.subjectWithName}',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: _showAddBankDialog,
-                        icon: Icon(Icons.add_box_rounded, size: 20),
-                        label: Text('Bank Soal'),
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: Theme.of(context).colorScheme.secondary,
-                          backgroundColor: Colors.white,
-                          elevation: 0,
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          textStyle: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
+                  width: 180,
+                  height: 180,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        _glowColor.withOpacity(0.4),
+                        _glowColor.withOpacity(0.0),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        Positioned(
+          bottom: Get.height * 0.35,
+          left: -50,
+          child: AnimatedBuilder(
+            animation: _pulseAnimation,
+            builder: (context, child) {
+              final opacity = 0.15 + 0.1 * _pulseAnimation.value;
+              return Container(
+                width: 150,
+                height: 150,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      _energyColor.withOpacity(opacity),
+                      _energyColor.withOpacity(0.0),
                     ],
                   ),
                 ),
-              ),
+              );
+            },
+          ),
+        ),
 
-              // Content
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                  ),
-                  child: BlocBuilder<QuestionBankCubit, QuestionBankState>(
-                    builder: (context, state) {
-                      if (state is QuestionBankLoading) {
-                        return _buildLoadingView();
-                      }
-
-                      if (state is BankSoalFetchSuccess) {
-                        return _buildContent(state);
-                      }
-
-                      if (state is QuestionBankError) {
-                        return Center(
-                          child: ErrorContainer(
-                            errorMessage:
-                                "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
-                            onTapRetry: _reloadData,
-                          ),
-                        );
-                      }
-
-                      return SizedBox();
-                    },
-                  ),
+        // Dynamic light rays effect
+        Positioned.fill(
+          child: AnimatedBuilder(
+            animation: _rotationAnimation,
+            builder: (context, child) {
+              return Transform.rotate(
+                angle: _rotationAnimation.value * math.pi * 2,
+                child: CustomPaint(
+                  painter: LightRaysPainter(_highlightColor.withOpacity(0.03)),
+                  size: Size(Get.width, Get.height),
                 ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedBuilder(
+        animation: _pulseAnimation,
+        builder: (context, child) {
+          return Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.12),
+              boxShadow: [
+                BoxShadow(
+                  color: _highlightColor
+                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
+                  blurRadius: 12 * (1 + _pulseAnimation.value),
+                  spreadRadius: 2 * _pulseAnimation.value,
+                )
+              ],
+              border: Border.all(
+                color: Colors.white
+                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 24,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSearchBar(List<BankSoal> banks) {
+    return FadeInDown(
+      delay: Duration(milliseconds: 300),
+      duration: Duration(milliseconds: 800),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        child: Container(
+          height: 55,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: _highlightColor.withOpacity(0.3),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: _accentColor.withOpacity(0.2),
+                blurRadius: 15,
+                spreadRadius: 0,
+                offset: Offset(0, 5),
               ),
             ],
+          ),
+          child: TextField(
+            controller: _searchController,
+            onChanged: (query) => _filterBanks(query, banks),
+            style: TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: 'Cari bank soal...',
+              hintStyle: TextStyle(color: Colors.white70),
+              prefixIcon: Icon(Icons.search, color: Colors.white70),
+              border: InputBorder.none,
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildLoadingView() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildContentArea(QuestionBankState state) {
+    if (state is QuestionBankLoading) {
+      return _buildLoadingView();
+    }
+
+    if (state is BankSoalFetchSuccess) {
+      // Tetap set _showSearch berdasarkan jumlah bank soal untuk menampilkan search bar
+      _showSearch = state.bankSoal.length > 5;
+
+      // Pastikan _filteredBanks selalu diisi dengan bank soal yang ada
+      if (_searchController.text.isEmpty) {
+        _filteredBanks = state.bankSoal;
+      } else {
+        _filteredBanks = state.bankSoal
+            .where((bank) => bank.name
+                .toLowerCase()
+                .contains(_searchController.text.toLowerCase()))
+            .toList();
+      }
+
+      // Tampilkan pesan kosong hanya jika benar-benar tidak ada bank soal
+      if (state.bankSoal.isEmpty) {
+        return _buildEmptyView();
+      }
+
+      // Selalu tampilkan bank soal yang ada, terlepas dari jumlahnya
+      return Column(
         children: [
-          CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(
-              Theme.of(context).colorScheme.secondary,
-            ),
-          ),
-          SizedBox(height: 20),
-          Text(
-            'Memuat data...',
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.secondary,
-              fontSize: 16,
-            ),
+          // Bagian ini selalu ditampilkan selama ada bank soal
+          Expanded(
+            child: _buildBankList(_filteredBanks),
           ),
         ],
+      );
+    }
+
+    if (state is QuestionBankError) {
+      return Center(
+        child: ErrorContainer(
+          errorMessage:
+              "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
+          onTapRetry: _reloadData,
+        ),
+      );
+    }
+
+    return SizedBox();
+  }
+
+  Widget _buildLoadingView() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.white,
+            Color(0xFFFFF0F0), // Very light maroon tint instead of light blue
+          ],
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Use shimmer loading animation instead of Lottie for a more modern look
+            Shimmer.fromColors(
+              baseColor: _accentColor.withOpacity(0.4),
+              highlightColor: _highlightColor.withOpacity(0.7),
+              period: Duration(milliseconds: 1500),
+              child: Container(
+                width: 160,
+                height: 160,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.auto_stories_rounded,
+                  size: 80,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            SizedBox(height: 25),
+            Text(
+              'Memuat Bank Soal',
+              style: TextStyle(
+                color: _primaryColor,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 10),
+            // Animated loading indicator
+            Container(
+              width: 150,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: LinearProgressIndicator(
+                  backgroundColor: _accentColor.withOpacity(0.2),
+                  valueColor: AlwaysStoppedAnimation<Color>(_accentColor),
+                  minHeight: 6,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -270,46 +951,6 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
     );
   }
 
-  Widget _buildContent(BankSoalFetchSuccess state) {
-    // Inisialisasi _filteredBanks hanya jika belum diinisialisasi atau search berubah
-    if (_filteredBanks.isEmpty && _searchController.text.isEmpty) {
-      _filteredBanks = state.bankSoal;
-    } else {
-      _filteredBanks = state.bankSoal
-          .where((bank) => bank.name.toLowerCase().contains(_searchController.text.toLowerCase()))
-          .toList();
-    }
-
-    _showSearch = state.bankSoal.length > 5;
-
-    if (state.bankSoal.isEmpty) {
-      return _buildEmptyView();
-    }
-
-    return Column(
-      children: [
-        if (_showSearch)
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _searchController,
-              onChanged: (query) => _filterBanks(query, state.bankSoal),
-              decoration: InputDecoration(
-                hintText: 'Cari bank soal...',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-        Expanded(
-          child: _buildBankList(_filteredBanks),
-        ),
-      ],
-    );
-  }
-
   Widget _buildBankList(List<BankSoal> banks) {
     if (banks.isEmpty && _searchController.text.isNotEmpty) {
       return Center(
@@ -319,19 +960,74 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
         ),
       );
     }
-    return ListView.builder(
-      padding: EdgeInsets.all(20),
-      itemCount: banks.length,
-      physics: BouncingScrollPhysics(),
-      itemBuilder: (context, index) {
-        final bank = banks[index];
-        return FadeInUp(
-          duration: Duration(milliseconds: 600 + (index * 100)),
-          child: Container(
-            margin: EdgeInsets.only(bottom: 16), // Harusnya 'bottom', typo dipertahankan
-            child: GestureDetector(
+
+    return Stack(
+      children: [
+        // Holographic background effect
+        Positioned.fill(
+          child: AnimatedBuilder(
+            animation: _backgroundAnimationController,
+            builder: (context, child) {
+              return Transform.rotate(
+                angle: _backgroundAnimation.value * 0.05,
+                child: ShaderMask(
+                  blendMode: BlendMode.srcATop,
+                  shaderCallback: (bounds) => RadialGradient(
+                    center: Alignment(
+                      math.sin(_backgroundAnimation.value * math.pi * 2) * 0.5,
+                      math.cos(_backgroundAnimation.value * math.pi * 2) * 0.5,
+                    ),
+                    colors: [
+                      Colors.transparent,
+                      _highlightColor.withOpacity(0.01),
+                      _accentColor.withOpacity(0.02),
+                      Colors.transparent,
+                    ],
+                    radius: 1.0,
+                  ).createShader(bounds),
+                  child: Container(
+                    color: Colors.white,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+
+        // Interactive card list with 3D effects
+        ListView.builder(
+          padding: EdgeInsets.fromLTRB(20, 25, 20, 100),
+          physics: BouncingScrollPhysics(),
+          itemCount: banks.length,
+          itemBuilder: (context, index) {
+            final bank = banks[index];
+            final Color cardBaseColor =
+                _cardGradients[index % _cardGradients.length];
+            // Generate bank-specific neon colors for glow effects
+            final neonGlowColor = HSLColor.fromColor(cardBaseColor)
+                .withLightness(0.7)
+                .withSaturation(0.9)
+                .toColor();
+
+            final bool isHovered = _hoveredCardIndex == index;
+
+            return GestureDetector(
               onTap: () async {
-                // Tunggu navigasi selesai, lalu reload
+                // Add spectacular tap effect
+                setState(() {
+                  _hoveredCardIndex = index;
+                });
+
+                // Elaborate haptic pattern
+                HapticFeedback.mediumImpact();
+                await Future.delayed(Duration(milliseconds: 50));
+                HapticFeedback.lightImpact();
+
+                // Exaggerated scale animation on tap
+                _cardHoverController.forward().then((_) {
+                  _cardHoverController.reverse();
+                });
+
                 await Get.toNamed(
                   Routes.bankQuestionScreen,
                   arguments: {
@@ -342,91 +1038,348 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                 );
                 _reloadData();
               },
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Theme.of(context).colorScheme.primary.withOpacity(0.8),
-                      Theme.of(context).colorScheme.secondary.withOpacity(0.9),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
-                      spreadRadius: 2,
-                      blurRadius: 8,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Stack(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(20),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(
-                              Icons.quiz,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  bank.name,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  'Jumlah Soal: ${bank.soalCount}',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white.withOpacity(0.8),
-                                  ),
-                                ),
+              onTapDown: (_) {
+                setState(() {
+                  _hoveredCardIndex = index;
+                });
+                HapticFeedback.selectionClick();
+              },
+              onTapCancel: () {
+                setState(() {
+                  _hoveredCardIndex = -1;
+                });
+              },
+              onTapUp: (_) {
+                Future.delayed(Duration(milliseconds: 300), () {
+                  if (mounted) {
+                    setState(() {
+                      _hoveredCardIndex = -1;
+                    });
+                  }
+                });
+              },
+              child: Transform.translate(
+                offset: Offset(0, index == _hoveredCardIndex ? -5 : 0),
+                child: AnimatedContainer(
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  margin: EdgeInsets.only(bottom: 24),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      // 3D Card Background with "holographic" effect
+                      Transform(
+                        alignment: Alignment.center,
+                        transform: Matrix4.identity()
+                          ..setEntry(3, 2, 0.001) // Perspective
+                          ..rotateX(isHovered ? 0.05 : 0.0)
+                          ..rotateY(isHovered ? -0.05 : 0.0),
+                        child: Container(
+                          padding: EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                cardBaseColor
+                                    .withOpacity(isHovered ? 1.0 : 0.85),
+                                HSLColor.fromColor(cardBaseColor)
+                                    .withLightness(
+                                      HSLColor.fromColor(cardBaseColor)
+                                              .lightness *
+                                          0.7,
+                                    )
+                                    .toColor()
+                                    .withOpacity(isHovered ? 0.95 : 0.8),
                               ],
+                              stops: [0.3, 1.0],
                             ),
-                          ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: Icon(Icons.edit, color: Colors.white),
-                                onPressed: () => _showEditBankDialog(banks, index),
+                            borderRadius: BorderRadius.circular(28),
+                            boxShadow: [
+                              // Outer glow shadow
+                              BoxShadow(
+                                color: neonGlowColor
+                                    .withOpacity(isHovered ? 0.35 : 0.15),
+                                blurRadius: isHovered ? 25 : 15,
+                                spreadRadius: isHovered ? 2 : 0,
                               ),
-                              IconButton(
-                                icon: Icon(Icons.delete, color: Colors.white),
-                                onPressed: () => _showDeleteConfirmation(context, bank),
+                              // Inner depth shadow
+                              BoxShadow(
+                                color: cardBaseColor.withOpacity(0.5),
+                                blurRadius: 15,
+                                spreadRadius: -3,
+                                offset: Offset(0, 8),
                               ),
                             ],
                           ),
-                        ],
+                          child: Stack(
+                            children: [
+                              // Content layout
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // Bank text & details with advanced effects
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            // Elaborated bank title with glow
+                                            ShaderMask(
+                                              blendMode: BlendMode.srcIn,
+                                              shaderCallback: (bounds) =>
+                                                  LinearGradient(
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                                colors: [
+                                                  Colors.white.withOpacity(1.0),
+                                                  Colors.white.withOpacity(0.9),
+                                                  Colors.white.withOpacity(1.0),
+                                                ],
+                                              ).createShader(bounds),
+                                              child: Text(
+                                                bank.name,
+                                                style: TextStyle(
+                                                  fontSize: 20,
+                                                  height: 1.2,
+                                                  fontWeight: FontWeight.bold,
+                                                  letterSpacing: 0.5,
+                                                  shadows: [
+                                                    Shadow(
+                                                      color: Colors.black26,
+                                                      blurRadius: 3,
+                                                      offset: Offset(1, 1),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+
+                                            SizedBox(height: 4),
+
+                                            // Divider with animation
+                                            AnimatedContainer(
+                                              duration:
+                                                  Duration(milliseconds: 400),
+                                              margin: EdgeInsets.symmetric(
+                                                  vertical: 8),
+                                              height: 2,
+                                              width: isHovered ? 180 : 80,
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  begin: Alignment.centerLeft,
+                                                  end: Alignment.centerRight,
+                                                  colors: [
+                                                    Colors.white
+                                                        .withOpacity(0.8),
+                                                    Colors.white
+                                                        .withOpacity(0.2),
+                                                  ],
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(2),
+                                              ),
+                                            ),
+
+                                            SizedBox(height: 4),
+
+                                            // Question count chip with advanced styling
+                                            Row(
+                                              children: [
+                                                Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 12,
+                                                      vertical: 7),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white
+                                                        .withOpacity(0.15),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            30),
+                                                    border: Border.all(
+                                                      color: Colors.white
+                                                          .withOpacity(0.2),
+                                                      width: 1,
+                                                    ),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.black12,
+                                                        blurRadius: 8,
+                                                        spreadRadius: 0,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Text(
+                                                        '${bank.soalCount} Soal',
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+
+                                                // Edit and Delete buttons
+                                                Spacer(),
+                                                _buildActionButton(
+                                                  Icons.edit_outlined,
+                                                  () => _showEditBankDialog(
+                                                      banks, index),
+                                                  isHovered,
+                                                  neonGlowColor,
+                                                ),
+                                                SizedBox(width: 8),
+                                                _buildActionButton(
+                                                  Icons.delete_outline,
+                                                  () => _showDeleteConfirmation(
+                                                      context, bank),
+                                                  isHovered,
+                                                  neonGlowColor,
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
+                                      // Arrow button with animations and effects
+                                      AnimatedContainer(
+                                        duration: Duration(milliseconds: 300),
+                                        width: isHovered ? 50 : 45,
+                                        height: isHovered ? 50 : 45,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            colors: isHovered
+                                                ? [
+                                                    Colors.white
+                                                        .withOpacity(0.3),
+                                                    Colors.white
+                                                        .withOpacity(0.1)
+                                                  ]
+                                                : [
+                                                    Colors.white
+                                                        .withOpacity(0.2),
+                                                    Colors.white
+                                                        .withOpacity(0.05)
+                                                  ],
+                                          ),
+                                          boxShadow: isHovered
+                                              ? [
+                                                  BoxShadow(
+                                                    color: neonGlowColor
+                                                        .withOpacity(0.4),
+                                                    blurRadius: 15,
+                                                    spreadRadius: 1,
+                                                  ),
+                                                ]
+                                              : [],
+                                          border: Border.all(
+                                            color:
+                                                Colors.white.withOpacity(0.3),
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: AnimatedBuilder(
+                                          animation: _pulseAnimation,
+                                          builder: (context, child) {
+                                            return Transform.rotate(
+                                              angle: isHovered ? 0.1 : 0,
+                                              child: Transform.scale(
+                                                scale: isHovered
+                                                    ? 1.0 +
+                                                        0.15 *
+                                                            _pulseAnimation
+                                                                .value
+                                                    : 1.0,
+                                                child: Icon(
+                                                  Icons.arrow_forward_rounded,
+                                                  color: Colors.white,
+                                                  size: isHovered ? 25 : 22,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+
+                      // Decorative elements
+                      Positioned(
+                        right: 20,
+                        top: -10,
+                        child: Container(
+                          width: 30,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: neonGlowColor.withOpacity(0.1),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  // Helper method untuk tombol aksi (edit dan delete)
+  Widget _buildActionButton(
+      IconData icon, VoidCallback onPressed, bool isHovered, Color glowColor) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 300),
+        padding: EdgeInsets.all(10), // Ukuran padding yang lebih besar
+        margin: EdgeInsets.only(left: 4), // Margin untuk jarak antar tombol
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white.withOpacity(0.15),
+          boxShadow: isHovered
+              ? [
+                  BoxShadow(
+                    color: glowColor.withOpacity(0.3), // Efek glow lebih kuat
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  )
+                ]
+              : [],
+          border: Border.all(
+            color: Colors.white.withOpacity(0.25), // Border lebih terlihat
+            width: 1.2, // Sedikit lebih tebal
           ),
-        );
-      },
+        ),
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: 18, // Ukuran ikon sedikit lebih besar
+        ),
+      ),
     );
   }
 
@@ -458,7 +1411,10 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                     Container(
                       padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .secondary
+                            .withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
@@ -562,14 +1518,17 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                                   _nameController.clear();
 
                                   if (!mounted) return;
-                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(const SnackBar(
                                     content: Text('Bank soal berhasil dibuat'),
                                     backgroundColor: Colors.green,
                                   ));
                                 } catch (e) {
                                   if (!mounted) return;
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                    content: Text('Gagal membuat bank soal: $e'),
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
+                                    content:
+                                        Text('Gagal membuat bank soal: $e'),
                                     backgroundColor: Colors.red,
                                   ));
                                 } finally {
@@ -587,7 +1546,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
                           : Text(
@@ -642,7 +1602,10 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                     Container(
                       padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .secondary
+                            .withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
@@ -700,7 +1663,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                 ),
                 actions: [
                   TextButton(
-                    onPressed: isSubmitting ? null : () => Navigator.pop(context),
+                    onPressed:
+                        isSubmitting ? null : () => Navigator.pop(context),
                     child: Text(
                       'Batal',
                       style: TextStyle(color: Colors.grey[600]),
@@ -720,13 +1684,16 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                       onPressed: isSubmitting
                           ? null
                           : () async {
-                              if (_editFormKey.currentState?.validate() ?? false) {
+                              if (_editFormKey.currentState?.validate() ??
+                                  false) {
                                 try {
                                   setState(() {
                                     isSubmitting = true;
                                   });
 
-                                  await context.read<QuestionBankCubit>().updateQuestionBank(
+                                  await context
+                                      .read<QuestionBankCubit>()
+                                      .updateQuestionBank(
                                         subjectId: widget.subject.subject.id,
                                         banksoalId: bank.id,
                                         name: _editController.text.trim(),
@@ -739,14 +1706,16 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
 
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text('Bank soal berhasil diperbarui'),
+                                      content:
+                                          Text('Bank soal berhasil diperbarui'),
                                       backgroundColor: Colors.green,
                                     ),
                                   );
                                 } catch (e) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text('Gagal memperbarui: ${e.toString()}'),
+                                      content: Text(
+                                          'Gagal memperbarui: ${e.toString()}'),
                                       backgroundColor: Colors.red,
                                     ),
                                   );
@@ -765,7 +1734,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
                           : Text(
@@ -814,7 +1784,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
               SizedBox(width: 16),
               Text(
                 'Hapus Bank Soal',
-                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -852,7 +1823,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                   } catch (e) {
                     scaffoldMessenger.showSnackBar(
                       SnackBar(
-                        content: Text('Gagal menghapus bank soal: ${e.toString()}'),
+                        content:
+                            Text('Gagal menghapus bank soal: ${e.toString()}'),
                         backgroundColor: Colors.red,
                       ),
                     );
@@ -860,7 +1832,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen> {
                 },
                 child: Text(
                   'Hapus',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),

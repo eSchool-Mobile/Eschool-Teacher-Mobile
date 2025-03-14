@@ -1,7 +1,9 @@
 import 'dart:convert';
-
+import 'dart:math' as math;
+import 'dart:ui';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
@@ -13,6 +15,114 @@ import 'package:eschool_saas_staff/data/models/QuestionVersion.dart';
 import '../../../data/models/subjectQuestion.dart';
 import 'package:html/parser.dart' show parse;
 import '../../../app/routes.dart';
+
+// Animated particle system
+class ParticleModel {
+  Offset position;
+  Color color;
+  double radius;
+  double speed;
+  double theta;
+  double opacity;
+  double rotationSpeed;
+
+  ParticleModel({
+    required this.position,
+    required this.color,
+    required this.radius,
+    required this.speed,
+    required this.theta,
+    required this.opacity,
+    required this.rotationSpeed,
+  });
+
+  void move() {
+    position += Offset(speed * math.cos(theta), speed * math.sin(theta));
+    theta += rotationSpeed;
+    opacity += (math.Random().nextDouble() - 0.5) * 0.03;
+    opacity = opacity.clamp(0.1, 0.9);
+  }
+}
+
+// Light rays painter
+class LightRaysPainter extends CustomPainter {
+  final Color color;
+
+  LightRaysPainter(this.color);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    // Draw multiple rays from center
+    final center = Offset(size.width / 2, size.height / 2);
+    final rays = 12; // Number of rays
+    final maxLength = size.width > size.height ? size.width : size.height;
+
+    for (int i = 0; i < rays; i++) {
+      final angle = (i * 2 * math.pi / rays);
+      final x = math.cos(angle) * maxLength;
+      final y = math.sin(angle) * maxLength;
+
+      // Draw triangular ray
+      final path = Path()
+        ..moveTo(center.dx, center.dy)
+        ..lineTo(center.dx + x * 0.2, center.dy + y * 0.2)
+        ..lineTo(center.dx + x, center.dy + y)
+        ..close();
+
+      canvas.drawPath(path, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
+}
+
+class ParticlesPainter extends CustomPainter {
+  final List<ParticleModel> particles;
+  final double time;
+
+  ParticlesPainter(this.particles, this.time);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (var i = 0; i < particles.length; i++) {
+      final particle = particles[i];
+      final paint = Paint()
+        ..color = particle.color.withOpacity(particle.opacity)
+        ..style = PaintingStyle.fill;
+
+      // Draw glow effect around particles
+      if (i % 3 == 0) {
+        final glowPaint = Paint()
+          ..color = particle.color.withOpacity(particle.opacity * 0.3)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, 8.0);
+        canvas.drawCircle(particle.position, particle.radius * 2, glowPaint);
+      }
+
+      canvas.drawCircle(particle.position, particle.radius, paint);
+
+      // Add connecting lines between nearby particles
+      if (i < particles.length - 1) {
+        final nextParticle = particles[i + 1];
+        final distance = (particle.position - nextParticle.position).distance;
+        if (distance < 80) {
+          final linePaint = Paint()
+            ..color = particle.color
+                .withOpacity(particle.opacity * 0.2 * (1 - distance / 80))
+            ..strokeWidth = 1.0;
+          canvas.drawLine(particle.position, nextParticle.position, linePaint);
+        }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
+}
 
 class BankQuestionScreen extends StatefulWidget {
   final BankSoal bankSoal;
@@ -54,14 +164,195 @@ class PatternPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
 
-class _BankQuestionScreenState extends State<BankQuestionScreen> {
+class _BankQuestionScreenState extends State<BankQuestionScreen>
+    with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   List<q.Question> _filteredQuestions = [];
   bool _showSearch = false;
 
+  // Theme colors - Softer Maroon palette
+  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
+  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
+  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
+  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
+
+  // Animation controllers
+  late AnimationController _backgroundAnimationController;
+  late AnimationController _waveAnimationController;
+  late AnimationController _floatingIconsController;
+  late AnimationController _cardHoverController;
+  late AnimationController _breathingController;
+  late AnimationController _rotationController;
+  late AnimationController _pulseController;
+  late AnimationController _loadingController;
+  late AnimationController _tabTransitionController;
+  late AnimationController _searchExpandController;
+
+  // Animations
+  late Animation<double> _backgroundAnimation;
+  late Animation<double> _waveAnimation;
+  late Animation<double> _breathingAnimation;
+  late Animation<double> _rotationAnimation;
+  late Animation<double> _pulseAnimation;
+  late Animation<double> _searchWidthAnimation;
+
+  // Particles
+  final List<ParticleModel> _particles = [];
+
+  // Track hover and drag states
+  int _hoveredCardIndex = -1;
+  double _dragPosition = 0;
+  bool _isFirstLoad = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadQuestions();
+
+    // Setup animation controllers
+    _backgroundAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 30000),
+    )..repeat();
+
+    _waveAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 7000),
+    )..repeat();
+
+    _floatingIconsController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
+
+    _cardHoverController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 200),
+    );
+
+    _breathingController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 3000),
+    )..repeat(reverse: true);
+
+    _rotationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 10000),
+    )..repeat();
+
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+
+    _loadingController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1500),
+    )..repeat();
+
+    _tabTransitionController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 400),
+    );
+
+    _searchExpandController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300),
+    );
+
+    // Setup animations
+    _backgroundAnimation = CurvedAnimation(
+      parent: _backgroundAnimationController,
+      curve: Curves.linear,
+    );
+
+    _waveAnimation = CurvedAnimation(
+      parent: _waveAnimationController,
+      curve: Curves.easeInOut,
+    );
+
+    _breathingAnimation = CurvedAnimation(
+      parent: _breathingController,
+      curve: Curves.easeInOut,
+    );
+
+    _rotationAnimation = CurvedAnimation(
+      parent: _rotationController,
+      curve: Curves.linear,
+    );
+
+    _pulseAnimation = CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    );
+
+    _searchWidthAnimation = Tween<double>(
+      begin: 0.7,
+      end: 0.9,
+    ).animate(
+      CurvedAnimation(
+        parent: _searchExpandController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+
+    // Initialize particles with enhanced properties
+    _initializeParticles();
+
+    // Set system UI style for immersive experience
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: _primaryColor,
+      systemNavigationBarIconBrightness: Brightness.light,
+    ));
+
+    // Delay to ensure animations look good on first load
+    Future.delayed(Duration(milliseconds: 100), () {
+      if (mounted) {
+        setState(() {
+          _isFirstLoad = false;
+        });
+      }
+    });
+  }
+
+  void _initializeParticles() {
+    final random = math.Random();
+    for (int i = 0; i < 40; i++) {
+      // More particles for denser effect
+      _particles.add(
+        ParticleModel(
+          position: Offset(
+            random.nextDouble() * Get.width,
+            random.nextDouble() * Get.height / 1.5,
+          ),
+          color: [_highlightColor, _accentColor, _glowColor][random.nextInt(3)],
+          radius: random.nextDouble() * 3.5 + 0.5,
+          speed: random.nextDouble() * 0.5 + 0.1,
+          theta: random.nextDouble() * math.pi * 2,
+          opacity: random.nextDouble() * 0.5 + 0.3,
+          rotationSpeed:
+              (random.nextDouble() * 0.04) * (random.nextBool() ? 1 : -1),
+        ),
+      );
+    }
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
+    _backgroundAnimationController.dispose();
+    _waveAnimationController.dispose();
+    _floatingIconsController.dispose();
+    _cardHoverController.dispose();
+    _breathingController.dispose();
+    _rotationController.dispose();
+    _pulseController.dispose();
+    _loadingController.dispose();
+    _tabTransitionController.dispose();
+    _searchExpandController.dispose();
     super.dispose();
   }
 
@@ -95,9 +386,9 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
         return Icons.edit_note;
       case 'true_false':
         return Icons.check_circle;
-      case 'short_answer': // Add this
+      case 'short_answer':
         return Icons.short_text;
-      case 'numeric': // Add this
+      case 'numeric':
         return Icons.numbers;
       default:
         return Icons.help;
@@ -121,12 +412,6 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _loadQuestions();
-  }
-
   void _loadQuestions() {
     context.read<QuestionBankCubit>().fetchBankQuestions(
           widget.subject.subject.id,
@@ -144,201 +429,257 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
     );
 
     if (result == true) {
-      _loadQuestions(); // Refresh questions list
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(content: Text('Soal berhasil ditambahkan')),
-      // );
+      _loadQuestions();
     }
   }
 
-  void _navigateToEditQuestion(
-      q.Question question, q.QuestionVersion version) async {
-    String jsonString = JsonEncoder.withIndent("  ").convert(question);
+  Widget _buildAnimatedBackground() {
+    return Stack(
+      children: [
+        // Base gradient with softer maroon colors
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+              colors: [
+                _primaryColor,
+                Color(0xFF5A2223), // Softer deeper maroon (was 0xFF230000)
+              ],
+            ),
+          ),
+        ),
 
-    final result = await Get.toNamed(
-      Routes.editQuestionScreen,
-      arguments: {
-        'questionData': {
-          'banksoal_soal_id': question.id,
-          'subject_id': widget.subject.subject.id,
-          'idBankSoal': widget.bankSoal.id,
-          'name': version.name,
-          'type': version.type, // Add this
-          'question': version.question,
-          'default_point': version.defaultPoint,
-          'note': version.note,
-          'image': version.image,
-          'options': version.options
-              .map((opt) => {
-                    'text': opt.text,
-                    'percentage': opt.percentage,
-                    'feedback': opt.feedback,
-                  })
-              .toList(),
-        },
-      },
-    );
+        // Advanced particles system
+        AnimatedBuilder(
+          animation: _backgroundAnimationController,
+          builder: (context, child) {
+            for (var particle in _particles) {
+              particle.move();
+              // Keep particles within bounds
+              if (particle.position.dx < 0 ||
+                  particle.position.dx > Get.width ||
+                  particle.position.dy < 0 ||
+                  particle.position.dy > Get.height / 1.5) {
+                particle.theta = math.Random().nextDouble() * math.pi * 2;
+              }
+            }
 
-    if (result != null && result is Map<String, dynamic>) {
-      if (result['success'] == true) {
-        _loadQuestions();
-        setState(() {
-          final updatedData = result['updatedData'];
-          final questionIndex = _filteredQuestions.indexWhere(
-            (q) => q.id == updatedData['id'],
-          );
-
-          if (questionIndex != -1) {
-            // Update the defaultPoint in the latest version
-            final updatedQuestion = _filteredQuestions[questionIndex];
-            final updatedVersions = List<q.QuestionVersion>.from(
-              updatedQuestion.versions,
+            return CustomPaint(
+              painter: ParticlesPainter(_particles, _backgroundAnimation.value),
+              size: Size(Get.width, Get.height),
             );
+          },
+        ),
 
-            // Update the last version with new default point
-            final lastVersion = updatedVersions.last;
-            updatedVersions[updatedVersions.length - 1] = q.QuestionVersion(
-              id: lastVersion.id,
-              version: lastVersion.version,
-              question: lastVersion.question,
-              name: lastVersion.name,
-              note: lastVersion.note,
-              defaultPoint: updatedData['defaultPoint'],
-              type: lastVersion.type,
-              options: lastVersion.options,
-            );
-
-            // Create updated question with new versions
-            _filteredQuestions[questionIndex] = q.Question(
-              id: updatedQuestion.id,
-              bankSoalId: updatedQuestion.bankSoalId,
-              subjectId: updatedQuestion.subjectId,
-              createdAt: updatedQuestion.createdAt,
-              updatedAt: updatedQuestion.updatedAt,
-              defaultPoint: updatedData['defaultPoint'],
-              bankSoal: updatedQuestion.bankSoal,
-              versions: updatedVersions,
-            );
-          }
-        });
-      }
-    }
-  }
-
-  // Ubah method _buildHeader()
-  Widget _buildHeader() {
-    return Container(
-      padding: EdgeInsets.all(20),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              // Back button with enhanced styling
-              Container(
+        // Glowing orbs and decorative elements
+        Positioned(
+          top: -60,
+          right: -40,
+          child: AnimatedBuilder(
+            animation: _breathingAnimation,
+            builder: (context, child) {
+              final scale = 1.0 + 0.1 * _breathingAnimation.value;
+              return Transform.scale(
+                scale: scale,
+                child: Container(
+                  width: 180,
+                  height: 180,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        _glowColor.withOpacity(0.4),
+                        _glowColor.withOpacity(0.0),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        Positioned(
+          bottom: Get.height * 0.35,
+          left: -50,
+          child: AnimatedBuilder(
+            animation: _pulseAnimation,
+            builder: (context, child) {
+              final opacity = 0.15 + 0.1 * _pulseAnimation.value;
+              return Container(
+                width: 150,
+                height: 150,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      _energyColor.withOpacity(opacity),
+                      _energyColor.withOpacity(0.0),
+                    ],
+                  ),
                 ),
-                child: IconButton(
-                  icon:
-                      Icon(Icons.arrow_back_ios, color: Colors.white, size: 18),
-                  onPressed: () => Get.back(),
+              );
+            },
+          ),
+        ),
+
+        // Dynamic light rays effect
+        Positioned.fill(
+          child: AnimatedBuilder(
+            animation: _rotationAnimation,
+            builder: (context, child) {
+              return Transform.rotate(
+                angle: _rotationAnimation.value * math.pi * 2,
+                child: CustomPaint(
+                  painter: LightRaysPainter(_highlightColor.withOpacity(0.03)),
+                  size: Size(Get.width, Get.height),
                 ),
-              ),
-              SizedBox(width: 16),
-              // Title section with improved typography
-              Expanded(
-                child: Column(
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHeader() {
+    return SlideInDown(
+      duration: Duration(milliseconds: 800),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(15, 15, 15, 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+                children: [
+                // Back button with advanced ripple and glow effects
+                _buildGlowingIconButton(
+                  Icons.arrow_back_rounded,
+                  () {
+                  HapticFeedback.mediumImpact();
+                  Get.back();
+                  },
+                ),
+                SizedBox(width: 15),
+
+                // Title with modern styling
+                Expanded(
+                  child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.bankSoal.name,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.2,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black38,
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
-                          ),
-                        ],
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    widget.bankSoal.name,
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.8,
+                      color: Colors.white,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     ),
                     SizedBox(height: 6),
                     Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(20),
+                    padding:
+                      EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      'Bank Soal',
+                      style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
                       ),
-                      child: Text(
-                        'Bank Soal',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                    ),
                     ),
                   ],
-                ),
-              ),
-              // Add Question button with premium styling
-              Container(
-                height: 46,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.white, Colors.white.withOpacity(0.9)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
                 ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(14),
-                    onTap: _navigateToAddQuestion,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.add_circle_rounded,
-                            color: Theme.of(context).colorScheme.secondary,
-                            size: 20,
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            'Soal',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
+
+                // Add Question circular button with animation
+                AnimatedBuilder(
+                  animation: _pulseAnimation,
+                  builder: (context, child) {
+                  final scale = 1.0 + 0.05 * _pulseAnimation.value;
+                  return GestureDetector(
+                    onTap: () {
+                    HapticFeedback.mediumImpact();
+                    _navigateToAddQuestion();
+                    },
+                    child: Container(
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.15),
+                      boxShadow: [
+                      BoxShadow(
+                        color: _highlightColor
+                          .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
+                        blurRadius: 12 * (1 + _pulseAnimation.value),
+                        spreadRadius: 2 * _pulseAnimation.value,
+                      )
+                      ],
+                      border: Border.all(
+                      color: Colors.white
+                        .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
+                      width: 1.5,
                       ),
                     ),
-                  ),
+                    child: Transform.scale(
+                      scale: scale,
+                      child: Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 24,
+                      ),
+                    ),
+                    ),
+                  );
+                  },
                 ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedBuilder(
+        animation: _pulseAnimation,
+        builder: (context, child) {
+          return Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.12),
+              boxShadow: [
+                BoxShadow(
+                  color: _highlightColor
+                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
+                  blurRadius: 12 * (1 + _pulseAnimation.value),
+                  spreadRadius: 2 * _pulseAnimation.value,
+                )
+              ],
+              border: Border.all(
+                color: Colors.white
+                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
+                width: 1.5,
               ),
-            ],
-          ),
-        ],
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 24,
+            ),
+          );
+        },
       ),
     );
   }
@@ -346,81 +687,112 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
   // Ubah method build() untuk menghapus FloatingActionButton
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF8B0000).withOpacity(0.9),
-              Color(0xFF6B0000),
-              Color(0xFF4B0000),
-              Theme.of(context).colorScheme.secondary,
-            ],
-            stops: [0.2, 0.4, 0.6, 1.0],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              FadeInDown(
-                duration: Duration(milliseconds: 600),
-                child: _buildHeader(),
-              ),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    child: BlocBuilder<QuestionBankCubit, QuestionBankState>(
-                      builder: (context, state) {
-                        if (state is QuestionBankLoading) {
-                          return _buildShimmerLoading();
-                        }
-                        if (state is BankQuestionsFetchSuccess) {
-                          return state.questions.isEmpty
-                              ? _buildEmptyState()
-                              : _buildContent(state.questions);
-                        }
-                        if (state is QuestionBankError) {
-                          return Center(
-                            child: ErrorContainer(
-                              errorMessage:
-                                  "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
-                              onTapRetry: () {
-                                context
-                                    .read<QuestionBankCubit>()
-                                    .fetchBankQuestions(
-                                      widget.subject.subject.id,
-                                      widget.bankSoal.id,
-                                    );
-                              },
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: _primaryColor,
+        extendBodyBehindAppBar: true,
+        body: Stack(
+          children: [
+            // Animated background with advanced effects
+            _buildAnimatedBackground(),
+
+            // Content with parallax scroll effect
+            SafeArea(
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (notification is ScrollUpdateNotification) {
+                    setState(() {
+                      _dragPosition = notification.metrics.pixels / 10;
+                    });
+                  }
+                  return false;
+                },
+                child: Column(
+                  children: [
+                    // Custom app bar with advanced animated elements
+                    _buildHeader(),
+
+                    // Main content with curved container and 3D effect
+                    Expanded(
+                      child: Container(
+                        margin: EdgeInsets.only(top: 15),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.white.withOpacity(0.95),
+                              Color(0xFFFFF0F0),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(40),
+                            topRight: Radius.circular(40),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: _glowColor.withOpacity(0.2),
+                              blurRadius: 20,
+                              spreadRadius: 5,
+                              offset: Offset(0, -5),
                             ),
-                          );
-                        }
-                        return SizedBox();
-                      },
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 30,
+                              offset: Offset(0, -10),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(40),
+                            topRight: Radius.circular(40),
+                          ),
+                          child:
+                              BlocBuilder<QuestionBankCubit, QuestionBankState>(
+                            builder: (context, state) {
+                              if (state is QuestionBankLoading) {
+                                return _buildShimmerLoading();
+                              }
+                              if (state is BankQuestionsFetchSuccess) {
+                                return state.questions.isEmpty
+                                    ? _buildEmptyState()
+                                    : _buildContent(state.questions);
+                              }
+                              if (state is QuestionBankError) {
+                                return Center(
+                                  child: ErrorContainer(
+                                    errorMessage:
+                                        "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
+                                    onTapRetry: () {
+                                      context
+                                          .read<QuestionBankCubit>()
+                                          .fetchBankQuestions(
+                                            widget.subject.subject.id,
+                                            widget.bankSoal.id,
+                                          );
+                                    },
+                                  ),
+                                );
+                              }
+                              return SizedBox();
+                            },
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-      // Hapus floatingActionButton di sini
     );
   }
+
+  // The rest of your methods remain unchanged...
 
   void _filterQuestions(String query, List<q.Question> questions) {
     setState(() {
@@ -506,6 +878,91 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
     );
   }
 
+  Widget _buildShimmerLoading() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.white,
+            Color(0xFFFFF0F0), // Very light maroon tint instead of light blue
+          ],
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Use shimmer loading animation instead of Lottie for a more modern look
+            Shimmer.fromColors(
+              baseColor: _accentColor.withOpacity(0.4),
+              highlightColor: _highlightColor.withOpacity(0.7),
+              period: Duration(milliseconds: 1500),
+              child: Container(
+                width: 160,
+                height: 160,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.auto_stories_rounded,
+                  size: 80,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            SizedBox(height: 25),
+            Text(
+              'Memuat Soal',
+              style: TextStyle(
+                color: _primaryColor,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: EdgeInsets.all(25),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.question_mark_rounded,
+                size: 70, color: Colors.grey.shade400),
+          ),
+          SizedBox(height: 24),
+          Text(
+            'Belum ada soal',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[700],
+            ),
+          ),
+          SizedBox(height: 12),
+          Text(
+            'Tambahkan soal baru untuk memulai',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[500],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildQuestionCard(q.Question question, dynamic latestVersion) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 18),
@@ -583,8 +1040,6 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
                               ),
                             ),
                           ),
-
-
 
                           // Glass-effect Type Badge with ultra-modern styling
                           Positioned(
@@ -1164,6 +1619,80 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
     );
   }
 
+  void _navigateToEditQuestion(
+      q.Question question, q.QuestionVersion version) async {
+    String jsonString = JsonEncoder.withIndent("  ").convert(question);
+
+    final result = await Get.toNamed(
+      Routes.editQuestionScreen,
+      arguments: {
+        'questionData': {
+          'banksoal_soal_id': question.id,
+          'subject_id': widget.subject.subject.id,
+          'idBankSoal': widget.bankSoal.id,
+          'name': version.name,
+          'type': version.type, // Add this
+          'question': version.question,
+          'default_point': version.defaultPoint,
+          'note': version.note,
+          'image': version.image,
+          'options': version.options
+              .map((opt) => {
+                    'text': opt.text,
+                    'percentage': opt.percentage,
+                    'feedback': opt.feedback,
+                  })
+              .toList(),
+        },
+      },
+    );
+
+    if (result != null && result is Map<String, dynamic>) {
+      if (result['success'] == true) {
+        _loadQuestions();
+        setState(() {
+          final updatedData = result['updatedData'];
+          final questionIndex = _filteredQuestions.indexWhere(
+            (q) => q.id == updatedData['id'],
+          );
+
+          if (questionIndex != -1) {
+            // Update the defaultPoint in the latest version
+            final updatedQuestion = _filteredQuestions[questionIndex];
+            final updatedVersions = List<q.QuestionVersion>.from(
+              updatedQuestion.versions,
+            );
+
+            // Update the last version with new default point
+            final lastVersion = updatedVersions.last;
+            updatedVersions[updatedVersions.length - 1] = q.QuestionVersion(
+              id: lastVersion.id,
+              version: lastVersion.version,
+              question: lastVersion.question,
+              name: lastVersion.name,
+              note: lastVersion.note,
+              defaultPoint: updatedData['defaultPoint'],
+              type: lastVersion.type,
+              options: lastVersion.options,
+            );
+
+            // Create updated question with new versions
+            _filteredQuestions[questionIndex] = q.Question(
+              id: updatedQuestion.id,
+              bankSoalId: updatedQuestion.bankSoalId,
+              subjectId: updatedQuestion.subjectId,
+              createdAt: updatedQuestion.createdAt,
+              updatedAt: updatedQuestion.updatedAt,
+              defaultPoint: updatedData['defaultPoint'],
+              bankSoal: updatedQuestion.bankSoal,
+              versions: updatedVersions,
+            );
+          }
+        });
+      }
+    }
+  }
+
   Widget _buildQuestionTypeHeader(q.QuestionVersion latestVersion) {
     return Container(
       padding: EdgeInsets.all(12),
@@ -1286,110 +1815,6 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
     );
   }
 
-  Widget _buildShimmerLoading() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: ListView.builder(
-        padding: EdgeInsets.all(16),
-        itemCount: 3,
-        itemBuilder: (_, __) => Container(
-          margin: EdgeInsets.only(bottom: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 140,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(28),
-                    topRight: Radius.circular(28),
-                  ),
-                ),
-              ),
-              Container(
-                height: 120,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(28),
-                    bottomRight: Radius.circular(28),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: EdgeInsets.all(25),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Icons.question_mark_rounded,
-                size: 70, color: Colors.grey.shade400),
-          ),
-          SizedBox(height: 24),
-          Text(
-            'Belum ada soal',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
-            ),
-          ),
-          SizedBox(height: 12),
-          Text(
-            'Tambahkan soal baru untuk memulai',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[500],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButtons(q.Question question, q.QuestionVersion version) {
-    return Padding(
-      padding: EdgeInsets.all(16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          _buildActionButton(
-            icon: Icons.edit_note,
-            tooltip: 'Edit',
-            onPressed: () => _navigateToEditQuestion(question, version),
-          ),
-          SizedBox(width: 8),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required String tooltip,
-    required VoidCallback onPressed,
-  }) {
-    return IconButton(
-      icon: Icon(icon),
-      tooltip: tooltip,
-      onPressed: onPressed,
-    );
-  }
-
   Widget _buildOptionsSection(List<q.QuestionOption> options) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1404,32 +1829,6 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
         SizedBox(height: 8),
         ...options.map((option) => _buildOptionItem(option)).toList(),
       ],
-    );
-  }
-
-  void _showQuestionDetails(
-      BuildContext context, q.Question question, q.QuestionVersion version) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.7,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        expand: false,
-        builder: (_, scrollController) => SingleChildScrollView(
-          controller: scrollController,
-          child: Column(
-            children: [
-              _buildQuestionDetails(version),
-              _buildActionButtons(question, version),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -1649,20 +2048,20 @@ class _BankQuestionScreenState extends State<BankQuestionScreen> {
                     // Question type badge
                     Container(
                       padding:
-                        EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.5),
-                        width: 1,
-                      ),
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.5),
+                          width: 1,
+                        ),
                       ),
                       child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                        _getTypeIcon(version.type),
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            _getTypeIcon(version.type),
                             color: Colors.white,
                             size: 18,
                           ),
