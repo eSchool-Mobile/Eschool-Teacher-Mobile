@@ -37,6 +37,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
   final TextEditingController _defaultPointController =
       TextEditingController(text: '100');
   String selectedType = 'multiple_choice';
+  String selectedOrderType = 'numeric';
 
   // Update state variables
   List<bool> _correctAnswers = [];
@@ -295,6 +296,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
               subjectId: widget.subjectId,
               name: _nameController.text.trim(),
               type: selectedType,
+              orderType: selectedOrderType,
               defaultPoint: int.parse(_defaultPointController.text),
               question: _questionController.text.trim(),
               note: _noteController.text.trim(),
@@ -433,6 +435,11 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                           _buildQuestionTypeSelector(),
 
                           SizedBox(height: 20),
+
+                          if (selectedType == 'multiple_choice')
+                            _buildMultipleChoiceOrder(),
+                          if (selectedType == 'multiple_choice')
+                            SizedBox(height: 20),
 
                           // Answer Options Card
                           _buildAnswerOptionsCard(),
@@ -1482,13 +1489,74 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
     );
   }
 
-  DropdownMenuItem<String> _buildDropdownItem(
-      String value, String label, IconData icon) {
+    Widget _buildMultipleChoiceOrder() {
+    return FadeInUp(
+      duration: Duration(milliseconds: 800),
+      child: Container(
+        padding: EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 5,
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Tipe Urutan',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+            SizedBox(height: 15),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButtonFormField<String>(
+                  value: selectedOrderType,
+                  items: [
+                    _buildDropdownItem(
+                        'roman_uppercase', 'Romawi Kapital', null),
+                    _buildDropdownItem('roman_lowercase', 'Romawi', null),
+                    _buildDropdownItem('numeric', 'Angka', null),
+                    _buildDropdownItem(
+                        'alphabet_uppercase', 'Alfabet Kapital', null),
+                    _buildDropdownItem('alphabet_lowercase', 'Alfabet', null),
+                  ],
+                  onChanged: (value) => _onOrderTypeChanged(value!),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  DropdownMenuItem<String> _buildDropdownItem(String value, String label, IconData? icon) {
     return DropdownMenuItem(
       value: value,
       child: Row(
         children: [
-          Icon(icon, color: Theme.of(context).colorScheme.secondary),
+          if (icon != null)
+            Icon(icon, color: Theme.of(context).colorScheme.secondary),
           SizedBox(width: 10),
           Text(label),
         ],
@@ -1524,6 +1592,12 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
         }
       });
       _answerPercentages = newPercentages;
+    });
+  }
+
+  void _onOrderTypeChanged(String type) {
+    setState(() {
+      selectedOrderType = type;
     });
   }
 

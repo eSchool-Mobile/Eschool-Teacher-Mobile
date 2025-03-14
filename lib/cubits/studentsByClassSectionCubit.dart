@@ -62,6 +62,7 @@ class StudentsByClassSectionCubit extends Cubit<StudentsByClassSectionState> {
     int? examId,
     StudentListStatus? status,
   }) async {
+    print("SINI DEH");
     emit(StudentsByClassSectionFetchInProgress());
     try {
       final studentDetailsList = await _studentRepository.getStudentsByClassSectionAndSubject(

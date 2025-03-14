@@ -140,6 +140,7 @@ class QuestionBankRepository {
     required int subjectId,
     required String name,
     required String type,
+    required String orderType,
     required int defaultPoint,
     required String question,
     String note = '',
@@ -159,6 +160,7 @@ class QuestionBankRepository {
         'default_point': defaultPoint.toString(),
         'question': question,
         'note': note,
+        if (type == 'multiple_choice') 'choice_style': orderType,
       });
 
       // Add options as individual form fields

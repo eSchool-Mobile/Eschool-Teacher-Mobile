@@ -31,6 +31,7 @@ class StudentRepository {
           if (classSubjectId != null) "class_subject_id": classSubjectId,
           if (examId != null) "exam_id": examId
         });
+        print("OK HERE");
       final result = await Api.get(
         url: Api.getStudents,
         useAuthToken: true,
@@ -150,6 +151,10 @@ class StudentRepository {
         useAuthToken: true,
         queryParameters: queryParameter,
       );
+
+      print(Api.examList);
+      print("::::");
+      print(result);
 
       return (result['data'] as List)
           .map((e) => Exam.fromExamJson(Map.from(e)))
