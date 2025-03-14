@@ -156,7 +156,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen> {
                         onPressed: () => Get.back(),
                       ),
                       Text(
-                        'Bank Soal',
+                        'Mata Pelajaran',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20,
@@ -339,12 +339,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        _getSubjectIcon(subject.subjectWithName),
-                        color: Colors.white,
-                        size: 28,
-                      ),
+                      )
                     ),
                     SizedBox(width: 16),
                     Expanded(
@@ -385,16 +380,4 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen> {
     );
   }
 
-  IconData _getSubjectIcon(String subjectName) {
-    final name = subjectName.toLowerCase();
-    if (name.contains('matematika')) return Icons.functions;
-    if (name.contains('bahasa')) return Icons.language;
-    if (name.contains('ipa') || name.contains('sains')) return Icons.science;
-    if (name.contains('ips') || name.contains('sosial')) return Icons.public;
-    if (name.contains('komputer') || name.contains('informatika'))
-      return Icons.computer;
-    if (name.contains('olahraga')) return Icons.sports;
-    if (name.contains('seni')) return Icons.palette;
-    return Icons.subject;
-  }
 }
