@@ -16,34 +16,6 @@ import '../../../data/models/subjectQuestion.dart';
 import 'package:html/parser.dart' show parse;
 import '../../../app/routes.dart';
 
-// Animated particle system
-// class ParticleModel {
-//   Offset position;
-//   Color color;
-//   double radius;
-//   double speed;
-//   double theta;
-//   double opacity;
-//   double rotationSpeed;
-
-//   ParticleModel({
-//     required this.position,
-//     required this.color,
-//     required this.radius,
-//     required this.speed,
-//     required this.theta,
-//     required this.opacity,
-//     required this.rotationSpeed,
-//   });
-
-//   void move() {
-//     position += Offset(speed * math.cos(theta), speed * math.sin(theta));
-//     theta += rotationSpeed;
-//     opacity += (math.Random().nextDouble() - 0.5) * 0.03;
-//     opacity = opacity.clamp(0.1, 0.9);
-//   }
-// }
-
 // Light rays painter
 class LightRaysPainter extends CustomPainter {
   final Color color;
@@ -80,49 +52,6 @@ class LightRaysPainter extends CustomPainter {
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
-
-// class ParticlesPainter extends CustomPainter {
-//   final List<ParticleModel> particles;
-//   final double time;
-
-//   ParticlesPainter(this.particles, this.time);
-
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     for (var i = 0; i < particles.length; i++) {
-//       final particle = particles[i];
-//       final paint = Paint()
-//         ..color = particle.color.withOpacity(particle.opacity)
-//         ..style = PaintingStyle.fill;
-
-//       // Draw glow effect around particles
-//       if (i % 3 == 0) {
-//         final glowPaint = Paint()
-//           ..color = particle.color.withOpacity(particle.opacity * 0.3)
-//           ..maskFilter = MaskFilter.blur(BlurStyle.normal, 8.0);
-//         canvas.drawCircle(particle.position, particle.radius * 2, glowPaint);
-//       }
-
-//       canvas.drawCircle(particle.position, particle.radius, paint);
-
-//       // Add connecting lines between nearby particles
-//       if (i < particles.length - 1) {
-//         final nextParticle = particles[i + 1];
-//         final distance = (particle.position - nextParticle.position).distance;
-//         if (distance < 80) {
-//           final linePaint = Paint()
-//             ..color = particle.color
-//                 .withOpacity(particle.opacity * 0.2 * (1 - distance / 80))
-//             ..strokeWidth = 1.0;
-//           canvas.drawLine(particle.position, nextParticle.position, linePaint);
-//         }
-//       }
-//     }
-//   }
-
-//   @override
-//   bool shouldRepaint(CustomPainter oldDelegate) => true;
-// }
 
 class BankQuestionScreen extends StatefulWidget {
   final BankSoal bankSoal;
@@ -318,28 +247,6 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
     });
   }
 
-  // void _initializeParticles() {
-  //   final random = math.Random();
-  //   for (int i = 0; i < 40; i++) {
-  //     // More particles for denser effect
-  //     _particles.add(
-  //       ParticleModel(
-  //         position: Offset(
-  //           random.nextDouble() * Get.width,
-  //           random.nextDouble() * Get.height / 1.5,
-  //         ),
-  //         color: [_highlightColor, _accentColor, _glowColor][random.nextInt(3)],
-  //         radius: random.nextDouble() * 3.5 + 0.5,
-  //         speed: random.nextDouble() * 0.5 + 0.1,
-  //         theta: random.nextDouble() * math.pi * 2,
-  //         opacity: random.nextDouble() * 0.5 + 0.3,
-  //         rotationSpeed:
-  //             (random.nextDouble() * 0.04) * (random.nextBool() ? 1 : -1),
-  //       ),
-  //     );
-  //   }
-  // }
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -450,28 +357,6 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
           ),
         ),
 
-        // Advanced particles system
-        // AnimatedBuilder(
-        //   animation: _backgroundAnimationController,
-        //   builder: (context, child) {
-        //     for (var particle in _particles) {
-        //       particle.move();
-        //       // Keep particles within bounds
-        //       if (particle.position.dx < 0 ||
-        //           particle.position.dx > Get.width ||
-        //           particle.position.dy < 0 ||
-        //           particle.position.dy > Get.height / 1.5) {
-        //         particle.theta = math.Random().nextDouble() * math.pi * 2;
-        //       }
-        //     }
-
-        //     return CustomPaint(
-        //       painter: ParticlesPainter(_particles, _backgroundAnimation.value),
-        //       size: Size(Get.width, Get.height),
-        //     );
-        //   },
-        // ),
-
         // Glowing orbs and decorative elements
         Positioned(
           top: -60,
@@ -551,13 +436,13 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-                children: [
+              children: [
                 // Back button with advanced ripple and glow effects
                 _buildGlowingIconButton(
                   Icons.arrow_back_rounded,
                   () {
-                  HapticFeedback.mediumImpact();
-                  Get.back();
+                    HapticFeedback.mediumImpact();
+                    Get.back();
                   },
                 ),
                 SizedBox(width: 15),
@@ -565,37 +450,37 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                 // Title with modern styling
                 Expanded(
                   child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                    widget.bankSoal.name,
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.8,
-                      color: Colors.white,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 6),
-                    Container(
-                    padding:
-                      EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      'Bank Soal',
-                      style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.bankSoal.name,
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.8,
+                          color: Colors.white,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    ),
-                  ],
+                      SizedBox(height: 6),
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'Bank Soal',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
 
@@ -603,41 +488,41 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                 AnimatedBuilder(
                   animation: _pulseAnimation,
                   builder: (context, child) {
-                  final scale = 1.0 + 0.05 * _pulseAnimation.value;
-                  return GestureDetector(
-                    onTap: () {
-                    HapticFeedback.mediumImpact();
-                    _navigateToAddQuestion();
-                    },
-                    child: Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withOpacity(0.15),
-                      boxShadow: [
-                      BoxShadow(
-                        color: _highlightColor
-                          .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                        blurRadius: 12 * (1 + _pulseAnimation.value),
-                        spreadRadius: 2 * _pulseAnimation.value,
-                      )
-                      ],
-                      border: Border.all(
-                      color: Colors.white
-                        .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
-                      width: 1.5,
+                    final scale = 1.0 + 0.05 * _pulseAnimation.value;
+                    return GestureDetector(
+                      onTap: () {
+                        HapticFeedback.mediumImpact();
+                        _navigateToAddQuestion();
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.15),
+                          boxShadow: [
+                            BoxShadow(
+                              color: _highlightColor.withOpacity(
+                                  0.1 + 0.1 * _pulseAnimation.value),
+                              blurRadius: 12 * (1 + _pulseAnimation.value),
+                              spreadRadius: 2 * _pulseAnimation.value,
+                            )
+                          ],
+                          border: Border.all(
+                            color: Colors.white.withOpacity(
+                                0.1 + 0.05 * _pulseAnimation.value),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Transform.scale(
+                          scale: scale,
+                          child: Icon(
+                            Icons.add,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                        ),
                       ),
-                    ),
-                    child: Transform.scale(
-                      scale: scale,
-                      child: Icon(
-                      Icons.add,
-                      color: Colors.white,
-                      size: 24,
-                      ),
-                    ),
-                    ),
-                  );
+                    );
                   },
                 ),
               ],
@@ -2012,12 +1897,12 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
       q.Question question, q.QuestionVersion version) {
     return Stack(
       children: [
-        // Gradient background top decoration
+        // Gradient background top decoration - increased height
         Positioned(
           top: 0,
           left: 0,
           right: 0,
-          height: 180,
+          height: 580, // Keep this height for the background
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -2025,15 +1910,60 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                 end: Alignment.bottomRight,
                 colors: [
                   _getTypeColor(version.type),
-                  Color.lerp(_getTypeColor(version.type), Colors.black, 0.2)!,
+                  Color.lerp(_getTypeColor(version.type), Colors.black, 0.3)!,
                 ],
+                stops: [0.4, 1.0],
               ),
             ),
-            child: CustomPaint(
-              painter: UltraModernPatternPainter(
-                primaryColor: Colors.white.withOpacity(0.12),
-                secondaryColor: Colors.white.withOpacity(0.06),
-              ),
+            child: Stack(
+              children: [
+                // Pattern and decorative elements remain the same
+                CustomPaint(
+                  painter: UltraModernPatternPainter(
+                    primaryColor: Colors.white.withOpacity(0.12),
+                    secondaryColor: Colors.white.withOpacity(0.06),
+                  ),
+                  size: Size.infinite,
+                ),
+
+                Positioned(
+                  top: -20,
+                  right: -20,
+                  child: Container(
+                    width: 150,
+                    height: 150,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          Colors.white.withOpacity(0.3),
+                          Colors.white.withOpacity(0),
+                        ],
+                        stops: [0.1, 1.0],
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Subtle accent line
+                Positioned(
+                  bottom: 0,
+                  left: 40,
+                  right: 40,
+                  child: Container(
+                    height: 2,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.white.withOpacity(0),
+                          Colors.white.withOpacity(0.5),
+                          Colors.white.withOpacity(0),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -2044,7 +1974,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
+              // Header container with improved title display - Complete title without scrolling
               Container(
                 padding: EdgeInsets.fromLTRB(24, 60, 24, 30),
                 child: Column(
@@ -2084,106 +2014,62 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                       ),
                     ),
 
-                    SizedBox(height: 20),
+                    SizedBox(height: 16),
 
-                    // Question name/title with shadow
+                    // IMPROVED TITLE CONTAINER - Showing full text without scrolling
                     Text(
                       version.name,
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        height: 1.3,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withOpacity(0.4),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
-                          ),
-                        ],
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      height: 1.4,
+                      letterSpacing: 0.3,
                       ),
                     ),
 
-                    SizedBox(height: 10),
+                    SizedBox(height: 16),
 
-                    // Stats row
-                    Row(
-                      children: [
-                        // Points badge
-                        Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(14),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 10,
-                                offset: Offset(0, 3),
-                              ),
-                            ],
+                    // Points badge
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: Offset(0, 3),
                           ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.star_rounded,
-                                color: Colors.amber,
-                                size: 18,
-                              ),
-                              SizedBox(width: 6),
-                              Text(
-                                '${version.defaultPoint} points',
-                                style: TextStyle(
-                                  color: Colors.grey[800],
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.star_rounded,
+                            color: Colors.amber,
+                            size: 18,
                           ),
-                        ),
-
-                        SizedBox(width: 12),
-
-                        // Options count badge
-                        // Container(
-                        //   padding:
-                        //       EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                        //   decoration: BoxDecoration(
-                        //     color: Colors.white.withOpacity(0.2),
-                        //     borderRadius: BorderRadius.circular(14),
-                        //     border: Border.all(
-                        //       color: Colors.white.withOpacity(0.3),
-                        //       width: 1,
-                        //     ),
-                        //   ),
-                        //   child: Row(
-                        //     children: [
-                        //       Icon(
-                        //         Icons.check_circle_outline,
-                        //         color: Colors.white,
-                        //         size: 16,
-                        //       ),
-                        //       SizedBox(width: 6),
-                        //       Text(
-                        //         '${version.options.length} options',
-                        //         style: TextStyle(
-                        //           color: Colors.white,
-                        //           fontWeight: FontWeight.w600,
-                        //           fontSize: 13,
-                        //         ),
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ),
-                      ],
+                          SizedBox(width: 6),
+                          Text(
+                            '${version.defaultPoint} poin',
+                            style: TextStyle(
+                              color: Colors.grey[800],
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
 
-              // Content
+              // Rest of the content remains unchanged
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
