@@ -1182,7 +1182,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                                         MainAxisSize.min,
                                                     children: [
                                                       Text(
-                                                        '${subject.bankSoalCount} Soal',
+                                                        '${subject.bankSoalCount} Bank Soal',
                                                         style: TextStyle(
                                                           color: Colors.white,
                                                           fontWeight:

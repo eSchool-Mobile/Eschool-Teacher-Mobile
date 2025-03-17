@@ -1135,7 +1135,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                       SizedBox(width: 12),
                     ],
                     Text(
-                      _isSubmitting ? 'Memproses...' : 'Update Soal',
+                      _isSubmitting ? 'Memproses...' : 'Simpan',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,

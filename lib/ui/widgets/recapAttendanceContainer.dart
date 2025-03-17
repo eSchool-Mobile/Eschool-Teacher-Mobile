@@ -335,6 +335,7 @@ class RecapAttendanceContainer extends StatelessWidget {
         ),
         child: Row(
           children: [
+            // Expanded dengan flex: 2 memastikan bagian kelas tidak terpotong
             Expanded(
               flex: 2,
               child: Row(
@@ -349,21 +350,32 @@ class RecapAttendanceContainer extends StatelessWidget {
                     size: 24,
                   ),
                   SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      section.name ?? '',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: section.pkl == 1
-                            ? Colors.grey.shade700
-                            : AppColorPalette.primaryMaroon,
-                        fontWeight: FontWeight.w500,
+                  // Gunakan Flexible dengan FittedBox untuk handling text overflow dengan lebih baik
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        section.name ?? '',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: section.pkl == 1
+                              ? Colors.grey.shade700
+                              : AppColorPalette.primaryMaroon,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        softWrap: false,
+                        overflow: TextOverflow.fade,
+                        maxLines: 1,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
+            // Berikan margin antara nama kelas dan tombol aksi
+            SizedBox(width: 12),
+            // Komponen tombol aksi
             _buildActionButtons(section, monthIndex, context),
           ],
         ),

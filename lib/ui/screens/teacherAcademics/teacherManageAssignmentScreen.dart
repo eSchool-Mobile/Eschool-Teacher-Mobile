@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/assignmentCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/deleteAssignmentCubit.dart';
@@ -143,37 +144,37 @@ class _TeacherManageAssignmentScreenState
           return BlocConsumer<DeleteAssignmentCubit, DeleteAssignmentState>(
               listener: (context, state) {
             if (state is DeleteAssignmentSuccess) {
-                // Show auto-dismissing success banner
-                ScaffoldMessenger.of(context).showSnackBar(
+              // Show auto-dismissing success banner
+              ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Container(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                    Icon(Icons.check_circle, color: Colors.white),
-                    SizedBox(width: 12),
-                    Text(
-                      'Tugas "${assignment.name}" berhasil dihapus!',
-                      style: TextStyle(
-                      color: Colors.white, 
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      ),
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.check_circle, color: Colors.white),
+                        SizedBox(width: 12),
+                        Text(
+                          'Tugas "${assignment.name}" berhasil dihapus!',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
-                    ],
-                  ),
                   ),
                   backgroundColor: Colors.green.shade400,
                   duration: Duration(seconds: 2),
                   behavior: SnackBarBehavior.floating,
                   margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(30),
                   ),
                   elevation: 4,
                 ),
-                );
+              );
               context.read<AssignmentCubit>().deleteAssignment(assignment.id);
             } else if (state is DeleteAssignmentFailure) {
               Utils.showSnackBar(
@@ -194,12 +195,81 @@ class _TeacherManageAssignmentScreenState
                       ),
                     );
                   },
-                  child: CustomTextContainer(
-                    textKey: submissionsKey,
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: Utils.getScaledValue(context, 15)),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15, vertical: 10),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.primary.withBlue(
+                                min(
+                                    255,
+                                    Theme.of(context).colorScheme.primary.blue +
+                                        30),
+                              ),
+                        ],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.4),
+                          spreadRadius: 1,
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.assignment_turned_in_rounded,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                            ),
+                            Positioned(
+                              right: 0,
+                              top: 0,
+                              child: Container(
+                                height: 8,
+                                width: 8,
+                                decoration: BoxDecoration(
+                                  color: Colors.greenAccent,
+                                  shape: BoxShape.circle,
+                                  border:
+                                      Border.all(color: Colors.white, width: 1),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          "Lihat & Nilai Tugas",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 contractedContentWidget: Column(
