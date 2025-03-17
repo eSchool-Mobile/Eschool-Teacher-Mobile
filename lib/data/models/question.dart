@@ -18,7 +18,8 @@ class Question {
       required this.updatedAt,
       required this.bankSoal,
       required this.versions,
-      required this.defaultPoint});
+      required this.defaultPoint,
+      });
 
   factory Question.fromJson(Map<String, dynamic> json) {
     return Question(
@@ -29,6 +30,7 @@ class Question {
       updatedAt: json['updated_at'] ?? '',
       defaultPoint: json['default_point'] ?? 0,
       bankSoal: BankSoalInfo.fromJson(json['bank_soal'] ?? {}),
+      // orderType: json['choice_style'] ?? 'numeric',
       versions: (json['versions'] as List?)
               ?.map((v) => QuestionVersion.fromJson(v))
               .toList() ??
@@ -77,6 +79,7 @@ class QuestionVersion {
   final String note;
   final int defaultPoint;
   final String type;
+  final String orderType;
   final List<QuestionOption> options;
   final String? image; // Add this field
 
@@ -89,7 +92,8 @@ class QuestionVersion {
     required this.defaultPoint,
     required this.type,
     required this.options,
-    this.image, // Add this parameter
+    required this.orderType,
+    this.image,
   });
 
   factory QuestionVersion.fromJson(Map<String, dynamic> json) {
@@ -97,6 +101,9 @@ class QuestionVersion {
       final List<dynamic> optionsList = jsonDecode(optionsString);
       return optionsList.map((o) => QuestionOption.fromJson(o)).toList();
     }
+
+    print("JESONNYA");
+    print(json);
 
     return QuestionVersion(
       id: json['id'] ?? 0,
@@ -108,6 +115,7 @@ class QuestionVersion {
       type: json['type'] ?? '',
       options: parseOptions(json['options'] ?? '[]'),
       image: json['image'], // Add this field
+      orderType: json['choice_style'] ?? 'numeric',
     );
   }
 

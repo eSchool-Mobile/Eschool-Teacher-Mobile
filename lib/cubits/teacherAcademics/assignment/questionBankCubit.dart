@@ -72,11 +72,13 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
   Future<void> fetchBankQuestions(int subjectId, int bankId) async {
     try {
       emit(QuestionBankLoading());
+      print("QADAL AJAIB");
       final questions = await _repository.getBankQuestions(subjectId, bankId);
       print("OK DARI SINI");
       print(questions);
       emit(BankQuestionsFetchSuccess(questions));
     } catch (e) {
+      print("ELOL SINI");
       emit(QuestionBankError(e.toString()));
     }
   }
@@ -211,6 +213,7 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
     required String note,
     required List<QuestionOption> options,
     dynamic? image, // Tambahkan parameter image
+    String? orderType,
   }) async {
     try {
       emit(QuestionBankLoading());
@@ -227,9 +230,11 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
         type: type,
         defaultPoint: defaultPoint,
         question: question,
+        bankSoalId: bankSoalId,
         note: note,
         options: options,
-        image: image, // Pass image ke repository
+        image: image,
+        orderType: type == "multiple_choice" ? orderType : null,
       );
 
       print("OK 12");

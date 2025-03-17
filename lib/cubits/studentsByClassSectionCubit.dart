@@ -62,7 +62,6 @@ class StudentsByClassSectionCubit extends Cubit<StudentsByClassSectionState> {
     int? examId,
     StudentListStatus? status,
   }) async {
-    print("SINI DEH");
     emit(StudentsByClassSectionFetchInProgress());
     try {
       final studentDetailsList = await _studentRepository.getStudentsByClassSectionAndSubject(
@@ -72,7 +71,6 @@ class StudentsByClassSectionCubit extends Cubit<StudentsByClassSectionState> {
         examId: examId,
       );
 
-      // Print the data structure
       print('Fetched Students: ${studentDetailsList.map((student) => student.toJson()).toList()}');
 
       emit(

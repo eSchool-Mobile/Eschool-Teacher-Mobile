@@ -29,10 +29,12 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
   late TextEditingController questionController;
   late TextEditingController pointController;
   late TextEditingController noteController;
-  late String selectedType;
+  // late String selectedType;
   late int idBankSoal;
   List<Map<String, dynamic>> options = [];
   late int version;
+  String selectedType = 'multiple_choice';
+  String selectedOrderType = 'numeric';
 
   dynamic? _imageFile;
   final ImagePicker _picker = ImagePicker();
@@ -49,6 +51,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
     super.initState();
     nameController =
         TextEditingController(text: widget.questionData?['name'] ?? '');
+    selectedOrderType = widget.questionData?['typeOrder'] ?? 'numeric';
     questionController =
         TextEditingController(text: widget.questionData?['question'] ?? '');
     pointController = TextEditingController(
@@ -89,6 +92,12 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
         options = _getDefaultOptionsForType(selectedType);
       }
     }
+  }
+
+    void _onOrderTypeChanged(String type) {
+    setState(() {
+      selectedOrderType = type;
+    });
   }
 
   List<Map<String, dynamic>> _getDefaultOptionsForType(String type) {
@@ -211,6 +220,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                 bankSoalId: idBankSoal,
                 name: nameController.text.trim(),
                 type: selectedType,
+                orderType: selectedOrderType,
                 defaultPoint: int.parse(pointController.text),
                 question: questionController.text.trim(),
                 note: noteController.text.trim(),
@@ -375,10 +385,14 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                             child: _buildQuestionInfoCard(),
                           ),
 
+                          
                           SizedBox(height: 20),
-
-                          // Question Type Selector
                           _buildQuestionTypeSelector(),
+
+                          if (selectedType == 'multiple_choice')
+                            SizedBox(height: 15),
+                          if (selectedType == 'multiple_choice')
+                            _buildMultipleChoiceOrder(),
 
                           SizedBox(height: 20),
 
@@ -701,6 +715,67 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
       ),
     );
   }
+
+  Widget _buildMultipleChoiceOrder() {
+    return FadeInUp(
+      duration: Duration(milliseconds: 800),
+      child: Container(
+        padding: EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 5,
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Tipe Urutan',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+            SizedBox(height: 15),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButtonFormField<String>(
+                  value: selectedOrderType,
+                  items: [
+                    _buildDropdownItem(
+                        'roman_uppercase', 'Romawi Kapital', null),
+                    _buildDropdownItem('roman_lowercase', 'Romawi', null),
+                    _buildDropdownItem('numeric', 'Angka', null),
+                    _buildDropdownItem(
+                        'alphabet_uppercase', 'Alfabet Kapital', null),
+                    _buildDropdownItem('alphabet_lowercase', 'Alfabet', null),
+                  ],
+                  onChanged: (value) => _onOrderTypeChanged(value!),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
 
   Widget _buildAnswerOptionsCard() {
     return FadeInUp(
@@ -1093,19 +1168,20 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
     );
   }
 
-  DropdownMenuItem<String> _buildDropdownItem(
-      String value, String label, IconData icon) {
-    return DropdownMenuItem<String>(
+  DropdownMenuItem<String> _buildDropdownItem(String value, String label, IconData? icon) {
+    return DropdownMenuItem(
       value: value,
       child: Row(
         children: [
-          Icon(icon, size: 22, color: Colors.grey),
+          if (icon != null)
+            Icon(icon, color: Theme.of(context).colorScheme.secondary),
           SizedBox(width: 10),
           Text(label),
         ],
       ),
     );
   }
+
 
   Widget _buildTrueFalseOption(int index, String text) {
     return FadeInLeft(

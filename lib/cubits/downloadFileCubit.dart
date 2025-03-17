@@ -66,8 +66,6 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
     required StudyMaterial studyMaterial,
   }) async {
     emit(DownloadFileInProgress(0.0));
-    print(studyMaterial.fileUrl);
-    print("NIEH");
     try {
       //if wants to download the file then
       Future<void> thingsToDoAfterPermissionIsGiven(
@@ -83,8 +81,6 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
           return;
         }
 
-        print("BLUM ERROR 1");
-
         await _studyMaterialRepository.downloadStudyMaterialFile(
           cancelToken: _cancelToken,
           savePath: tempFileSavePath,
@@ -92,16 +88,12 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
           url: studyMaterial.fileUrl,
         );
 
-        print("BLUM ERROR 2");
-
         //download file
         String downloadFilePath = Platform.isAndroid && isPermissionGranted
             ? (await ExternalPath.getExternalStoragePublicDirectory(
                 ExternalPath.DIRECTORY_DOWNLOADS,
               ))
             : (await getApplicationDocumentsDirectory()).path;
-
-            print("BLUM ERROR 3");
 
         downloadFilePath =
             "$downloadFilePath/${studyMaterial.fileName}.${studyMaterial.fileExtension}";
@@ -122,8 +114,6 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
         try {
           await thingsToDoAfterPermissionIsGiven(false);
         } catch (e) {
-          print("ERROR 1");
-          print(e);
           emit(
             DownloadFileFailure(
               failedToDownloadFileKey,
@@ -132,8 +122,6 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
         }
       }
     } catch (e) {
-      print("ERROR 2");
-      print(e);
       if (_cancelToken.isCancelled) {
         emit(DownloadFileProcessCanceled());
       } else {

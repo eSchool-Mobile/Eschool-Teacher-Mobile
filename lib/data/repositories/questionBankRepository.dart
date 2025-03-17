@@ -257,10 +257,12 @@ class QuestionBankRepository {
   Future<void> updateQuestion({
     required int banksoalSoalId,
     required int subjectId,
+    required int bankSoalId,
     required String name,
     required String type,
     required int defaultPoint,
     required String question,
+    String? orderType,
     String note = '',
     required List<QuestionOption> options,
     dynamic? image, // Tambahkan parameter image
@@ -268,12 +270,14 @@ class QuestionBankRepository {
     try {
       final Map<String, dynamic> requestBody = {
         'banksoal_soal_id': banksoalSoalId.toString(),
+        'banksoal_id': bankSoalId.toString(),
         'subject_id': subjectId.toString(),
         'name': name,
         'type': type,
         'default_point': defaultPoint.toString(),
         'question': question,
         'note': note,
+        if (orderType != null) 'choice_style': orderType,
         'options': options
             .map((opt) => {
                   'text': opt.text,

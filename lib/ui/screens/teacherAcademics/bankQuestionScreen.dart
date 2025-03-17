@@ -1623,6 +1623,9 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
       q.Question question, q.QuestionVersion version) async {
     String jsonString = JsonEncoder.withIndent("  ").convert(question);
 
+    print("ASELINYA MOMENT");
+    print(version.orderType);
+
     final result = await Get.toNamed(
       Routes.editQuestionScreen,
       arguments: {
@@ -1631,9 +1634,10 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
           'subject_id': widget.subject.subject.id,
           'idBankSoal': widget.bankSoal.id,
           'name': version.name,
-          'type': version.type, // Add this
+          'type': version.type,
           'question': version.question,
           'default_point': version.defaultPoint,
+          'typeOrder': version.orderType,
           'note': version.note,
           'image': version.image,
           'options': version.options
@@ -1671,6 +1675,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
               question: lastVersion.question,
               name: lastVersion.name,
               note: lastVersion.note,
+              orderType: lastVersion.orderType,
               defaultPoint: updatedData['defaultPoint'],
               type: lastVersion.type,
               options: lastVersion.options,
