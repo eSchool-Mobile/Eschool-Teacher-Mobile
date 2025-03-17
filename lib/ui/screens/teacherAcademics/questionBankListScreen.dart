@@ -41,32 +41,32 @@ class QuestionBankListController extends GetxController {
 }
 
 // Animated particle system
-class ParticleModel {
-  Offset position;
-  Color color;
-  double radius;
-  double speed;
-  double theta;
-  double opacity;
-  double rotationSpeed;
+// class ParticleModel {
+//   Offset position;
+//   Color color;
+//   double radius;
+//   double speed;
+//   double theta;
+//   double opacity;
+//   double rotationSpeed;
 
-  ParticleModel({
-    required this.position,
-    required this.color,
-    required this.radius,
-    required this.speed,
-    required this.theta,
-    required this.opacity,
-    required this.rotationSpeed,
-  });
+//   ParticleModel({
+//     required this.position,
+//     required this.color,
+//     required this.radius,
+//     required this.speed,
+//     required this.theta,
+//     required this.opacity,
+//     required this.rotationSpeed,
+//   });
 
-  void move() {
-    position += Offset(speed * math.cos(theta), speed * math.sin(theta));
-    theta += rotationSpeed;
-    opacity += (math.Random().nextDouble() - 0.5) * 0.03;
-    opacity = opacity.clamp(0.1, 0.9);
-  }
-}
+//   void move() {
+//     position += Offset(speed * math.cos(theta), speed * math.sin(theta));
+//     theta += rotationSpeed;
+//     opacity += (math.Random().nextDouble() - 0.5) * 0.03;
+//     opacity = opacity.clamp(0.1, 0.9);
+//   }
+// }
 
 // Light rays painter
 class LightRaysPainter extends CustomPainter {
@@ -105,48 +105,48 @@ class LightRaysPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
 
-class ParticlesPainter extends CustomPainter {
-  final List<ParticleModel> particles;
-  final double time;
+// class ParticlesPainter extends CustomPainter {
+//   final List<ParticleModel> particles;
+//   final double time;
 
-  ParticlesPainter(this.particles, this.time);
+//   ParticlesPainter(this.particles, this.time);
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    for (var i = 0; i < particles.length; i++) {
-      final particle = particles[i];
-      final paint = Paint()
-        ..color = particle.color.withOpacity(particle.opacity)
-        ..style = PaintingStyle.fill;
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     for (var i = 0; i < particles.length; i++) {
+//       final particle = particles[i];
+//       final paint = Paint()
+//         ..color = particle.color.withOpacity(particle.opacity)
+//         ..style = PaintingStyle.fill;
 
-      // Draw glow effect around particles
-      if (i % 3 == 0) {
-        final glowPaint = Paint()
-          ..color = particle.color.withOpacity(particle.opacity * 0.3)
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, 8.0);
-        canvas.drawCircle(particle.position, particle.radius * 2, glowPaint);
-      }
+//       // Draw glow effect around particles
+//       if (i % 3 == 0) {
+//         final glowPaint = Paint()
+//           ..color = particle.color.withOpacity(particle.opacity * 0.3)
+//           ..maskFilter = MaskFilter.blur(BlurStyle.normal, 8.0);
+//         canvas.drawCircle(particle.position, particle.radius * 2, glowPaint);
+//       }
 
-      canvas.drawCircle(particle.position, particle.radius, paint);
+//       canvas.drawCircle(particle.position, particle.radius, paint);
 
-      // Add connecting lines between nearby particles
-      if (i < particles.length - 1) {
-        final nextParticle = particles[i + 1];
-        final distance = (particle.position - nextParticle.position).distance;
-        if (distance < 80) {
-          final linePaint = Paint()
-            ..color = particle.color
-                .withOpacity(particle.opacity * 0.2 * (1 - distance / 80))
-            ..strokeWidth = 1.0;
-          canvas.drawLine(particle.position, nextParticle.position, linePaint);
-        }
-      }
-    }
-  }
+//       // Add connecting lines between nearby particles
+//       if (i < particles.length - 1) {
+//         final nextParticle = particles[i + 1];
+//         final distance = (particle.position - nextParticle.position).distance;
+//         if (distance < 80) {
+//           final linePaint = Paint()
+//             ..color = particle.color
+//                 .withOpacity(particle.opacity * 0.2 * (1 - distance / 80))
+//             ..strokeWidth = 1.0;
+//           canvas.drawLine(particle.position, nextParticle.position, linePaint);
+//         }
+//       }
+//     }
+//   }
 
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => true;
-}
+//   @override
+//   bool shouldRepaint(CustomPainter oldDelegate) => true;
+// }
 
 class QuestionBankListScreen extends StatefulWidget {
   final SubjectQuestion subject;
@@ -202,7 +202,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
   double _dragPosition = 0;
 
   // Particles
-  final List<ParticleModel> _particles = [];
+  // final List<ParticleModel> _particles = [];
 
   // Theme colors - Softer Maroon palette
   final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
@@ -318,8 +318,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
       ),
     );
 
-    // Initialize particles with enhanced properties
-    _initializeParticles();
+    // // Initialize particles with enhanced properties
+    // _initializeParticles();
 
     _reloadData();
 
@@ -346,27 +346,27 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     });
   }
 
-  void _initializeParticles() {
-    final random = math.Random();
-    for (int i = 0; i < 40; i++) {
-      // More particles for denser effect
-      _particles.add(
-        ParticleModel(
-          position: Offset(
-            random.nextDouble() * Get.width,
-            random.nextDouble() * Get.height / 1.5,
-          ),
-          color: [_highlightColor, _accentColor, _glowColor][random.nextInt(3)],
-          radius: random.nextDouble() * 3.5 + 0.5,
-          speed: random.nextDouble() * 0.5 + 0.1,
-          theta: random.nextDouble() * math.pi * 2,
-          opacity: random.nextDouble() * 0.5 + 0.3,
-          rotationSpeed:
-              (random.nextDouble() * 0.04) * (random.nextBool() ? 1 : -1),
-        ),
-      );
-    }
-  }
+  // void _initializeParticles() {
+  //   final random = math.Random();
+  //   for (int i = 0; i < 40; i++) {
+  //     // More particles for denser effect
+  //     _particles.add(
+  //       ParticleModel(
+  //         position: Offset(
+  //           random.nextDouble() * Get.width,
+  //           random.nextDouble() * Get.height / 1.5,
+  //         ),
+  //         color: [_highlightColor, _accentColor, _glowColor][random.nextInt(3)],
+  //         radius: random.nextDouble() * 3.5 + 0.5,
+  //         speed: random.nextDouble() * 0.5 + 0.1,
+  //         theta: random.nextDouble() * math.pi * 2,
+  //         opacity: random.nextDouble() * 0.5 + 0.3,
+  //         rotationSpeed:
+  //             (random.nextDouble() * 0.04) * (random.nextBool() ? 1 : -1),
+  //       ),
+  //     );
+  //   }
+  // }
 
   @override
   void dispose() {
@@ -630,26 +630,26 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
         ),
 
         // Advanced particles system
-        AnimatedBuilder(
-          animation: _backgroundAnimationController,
-          builder: (context, child) {
-            for (var particle in _particles) {
-              particle.move();
-              // Keep particles within bounds
-              if (particle.position.dx < 0 ||
-                  particle.position.dx > Get.width ||
-                  particle.position.dy < 0 ||
-                  particle.position.dy > Get.height / 1.5) {
-                particle.theta = math.Random().nextDouble() * math.pi * 2;
-              }
-            }
+        // AnimatedBuilder(
+        //   animation: _backgroundAnimationController,
+        //   builder: (context, child) {
+        //     for (var particle in _particles) {
+        //       particle.move();
+        //       // Keep particles within bounds
+        //       if (particle.position.dx < 0 ||
+        //           particle.position.dx > Get.width ||
+        //           particle.position.dy < 0 ||
+        //           particle.position.dy > Get.height / 1.5) {
+        //         particle.theta = math.Random().nextDouble() * math.pi * 2;
+        //       }
+        //     }
 
-            return CustomPaint(
-              painter: ParticlesPainter(_particles, _backgroundAnimation.value),
-              size: Size(Get.width, Get.height),
-            );
-          },
-        ),
+        //     return CustomPaint(
+        //       painter: ParticlesPainter(_particles, _backgroundAnimation.value),
+        //       size: Size(Get.width, Get.height),
+        //     );
+        //   },
+        // ),
 
         // Glowing orbs and decorative elements
         Positioned(
