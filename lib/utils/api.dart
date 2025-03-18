@@ -181,6 +181,7 @@ class Api {
 
   static Map<String, String> headers({bool useAuthToken = false}) {
     final String jwtToken = AuthRepository.getAuthToken();
+    print(jwtToken);
     final schoolCode = AuthRepository().schoolCode;
 
     return {

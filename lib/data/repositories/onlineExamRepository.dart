@@ -279,7 +279,7 @@ class OnlineExamRepository {
 
       print('Questions Response: $response');
 
-      if (response['status'] == true) {
+      if (response['error'] == false) {
         final data = response['data'] as Map<String, dynamic>;
         final examQuestions = data['exam_questions'] as List;
 
@@ -308,7 +308,7 @@ class OnlineExamRepository {
         throw Exception(response['message'] ?? 'Failed to fetch questions');
       }
     } catch (e) {
-      print('Error fetching questions: $e');
+      print('Error fetching questionss: $e');
       throw Exception(e.toString());
     }
   }
@@ -368,16 +368,35 @@ final options = (question['options'] as List?)?.isNotEmpty == true
 
       print('Bank Soal Response: $response');
 
-      if (response['status'] == true && response['data'] != null) {
+      if (response['error'] == false && response['data'] != null) {
         // Extract exam data untuk mendapatkan class_section_id dan class_subject_id
-        final examData = response['data']['exam'] as Map<String, dynamic>?;
-        final classSectionId = examData?['class_section']?['id'] ?? 0;
-        final classSubjectId = examData?['subject']?['id'] ?? 0;
 
-        // Parse bank soal list
-        final List bankList = response['data']['bank_soal'] ?? [];
+        final examData = response['data']['exam'] as Map<String, dynamic>?;
+
+        print("AMAN HERE");
+
+        final classSectionId = examData?['class_section']?['id'] ?? 0;
+
+        print("AMAN HERE LGI 1");
+
+        final classSubjectId = examData?['subject']?['id'] ?? 0;
+        print("AMAN HERE LGI 2");
+
+                  for (var line in JsonEncoder.withIndent("  ").convert(response['data']['bank_soal']).split("\n")) {
+    print(line);
+  }
+
+          final dynamic bankSoalData = response['data']['bank_soal'];
+
+          List bankList = [];
+
+          if (bankSoalData is Map<String, dynamic>) {
+            bankList = bankSoalData.values.toList(); // Ambil hanya value-nya
+          }
+
+        print("AMAN HERE LGI 3");
+
         return bankList.map((bank) {
-          // Tambahkan class_section_id dan class_subject_id ke setiap bank soal
           final bankData = Map<String, dynamic>.from(bank);
           bankData['class_section_id'] = classSectionId;
           bankData['class_subject_id'] = classSubjectId;
