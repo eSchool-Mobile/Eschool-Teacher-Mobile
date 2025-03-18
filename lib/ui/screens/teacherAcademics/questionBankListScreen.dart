@@ -1407,12 +1407,45 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                   Navigator.pop(context);
                                   _nameController.clear();
 
-                                  if (!mounted) return;
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(const SnackBar(
-                                    content: Text('Bank soal berhasil dibuat'),
-                                    backgroundColor: Colors.green,
-                                  ));
+                                  // Show custom success notification
+                                  if (mounted) {
+                                    // Auto-dismissing success banner
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Container(
+                                          padding:
+                                              EdgeInsets.symmetric(vertical: 8),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.check_circle,
+                                                  color: Colors.white),
+                                              SizedBox(width: 12),
+                                              Text(
+                                                'Bank soal berhasil dibuat!',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        backgroundColor: Colors.green.shade400,
+                                        duration: Duration(seconds: 2),
+                                        behavior: SnackBarBehavior.floating,
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: 20, vertical: 10),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                        ),
+                                        elevation: 4,
+                                      ),
+                                    );
+                                  }
                                 } catch (e) {
                                   if (!mounted) return;
                                   ScaffoldMessenger.of(context)
@@ -1468,6 +1501,10 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     final _editFormKey = GlobalKey<FormState>();
     bool isSubmitting = false;
 
+    // Simpan cubit di luar showDialog untuk menghindari masalah provider
+    final questionBankCubit = context.read<QuestionBankCubit>();
+    final BuildContext currentContext = context;
+
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -1476,7 +1513,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
       pageBuilder: (context, anim1, anim2) => Container(),
       transitionBuilder: (context, anim1, anim2, child) {
         return StatefulBuilder(
-          builder: (context, setState) {
+          builder: (dialogContext, setState) {
             return ScaleTransition(
               scale: CurvedAnimation(
                 parent: anim1,
@@ -1492,7 +1529,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                     Container(
                       padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Theme.of(context)
+                        color: Theme.of(dialogContext)
                             .colorScheme
                             .secondary
                             .withOpacity(0.1),
@@ -1500,14 +1537,14 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                       ),
                       child: Icon(
                         Icons.edit_outlined,
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(dialogContext).colorScheme.secondary,
                       ),
                     ),
                     SizedBox(width: 16),
                     Text(
                       'Edit Bank Soal',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(dialogContext).colorScheme.secondary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -1534,7 +1571,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.secondary,
+                              color:
+                                  Theme.of(dialogContext).colorScheme.secondary,
                               width: 2,
                             ),
                           ),
@@ -1553,8 +1591,9 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                 ),
                 actions: [
                   TextButton(
-                    onPressed:
-                        isSubmitting ? null : () => Navigator.pop(context),
+                    onPressed: isSubmitting
+                        ? null
+                        : () => Navigator.pop(dialogContext),
                     child: Text(
                       'Batal',
                       style: TextStyle(color: Colors.grey[600]),
@@ -1564,8 +1603,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          Theme.of(context).colorScheme.primary,
-                          Theme.of(context).colorScheme.secondary,
+                          Theme.of(dialogContext).colorScheme.primary,
+                          Theme.of(dialogContext).colorScheme.secondary,
                         ],
                       ),
                       borderRadius: BorderRadius.circular(30),
@@ -1581,34 +1620,68 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                     isSubmitting = true;
                                   });
 
-                                  await context
-                                      .read<QuestionBankCubit>()
-                                      .updateQuestionBank(
-                                        subjectId: widget.subject.subject.id,
-                                        banksoalId: bank.id,
-                                        name: _editController.text.trim(),
-                                      );
+                                  // Gunakan questionBankCubit yang sudah disimpan
+                                  await questionBankCubit.updateQuestionBank(
+                                    subjectId: widget.subject.subject.id,
+                                    banksoalId: bank.id,
+                                    name: _editController.text.trim(),
+                                  );
 
-                                  Navigator.pop(context);
+                                  Navigator.pop(dialogContext);
 
                                   // Refresh bank soal list
                                   _reloadData();
 
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content:
-                                          Text('Bank soal berhasil diperbarui'),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  );
+                                  // Gunakan currentContext yang disimpan
+                                  if (currentContext.mounted) {
+                                    ScaffoldMessenger.of(currentContext)
+                                        .showSnackBar(
+                                      SnackBar(
+                                        content: Container(
+                                          padding:
+                                              EdgeInsets.symmetric(vertical: 8),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.check_circle,
+                                                  color: Colors.white),
+                                              SizedBox(width: 12),
+                                              Text(
+                                                'Bank soal berhasil diperbarui',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        backgroundColor: Colors.green.shade400,
+                                        duration: Duration(seconds: 2),
+                                        behavior: SnackBarBehavior.floating,
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: 20, vertical: 10),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                        ),
+                                        elevation: 4,
+                                      ),
+                                    );
+                                  }
                                 } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          'Gagal memperbarui: ${e.toString()}'),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
+                                  if (currentContext.mounted) {
+                                    ScaffoldMessenger.of(currentContext)
+                                        .showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                            'Gagal memperbarui: ${e.toString()}'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
                                 } finally {
                                   if (mounted) {
                                     setState(() {
@@ -1651,7 +1724,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
   }
 
   void _showDeleteConfirmation(BuildContext dialogContext, BankSoal bank) {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    // Simpan context di luar fungsi asynchronous
+    final BuildContext currentContext = context;
     final cubit = context.read<QuestionBankCubit>();
 
     showDialog(
@@ -1698,26 +1772,65 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
               child: MaterialButton(
                 onPressed: () async {
                   try {
+                    // Tutup dialog terlebih dahulu
                     Navigator.pop(context);
+
+                    // Lakukan proses delete
                     await cubit.deleteBankSoal(
                       subjectId: widget.subject.subject.id,
                       banksoalId: bank.id!,
                     );
 
-                    // Refresh setelah delete
+                    // Refresh data
                     _reloadData();
 
-                    scaffoldMessenger.showSnackBar(
-                      SnackBar(content: Text('Bank soal berhasil dihapus')),
-                    );
+                    // Gunakan currentContext yang disimpan di awal function
+                    // dan periksa apakah context masih mounted sebelum menampilkan SnackBar
+                    if (currentContext.mounted) {
+                      ScaffoldMessenger.of(currentContext).showSnackBar(
+                        SnackBar(
+                          content: Container(
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.check_circle, color: Colors.white),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Bank soal berhasil dihapus!',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          backgroundColor: Colors.green.shade400,
+                          duration: Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
+                          margin: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                        ),
+                      );
+                    }
                   } catch (e) {
-                    scaffoldMessenger.showSnackBar(
-                      SnackBar(
-                        content:
-                            Text('Gagal menghapus bank soal: ${e.toString()}'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
+                    // Gunakan currentContext yang disimpan di awal function
+                    // dan periksa apakah context masih mounted
+                    if (currentContext.mounted) {
+                      ScaffoldMessenger.of(currentContext).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Gagal menghapus bank soal: ${e.toString()}'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
                   }
                 },
                 child: Text(

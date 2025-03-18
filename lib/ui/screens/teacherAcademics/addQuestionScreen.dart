@@ -1396,7 +1396,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                       SizedBox(width: 12),
                     ],
                     Text(
-                      _isSubmitting ? 'Memproses...' : 'Simpan Soal',
+                      _isSubmitting ? 'Memproses...' : 'Simpan',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
