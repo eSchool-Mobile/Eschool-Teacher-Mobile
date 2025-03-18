@@ -94,6 +94,50 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
     }
   }
 
+  String toRomanNumeral(int number) {
+  if (number < 1) {
+    return "Angka harus lebih besar dari 0";
+  }
+
+  List<int> values = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+  List<String> symbols = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"];
+  
+  String result = "";
+  int num = number;
+  
+  for (int i = 0; i < values.length; i++) {
+    while (num >= values[i]) {
+      result += symbols[i];
+      num -= values[i];
+    }
+  }
+  
+  // Jika masih ada sisa (untuk angka sangat besar), tambahkan 'M' berulang
+  while (num > 0) {
+    result += "M";
+    num -= 1000;
+  }
+  
+  return result;
+}
+
+String toBaseAZ(int number) {
+  if (number < 1) {
+    return "Angka harus lebih besar dari 0";
+  }
+  
+  String result = "";
+  int num = number;
+  
+  while (num > 0) {
+    int remainder = (num - 1) % 26;
+    result = String.fromCharCode(65 + remainder) + result;
+    num = (num - 1) ~/ 26;
+  }
+  
+  return result;
+}
+
     void _onOrderTypeChanged(String type) {
     setState(() {
       selectedOrderType = type;
@@ -970,14 +1014,22 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
           children: [
             Row(
               children: [
-                Text(
-                  String.fromCharCode(65 + index), // A, B, C, D...
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                ),
+Text(
+  "${selectedOrderType == 'roman_uppercase'
+      ? toRomanNumeral(index + 1).toUpperCase()
+      : selectedOrderType == 'roman_lowercase'
+          ? toRomanNumeral(index + 1).toLowerCase()
+          : selectedOrderType == 'alphabet_uppercase'
+              ? toBaseAZ(index + 1).toUpperCase()
+              : selectedOrderType == 'alphabet_lowercase'
+                  ? toBaseAZ(index + 1).toLowerCase()
+                  : (index + 1).toString()}.",
+  style: TextStyle(
+    fontWeight: FontWeight.bold,
+    fontSize: 18,
+    color: Theme.of(context).colorScheme.secondary,
+  ),
+),
                 SizedBox(width: 10),
                 Expanded(
                   child: TextFormField(
