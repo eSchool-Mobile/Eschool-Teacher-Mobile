@@ -321,8 +321,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
 
   void _loadQuestions() {
     context.read<QuestionBankCubit>().fetchBankQuestions(
-          widget.subject.subject.id,
-          widget.bankSoal.id,
+          subjectId: widget.subject.subject.id,
+          bankId: widget.bankSoal.id,
         );
   }
 
@@ -654,8 +654,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                       context
                                           .read<QuestionBankCubit>()
                                           .fetchBankQuestions(
-                                            widget.subject.subject.id,
-                                            widget.bankSoal.id,
+                                            subjectId: widget.subject.subject.id,
+                                            bankId: widget.bankSoal.id,
                                           );
                                     },
                                   ),
