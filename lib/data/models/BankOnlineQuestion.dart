@@ -35,6 +35,14 @@ class BankSoalQuestion {
       int subjectId =
           (json['class_subject']?['id'] ?? json['class_subject_id'] ?? 0);
 
+        print("id: ${json['id'] ?? 0}");
+        print("name: ${json['name'] ?? ''}");
+        print("soal: ${parsedSoal}");
+        print("classSectionId: ${sectionId}");
+        print("classSubjectId: ${subjectId}");
+        print("subjectName: ${json['subject_name']}");
+
+
       return BankSoalQuestion(
         id: json['id'] ?? 0,
         name: json['name'] ?? '',

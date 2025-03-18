@@ -41,7 +41,7 @@ class AssignmentSubmission {
     sessionYearId = json['session_year_id'] ?? 0;
     feedback = json['feedback'] ?? "";
     points = json['points'] ?? 0;
-    status = json['status'] ?? 0;
+    status = json['error'] ?? true == false;
     createdAt = json['created_at'] ?? "";
     updatedAt = json['updated_at'] ?? "";
     assignment = ReviewAssignment.fromJson(json['assignment'] ?? {});

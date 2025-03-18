@@ -69,21 +69,25 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
     }
   }
 
-  Future<void> fetchBankQuestions(int subjectId, int bankId) async {
+  Future<void> fetchBankQuestions({
+    required int subjectId,
+    required int bankId,
+    int? examId,
+  }) async {
     try {
       emit(QuestionBankLoading());
-      print("QADAL AJAIB");
-      final questions = await _repository.getBankQuestions(subjectId, bankId);
-      print("OK DARI SINI");
-      print(questions);
+
+      final questions = await _repository.getBankQuestions(
+        subjectId: subjectId,
+        bankId: bankId,
+        onlineExamId: examId,
+      );
+
       emit(BankQuestionsFetchSuccess(questions));
     } catch (e) {
-      print("ELOL SINI");
       emit(QuestionBankError(e.toString()));
     }
   }
-
-  // Add new method in QuestionBankCubit class
   Future<void> fetchBankSoal(int subjectId) async {
     try {
       emit(QuestionBankLoading());
@@ -190,7 +194,7 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
       );
 
       final questions =
-          await _repository.getBankQuestions(subjectId, banksoalId);
+          await _repository.getBankQuestions(subjectId: subjectId, bankId: banksoalId);
       emit(BankQuestionsFetchSuccess(questions));
     } catch (e) {
       print('\n=== ERROR IN CUBIT ===');
@@ -241,7 +245,7 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
 
       // Fetch updated questions after successful update
       final questions =
-          await _repository.getBankQuestions(subjectId, bankSoalId);
+          await _repository.getBankQuestions(subjectId: subjectId, bankId: bankSoalId);
       print("OK 13");
       emit(BankQuestionsFetchSuccess(questions));
       print("OK 14");
@@ -250,7 +254,7 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
       if (e.toString().contains('Soal Updated Successfully')) {
         // Fetch updated questions even though we got an error
         final questions =
-            await _repository.getBankQuestions(subjectId, banksoalSoalId);
+            await _repository.getBankQuestions(subjectId: subjectId, bankId: banksoalSoalId);
         emit(BankQuestionsFetchSuccess(questions));
         return;
       }
@@ -306,8 +310,8 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
 
       // Get updated questions list
       final updatedQuestions = await _repository.getBankQuestions(
-        subjectId,
-        banksoalId,
+        subjectId: subjectId,
+        bankId: banksoalId,
       );
 
       emit(BankQuestionsFetchSuccess(updatedQuestions));

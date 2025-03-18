@@ -62,13 +62,14 @@ class QuestionBankRepository {
     }
   }
 
-  Future<List<Question>> getBankQuestions(int subjectId, int bankId) async {
+  Future<List<Question>> getBankQuestions({required int subjectId, required int bankId, int? onlineExamId}) async {
     try {
       final response = await Api.get(
         url: Api.getBankQuestions,
         queryParameters: {
           'subject_id': subjectId,
           'banksoal_id': bankId,
+          if (onlineExamId != null) 'online_exam_id': onlineExamId
         },
       );
 
@@ -369,7 +370,7 @@ class QuestionBankRepository {
       print('Question ID: $banksoalSoalId');
 
       // Verify question exists first
-      final questions = await getBankQuestions(subjectId, banksoalId);
+      final questions = await getBankQuestions(subjectId: subjectId, bankId: banksoalId);
       final questionExists = questions.any((q) => q.id == banksoalSoalId);
 
       if (!questionExists) {

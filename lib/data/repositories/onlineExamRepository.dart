@@ -41,9 +41,14 @@ class OnlineExamRepository {
         },
       );
 
+      for (var line in JsonEncoder.withIndent("  ").convert(response).split("\n")) {
+        print(line);
+      }
+
+
       return {
-        'exams': response['rows'] ?? [],
-        'subjectDetails': response['subjectDetails'] ?? [],
+        'exams': response['data']['rows'] ?? [],
+        'subjectDetails': response['data']['subjectDetails'] ?? [],
       };
     } catch (e) {
       print("Repository Error: $e");
@@ -84,7 +89,7 @@ class OnlineExamRepository {
       }
 
       // Check for valid data structure
-      if (response['status'] == true && response['data'] != null) {
+      if (response['error'] == false && response['data'] != null) {
         return { "marks": response['data']['marks'], "answers": response['data']['answers'] as List<dynamic> };
       }
 
@@ -111,7 +116,7 @@ class OnlineExamRepository {
 
       print("ERROR UPDATE ANSWER: $response");
 
-      if (response['status'] != true) {
+      if (response['error'] == true) {
         throw ApiException(
             response['message'] ?? 'Failed to update online exam question');
       }
@@ -145,7 +150,7 @@ class OnlineExamRepository {
 
       print('Update Exam Response: $response');
 
-      if (response.containsKey('status') && response['status'] != true) {
+      if (response.containsKey('status') && response['error'] == true) {
         throw ApiException(
             response['message'] ?? 'Failed to update online exam');
       }
@@ -182,7 +187,7 @@ class OnlineExamRepository {
         },
       );
 
-      if (response['status'] != true) {
+      if (response['error'] == true) {
         throw ApiException(response['message'] ?? 'Gagal menghapus ujian');
       }
 
@@ -218,7 +223,7 @@ class OnlineExamRepository {
 
       print('Restore Exam Response: $response');
 
-      if (response['status'] != true) {
+      if (response['error'] != false) {
         throw ApiException(
             response['message'] ?? 'Failed to restore online exam');
       }
@@ -255,7 +260,7 @@ class OnlineExamRepository {
 
       print('Create Exam Response: $response');
 
-      if (response['status'] == true) {
+      if (response['error'] == false) {
         return response['data'] ?? {};
       } else {
         throw Exception(response['message'] ?? 'Failed to create online exam');
@@ -323,7 +328,7 @@ class OnlineExamRepository {
       
       print("AMAN SINI 1");
 
-      if (response['status'] == true) {
+      if (response['error'] != true) {
         final data = response['data'] as Map<String, dynamic>;
         print("AMAN SINI 2");
         final examQuestions = data['exam_questions'] as List;
@@ -382,24 +387,20 @@ final options = (question['options'] as List?)?.isNotEmpty == true
         final classSubjectId = examData?['subject']?['id'] ?? 0;
         print("AMAN HERE LGI 2");
 
-                  for (var line in JsonEncoder.withIndent("  ").convert(response['data']['bank_soal']).split("\n")) {
-    print(line);
-  }
-
-          final dynamic bankSoalData = response['data']['bank_soal'];
-
-          List bankList = [];
-
-          if (bankSoalData is Map<String, dynamic>) {
-            bankList = bankSoalData.values.toList(); // Ambil hanya value-nya
-          }
+        List bankList = response['data']['bank_soal'] ?? [];
 
         print("AMAN HERE LGI 3");
+
+        print(bankList);
 
         return bankList.map((bank) {
           final bankData = Map<String, dynamic>.from(bank);
           bankData['class_section_id'] = classSectionId;
           bankData['class_subject_id'] = classSubjectId;
+          bankData['soal'] = List.from(
+            Iterable.generate(bankData['total_questions'], (_) => {"options": ""})
+          );
+
           return BankSoalQuestion.fromJson(bankData);
         }).toList();
       } else {
@@ -437,7 +438,7 @@ final options = (question['options'] as List?)?.isNotEmpty == true
 
       print('Store questions response: $response');
 
-      if (response['status'] != true) {
+      if (response['error'] == true) {
         throw ApiException(response['message'] ?? 'Failed to store questions');
       }
     } catch (e) {
@@ -463,12 +464,7 @@ final options = (question['options'] as List?)?.isNotEmpty == true
         },
       );
 
-      print('=== DELETE QUESTIONS RESPONSE ===');
-      print('Status: ${response['status']}');
-      print('Message: ${response['message']}');
-      print('Full Response: $response');
-
-      if (response['status'] != true) {
+      if (response['error'] == true) {
         throw ApiException(response['message'] ?? 'Failed to delete questions');
       }
     } catch (e) {
