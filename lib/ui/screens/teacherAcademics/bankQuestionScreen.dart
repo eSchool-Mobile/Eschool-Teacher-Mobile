@@ -1508,7 +1508,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
       q.Question question, q.QuestionVersion version) async {
     String jsonString = JsonEncoder.withIndent("  ").convert(question);
 
-    print("ASELINYA MOMENT");
+   
     print(version.orderType);
 
     final result = await Get.toNamed(

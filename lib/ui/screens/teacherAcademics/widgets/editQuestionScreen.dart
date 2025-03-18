@@ -94,7 +94,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
     }
   }
 
-    void _onOrderTypeChanged(String type) {
+  void _onOrderTypeChanged(String type) {
     setState(() {
       selectedOrderType = type;
     });
@@ -255,7 +255,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                     Text(
                       'Soal berhasil diperbarui!',
                       style: TextStyle(
-                        color: Colors.white, 
+                        color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
@@ -277,7 +277,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
           // Add slight delay before popping
           Future.delayed(Duration(milliseconds: 2200), () {
             if (context.mounted) {
-              Get.back(result: true); 
+              Get.back(result: true);
             }
           });
         } catch (e) {
@@ -385,7 +385,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                             child: _buildQuestionInfoCard(),
                           ),
 
-                          
                           SizedBox(height: 20),
                           _buildQuestionTypeSelector(),
 
@@ -568,7 +567,8 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
             controller: questionController,
             label: 'Pertanyaan',
             icon: Icons.help_outline,
-            maxLines: 3,
+            maxLines: null,
+            minLines: 3,
           ),
           SizedBox(height: 15),
           TextFormField(
@@ -775,7 +775,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
       ),
     );
   }
-
 
   Widget _buildAnswerOptionsCard() {
     return FadeInUp(
@@ -1168,7 +1167,8 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
     );
   }
 
-  DropdownMenuItem<String> _buildDropdownItem(String value, String label, IconData? icon) {
+  DropdownMenuItem<String> _buildDropdownItem(
+      String value, String label, IconData? icon) {
     return DropdownMenuItem(
       value: value,
       child: Row(
@@ -1181,7 +1181,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
       ),
     );
   }
-
 
   Widget _buildTrueFalseOption(int index, String text) {
     return FadeInLeft(
@@ -1544,11 +1543,13 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
     required TextEditingController controller,
     required String label,
     required IconData icon,
-    int maxLines = 1,
+    int? maxLines = 1,
+    int? minLines,
   }) {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
+      minLines: minLines,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon),

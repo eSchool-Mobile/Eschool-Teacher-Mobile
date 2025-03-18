@@ -338,44 +338,45 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen> {
                   listener: (context, state) {
                     if (state is EditTopicSuccess) {
                       Get.back(result: true);
-                        // Show auto-dismissing success banner
-                        ScaffoldMessenger.of(context).showSnackBar(
+                      // Show auto-dismissing success banner
+                      ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Container(
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                            Icon(Icons.check_circle, color: Colors.white),
-                            SizedBox(width: 12),
-                            Text(
-                              'Topik berhasil diperbarui!',
-                              style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              ),
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.check_circle, color: Colors.white),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Topik berhasil diperbarui!',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
-                            ],
-                          ),
                           ),
                           backgroundColor: Colors.green.shade400,
                           duration: Duration(seconds: 2),
                           behavior: SnackBarBehavior.floating,
-                          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          margin: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 10),
                           shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+                            borderRadius: BorderRadius.circular(30),
                           ),
                           elevation: 4,
                         ),
-                        );
+                      );
 
-                        // Add slight delay before popping
-                        Future.delayed(Duration(milliseconds: 2200), () {
+                      // Add slight delay before popping
+                      Future.delayed(Duration(milliseconds: 2200), () {
                         if (context.mounted) {
                           Navigator.pop(context, true);
                         }
-                        });
+                      });
                     } else if (state is EditTopicFailure) {
                       Utils.showSnackBar(
                           context: context, message: state.errorMessage);
@@ -395,44 +396,45 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen> {
               : BlocConsumer<CreateTopicCubit, CreateTopicState>(
                   listener: (context, state) {
                     if (state is CreateTopicSuccess) {
-                        // Show auto-dismissing success banner
-                        ScaffoldMessenger.of(context).showSnackBar(
+                      // Show auto-dismissing success banner
+                      ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Container(
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                            Icon(Icons.check_circle, color: Colors.white),
-                            SizedBox(width: 12),
-                            Text(
-                              'Topik berhasil ditambahkan!',
-                              style: TextStyle(
-                              color: Colors.white, 
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              ),
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.check_circle, color: Colors.white),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Topik berhasil ditambahkan!',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
-                            ],
-                          ),
                           ),
                           backgroundColor: Colors.green.shade400,
                           duration: Duration(seconds: 2),
                           behavior: SnackBarBehavior.floating,
-                          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          margin: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 10),
                           shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+                            borderRadius: BorderRadius.circular(30),
                           ),
                           elevation: 4,
                         ),
-                        );
+                      );
 
-                        // Clear form and pop with slight delay
-                        Future.delayed(Duration(milliseconds: 2200), () {
+                      // Clear form and pop with slight delay
+                      Future.delayed(Duration(milliseconds: 2200), () {
                         if (context.mounted) {
-                          Navigator.pop(context, true); 
+                          Navigator.pop(context, true);
                         }
-                        });
+                      });
                       _topicNameTextEditingController.text = "";
                       _topicDescriptionTextEditingController.text = "";
                       _addedStudyMaterials = [];
@@ -460,47 +462,59 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen> {
     );
   }
 
-Widget _buildAnimatedTextField({
-  required TextEditingController controller,
-  required String label,
-  required IconData icon,
-  int maxLines = 1,
-  int? maxLength, // Tambahkan parameter maxLength
-  bool readOnly = false,
-  VoidCallback? onTap,
-  TextInputType? keyboardType,
-}) {
-  return TextFormField(
-    controller: controller,
-    maxLines: maxLines,
-    maxLength: maxLength, // Batasi jumlah karakter
-    readOnly: readOnly,
-    onTap: onTap,
-    keyboardType: keyboardType,
-    decoration: InputDecoration(
-      labelText: label,
-      labelStyle: TextStyle(
-        color: Theme.of(context).colorScheme.secondary,
+  Widget _buildAnimatedTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    int maxLines = 1,
+    int? maxLength,
+    bool readOnly = false,
+    VoidCallback? onTap,
+    TextInputType? keyboardType,
+    bool expandable =
+        false, // Tambahkan parameter untuk input yang dapat mengembang
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines:
+          expandable ? null : maxLines, // Set null agar bisa ekspansi otomatis
+      minLines: expandable
+          ? 3
+          : maxLines, // Set minimal line untuk input yang expandable
+      maxLength: maxLength,
+      readOnly: readOnly,
+      onTap: onTap,
+      keyboardType: keyboardType ??
+          (expandable ? TextInputType.multiline : TextInputType.text),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(
+          color: Theme.of(context).colorScheme.secondary,
+        ),
+        prefixIcon: Icon(
+          icon,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide.none,
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide:
+              BorderSide(color: Theme.of(context).colorScheme.secondary),
+        ),
+        counterText: "", // Menyembunyikan indikator jumlah karakter
+        alignLabelWithHint:
+            expandable, // Agar label selaras dengan baris pertama pada input multiline
       ),
-      prefixIcon: Icon(
-        icon,
-        color: Theme.of(context).colorScheme.primary,
-      ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(15),
-        borderSide: BorderSide.none,
-      ),
-      filled: true,
-      fillColor: Colors.grey.shade50,
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary),
-      ),
-      counterText: "", // Menyembunyikan indikator jumlah karakter
-    ),
-    validator: (v) => v!.isEmpty ? 'Required' : null,
-  );
-}
+      validator: (v) => v!.isEmpty ? 'Required' : null,
+      textAlignVertical:
+          expandable ? TextAlignVertical.top : TextAlignVertical.center,
+    );
+  }
 
   Widget _buildFormContent(ClassSectionsAndSubjectsState state) {
     return state is ClassSectionsAndSubjectsFetchFailure
@@ -663,18 +677,18 @@ Widget _buildAnimatedTextField({
                     ),
                     SizedBox(height: 20),
                     _buildAnimatedTextField(
-                      controller: _topicNameTextEditingController,
-                      label: 'Nama Topik',
-                      icon: Icons.topic,
-                      maxLength: 128
-                    ),
+                        controller: _topicNameTextEditingController,
+                        label: 'Nama Topik',
+                        icon: Icons.topic,
+                        maxLength: 128),
                     SizedBox(height: 15),
                     _buildAnimatedTextField(
                       controller: _topicDescriptionTextEditingController,
                       label: 'Deskripsi',
                       icon: Icons.description,
-                      maxLines: 5,
-                      maxLength: 1024
+                      maxLength: 1024,
+                      expandable: true, // Aktifkan fitur ekspansi otomatis
+                      keyboardType: TextInputType.multiline,
                     ),
                   ],
                 ),

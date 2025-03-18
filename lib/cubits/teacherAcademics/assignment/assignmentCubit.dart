@@ -76,7 +76,7 @@ class AssignmentCubit extends Cubit<AssignmentState> {
         page: page,
       );
 
-      print("ASELI DEPOK");
+  
 
       emit(AssignmentsFetchSuccess(
         assignment: result.assignments,
@@ -120,7 +120,7 @@ class AssignmentCubit extends Cubit<AssignmentState> {
         page: (state as AssignmentsFetchSuccess).currentPage + 1,
       );
 
-      print("ASELI NGAWI");
+  
 
       final currentState = state as AssignmentsFetchSuccess;
 

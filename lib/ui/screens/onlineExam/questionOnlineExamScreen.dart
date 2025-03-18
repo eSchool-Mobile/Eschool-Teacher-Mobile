@@ -93,6 +93,11 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
     }
   }
 
+  String removeHtmlTags(String htmlText) {
+    RegExp exp = RegExp(r"<[^>]*>", multiLine: true, caseSensitive: true);
+    return htmlText.replaceAll(exp, '');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -951,7 +956,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
                               ],
                             ),
                             child: Text(
-                              question.question,
+                              removeHtmlTags(question.question),
                               style: TextStyle(
                                 fontSize: 15,
                                 color: Colors.grey[800],
@@ -999,42 +1004,43 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
                                 Stack(
                                   alignment: Alignment.center,
                                   children: [
-                                  Container(
-                                    width: 48,
-                                    height: 48,
-                                    decoration: BoxDecoration(
-                                    color: _getTypeColor(question.type)
-                                      .withOpacity(0.08),
-                                    shape: BoxShape.circle,
+                                    Container(
+                                      width: 48,
+                                      height: 48,
+                                      decoration: BoxDecoration(
+                                        color: _getTypeColor(question.type)
+                                            .withOpacity(0.08),
+                                        shape: BoxShape.circle,
+                                      ),
                                     ),
-                                  ),
-                                  Container(
-                                    width: 42,
-                                    height: 42,
-                                    decoration: BoxDecoration(
-                                    color: _getTypeColor(question.type)
-                                      .withOpacity(0.12),
-                                    shape: BoxShape.circle,
+                                    Container(
+                                      width: 42,
+                                      height: 42,
+                                      decoration: BoxDecoration(
+                                        color: _getTypeColor(question.type)
+                                            .withOpacity(0.12),
+                                        shape: BoxShape.circle,
+                                      ),
                                     ),
-                                  ),
-                                  Container(
-                                    width: 36,
-                                    height: 36,
-                                    decoration: BoxDecoration(
-                                    color: _getTypeColor(question.type)
-                                      .withOpacity(0.15),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: _getTypeColor(question.type).withOpacity(0.6),
-                                      width: 1.5,
+                                    Container(
+                                      width: 36,
+                                      height: 36,
+                                      decoration: BoxDecoration(
+                                        color: _getTypeColor(question.type)
+                                            .withOpacity(0.15),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: _getTypeColor(question.type)
+                                              .withOpacity(0.6),
+                                          width: 1.5,
+                                        ),
+                                      ),
+                                      child: Icon(
+                                        Icons.check_circle_outline_rounded,
+                                        color: _getTypeColor(question.type),
+                                        size: 22,
+                                      ),
                                     ),
-                                    ),
-                                    child: Icon(
-                                    Icons.check_circle_outline_rounded,
-                                    color: _getTypeColor(question.type),
-                                    size: 22,
-                                    ),
-                                  ),
                                   ],
                                 ),
                                 SizedBox(width: 18),

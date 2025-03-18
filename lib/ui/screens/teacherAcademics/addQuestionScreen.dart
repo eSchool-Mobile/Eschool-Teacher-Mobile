@@ -317,19 +317,19 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
             content: Container(
               padding: EdgeInsets.symmetric(vertical: 8),
               child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.check_circle, color: Colors.white),
-            SizedBox(width: 12),
-            Text(
-              'Soal berhasil ditambahkan!',
-              style: TextStyle(
-                color: Colors.white, 
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.check_circle, color: Colors.white),
+                  SizedBox(width: 12),
+                  Text(
+                    'Soal berhasil ditambahkan!',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
             backgroundColor: Colors.green.shade400,
@@ -502,11 +502,36 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
             icon: Icons.title,
           ),
           SizedBox(height: 15),
-          _buildAnimatedTextField(
+          // Modifikasi bagian pertanyaan untuk menjadi lebih fleksibel
+          TextFormField(
             controller: _questionController,
-            label: 'Pertanyaan',
-            icon: Icons.help_outline,
-            maxLines: 3,
+            decoration: InputDecoration(
+              labelText: 'Pertanyaan',
+              prefixIcon: Icon(Icons.help_outline,
+                  color: Theme.of(context).colorScheme.primary),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: Colors.grey.shade50,
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              alignLabelWithHint: true,
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+            ),
+            maxLines: null, // Memungkinkan baris tak terbatas
+            minLines: 3, // Minimal 3 baris
+            keyboardType: TextInputType.multiline, // Keyboard multi-baris
+            textInputAction: TextInputAction.newline, // Aksi baris baru
+            style: TextStyle(fontSize: 15),
+            validator: (value) =>
+                value?.isEmpty ?? true ? 'Bidang ini wajib diisi' : null,
           ),
           SizedBox(height: 15),
           // Tambahkan field untuk Poin Bawaan
@@ -1489,7 +1514,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
     );
   }
 
-    Widget _buildMultipleChoiceOrder() {
+  Widget _buildMultipleChoiceOrder() {
     return FadeInUp(
       duration: Duration(milliseconds: 800),
       child: Container(
@@ -1549,8 +1574,8 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
     );
   }
 
-
-  DropdownMenuItem<String> _buildDropdownItem(String value, String label, IconData? icon) {
+  DropdownMenuItem<String> _buildDropdownItem(
+      String value, String label, IconData? icon) {
     return DropdownMenuItem(
       value: value,
       child: Row(

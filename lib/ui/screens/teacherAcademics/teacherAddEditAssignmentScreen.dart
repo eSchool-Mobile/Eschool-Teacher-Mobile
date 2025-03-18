@@ -373,9 +373,10 @@ class _TeacherAddEditAssignmentScreenState
     }
   }
 
-  void _showOverlayMessage({required BuildContext context, required String message}) {
+  void _showOverlayMessage(
+      {required BuildContext context, required String message}) {
     OverlayEntry overlayEntry;
-    
+
     overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
         top: MediaQuery.of(context).size.height * 0.1,
@@ -693,58 +694,64 @@ class _TeacherAddEditAssignmentScreenState
                           message: assignmentAddedSuccessfullyKey,
                         );
 
-            // Add this function somewhere in the class:
-            void showOverlayMessage({required BuildContext context, required String message}) {
-              OverlayEntry overlayEntry;
-              
-              overlayEntry = OverlayEntry(
-              builder: (context) => Positioned(
-                top: MediaQuery.of(context).size.height * 0.1,
-                width: MediaQuery.of(context).size.width,
-                child: Material(
-                color: Colors.transparent,
-                child: Center(
-                  child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 20),
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade400,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 10,
-                      offset: Offset(0, 5),
-                    )
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                    Icon(Icons.check_circle, color: Colors.white),
-                    SizedBox(width: 12),
-                    Text(
-                      message,
-                      style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    ],
-                  ),
-                  ),
-                ),
-                ),
-              ),
-              );
+                        // Add this function somewhere in the class:
+                        void showOverlayMessage(
+                            {required BuildContext context,
+                            required String message}) {
+                          OverlayEntry overlayEntry;
 
-              Overlay.of(context).insert(overlayEntry);
+                          overlayEntry = OverlayEntry(
+                            builder: (context) => Positioned(
+                              top: MediaQuery.of(context).size.height * 0.1,
+                              width: MediaQuery.of(context).size.width,
+                              child: Material(
+                                color: Colors.transparent,
+                                child: Center(
+                                  child: Container(
+                                    margin:
+                                        EdgeInsets.symmetric(horizontal: 20),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 24, vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green.shade400,
+                                      borderRadius: BorderRadius.circular(30),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black26,
+                                          blurRadius: 10,
+                                          offset: Offset(0, 5),
+                                        )
+                                      ],
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.check_circle,
+                                            color: Colors.white),
+                                        SizedBox(width: 12),
+                                        Text(
+                                          message,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
 
-              Future.delayed(Duration(seconds: 2), () {
-              overlayEntry.remove();
-              });
-            }
+                          Overlay.of(context).insert(overlayEntry);
+
+                          Future.delayed(Duration(seconds: 2), () {
+                            overlayEntry.remove();
+                          });
+                        }
+
                         _assignmentNameTextEditingController.text = "";
                         _assignmentDescriptionTextEditingController.text = "";
                         _assignmentPointsTextEditingController.text = "";
@@ -1095,9 +1102,7 @@ class _TeacherAddEditAssignmentScreenState
                     FadeInUp(
                       duration: Duration(milliseconds: 600),
                       child: Text(
-                        widget.assignment != null
-                            ? "Edit Tugas"
-                            : "Buat Tugas",
+                        widget.assignment != null ? "Edit Tugas" : "Buat Tugas",
                         style: TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.w600,
@@ -1487,9 +1492,7 @@ class _TeacherAddEditAssignmentScreenState
                         onPressed: () => Get.back(),
                       ),
                       Text(
-                        widget.assignment != null
-                            ? 'Edit Tugas'
-                            : 'Buat Tugas',
+                        widget.assignment != null ? 'Edit Tugas' : 'Buat Tugas',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20,
@@ -1712,7 +1715,8 @@ class _TeacherAddEditAssignmentScreenState
             controller: _assignmentDescriptionTextEditingController,
             label: 'Keterangan',
             icon: Icons.description,
-            maxLines: 3,
+            maxLines:
+                null, // Changed from fixed 3 lines to null for auto-expansion
           ),
           SizedBox(height: 15),
           Row(
@@ -1865,7 +1869,7 @@ class _TeacherAddEditAssignmentScreenState
     required TextEditingController controller,
     required String label,
     required IconData icon,
-    int maxLines = 1,
+    int? maxLines = 1, // Change to nullable int with default 1
     bool readOnly = false,
     VoidCallback? onTap,
     TextInputType? keyboardType,
@@ -1875,21 +1879,22 @@ class _TeacherAddEditAssignmentScreenState
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
+      minLines:
+          maxLines == null ? 3 : 1, // Set minimum lines when auto-expanding
+      expands: false, // Don't expand to fill all available space
       readOnly: readOnly,
       onTap: onTap,
-      keyboardType: keyboardType,
+      keyboardType:
+          keyboardType ?? (maxLines == null ? TextInputType.multiline : null),
       decoration: InputDecoration(
         labelText: label,
+        alignLabelWithHint: maxLines != 1, // Align label with top for multiline
         labelStyle: TextStyle(
-          // Add this
           color: labelColor ?? Theme.of(context).colorScheme.secondary,
         ),
         prefixIcon: Icon(
           icon,
-          color: iconColor ??
-              Theme.of(context)
-                  .colorScheme
-                  .primary, // Use passed color or theme color
+          color: iconColor ?? Theme.of(context).colorScheme.primary,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
@@ -1902,8 +1907,11 @@ class _TeacherAddEditAssignmentScreenState
           borderSide:
               BorderSide(color: Theme.of(context).colorScheme.secondary),
         ),
+        contentPadding: EdgeInsets.symmetric(
+            vertical: maxLines == null ? 15 : 10, horizontal: 15),
       ),
       validator: (v) => v!.isEmpty ? 'Required' : null,
+      textAlignVertical: TextAlignVertical.top,
     );
   }
 

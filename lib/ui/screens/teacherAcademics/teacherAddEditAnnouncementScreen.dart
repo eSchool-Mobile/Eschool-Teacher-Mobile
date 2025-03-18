@@ -512,18 +512,18 @@ class _TeacherAddEditAnnouncementScreenState
               ),
               SizedBox(height: 20),
               _buildAnimatedTextField(
-                controller: _announcementTitleTextEditingController,
-                label: 'Judul Pengumuman',
-                icon: Icons.title,
-                maxLength: 128
-              ),
+                  controller: _announcementTitleTextEditingController,
+                  label: 'Judul Pengumuman',
+                  icon: Icons.title,
+                  maxLength: 128),
               SizedBox(height: 15),
               _buildAnimatedTextField(
                 controller: _announcementDescriptionTextEditingController,
                 label: 'Deskripsi',
                 icon: Icons.description,
-                maxLines: 5,
-                maxLength: 1024
+                maxLength: 1024,
+                autoExpand: true, // Enable auto-expanding
+                keyboardType: TextInputType.multiline,
               ),
             ],
           ),
@@ -827,45 +827,49 @@ class _TeacherAddEditAnnouncementScreenState
     );
   }
 
-Widget _buildAnimatedTextField({
-  required TextEditingController controller,
-  required String label,
-  required IconData icon,
-  int maxLines = 1,
-  int? maxLength, // Tambahkan parameter maxLength
-  bool readOnly = false,
-  VoidCallback? onTap,
-  TextInputType? keyboardType,
-}) {
-  return TextFormField(
-    controller: controller,
-    maxLines: maxLines,
-    maxLength: maxLength, // Batasi jumlah karakter
-    readOnly: readOnly,
-    onTap: onTap,
-    keyboardType: keyboardType,
-    decoration: InputDecoration(
-      labelText: label,
-      labelStyle: TextStyle(
-        color: Theme.of(context).colorScheme.secondary,
+  Widget _buildAnimatedTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    int maxLines = 1,
+    int? maxLength,
+    bool readOnly = false,
+    VoidCallback? onTap,
+    TextInputType? keyboardType,
+    bool autoExpand = false,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: autoExpand ? null : maxLines,
+      minLines: autoExpand ? 3 : null,
+      maxLength: maxLength,
+      readOnly: readOnly,
+      onTap: onTap,
+      keyboardType:
+          keyboardType ?? (autoExpand ? TextInputType.multiline : null),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(
+          color: Theme.of(context).colorScheme.secondary,
+        ),
+        prefixIcon: Icon(
+          icon,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide.none,
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide:
+              BorderSide(color: Theme.of(context).colorScheme.secondary),
+        ),
+        counterText: "",
       ),
-      prefixIcon: Icon(
-        icon,
-        color: Theme.of(context).colorScheme.primary,
-      ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(15),
-        borderSide: BorderSide.none,
-      ),
-      filled: true,
-      fillColor: Colors.grey.shade50,
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary),
-      ),
-      counterText: "", // Menyembunyikan indikator jumlah karakter
-    ),
-    validator: (v) => v!.isEmpty ? 'Required' : null,
-  );
-}
+      validator: (v) => v!.isEmpty ? 'Required' : null,
+    );
+  }
 }

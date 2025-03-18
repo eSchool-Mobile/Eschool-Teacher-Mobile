@@ -291,8 +291,9 @@ class _TeacherAddEditLessonScreenState
                           ),
                           backgroundColor: Colors.green.shade400,
                           duration: Duration(seconds: 2),
-                          behavior: SnackBarBehavior.floating, 
-                          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          behavior: SnackBarBehavior.floating,
+                          margin: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 10),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
@@ -307,7 +308,8 @@ class _TeacherAddEditLessonScreenState
                         }
                       });
                     } else if (state is EditLessonFailure) {
-                      Utils.showSnackBar(context: context, message: state.errorMessage);
+                      Utils.showSnackBar(
+                          context: context, message: state.errorMessage);
                     }
                   },
                   builder: (context, state) {
@@ -324,38 +326,38 @@ class _TeacherAddEditLessonScreenState
               : BlocConsumer<CreateLessonCubit, CreateLessonState>(
                   listener: (context, state) {
                     if (state is CreateLessonSuccess) {
-                        // Show auto-dismissing success banner
-                        ScaffoldMessenger.of(context).showSnackBar(
+                      // Show auto-dismissing success banner
+                      ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Container(
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                            Icon(Icons.check_circle, color: Colors.white),
-                            SizedBox(width: 12),
-                            Text(
-                              'Pelajaran berhasil ditambahkan!',
-                              style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              ),
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.check_circle, color: Colors.white),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Pelajaran berhasil ditambahkan!',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
-                            ],
-                          ),
                           ),
                           backgroundColor: Colors.green.shade400,
                           duration: Duration(seconds: 2),
                           behavior: SnackBarBehavior.floating,
                           margin: EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
+                              horizontal: 20, vertical: 10),
                           shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+                            borderRadius: BorderRadius.circular(30),
                           ),
                           elevation: 4,
                         ),
-                        );
+                      );
                       _lessonDescriptionTextEditingController.text = "";
                       _lessonNameTextEditingController.text = "";
                       _addedStudyMaterials = [];
@@ -363,7 +365,8 @@ class _TeacherAddEditLessonScreenState
                       setState(() {});
                       Navigator.pop(context, true);
                     } else if (state is CreateLessonFailure) {
-                      Utils.showSnackBar(context: context, message: state.errorMessage);
+                      Utils.showSnackBar(
+                          context: context, message: state.errorMessage);
                     }
                   },
                   builder: (context, state) {
@@ -446,69 +449,76 @@ class _TeacherAddEditLessonScreenState
         children: [
           // Header with Icon
           Container(
-              padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Theme.of(context).colorScheme.primary.withOpacity(0.9),
-                    Theme.of(context).colorScheme.secondary.withOpacity(0.7),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                  )
+            padding: EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Theme.of(context).colorScheme.primary.withOpacity(0.9),
+                  Theme.of(context).colorScheme.secondary.withOpacity(0.7),
                 ],
               ),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.school_rounded,
-                    size: 42,
-                    color: Colors.white,
-                  ).animate()
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                )
+              ],
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.school_rounded,
+                  size: 42,
+                  color: Colors.white,
+                )
+                    .animate()
                     .scale(duration: 500.ms)
                     .then()
                     .shimmer(duration: 1000.ms),
-                  SizedBox(height: 15),
-                  Text(
-                    widget.lesson != null ? "Edit Pelajaran" : "Buat Pelajaran",
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(
-                          blurRadius: 10,
-                          color: Colors.black26,
-                          offset: Offset(2, 2),
-                        ),
-                      ],
-                    ),
+                SizedBox(height: 15),
+                Text(
+                  widget.lesson != null ? "Edit Pelajaran" : "Buat Pelajaran",
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 10,
+                        color: Colors.black26,
+                        offset: Offset(2, 2),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+          ),
 
           SizedBox(height: 25),
 
           // Form Content
-          BlocConsumer<ClassSectionsAndSubjectsCubit, ClassSectionsAndSubjectsState>(
+          BlocConsumer<ClassSectionsAndSubjectsCubit,
+              ClassSectionsAndSubjectsState>(
             listener: (context, state) {
               // Add listener implementation if needed
             },
             builder: (context, state) {
               return state is ClassSectionsAndSubjectsFetchFailure
-                  ? Center(child: ErrorContainer(
-                      errorMessage: (state as ClassSectionsAndSubjectsFetchFailure).errorMessage,
+                  ? Center(
+                      child: ErrorContainer(
+                      errorMessage:
+                          (state as ClassSectionsAndSubjectsFetchFailure)
+                              .errorMessage,
                       onTapRetry: () {
-                        context.read<ClassSectionsAndSubjectsCubit>().getClassSectionsAndSubjects();
+                        context
+                            .read<ClassSectionsAndSubjectsCubit>()
+                            .getClassSectionsAndSubjects();
                       },
                     ))
                   : _buildFormContent(state);
@@ -564,58 +574,57 @@ class _TeacherAddEditLessonScreenState
                       ),
                     ),
                     SizedBox(height: 20),
-                    
+
                     // Class Selection
                     _buildAnimatedTextField(
                       controller: TextEditingController(
-                        text: _selectedClassSection?.fullName ?? 'Pilih Kelas'
-                      ),
+                          text:
+                              _selectedClassSection?.fullName ?? 'Pilih Kelas'),
                       label: 'Bagian Kelas',
                       icon: Icons.class_,
                       readOnly: true,
                       onTap: () {
                         if (state is ClassSectionsAndSubjectsFetchSuccess) {
                           Utils.showBottomSheet(
-                            child: FilterSelectionBottomsheet<ClassSection>(
-                              showFilterByLabel: false,
-                              onSelection: (value) {
-                                changeSelectedClassSection(value);
-                                Get.back();
-                              },
-                              selectedValue: _selectedClassSection!,
-                              titleKey: classKey,
-                              values: state.classSections,
-                            ),
-                            context: context
-                          );
+                              child: FilterSelectionBottomsheet<ClassSection>(
+                                showFilterByLabel: false,
+                                onSelection: (value) {
+                                  changeSelectedClassSection(value);
+                                  Get.back();
+                                },
+                                selectedValue: _selectedClassSection!,
+                                titleKey: classKey,
+                                values: state.classSections,
+                              ),
+                              context: context);
                         }
                       },
                     ),
                     SizedBox(height: 15),
 
-                    // Subject Selection  
+                    // Subject Selection
                     _buildAnimatedTextField(
                       controller: TextEditingController(
-                        text: _selectedSubject?.subject.getSybjectNameWithType() ?? 'Pilih Mata Pelajaran'
-                      ),
+                          text: _selectedSubject?.subject
+                                  .getSybjectNameWithType() ??
+                              'Pilih Mata Pelajaran'),
                       label: 'Mata Pelajaran',
                       icon: Icons.subject,
                       readOnly: true,
                       onTap: () {
                         if (state is ClassSectionsAndSubjectsFetchSuccess) {
                           Utils.showBottomSheet(
-                            child: FilterSelectionBottomsheet<TeacherSubject>(
-                              showFilterByLabel: false,
-                              selectedValue: _selectedSubject!,
-                              titleKey: subjectKey,
-                              values: state.subjects,
-                              onSelection: (value) {
-                                changeSelectedTeacherSubject(value!);
-                                Get.back();
-                              },
-                            ),
-                            context: context
-                          );
+                              child: FilterSelectionBottomsheet<TeacherSubject>(
+                                showFilterByLabel: false,
+                                selectedValue: _selectedSubject!,
+                                titleKey: subjectKey,
+                                values: state.subjects,
+                                onSelection: (value) {
+                                  changeSelectedTeacherSubject(value!);
+                                  Get.back();
+                                },
+                              ),
+                              context: context);
                         }
                       },
                     ),
@@ -652,20 +661,16 @@ class _TeacherAddEditLessonScreenState
                       ),
                     ),
                     SizedBox(height: 20),
-                    
                     _buildAnimatedTextField(
                       controller: _lessonNameTextEditingController,
                       label: 'Nama Pelajaran',
                       icon: Icons.book,
                     ),
-                    
                     SizedBox(height: 15),
-                    
                     _buildAnimatedTextField(
                       controller: _lessonDescriptionTextEditingController,
                       label: 'Deskripsi',
                       icon: Icons.description,
-                      maxLines: 5,
                     ),
                   ],
                 ),
@@ -717,26 +722,27 @@ class _TeacherAddEditLessonScreenState
 
                     // Added study materials
                     ..._addedStudyMaterials.asMap().entries.map(
-                      (entry) => Padding(
-                        padding: const EdgeInsets.only(top: 15),
-                        child: AddedStudyMaterialContainer(
-                          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                          onDelete: (index) {
-                            _addedStudyMaterials.removeAt(index);
-                            setState(() {});
-                          },
-                          onEdit: (index, file) {
-                            _addedStudyMaterials[index] = file;
-                            setState(() {});
-                          },
-                          file: entry.value,
-                          fileIndex: entry.key,
+                          (entry) => Padding(
+                            padding: const EdgeInsets.only(top: 15),
+                            child: AddedStudyMaterialContainer(
+                              backgroundColor:
+                                  Theme.of(context).scaffoldBackgroundColor,
+                              onDelete: (index) {
+                                _addedStudyMaterials.removeAt(index);
+                                setState(() {});
+                              },
+                              onEdit: (index, file) {
+                                _addedStudyMaterials[index] = file;
+                                setState(() {});
+                              },
+                              file: entry.value,
+                              fileIndex: entry.key,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
 
                     SizedBox(height: 15),
-                    
+
                     // Add study material button
                     UploadImageOrFileButton(
                       uploadFile: true,
@@ -771,10 +777,13 @@ class _TeacherAddEditLessonScreenState
   }) {
     return TextFormField(
       controller: controller,
-      maxLines: maxLines,
+      maxLines: label == 'Deskripsi'
+          ? null
+          : maxLines, // null allows unlimited lines for description
       readOnly: readOnly,
       onTap: onTap,
-      keyboardType: keyboardType,
+      keyboardType:
+          label == 'Deskripsi' ? TextInputType.multiline : keyboardType,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(
@@ -792,10 +801,18 @@ class _TeacherAddEditLessonScreenState
         fillColor: Colors.grey.shade50,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary),
+          borderSide:
+              BorderSide(color: Theme.of(context).colorScheme.secondary),
         ),
+        // Add alignment for multiline inputs
+        alignLabelWithHint: label == 'Deskripsi',
+        contentPadding: EdgeInsets.symmetric(
+            horizontal: 15, vertical: label == 'Deskripsi' ? 20 : 15),
       ),
       validator: (v) => v!.isEmpty ? 'Required' : null,
+      minLines: label == 'Deskripsi'
+          ? 3
+          : 1, // Start with at least 3 lines for description
     );
   }
 
@@ -829,23 +846,26 @@ class _TeacherAddEditLessonScreenState
               children: [
                 // Custom App Bar
                 Container(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.arrow_back_ios, color: Colors.white),
-                          onPressed: () => Get.back(result: refreshLessonsInPreviousPage),
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                        onPressed: () =>
+                            Get.back(result: refreshLessonsInPreviousPage),
+                      ),
+                      Text(
+                        widget.lesson != null
+                            ? 'Edit Pelajaran'
+                            : 'Buat Pelajaran',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
-                        Text(
-                            widget.lesson != null ? 'Edit Pelajaran' : 'Buat Pelajaran',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
                 ),
 
                 // Content

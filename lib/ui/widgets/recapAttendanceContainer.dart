@@ -278,18 +278,17 @@ class RecapAttendanceContainer extends StatelessWidget {
       padding: EdgeInsets.all(24),
       child: Column(
         children: [
+          // Header kolom diubah menjadi lebih sesuai dengan layout baru
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                flex: 2,
-                child: Text(
-                  'Kelas',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColorPalette.primaryMaroon,
-                    letterSpacing: 0.5,
-                  ),
+              Text(
+                'Kelas',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppColorPalette.primaryMaroon,
+                  letterSpacing: 0.5,
                 ),
               ),
               Text(
@@ -333,50 +332,48 @@ class RecapAttendanceContainer extends StatelessWidget {
             width: 1,
           ),
         ),
-        child: Row(
+        // Gunakan Column untuk memisahkan nama kelas dan tombol aksi
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Expanded dengan flex: 2 memastikan bagian kelas tidak terpotong
-            Expanded(
-              flex: 2,
-              child: Row(
-                children: [
-                  Icon(
-                    section.pkl == 1
-                        ? Icons.business_center_rounded
-                        : Icons.school_rounded,
-                    color: section.pkl == 1
-                        ? Colors.grey
-                        : AppColorPalette.secondaryMaroon,
-                    size: 24,
-                  ),
-                  SizedBox(width: 12),
-                  // Gunakan Flexible dengan FittedBox untuk handling text overflow dengan lebih baik
-                  Flexible(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        section.name ?? '',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: section.pkl == 1
-                              ? Colors.grey.shade700
-                              : AppColorPalette.primaryMaroon,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        softWrap: false,
-                        overflow: TextOverflow.fade,
-                        maxLines: 1,
-                      ),
+            // Bagian nama kelas
+            Row(
+              children: [
+                Icon(
+                  section.pkl == 1
+                      ? Icons.business_center_rounded
+                      : Icons.school_rounded,
+                  color: section.pkl == 1
+                      ? Colors.grey
+                      : AppColorPalette.secondaryMaroon,
+                  size: 24,
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    section.name ?? '',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: section.pkl == 1
+                          ? Colors.grey.shade700
+                          : AppColorPalette.primaryMaroon,
+                      fontWeight: FontWeight.w500,
                     ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            // Berikan margin antara nama kelas dan tombol aksi
-            SizedBox(width: 12),
-            // Komponen tombol aksi
-            _buildActionButtons(section, monthIndex, context),
+
+            // Separator
+            SizedBox(height: 16),
+
+            // Bagian tombol aksi dalam row terpisah
+            Align(
+              alignment: Alignment.centerRight,
+              child: _buildActionButtons(section, monthIndex, context),
+            ),
           ],
         ),
       ),
@@ -388,8 +385,9 @@ class RecapAttendanceContainer extends StatelessWidget {
       ClassSection section, int monthIndex, BuildContext context) {
     final bool isPKL = section.pkl == 1;
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    return Wrap(
+      spacing: 8, // Jarak horizontal antara tombol
+      runSpacing: 8, // Jarak vertikal jika tombol wrap ke baris baru
       children: [
         _buildActionButton(
           icon:
@@ -399,7 +397,6 @@ class RecapAttendanceContainer extends StatelessWidget {
           isPrimary: true,
           isPKL: isPKL,
         ),
-        SizedBox(width: 8),
         _buildActionButton(
           icon: isPKL ? Icons.business_center_rounded : Icons.download_rounded,
           label: 'Unduh',
