@@ -22,6 +22,7 @@ class AssignmentSubmissionsRepository {
           )
           .toList();
     } catch (e) {
+      print(e.toString());
       throw ApiException(e.toString());
     }
   }

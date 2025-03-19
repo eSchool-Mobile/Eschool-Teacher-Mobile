@@ -27,23 +27,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 
 class TeacherManageTopicScreen extends StatefulWidget {
-  //if user comes from a lesson item, this'll be not null
   final ClassSection? selectedClassSection;
   final TeacherSubject? selectedSubject;
   final Lesson? selectedLesson;
+
   static Widget getRouteInstance() {
     final arguments = Get.arguments as Map<String, dynamic>?;
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (context) => LessonsCubit(),
-        ),
-        BlocProvider(
-          create: (context) => ClassSectionsAndSubjectsCubit(),
-        ),
-        BlocProvider(
-          create: (context) => TopicsCubit(),
-        ),
+        BlocProvider(create: (context) => LessonsCubit()),
+        BlocProvider(create: (context) => ClassSectionsAndSubjectsCubit()),
+        BlocProvider(create: (context) => TopicsCubit()),
       ],
       child: TeacherManageTopicScreen(
         selectedClassSection: arguments?['selectedClassSection'],
@@ -53,10 +47,11 @@ class TeacherManageTopicScreen extends StatefulWidget {
     );
   }
 
-  static Map<String, dynamic> buildArguments(
-      {required ClassSection? selectedClassSection,
-      required TeacherSubject? selectedSubject,
-      required Lesson? selectedLesson}) {
+  static Map<String, dynamic> buildArguments({
+    required ClassSection? selectedClassSection,
+    required TeacherSubject? selectedSubject,
+    required Lesson? selectedLesson,
+  }) {
     return {
       "selectedClassSection": selectedClassSection,
       "selectedSubject": selectedSubject,
@@ -64,23 +59,21 @@ class TeacherManageTopicScreen extends StatefulWidget {
     };
   }
 
-  const TeacherManageTopicScreen(
-      {super.key,
-      this.selectedClassSection,
-      this.selectedSubject,
-      this.selectedLesson});
+  const TeacherManageTopicScreen({
+    super.key,
+    this.selectedClassSection,
+    this.selectedSubject,
+    this.selectedLesson,
+  });
 
   @override
-  State<TeacherManageTopicScreen> createState() =>
-      _TeacherManageTopicScreenState();
+  State<TeacherManageTopicScreen> createState() => _TeacherManageTopicScreenState();
 }
 
 class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen> {
   ClassSection? _selectedClassSection;
   TeacherSubject? _selectedSubject;
   Lesson? _selectedLesson;
-
-  //this will be used to refresh previous page (if the user is from lessons)
   bool didCreateNewTopic = false;
 
   @override
@@ -88,13 +81,10 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen> {
     if (widget.selectedLesson == null) {
       Future.delayed(Duration.zero, () {
         if (mounted) {
-          context
-              .read<ClassSectionsAndSubjectsCubit>()
-              .getClassSectionsAndSubjects();
+          context.read<ClassSectionsAndSubjectsCubit>().getClassSectionsAndSubjects();
         }
       });
     } else {
-      //if user came from a lesson, these will be pre-added to send to next page, but user's won't be able to select/change filters
       _selectedLesson = widget.selectedLesson;
       _selectedSubject = widget.selectedSubject;
       _selectedClassSection = widget.selectedClassSection;
@@ -103,25 +93,18 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen> {
     super.initState();
   }
 
-  void changeSelectedClassSection(ClassSection? classSection,
-      {bool fetchNewSubjects = true}) {
+  void changeSelectedClassSection(ClassSection? classSection, {bool fetchNewSubjects = true}) {
     if (_selectedClassSection != classSection) {
       _selectedClassSection = classSection;
-      //fetching new subjects after user changes the selected class
       if (fetchNewSubjects && _selectedClassSection != null) {
         context
             .read<ClassSectionsAndSubjectsCubit>()
-            .getNewSubjectsFromSelectedClassSectionIndex(
-                newClassSectionId: classSection?.id ?? 0)
+            .getNewSubjectsFromSelectedClassSectionIndex(newClassSectionId: classSection?.id ?? 0)
             .then((value) {
           if (mounted) {
-            if (context.read<ClassSectionsAndSubjectsCubit>().state
-                is ClassSectionsAndSubjectsFetchSuccess) {
-              changeSelectedTeacherSubject((context
-                      .read<ClassSectionsAndSubjectsCubit>()
-                      .state as ClassSectionsAndSubjectsFetchSuccess)
-                  .subjects
-                  .firstOrNull);
+            if (context.read<ClassSectionsAndSubjectsCubit>().state is ClassSectionsAndSubjectsFetchSuccess) {
+              changeSelectedTeacherSubject(
+                  (context.read<ClassSectionsAndSubjectsCubit>().state as ClassSectionsAndSubjectsFetchSuccess).subjects.firstOrNull);
             }
           }
         });
@@ -140,8 +123,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen> {
 
   void getLessons() {
     context.read<LessonsCubit>().fetchLessons(
-        classSubjectId: _selectedSubject?.classSubjectId ?? 0,
-        classSectionId: _selectedClassSection?.id ?? 0);
+        classSubjectId: _selectedSubject?.classSubjectId ?? 0, classSectionId: _selectedClassSection?.id ?? 0);
   }
 
   void getTopics() {
@@ -155,90 +137,77 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen> {
         return BlocConsumer<DeleteTopicCubit, DeleteTopicState>(
           listener: (context, state) {
             if (state is DeleteTopicSuccess) {
-                ScaffoldMessenger.of(context).showSnackBar(
+              ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Container(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center, 
-                    children: [
-                    Icon(Icons.check_circle, color: Colors.white),
-                    SizedBox(width: 12),
-                    Text(
-                      "${Utils.getTranslatedLabel(topicDeletedSuccessfullyKey)} ${topic.name}",
-                      style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      ),
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.check_circle, color: Colors.white),
+                        SizedBox(width: 12),
+                        Text(
+                          "${Utils.getTranslatedLabel(topicDeletedSuccessfullyKey)} ${topic.name}",
+                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+                        ),
+                      ],
                     ),
-                    ],
-                  ),
                   ),
                   backgroundColor: Colors.green.shade400,
                   duration: Duration(seconds: 2),
                   behavior: SnackBarBehavior.floating,
                   margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   elevation: 4,
                 ),
-                );
+              );
               context.read<TopicsCubit>().deleteTopic(topic.id);
             } else if (state is DeleteTopicFailure) {
               Utils.showSnackBar(
                 context: context,
-                message:
-                    "${Utils.getTranslatedLabel(unableToDeleteTopicKey)} ${topic.name}",
+                message: "${Utils.getTranslatedLabel(unableToDeleteTopicKey)} ${topic.name}",
               );
             }
           },
           builder: (context, state) {
             return CustomExpandableContainer(
-                key: ValueKey(topic.id),
-                contractedContentWidget: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    CustomTitleDescriptionContainer(
-                        titleKey: descriptionKey,
-                        description: topic.description),
-                  ],
-                ),
-                isDeleteLoading: state is DeleteTopicInProgress,
-                onDelete: () {
-                  if (state is DeleteTopicInProgress) {
-                    return;
+              key: ValueKey(topic.id),
+              contractedContentWidget: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  CustomTitleDescriptionContainer(titleKey: descriptionKey, description: topic.description),
+                ],
+              ),
+              isDeleteLoading: state is DeleteTopicInProgress,
+              onDelete: () {
+                if (state is DeleteTopicInProgress) return;
+                showDialog<bool>(
+                  context: context,
+                  builder: (_) => const ConfirmDeleteDialog(),
+                ).then((value) {
+                  if (value != null && value) {
+                    if (context.mounted) {
+                      context.read<DeleteTopicCubit>().deleteTopic(topicId: topic.id);
+                    }
                   }
-                  showDialog<bool>(
-                    context: context,
-                    builder: (_) => const ConfirmDeleteDialog(),
-                  ).then((value) {
-                    if (value != null && value) {
-                      if (context.mounted) {
-                        context
-                            .read<DeleteTopicCubit>()
-                            .deleteTopic(topicId: topic.id);
-                      }
-                    }
-                  });
-                },
-                onEdit: () {
-                  Get.toNamed(Routes.teacherAddEditTopicScreen,
-                      arguments: TeacherAddEditTopicScreen.buildArguments(
-                        topic: topic,
-                        selectedClassSection: _selectedClassSection,
-                        selectedLesson: _selectedLesson,
-                        selectedSubject: _selectedSubject,
-                      ))?.then((value) {
-                    if (value != null && value is bool && value) {
-                      //re-fetch topics if they edit or add
-                      getTopics();
-                    }
-                  });
-                },
-                studyMaterials: topic.studyMaterials,
-                titleText: topic.name);
+                });
+              },
+              onEdit: () {
+                Get.toNamed(Routes.teacherAddEditTopicScreen,
+                    arguments: TeacherAddEditTopicScreen.buildArguments(
+                      topic: topic,
+                      selectedClassSection: _selectedClassSection,
+                      selectedLesson: _selectedLesson,
+                      selectedSubject: _selectedSubject,
+                    ))?.then((value) {
+                  if (value != null && value is bool && value) {
+                    getTopics();
+                  }
+                });
+              },
+              studyMaterials: topic.studyMaterials,
+              titleText: topic.name,
+            );
           },
         );
       }),
@@ -251,21 +220,15 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen> {
       child: SingleChildScrollView(
         padding: EdgeInsets.only(
             bottom: 70,
-            top: Utils.appContentTopScrollPadding(context: context) +
-                (widget.selectedLesson == null ? 150 : 25)),
+            top: Utils.appContentTopScrollPadding(context: context) + (widget.selectedLesson == null ? 150 : 25)),
         child: BlocBuilder<TopicsCubit, TopicsState>(
           builder: (context, state) {
             if (state is TopicsFetchSuccess) {
               if (state.topics.isEmpty) {
                 return Center(
                   child: Padding(
-                    padding: EdgeInsets.only(
-                      top: Utils.appContentTopScrollPadding(context: context) +
-                          150,
-                    ),
-                    child: CustomTextContainer(
-                      textKey: Utils.getTranslatedLabel(noTopicKey),
-                    ),
+                    padding: EdgeInsets.only(top: Utils.appContentTopScrollPadding(context: context) + 150),
+                    child: CustomTextContainer(textKey: Utils.getTranslatedLabel(noTopicKey)),
                   ),
                 );
               }
@@ -276,35 +239,24 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(
-                      height: 5,
-                    ),
+                    const SizedBox(height: 5),
                     CustomTextContainer(
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textKey: topicListKey,
-                      style: TextStyle(
-                        fontSize: Utils.getScaledValue(context, 16),
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(fontSize: Utils.getScaledValue(context, 16), fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    ...List.generate(
-                      state.topics.length,
-                      (index) => _buildTopicItem(topic: state.topics[index]),
-                    ),
+                    const SizedBox(height: 5),
+                    ...List.generate(state.topics.length, (index) => _buildTopicItem(topic: state.topics[index])),
                   ],
                 ),
               );
             } else if (state is TopicsFetchFailure) {
               return Center(
                 child: Padding(
-                  padding: EdgeInsets.only(
-                      top: topPaddingOfErrorAndLoadingContainer),
+                  padding: EdgeInsets.only(top: topPaddingOfErrorAndLoadingContainer),
                   child: ErrorContainer(
-                    errorMessage: state.errorMessage,
+                    errorMessage: "Gagal mendapatkan bab pelajaran, mohon coba lagi",
                     onTapRetry: () {
                       getTopics();
                     },
@@ -314,11 +266,8 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen> {
             } else {
               return Center(
                 child: Padding(
-                  padding: EdgeInsets.only(
-                      top: topPaddingOfErrorAndLoadingContainer),
-                  child: CustomCircularProgressIndicator(
-                    indicatorColor: Theme.of(context).colorScheme.primary,
-                  ),
+                  padding: EdgeInsets.only(top: topPaddingOfErrorAndLoadingContainer),
+                  child: CustomCircularProgressIndicator(indicatorColor: Theme.of(context).colorScheme.primary),
                 ),
               );
             }
@@ -333,9 +282,9 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen> {
       alignment: Alignment.bottomCenter,
       child: Container(
         padding: EdgeInsets.all(appContentHorizontalPadding),
-        decoration: BoxDecoration(boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 1, spreadRadius: 1)
-        ], color: Theme.of(context).colorScheme.surface),
+        decoration: BoxDecoration(
+            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 1, spreadRadius: 1)],
+            color: Theme.of(context).colorScheme.surface),
         width: MediaQuery.of(context).size.width,
         height: 70,
         child: CustomRoundedButton(
@@ -353,7 +302,6 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen> {
                   selectedSubject: _selectedSubject,
                 ))?.then((value) {
               if (value != null && value is bool && value) {
-                //re-fetch topics if they edit or add
                 getTopics();
                 didCreateNewTopic = true;
               }
@@ -367,13 +315,11 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen> {
   Widget _buildAppbarAndFilters() {
     return Align(
       alignment: Alignment.topCenter,
-      child: BlocConsumer<ClassSectionsAndSubjectsCubit,
-          ClassSectionsAndSubjectsState>(
+      child: BlocConsumer<ClassSectionsAndSubjectsCubit, ClassSectionsAndSubjectsState>(
         listener: (context, state) {
           if (state is ClassSectionsAndSubjectsFetchSuccess) {
             if (_selectedClassSection == null) {
-              changeSelectedClassSection(state.classSections.firstOrNull,
-                  fetchNewSubjects: false);
+              changeSelectedClassSection(state.classSections.firstOrNull, fetchNewSubjects: false);
             }
             if (_selectedSubject == null) {
               changeSelectedTeacherSubject(state.subjects.firstOrNull);
@@ -396,11 +342,9 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen> {
                           children: [
                             FilterButton(
                               onTap: () {
-                                if (state
-                                    is ClassSectionsAndSubjectsFetchSuccess) {
+                                if (state is ClassSectionsAndSubjectsFetchSuccess) {
                                   Utils.showBottomSheet(
-                                      child: FilterSelectionBottomsheet<
-                                          ClassSection>(
+                                      child: FilterSelectionBottomsheet<ClassSection>(
                                         onSelection: (value) {
                                           changeSelectedClassSection(value!);
                                           Get.back();
@@ -412,24 +356,19 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen> {
                                       context: context);
                                 }
                               },
-                              titleKey: _selectedClassSection?.id == null
-                                  ? classKey
-                                  : _selectedClassSection?.name ?? "",
-                              width: boxConstraints.maxWidth * (0.48),
+                              titleKey: _selectedClassSection?.id == null ? classKey : _selectedClassSection?.name ?? "",
+                              width: boxConstraints.maxWidth * 0.48,
                             ),
                             FilterButton(
                                 onTap: () {
-                                  if (state
-                                      is ClassSectionsAndSubjectsFetchSuccess) {
+                                  if (state is ClassSectionsAndSubjectsFetchSuccess) {
                                     Utils.showBottomSheet(
-                                        child: FilterSelectionBottomsheet<
-                                            TeacherSubject>(
+                                        child: FilterSelectionBottomsheet<TeacherSubject>(
                                           selectedValue: _selectedSubject!,
                                           titleKey: subjectKey,
                                           values: state.subjects,
                                           onSelection: (value) {
-                                            changeSelectedTeacherSubject(
-                                                value!);
+                                            changeSelectedTeacherSubject(value!);
                                             Get.back();
                                           },
                                         ),
@@ -438,16 +377,12 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen> {
                                 },
                                 titleKey: _selectedSubject?.id == null
                                     ? subjectKey
-                                    : _selectedSubject?.subject
-                                            .getSybjectNameWithType() ??
-                                        "",
-                                width: boxConstraints.maxWidth * (0.48)),
+                                    : _selectedSubject?.subject.getSybjectNameWithType() ?? "",
+                                width: boxConstraints.maxWidth * 0.48),
                           ],
                         ),
                       ),
-                      const SizedBox(
-                        height: 15,
-                      ),
+                      const SizedBox(height: 15),
                       SizedBox(
                         height: 40,
                         child: BlocConsumer<LessonsCubit, LessonsState>(
@@ -481,9 +416,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen> {
                                       context: context);
                                 }
                               },
-                              titleKey: _selectedLesson?.id == null
-                                  ? lessonKey
-                                  : _selectedLesson?.name ?? "",
+                              titleKey: _selectedLesson?.id == null ? lessonKey : _selectedLesson?.name ?? "",
                               width: boxConstraints.maxWidth,
                             );
                           },
@@ -505,54 +438,42 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen> {
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) {
-        if (didPop) {
-          return;
-        }
+        if (didPop) return;
         Get.back(result: didCreateNewTopic);
       },
       child: Scaffold(
         body: Stack(
           children: [
             if (widget.selectedLesson == null) ...[
-              BlocBuilder<LessonsCubit, LessonsState>(
-                  builder: (context, lessonState) {
-                return BlocBuilder<ClassSectionsAndSubjectsCubit,
-                    ClassSectionsAndSubjectsState>(
+              BlocBuilder<LessonsCubit, LessonsState>(builder: (context, lessonState) {
+                return BlocBuilder<ClassSectionsAndSubjectsCubit, ClassSectionsAndSubjectsState>(
                   builder: (context, state) {
-                    if (state is ClassSectionsAndSubjectsFetchSuccess &&
-                        lessonState is LessonsFetchSuccess) {
+                    if (state is ClassSectionsAndSubjectsFetchSuccess && lessonState is LessonsFetchSuccess) {
                       if (lessonState.lessons.isEmpty) {
                         return const SizedBox.shrink();
                       }
                       return _buildTopicList();
                     }
-
                     if (state is ClassSectionsAndSubjectsFetchFailure) {
                       return Center(
                           child: ErrorContainer(
-                        errorMessage: state.errorMessage,
+                        errorMessage: "Gagal mendapatkan bab pelajaran, mohon coba lagi",
                         onTapRetry: () {
-                          context
-                              .read<ClassSectionsAndSubjectsCubit>()
-                              .getClassSectionsAndSubjects();
+                          context.read<ClassSectionsAndSubjectsCubit>().getClassSectionsAndSubjects();
                         },
                       ));
                     }
-
                     if (lessonState is LessonsFetchFailure) {
                       return Center(
                           child: ErrorContainer(
-                        errorMessage: lessonState.errorMessage,
+                        errorMessage: "Gagal mendapatkan bab pelajaran, mohon coba lagi",
                         onTapRetry: () {
                           getLessons();
                         },
                       ));
                     }
-
                     return Center(
-                      child: CustomCircularProgressIndicator(
-                        indicatorColor: Theme.of(context).colorScheme.primary,
-                      ),
+                      child: CustomCircularProgressIndicator(indicatorColor: Theme.of(context).colorScheme.primary),
                     );
                   },
                 );
