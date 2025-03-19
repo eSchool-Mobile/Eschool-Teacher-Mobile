@@ -41,10 +41,10 @@ class OnlineExamRepository {
         },
       );
 
-      for (var line in JsonEncoder.withIndent("  ").convert(response).split("\n")) {
+      for (var line
+          in JsonEncoder.withIndent("  ").convert(response).split("\n")) {
         print(line);
       }
-
 
       return {
         'exams': response['data']['rows'] ?? [],
@@ -76,12 +76,11 @@ class OnlineExamRepository {
       );
 
       print("===");
-        var encoder = JsonEncoder.withIndent("  "); // Indentasi 2 spasi
-  String prettyJson = encoder.convert(response);
+      var encoder = JsonEncoder.withIndent("  "); // Indentasi 2 spasi
+      String prettyJson = encoder.convert(response);
 
-  // Split per baris dan print satu per satu
-  prettyJson.split('\n').forEach(print);
-
+      // Split per baris dan print satu per satu
+      prettyJson.split('\n').forEach(print);
 
       // Check for error response
       if (response['error'] == true) {
@@ -90,10 +89,13 @@ class OnlineExamRepository {
 
       // Check for valid data structure
       if (response['error'] == false && response['data'] != null) {
-        return { "marks": response['data']['marks'], "answers": response['data']['answers'] as List<dynamic> };
+        return {
+          "marks": response['data']['marks'],
+          "answers": response['data']['answers'] as List<dynamic>
+        };
       }
 
-      return { "marks": response['data']['marks'] ?? 0, "answers": [] };
+      return {"marks": response['data']['marks'] ?? 0, "answers": []};
     } catch (e) {
       print('Error getting online exam result answer: $e');
       throw Exception(e.toString());
@@ -162,20 +164,6 @@ class OnlineExamRepository {
 
   Future<void> deleteOnlineExam(int id, {String mode = 'archive'}) async {
     try {
-      // Cek apakah ujian masih ada sebelum dihapus
-      final checkExam = await Api.get(
-        url: '${Api.getOnlineExamList}',
-        useAuthToken: true,
-        queryParameters: {
-          'exam_id': id.toString(),
-        },
-      );
-
-      if (checkExam['rows']?.isEmpty ?? true) {
-        throw ApiException(
-            'Ujian tidak ditemukan atau sudah dihapus sebelumnya');
-      }
-
       final response = await Api.delete(
         url: '${Api.deleteOnlineExam}/$id',
         useAuthToken: true,
@@ -191,7 +179,6 @@ class OnlineExamRepository {
         throw ApiException(response['message'] ?? 'Gagal menghapus ujian');
       }
 
-      // Tunggu sebentar sebelum melanjutkan
       await Future.delayed(Duration(milliseconds: 500));
     } catch (e) {
       print('Error deleting online exam: $e');
@@ -325,7 +312,7 @@ class OnlineExamRepository {
           url:
               "${Api.getOnlineExamQuestionListCorrection}?exam_id=${examId.toString()}&&search=${search}",
           useAuthToken: true);
-      
+
       print("AMAN SINI 1");
 
       if (response['error'] != true) {
@@ -336,9 +323,9 @@ class OnlineExamRepository {
         print("AMAN SINI 3");
 
         return examQuestions.map((question) {
-final options = (question['options'] as List?)?.isNotEmpty == true
-    ? question['options']!.first
-    : {};
+          final options = (question['options'] as List?)?.isNotEmpty == true
+              ? question['options']!.first
+              : {};
 
           return QuestionOnlineExam(
             id: question['id'] ?? 0,
@@ -397,9 +384,8 @@ final options = (question['options'] as List?)?.isNotEmpty == true
           final bankData = Map<String, dynamic>.from(bank);
           bankData['class_section_id'] = classSectionId;
           bankData['class_subject_id'] = classSubjectId;
-          bankData['soal'] = List.from(
-            Iterable.generate(bankData['total_questions'], (_) => {"options": ""})
-          );
+          bankData['soal'] = List.from(Iterable.generate(
+              bankData['total_questions'], (_) => {"options": ""}));
 
           return BankSoalQuestion.fromJson(bankData);
         }).toList();

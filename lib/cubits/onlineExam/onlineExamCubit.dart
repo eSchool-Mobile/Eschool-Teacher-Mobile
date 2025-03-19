@@ -113,15 +113,14 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
   OnlineExamCubit(this._repository) : super(OnlineExamInitial());
 
   // Method untuk mendapatkan ujian aktif
-  Future<void> getOnlineExams({
-    String? search,
-    dynamic? getFull = null,
-    int? subjectId,
-    int? classSectionId,
-    int? sessionYearId,
-    DateTime? startDate,
-    DateTime? endDate
-  }) async {
+  Future<void> getOnlineExams(
+      {String? search,
+      dynamic? getFull = null,
+      int? subjectId,
+      int? classSectionId,
+      int? sessionYearId,
+      DateTime? startDate,
+      DateTime? endDate}) async {
     try {
       emit(OnlineExamLoading());
 
@@ -177,22 +176,22 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         search: search,
       );
 
-emit(OnlineExamAnswersSuccess(
-    answers: (result['answers'] as List<dynamic>)
-        .map((answer) => OnlineExamAnswer(
-              id: answer['answer_id'] ?? 0,
-              marks: answer['marks'] ?? 0,
-              totalMarks: result['marks'] ?? 0,
-              studentId: answer['student_id'] ?? 0,
-              studentName: answer['student_name'] ?? '',
-              answer: answer['answer'] ?? '',
-              isCorrect: answer['is_answer'] ?? false,
-            ))
-        .toList(),
-));
-
+      emit(OnlineExamAnswersSuccess(
+        answers: (result['answers'] as List<dynamic>)
+            .map((answer) => OnlineExamAnswer(
+                  id: answer['answer_id'] ?? 0,
+                  marks: answer['marks'] ?? 0,
+                  totalMarks: result['marks'] ?? 0,
+                  studentId: answer['student_id'] ?? 0,
+                  studentName: answer['student_name'] ?? '',
+                  answer: answer['answer'] ?? '',
+                  isCorrect: answer['is_answer'] ?? false,
+                ))
+            .toList(),
+      ));
     } catch (e) {
-      emit(OnlineExamFailure(e.toString().replaceFirst(RegExp(r'^[^:]+: '), '')));
+      emit(OnlineExamFailure(
+          e.toString().replaceFirst(RegExp(r'^[^:]+: '), '')));
     }
   }
 
@@ -372,7 +371,8 @@ emit(OnlineExamAnswersSuccess(
     }
   }
 
-  // Method khusus untuk mendapatkan ujian yang diarsipkan
+  // Perbaikan pada metode getArchivedExams()
+
   Future<void> getArchivedExams() async {
     try {
       emit(OnlineExamLoading());
@@ -386,10 +386,8 @@ emit(OnlineExamAnswersSuccess(
         for (var examData in result['exams']) {
           try {
             final exam = OnlineExam.fromJson(examData);
-            if (exam.status == 2) {
-              // Only get archived exams
-              archivedExams.add(exam);
-            }
+            // Jangan filter berdasarkan status, tambahkan semua hasil dari parameter archive:true
+            archivedExams.add(exam);
           } catch (e) {
             print('Error parsing archived exam: $e');
           }

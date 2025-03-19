@@ -161,19 +161,25 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
 
                         // Privacy Features Section
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 20, horizontal: 20),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              _buildFeatureCard(
-                                icon: Icons.security,
-                                title: "Keamanan Data",
-                                description: "Data Anda selalu aman",
+                              Expanded(
+                                child: _buildFeatureCard(
+                                  icon: Icons.security,
+                                  title: "Keamanan Data",
+                                  description: "Data Anda selalu aman",
+                                ),
                               ),
-                              _buildFeatureCard(
-                                icon: Icons.lock,
-                                title: "Privasi",
-                                description: "Terjamin 100%",
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildFeatureCard(
+                                  icon: Icons.lock,
+                                  title: "Privasi",
+                                  description: "Terjamin 100%",
+                                ),
                               ),
                             ],
                           ),
@@ -230,7 +236,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
 
   Widget _buildHeroSection() {
     return Container(
-      height: 300,
+      height: MediaQuery.of(context).size.height * 0.3, // Responsive height
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -276,21 +282,25 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
                     color: AppColorPalette.primaryMaroon,
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 Text(
                   "Kebijakan Privasi",
                   style: GoogleFonts.poppins(
-                    fontSize: 32,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 15),
-                Text(
-                  "Kami menghargai privasi Anda dan berkomitmen untuk melindungi informasi pribadi Anda",
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    color: Colors.white.withOpacity(0.9),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Text(
+                      "Kami menghargai privasi Anda dan berkomitmen untuk melindungi informasi pribadi Anda",
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -309,7 +319,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
     return FadeInUp(
       duration: const Duration(milliseconds: 800),
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.4,
+        height: 160, // Fixed height for symmetry
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -323,6 +333,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
           ],
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
@@ -332,6 +343,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
             const SizedBox(height: 15),
             Text(
               title,
+              textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
