@@ -840,7 +840,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     if (banks.isEmpty && _searchController.text.isNotEmpty) {
       return Center(
         child: Text(
-          'Tidak ada bank soal yang cocok dengan pencarian',
+          'Tidak ada bank soal yang cocok dengan pencarian1',
           style: TextStyle(color: Colors.grey[600]),
         ),
       );

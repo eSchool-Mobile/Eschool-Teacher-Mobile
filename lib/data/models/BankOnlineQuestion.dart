@@ -5,12 +5,14 @@ class BankSoalQuestion {
   // Defaultkan ke 0 untuk menghindari null
   final int classSectionId;
   final int classSubjectId;
+  final int subjectId;
   final String? subjectName;
 
   BankSoalQuestion({
     required this.id,
     required this.name,
     required this.soal,
+    this.subjectId = 0,
     this.classSectionId = 0, // Default value
     this.classSubjectId = 0, // Default value
     this.subjectName,
@@ -32,23 +34,18 @@ class BankSoalQuestion {
       int sectionId =
           (json['class_section']?['id'] ?? json['class_section_id'] ?? 0);
 
-      int subjectId =
+      int classSubjectId =
           (json['class_subject']?['id'] ?? json['class_subject_id'] ?? 0);
 
-        print("id: ${json['id'] ?? 0}");
-        print("name: ${json['name'] ?? ''}");
-        print("soal: ${parsedSoal}");
-        print("classSectionId: ${sectionId}");
-        print("classSubjectId: ${subjectId}");
-        print("subjectName: ${json['subject_name']}");
-
+      int subjectId = json['subject_id'] ?? 0;
 
       return BankSoalQuestion(
         id: json['id'] ?? 0,
         name: json['name'] ?? '',
         soal: parsedSoal,
+        subjectId: subjectId,
         classSectionId: sectionId,
-        classSubjectId: subjectId,
+        classSubjectId: classSubjectId,
         subjectName: json['subject_name'],
       );
     } catch (e) {

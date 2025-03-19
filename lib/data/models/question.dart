@@ -7,6 +7,8 @@ class Question {
   final int defaultPoint;
   final String createdAt;
   final String updatedAt;
+  final int marks;
+  final bool selected;
   final BankSoalInfo bankSoal;
   final List<QuestionVersion> versions;
 
@@ -17,24 +19,29 @@ class Question {
       required this.createdAt,
       required this.updatedAt,
       required this.bankSoal,
+      this.marks = 0,
       required this.versions,
+      required this.selected,
       required this.defaultPoint,
       });
 
   factory Question.fromJson(Map<String, dynamic> json) {
+    final versions = (json['versions'] as List?)
+              ?.map((v) => QuestionVersion.fromJson(v))
+              .toList() ??
+          [];
     return Question(
       id: json['id'] ?? 0,
       bankSoalId: json['bank_soal_id'] ?? 0,
       subjectId: json['subject_id'] ?? 0,
       createdAt: json['created_at'] ?? '',
       updatedAt: json['updated_at'] ?? '',
-      defaultPoint: json['default_point'] ?? 0,
+      marks: versions[versions.length - 1].defaultPoint ?? 0,
+      defaultPoint: versions[versions.length - 1].defaultPoint ?? 0,
       bankSoal: BankSoalInfo.fromJson(json['bank_soal'] ?? {}),
+      selected: versions[versions.length - 1].selected ?? false,
       // orderType: json['choice_style'] ?? 'numeric',
-      versions: (json['versions'] as List?)
-              ?.map((v) => QuestionVersion.fromJson(v))
-              .toList() ??
-          [],
+      versions: versions,
     );
   }
 
@@ -80,8 +87,9 @@ class QuestionVersion {
   final int defaultPoint;
   final String type;
   final String orderType;
+  final bool selected;
   final List<QuestionOption> options;
-  final String? image; // Add this field
+  final String? image;
 
   QuestionVersion({
     required this.id,
@@ -94,6 +102,7 @@ class QuestionVersion {
     required this.options,
     required this.orderType,
     this.image,
+    this.selected = false
   });
 
   factory QuestionVersion.fromJson(Map<String, dynamic> json) {
@@ -116,6 +125,7 @@ class QuestionVersion {
       options: parseOptions(json['options'] ?? '[]'),
       image: json['image'], // Add this field
       orderType: json['choice_style'] ?? 'numeric',
+      selected: json['selected'] ?? false,
     );
   }
 

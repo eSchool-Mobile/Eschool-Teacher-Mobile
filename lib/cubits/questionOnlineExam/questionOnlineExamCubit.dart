@@ -81,7 +81,6 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
     try {
       emit(QuestionBanksLoading());
       final banks = await _repository.getBankSoal(examId);
-      
       emit(QuestionBanksLoaded(banks));
     } catch (e) {
       print("ELOL 3");

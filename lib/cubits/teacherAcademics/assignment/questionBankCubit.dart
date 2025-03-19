@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/models/question.dart';
 import 'package:eschool_saas_staff/data/models/questionBank.dart';
@@ -84,7 +86,7 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
       );
 
       emit(BankQuestionsFetchSuccess(questions));
-    } catch (e) {
+    } catch (e, stackTrace) {
       emit(QuestionBankError(e.toString()));
     }
   }

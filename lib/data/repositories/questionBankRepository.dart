@@ -64,6 +64,11 @@ class QuestionBankRepository {
 
   Future<List<Question>> getBankQuestions({required int subjectId, required int bankId, int? onlineExamId}) async {
     try {
+      print({
+          'subject_id': subjectId,
+          'banksoal_id': bankId,
+          if (onlineExamId != null) 'online_exam_id': onlineExamId
+        });
       final response = await Api.get(
         url: Api.getBankQuestions,
         queryParameters: {

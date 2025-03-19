@@ -656,9 +656,26 @@ class Routes {
             ArchiveOnlineExam(), // Replace Container() with ArchiveOnlineExam()
       ),
     ),
-    GetPage(
-      name: previewQuestionBank,
-      page: () {
+GetPage(
+  name: Routes.previewQuestionBank, // Pastikan 'previewQuestionBank' didefinisikan di Routes
+  page: () => MultiBlocProvider(
+    providers: [
+      BlocProvider<OnlineExamCubit>(
+        create: (context) => OnlineExamCubit(OnlineExamRepository()),
+      ),
+      BlocProvider<ClassSectionsAndSubjectsCubit>(
+        create: (context) => ClassSectionsAndSubjectsCubit(),
+      ),
+      BlocProvider<QuestionBankCubit>( // Tambahkan QuestionBankCubit
+        create: (context) => QuestionBankCubit(
+          repository: QuestionBankRepository(),
+        )..fetchTeacherSubjects(
+            isStaffView: true), // Set isStaffView to true for staff
+        child: QuestionSubjectScreen(isStaffView: true),
+      ),
+    ],
+    child: Builder(
+      builder: (context) {
         final args = Get.arguments as Map<String, dynamic>;
         return PreviewQuestionBankSoal(
           bank: args['bank'] as BankSoalQuestion,
@@ -668,7 +685,8 @@ class Routes {
         );
       },
     ),
-    GetPage(
+  ),
+),    GetPage(
       name: questionOnlineExamScreen,
       page: () {
         final args = Get.arguments as Map<String, dynamic>;

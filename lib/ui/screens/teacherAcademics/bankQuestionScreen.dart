@@ -1572,6 +1572,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
               bankSoalId: updatedQuestion.bankSoalId,
               subjectId: updatedQuestion.subjectId,
               createdAt: updatedQuestion.createdAt,
+              selected: false,
               updatedAt: updatedQuestion.updatedAt,
               defaultPoint: updatedData['defaultPoint'],
               bankSoal: updatedQuestion.bankSoal,
