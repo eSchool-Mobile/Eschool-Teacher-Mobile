@@ -1371,8 +1371,10 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
             SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: _refreshExams,
-              icon: Icon(Icons.refresh),
-              label: Text('Coba Lagi'),
+                icon: Icon(Icons.refresh, color: Colors.white),
+                label: Text('Coba Lagi', 
+                style: TextStyle(color: Colors.white),
+                ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFF8B0000),
                 shape: RoundedRectangleBorder(

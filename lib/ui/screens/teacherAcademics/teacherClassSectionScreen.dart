@@ -306,24 +306,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'Academic Year 2024',
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: Colors.white.withOpacity(0.9),
-                          ),
-                        ),
-                      ),
+                    
                     ],
                   ),
                 ),
@@ -437,16 +420,6 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
-                Text(
-                  'Academic Year 2024-2025',
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withOpacity(0.6),
-                  ),
-                ),
               ],
             ),
           ),
@@ -496,16 +469,16 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
       padding: EdgeInsets.all(20),
       child: Column(
         children: [
-          _buildInfoRow(context, 'Class Teacher',
+            _buildInfoRow(context, 'Guru Kelas',
               details.getClassTeacherNames(), Icons.person_outline,
               gradient: [
-                Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                Theme.of(context).colorScheme.primary.withOpacity(0.2),
+              Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              Theme.of(context).colorScheme.primary.withOpacity(0.2),
               ]),
           SizedBox(height: 16),
           _buildInfoRow(
               context,
-              'Teacher Subject', // Changed label
+                'Mata Pelajaran', // Menggunakan Bahasa Indonesia
               currentTeacherSubject, // Show only current teacher's subject
               Icons.book_outlined,
               gradient: [
@@ -671,14 +644,6 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
         borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        'Active',
-        style: GoogleFonts.poppins(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: Theme.of(context).colorScheme.primary,
-        ),
       ),
     );
   }
