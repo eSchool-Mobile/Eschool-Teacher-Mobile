@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
@@ -15,6 +16,9 @@ import 'package:eschool_saas_staff/data/models/QuestionVersion.dart';
 import '../../../data/models/subjectQuestion.dart';
 import 'package:html/parser.dart' show parse;
 import '../../../app/routes.dart';
+import 'package:flutter/services.dart' show Uint8List;
+import 'package:eschool_saas_staff/utils/api.dart';
+import 'package:image_picker/image_picker.dart';
 
 // Light rays painter
 class LightRaysPainter extends CustomPainter {
@@ -93,6 +97,62 @@ class PatternPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
 
+class UltraModernPatternPainter extends CustomPainter {
+  final Color primaryColor;
+  final Color secondaryColor;
+
+  UltraModernPatternPainter({
+    required this.primaryColor,
+    required this.secondaryColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paintPrimary = Paint()
+      ..color = primaryColor
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+    
+    final paintSecondary = Paint()
+      ..color = secondaryColor
+      ..strokeWidth = 0.8
+      ..style = PaintingStyle.stroke;
+
+    // Draw diagonal lines
+    final double spacing = 25;
+    for (double i = -size.width; i < size.width * 2; i += spacing) {
+      canvas.drawLine(
+        Offset(i, 0),
+        Offset(i + size.height, size.height),
+        paintPrimary,
+      );
+    }
+
+    // Draw crossing pattern
+    for (double i = -size.height; i < size.height * 2; i += spacing * 2) {
+      canvas.drawLine(
+        Offset(0, i),
+        Offset(size.width, i + size.width * 0.5),
+        paintSecondary,
+      );
+    }
+
+    // Draw dots at intersections
+    final dotPaint = Paint()
+      ..color = primaryColor
+      ..style = PaintingStyle.fill;
+    
+    for (double x = 0; x < size.width; x += spacing * 2) {
+      for (double y = 0; y < size.height; y += spacing * 2) {
+        canvas.drawCircle(Offset(x, y), 1.0, dotPaint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
+}
+
 class _BankQuestionScreenState extends State<BankQuestionScreen>
     with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
@@ -133,6 +193,9 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
   int _hoveredCardIndex = -1;
   double _dragPosition = 0;
   bool _isFirstLoad = true;
+
+  // Tambahkan variabel untuk menyimpan data gambar
+  Map<int, dynamic> _questionImages = {};
 
   @override
   void initState() {
@@ -1847,12 +1910,37 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                     _filteredQuestions.removeWhere((q) => q.id == question.id);
                   });
 
-                  ScaffoldMessenger.of(context).showSnackBar(
+                    // Show auto-dismissing success notification
+                    ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Soal berhasil dihapus'),
-                      backgroundColor: Colors.green,
+                      content: Container(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                        Icon(Icons.check_circle, color: Colors.white),
+                        SizedBox(width: 12),
+                        Text(
+                          'Soal berhasil dihapus!',
+                          style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        ],
+                      ),
+                      ),
+                      backgroundColor: Colors.green.shade400,
+                      duration: Duration(seconds: 2),
+                      behavior: SnackBarBehavior.floating,
+                      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      ),
+                      elevation: 4,
                     ),
-                  );
+                    );
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -1874,6 +1962,11 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
   // Add this new method to show the question detail sheet
   void _showDetailQuestionSheet(
       q.Question question, q.QuestionVersion version) {
+    // Muat gambar jika ada
+    if (version.image != null && version.image!.isNotEmpty) {
+      _loadQuestionImage(question.id, version.image);
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -2462,8 +2555,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                         ),
 
                       // Image section (if available)
-                      if (version.image != null &&
-                          version.image?.isNotEmpty == true)
+                      if (version.image != null && version.image?.isNotEmpty == true)
                         Container(
                           padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
                           child: Column(
@@ -2476,12 +2568,12 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                     width: 38,
                                     height: 38,
                                     decoration: BoxDecoration(
-                                      color: Colors.purple.withOpacity(0.1),
+                                      color: _getTypeColor(version.type).withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Icon(
-                                      Icons.image,
-                                      color: Colors.purple,
+                                      Icons.image_outlined,
+                                      color: _getTypeColor(version.type),
                                       size: 20,
                                     ),
                                   ),
@@ -2499,10 +2591,9 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
 
                               SizedBox(height: 16),
 
-                              // Image content
+                              // Image content with improved display
                               Container(
                                 width: double.infinity,
-                                padding: EdgeInsets.all(20),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(16),
@@ -2513,40 +2604,31 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 15,
-                                      offset: Offset(0, 10),
+                                      blurRadius: 10,
+                                      offset: Offset(0, 5),
+                                      spreadRadius: 0,
                                     ),
                                   ],
                                 ),
                                 child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: version.image != null
-                                      ? Image.network(
-                                          version.image!,
-                                          fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                            return Container(
-                                              height: 120,
-                                              color: Colors.grey.shade200,
-                                              child: Center(
-                                                child: Icon(
-                                                  Icons.broken_image,
-                                                  color: Colors.grey,
-                                                  size: 40,
-                                                ),
-                                              ),
-                                            );
-                                          },
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: _questionImages.containsKey(question.id)
+                                    ? _buildImagePreview(_questionImages[question.id])
+                                    : version.image != null
+                                      ? Container(
+                                          height: 200,
+                                          child: Center(
+                                            child: CircularProgressIndicator(
+                                              valueColor: AlwaysStoppedAnimation<Color>(_getTypeColor(version.type)),
+                                            ),
+                                          ),
                                         )
                                       : Container(
-                                          height: 120,
-                                          color: Colors.grey.shade200,
+                                          height: 100,
                                           child: Center(
-                                            child: Icon(
-                                              Icons.image_not_supported,
-                                              color: Colors.grey,
-                                              size: 40,
+                                            child: Text(
+                                              "Tidak ada gambar",
+                                              style: TextStyle(color: Colors.grey),
                                             ),
                                           ),
                                         ),
@@ -2659,97 +2741,87 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
       ],
     );
   }
-}
 
-// Enhanced luxury pattern painter
-class LuxuryPatternPainter extends CustomPainter {
-  final Color color;
 
-  LuxuryPatternPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1.5
-      ..style = PaintingStyle.stroke;
-
-    // Draw diagonal lines for premium pattern effect
-    final double spacing = 20;
-    for (double i = -size.width; i < size.width * 2; i += spacing) {
-      canvas.drawLine(
-        Offset(i, 0),
-        Offset(i + size.height, size.height),
-        paint,
-      );
-    }
-
-    // Add curved lines for more luxurious effect
-    final path = Path();
-    for (double i = 0; i < size.width; i += spacing * 2) {
-      path.moveTo(i, 0);
-      path.quadraticBezierTo(i + spacing, size.height / 2, i, size.height);
-    }
-    canvas.drawPath(path, paint);
-
-    // Add circles for decorative elements
-    for (int i = 0; i < 3; i++) {
-      final circlePaint = Paint()
-        ..color = color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.8;
-
-      canvas.drawCircle(
-          Offset(size.width - 40, 40), 15 + (i * 10), circlePaint);
+  // Fungsi untuk memuat gambar soal
+  Future<void> _loadQuestionImage(int questionId, String? imagePath) async {
+    if (imagePath == null || imagePath.isEmpty) return;
+    
+    try {
+      final imageData = await Api.fetchImg(imagePath);
+      if (imageData != null) {
+        setState(() {
+          _questionImages[questionId] = imageData;
+        });
+      }
+    } catch (e) {
+      print('Error loading image: $e');
     }
   }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-// Add this advanced pattern painter class for a stunning effect
-class UltraModernPatternPainter extends CustomPainter {
-  final Color primaryColor;
-  final Color secondaryColor;
-
-  UltraModernPatternPainter({
-    required this.primaryColor,
-    required this.secondaryColor,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Diagonal lines for a premium pattern effect
-    final paint = Paint()
-      ..color = primaryColor
-      ..strokeWidth = 1.5
-      ..style = PaintingStyle.stroke;
-
-    final double spacing = 30;
-    for (double i = -size.width; i < size.width * 2; i += spacing) {
-      canvas.drawLine(
-        Offset(i, 0),
-        Offset(i + size.height, size.height),
-        paint,
-      );
-    }
-
-    // Add some perpendicular lines for a grid effect
-    final secondPaint = Paint()
-      ..color = secondaryColor
-      ..strokeWidth = 0.8
-      ..style = PaintingStyle.stroke;
-
-    for (double i = spacing; i < size.width; i += spacing * 2) {
-      canvas.drawLine(
-        Offset(i, 0),
-        Offset(i, size.height),
-        secondPaint,
-      );
-    }
+// Helper untuk menampilkan gambar dengan berbagai format
+Widget _buildImagePreview(dynamic imageData) {
+  if (imageData == null) {
+    return Container(
+      height: 100,
+      child: Center(
+        child: Text(
+          "Tidak ada gambar",
+          style: TextStyle(color: Colors.grey),
+        ),
+      ),
+    );
   }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
+  
+  if (imageData is File) {
+    return Image.file(
+      imageData,
+      height: 250,
+      width: double.infinity,
+      fit: BoxFit.contain,
+    );
+  } else if (imageData is XFile) {
+    return FutureBuilder<Uint8List>(
+      future: imageData.readAsBytes(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Container(
+            height: 200,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (snapshot.hasError || !snapshot.hasData) {
+          return Container(
+            height: 100,
+            child: Center(child: Icon(Icons.error)),
+          );
+        }
+        return Image.memory(
+          snapshot.data!,
+          height: 250,
+          width: double.infinity,
+          fit: BoxFit.contain,
+        );
+      },
+    );
+  } else if (imageData is Uint8List) {
+    return Image.memory(
+      imageData,
+      height: 250,
+      width: double.infinity,
+      fit: BoxFit.contain,
+    );
+  } else {
+    // Fallback untuk tipe data lain
+    return Container(
+      height: 100,
+      child: Center(
+        child: Text(
+          "Format gambar tidak didukung",
+          style: TextStyle(color: Colors.grey),
+        ),
+      ),
+    );
+  }
 }

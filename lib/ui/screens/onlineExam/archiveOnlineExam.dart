@@ -713,14 +713,37 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam> {
 
                           Get.back(); // Close loading
 
-                          Get.snackbar(
-                            'Berhasil',
-                            'Ujian berhasil dipulihkan',
-                            backgroundColor: Colors.green,
-                            colorText: Colors.white,
-                            snackPosition: SnackPosition.TOP,
-                            duration: Duration(seconds: 2),
-                          );
+                            // Show auto-dismissing success snackbar
+                            ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Container(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                Icon(Icons.check_circle, color: Colors.white),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Ujian berhasil dipulihkan!',
+                                  style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                ],
+                              ),
+                              ),
+                              backgroundColor: Colors.green.shade400,
+                              duration: Duration(seconds: 2),
+                              behavior: SnackBarBehavior.floating,
+                              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                              shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              ),
+                              elevation: 4,
+                            ),
+                            );
 
                           await Future.delayed(Duration(milliseconds: 500));
                           Get.offAllNamed(Routes.onlineExamScreen);
@@ -850,13 +873,37 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam> {
                           // Refresh exam list
                           _loadArchivedExams();
 
-                          Get.snackbar(
-                            'Berhasil',
-                            'Ujian berhasil dihapus secara permanen',
-                            backgroundColor: Colors.green,
-                            colorText: Colors.white,
-                            snackPosition: SnackPosition.BOTTOM,
-                          );
+                            // Show auto-dismissing success snackbar
+                            ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Container(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                Icon(Icons.check_circle, color: Colors.white),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Ujian berhasil dihapus secara permanen!',
+                                  style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                ],
+                              ),
+                              ),
+                              backgroundColor: Colors.green.shade400,
+                              duration: Duration(seconds: 2),
+                              behavior: SnackBarBehavior.floating,
+                              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                              shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              ),
+                              elevation: 4,
+                            ),
+                            );
                         } catch (e) {
                           // Tutup loading jika masih terbuka
                           if (Get.isDialogOpen ?? false) {
