@@ -1442,8 +1442,32 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                           if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('Ujian berhasil diarsipkan'),
-                              backgroundColor: Colors.green,
+                              content: Container(
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.check_circle, color: Colors.white),
+                                    SizedBox(width: 12),
+                                    Text(
+                                      'Ujian berhasil diarsipkan!',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              backgroundColor: Colors.green.shade400,
+                              duration: Duration(seconds: 2),
+                              behavior: SnackBarBehavior.floating,
+                              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              elevation: 4,
                               action: SnackBarAction(
                                 label: 'Lihat Arsip',
                                 textColor: Colors.white,
@@ -1453,6 +1477,13 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                               ),
                             ),
                           );
+
+                          // Add slight delay before refreshing exams
+                          Future.delayed(Duration(milliseconds: 800), () {
+                            if (mounted) {
+                              _refreshExams();
+                            }
+                          });
                         } catch (e) {
                           // Tampilkan snackbar error
                           if (!mounted) return;

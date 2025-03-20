@@ -46,18 +46,40 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
 
   bool _isSubmitting = false;
 
+  // Fungsi untuk membersihkan tag HTML
+  String _stripHtmlTags(String? htmlString) {
+    if (htmlString == null || htmlString.isEmpty) {
+      return '';
+    }
+
+    // Hapus semua tag HTML
+    final RegExp exp = RegExp(r'<[^>]*>', multiLine: true, caseSensitive: true);
+    String result = htmlString.replaceAll(exp, '');
+
+    // Decode entitas HTML seperti &amp; &lt; dll
+    result = result
+        .replaceAll('&nbsp;', ' ')
+        .replaceAll('&amp;', '&')
+        .replaceAll('&lt;', '<')
+        .replaceAll('&gt;', '>')
+        .replaceAll('&quot;', '"');
+
+    return result;
+  }
+
   @override
   void initState() {
     super.initState();
-    nameController =
-        TextEditingController(text: widget.questionData?['name'] ?? '');
+    // Bersihkan semua data dari tag HTML
+    nameController = TextEditingController(
+        text: _stripHtmlTags(widget.questionData?['name']));
     selectedOrderType = widget.questionData?['typeOrder'] ?? 'numeric';
-    questionController =
-        TextEditingController(text: widget.questionData?['question'] ?? '');
+    questionController = TextEditingController(
+        text: _stripHtmlTags(widget.questionData?['question']));
     pointController = TextEditingController(
         text: widget.questionData?['default_point']?.toString() ?? '100');
-    noteController =
-        TextEditingController(text: widget.questionData?['note'] ?? '');
+    noteController = TextEditingController(
+        text: _stripHtmlTags(widget.questionData?['note']));
     idBankSoal = widget.questionData?['idBankSoal'];
     selectedType = widget.questionData?['type'] ?? 'multiple_choice';
     version = 1;
@@ -76,8 +98,13 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
     }
 
     if (widget.questionData?['options'] != null) {
-      options =
-          List<Map<String, dynamic>>.from(widget.questionData!['options']);
+      options = List<Map<String, dynamic>>.from(widget.questionData!['options']
+          .map((opt) => {
+                'text': _stripHtmlTags(opt['text']),
+                'percentage': opt['percentage'],
+                'feedback': _stripHtmlTags(opt['feedback']),
+              })
+          .toList());
     } else {
       // Inisialisasi dengan 2 opsi untuk multiple choice
       if (selectedType == 'multiple_choice') {
@@ -95,48 +122,62 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
   }
 
   String toRomanNumeral(int number) {
-  if (number < 1) {
-    return "Angka harus lebih besar dari 0";
-  }
-
-  List<int> values = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
-  List<String> symbols = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"];
-  
-  String result = "";
-  int num = number;
-  
-  for (int i = 0; i < values.length; i++) {
-    while (num >= values[i]) {
-      result += symbols[i];
-      num -= values[i];
+    if (number < 1) {
+      return "Angka harus lebih besar dari 0";
     }
-  }
-  
-  // Jika masih ada sisa (untuk angka sangat besar), tambahkan 'M' berulang
-  while (num > 0) {
-    result += "M";
-    num -= 1000;
-  }
-  
-  return result;
-}
 
-String toBaseAZ(int number) {
-  if (number < 1) {
-    return "Angka harus lebih besar dari 0";
+    List<int> values = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+    List<String> symbols = [
+      "M",
+      "CM",
+      "D",
+      "CD",
+      "C",
+      "XC",
+      "L",
+      "XL",
+      "X",
+      "IX",
+      "V",
+      "IV",
+      "I"
+    ];
+
+    String result = "";
+    int num = number;
+
+    for (int i = 0; i < values.length; i++) {
+      while (num >= values[i]) {
+        result += symbols[i];
+        num -= values[i];
+      }
+    }
+
+    // Jika masih ada sisa (untuk angka sangat besar), tambahkan 'M' berulang
+    while (num > 0) {
+      result += "M";
+      num -= 1000;
+    }
+
+    return result;
   }
-  
-  String result = "";
-  int num = number;
-  
-  while (num > 0) {
-    int remainder = (num - 1) % 26;
-    result = String.fromCharCode(65 + remainder) + result;
-    num = (num - 1) ~/ 26;
+
+  String toBaseAZ(int number) {
+    if (number < 1) {
+      return "Angka harus lebih besar dari 0";
+    }
+
+    String result = "";
+    int num = number;
+
+    while (num > 0) {
+      int remainder = (num - 1) % 26;
+      result = String.fromCharCode(65 + remainder) + result;
+      num = (num - 1) ~/ 26;
+    }
+
+    return result;
   }
-  
-  return result;
-}
 
   void _onOrderTypeChanged(String type) {
     setState(() {
@@ -1013,22 +1054,14 @@ String toBaseAZ(int number) {
           children: [
             Row(
               children: [
-Text(
-  "${selectedOrderType == 'roman_uppercase'
-      ? toRomanNumeral(index + 1).toUpperCase()
-      : selectedOrderType == 'roman_lowercase'
-          ? toRomanNumeral(index + 1).toLowerCase()
-          : selectedOrderType == 'alphabet_uppercase'
-              ? toBaseAZ(index + 1).toUpperCase()
-              : selectedOrderType == 'alphabet_lowercase'
-                  ? toBaseAZ(index + 1).toLowerCase()
-                  : (index + 1).toString()}.",
-  style: TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 18,
-    color: Theme.of(context).colorScheme.secondary,
-  ),
-),
+                Text(
+                  "${selectedOrderType == 'roman_uppercase' ? toRomanNumeral(index + 1).toUpperCase() : selectedOrderType == 'roman_lowercase' ? toRomanNumeral(index + 1).toLowerCase() : selectedOrderType == 'alphabet_uppercase' ? toBaseAZ(index + 1).toUpperCase() : selectedOrderType == 'alphabet_lowercase' ? toBaseAZ(index + 1).toLowerCase() : (index + 1).toString()}.",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
                 SizedBox(width: 10),
                 Expanded(
                   child: TextFormField(
