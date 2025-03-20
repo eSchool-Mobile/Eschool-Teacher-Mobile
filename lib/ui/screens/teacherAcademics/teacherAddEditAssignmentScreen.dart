@@ -1273,7 +1273,7 @@ class _TeacherAddEditAssignmentScreenState
                                 titleKey: start_date != null
                                     ? DateFormat('dd-MM-yyyy')
                                         .format(start_date!)
-                                    : "Tanggal di Mulai",
+                                    : "Tgl di Mulai",
                                 backgroundColor:
                                     Theme.of(context).scaffoldBackgroundColor,
                               ),
@@ -1288,7 +1288,7 @@ class _TeacherAddEditAssignmentScreenState
                                 },
                                 titleKey: end_date != null
                                     ? DateFormat('dd-MM-yyyy').format(end_date!)
-                                    : "Tanggal Berakhir",
+                                    : "Tgl Berakhir",
                                 backgroundColor:
                                     Theme.of(context).scaffoldBackgroundColor,
                               ),
@@ -1724,7 +1724,7 @@ class _TeacherAddEditAssignmentScreenState
               Expanded(
                 child: _buildAnimatedTextField(
                   controller: _startDateTextEditingController,
-                  label: 'Tanggal Mulai',
+                  label: 'Tgl Mulai',
                   icon: Icons.calendar_today,
                   onTap: () => _selectStartDate(context),
                   readOnly: true,
@@ -1734,7 +1734,7 @@ class _TeacherAddEditAssignmentScreenState
               Expanded(
                 child: _buildAnimatedTextField(
                   controller: _endDateTextEditingController,
-                  label: 'Tanggal Berakhir',
+                  label: 'Tgl Berakhir',
                   icon: Icons.calendar_today,
                   onTap: () => _selectEndDate(context),
                   readOnly: true,
@@ -1965,7 +1965,7 @@ class _TeacherAddEditAssignmentScreenState
                       }
                     },
                     decoration: InputDecoration(
-                      labelText: 'Tenggat Tanggal',
+                      labelText: 'Tenggat Tgl',
                       prefixIcon: Icon(Icons.calendar_today,
                           color: Theme.of(context).colorScheme.primary),
                       border: OutlineInputBorder(
@@ -2024,7 +2024,7 @@ class _TeacherAddEditAssignmentScreenState
                 Expanded(
                   child: _buildAnimatedTextField(
                     controller: _maxFileSizeTextEditingController,
-                    label: 'Max File Size (MB)',
+                    label: 'Max',
                     icon: Icons.file_copy,
                     keyboardType: TextInputType.number,
                   ),
@@ -2033,7 +2033,7 @@ class _TeacherAddEditAssignmentScreenState
                 Expanded(
                   child: _buildAnimatedTextField(
                     controller: _extraResubmissionDaysTextEditingController,
-                    label: 'Pengiriman Ulang',
+                    label: 'Kirim Ulang',
                     icon: Icons.replay,
                     keyboardType: TextInputType.number,
                   ),
