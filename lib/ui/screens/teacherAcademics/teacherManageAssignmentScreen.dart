@@ -566,7 +566,7 @@ class _TeacherManageAssignmentScreenState
               if (state is ClassSectionsAndSubjectsFetchFailure) {
                 return Center(
                     child: ErrorContainer(
-                  errorMessage: state.errorMessage,
+                  errorMessage: "Tidak dapat memuat data, mohon coba lagi",
                   onTapRetry: () {
                     context
                         .read<ClassSectionsAndSubjectsCubit>()

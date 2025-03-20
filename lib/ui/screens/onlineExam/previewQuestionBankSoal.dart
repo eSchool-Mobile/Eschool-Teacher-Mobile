@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
 import 'package:eschool_saas_staff/data/repositories/onlineExamRepository.dart';
@@ -853,7 +855,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal> with 
 
       for (int index in _selectedQuestions) {
         final question = _filteredQuestions[index];
-        assignQuestions[question.id.toString()] = {'question_id': question.id, 'marks': question.defaultPoint, 'from_bank': true};
+        assignQuestions[question.versions[question.versions.length - 1].id.toString()] = {'question_id': question.versions[question.versions.length - 1].id, 'marks': question.defaultPoint, 'from_bank': true};
       }
 
       await repository.storeOnlineExamQuestions(
