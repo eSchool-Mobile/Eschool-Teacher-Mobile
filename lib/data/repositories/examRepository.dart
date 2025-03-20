@@ -14,6 +14,8 @@ class ExamRepository {
         "medium_id": mediumId
       });
 
+      print("///");
+
       return ((result['data'] ?? []) as List)
           .map((offlineExam) =>
               OfflineExam.fromJson(Map.from(offlineExam ?? {})))

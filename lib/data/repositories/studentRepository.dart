@@ -23,15 +23,15 @@ class StudentRepository {
           studentViewStatus = 2;
         }
       }
-                    print({
-          "paginate": 0,
-          "status": studentViewStatus,
-          "class_section_id": classSectionId,
-          if (search != null) "search": search,
-          if (classSubjectId != null) "class_subject_id": classSubjectId,
-          if (examId != null) "exam_id": examId
-        });
-        print("OK HERE");
+      print({
+        "paginate": 0,
+        "status": studentViewStatus,
+        "class_section_id": classSectionId,
+        if (search != null) "search": search,
+        if (classSubjectId != null) "class_subject_id": classSubjectId,
+        if (examId != null) "exam_id": examId
+      });
+      print("OK HERE");
       final result = await Api.get(
         url: Api.getStudents,
         useAuthToken: true,
@@ -46,21 +46,21 @@ class StudentRepository {
       );
 
       print("ACELI");
-              print({
-          "paginate": 0,
-          "status": studentViewStatus,
-          "class_section_id": classSectionId,
-          if (search != null) "search": search,
-          if (classSubjectId != null) "class_subject_id": classSubjectId,
-          if (examId != null) "exam_id": examId
-        });
+      print({
+        "paginate": 0,
+        "status": studentViewStatus,
+        "class_section_id": classSectionId,
+        if (search != null) "search": search,
+        if (classSubjectId != null) "class_subject_id": classSubjectId,
+        if (examId != null) "exam_id": examId
+      });
       print(result);
 
       return (result['data'] as List).map((e) {
         return StudentDetails.fromJson(Map.from(e));
       }).toList();
     } catch (e) {
-            print("ELOL");
+      print("ELOL");
       print(e);
       throw ApiException(e.toString());
     }
@@ -154,7 +154,7 @@ class StudentRepository {
 
       print(Api.examList);
       print("::::");
-      print(result);
+      print(queryParameter);
 
       return (result['data'] as List)
           .map((e) => Exam.fromExamJson(Map.from(e)))
