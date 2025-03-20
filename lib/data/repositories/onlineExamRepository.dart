@@ -293,7 +293,7 @@ class OnlineExamRepository {
             title: '', // Bisa diambil dari exam['title'] jika diperlukan
             version: '1.0', // Sesuaikan dengan kebutuhan
             type: question["type"] ?? "multiple_choice",
-            onlineExamId: examId,
+            onlineExamId: examId ?? 0,
           );
         }).toList();
       } else {
