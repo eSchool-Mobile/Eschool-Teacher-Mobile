@@ -239,7 +239,8 @@ class Api {
       print(">> RESPONSE <<");
       print(response);
 
-      if (response.data.containsKey('error') && response.data['error'] == true) {
+      if (response.data.containsKey('error') &&
+          response.data['error'] == true) {
         throw ApiException(response.data['message'].toString());
       }
 
@@ -323,11 +324,13 @@ class Api {
         updateDownloadedPercentage((count / total) * 100);
       }));
     } on DioException catch (e) {
+      print(e);
       throw ApiException(
           e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
     } on ApiException catch (e) {
       throw ApiException(e.errorMessage);
     } catch (e) {
+      print(e);
       throw ApiException(defaultErrorMessageKey);
     }
   }

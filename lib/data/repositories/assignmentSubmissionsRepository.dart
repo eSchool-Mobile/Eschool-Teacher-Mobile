@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:eschool_saas_staff/data/models/assignmentSubmission.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 
@@ -14,6 +16,13 @@ class AssignmentSubmissionsRepository {
         useAuthToken: true,
         queryParameters: body,
       );
+
+      print(body);
+
+      for (var line
+          in JsonEncoder.withIndent("  ").convert(result).split("\n")) {
+        print(line);
+      }
 
       return (result['data'] as List)
           .map(

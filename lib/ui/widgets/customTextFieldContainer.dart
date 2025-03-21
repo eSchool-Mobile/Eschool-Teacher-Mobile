@@ -40,6 +40,7 @@ class CustomTextFieldContainer extends StatelessWidget {
     this.keyboardType,
     this.inputFormatters,
     this.textColor = Colors.black,
+    // required EdgeInsets contentPadding,
   });
 
   @override

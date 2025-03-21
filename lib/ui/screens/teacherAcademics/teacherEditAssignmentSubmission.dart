@@ -5,7 +5,6 @@ import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
@@ -101,7 +100,7 @@ class _TeacherEditAssignmentSubmissionScreenState
 
   Widget _buildSubmitButton(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
       child: BlocConsumer<EditAssignmentSubmissionCubit,
           EditAssignmentSubmissionState>(
         listener: (context, state) {
@@ -203,10 +202,11 @@ class _TeacherEditAssignmentSubmissionScreenState
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 0.5,
+                            color: Colors.white,
                           ),
                         ),
                         SizedBox(width: 8),
-                        Icon(Icons.send_rounded, size: 20),
+                        Icon(Icons.send_rounded, size: 20, color: Colors.white),
                       ],
                     ),
             ),
@@ -239,6 +239,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Header Card with Assignment and Student Info
                     Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -256,6 +257,14 @@ class _TeacherEditAssignmentSubmissionScreenState
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color:
+                                Theme.of(context).shadowColor.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
                       ),
                       padding: EdgeInsets.all(16),
                       child: Column(
@@ -340,6 +349,8 @@ class _TeacherEditAssignmentSubmissionScreenState
                       ),
                     ),
                     SizedBox(height: 20),
+
+                    // Form Content
                     Expanded(
                       child: SingleChildScrollView(
                         physics: BouncingScrollPhysics(),
@@ -470,8 +481,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                   ),
                                   SizedBox(height: 8),
                                   Container(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 8),
+                                    height: 50,
                                     decoration: BoxDecoration(
                                       color:
                                           Theme.of(context).colorScheme.surface,
@@ -485,38 +495,81 @@ class _TeacherEditAssignmentSubmissionScreenState
                                       ),
                                     ),
                                     child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: [
-                                        Icon(
-                                          Icons.star_outline,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                          size: 24,
-                                        ),
-                                        SizedBox(width: 12),
-                                        Expanded(
-                                          child: CustomTextFieldContainer(
-                                            enabled: !isNonEditable,
-                                            textEditingController:
-                                                _pointsTextEditingController,
-                                            labelTextKey: "",
-                                            hintTextKey: pointsKey,
-                                            keyboardType: TextInputType.number,
-                                            inputFormatters: [
-                                              FilteringTextInputFormatter
-                                                  .digitsOnly,
-                                              LengthLimitingTextInputFormatter(
-                                                  widget.assignmentSubmission
-                                                      .assignment.points
-                                                      .toString()
-                                                      .length),
-                                            ],
-                                            backgroundColor: Colors.transparent,
-                                            borderColor: Colors.transparent,
+                                        Container(
+                                          width: 50,
+                                          height: 50,
+                                          alignment: Alignment.center,
+                                          child: Icon(
+                                            Icons.star_outline,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                            size: 24,
                                           ),
                                         ),
-                                        SizedBox(width: 12),
+                                        Expanded(
+                                          child: isNonEditable
+                                              ? Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      vertical: 12.0,
+                                                      horizontal: 4.0),
+                                                  child: Text(
+                                                    _pointsTextEditingController
+                                                        .text,
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurface,
+                                                    ),
+                                                  ),
+                                                )
+                                              : TextField(
+                                                  controller:
+                                                      _pointsTextEditingController,
+                                                  enabled: !isNonEditable,
+                                                  keyboardType:
+                                                      TextInputType.number,
+                                                  textAlignVertical:
+                                                      TextAlignVertical
+                                                          .center, // Memusatkan teks secara vertikal
+                                                  decoration: InputDecoration(
+                                                    hintText: Utils
+                                                        .getTranslatedLabel(
+                                                            pointsKey),
+                                                    border: InputBorder.none,
+                                                    contentPadding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 14,
+                                                            horizontal: 4),
+                                                  ),
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurface,
+                                                  ),
+                                                  inputFormatters: [
+                                                    FilteringTextInputFormatter
+                                                        .digitsOnly,
+                                                    LengthLimitingTextInputFormatter(
+                                                        widget
+                                                            .assignmentSubmission
+                                                            .assignment
+                                                            .points
+                                                            .toString()
+                                                            .length),
+                                                  ],
+                                                ),
+                                        ),
                                         Container(
+                                          height: 36,
+                                          margin: EdgeInsets.only(right: 8),
+                                          alignment: Alignment.center,
                                           padding: EdgeInsets.symmetric(
                                               horizontal: 12, vertical: 6),
                                           decoration: BoxDecoration(
@@ -555,7 +608,6 @@ class _TeacherEditAssignmentSubmissionScreenState
                                 ),
                                 SizedBox(height: 8),
                                 Container(
-                                  padding: EdgeInsets.all(12),
                                   decoration: BoxDecoration(
                                     color:
                                         Theme.of(context).colorScheme.surface,
@@ -572,34 +624,118 @@ class _TeacherEditAssignmentSubmissionScreenState
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Icon(
-                                        Icons.comment_outlined,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                        size: 24,
-                                      ),
-                                      SizedBox(width: 12),
-                                      Expanded(
-                                        child: CustomTextFieldContainer(
-                                          enabled: !isNonEditable,
-                                          initialValue: isNonEditable
-                                              ? widget
-                                                  .assignmentSubmission.feedback
-                                              : null,
-                                          textEditingController: isNonEditable
-                                              ? null
-                                              : _feedbackTextEditingController,
-                                          maxLines: 5,
-                                          backgroundColor: Colors.transparent,
-                                          borderColor: Colors.transparent,
-                                          hintTextKey: feedbackKey,
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 16.0, top: 16.0),
+                                        child: Icon(
+                                          Icons.comment_outlined,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          size: 24,
                                         ),
+                                      ),
+                                      Expanded(
+                                        child: isNonEditable
+                                            ? Padding(
+                                                padding:
+                                                    const EdgeInsets.all(16.0),
+                                                child: Text(
+                                                  widget.assignmentSubmission
+                                                      .feedback,
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurface,
+                                                  ),
+                                                ),
+                                              )
+                                            : TextField(
+                                                controller:
+                                                    _feedbackTextEditingController,
+                                                maxLines: 5,
+                                                decoration: InputDecoration(
+                                                  hintText:
+                                                      Utils.getTranslatedLabel(
+                                                          feedbackKey),
+                                                  border: InputBorder.none,
+                                                  contentPadding:
+                                                      EdgeInsets.all(16),
+                                                ),
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface,
+                                                ),
+                                              ),
                                       ),
                                     ],
                                   ),
                                 ),
                                 SizedBox(height: 24),
+
+                                if (widget.assignmentSubmission.content
+                                    .isNotEmpty) ...[
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.short_text_rounded,
+                                        size: 20,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        "Jawaban",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 12),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color:
+                                          Theme.of(context).colorScheme.surface,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary
+                                            .withOpacity(0.3),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                            child: Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: Text(
+                                            widget.assignmentSubmission.content,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface,
+                                            ),
+                                          ),
+                                        )),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 24),
+                                ],
 
                                 // Files Section (Improved)
                                 if (widget
@@ -677,6 +813,8 @@ class _TeacherEditAssignmentSubmissionScreenState
                         ),
                       ),
                     ),
+
+                    // Submit button
                     if (!isNonEditable) _buildSubmitButton(context),
                   ],
                 ),
