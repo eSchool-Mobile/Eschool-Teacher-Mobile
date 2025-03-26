@@ -419,8 +419,7 @@ const String pleaseEnterFeedbackKey = "pleaseEnterFeedback";
 const String pleaseEnterPointsKey = "pleaseAddPoints";
 const String cannotGiveMorePointsThenTotalKey = "cannotGiveMorePointsThenTotal";
 
-const String attendanceSubmittedSuccessfullyKey =
-    "Kehadiran Berhasil Dikirim";
+const String attendanceSubmittedSuccessfullyKey = "Kehadiran Berhasil Dikirim";
 const String attendanceViewEditNotPossibleKey = "attendanceViewEditNotPossible";
 const String pleaseAddMarksToAllStudentsKey = "pleaseAddMarksToAllStudents";
 const String resultAddedSuccessfullyKey = "resultAddedSuccessfully";
@@ -463,3 +462,17 @@ const String addAttendanceSubjectKey = "addAttendanceSubject";
 const String noAttendanceYetKey = "noAttendanceYet";
 const String noAttendanceRankingKey = "noAttendanceRanking";
 const String recapAttendanceSubjectKey = "recapAttendanceSubject";
+
+// Add these new keys
+// ...existing code...
+
+// Exam screen labels
+const String viewTimetableKey = "View Timetable";
+const String subjectsKey = "Subjects";
+const String noTimetableKey = "No Timetable";
+const String noExamsFoundKey = "No Exams Found";
+const String tryDifferentFiltersKey = "Try different filters or refresh";
+const String refreshKey = "Refresh";
+const String loadingExamsKey = "Loading Exams...";
+
+// ...existing code...
