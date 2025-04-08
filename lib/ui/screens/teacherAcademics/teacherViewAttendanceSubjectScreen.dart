@@ -667,20 +667,12 @@ class _TeacherViewAttendanceSubjectScreenState
                                             onSelection: (value) {
                                               Get.back();
                                               bool refreshPage = false;
-                                              if (value == allKey &&
-                                                  isPresentStatusOnly != null) {
-                                                // Handle case for "Semua"
+                                              if (value == allKey) {
+                                                // Modified condition: Always allow selection of "Semua" option
                                                 isPresentStatusOnly = null;
                                                 selectedStatus =
                                                     null; // Reset status
                                                 refreshPage = true;
-                                                // } else if (value == presentKey &&
-                                                //     isPresentStatusOnly != true) {
-                                                //   // Handle case for "Hadir"
-                                                //   isPresentStatusOnly = true;
-                                                //   selectedStatus =
-                                                //       null; // Reset status for present
-                                                //   refreshPage = true;
                                               } else if (value == absentKey &&
                                                   isPresentStatusOnly !=
                                                       false) {
