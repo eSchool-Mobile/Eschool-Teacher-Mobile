@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen>
   // Animations for background elements
   late final Animation<double> _backgroundFadeAnimation;
   late final Animation<double> _blurAnimation;
-  
+
   // Animations for floating elements
   late final Animation<double> _float1;
   late final Animation<double> _float2;
@@ -86,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen>
   // Brand colors
   final Color primaryMaroon = const Color(0xFF8B0000);
   final Color lightMaroon = const Color(0xFFC41E3A);
-  final Color maroonRich = const Color(0xFF8C1D40); 
+  final Color maroonRich = const Color(0xFF8C1D40);
   final Color accentColor = const Color(0xFFFFD700);
   final Color accentGold = const Color(0xFFFFD700);
   final Color accentSky = const Color(0xFF87CEEB);
@@ -115,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen>
       vsync: this,
       duration: const Duration(milliseconds: 2000),
     );
-    
+
     _floatingElementsController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 3000),
@@ -135,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen>
         curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
       ),
     );
-    
+
     // Floating animations
     _float1 = Tween<double>(begin: -5.0, end: 5.0).animate(
       CurvedAnimation(
@@ -143,14 +143,14 @@ class _LoginScreenState extends State<LoginScreen>
         curve: Curves.easeInOut,
       ),
     );
-    
+
     _float2 = Tween<double>(begin: -3.0, end: 7.0).animate(
       CurvedAnimation(
         parent: _floatingElementsController,
         curve: Curves.easeInOut,
       ),
     );
-    
+
     _float3 = Tween<double>(begin: 2.0, end: -6.0).animate(
       CurvedAnimation(
         parent: _floatingElementsController,
@@ -250,7 +250,7 @@ class _LoginScreenState extends State<LoginScreen>
         curve: const Interval(0.3, 0.6, curve: Curves.elasticOut),
       ),
     );
-    
+
     _logoGlowAnimation = TweenSequence<double>([
       TweenSequenceItem(
         tween: Tween<double>(begin: 0.0, end: 4.0),
@@ -355,10 +355,13 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildTermsConditionAndPrivacyPolicyContainer() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return SlideTransition(
       position: _termsSlideAnimation,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 15),
+        padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 10 : 15),
         alignment: Alignment.center,
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -366,13 +369,14 @@ class _LoginScreenState extends State<LoginScreen>
             CustomTextContainer(
               textKey: bySignInYouAgreeToOurKey,
               style: TextStyle(
-                fontSize: Utils.getScaledValue(context, 14),
+                fontSize:
+                    Utils.getScaledValue(context, isSmallScreen ? 12 : 14),
                 color: Colors.black54,
               ),
             ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 CustomTextButton(
                   onTapButton: () {
@@ -387,12 +391,15 @@ class _LoginScreenState extends State<LoginScreen>
                       color: primaryMaroon,
                       decoration: TextDecoration.underline,
                       decorationThickness: 1.5,
-                      fontSize: Utils.getScaledValue(context, 15)),
+                      fontSize: Utils.getScaledValue(
+                          context, isSmallScreen ? 13 : 15)),
                 ),
                 const SizedBox(width: 4),
                 CustomTextContainer(
                   textKey: andKey,
-                  style: TextStyle(fontSize: Utils.getScaledValue(context, 14)),
+                  style: TextStyle(
+                      fontSize: Utils.getScaledValue(
+                          context, isSmallScreen ? 12 : 14)),
                 ),
                 CustomTextButton(
                   onTapButton: () {
@@ -407,7 +414,8 @@ class _LoginScreenState extends State<LoginScreen>
                       color: primaryMaroon,
                       decoration: TextDecoration.underline,
                       decorationThickness: 1.5,
-                      fontSize: Utils.getScaledValue(context, 15)),
+                      fontSize: Utils.getScaledValue(
+                          context, isSmallScreen ? 13 : 15)),
                 ),
               ],
             ),
@@ -418,12 +426,17 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildGlassyFormContainer() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return FadeTransition(
       opacity: _formFadeAnimation,
       child: SlideTransition(
         position: _formSlideAnimation,
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+          margin: EdgeInsets.symmetric(
+              horizontal: isSmallScreen ? 16.0 : 24.0,
+              vertical: isSmallScreen ? 10.0 : 20.0),
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.75),
             borderRadius: BorderRadius.circular(28.0),
@@ -448,7 +461,7 @@ class _LoginScreenState extends State<LoginScreen>
                 sigmaY: 10.0,
               ),
               child: Padding(
-                padding: const EdgeInsets.all(28.0),
+                padding: EdgeInsets.all(isSmallScreen ? 20.0 : 28.0),
                 child: _buildLoginFormContent(),
               ),
             ),
@@ -460,7 +473,8 @@ class _LoginScreenState extends State<LoginScreen>
 
   Widget _buildAnimatedLogo() {
     return AnimatedBuilder(
-      animation: Listenable.merge([_logoAnimationController, _floatingElementsController]),
+      animation: Listenable.merge(
+          [_logoAnimationController, _floatingElementsController]),
       builder: (context, child) {
         return Transform.translate(
           offset: Offset(0, _float2.value),
@@ -527,12 +541,14 @@ class _LoginScreenState extends State<LoginScreen>
     required FocusNode focusNode,
   }) {
     final Color darkTextColor = const Color(0xFF303030);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
 
     return SlideTransition(
       position: slideAnimation,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
-        margin: const EdgeInsets.only(bottom: 18),
+        margin: EdgeInsets.only(bottom: isSmallScreen ? 12 : 18),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
@@ -560,15 +576,16 @@ class _LoginScreenState extends State<LoginScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 20, top: 12),
+              padding: EdgeInsets.only(left: 20, top: isSmallScreen ? 8 : 12),
               child: Text(
                 labelText,
                 style: TextStyle(
                   color: isFocused ? primaryMaroon : Colors.grey.shade600,
-                  fontSize: 13,
+                  fontSize: isSmallScreen ? 12 : 13,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.3,
                 ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             TextField(
@@ -578,7 +595,7 @@ class _LoginScreenState extends State<LoginScreen>
               style: TextStyle(
                 color: darkTextColor,
                 fontWeight: FontWeight.w500,
-                fontSize: 16,
+                fontSize: isSmallScreen ? 15 : 16,
               ),
               decoration: InputDecoration(
                 hintText: hintText,
@@ -587,16 +604,18 @@ class _LoginScreenState extends State<LoginScreen>
                   fontWeight: FontWeight.w400,
                 ),
                 prefixIcon: Padding(
-                  padding: const EdgeInsets.only(left: 15, right: 12),
+                  padding:
+                      EdgeInsets.only(left: 15, right: isSmallScreen ? 8 : 12),
                   child: Icon(
                     icon,
                     color: isFocused ? primaryMaroon : Colors.grey.shade500,
-                    size: 22,
+                    size: isSmallScreen ? 20 : 22,
                   ),
                 ),
                 suffixIcon: suffixWidget,
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.fromLTRB(0, 10, 16, 16),
+                contentPadding:
+                    EdgeInsets.fromLTRB(0, isSmallScreen ? 8 : 10, 16, 16),
               ),
             ),
           ],
@@ -606,6 +625,9 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildLoginButton() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return SlideTransition(
       position: _buttonSlideAnimation,
       child: BlocConsumer<SignInCubit, SignInState>(
@@ -625,8 +647,8 @@ class _LoginScreenState extends State<LoginScreen>
         builder: (context, state) {
           return Container(
             width: double.infinity,
-            height: 62,
-            margin: const EdgeInsets.only(top: 12),
+            height: isSmallScreen ? 56 : 62,
+            margin: EdgeInsets.only(top: isSmallScreen ? 8 : 18),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(22),
               boxShadow: [
@@ -722,40 +744,44 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildLoginFormContent() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Center(child: _buildAnimatedLogo()),
-        const SizedBox(height: 26),
+        SizedBox(height: isSmallScreen ? 16 : 26),
         Text(
           'Selamat Datang',
           style: TextStyle(
-            fontSize: 28,
+            fontSize: isSmallScreen ? 24 : 28,
             fontWeight: FontWeight.bold,
             color: maroonRich,
             letterSpacing: 0.5,
           ),
+          overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 8),
         CustomTextContainer(
           textKey: teacherAndStaffKey,
           style: TextStyle(
-            fontSize: Utils.getScaledValue(context, 19),
+            fontSize: Utils.getScaledValue(context, isSmallScreen ? 17 : 19),
             fontWeight: FontWeight.w700,
             color: primaryMaroon,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         CustomTextContainer(
           textKey: signInScreenSubTitleKey,
           style: TextStyle(
-            fontSize: Utils.getScaledValue(context, 16),
+            fontSize: Utils.getScaledValue(context, isSmallScreen ? 14 : 16),
             height: 1.4,
             color: Colors.grey.shade700,
             fontWeight: FontWeight.w400,
           ),
         ),
-        const SizedBox(height: 32),
+        SizedBox(height: isSmallScreen ? 20 : 32),
         _buildElegantTextField(
           controller: _schoolCodeController,
           hintText: Utils.getTranslatedLabel(schoolCodeKey),
@@ -853,7 +879,7 @@ class _LoginScreenState extends State<LoginScreen>
       ),
     );
   }
-  
+
   Widget _buildGradientDecorativeElement({
     required double top,
     required double left,
@@ -931,7 +957,7 @@ class _LoginScreenState extends State<LoginScreen>
           color: primaryMaroon.withOpacity(0.15),
           animation: _float1,
         ),
-        
+
         _buildGradientDecorativeElement(
           top: screenHeight * 0.12,
           left: screenWidth * 0.7,
@@ -940,7 +966,7 @@ class _LoginScreenState extends State<LoginScreen>
           animation: _float2,
           angle: -math.pi / 6,
         ),
-        
+
         _buildFloatingElement(
           top: screenHeight * 0.55,
           left: -screenWidth * 0.15,
@@ -949,28 +975,35 @@ class _LoginScreenState extends State<LoginScreen>
           animation: _float3,
           angle: math.pi / 4,
         ),
-        
+
         _buildGradientDecorativeElement(
           top: screenHeight * 0.75,
           left: screenWidth * 0.6,
           size: screenWidth * 0.4,
-          colors: [primaryMaroon.withOpacity(0.1), lightMaroon.withOpacity(0.05)],
+          colors: [
+            primaryMaroon.withOpacity(0.1),
+            lightMaroon.withOpacity(0.05)
+          ],
           animation: _float1,
           angle: math.pi / 8,
         ),
-        
+
         // Add some small floating dots
         for (int i = 0; i < 8; i++)
           _buildFloatingElement(
             top: screenHeight * (0.2 + i * 0.1) % screenHeight,
             left: screenWidth * (0.1 + i * 0.12) % screenWidth,
             size: 8 + (i % 4) * 3,
-            color: i % 3 == 0 
+            color: i % 3 == 0
                 ? primaryMaroon.withOpacity(0.2)
-                : i % 3 == 1 
+                : i % 3 == 1
                     ? accentGold.withOpacity(0.3)
                     : accentSky.withOpacity(0.3),
-            animation: i % 3 == 0 ? _float1 : i % 3 == 1 ? _float2 : _float3,
+            animation: i % 3 == 0
+                ? _float1
+                : i % 3 == 1
+                    ? _float2
+                    : _float3,
           ),
 
         // Blur effect that increases over time
@@ -1005,6 +1038,8 @@ class _LoginScreenState extends State<LoginScreen>
             SafeArea(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
                 child: Container(
                   constraints: BoxConstraints(
                     minHeight: MediaQuery.of(context).size.height -
@@ -1013,9 +1048,15 @@ class _LoginScreenState extends State<LoginScreen>
                   ),
                   child: Column(
                     children: [
-                      const SizedBox(height: 20),
+                      SizedBox(
+                          height: MediaQuery.of(context).size.width < 360
+                              ? 10
+                              : 20),
                       _buildGlassyFormContainer(),
-                      const SizedBox(height: 24),
+                      SizedBox(
+                          height: MediaQuery.of(context).size.width < 360
+                              ? 16
+                              : 24),
                     ],
                   ),
                 ),

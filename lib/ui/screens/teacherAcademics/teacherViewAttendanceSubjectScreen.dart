@@ -23,6 +23,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class TeacherViewAttendanceSubjectScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -87,7 +88,9 @@ class _TeacherViewAttendanceSubjectScreenState
       if (mounted) {
         // Load timetable
         context.read<TeacherMyTimetableCubit>().getTeacherMyTimetable();
-        context.read<ClassSectionsAndSubjectsCubit>().getClassSectionsAndSubjects();
+        context
+            .read<ClassSectionsAndSubjectsCubit>()
+            .getClassSectionsAndSubjects();
       }
     });
     // Fetch initial data
@@ -248,7 +251,31 @@ class _TeacherViewAttendanceSubjectScreenState
                       );
                     }
 
-                    if (state.attendance.isEmpty) {
+                    // Apply the status filter to the attendance data
+                    var filteredAttendance = state.attendance;
+
+                    if (selectedStatus != null) {
+                      // Filter by specific status (sick, permission, alpha)
+                      filteredAttendance = filteredAttendance.where((student) {
+                        switch (selectedStatus) {
+                          case StudentAttendanceStatus.sick:
+                            return student.isSick();
+                          case StudentAttendanceStatus.permission:
+                            return student.isPermission();
+                          case StudentAttendanceStatus.alpa:
+                            return student.isAlpa();
+                          default:
+                            return true;
+                        }
+                      }).toList();
+                    } else if (isPresentStatusOnly == false) {
+                      // For "Tidak Hadir" (absent) filter
+                      filteredAttendance = filteredAttendance
+                          .where((student) => !student.isPresent())
+                          .toList();
+                    }
+
+                    if (filteredAttendance.isEmpty) {
                       String message = '';
 
                       if (selectedStatus == StudentAttendanceStatus.sick) {
@@ -288,12 +315,25 @@ class _TeacherViewAttendanceSubjectScreenState
                                   110,
                             ),
                             child: CustomTextContainer(
-                              textKey: "Tidak ada siswa yang sakit",
+                              textKey: "Tidak ada siswa yang alpa",
+                            ), // Fixed text here from "sakit" to "alpa"
+                          ),
+                        );
+                      } else if (isPresentStatusOnly == false) {
+                        return Center(
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              top: Utils.appContentTopScrollPadding(
+                                      context: context) +
+                                  110,
+                            ),
+                            child: CustomTextContainer(
+                              textKey: "Tidak ada siswa yang tidak hadir",
                             ),
                           ),
                         );
                       } else {
-                        // Jika hari biasa, tampilkan pesan "Belum ada Kehadiran"
+                        // If it's a normal day, show "No Attendance Yet"
                         return Center(
                           child: Padding(
                             padding: EdgeInsets.only(
@@ -309,6 +349,7 @@ class _TeacherViewAttendanceSubjectScreenState
                         );
                       }
                     }
+
                     return Column(
                       children: [
                         Row(
@@ -444,7 +485,8 @@ class _TeacherViewAttendanceSubjectScreenState
                           height: 15,
                         ),
                         StudentSubjectAttendanceContainer(
-                          studentAttendances: state.attendance,
+                          studentAttendances:
+                              filteredAttendance, // Use the filtered list
                           isForAddAttendance: false,
                         ),
                       ],
@@ -576,35 +618,42 @@ class _TeacherViewAttendanceSubjectScreenState
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 // Filter Kelas
-                                BlocConsumer<ClassSectionsAndSubjectsCubit, ClassSectionsAndSubjectsState>(
+                                BlocConsumer<ClassSectionsAndSubjectsCubit,
+                                    ClassSectionsAndSubjectsState>(
                                   listener: (context, state) {
-                                    if (state is ClassSectionsAndSubjectsFetchSuccess) {
+                                    if (state
+                                        is ClassSectionsAndSubjectsFetchSuccess) {
                                       if (_selectedClassSection == null) {
-                                        changeSelectedClassSection(state.classSections.firstOrNull);
+                                        changeSelectedClassSection(
+                                            state.classSections.firstOrNull);
                                       }
                                     }
                                   },
                                   builder: (context, state) {
                                     return FilterButton(
                                       onTap: () {
-                                        if (state is ClassSectionsAndSubjectsFetchSuccess) {
+                                        if (state
+                                            is ClassSectionsAndSubjectsFetchSuccess) {
                                           Utils.showBottomSheet(
-                                            child: FilterSelectionBottomsheet<ClassSection>(
-                                              onSelection: (value) {
-                                                changeSelectedClassSection(value!);
-                                                Get.back();
-                                              },
-                                              selectedValue: _selectedClassSection!,
-                                              titleKey: classKey,
-                                              values: state.classSections,
-                                            ),
-                                            context: context
-                                          );
+                                              child: FilterSelectionBottomsheet<
+                                                  ClassSection>(
+                                                onSelection: (value) {
+                                                  changeSelectedClassSection(
+                                                      value!);
+                                                  Get.back();
+                                                },
+                                                selectedValue:
+                                                    _selectedClassSection!,
+                                                titleKey: classKey,
+                                                values: state.classSections,
+                                              ),
+                                              context: context);
                                         }
                                       },
-                                      titleKey: _selectedClassSection?.id == null 
-                                        ? classKey 
-                                        : _selectedClassSection?.name ?? "",
+                                      titleKey: _selectedClassSection?.id ==
+                                              null
+                                          ? classKey
+                                          : _selectedClassSection?.name ?? "",
                                       width: boxConstraints.maxWidth * (0.48),
                                     );
                                   },
@@ -861,122 +910,46 @@ class _TeacherViewAttendanceSubjectScreenState
                               BlocBuilder<SubjectAttendanceCubit,
                                   SubjectAttendanceState>(
                                 builder: (context, state) {
-                                  if (_isLoading) {
+                                  if (state is SubjectAttendanceFetchSuccess) {
+                                    if (state.lampiran == null ||
+                                        state.lampiran!.isEmpty) {
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 8.0, horizontal: 10.0),
+                                        child: Text(
+                                          '-',
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                      );
+                                    }
+
+                                    // Improved attachment display
                                     return Padding(
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 8.0, horizontal: 10.0),
-                                      child: Shimmer.fromColors(
-                                        baseColor: Colors.grey[300]!,
-                                        highlightColor: Colors.grey[100]!,
-                                        child: Container(
-                                          width: 70,
-                                          height: 70,
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                          ),
-                                        ),
+                                      child: _buildAttachmentThumbnail(
+                                        context,
+                                        state.lampiran!,
                                       ),
                                     );
                                   } else if (state
-                                      is SubjectAttendanceFetchSuccess) {
-                                    return Column(
-                                      children: [
-                                        if (state.lampiran != null &&
-                                            state.lampiran!.isNotEmpty)
-                                          GestureDetector(
-                                            onTap: () {
-                                              showDialog(
-                                                context: context,
-                                                builder:
-                                                    (BuildContext context) {
-                                                  return Dialog(
-                                                    child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        Image.network(
-                                                          state.lampiran!,
-                                                          loadingBuilder: (context,
-                                                              child,
-                                                              loadingProgress) {
-                                                            if (loadingProgress ==
-                                                                null)
-                                                              return child;
-                                                            return Shimmer
-                                                                .fromColors(
-                                                              baseColor: Colors
-                                                                  .grey[300]!,
-                                                              highlightColor:
-                                                                  Colors.grey[
-                                                                      100]!,
-                                                              child: Container(
-                                                                width: double
-                                                                    .infinity,
-                                                                height: 200,
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              8),
-                                                                ),
-                                                              ),
-                                                            );
-                                                          },
-                                                        ),
-                                                        TextButton(
-                                                          onPressed: () =>
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop(),
-                                                          child: Text('Close'),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                },
-                                              );
-                                            },
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 8.0,
-                                                      horizontal: 10.0),
-                                              child: Image.network(
-                                                state.lampiran ?? '-',
-                                                width: 70,
-                                                height: 70,
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                          ),
-                                        if (state.lampiran == null ||
-                                            state.lampiran!.isEmpty)
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 8.0,
-                                                horizontal: 10.0),
-                                            child: Text(
-                                              '-',
-                                              style: TextStyle(fontSize: 20),
-                                            ),
-                                          ),
-                                      ],
-                                    );
-                                  } else if (state
                                       is SubjectAttendanceFetchFailure) {
-                                    return Text('-');
+                                    return Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text('-',
+                                          style: TextStyle(fontSize: 16)),
+                                    );
                                   } else {
-                                    return Center(
-                                      child: Padding(
-                                        padding: EdgeInsets.only(
-                                            top:
-                                                topPaddingOfErrorAndLoadingContainer),
-                                        child: Text("-"),
+                                    return Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: SizedBox(
+                                        width: 70,
+                                        height: 70,
+                                        child: Center(
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2.0,
+                                          ),
+                                        ),
                                       ),
                                     );
                                   }
@@ -1073,5 +1046,99 @@ class _TeacherViewAttendanceSubjectScreenState
       });
       getAttendance();
     }
+  }
+
+  Widget _buildAttachmentThumbnail(BuildContext context, String imageUrl) {
+    return GestureDetector(
+      onTap: () => _showAttachmentDialog(context, imageUrl),
+      child: Container(
+        width: 70,
+        height: 70,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(7),
+          child: CachedNetworkImage(
+            imageUrl: imageUrl,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Container(
+              color: Colors.grey.shade100,
+              child: Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2.0),
+                ),
+              ),
+            ),
+            errorWidget: (context, url, error) => Container(
+              color: Colors.grey.shade100,
+              child: Center(
+                child: Icon(Icons.error_outline, color: Colors.red.shade300),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showAttachmentDialog(BuildContext context, String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return Dialog(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Stack(
+                children: [
+                  InteractiveViewer(
+                    panEnabled: true,
+                    boundaryMargin: EdgeInsets.all(20),
+                    minScale: 0.5,
+                    maxScale: 4,
+                    child: CachedNetworkImage(
+                      imageUrl: imageUrl,
+                      fit: BoxFit.contain,
+                      placeholder: (context, url) => Container(
+                        width: double.infinity,
+                        height: 300,
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        width: double.infinity,
+                        height: 200,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.error_outline,
+                                color: Colors.red, size: 40),
+                            SizedBox(height: 10),
+                            Text('Gagal memuat gambar'),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: IconButton(
+                      icon: Icon(Icons.close, color: Colors.black),
+                      onPressed: () => Navigator.of(dialogContext).pop(),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
