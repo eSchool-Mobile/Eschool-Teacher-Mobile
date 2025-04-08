@@ -339,7 +339,7 @@ class _TeacherAddAttendanceScreenSubjectState
                 is SubmitAttendanceSubjectSuccess) {
                 SnackBarUtils.showSnackBar(
                 context: context,
-                message: "✅ Berhasil menyimpan absensi pelajaran!",
+                message: "✅ Berhasil menyimpan Kehadiran pelajaran!",
                 backgroundColor: Colors.green.shade700,
                 textColor: Colors.white,
                 );

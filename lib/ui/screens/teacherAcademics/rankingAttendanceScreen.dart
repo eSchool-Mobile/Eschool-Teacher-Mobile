@@ -100,7 +100,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen> {
 
           return Column(
             children: [
-              const CustomAppbar(titleKey: 'Peringkat Absensi'),
+              const CustomAppbar(titleKey: 'Peringkat Kehadiran'),
               AppbarFilterBackgroundContainer(
                 height: Utils().getResponsiveHeight(context, 85),
                 child: LayoutBuilder(builder: (context, boxConstraints) {

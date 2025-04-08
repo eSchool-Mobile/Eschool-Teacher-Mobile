@@ -138,7 +138,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                               context: context,
                               icon: Icons.add_circle_outline,
                               title:
-                                  "Absensi Kegiatan Khusus", // Ganti dari addAttendanceKey
+                                  "Kehadiran Kegiatan Khusus", // Ganti dari addAttendanceKey
                               index: 2,
                               onTap: () => Get.toNamed(
                                   Routes.teacherAddAttendanceScreen),
@@ -147,7 +147,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                               context: context,
                               icon: Icons.visibility,
                               title:
-                                  "Laporan Absensi Kegiatan Khusus", // Ganti dari viewAttendanceKey
+                                  "Laporan Kehadiran Kegiatan Khusus", // Ganti dari viewAttendanceKey
                               index: 3,
                               onTap: () => Get.toNamed(
                                   Routes.teacherViewAttendanceScreen),
@@ -174,7 +174,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                               context: context,
                               icon: Icons.leaderboard,
                               title:
-                                  "Peringkat Absensi", // Ganti dari rankingAbsentKey
+                                  "Peringkat Kehadiran", // Ganti dari rankingAbsentKey
                               index: 6,
                               onTap: () =>
                                   Get.toNamed(Routes.attendanceRankingScreen),
