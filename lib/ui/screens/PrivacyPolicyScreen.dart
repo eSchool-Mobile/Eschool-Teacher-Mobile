@@ -236,72 +236,71 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
 
   Widget _buildHeroSection() {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.3, // Responsive height
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColorPalette.primaryMaroon,
-            AppColorPalette.secondaryMaroon,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: AppColorPalette.primaryMaroon.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Stack(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
         children: [
-          Positioned(
-            right: -50,
-            bottom: -50,
-            child: Icon(
-              Icons.security,
-              size: 200,
-              color: Colors.white.withOpacity(0.1),
-            ),
-          ),
-          Padding(
+          Container(
             padding: const EdgeInsets.all(30),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColorPalette.primaryMaroon,
+                  AppColorPalette.secondaryMaroon,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColorPalette.primaryMaroon.withOpacity(0.3),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Stack(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(15),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
+                Positioned(
+                  right: -50,
+                  bottom: -50,
                   child: Icon(
-                    Icons.privacy_tip,
-                    size: 40,
-                    color: AppColorPalette.primaryMaroon,
+                    Icons.security,
+                    size: 200,
+                    color: Colors.white.withOpacity(0.1),
                   ),
                 ),
-                const SizedBox(height: 20),
-                Text(
-                  "Kebijakan Privasi",
-                  style: GoogleFonts.poppins(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Text(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Icon(
+                        Icons.privacy_tip,
+                        size: 40,
+                        color: AppColorPalette.primaryMaroon,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      "Kebijakan Privasi",
+                      style: GoogleFonts.poppins(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
                       "Kami menghargai privasi Anda dan berkomitmen untuk melindungi informasi pribadi Anda",
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         color: Colors.white.withOpacity(0.9),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),

@@ -12,6 +12,7 @@ import 'package:glassmorphism/glassmorphism.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui' as ui;
+import 'package:flutter/services.dart';
 
 class OnlineExamScreen extends StatefulWidget {
   @override
@@ -19,15 +20,24 @@ class OnlineExamScreen extends StatefulWidget {
 }
 
 class _OnlineExamScreenState extends State<OnlineExamScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   Map<String, dynamic>? selectedSubject;
   int? selectedSessionYearId;
   late AnimationController _animationController;
   late Animation<double> _animation;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
 
   SubjectDetail? selectedSubjectDetail;
   List<SubjectDetail> subjectDetails = [];
   final ScrollController _scrollController = ScrollController();
+
+  // Theme colors - Softer Maroon palette
+  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
+  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
+  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
+  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
 
   @override
   void initState() {
@@ -52,11 +62,23 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       curve: Curves.easeInOut,
     );
     _animationController.forward();
+
+    // Add this new controller for pulse animation
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+
+    _pulseAnimation = CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+    _pulseController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -71,15 +93,12 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
             colors: [
-              Color(0xFF8B0000).withOpacity(0.9),
-              Color(0xFF6B0000),
-              Color(0xFF4B0000),
-              Theme.of(context).colorScheme.secondary,
+              _primaryColor,
+              Color(0xFF5A2223), // Softer deeper maroon
             ],
-            stops: [0.2, 0.4, 0.6, 1.0],
           ),
         ),
         child: SafeArea(
@@ -97,9 +116,15 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 10,
+                        color: _glowColor.withOpacity(0.2),
+                        blurRadius: 20,
                         spreadRadius: 5,
+                        offset: Offset(0, -5),
+                      ),
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 30,
+                        offset: Offset(0, -10),
                       ),
                     ],
                   ),
@@ -120,140 +145,122 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   }
 
   Widget _buildAnimatedHeader() {
-    return FadeInDown(
+    return SlideInDown(
       duration: Duration(milliseconds: 800),
-      child: GlassmorphicContainer(
-        width: double.infinity,
-        height: 100,
-        borderRadius: 0,
-        blur: 20,
-        alignment: Alignment.center,
-        border: 0,
-        linearGradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withOpacity(0.1),
-            Colors.white.withOpacity(0.05),
-          ],
-        ),
-        borderGradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withOpacity(0.5),
-            Colors.white.withOpacity(0.2),
-          ],
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16), // Reduced padding
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Left side - Back button and title
-              Flexible(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.arrow_back_ios, color: Colors.white),
-                      onPressed: () => Get.back(),
-                      padding: EdgeInsets.zero, // Remove padding
-                      constraints: BoxConstraints(), // Remove constraints
-                    ),
-                    SizedBox(width: 8), // Reduced spacing
-                    Flexible(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Ujian Online',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20, // Slightly smaller
-                              fontWeight: FontWeight.bold,
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black26,
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
-                                ),
-                              ],
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          SizedBox(height: 2), // Reduced spacing
-                          Text(
-                            'Manajemen Ujian',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
-                              fontSize: 14, // Smaller font
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(15, 15, 15, 10),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                // Back button with advanced ripple and glow effects
+                _buildGlowingIconButton(
+                  Icons.arrow_back_rounded,
+                  () {
+                    HapticFeedback.mediumImpact();
+                    Get.back();
+                  },
                 ),
-              ),
+                SizedBox(width: 15),
 
-              // Right side - Action buttons
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Archive Button
-                  SizedBox(
-                    height: 36, // Fixed height
-                    child: ElevatedButton.icon(
-                      onPressed: () => Get.toNamed(Routes.archiveOnlineExam),
-                      icon: Icon(Icons.archive_outlined, size: 18),
-                      label: Text('Arsip'),
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor:
-                            Theme.of(context).colorScheme.secondary,
-                        backgroundColor: Colors.white.withOpacity(0.9),
-                        elevation: 0,
-                        padding: EdgeInsets.symmetric(horizontal: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        textStyle: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
+                // Title with modern styling
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(30),
+                            topRight: Radius.circular(30),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  SizedBox(width: 8), // Reduced spacing
-                  // Create Exam Button
-                  SizedBox(
-                    height: 36, // Fixed height
-                    child: ElevatedButton.icon(
-                      onPressed: () => Get.toNamed(Routes.createOnlineExam),
-                      icon: Icon(Icons.add, size: 18),
-                      label: Text('Buat'),
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor:
-                            Theme.of(context).colorScheme.secondary,
-                        backgroundColor: Colors.white,
-                        elevation: 0,
-                        padding: EdgeInsets.symmetric(horizontal: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        textStyle: TextStyle(
+                      Text(
+                        'Ujian Online',
+                        style: TextStyle(
+                          fontSize: 28,
                           fontWeight: FontWeight.bold,
-                          fontSize: 13,
+                          letterSpacing: 0.8,
+                          color: Colors.white,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 6),
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'Manajemen Ujian',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            ],
-          ),
+                ),
+
+                // Archive Button
+                _buildHeaderButton(
+                  icon: Icons.archive_outlined,
+                  label: 'Arsip',
+                  onTap: () => Get.toNamed(Routes.archiveOnlineExam),
+                ),
+                SizedBox(width: 8),
+
+                // Add Button with animation
+                AnimatedBuilder(
+                  animation: _pulseAnimation,
+                  builder: (context, child) {
+                    final scale = 1.0 + 0.05 * _pulseAnimation.value;
+                    return GestureDetector(
+                      onTap: () {
+                        HapticFeedback.mediumImpact();
+                        Get.toNamed(Routes.createOnlineExam);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.15),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.white.withOpacity(
+                                  0.1 + 0.1 * _pulseAnimation.value),
+                              blurRadius: 12 * (1 + _pulseAnimation.value),
+                              spreadRadius: 2 * _pulseAnimation.value,
+                            )
+                          ],
+                          border: Border.all(
+                            color: Colors.white.withOpacity(
+                                0.1 + 0.05 * _pulseAnimation.value),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Transform.scale(
+                          scale: scale,
+                          child: Icon(
+                            Icons.add,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -528,647 +535,490 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   }
 
   Widget _buildExamCard(BuildContext context, exam.OnlineExam exam) {
-    // Define color palette for maroon theme
-    final maroonColors = {
-      'primary': Color.fromARGB(255, 162, 44, 50), // Softer deep maroon
-      'accent': Color(0xFF9D3C3C), // Softer medium maroon
-      'highlight': Color(0xFFB84D4D), // Softer bright maroon
-      'energy': Color(0xFFCE6D6D), // Softer light maroon
-      'glow': Color(0xFFAF4F4F), // Softer rich maroon
+    // Define modern color scheme with soft maroon colors
+    final colorScheme = {
+      'primary': Color.fromARGB(255, 172, 33, 33),
+      'secondary': Color(0xFF03A9F4),
+      'accent': Color(0xFFFF6D00),
+      'neutral1': Color(0xFF263238),
+      'neutral2': Color(0xFF546E7A),
+      // Updated gradient colors to softer, lighter maroons
+      'gradient1': Color(0xFF7D1F1F), // Lighter maroon
+      'gradient2': Color(0xFF9B2F2F), // Medium maroon
+      'gradient3': Color(0xFFBF4040), // Soft bright maroon
     };
 
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 0, vertical: 16),
-      child: GestureDetector(
-        onTap: () => Get.toNamed('/exam-questions/${exam.id}'),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: [
-              BoxShadow(
-                color: maroonColors['primary']!.withOpacity(0.12),
-                blurRadius: 40,
-                offset: Offset(0, 15),
-                spreadRadius: 0,
-              ),
-              BoxShadow(
-                color: Colors.black.withOpacity(0.06),
-                blurRadius: 12,
-                offset: Offset(0, 8),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(28),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Premium Header with Pattern
-                Container(
-                  height: 180,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        maroonColors['primary']!,
-                        Color.lerp(
-                            maroonColors['primary']!, Colors.black, 0.2)!,
-                        maroonColors['primary']!.withOpacity(0.85),
-                      ],
-                      stops: [0.2, 0.6, 0.9],
-                    ),
+    // Calculate the positioning for perfect centering
+    final headerHeight = 200.0; // Increased header height
+    final cardHeight = 170.0;
+    final centerPosition = headerHeight - (cardHeight / 2);
+
+    return FadeInUp(
+      duration: Duration(milliseconds: 600),
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 16),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => Get.toNamed('/exam-questions/${exam.id}'),
+            borderRadius: BorderRadius.circular(32),
+            highlightColor: Colors.transparent,
+            splashColor: colorScheme['primary']!.withOpacity(0.05),
+            child: Ink(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0xFF000000).withOpacity(0.07),
+                    blurRadius: 30,
+                    offset: Offset(0, 15),
+                    spreadRadius: -5,
                   ),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      // Advanced geometric pattern effect
-                      CustomPaint(
-                        painter: UltraModernPatternPainter(
-                          primaryColor: Colors.white.withOpacity(0.12),
-                          secondaryColor: Colors.white.withOpacity(0.06),
-                        ),
-                      ),
-
-                      // Radial glow effect (adds depth)
-                      Positioned(
-                        top: -40,
-                        right: -40,
-                        child: Container(
-                          height: 180,
-                          width: 180,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: RadialGradient(
-                              colors: [
-                                Colors.white.withOpacity(0.3),
-                                Colors.white.withOpacity(0),
-                              ],
-                              stops: [0.1, 1.0],
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // Duration Badge
-                      Positioned(
-                        top: 20,
-                        right: 20,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(18),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 8,
-                                offset: Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.timer_outlined,
-                                  size: 18, color: maroonColors['primary']),
-                              SizedBox(width: 8),
-                              Text(
-                                '${exam.duration} Menit',
-                                style: TextStyle(
-                                  color: maroonColors['primary'],
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // Exam Title
-                      Positioned(
-                        bottom: 22,
-                        left: 20,
-                        right: 20,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              exam.title,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 28, // Increased from 22
-                                fontWeight: FontWeight.w800, // Made bolder
-                                height:
-                                    1.2, // Tighter line height for larger text
-                                letterSpacing: 0.5, // Increased letter spacing
-                                shadows: [
-                                  Shadow(
-                                    color: Colors.black
-                                        .withOpacity(0.6), // Deeper shadow
-                                    offset:
-                                        Offset(0, 3), // Slightly lower offset
-                                    blurRadius: 6, // More blur for depth
-                                  ),
-                                  Shadow(
-                                    color: Colors.black.withOpacity(0.3),
-                                    offset: Offset(0, 1),
-                                    blurRadius: 2,
-                                  ),
-                                ],
-                                decoration: TextDecoration.none,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.left,
-                            ),
-                            SizedBox(height: 12),
-                            // Decorative element that adapts to title length
-                            LayoutBuilder(
-                              builder: (context, constraints) {
-                                // Calculate text width - use about 70% of text width
-                                final textWidth = TextPainter(
-                                  text: TextSpan(
-                                    text: exam.title,
-                                    style: TextStyle(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.w800,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                  textDirection: ui.TextDirection.ltr,
-                                  maxLines: 1,
-                                )..layout(maxWidth: constraints.maxWidth);
-
-                                final width = textWidth.width * 0.7;
-                                // Ensure minimum width of 60 and maximum of container width
-                                final finalWidth =
-                                    width.clamp(60.0, constraints.maxWidth);
-
-                                return Container(
-                                  width: finalWidth,
-                                  height: 4,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.8),
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  BoxShadow(
+                    color: Color(0xFF000000).withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                    spreadRadius: 0,
                   ),
-                ),
-
-                // Content Section
-                Container(
-                  padding: EdgeInsets.fromLTRB(24, 26, 24, 20),
-                  child: Column(
+                  BoxShadow(
+                    color: Colors.white.withOpacity(0.5),
+                    blurRadius: 20,
+                    offset: Offset(0, 2),
+                    spreadRadius: -3,
+                  ),
+                ],
+              ),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Section title with modern accent
-                      Row(
-                        children: [
-                          Container(
-                            width: 4,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(2),
-                              color: maroonColors['primary'],
-                            ),
-                          ),
-                          SizedBox(width: 12),
-                          Text(
-                            "Detail Ujian",
-                            style: TextStyle(
-                              color: Colors.grey[800],
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.3,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      SizedBox(height: 18),
-
-                      // Date and Info Container - Horizontal Layout
+                      // Header with Exam Title
                       Container(
-                        padding: EdgeInsets.all(18),
+                        height: headerHeight, // Increased height
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: Colors.grey.shade100),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.02),
-                              blurRadius: 8,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            // Date Info
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Start Date
-                                  _buildInfoRow(
-                                    icon: Icons.event_outlined,
-                                    text: DateFormat('dd MMM yyyy')
-                                        .format(exam.startDate),
-                                    label: 'Tanggal Mulai',
-                                    color: maroonColors['primary']!,
-                                    fontSize: 14,
-                                  ),
-                                  SizedBox(height: 12),
-                                  // End Date
-                                  _buildInfoRow(
-                                    icon: Icons.event_outlined,
-                                    text: DateFormat('dd MMM yyyy')
-                                        .format(exam.endDate),
-                                    label: 'Tanggal Selesai',
-                                    color: maroonColors['primary']!,
-                                    fontSize: 14,
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            // Exam Icon
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(height: 18),
-
-                      // Questions Button
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.all(18),
-                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(32),
+                            topRight: Radius.circular(32),
+                          ),
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              Colors.white,
-                              Colors.grey.shade50,
+                              colorScheme['gradient1']!,
+                              colorScheme['gradient2']!,
+                              colorScheme['gradient3']!,
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(22),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
-                              blurRadius: 12,
-                              spreadRadius: 0,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                          border: Border.all(
-                            color: maroonColors['primary']!.withOpacity(0.2),
-                            width: 1.5,
-                          ),
                         ),
-                        child: Row(
+                        child: Stack(
                           children: [
-                            Container(
-                              padding: EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color:
-                                    maroonColors['primary']!.withOpacity(0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.question_answer_rounded,
-                                color: maroonColors['primary'],
-                                size: 22,
+                            // Decorative Pattern Overlay
+                            Opacity(
+                              opacity: 0.07,
+                              child: CustomPaint(
+                                size: Size.infinite,
+                                painter: Modern2025PatternPainter(
+                                  primaryColor: Colors.white,
+                                  secondaryColor: Colors.white.withOpacity(0.5),
+                                ),
                               ),
                             ),
-                            SizedBox(width: 18),
-                            Expanded(
+
+                            // Glow Effect Corner
+                            Positioned(
+                              top: -30,
+                              right: -30,
+                              child: Container(
+                                height: 150,
+                                width: 150,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: RadialGradient(
+                                    colors: [
+                                      Colors.white.withOpacity(0.2),
+                                      Colors.transparent,
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            // Subject Badge
+                            Positioned(
+                              top: 20,
+                              left: 24,
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(30),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.3),
+                                    width: 1,
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            // Duration Badge
+                            Positioned(
+                              top: 20,
+                              right: 24,
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(30),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 10,
+                                      spreadRadius: -5,
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.timer_outlined,
+                                        size: 16,
+                                        color: colorScheme['primary']),
+                                    SizedBox(width: 6),
+                                    Text(
+                                      '${exam.duration} min',
+                                      style: TextStyle(
+                                        color: colorScheme['primary'],
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.3,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            // Exam Title - Moved up with more spacing
+                            Positioned(
+                              bottom: 100, // Increased bottom spacing
+                              left: 24,
+                              right: 24,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Kelola Soal Ujian',
+                                    exam.title,
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.grey[800],
-                                      fontSize: 16,
+                                      color: Colors.white,
+                                      fontSize: 26,
+                                      fontWeight: FontWeight.w800,
+                                      height: 1.2,
+                                      letterSpacing: 0.5,
+                                      shadows: [
+                                        Shadow(
+                                          color: Colors.black.withOpacity(0.5),
+                                          offset: Offset(0, 3),
+                                          blurRadius: 6,
+                                        ),
+                                      ],
                                     ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    'Lihat dan atur soal pada ujian ini',
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 14,
+
+                                  SizedBox(height: 8),
+
+                                  // Dynamic Title Underline
+                                  Container(
+                                    width: 80,
+                                    height: 4,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(2),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color:
-                                    maroonColors['primary']!.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(18),
-                              ),
-                              child: Icon(
-                                Icons.arrow_forward_ios_rounded,
-                                color: maroonColors['primary'],
-                                size: 16,
-                              ),
+                          ],
+                        ),
+                      ),
+
+                      // Content Section - Add increased top padding for better spacing
+                      Container(
+                        padding: EdgeInsets.fromLTRB(
+                            24, 120, 24, 24), // Increased top padding
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Actions Row - Modern Button Design
+                            Row(
+                              children: [
+                                // Edit Button - Modern Design
+                                Expanded(
+                                  child: _buildModernActionButton(
+                                    onTap: () => Get.toNamed(
+                                      Routes.editOnlineExam,
+                                      arguments: exam,
+                                    ),
+                                    icon: Icons.edit_outlined,
+                                    label: 'Edit Ujian',
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Color(0xFF26A69A),
+                                        Color(0xFF00897B),
+                                        Color(0xFF00796B),
+                                      ],
+                                    ),
+                                    shadowColor:
+                                        Color(0xFF26A69A).withOpacity(0.4),
+                                  ),
+                                ),
+
+                                SizedBox(width: 16),
+
+                                // Archive Button - Modern Design
+                                Expanded(
+                                  child: _buildModernActionButton(
+                                    onTap: () => _showDeleteConfirmation(exam),
+                                    icon: Icons.archive_outlined,
+                                    label: 'Arsipkan',
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Color(0xFF9C4146), // Softer maroon
+                                        Color(0xFF812A33), // Medium maroon
+                                        Color(0xFF6A1B24), // Deep maroon
+                                      ],
+                                    ),
+                                    shadowColor:
+                                        Color(0xFF812A33).withOpacity(0.4),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
                     ],
                   ),
-                ),
 
-                // Ultra-modern Action Footer
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(28),
-                      bottomRight: Radius.circular(28),
+                  // Overlapping Card - Positioned to be exactly at the boundary
+                  Positioned(
+                    top: centerPosition, // Perfect center at the boundary
+                    left: 20,
+                    right: 20,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 15,
+                            offset: Offset(0, 5),
+                            spreadRadius: -5,
+                          ),
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.07),
+                            blurRadius: 5,
+                            offset: Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(16),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: () =>
+                              Get.toNamed('/exam-questions/${exam.id}'),
+                          splashColor:
+                              colorScheme['primary']!.withOpacity(0.05),
+                          highlightColor: Colors.transparent,
+                          child: Column(
+                            children: [
+                              // Top section: Manage Questions
+                              Padding(
+                                padding: EdgeInsets.all(20),
+                                child: Row(
+                                  children: [
+                                    // Icon Container
+                                    Container(
+                                      padding: EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: colorScheme['primary']!
+                                            .withOpacity(0.1),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        Icons.question_answer_rounded,
+                                        color: colorScheme['primary'],
+                                        size: 22,
+                                      ),
+                                    ),
+                                    SizedBox(width: 16),
+
+                                    // Text Content
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Kelola Soal Ujian',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              color: colorScheme['neutral1'],
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          SizedBox(height: 4),
+                                          Text(
+                                            'Lihat dan atur soal pada ujian ini',
+                                            style: TextStyle(
+                                              color: colorScheme['neutral2'],
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    // Arrow Icon
+                                    Container(
+                                      padding: EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: colorScheme['primary']!
+                                            .withOpacity(0.07),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Icon(
+                                        Icons.arrow_forward_rounded,
+                                        color: colorScheme['primary'],
+                                        size: 18,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              // Divider
+                              Divider(
+                                height: 1,
+                                thickness: 1,
+                                color:
+                                    colorScheme['primary']!.withOpacity(0.08),
+                                indent: 20,
+                                endIndent: 20,
+                              ),
+
+                              // Bottom section: Dates display
+                              Padding(
+                                padding: EdgeInsets.all(20),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    // Start Date
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              Icons.calendar_today_rounded,
+                                              size: 16,
+                                              color: colorScheme['primary'],
+                                            ),
+                                            SizedBox(width: 6),
+                                            Text(
+                                              'Mulai',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: colorScheme['neutral2'],
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          DateFormat('dd MMM yyyy')
+                                              .format(exam.startDate),
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            color: colorScheme['neutral1'],
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+
+                                    // Divider
+                                    Container(
+                                      height: 35,
+                                      width: 1,
+                                      color: Colors.grey.shade200,
+                                    ),
+
+                                    // End Date
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              Icons.calendar_month_rounded,
+                                              size: 16,
+                                              color: colorScheme['accent'],
+                                            ),
+                                            SizedBox(width: 6),
+                                            Text(
+                                              'Selesai',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: colorScheme['neutral2'],
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          DateFormat('dd MMM yyyy')
+                                              .format(exam.endDate),
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            color: colorScheme['neutral1'],
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
-                        blurRadius: 12,
-                        offset: Offset(0, -2),
-                      ),
-                    ],
                   ),
-                  padding: EdgeInsets.all(24),
-                  child: Row(
-                    children: [
-                      // Edit Button - Premium Design
-                      Expanded(
-                        child: AnimatedContainer(
-                          duration: Duration(milliseconds: 300),
-                          height: 56,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                                colors: [
-                                Color(0xFF4AE54A), // Bright lime green
-                                Color(0xFF2DCB5C), // Vibrant green
-                                Color(0xFF00A067), // Deep emerald
-                              ],
-                              stops: [0.0, 0.5, 1.0],
-                            ),
-                            borderRadius: BorderRadius.circular(18),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(0xFF66B58F).withOpacity(0.25),
-                                blurRadius: 15,
-                                offset: Offset(0, 6),
-                                spreadRadius: -4,
-                              ),
-                              BoxShadow(
-                                color: Color(0xFF66B58F).withOpacity(0.1),
-                                blurRadius: 3,
-                                offset: Offset(0, 1),
-                                spreadRadius: 0,
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(18),
-                            child: Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                onTap: () {
-                                  Get.toNamed(
-                                    Routes.editOnlineExam,
-                                    arguments: exam,
-                                  );
-                                },
-                                splashColor: Colors.white.withOpacity(0.2),
-                                highlightColor: Colors.transparent,
-                                child: Stack(
-                                  children: [
-                                    // Subtle pattern overlay
-                                    Opacity(
-                                      opacity: 0.07,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                            image: NetworkImage(
-                                                'https://www.transparenttextures.com/patterns/diamond-upholstery.png'),
-                                            repeat: ImageRepeat.repeat,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    // Content
-                                    Center(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            padding: EdgeInsets.all(8),
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  Colors.white.withOpacity(0.2),
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: Icon(
-                                              Icons.edit_outlined,
-                                              size: 20,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          SizedBox(width: 12),
-                                          Text(
-                                            'Edit Ujian',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
-                                              letterSpacing: 0.5,
-                                              height: 1.2,
-                                              shadows: [
-                                                Shadow(
-                                                  color: Colors.black12,
-                                                  offset: Offset(0, 1),
-                                                  blurRadius: 2,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    // Shine effect
-                                    Positioned(
-                                      top: 0,
-                                      left: 0,
-                                      right: 0,
-                                      child: Container(
-                                        height: 20,
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            begin: Alignment.topCenter,
-                                            end: Alignment.bottomCenter,
-                                            colors: [
-                                              Colors.white.withOpacity(0.15),
-                                              Colors.white.withOpacity(0.0),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(width: 14),
-
-                      // Archive Button - Premium Design
-                      Expanded(
-                        child: AnimatedContainer(
-                          duration: Duration(milliseconds: 300),
-                          height: 56,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                                colors: [
-                                Color(0xFFFF5252), // Bright red
-                                Color(0xFFFF1744), // Vibrant crimson
-                                Color(0xFFD50000), // Deep red
-                              ],
-                              stops: [0.0, 0.5, 1.0],
-                            ),
-                            borderRadius: BorderRadius.circular(18),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(0xFFE28B7D).withOpacity(0.25),
-                                blurRadius: 15,
-                                offset: Offset(0, 6),
-                                spreadRadius: -4,
-                              ),
-                              BoxShadow(
-                                color: Color(0xFFE28B7D).withOpacity(0.1),
-                                blurRadius: 3,
-                                offset: Offset(0, 1),
-                                spreadRadius: 0,
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(18),
-                            child: Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                onTap: () => _showDeleteConfirmation(exam),
-                                splashColor: Colors.white.withOpacity(0.2),
-                                highlightColor: Colors.transparent,
-                                child: Stack(
-                                  children: [
-                                    // Subtle pattern overlay
-                                    Opacity(
-                                      opacity: 0.07,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                            image: NetworkImage(
-                                                'https://www.transparenttextures.com/patterns/diamond-upholstery.png'),
-                                            repeat: ImageRepeat.repeat,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    // Content
-                                    Center(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            padding: EdgeInsets.all(8),
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  Colors.white.withOpacity(0.2),
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: Icon(
-                                              Icons.archive_outlined,
-                                              size: 20,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          SizedBox(width: 12),
-                                          Text(
-                                            'Arsipkan',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
-                                              letterSpacing: 0.5,
-                                              height: 1.2,
-                                              shadows: [
-                                                Shadow(
-                                                  color: Colors.black12,
-                                                  offset: Offset(0, 1),
-                                                  blurRadius: 2,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    // Shine effect
-                                    Positioned(
-                                      top: 0,
-                                      left: 0,
-                                      right: 0,
-                                      child: Container(
-                                        height: 20,
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            begin: Alignment.topCenter,
-                                            end: Alignment.bottomCenter,
-                                            colors: [
-                                              Colors.white.withOpacity(0.15),
-                                              Colors.white.withOpacity(0.0),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -1176,105 +1026,113 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     );
   }
 
-  Widget _buildInfoRow({
-    required IconData icon,
-    required String text,
-    required String label,
-    required Color color,
-    double fontSize = 11, // Default smaller font size
-  }) {
-    return Row(
-      children: [
-        Icon(icon, size: 14, color: color.withOpacity(0.8)),
-        SizedBox(width: 4),
-        Text(
-          '$label: ',
-          style: TextStyle(
-            fontSize: fontSize,
-            color: Colors.grey[700],
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        Expanded(
-          child: Text(
-            text,
-            style: TextStyle(
-              fontSize: fontSize,
-              color: color,
-              fontWeight: FontWeight.w600,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
+  Widget _buildModernActionButton({
     required VoidCallback onTap,
-    required Color color,
-    required double height,
-    required double fontSize,
+    required IconData icon,
+    required String label,
+    required LinearGradient gradient,
+    required Color shadowColor,
   }) {
-    return SizedBox(
-      height: height,
-      child: ElevatedButton.icon(
-        onPressed: onTap,
-        icon: Icon(
-          icon,
-          size: 14,
-          color: Colors.white, // Warna ikon diubah menjadi putih
-        ),
-        label: Text(
-          label,
-          style: TextStyle(
-            fontSize: fontSize,
-            color: Colors.white, // Warna teks diubah menjadi putih
-          ),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          padding: EdgeInsets.symmetric(horizontal: 6),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatusChip(String status) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      height: 56,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: status.toLowerCase() == 'active'
-                  ? Color(0xFF006400)
-                  : Color(0xFFB8860B),
-              shape: BoxShape.circle,
-            ),
+        gradient: gradient,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: shadowColor,
+            blurRadius: 15,
+            offset: Offset(0, 5),
+            spreadRadius: -5,
           ),
-          SizedBox(width: 6),
-          Text(
-            status.capitalize!,
-            style: TextStyle(
-              color: Colors.grey[800],
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
+          BoxShadow(
+            color: shadowColor.withOpacity(0.3),
+            blurRadius: 3,
+            offset: Offset(0, 1),
           ),
         ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          splashColor: Colors.white.withOpacity(0.2),
+          highlightColor: Colors.transparent,
+          child: Stack(
+            children: [
+              // Subtle pattern overlay
+              Opacity(
+                opacity: 0.05,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    image: DecorationImage(
+                      image: NetworkImage(
+                          'https://www.transparenttextures.com/patterns/cubes.png'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+
+              // Button content
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        icon,
+                        size: 20,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Top highlight for 3D effect
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 12,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.white.withOpacity(0.2),
+                        Colors.white.withOpacity(0.0),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -1371,12 +1229,13 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
             SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: _refreshExams,
-                icon: Icon(Icons.refresh, color: Colors.white),
-                label: Text('Coba Lagi', 
+              icon: Icon(Icons.refresh, color: Colors.white),
+              label: Text(
+                'Coba Lagi',
                 style: TextStyle(color: Colors.white),
-                ),
+              ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF8B0000),
+                backgroundColor: _primaryColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -1389,28 +1248,37 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     );
   }
 
-  // Add this function to get varied icons
-
-  // Tambahkan fungsi ini di dalam class _OnlineExamScreenState
   void _showDeleteConfirmation(exam.OnlineExam exam) {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(20),
           ),
           title: Row(
             children: [
-              Icon(Icons.warning_amber_rounded,
-                  color: Colors.orange[700], size: 28),
-              SizedBox(width: 10),
-              Text(
-                'Konfirmasi',
-                style: TextStyle(
-                  color: Colors.grey[800],
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Color(0xFF812A33).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.archive_rounded,
+                  color: Color(0xFF812A33),
+                  size: 28,
+                ),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Arsipkan Ujian',
+                  style: TextStyle(
+                    color: Color(0xFF333333),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -1420,91 +1288,152 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Pilih tindakan untuk ujian "${exam.title}":',
-                style: TextStyle(fontSize: 16),
+                'Apakah Anda yakin ingin mengarsipkan ujian "${exam.title}"?',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF555555),
+                ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 8),
+              Text(
+                'Ujian yang diarsipkan dapat dilihat kembali di menu Arsip.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF888888),
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+              SizedBox(height: 25),
               Row(
                 children: [
                   Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () async {
-                        Navigator.pop(dialogContext);
-                        try {
-                          await context
-                              .read<OnlineExamCubit>()
-                              .deleteOnlineExam(
-                                examId: exam.id,
-                                mode: 'archive',
+                    child: Container(
+                      height: 56,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF9C4146), // Softer maroon
+                            Color(0xFF812A33), // Medium maroon
+                            Color(0xFF6A1B24), // Deep maroon
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xFF812A33).withOpacity(0.4),
+                            blurRadius: 15,
+                            offset: Offset(0, 5),
+                            spreadRadius: -5,
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () async {
+                            HapticFeedback.mediumImpact();
+                            Navigator.pop(dialogContext);
+                            try {
+                              await context
+                                  .read<OnlineExamCubit>()
+                                  .deleteOnlineExam(
+                                    examId: exam.id,
+                                    mode: 'archive',
+                                  );
+
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Container(
+                                    padding: EdgeInsets.symmetric(vertical: 8),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.check_circle,
+                                            color: Colors.white),
+                                        SizedBox(width: 12),
+                                        Text(
+                                          'Ujian berhasil diarsipkan!',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  backgroundColor: Color(0xFF2E7D32),
+                                  duration: Duration(seconds: 2),
+                                  behavior: SnackBarBehavior.floating,
+                                  margin: EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 10),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  elevation: 4,
+                                  action: SnackBarAction(
+                                    label: 'Lihat Arsip',
+                                    textColor: Colors.white,
+                                    onPressed: () {
+                                      Get.toNamed(Routes.archiveOnlineExam);
+                                    },
+                                  ),
+                                ),
                               );
 
-                          // Tampilkan snackbar sukses
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Container(
-                                padding: EdgeInsets.symmetric(vertical: 8),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.check_circle, color: Colors.white),
-                                    SizedBox(width: 12),
-                                    Text(
-                                      'Ujian berhasil diarsipkan!',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
+                              Future.delayed(Duration(milliseconds: 800), () {
+                                if (mounted) {
+                                  _refreshExams();
+                                }
+                              });
+                            } catch (e) {
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Gagal mengarsipkan ujian'),
+                                  backgroundColor: Colors.red,
                                 ),
-                              ),
-                              backgroundColor: Colors.green.shade400,
-                              duration: Duration(seconds: 2),
-                              behavior: SnackBarBehavior.floating,
-                              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              elevation: 4,
-                              action: SnackBarAction(
-                                label: 'Lihat Arsip',
-                                textColor: Colors.white,
-                                onPressed: () {
-                                  Get.toNamed(Routes.archiveOnlineExam);
-                                },
-                              ),
-                            ),
-                          );
-
-                          // Add slight delay before refreshing exams
-                          Future.delayed(Duration(milliseconds: 800), () {
-                            if (mounted) {
-                              _refreshExams();
+                              );
                             }
-                          });
-                        } catch (e) {
-                          // Tampilkan snackbar error
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Gagal mengarsipkan ujian'),
-                              backgroundColor: Colors.red,
+                          },
+                          borderRadius: BorderRadius.circular(16),
+                          splashColor: Colors.white.withOpacity(0.2),
+                          highlightColor: Colors.transparent,
+                          child: Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    Icons.archive_rounded,
+                                    size: 20,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Arsipkan Sekarang',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                    letterSpacing: 0.3,
+                                  ),
+                                ),
+                              ],
                             ),
-                          );
-                        }
-                      },
-                      icon: Icon(Icons.archive_outlined),
-                      label: Text('Arsipkan'),
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.red,
-                        padding: EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
                 ],
               ),
             ],
@@ -1514,7 +1443,10 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
               onPressed: () => Navigator.pop(dialogContext),
               child: Text(
                 'Batal',
-                style: TextStyle(color: Colors.grey[600]),
+                style: TextStyle(
+                  color: Color(0xFF666666),
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
@@ -1522,46 +1454,154 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       },
     );
   }
+
+  // Add these helper methods
+  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedBuilder(
+        animation: _pulseAnimation,
+        builder: (context, child) {
+          return Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.12),
+              boxShadow: [
+                BoxShadow(
+                  color: _highlightColor
+                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
+                  blurRadius: 12 * (1 + _pulseAnimation.value),
+                  spreadRadius: 2 * _pulseAnimation.value,
+                )
+              ],
+              border: Border.all(
+                color: Colors.white
+                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 24,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildHeaderButton(
+      {required IconData icon,
+      required String label,
+      required VoidCallback onTap}) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+          decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.3),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 10,
+                  offset: Offset(0, 3),
+                  spreadRadius: -5,
+                )
+              ]),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                color: Colors.white,
+                size: 18,
+              ),
+              SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class UltraModernPatternPainter extends CustomPainter {
+class Modern2025PatternPainter extends CustomPainter {
   final Color primaryColor;
   final Color secondaryColor;
 
-  UltraModernPatternPainter({
+  Modern2025PatternPainter({
     required this.primaryColor,
     required this.secondaryColor,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Diagonal lines for a premium pattern effect
+    // Create a sophisticated pattern with curved lines and dots
     final paint = Paint()
       ..color = primaryColor
-      ..strokeWidth = 1.5
+      ..strokeWidth = 1.2
       ..style = PaintingStyle.stroke;
 
-    final double spacing = 30;
-    for (double i = -size.width; i < size.width * 2; i += spacing) {
-      canvas.drawLine(
-        Offset(i, 0),
-        Offset(i + size.height, size.height),
-        paint,
-      );
+    final dotPaint = Paint()
+      ..color = secondaryColor
+      ..style = PaintingStyle.fill;
+
+    final double spacing = 40;
+
+    // Draw curved lines
+    for (double i = -size.width / 2; i < size.width * 1.5; i += spacing) {
+      final path = Path();
+      path.moveTo(i, 0);
+
+      // Create a gentle curve
+      path.quadraticBezierTo(
+          i + size.width / 3, size.height / 2, i + size.width / 4, size.height);
+
+      canvas.drawPath(path, paint);
     }
 
-    // Add some perpendicular lines for a grid effect
-    final secondPaint = Paint()
-      ..color = secondaryColor
-      ..strokeWidth = 0.8
-      ..style = PaintingStyle.stroke;
+    // Add decorative dots
+    for (int i = 0; i < 12; i++) {
+      double x = (size.width / 12) * i + (i % 2 == 0 ? 10 : -10);
+      double y = (i % 3 == 0)
+          ? size.height * 0.2
+          : (i % 3 == 1)
+              ? size.height * 0.5
+              : size.height * 0.8;
 
-    for (double i = spacing; i < size.width; i += spacing * 2) {
-      canvas.drawLine(
-        Offset(i, 0),
-        Offset(i, size.height),
-        secondPaint,
-      );
+      // Vary dot sizes
+      double radius = (i % 4 == 0)
+          ? 3.0
+          : (i % 4 == 1)
+              ? 1.5
+              : (i % 4 == 2)
+                  ? 2.0
+                  : 1.0;
+
+      canvas.drawCircle(Offset(x, y), radius, dotPaint);
     }
   }
 

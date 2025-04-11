@@ -361,64 +361,81 @@ class _LoginScreenState extends State<LoginScreen>
     return SlideTransition(
       position: _termsSlideAnimation,
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 10 : 15),
+        padding: EdgeInsets.symmetric(
+          vertical: isSmallScreen ? 10 : 15,
+          horizontal: isSmallScreen ? 10 : 20,
+        ),
         alignment: Alignment.center,
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
-            CustomTextContainer(
-              textKey: bySignInYouAgreeToOurKey,
+            children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: Text(
+              Utils.getTranslatedLabel(bySignInYouAgreeToOurKey),
+              textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize:
-                    Utils.getScaledValue(context, isSmallScreen ? 12 : 14),
+                fontSize: Utils.getScaledValue(context, isSmallScreen ? 11 : 13),
                 color: Colors.black54,
+                height: 1.3,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
               ),
             ),
+            SizedBox(height: isSmallScreen ? 4 : 6),
             Wrap(
               alignment: WrapAlignment.center,
               crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: isSmallScreen ? 2 : 4,
               children: [
-                CustomTextButton(
-                  onTapButton: () {
-                    if (context.read<SignInCubit>().state is SignInInProgress) {
-                      return;
-                    }
-                    Get.toNamed(Routes.termsAndConditionScreen);
-                  },
-                  buttonTextKey: termsAndConditionKey,
-                  textStyle: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: primaryMaroon,
-                      decoration: TextDecoration.underline,
-                      decorationThickness: 1.5,
-                      fontSize: Utils.getScaledValue(
-                          context, isSmallScreen ? 13 : 15)),
+              CustomTextButton(
+                onTapButton: () {
+                if (context.read<SignInCubit>().state is SignInInProgress) {
+                  return;
+                }
+                Get.toNamed(Routes.termsAndConditionScreen);
+                },
+                buttonTextKey: termsAndConditionKey,
+                textStyle: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: primaryMaroon,
+                decoration: TextDecoration.underline,
+                decorationThickness: 1.5,
+                fontSize: Utils.getScaledValue(
+                  context, isSmallScreen ? 12 : 14),
                 ),
-                const SizedBox(width: 4),
-                CustomTextContainer(
-                  textKey: andKey,
-                  style: TextStyle(
-                      fontSize: Utils.getScaledValue(
-                          context, isSmallScreen ? 12 : 14)),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: isSmallScreen ? 3 : 5),
+                child: Text(
+                Utils.getTranslatedLabel(andKey),
+                style: TextStyle(
+                  fontSize: Utils.getScaledValue(
+                  context, isSmallScreen ? 11 : 13),
                 ),
-                CustomTextButton(
-                  onTapButton: () {
-                    if (context.read<SignInCubit>().state is SignInInProgress) {
-                      return;
-                    }
-                    Get.toNamed(Routes.privacyPolicyScreen);
-                  },
-                  buttonTextKey: privacyPolicyKey,
-                  textStyle: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: primaryMaroon,
-                      decoration: TextDecoration.underline,
-                      decorationThickness: 1.5,
-                      fontSize: Utils.getScaledValue(
-                          context, isSmallScreen ? 13 : 15)),
                 ),
+              ),
+              CustomTextButton(
+                onTapButton: () {
+                if (context.read<SignInCubit>().state is SignInInProgress) {
+                  return;
+                }
+                Get.toNamed(Routes.privacyPolicyScreen);
+                },
+                buttonTextKey: privacyPolicyKey,
+                textStyle: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: primaryMaroon,
+                decoration: TextDecoration.underline,
+                decorationThickness: 1.5,
+                fontSize: Utils.getScaledValue(
+                  context, isSmallScreen ? 12 : 14),
+                ),
+              ),
               ],
             ),
+          
           ],
         ),
       ),
@@ -752,23 +769,27 @@ class _LoginScreenState extends State<LoginScreen>
       children: [
         Center(child: _buildAnimatedLogo()),
         SizedBox(height: isSmallScreen ? 16 : 26),
-        Text(
-          'Selamat Datang',
-          style: TextStyle(
-            fontSize: isSmallScreen ? 24 : 28,
-            fontWeight: FontWeight.bold,
-            color: maroonRich,
-            letterSpacing: 0.5,
+        Center(
+          child: Text(
+            'Selamat Datang',
+            style: TextStyle(
+              fontSize: isSmallScreen ? 24 : 28,
+              fontWeight: FontWeight.bold,
+              color: maroonRich,
+              letterSpacing: 0.5,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
-          overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 8),
-        CustomTextContainer(
-          textKey: teacherAndStaffKey,
-          style: TextStyle(
-            fontSize: Utils.getScaledValue(context, isSmallScreen ? 17 : 19),
-            fontWeight: FontWeight.w700,
-            color: primaryMaroon,
+        Center(
+          child: CustomTextContainer(
+            textKey: teacherAndStaffKey,
+            style: TextStyle(
+              fontSize: Utils.getScaledValue(context, isSmallScreen ? 17 : 19),
+              fontWeight: FontWeight.w700,
+              color: primaryMaroon,
+            ),
           ),
         ),
         const SizedBox(height: 8),
