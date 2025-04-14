@@ -525,28 +525,9 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
             splashColor: colorScheme['primary']!.withOpacity(0.05),
             child: Ink(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Color.fromARGB(255, 237, 237, 237), // Very slightly off-white
                 borderRadius: BorderRadius.circular(32),
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(0xFF000000).withOpacity(0.07),
-                    blurRadius: 30,
-                    offset: Offset(0, 15),
-                    spreadRadius: -5,
-                  ),
-                  BoxShadow(
-                    color: Color(0xFF000000).withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                    spreadRadius: 0,
-                  ),
-                  BoxShadow(
-                    color: Colors.white.withOpacity(0.5),
-                    blurRadius: 20,
-                    offset: Offset(0, 2),
-                    spreadRadius: -3,
-                  ),
-                ],
+                // Keep your existing shadows if desired
               ),
               child: Stack(
                 clipBehavior: Clip.none,
