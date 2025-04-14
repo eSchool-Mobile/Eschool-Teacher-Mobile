@@ -5,14 +5,14 @@ import 'package:intl/intl.dart';
 import 'dart:convert';
 
 class TeacherAcademicsRepository {
-  Future<List<TimeTableSlot>> getTeacherMyTimetable() async {
+  Future<List<TimeTableSlot>> getTeacherMyTimetable({String? dayKey}) async {
     try {
       final response = await Api.get(
-        url: Api.getTeacherMyTimetable,
+        url: dayKey != null
+            ? "${Api.getTeacherMyTimetable}?day_key=$dayKey"
+            : Api.getTeacherMyTimetable,
         useAuthToken: true,
       );
-
-
 
       print("API Response type: ${response['data'].runtimeType}");
       print("Raw API Response: ${response['data']}");
@@ -85,3 +85,5 @@ class TeacherAcademicsRepository {
     }
   }
 }
+
+

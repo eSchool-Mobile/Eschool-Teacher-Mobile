@@ -94,6 +94,9 @@ import 'package:eschool_saas_staff/ui/screens/onlineExam/questionOnlineExamScree
 import 'package:eschool_saas_staff/ui/screens/onlineExam/BankSoalSelectionScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/previewQuestionBankSoal.dart';
 import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/examStatuScreen.dart';
+import 'package:eschool_saas_staff/cubits/examStatus/examStatusCubit.dart';
+import 'package:eschool_saas_staff/data/repositories/examStatusRepository.dart';
 
 // Nama route
 class Routes {
@@ -196,6 +199,7 @@ class Routes {
   static const String archiveOnlineExam = '/archive-online-exam';
   static const String bankSoalSelection = '/bank-soal-selection';
   static const String questionOnlineExamScreen = '/question-online-exam';
+  static const String examStatusScreen = "/examStatus";
 
   // Nama page
   static final List<GetPage> getPages = [
@@ -656,37 +660,40 @@ class Routes {
             ArchiveOnlineExam(), // Replace Container() with ArchiveOnlineExam()
       ),
     ),
-GetPage(
-  name: Routes.previewQuestionBank, // Pastikan 'previewQuestionBank' didefinisikan di Routes
-  page: () => MultiBlocProvider(
-    providers: [
-      BlocProvider<OnlineExamCubit>(
-        create: (context) => OnlineExamCubit(OnlineExamRepository()),
+    GetPage(
+      name: Routes
+          .previewQuestionBank, // Pastikan 'previewQuestionBank' didefinisikan di Routes
+      page: () => MultiBlocProvider(
+        providers: [
+          BlocProvider<OnlineExamCubit>(
+            create: (context) => OnlineExamCubit(OnlineExamRepository()),
+          ),
+          BlocProvider<ClassSectionsAndSubjectsCubit>(
+            create: (context) => ClassSectionsAndSubjectsCubit(),
+          ),
+          BlocProvider<QuestionBankCubit>(
+            // Tambahkan QuestionBankCubit
+            create: (context) => QuestionBankCubit(
+              repository: QuestionBankRepository(),
+            )..fetchTeacherSubjects(
+                isStaffView: true), // Set isStaffView to true for staff
+            child: QuestionSubjectScreen(isStaffView: true),
+          ),
+        ],
+        child: Builder(
+          builder: (context) {
+            final args = Get.arguments as Map<String, dynamic>;
+            return PreviewQuestionBankSoal(
+              bank: args['bank'] as BankSoalQuestion,
+              examId: args['examId'] as int,
+              classSectionId: args['classSectionId'] as int,
+              classSubjectId: args['classSubjectId'] as int,
+            );
+          },
+        ),
       ),
-      BlocProvider<ClassSectionsAndSubjectsCubit>(
-        create: (context) => ClassSectionsAndSubjectsCubit(),
-      ),
-      BlocProvider<QuestionBankCubit>( // Tambahkan QuestionBankCubit
-        create: (context) => QuestionBankCubit(
-          repository: QuestionBankRepository(),
-        )..fetchTeacherSubjects(
-            isStaffView: true), // Set isStaffView to true for staff
-        child: QuestionSubjectScreen(isStaffView: true),
-      ),
-    ],
-    child: Builder(
-      builder: (context) {
-        final args = Get.arguments as Map<String, dynamic>;
-        return PreviewQuestionBankSoal(
-          bank: args['bank'] as BankSoalQuestion,
-          examId: args['examId'] as int,
-          classSectionId: args['classSectionId'] as int,
-          classSubjectId: args['classSubjectId'] as int,
-        );
-      },
     ),
-  ),
-),    GetPage(
+    GetPage(
       name: questionOnlineExamScreen,
       page: () {
         final args = Get.arguments as Map<String, dynamic>;
@@ -694,6 +701,22 @@ GetPage(
           examId: args['examId'] as int,
         );
       },
+    ),
+    GetPage(
+      name: examStatusScreen,
+      page: () => MultiBlocProvider(
+        providers: [
+          BlocProvider<OnlineExamCubit>(
+            create: (context) => OnlineExamCubit(OnlineExamRepository()),
+          ),
+          BlocProvider<ExamStatusCubit>(
+            create: (context) => ExamStatusCubit(
+              examStatusRepository: ExamStatusRepository(),
+            ),
+          ),
+        ],
+        child: ExamStatusScreen(),
+      ),
     ),
   ]; // Add semicolon here
 

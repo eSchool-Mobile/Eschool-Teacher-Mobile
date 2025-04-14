@@ -1,3 +1,4 @@
+
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
@@ -50,6 +51,11 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen> {
         setState(() {
           _selectedDayKey = newSelection;
         });
+
+        // Add this code to fetch data for the selected day
+        context
+            .read<TeacherMyTimetableCubit>()
+            .getTeacherMyTimetable(isRefresh: true, dayKey: newSelection);
       },
     );
   }
@@ -107,16 +113,14 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen> {
           BlocBuilder<TeacherMyTimetableCubit, TeacherMyTimetableState>(
             builder: (context, state) {
               if (state is TeacherMyTimetableFetchSuccess) {
-                final slots = state.timeTableSlots
-                    .where((element) =>
-                        element.day ==
-                        weekDays[Utils.weekDays.indexOf(_selectedDayKey)])
-                    .toList();
+                // Display all returned slots without filtering by day
+                // Since the API already returns the correct slots for the selected day
+                final slots = state.timeTableSlots;
 
                 print("Total slots: ${slots.length}");
                 slots.forEach((slot) {
                   print(
-                      "Slot - ID: ${slot.id}, ClassSectionId: ${slot.classSectionId}");
+                      "Slot - Day: ${slot.day}, ID: ${slot.id}, ClassSectionId: ${slot.classSectionId}");
                 });
 
                 if (slots.isEmpty) {
@@ -129,6 +133,7 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen> {
                     ),
                   );
                 }
+
                 return Align(
                   alignment: Alignment.topCenter,
                   child: SingleChildScrollView(
@@ -195,3 +200,5 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen> {
     );
   }
 }
+
+

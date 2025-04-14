@@ -1,3 +1,4 @@
+
 import 'package:eschool_saas_staff/data/models/timeTableSlot.dart';
 import 'package:eschool_saas_staff/data/repositories/teacherAcademicRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,9 +36,7 @@ class TeacherMyTimetableCubit extends Cubit<TeacherMyTimetableState> {
     try {
       emit(TeacherMyTimetableFetchInProgress());
 
-
-
-      final slots = // bukan ini
+      final slots =
           await _teacherAcademicsRepository.getTeacherTimetableByClassSection(
         classSectionId: classSectionId,
         date: date,
@@ -56,23 +55,19 @@ class TeacherMyTimetableCubit extends Cubit<TeacherMyTimetableState> {
     }
   }
 
-  void getTeacherMyTimetable({bool isRefresh = false}) async {
+  void getTeacherMyTimetable({bool isRefresh = false, String? dayKey}) async {
     if (state is TeacherMyTimetableFetchSuccess && !isRefresh) {
       return;
     }
     try {
       emit(TeacherMyTimetableFetchInProgress());
-      final slots = await _teacherAcademicsRepository.getTeacherMyTimetable();
 
-      // Debug logs
+      // Pass the dayKey to the repository method
+      final slots = await _teacherAcademicsRepository.getTeacherMyTimetable(
+          dayKey: dayKey);
 
-
-      String jsonString = JsonEncoder.withIndent('  ').convert(slots);
-
-      List<String> lines = jsonString.split('\n');
-      for (var line in lines) {
-        print(line);
-      }
+      print(
+          "Fetched ${slots.length} timetable slots for day: ${dayKey ?? 'all days'}");
 
       emit(TeacherMyTimetableFetchSuccess(timeTableSlots: slots));
     } catch (e) {
@@ -81,3 +76,5 @@ class TeacherMyTimetableCubit extends Cubit<TeacherMyTimetableState> {
     }
   }
 }
+
+

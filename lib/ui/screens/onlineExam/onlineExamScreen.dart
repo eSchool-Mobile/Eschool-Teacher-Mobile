@@ -13,6 +13,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
+import 'dart:math' as math;
 
 class OnlineExamScreen extends StatefulWidget {
   @override
@@ -147,117 +148,71 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   Widget _buildAnimatedHeader() {
     return SlideInDown(
       duration: Duration(milliseconds: 800),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(15, 15, 15, 10),
-        child: Column(
+      child: Container(
+        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Row(
           children: [
-            Row(
-              children: [
-                // Back button with advanced ripple and glow effects
-                _buildGlowingIconButton(
-                  Icons.arrow_back_rounded,
-                  () {
-                    HapticFeedback.mediumImpact();
-                    Get.back();
-                  },
-                ),
-                SizedBox(width: 15),
+            // Back button with smaller padding
+            _buildGlowingIconButton(
+              Icons.arrow_back_rounded,
+              () {
+                HapticFeedback.mediumImpact();
+                Get.back();
+              },
+            ),
 
-                // Title with modern styling
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(30),
-                            topRight: Radius.circular(30),
-                          ),
+            SizedBox(width: 16),
+
+            // Title and subtitle in column
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Ujian Online',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      height: 1.1,
+                      letterSpacing: 0.5,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black26,
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
                         ),
-                      ),
-                      Text(
-                        'Ujian Online',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.8,
-                          color: Colors.white,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: 6),
-                      Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'Manajemen Ujian',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Kelola dan pantau ujian online',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
-                // Archive Button
-                _buildHeaderButton(
+            // Action buttons in a row
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Archive button with icon only
+                _buildCircleButton(
                   icon: Icons.archive_outlined,
-                  label: 'Arsip',
                   onTap: () => Get.toNamed(Routes.archiveOnlineExam),
                 ),
+
                 SizedBox(width: 8),
 
-                // Add Button with animation
-                AnimatedBuilder(
-                  animation: _pulseAnimation,
-                  builder: (context, child) {
-                    final scale = 1.0 + 0.05 * _pulseAnimation.value;
-                    return GestureDetector(
-                      onTap: () {
-                        HapticFeedback.mediumImpact();
-                        Get.toNamed(Routes.createOnlineExam);
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.15),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.white.withOpacity(
-                                  0.1 + 0.1 * _pulseAnimation.value),
-                              blurRadius: 12 * (1 + _pulseAnimation.value),
-                              spreadRadius: 2 * _pulseAnimation.value,
-                            )
-                          ],
-                          border: Border.all(
-                            color: Colors.white.withOpacity(
-                                0.1 + 0.05 * _pulseAnimation.value),
-                            width: 1.5,
-                          ),
-                        ),
-                        child: Transform.scale(
-                          scale: scale,
-                          child: Icon(
-                            Icons.add,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                // Add button with pulse effect
+                _buildAddButton(),
               ],
             ),
           ],
@@ -538,18 +493,22 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     // Define modern color scheme with soft maroon colors
     final colorScheme = {
       'primary': Color.fromARGB(255, 172, 33, 33),
-      'secondary': Color(0xFF03A9F4),
-      'accent': Color(0xFFFF6D00),
-      'neutral1': Color(0xFF263238),
-      'neutral2': Color(0xFF546E7A),
-      // Updated gradient colors to softer, lighter maroons
       'gradient1': Color(0xFF7D1F1F), // Lighter maroon
       'gradient2': Color(0xFF9B2F2F), // Medium maroon
       'gradient3': Color(0xFFBF4040), // Soft bright maroon
     };
 
     // Calculate the positioning for perfect centering
-    final headerHeight = 200.0; // Increased header height
+    final double estimatedTextHeight = (exam.title.length / 20).ceil() * 32.0;
+    final double minHeight = 240.0; // Minimum height untuk header
+    final double maxHeight = 400.0; // Maximum height untuk header
+
+    // Sesuaikan headerHeight dengan batasan min dan max
+    final double headerHeight = math.min(
+      maxHeight,
+      math.max(minHeight, estimatedTextHeight + 180.0),
+    );
+
     final cardHeight = 170.0;
     final centerPosition = headerHeight - (cardHeight / 2);
 
@@ -703,43 +662,50 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                               ),
                             ),
 
-                            // Exam Title - Moved up with more spacing
+                            // Exam Title - Updated position and styling
                             Positioned(
-                              bottom: 100, // Increased bottom spacing
+                              top: 80, // Move title more to top
                               left: 24,
                               right: 24,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    exam.title,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 26,
-                                      fontWeight: FontWeight.w800,
-                                      height: 1.2,
-                                      letterSpacing: 0.5,
-                                      shadows: [
-                                        Shadow(
-                                          color: Colors.black.withOpacity(0.5),
-                                          offset: Offset(0, 3),
-                                          blurRadius: 6,
-                                        ),
-                                      ],
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-
-                                  SizedBox(height: 8),
-
-                                  // Dynamic Title Underline
                                   Container(
-                                    width: 80,
-                                    height: 4,
+                                    constraints: BoxConstraints(
+                                      maxWidth:
+                                          MediaQuery.of(context).size.width -
+                                              64,
+                                    ),
+                                    child: Text(
+                                      exam.title,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 24, // Slightly smaller font
+                                        fontWeight: FontWeight.w800,
+                                        height: 1.4, // Increased line height
+                                        letterSpacing: 0.3,
+                                        shadows: [
+                                          Shadow(
+                                            color:
+                                                Colors.black.withOpacity(0.5),
+                                            offset: Offset(0, 2),
+                                            blurRadius: 4,
+                                          ),
+                                        ],
+                                      ),
+                                      softWrap: true,
+                                      overflow: TextOverflow.visible,
+                                      textAlign: TextAlign
+                                          .left, // Ensure left alignment
+                                    ),
+                                  ),
+                                  SizedBox(height: 16),
+                                  Container(
+                                    width: 60,
+                                    height: 3,
                                     decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(2),
+                                      color: Colors.white.withOpacity(0.8),
+                                      borderRadius: BorderRadius.circular(1.5),
                                     ),
                                   ),
                                 ],
@@ -811,9 +777,10 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                     ],
                   ),
 
-                  // Overlapping Card - Positioned to be exactly at the boundary
+                  // Overlapping Card - Adjust position based on new title position
                   Positioned(
-                    top: centerPosition, // Perfect center at the boundary
+                    top: headerHeight -
+                        85, // Adjust this value to fine-tune positioning
                     left: 20,
                     right: 20,
                     child: Container(
@@ -1492,58 +1459,81 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     );
   }
 
-  Widget _buildHeaderButton(
-      {required IconData icon,
-      required String label,
-      required VoidCallback onTap}) {
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          HapticFeedback.lightImpact();
-          onTap();
-        },
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-          decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.3),
-                width: 1,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 10,
-                  offset: Offset(0, 3),
-                  spreadRadius: -5,
-                )
-              ]),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                color: Colors.white,
-                size: 18,
-              ),
-              SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.3,
-                ),
-              ),
-            ],
+  Widget _buildCircleButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white.withOpacity(0.15),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          customBorder: CircleBorder(),
+          onTap: () {
+            HapticFeedback.lightImpact();
+            onTap();
+          },
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 20,
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildAddButton() {
+    return AnimatedBuilder(
+      animation: _pulseAnimation,
+      builder: (context, child) {
+        return Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withOpacity(0.3),
+                Colors.white.withOpacity(0.2),
+              ],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color:
+                    Colors.white.withOpacity(0.1 + 0.1 * _pulseAnimation.value),
+                blurRadius: 12 * (1 + _pulseAnimation.value),
+                spreadRadius: 2 * _pulseAnimation.value,
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            shape: CircleBorder(),
+            child: InkWell(
+              customBorder: CircleBorder(),
+              onTap: () {
+                HapticFeedback.mediumImpact();
+                Get.toNamed(Routes.createOnlineExam);
+              },
+              child: Padding(
+                padding: EdgeInsets.all(10),
+                child: Icon(
+                  Icons.add_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

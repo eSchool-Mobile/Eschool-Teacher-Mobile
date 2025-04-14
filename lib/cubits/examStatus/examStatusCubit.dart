@@ -1,0 +1,66 @@
+import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
+import 'package:eschool_saas_staff/data/models/studentExamStatus.dart';
+import 'package:eschool_saas_staff/data/repositories/examStatusRepository.dart';
+
+class ExamStatusCubit extends Cubit<ExamStatusState> {
+  final ExamStatusRepository _examStatusRepository;
+
+  ExamStatusCubit({required ExamStatusRepository examStatusRepository})
+      : _examStatusRepository = examStatusRepository,
+        super(ExamStatusInitial());
+
+  Future<void> getStudentExamStatus(int examId) async {
+    try {
+      emit(ExamStatusLoading());
+      
+      final studentExamStatusResponse = 
+          await _examStatusRepository.getStudentExamStatus(examId);
+      
+      emit(ExamStatusSuccess(
+        studentExamStatuses: studentExamStatusResponse.data,
+        message: studentExamStatusResponse.message,
+      ));
+    } catch (e) {
+      emit(ExamStatusFailure(
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+}
+
+
+abstract class ExamStatusState extends Equatable {
+  const ExamStatusState();
+  
+  @override
+  List<Object> get props => [];
+}
+
+class ExamStatusInitial extends ExamStatusState {}
+
+class ExamStatusLoading extends ExamStatusState {}
+
+class ExamStatusSuccess extends ExamStatusState {
+  final List<StudentExamStatus> studentExamStatuses;
+  final String message;
+
+  const ExamStatusSuccess({
+    required this.studentExamStatuses,
+    required this.message,
+  });
+
+  @override
+  List<Object> get props => [studentExamStatuses, message];
+}
+
+class ExamStatusFailure extends ExamStatusState {
+  final String errorMessage;
+
+  const ExamStatusFailure({
+    required this.errorMessage,
+  });
+
+  @override
+  List<Object> get props => [errorMessage];
+}

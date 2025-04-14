@@ -102,7 +102,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         context: context,
                         title: "Jadwal",
                         icon: Icons.schedule,
-                        iconColor:Color(0xFF8B0000).withOpacity(0.9),
+                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
                         index: 0,
                         menus: [
                           _buildMenuItem(
@@ -203,7 +203,8 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                           _buildMenuItem(
                             context: context,
                             icon: Icons.topic,
-                            title: "Kelola Topik (Sub Bab)", // Ganti dari manageTopicKey
+                            title:
+                                "Kelola Topik (Sub Bab)", // Ganti dari manageTopicKey
                             index: 8,
                             onTap: () =>
                                 Get.toNamed(Routes.teacherManageTopicScreen),
@@ -319,6 +320,13 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                             onTap: () =>
                                 Get.toNamed(Routes.onlineExamResultScreen),
                           ),
+                          _buildMenuItem(
+                            context: context,
+                            icon: Icons.visibility,
+                            title: "Status Siswa Ujian",
+                            index: 16,
+                            onTap: () => Get.toNamed(Routes.examStatusScreen),
+                          ),
                         ],
                       ),
                     ],
@@ -339,8 +347,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: [ 
-            ],
+            children: [],
           ),
         ],
       ),
