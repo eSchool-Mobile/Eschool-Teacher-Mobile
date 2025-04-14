@@ -87,6 +87,115 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
     }
   }
 
+  Future<void> _deleteStudentExamStatus(StudentExamStatus status) async {
+    // Show confirmation dialog
+    final bool confirm = await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(
+              'Hapus Status Ujian',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+              ),
+            ),
+            content: Text(
+              'Apakah Anda yakin ingin menghapus status ujian untuk ${status.name}?\nTindakan ini tidak dapat dibatalkan.',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(
+                  'Batal',
+                  style: GoogleFonts.poppins(
+                    color: Colors.grey[700],
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red[700],
+                ),
+                onPressed: () => Navigator.pop(context, true),
+                child: Text(
+                  'Hapus',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (!confirm) return;
+
+    // Check if exam is selected
+    if (selectedExam == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Tidak ada ujian yang dipilih')),
+      );
+      return;
+    }
+
+    // Show loading indicator
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 2,
+              ),
+            ),
+            SizedBox(width: 12),
+            Text('Menghapus status ujian...'),
+          ],
+        ),
+        duration: Duration(seconds: 1),
+      ),
+    );
+
+    // Call delete API
+    try {
+      final success =
+          await context.read<ExamStatusCubit>().deleteStudentExamStatus(
+                selectedExam!.id,
+                status.id,
+              );
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Status ujian berhasil dihapus'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal menghapus status ujian'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   // Custom status badge with animations
   Widget _buildStatusIndicator(int status) {
     final bool isActive = status == 1;
@@ -666,7 +775,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
 
     // Corrected color scheme - using golden yellow for completed
     final Color activeColor = Color(0xFF06D6A0);
-    final Color completedColor = Color(0xFFFFBF47); // Changed to golden yellow to match statistics
+    final Color completedColor = Color(0xFFFFBF47);
     final Color currentColor = isActive ? activeColor : completedColor;
 
     return AnimatedContainer(
@@ -861,6 +970,48 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                       : Icons.emoji_events_rounded,
                   size: 22,
                   color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          
+          // Elegant delete button as a small floating action icon
+          Positioned(
+            right: 16,
+            bottom: 16,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _deleteStudentExamStatus(status),
+                borderRadius: BorderRadius.circular(50),
+                child: Ink(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.red[300]!,
+                        Colors.red[700]!,
+                      ],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.red.withOpacity(0.3),
+                        spreadRadius: 0,
+                        blurRadius: 6,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Icon(
+                      Icons.restart_alt_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -1573,7 +1724,8 @@ class _NoDataContainer extends StatelessWidget {
 Widget _buildEnhancedStatusBadge(int status) {
   final bool isActive = status == 1;
   final Color activeColor = Color(0xFF06D6A0);
-  final Color completedColor = Color(0xFFFFBF47); // Changed to golden yellow to match statistics
+  final Color completedColor =
+      Color(0xFFFFBF47); // Changed to golden yellow to match statistics
 
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -1616,6 +1768,5 @@ Widget _buildEnhancedStatusBadge(int status) {
         ),
       ],
     ),
-  );  
+  );
   }
-

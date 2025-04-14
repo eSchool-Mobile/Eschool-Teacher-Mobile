@@ -16,4 +16,23 @@ class ExamStatusRepository {
       throw Exception(e.toString());
     }
   }
+
+  // Add new method to delete student exam status
+  Future<Map<String, dynamic>> deleteStudentExamStatus(
+      int examId, int studentId) async {
+    try {
+      final result = await Api.delete(
+        url: Api.resetOnlineExamStatus,
+        body: {
+          'online_exam_id': examId,
+          'student_id': studentId,
+        },
+        useAuthToken: true,
+      );
+
+      return result;
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
 }

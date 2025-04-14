@@ -180,6 +180,8 @@ class Api {
       "${databaseUrl}teacher/store-online-exam-questions";
   static String getOnlineExamStatus =
       "${databaseUrl}teacher/get-online-exam-status";
+  static String resetOnlineExamStatus =
+      "${databaseUrl}teacher/reset-online-exam-status";
 
   static Map<String, String> headers({bool useAuthToken = false}) {
     final String jwtToken = AuthRepository.getAuthToken();

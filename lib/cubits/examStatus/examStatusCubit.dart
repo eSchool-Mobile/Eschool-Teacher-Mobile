@@ -13,10 +13,10 @@ class ExamStatusCubit extends Cubit<ExamStatusState> {
   Future<void> getStudentExamStatus(int examId) async {
     try {
       emit(ExamStatusLoading());
-      
-      final studentExamStatusResponse = 
+
+      final studentExamStatusResponse =
           await _examStatusRepository.getStudentExamStatus(examId);
-      
+
       emit(ExamStatusSuccess(
         studentExamStatuses: studentExamStatusResponse.data,
         message: studentExamStatusResponse.message,
@@ -27,12 +27,34 @@ class ExamStatusCubit extends Cubit<ExamStatusState> {
       ));
     }
   }
-}
 
+  // Add method to delete student exam status
+  Future<bool> deleteStudentExamStatus(int examId, int studentId) async {
+    try {
+      final result = await _examStatusRepository.deleteStudentExamStatus(
+        examId,
+        studentId,
+      );
+
+      if (result['error'] == false) {
+        // Refresh student exam status list
+        await getStudentExamStatus(examId);
+        return true;
+      }
+
+      return false;
+    } catch (e) {
+      emit(ExamStatusFailure(
+        errorMessage: e.toString(),
+      ));
+      return false;
+    }
+  }
+}
 
 abstract class ExamStatusState extends Equatable {
   const ExamStatusState();
-  
+
   @override
   List<Object> get props => [];
 }
