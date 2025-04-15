@@ -2165,44 +2165,33 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                 top: 20,
                 right: 20,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 12,
-                        offset: Offset(0, 5),
-                      ),
-                      BoxShadow(
-                        color: _getTypeColor(version.type).withOpacity(0.3),
-                        blurRadius: 16,
-                        offset: Offset(0, 2),
-                        spreadRadius: -5,
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: Offset(0, 3),
                       ),
                     ],
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Icon(Icons.star_rounded,
-                              color: Colors.amber.shade100, size: 26),
-                          Icon(Icons.star_rounded,
-                              color: Colors.amber.shade300, size: 22),
-                          Icon(Icons.star_rounded, color: Colors.amber, size: 18),
-                        ],
+                      Icon(
+                        Icons.star_rounded,
+                        color: Colors.amber,
+                        size: 18,
                       ),
-                      SizedBox(width: 8),
+                      SizedBox(width: 6),
                       Text(
                         '${version.defaultPoint} poin',
                         style: TextStyle(
                           color: Colors.grey[800],
-                          fontSize: 14.5,
                           fontWeight: FontWeight.w700,
+                          fontSize: 13,
                         ),
                       ),
                     ],
@@ -2989,16 +2978,31 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
   }
 
   // Add this method inside the _BankQuestionScreenState class
-  // Add the missing method to navigate to edit question screen
   void _navigateToEditQuestion(
       q.Question question, q.QuestionVersion version) async {
+    // Create a map with all the data needed by EditQuestionScreen
+    Map<String, dynamic> questionData = {
+      'idBankSoal': widget.bankSoal.id,
+      'name': version.name,
+      'typeOrder': 'numeric', // Default value since property doesn't exist
+      'question': version.question,
+      'default_point': version.defaultPoint,
+      'note': version.note,
+      'type': version.type,
+      'image': version.image,
+      'options': version.options
+          .map((opt) => {
+                'text': opt.text,
+                'percentage': opt.percentage,
+                'feedback': opt.feedback,
+              })
+          .toList(),
+    };
+
     final result = await Get.toNamed(
       Routes.editQuestionScreen,
       arguments: {
-        'bankSoalId': widget.bankSoal.id,
-        'subjectId': widget.subject.subject.id,
-        'questionId': question.id,
-        'questionVersion': version,
+        'questionData': questionData, // Pass data with the key 'questionData'
       },
     );
 

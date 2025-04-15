@@ -157,21 +157,6 @@ class _HolidayContainerState extends State<HolidayContainer> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Row(
-                            children: [
-                              Flexible(
-                                child: CustomTextContainer(
-                                  textKey: widget.holiday.title ?? "",
-                                  style: TextStyle(
-                                    fontSize: Utils.getScaledValue(context, 20),
-                                    fontWeight: FontWeight.w600,
-                                    color: maroonColor,
-                                    letterSpacing: 0.3,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
                           const SizedBox(height: 10.0),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,6 +184,31 @@ class _HolidayContainerState extends State<HolidayContainer> {
                               ),
                             ],
                           ),
+                          const SizedBox(height: 8.0),
+                          if (widget.holiday.end_date != null)
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  FontAwesomeIcons.calendar,
+                                  size: 12,
+                                  color: Colors.grey.shade600,
+                                ),
+                                SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    holidayStartDate == holidayEndDate
+                                        ? "1 hari"
+                                        : "${holidayEndDate.difference(holidayStartDate).inDays + 1} hari (sampai ${holidayEndDate.day} ${months[holidayEndDate.month - 1]} ${holidayEndDate.year})",
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey.shade700,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           const SizedBox(height: 8.0),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
@@ -257,128 +267,186 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
         ),
-        padding: EdgeInsets.symmetric(horizontal: appContentHorizontalPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 20),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [maroonColor, Color(0xFFAA6976)],
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        holidayStartDate.day.toString(),
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        months[holidayStartDate.month - 1],
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
-                          fontSize: 15,
-                        ),
-                      ),
-                      SizedBox(height: 2),
-                      Text(
-                        '${holidayStartDate.year}',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: 16),
-                Flexible(
-                  child: Column(
+        padding: EdgeInsets.only(
+          left: appContentHorizontalPadding,
+          right: appContentHorizontalPadding,
+          bottom: MediaQuery.of(context).padding.bottom +
+              24, // Add safe area padding
+        ),
+        // Ensure we have a ConstrainedBox with unconstrained height for the scroll view
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight:
+                MediaQuery.of(context).size.height * 0.85, // Limit max height
+          ),
+          child: SingleChildScrollView(
+            physics: ClampingScrollPhysics(),
+            child: Padding(
+              padding: EdgeInsets.only(top: 20, bottom: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min, // Use minimum size
+                children: [
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        isMultiDayHoliday
-                            ? "${Utils.formatDate(holidayStartDate)} - ${Utils.formatDate(holidayEndDate)}"
-                            : Utils.formatDate(holidayStartDate),
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                      Container(
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [maroonColor, Color(0xFFAA6976)],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              holidayStartDate.day.toString(),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              months[holidayStartDate.month - 1],
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: 15,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              '${holidayStartDate.year}',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.8),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      SizedBox(height: 4),
-                      Text(
-                        holiday.title ?? "",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: maroonColor,
-                          letterSpacing: 0.3,
-                          height: 1.2,
+                      SizedBox(width: 16),
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isMultiDayHoliday
+                                  ? "${Utils.formatDate(holidayStartDate)} - ${Utils.formatDate(holidayEndDate)}"
+                                  : Utils.formatDate(holidayStartDate),
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              holiday.title ?? "",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: maroonColor,
+                                letterSpacing: 0.3,
+                                height: 1.2,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20.0),
-              child: Divider(height: 1, thickness: 1, color: Colors.grey[200]),
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  FontAwesomeIcons.circleInfo,
-                  size: 16,
-                  color: maroonColor,
-                ),
-                SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'Detail Liburan:',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey[800],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: Divider(
+                        height: 1, thickness: 1, color: Colors.grey[200]),
+                  ),
+                  if (isMultiDayHoliday)
+                    Column(
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              FontAwesomeIcons.calendarDay,
+                              size: 16,
+                              color: maroonColor,
+                            ),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'Durasi: ',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey[800],
+                                    ),
+                                  ),
+                                  Text(
+                                    '${holidayEndDate.difference(holidayStartDate).inDays + 1} hari',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 16),
+                      ],
+                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        FontAwesomeIcons.circleInfo,
+                        size: 16,
+                        color: maroonColor,
+                      ),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Detail Liburan:',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[800],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 12),
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey[200]!),
+                    ),
+                    child: CustomTextContainer(
+                      textKey: holiday.description ?? "",
+                      style: TextStyle(
+                        height: 1.4,
+                        fontSize: 14,
+                        color: Colors.grey[800],
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            SizedBox(height: 12),
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[200]!),
-              ),
-              child: CustomTextContainer(
-                textKey: holiday.description ?? "",
-                style: TextStyle(
-                  height: 1.4,
-                  fontSize: 15,
-                  color: Colors.grey[800],
-                ),
+                  SizedBox(height: 100), // Extra padding at bottom
+                ],
               ),
             ),
-            SizedBox(height: 20),
-          ],
+          ),
         ),
       ).animate().fadeIn(duration: 400.ms).moveY(
           begin: 20, end: 0, duration: 400.ms, curve: Curves.easeOutQuad),

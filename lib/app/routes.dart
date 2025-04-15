@@ -566,7 +566,8 @@ class Routes {
         create: (context) =>
             QuestionBankCubit(repository: QuestionBankRepository()),
         child: EditQuestionScreen(
-          questionData: Get.arguments['questionData'], // Pass data this way
+          questionData:
+              Get.arguments['questionData'], // This expects 'questionData'
         ),
       ),
     ),
