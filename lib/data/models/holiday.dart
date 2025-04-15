@@ -1,6 +1,7 @@
 class Holiday {
   final int? id;
-  final String? date;
+  final String? start_date;
+  final String? end_date;
   final String? title;
   final String? description;
   final int? schoolId;
@@ -10,7 +11,8 @@ class Holiday {
 
   Holiday({
     this.id,
-    this.date,
+    this.start_date,
+    this.end_date,
     this.title,
     this.description,
     this.schoolId,
@@ -21,7 +23,8 @@ class Holiday {
 
   Holiday copyWith({
     int? id,
-    String? date,
+    String? start_date,
+    String? end_date,
     String? title,
     String? description,
     int? schoolId,
@@ -31,7 +34,8 @@ class Holiday {
   }) {
     return Holiday(
       id: id ?? this.id,
-      date: date ?? this.date,
+      start_date: start_date ?? this.start_date,
+      end_date: end_date ?? this.end_date,
       title: title ?? this.title,
       description: description ?? this.description,
       schoolId: schoolId ?? this.schoolId,
@@ -43,7 +47,8 @@ class Holiday {
 
   Holiday.fromJson(Map<String, dynamic> json)
       : id = json['id'] as int?,
-        date = json['date'] as String?,
+        start_date = json['start_date'] as String?,
+        end_date = json['end_date'] as String?,
         title = json['title'] as String?,
         description = json['description'] as String?,
         schoolId = json['school_id'] as int?,
@@ -53,7 +58,8 @@ class Holiday {
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'date': date,
+        'start_date': start_date,
+        'end_date': end_date,
         'title': title,
         'description': description,
         'school_id': schoolId,

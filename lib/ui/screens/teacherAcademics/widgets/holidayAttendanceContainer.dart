@@ -3,6 +3,7 @@ import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtensi
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
+import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 class HolidayAttendanceContainer extends StatelessWidget {
@@ -11,6 +12,16 @@ class HolidayAttendanceContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final holidayStartDate = DateTime.parse(holiday.start_date ?? "");
+    final holidayEndDate = holiday.end_date != null
+        ? DateTime.parse(holiday.end_date!)
+        : holidayStartDate;
+
+    final bool isMultiDayHoliday = holidayStartDate != holidayEndDate;
+    final String dateDisplay = isMultiDayHoliday
+        ? "${Utils.formatDate(holidayStartDate)} - ${Utils.formatDate(holidayEndDate)}"
+        : Utils.formatDate(holidayStartDate);
+
     return Container(
       color: Theme.of(context).colorScheme.surface,
       width: double.maxFinite,
@@ -38,6 +49,16 @@ class HolidayAttendanceContainer extends StatelessWidget {
           ),
           const SizedBox(
             height: 5,
+          ),
+          Text(
+            dateDisplay,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(
+            height: 10,
           ),
           CustomTextContainer(
             textKey: holiday.description ?? "",

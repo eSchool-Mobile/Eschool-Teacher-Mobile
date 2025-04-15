@@ -79,16 +79,16 @@ class _HolidaysScreenState extends State<HolidaysScreen>
   Map<String, List<Holiday>> _groupHolidaysByMonth(List<Holiday> holidays) {
     final Map<String, List<Holiday>> grouped = {};
 
-    // Sort holidays by date first
+    // Sort holidays by start_date first
     final sortedHolidays = holidays.toList()
       ..sort((a, b) {
-        final dateA = DateTime.parse(a.date ?? "");
-        final dateB = DateTime.parse(b.date ?? "");
+        final dateA = DateTime.parse(a.start_date ?? "");
+        final dateB = DateTime.parse(b.start_date ?? "");
         return dateA.compareTo(dateB);
       });
 
     for (var holiday in sortedHolidays) {
-      final dateTime = DateTime.parse(holiday.date ?? "");
+      final dateTime = DateTime.parse(holiday.start_date ?? "");
       final monthYear = "${months[dateTime.month - 1]} ${dateTime.year}";
 
       if (!grouped.containsKey(monthYear)) {
@@ -138,9 +138,6 @@ class _HolidaysScreenState extends State<HolidaysScreen>
           SafeArea(
             child: Column(
               children: [
-                // Stats summary
-              
-
                 // Holiday List
                 Expanded(
                   child: _filteredHolidays.isEmpty

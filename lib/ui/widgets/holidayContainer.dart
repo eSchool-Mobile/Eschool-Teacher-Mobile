@@ -1,8 +1,6 @@
 import 'package:eschool_saas_staff/data/models/holiday.dart';
 import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/readMoreTextButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/textWithFadedBackgroundContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -33,7 +31,10 @@ class _HolidayContainerState extends State<HolidayContainer> {
 
   @override
   Widget build(BuildContext context) {
-    final holidayDateTime = DateTime.parse(widget.holiday.date ?? "");
+    final holidayStartDate = DateTime.parse(widget.holiday.start_date ?? "");
+    final holidayEndDate = widget.holiday.end_date != null
+        ? DateTime.parse(widget.holiday.end_date!)
+        : holidayStartDate;
     final maroonColor = Color(0xFF800020);
     final maroonLight = Color(0xFFAA6976);
 
@@ -59,7 +60,6 @@ class _HolidayContainerState extends State<HolidayContainer> {
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(16.0),
-            // Menghapus shadow sesuai permintaan
             border: Border.all(
               color: _isHovered ? maroonLight : Colors.grey.shade200,
               width: 1.0,
@@ -84,66 +84,66 @@ class _HolidayContainerState extends State<HolidayContainer> {
                       ),
                     ),
                     child: Stack(
-                        children: [
+                      children: [
                         Positioned(
                           top: -5,
                           right: -5,
                           child: Icon(
-                          FontAwesomeIcons.calendar,
-                          size: 30,
-                          color: Colors.white.withOpacity(0.1),
+                            FontAwesomeIcons.calendar,
+                            size: 30,
+                            color: Colors.white.withOpacity(0.1),
                           ),
                         ),
                         Center(
                           child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Center(
-                            child: CustomTextContainer(
-                              textKey: holidayDateTime.day.toString(),
-                              style: TextStyle(
-                              fontSize: Utils.getScaledValue(context, 34),
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.5,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Center(
+                                child: CustomTextContainer(
+                                  textKey: holidayStartDate.day.toString(),
+                                  style: TextStyle(
+                                    fontSize: Utils.getScaledValue(context, 34),
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.5,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
-                              textAlign: TextAlign.center,
-                            ),
-                            ),
-                            Center(
-                            child: CustomTextContainer(
-                              textKey: months[holidayDateTime.month - 1],
-                              style: TextStyle(
-                              height: 1.2,
-                              fontSize: Utils.getScaledValue(context, 18),
-                              color: Colors.white.withOpacity(0.9),
-                              fontWeight: FontWeight.w500,
+                              Center(
+                                child: CustomTextContainer(
+                                  textKey: months[holidayStartDate.month - 1],
+                                  style: TextStyle(
+                                    height: 1.2,
+                                    fontSize: Utils.getScaledValue(context, 18),
+                                    color: Colors.white.withOpacity(0.9),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
-                              textAlign: TextAlign.center,
-                            ),
-                            ),
-                            SizedBox(height: 6),
-                            Center(
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 2),
-                              decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(10),
+                              SizedBox(height: 6),
+                              Center(
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Text(
+                                    '${holidayStartDate.year}',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
                               ),
-                              child: Text(
-                              '${holidayDateTime.year}',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w400,
-                              ),
-                              textAlign: TextAlign.center,
-                              ),
-                            ),
-                            ),
-                          ],
+                            ],
                           ),
                         ),
                       ],
@@ -243,7 +243,12 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final maroonColor = Color(0xFF800020);
-    final holidayDateTime = DateTime.parse(holiday.date ?? "");
+    final holidayStartDate = DateTime.parse(holiday.start_date ?? "");
+    final holidayEndDate = holiday.end_date != null
+        ? DateTime.parse(holiday.end_date!)
+        : holidayStartDate;
+
+    final bool isMultiDayHoliday = holidayStartDate != holidayEndDate;
 
     return CustomBottomsheet(
       titleLabelKey: holidayKey,
@@ -273,7 +278,7 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
                   child: Column(
                     children: [
                       Text(
-                        holidayDateTime.day.toString(),
+                        holidayStartDate.day.toString(),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 30,
@@ -281,7 +286,7 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        months[holidayDateTime.month - 1],
+                        months[holidayStartDate.month - 1],
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.9),
                           fontSize: 15,
@@ -289,7 +294,7 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
                       ),
                       SizedBox(height: 2),
                       Text(
-                        '${holidayDateTime.year}',
+                        '${holidayStartDate.year}',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.8),
                           fontSize: 13,
@@ -305,7 +310,9 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        Utils.formatDate(DateTime.parse(holiday.date!)),
+                        isMultiDayHoliday
+                            ? "${Utils.formatDate(holidayStartDate)} - ${Utils.formatDate(holidayEndDate)}"
+                            : Utils.formatDate(holidayStartDate),
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 14,
