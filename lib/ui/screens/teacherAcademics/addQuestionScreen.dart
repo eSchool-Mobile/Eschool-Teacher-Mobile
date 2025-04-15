@@ -24,7 +24,8 @@ class AddQuestionScreen extends StatefulWidget {
   State<AddQuestionScreen> createState() => _AddQuestionScreenState();
 }
 
-class _AddQuestionScreenState extends State<AddQuestionScreen> {
+class _AddQuestionScreenState extends State<AddQuestionScreen>
+    with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _questionController = TextEditingController();
@@ -47,6 +48,18 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
 
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
+  // Define the theme colors
+  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
+  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
+  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
+  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
+
   @override
   void initState() {
     super.initState();
@@ -58,6 +71,28 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
     _correctAnswers =
         List.generate(_optionControllers.length, (index) => false);
     _answerPercentages = {};
+
+    // Add these animation initializations
+    _animationController = AnimationController(
+      duration: Duration(milliseconds: 1000),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+    _animationController.forward();
+
+    // Controller for pulse animation
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+
+    _pulseAnimation = CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
@@ -75,6 +110,8 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
       controller.dispose();
     }
     _isSubmitting = false;
+    _animationController.dispose();
+    _pulseController.dispose();
     super.dispose();
   }
 
@@ -82,21 +119,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
     if (number < 1) {
       return "Angka harus lebih besar dari 0";
     }
-    List<int> values = [
-      1000,
-      900,
-      500,
-      400,
-      100,
-      90,
-      50,
-      40,
-      10,
-      9,
-      5,
-      4,
-      1
-    ];
+    List<int> values = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
     List<String> symbols = [
       "M",
       "CM",
@@ -403,78 +426,74 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
             colors: [
-              Color(0xFF8B0000).withOpacity(0.9),
-              Color(0xFF6B0000),
-              Color(0xFF4B0000),
-              Theme.of(context).colorScheme.secondary,
+              _primaryColor,
+              Color(0xFF5A2223), // Softer deeper maroon
             ],
-            stops: [0.2, 0.4, 0.6, 1.0],
           ),
         ),
         child: SafeArea(
           child: Column(
             children: [
-              FadeInDown(
-                duration: Duration(milliseconds: 600),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.arrow_back_ios, color: Colors.white),
-                        onPressed: () => Get.back(),
-                      ),
-                      Text(
-                        'Tambah Soal',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              _buildAnimatedHeader(),
               Expanded(
                 child: Container(
+                  margin: EdgeInsets.only(top: 20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Colors.grey[50],
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30),
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _glowColor.withOpacity(0.2),
+                        blurRadius: 20,
+                        spreadRadius: 5,
+                        offset: Offset(0, -5),
+                      ),
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 30,
+                        offset: Offset(0, -10),
+                      ),
+                    ],
                   ),
-                  child: Form(
-                    key: _formKey,
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.all(20),
-                      physics: BouncingScrollPhysics(),
-                      child: Column(
-                        children: [
-                          FadeInUp(
-                            duration: Duration(milliseconds: 800),
-                            child: _buildQuestionInfoCard(),
-                          ),
-                          SizedBox(height: 20),
-                          _buildQuestionTypeSelector(),
-                          SizedBox(height: 20),
-                          if (selectedType == 'multiple_choice')
-                            _buildMultipleChoiceOrder(),
-                          if (selectedType == 'multiple_choice')
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                    child: Form(
+                      key: _formKey,
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.all(20),
+                        physics: BouncingScrollPhysics(),
+                        child: Column(
+                          children: [
+                            FadeInUp(
+                              duration: Duration(milliseconds: 800),
+                              child: _buildQuestionInfoCard(),
+                            ),
                             SizedBox(height: 20),
-                          _buildAnswerOptionsCard(),
-                          SizedBox(height: 30),
-                          _buildImageSection(),
-                          SizedBox(height: 30),
-                          FadeInUp(
-                            duration: Duration(milliseconds: 1200),
-                            child: _buildSubmitButton(),
-                          ),
-                        ],
+                            _buildQuestionTypeSelector(),
+                            SizedBox(height: 20),
+                            if (selectedType == 'multiple_choice')
+                              _buildMultipleChoiceOrder(),
+                            if (selectedType == 'multiple_choice')
+                              SizedBox(height: 20),
+                            _buildAnswerOptionsCard(),
+                            SizedBox(height: 30),
+                            _buildImageSection(),
+                            SizedBox(height: 30),
+                            FadeInUp(
+                              duration: Duration(milliseconds: 1200),
+                              child: _buildSubmitButton(),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -1076,15 +1095,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
           Row(
             children: [
               Text(
-                "${selectedOrderType == 'roman_uppercase'
-                        ? toRomanNumeral(index + 1).toUpperCase()
-                        : selectedOrderType == 'roman_lowercase'
-                            ? toRomanNumeral(index + 1).toLowerCase()
-                            : selectedOrderType == 'alphabet_uppercase'
-                                ? toBaseAZ(index + 1).toUpperCase()
-                                : selectedOrderType == 'alphabet_lowercase'
-                                    ? toBaseAZ(index + 1).toLowerCase()
-                                    : (index + 1).toString()}.",
+                "${selectedOrderType == 'roman_uppercase' ? toRomanNumeral(index + 1).toUpperCase() : selectedOrderType == 'roman_lowercase' ? toRomanNumeral(index + 1).toLowerCase() : selectedOrderType == 'alphabet_uppercase' ? toBaseAZ(index + 1).toUpperCase() : selectedOrderType == 'alphabet_lowercase' ? toBaseAZ(index + 1).toLowerCase() : (index + 1).toString()}.",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
@@ -1553,5 +1564,131 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
       final percentage = int.tryParse(_percentageControllers[i].text) ?? 0;
       final point = (defaultPoint * percentage / 100).round();
     }
+  }
+
+  // Add these helper methods
+  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedBuilder(
+        animation: _pulseAnimation,
+        builder: (context, child) {
+          return Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.12),
+              boxShadow: [
+                BoxShadow(
+                  color: _highlightColor
+                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
+                  blurRadius: 12 * (1 + _pulseAnimation.value),
+                  spreadRadius: 2 * _pulseAnimation.value,
+                )
+              ],
+              border: Border.all(
+                color: Colors.white
+                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 24,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildCircleButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white.withOpacity(0.15),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          customBorder: CircleBorder(),
+          onTap: () {
+            HapticFeedback.lightImpact();
+            onTap();
+          },
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 20,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnimatedHeader() {
+    return SlideInDown(
+      duration: Duration(milliseconds: 800),
+      child: Container(
+        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Row(
+          children: [
+            // Back button with smaller padding
+            _buildGlowingIconButton(
+              Icons.arrow_back_rounded,
+              () {
+                HapticFeedback.mediumImpact();
+                Get.back();
+              },
+            ),
+
+            SizedBox(width: 16),
+
+            // Title and subtitle in column
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Tambah Soal',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      height: 1.1,
+                      letterSpacing: 0.5,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black26,
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Buat soal baru untuk bank soal',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

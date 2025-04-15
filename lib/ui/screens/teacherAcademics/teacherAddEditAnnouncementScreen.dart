@@ -5,9 +5,11 @@ import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
 import 'package:eschool_saas_staff/data/models/teacherAnnouncement.dart';
 import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
+import 'package:flutter/services.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
@@ -220,75 +222,131 @@ class _TeacherAddEditAnnouncementScreenState
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (didPop) {
-        if (didPop) {
-          return;
-        }
-        Get.back(result: refreshAnnouncementsInPreviousPage);
-      },
-      child: Scaffold(
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFF8B0000).withOpacity(0.9),
-                Color(0xFF6B0000),
-                Color(0xFF4B0000),
-                Theme.of(context).colorScheme.secondary,
-              ],
-              stops: [0.2, 0.4, 0.6, 1.0],
-            ),
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF7A1E23).withOpacity(0.9),
+              Color(0xFF5A2223),
+              Color(0xFF5A2223).withOpacity(0.8),
+              Theme.of(context).colorScheme.secondary,
+            ],
+            stops: [0.2, 0.4, 0.6, 1.0],
           ),
-          child: SafeArea(
-            child: Column(
-              children: [
-                // Custom App Bar
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.arrow_back_ios, color: Colors.white),
-                        onPressed: () => Get.back(
-                            result: refreshAnnouncementsInPreviousPage),
-                      ),
-                      Expanded(
-                        child: Text(
-                          widget.announcement != null
-                              ? 'Edit Pengumuman'
-                              : 'Buat Pengumuman',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Content
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30),
-                      ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
                     ),
-                    child: _buildAddEditAnnouncementForm(),
                   ),
+                  child: _buildAddEditAnnouncementForm(),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
+        ),
+      ),
+    );
+  }
+  Widget _buildHeader() {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 800),
+      child: Container(
+      child: Container(
+        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+        decoration: BoxDecoration(
+         
+        ),
+        child: Row(
+          children: [
+            // Back button with glowing effect
+            _buildGlowingIconButton(
+              Icons.arrow_back_rounded,
+              () {
+                HapticFeedback.mediumImpact();
+                Get.back();
+              },
+            ),
+            SizedBox(width: 16),
+            // Title and subtitle
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.announcement != null
+                        ? 'Edit Pengumuman'
+                        : 'Buat Pengumuman',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      height: 1.1,
+                      letterSpacing: 0.5,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black26,
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Kelola pengumuman untuk kelas dan mata pelajaran',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+    );  
+  }
+
+  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white.withOpacity(0.12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.white.withOpacity(0.2),
+              blurRadius: 12,
+              spreadRadius: 2,
+            ),
+          ],
+          border: Border.all(
+            color: Colors.white.withOpacity(0.1),
+            width: 1.5,
+          ),
+        ),
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: 24,
         ),
       ),
     );

@@ -31,7 +31,7 @@ class OnlineExamResultAnswerScreen extends StatefulWidget {
 }
 
 class _OnlineExamResultAnswerScreenState
-    extends State<OnlineExamResultAnswerScreen> {
+    extends State<OnlineExamResultAnswerScreen> with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   List<dynamic> _allAnswers = []; // Store all answers locally
   List<dynamic> _filteredAnswers = []; // Store filtered answers
@@ -39,12 +39,55 @@ class _OnlineExamResultAnswerScreenState
   bool _isSearching = false;
   bool showSearchBar = false;
 
+  // Add animation controllers
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
+  // Theme colors - Softer Maroon palette
+  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
+  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
+  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
+  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
+
   @override
   void initState() {
     super.initState();
     // Initial load of all answers
     context.read<OnlineExamCubit>().getOnlineExamResultAnswer(
         examId: widget.examId, questionId: widget.questionId, search: '');
+        
+    // Initialize animation controllers
+    _animationController = AnimationController(
+      duration: Duration(milliseconds: 1000),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+    _animationController.forward();
+
+    // Add controller for pulse animation
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+
+    _pulseAnimation = CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _animationController.dispose();
+    _pulseController.dispose();
+    super.dispose();
   }
 
   // Filter answers locally based on search text
@@ -70,15 +113,12 @@ class _OnlineExamResultAnswerScreenState
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
             colors: [
-              Color(0xFF8B0000).withOpacity(0.9),
-              Color(0xFF6B0000),
-              Color(0xFF4B0000),
-              Theme.of(context).colorScheme.secondary,
+              _primaryColor,
+              Color(0xFF5A2223), // Softer deeper maroon
             ],
-            stops: [0.2, 0.4, 0.6, 1.0],
           ),
         ),
         child: SafeArea(
@@ -118,56 +158,142 @@ class _OnlineExamResultAnswerScreenState
     );
   }
 
+  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedBuilder(
+        animation: _pulseAnimation,
+        builder: (context, child) {
+          return Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.12),
+              boxShadow: [
+                BoxShadow(
+                  color: _highlightColor
+                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
+                  blurRadius: 12 * (1 + _pulseAnimation.value),
+                  spreadRadius: 2 * _pulseAnimation.value,
+                )
+              ],
+              border: Border.all(
+                color: Colors.white
+                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 24,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildCircleButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white.withOpacity(0.15),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          customBorder: CircleBorder(),
+          onTap: () {
+            HapticFeedback.lightImpact();
+            onTap();
+          },
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 20,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildAnimatedHeader() {
-    return FadeInDown(
+    return SlideInDown(
       duration: Duration(milliseconds: 800),
       child: Container(
-        width: double.infinity,
-        height: 100,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
+        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Row(
+          children: [
+            // Back button with smaller padding
+            _buildGlowingIconButton(
+              Icons.arrow_back_rounded,
+              () {
+                HapticFeedback.mediumImpact();
+                Get.back();
+              },
+            ),
+
+            const SizedBox(width: 16),
+
+            // Title and subtitle in column
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  IconButton(
-                    icon: Icon(Icons.arrow_back_ios, color: Colors.white),
-                    onPressed: () => Get.back(),
+                  Text(
+                    'Lihat Jawaban Siswa',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      height: 1.1,
+                      letterSpacing: 0.5,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black26,
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
                   ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Lihat Jawaban Siswa',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black26,
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        '${widget.examName}',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
+                  SizedBox(height: 4),
+                  Text(
+                    '${widget.examName}',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+
+            // Action buttons in a row
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Search button
+                _buildCircleButton(
+                  icon: Icons.search,
+                  onTap: () {
+                    setState(() {
+                      showSearchBar = !showSearchBar;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -198,6 +324,7 @@ class _OnlineExamResultAnswerScreenState
             } else {
               _filterAnswers(_searchController.text);
             }
+            
           });
         }
       },

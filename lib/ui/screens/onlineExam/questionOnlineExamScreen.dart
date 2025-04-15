@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:glassmorphism/glassmorphism.dart';
+import 'package:flutter/services.dart';
 
 class QuestionOnlineExamScreen extends StatefulWidget {
   final int examId;
@@ -21,15 +22,56 @@ class QuestionOnlineExamScreen extends StatefulWidget {
       _QuestionOnlineExamScreenState();
 }
 
-class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
+class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
+    with TickerProviderStateMixin {
   int? selectedBankId;
   bool _hasShownTooltip = false;
   Set<int> _selectedQuestions = {};
+
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
+  // Theme colors - Softer Maroon palette
+  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
+  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
+  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
+  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
 
   @override
   void initState() {
     super.initState();
     context.read<QuestionOnlineExamCubit>().getQuestions(widget.examId);
+
+    _animationController = AnimationController(
+      duration: Duration(milliseconds: 1000),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+    _animationController.forward();
+
+    // Add this new controller for pulse animation
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+
+    _pulseAnimation = CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _pulseController.dispose();
+    super.dispose();
   }
 
   void _toggleQuestionSelection(int index) {
@@ -98,62 +140,233 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
     return htmlText.replaceAll(exp, '');
   }
 
+  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedBuilder(
+        animation: _pulseAnimation,
+        builder: (context, child) {
+          return Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.12),
+              boxShadow: [
+                BoxShadow(
+                  color: _highlightColor
+                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
+                  blurRadius: 12 * (1 + _pulseAnimation.value),
+                  spreadRadius: 2 * _pulseAnimation.value,
+                )
+              ],
+              border: Border.all(
+                color: Colors.white
+                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 24,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+
+  Widget _buildAddButton() {
+    return AnimatedBuilder(
+      animation: _pulseAnimation,
+      builder: (context, child) {
+        return Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withOpacity(0.3),
+                Colors.white.withOpacity(0.2),
+              ],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color:
+                    Colors.white.withOpacity(0.1 + 0.1 * _pulseAnimation.value),
+                blurRadius: 12 * (1 + _pulseAnimation.value),
+                spreadRadius: 2 * _pulseAnimation.value,
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            shape: CircleBorder(),
+            child: InkWell(
+              customBorder: CircleBorder(),
+              onTap: () {
+                HapticFeedback.mediumImpact();
+                _selectBankSoal();
+              },
+              child: Padding(
+                padding: EdgeInsets.all(10),
+                child: Icon(
+                  Icons.add_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAnimatedHeader() {
+    return SlideInDown(
+      duration: Duration(milliseconds: 800),
+      child: Container(
+        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Row(
+          children: [
+            // Back button with smaller padding
+            _buildGlowingIconButton(
+              Icons.arrow_back_rounded,
+              () {
+                HapticFeedback.mediumImpact();
+                Get.back();
+              },
+            ),
+
+            SizedBox(width: 16),
+
+            // Title and subtitle in column
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Soal Ujian Online',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      height: 1.1,
+                      letterSpacing: 0.5,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black26,
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Bank Soal: ${selectedBankId ?? "Belum dipilih"}',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Action buttons in a row
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+
+                SizedBox(width: 8),
+
+                // Add button with pulse effect
+                _buildAddButton(),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
             colors: [
-              Color(0xFF8B0000).withOpacity(0.9),
-              Color(0xFF6B0000),
-              Color(0xFF4B0000),
-              Theme.of(context).colorScheme.secondary,
+              _primaryColor,
+              Color(0xFF5A2223), // Softer deeper maroon
             ],
-            stops: [0.2, 0.4, 0.6, 1.0],
           ),
         ),
         child: SafeArea(
           child: Column(
             children: [
-              // Custom App Bar
-              FadeInDown(
-                duration: Duration(milliseconds: 600),
-                child: _buildCustomAppBar(),
-              ),
+              // Use the new animated header instead of the old custom app bar
+              _buildAnimatedHeader(),
 
               // Main Content
               Expanded(
                 child: Container(
+                  margin: EdgeInsets.only(top: 20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Colors.grey[50],
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30),
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _glowColor.withOpacity(0.2),
+                        blurRadius: 20,
+                        spreadRadius: 5,
+                        offset: Offset(0, -5),
+                      ),
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 30,
+                        offset: Offset(0, -10),
+                      ),
+                    ],
                   ),
-                  child: BlocBuilder<QuestionOnlineExamCubit,
-                      QuestionOnlineExamState>(
-                    builder: (context, state) {
-                      if (state is QuestionOnlineExamLoading) {
-                        return _buildLoadingState();
-                      }
-
-                      if (state is QuestionOnlineExamFailure) {
-                        return _buildErrorState(state.message);
-                      }
-
-                      if (state is QuestionOnlineExamSuccess) {
-                        if (state.questions.isEmpty) {
-                          return _buildEmptyState();
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                    child: BlocBuilder<QuestionOnlineExamCubit,
+                        QuestionOnlineExamState>(
+                      builder: (context, state) {
+                        // Keep the existing state handling code
+                        if (state is QuestionOnlineExamLoading) {
+                          return _buildLoadingState();
                         }
-                        return _buildQuestionsList(state.questions);
-                      }
 
-                      return SizedBox();
-                    },
+                        if (state is QuestionOnlineExamFailure) {
+                          return _buildErrorState(state.message);
+                        }
+
+                        if (state is QuestionOnlineExamSuccess) {
+                          if (state.questions.isEmpty) {
+                            return _buildEmptyState();
+                          }
+                          return _buildQuestionsList(state.questions);
+                        }
+
+                        return SizedBox();
+                      },
+                    ),
                   ),
                 ),
               ),
@@ -161,6 +374,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
           ),
         ),
       ),
+      // Keep the existing floating action button
       floatingActionButton: _selectedQuestions.isNotEmpty
           ? Container(
               margin: EdgeInsets.only(bottom: 16.0, right: 16.0),
@@ -273,50 +487,6 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
     );
   }
 
-  Widget _buildCustomAppBar() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-            onPressed: () => Get.back(),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Soal Ujian Online',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black26,
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Bank Soal: ${selectedBankId ?? "Belum dipilih"}',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildLoadingState() {
     return Center(
       child: Column(
@@ -410,211 +580,93 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen> {
   Widget _buildQuestionsList(List<QuestionOnlineExam> questions) {
     return Column(
       children: [
-        if (!_hasShownTooltip)
-          Container(
-            margin: EdgeInsets.all(16),
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blue.shade200),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.info_outline, color: Colors.blue),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Ketuk kartu soal untuk memilih',
-                    style: TextStyle(
-                      color: Colors.blue.shade900,
-                      fontSize: 14,
+        Expanded(
+          child: Stack(
+            children: [
+              ListView.builder(
+                // Ubah dari GridView ke ListView
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                physics: BouncingScrollPhysics(),
+                itemCount: questions.length,
+                itemBuilder: (context, index) {
+                  return FadeInUp(
+                    duration: Duration(milliseconds: 600 + (index * 100)),
+                    child: _buildQuestionCard(questions[index], index),
+                  );
+                },
+              ),
+
+              // Selection guide tooltip - new style matching bankQuestionScreen.dart
+              if (!_hasShownTooltip)
+                Positioned(
+                  bottom: 40,
+                  left: 0,
+                  right: 0,
+                  child: FadeIn(
+                    duration: Duration(seconds: 1),
+                    child: Center(
+                      child: Container(
+                        margin: EdgeInsets.symmetric(horizontal: 32.0),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 12.0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 8.0,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.touch_app, color: _primaryColor),
+                            SizedBox(width: 12.0),
+                            Flexible(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Ketuk kartu soal untuk memilih',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey[800],
+                                    ),
+                                  ),
+                                  SizedBox(height: 4.0),
+                                  Text(
+                                    'Pilih beberapa soal untuk dihapus sekaligus',
+                                    style: TextStyle(
+                                      fontSize: 12.0, 
+                                      color: Colors.grey[600]
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.close, size: 16.0),
+                              onPressed: () {
+                                setState(() {
+                                  _hasShownTooltip = true;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.close, color: Colors.blue),
-                  onPressed: () {
-                    setState(() {
-                      _hasShownTooltip = true;
-                    });
-                  },
-                ),
-              ],
-            ),
-          ),
-        _buildBankSoalSelector(),
-        Expanded(
-          child: ListView.builder(
-            // Ubah dari GridView ke ListView
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-            physics: BouncingScrollPhysics(),
-            itemCount: questions.length,
-            itemBuilder: (context, index) {
-              return FadeInUp(
-                duration: Duration(milliseconds: 600 + (index * 100)),
-                child: _buildQuestionCard(questions[index], index),
-              );
-            },
+            ],
           ),
         ),
       ],
     );
-  }
-
-  Widget _buildBankSoalSelector() {
-    // Define custom colors that match the maroon theme
-    final maroonLight = Color(0xFF8B0000).withOpacity(0.1);
-    final maroonPrimary = Color(0xFF8B0000);
-    final maroonDark = Color(0xFF6B0000);
-
-    return Container(
-      margin: EdgeInsets.fromLTRB(16, 0, 16, 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: maroonPrimary.withOpacity(0.08),
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(16),
-        child: InkWell(
-          onTap: _selectBankSoal,
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: EdgeInsets.all(16),
-            child: Row(
-              children: [
-                // Icon Container
-                Container(
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: maroonLight,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.library_books,
-                    color: maroonPrimary,
-                    size: 24,
-                  ),
-                ),
-                SizedBox(width: 16),
-
-                // Content
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Status Label
-                      Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: selectedBankId != null
-                              ? maroonLight
-                              : Colors.orange[50],
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: selectedBankId != null
-                                ? maroonPrimary.withOpacity(0.2)
-                                : Colors.orange[200]!,
-                            width: 1,
-                          ),
-                        ),
-                        child: Text(
-                          selectedBankId != null
-                              ? 'Bank Soal Terpilih'
-                              : 'Belum Ada Bank Soal',
-                          style: TextStyle(
-                            color: selectedBankId != null
-                                ? maroonPrimary
-                                : Colors.orange[800],
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 8),
-
-                      // Bank Soal Info
-                      Text(
-                        selectedBankId != null
-                            ? 'Bank Soal #$selectedBankId'
-                            : 'Pilih bank soal untuk menambahkan soal ujian',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[800],
-                          height: 1.3,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Action Button
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        maroonPrimary,
-                        maroonDark,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: maroonPrimary.withOpacity(0.2),
-                        blurRadius: 8,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        selectedBankId != null
-                            ? Icons.change_circle
-                            : Icons.add_circle,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        selectedBankId != null ? 'Ganti Bank' : 'Pilih Bank',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ).animate().scale(
-                      duration: 300.ms,
-                      curve: Curves.easeInOut,
-                    ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    ).animate().slideY(
-          begin: -0.2,
-          end: 0,
-          duration: 600.ms,
-          curve: Curves.easeOutQuart,
-        );
   }
 
   Widget _buildQuestionCard(QuestionOnlineExam question, int index) {

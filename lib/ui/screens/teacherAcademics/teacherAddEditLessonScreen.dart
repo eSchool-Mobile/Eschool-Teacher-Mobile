@@ -23,6 +23,8 @@ import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 class TeacherAddEditLessonScreen extends StatefulWidget {
@@ -73,8 +75,8 @@ class TeacherAddEditLessonScreen extends StatefulWidget {
       _TeacherAddEditLessonScreenState();
 }
 
-class _TeacherAddEditLessonScreenState
-    extends State<TeacherAddEditLessonScreen> {
+class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
+    with TickerProviderStateMixin {
   late ClassSection? _selectedClassSection = widget.selectedClassSection;
   late TeacherSubject? _selectedSubject = widget.selectedSubject;
 
@@ -96,6 +98,10 @@ class _TeacherAddEditLessonScreenState
 
   late List<StudyMaterial> studyMaterials = widget.lesson?.studyMaterials ?? [];
 
+  // Animation controllers for the glowing effects
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
   @override
   void initState() {
     Future.delayed(Duration.zero, () {
@@ -106,6 +112,18 @@ class _TeacherAddEditLessonScreenState
                 classSectionId: _selectedClassSection?.id);
       }
     });
+
+    // Add this with your other controller initialization
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+
+    _pulseAnimation = CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    );
+
     super.initState();
   }
 
@@ -113,6 +131,7 @@ class _TeacherAddEditLessonScreenState
   void dispose() {
     _lessonNameTextEditingController.dispose();
     _lessonDescriptionTextEditingController.dispose();
+    _pulseController.dispose();
     super.dispose();
   }
 
@@ -816,6 +835,45 @@ class _TeacherAddEditLessonScreenState
     );
   }
 
+  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
+    // Define your color constants
+    final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
+
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedBuilder(
+        animation: _pulseAnimation,
+        builder: (context, child) {
+          return Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.12),
+              boxShadow: [
+                BoxShadow(
+                  color: _highlightColor
+                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
+                  blurRadius: 12 * (1 + _pulseAnimation.value),
+                  spreadRadius: 2 * _pulseAnimation.value,
+                )
+              ],
+              border: Border.all(
+                color: Colors.white
+                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 24,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -830,41 +888,74 @@ class _TeacherAddEditLessonScreenState
         body: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
               colors: [
-                Color(0xFF8B0000).withOpacity(0.9),
-                Color(0xFF6B0000),
-                Color(0xFF4B0000),
-                Theme.of(context).colorScheme.secondary,
+                Color(0xFF7A1E23), // Softer deep maroon
+                Color(0xFF5A2223), // Softer deeper maroon
               ],
-              stops: [0.2, 0.4, 0.6, 1.0],
             ),
           ),
           child: SafeArea(
             child: Column(
               children: [
                 // Custom App Bar
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.arrow_back_ios, color: Colors.white),
-                        onPressed: () =>
-                            Get.back(result: refreshLessonsInPreviousPage),
-                      ),
-                      Text(
-                        widget.lesson != null
-                            ? 'Edit Pelajaran'
-                            : 'Buat Pelajaran',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                SlideInDown(
+                  duration: Duration(milliseconds: 800),
+                  child: Container(
+                    padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Row(
+                      children: [
+                        // Back button with glowing effect
+                        _buildGlowingIconButton(
+                          Icons.arrow_back_rounded,
+                          () {
+                            HapticFeedback.mediumImpact();
+                            Get.back(result: refreshLessonsInPreviousPage);
+                          },
                         ),
-                      ),
-                    ],
+
+                        SizedBox(width: 16),
+
+                        // Title and subtitle in column
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.lesson != null
+                                    ? 'Edit Pelajaran'
+                                    : 'Buat Pelajaran',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  height: 1.1,
+                                  letterSpacing: 0.5,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black26,
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'Kelola materi pembelajaran',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.9),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 

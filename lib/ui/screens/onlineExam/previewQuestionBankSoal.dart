@@ -81,6 +81,8 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
   bool _showSearch = false;
   Set<int> _selectedQuestions = {};
   late AnimationController _selectionController;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
   bool _hasShownTooltip = false;
 
   // New properties for swipeable cards
@@ -90,11 +92,28 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
   // Define the border radius for cards
   final BorderRadius cardBorderRadius = BorderRadius.circular(28);
 
+  // New color variables
+  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
+  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
+  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
+  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
+
   @override
   void initState() {
     super.initState();
     _selectionController =
         AnimationController(duration: Duration(milliseconds: 400), vsync: this);
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+
+    _pulseAnimation = CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    );
+
     _fetchQuestions();
     _searchController.addListener(_filterQuestionsLocally);
   }
@@ -102,6 +121,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
   @override
   void dispose() {
     _selectionController.dispose();
+    _pulseController.dispose();
     _searchController.removeListener(_filterQuestionsLocally);
     _searchController.dispose();
 
@@ -229,67 +249,148 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
   }
 
   Widget _buildHeader() {
+    return SlideInDown(
+      duration: Duration(milliseconds: 800),
+      child: Container(
+        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Row(
+          children: [
+            // Back button with smaller padding
+            _buildGlowingIconButton(
+              Icons.arrow_back_rounded,
+              () {
+                HapticFeedback.mediumImpact();
+                Get.back();
+              },
+              _highlightColor,
+            ),
+
+            SizedBox(width: 16),
+
+            // Title and subtitle in column
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.bank.name,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      height: 1.1,
+                      letterSpacing: 0.5,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black26,
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Bank Soal',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Action buttons in a row - optional based on functionality needed
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Help button with icon only
+                _buildCircleButton(
+                  icon: Icons.help_outline,
+                  onTap: () {
+                    Get.snackbar(
+                      'Bantuan',
+                      'Ketuk kartu soal untuk memilih dan tambahkan ke ujian',
+                      snackPosition: SnackPosition.BOTTOM,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGlowingIconButton(
+      IconData icon, VoidCallback onTap, Color highlightColor) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedBuilder(
+        animation: _pulseAnimation,
+        builder: (context, child) {
+          return Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.12),
+              boxShadow: [
+                BoxShadow(
+                  color:
+                      _glowColor.withOpacity(0.1 + 0.1 * _pulseAnimation.value),
+                  blurRadius: 12 * (1 + _pulseAnimation.value),
+                  spreadRadius: 2 * _pulseAnimation.value,
+                )
+              ],
+              border: Border.all(
+                color: Colors.white
+                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 24,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildCircleButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
     return Container(
-      padding: EdgeInsets.all(20),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: IconButton(
-                  icon:
-                      Icon(Icons.arrow_back_ios, color: Colors.white, size: 18),
-                  onPressed: () => Get.back(),
-                ),
-              ),
-              SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.bank.name,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.2,
-                        shadows: [
-                          Shadow(
-                              color: Colors.black38,
-                              offset: Offset(0, 2),
-                              blurRadius: 4),
-                        ],
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 6),
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        'Bank Soal',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white.withOpacity(0.15),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          customBorder: CircleBorder(),
+          onTap: () {
+            HapticFeedback.lightImpact();
+            onTap();
+          },
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 20,
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -300,15 +401,13 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
             colors: [
-              Color(0xFF8B0000).withOpacity(0.9),
-              Color(0xFF6B0000),
-              Color(0xFF4B0000),
-              Theme.of(context).colorScheme.secondary,
+              _primaryColor,
+              Color(
+                  0xFF5A2223), // Softer deeper maroon, same as in onlineExamScreen
             ],
-            stops: [0.2, 0.4, 0.6, 1.0],
           ),
         ),
         child: SafeArea(
@@ -454,75 +553,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
     return Column(
       children: [
         if (!_hasShownTooltip)
-          Container(
-            margin: EdgeInsets.all(16),
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blue.shade200),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.info_outline, color: Colors.blue),
-                SizedBox(width: 12),
-                Expanded(
-                    child: Text('Ketuk kartu soal untuk memilih',
-                        style: TextStyle(
-                            color: Colors.blue.shade900, fontSize: 14))),
-                IconButton(
-                    icon: Icon(Icons.close, color: Colors.blue),
-                    onPressed: () => setState(() => _hasShownTooltip = true)),
-              ],
-            ),
-          ),
-
-        // Show swipe guide tooltip if we have multiple versions and it hasn't been shown
-        if (hasMultipleVersions && !_hasShownSwipeGuide)
-          Container(
-            margin: EdgeInsets.all(16),
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.amber.shade50,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.amber.shade200),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.swipe, color: Colors.amber.shade700),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Geser kanan atau kiri untuk melihat versi soal lain',
-                        style: TextStyle(
-                          color: Colors.amber.shade900,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Beberapa soal memiliki beberapa versi yang dapat dilihat',
-                        style: TextStyle(
-                          color: Colors.amber.shade800,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.close, color: Colors.amber.shade700),
-                  onPressed: () => setState(() => _hasShownSwipeGuide = true),
-                ),
-              ],
-            ),
-          ),
-
+         
         if (_allQuestions.length > 5)
           Container(
             margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -552,17 +583,87 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
         Expanded(
           child: _filteredQuestions.isEmpty
               ? _buildNoDataWidget()
-              : ListView.builder(
-                  padding: EdgeInsets.only(top: 8, bottom: 24),
-                  physics: AlwaysScrollableScrollPhysics(),
-                  itemCount: _filteredQuestions.length,
-                  itemBuilder: (context, index) {
-                    final question = _filteredQuestions[index];
-                    return FadeInUp(
-                      duration: Duration(milliseconds: 400 + (index * 50)),
-                      child: _buildSwipeableQuestionCard(question, index),
-                    );
-                  },
+              : Stack(
+                  children: [
+                    ListView.builder(
+                      padding: EdgeInsets.only(top: 8, bottom: 24),
+                      physics: AlwaysScrollableScrollPhysics(),
+                      itemCount: _filteredQuestions.length,
+                      itemBuilder: (context, index) {
+                        final question = _filteredQuestions[index];
+                        return FadeInUp(
+                          duration: Duration(milliseconds: 400 + (index * 50)),
+                          child: _buildSwipeableQuestionCard(question, index),
+                        );
+                      },
+                    ),
+                    if (hasMultipleVersions && !_hasShownSwipeGuide)
+                      Positioned(
+                        bottom: 40,
+                        left: 0,
+                        right: 0,
+                        child: FadeIn(
+                          duration: Duration(seconds: 1),
+                          child: Center(
+                            child: Container(
+                              margin: EdgeInsets.symmetric(horizontal: 32.0),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16.0, vertical: 12.0),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16.0),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 8.0,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.swipe, color: Color(0xFF8B0000)),
+                                  SizedBox(width: 12.0),
+                                  Flexible(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Geser kanan atau kiri untuk melihat versi soal lain',
+                                          style: TextStyle(
+                                            color: Colors.grey[800],
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        SizedBox(height: 4.0),
+                                        Text(
+                                          'Beberapa soal memiliki beberapa versi yang dapat dilihat',
+                                          style: TextStyle(
+                                              color: Colors.grey[600],
+                                              fontSize: 12.0),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.close, size: 16.0),
+                                    onPressed: () {
+                                      setState(() {
+                                        _hasShownSwipeGuide = true;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
         ),
       ],
@@ -695,7 +796,6 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                       final displayIndex = questionVersionsCount - 1 - index;
                       final version = question.versions[displayIndex];
 
-                      // Modified AnimatedBuilder to match bankQuestionScreen.dart
                       return AnimatedBuilder(
                         animation: pageController,
                         builder: (context, child) {
@@ -706,7 +806,6 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                             value = (1 - (value.abs() * 0.3)).clamp(0.85, 1.0);
                           }
 
-                          // The key change is here - removing the ClipRRect from around the Transform
                           return Transform(
                             transform: Matrix4.identity()
                               ..setEntry(3, 2, 0.001)
@@ -839,36 +938,39 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
     );
   }
 
-  // Content for a specific version of the question
   Widget _buildQuestionVersionContent(
       dynamic version, dynamic question, int versionIndex, int totalVersions) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header with gradient background - fixed height to match the other screen
-        ClipRRect(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(28),
-            topRight: Radius.circular(28),
+        // Header with gradient and pattern - with curved corners
+        Container(
+          height: 160,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(28),
+              topRight: Radius.circular(28),
+            ),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                _getTypeColor(version.type),
+                Color.lerp(_getTypeColor(version.type), Colors.black, 0.2)!,
+                _getTypeColor(version.type).withOpacity(0.85),
+              ],
+              stops: [0.2, 0.6, 0.9],
+            ),
           ),
-          child: Container(
-            height: 160, // Fixed height to match the other screen
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  _getTypeColor(version.type),
-                  Color.lerp(_getTypeColor(version.type), Colors.black, 0.2)!,
-                  _getTypeColor(version.type).withOpacity(0.85),
-                ],
-                stops: [0.2, 0.6, 0.9],
-              ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(28),
+              topRight: Radius.circular(28),
             ),
             child: Stack(
               fit: StackFit.expand,
               children: [
-                // Advanced geometric pattern effect
+                // Pattern background
                 CustomPaint(
                   painter: UltraModernPatternPainter(
                     primaryColor: Colors.white.withOpacity(0.12),
@@ -877,7 +979,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   size: Size.infinite,
                 ),
 
-                // Radial glow effect
+                // Light effect
                 Positioned(
                   top: -40,
                   right: -40,
@@ -897,7 +999,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   ),
                 ),
 
-                // Type Badge - positioned consistently
+                // Type Badge and other positioned elements
                 Positioned(
                   top: 20,
                   left: 20,
@@ -920,7 +1022,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         end: Alignment.bottomRight,
                         colors: [
                           Colors.white.withOpacity(0.4),
-                          Colors.white.withOpacity(0.1),
+                          Colors.white.withOpacity(0.1)
                         ],
                       ),
                     ),
@@ -956,7 +1058,6 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   ),
                 ),
 
-                // Points Badge - positioned consistently
                 Positioned(
                   top: 20,
                   right: 20,
@@ -982,7 +1083,6 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // 3D star effect
                         Stack(
                           alignment: Alignment.center,
                           children: [
@@ -1008,7 +1108,6 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   ),
                 ),
 
-                // Version badge - specific to previewQuestionBankSoal
                 Positioned(
                   top: 70,
                   right: 20,
@@ -1044,7 +1143,6 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   ),
                 ),
 
-                // Title section at bottom
                 Positioned(
                   bottom: 22,
                   left: 20,
@@ -1052,7 +1150,6 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Decorative element
                       Container(
                         width: 40,
                         height: 4,
@@ -1069,7 +1166,6 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         ),
                       ),
                       SizedBox(height: 12),
-                      // Show a preview of the question content
                       Text(
                         parseHtmlString(version.question).split('\n').first,
                         style: TextStyle(
@@ -1103,13 +1199,11 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
           ),
         ),
 
-        // Content section - matching structure and padding
         Container(
           padding: EdgeInsets.fromLTRB(24, 26, 24, 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Section title with accent
               Row(
                 children: [
                   Container(
@@ -1146,10 +1240,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   ),
                 ],
               ),
-
               SizedBox(height: 18),
-
-              // Question content with consistent styling
               Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -1164,8 +1255,6 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                     ),
                   ],
                 ),
-                // Use a consistent height for this section to match both cards
-                height: 120, // Fixed height for content area
                 child: SingleChildScrollView(
                   child: Text(
                     parseHtmlString(version.question),
@@ -1176,13 +1265,12 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                       letterSpacing: 0.2,
                       fontWeight: FontWeight.w500,
                     ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
-
               SizedBox(height: 24),
-
-              // Options Information section - consistent with other screen
               Container(
                 padding: EdgeInsets.all(18),
                 decoration: BoxDecoration(
@@ -1210,7 +1298,6 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                 ),
                 child: Row(
                   children: [
-                    // Animated pulse container
                     Stack(
                       alignment: Alignment.center,
                       children: [
@@ -1240,7 +1327,8 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                                 _getTypeColor(version.type).withOpacity(0.15),
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: _getTypeColor(version.type),
+                              color:
+                                  _getTypeColor(version.type).withOpacity(0.6),
                               width: 1.5,
                             ),
                           ),
@@ -1267,7 +1355,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         ),
                         SizedBox(height: 6),
                         Text(
-                          '${version.options.length} Opsi',
+                          '${version.options.length} opsi tersedia',
                           style: TextStyle(
                             color: Colors.grey[800],
                             fontSize: 16,
@@ -1294,8 +1382,6 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   ],
                 ),
               ),
-
-              // Space for the pagination indicators
               SizedBox(height: totalVersions > 1 ? 40 : 20),
             ],
           ),

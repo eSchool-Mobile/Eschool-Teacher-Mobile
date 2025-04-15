@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:get/get.dart';
@@ -23,7 +24,6 @@ class OnlineExamResultQuestionsScreen extends StatefulWidget {
       _OnlineExamResultQuestionsScreenState();
 }
 
-// Pattern painter for the luxury effect
 class UltraModernPatternPainter extends CustomPainter {
   final Color primaryColor;
   final Color secondaryColor;
@@ -35,7 +35,6 @@ class UltraModernPatternPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Diagonal lines for a premium pattern effect
     final paint = Paint()
       ..color = primaryColor
       ..strokeWidth = 1.5
@@ -50,7 +49,6 @@ class UltraModernPatternPainter extends CustomPainter {
       );
     }
 
-    // Add some perpendicular lines for a grid effect
     final secondPaint = Paint()
       ..color = secondaryColor
       ..strokeWidth = 0.8
@@ -70,10 +68,20 @@ class UltraModernPatternPainter extends CustomPainter {
 }
 
 class _OnlineExamResultQuestionsScreenState
-    extends State<OnlineExamResultQuestionsScreen> {
+    extends State<OnlineExamResultQuestionsScreen>
+    with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   List<QuestionOnlineExam> _filteredQuestions = [];
   bool _showSearch = false;
+
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
+  final Color _primaryColor = Color(0xFF7A1E23);
+  final Color _accentColor = Color(0xFF9D3C3C);
+  final Color _highlightColor = Color(0xFFB84D4D);
+  final Color _energyColor = Color(0xFFCE6D6D);
+  final Color _glowColor = Color(0xFFAF4F4F);
 
   String parseHtmlString(String htmlString) {
     final document = parse(htmlString);
@@ -131,68 +139,119 @@ class _OnlineExamResultQuestionsScreenState
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    context.read<QuestionOnlineExamCubit>().getOnlineExamResultQuestions(
+          examId: widget.examId,
+          search: _searchController.text,
+        );
+
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+
+    _pulseAnimation = CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
   Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      child: Row(
-        children: [
-          // Back button with enhanced styling
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
+    return SlideInDown(
+      duration: Duration(milliseconds: 800),
+      child: Container(
+        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Row(
+          children: [
+            _buildGlowingIconButton(
+              Icons.arrow_back_rounded,
+              () {
+                HapticFeedback.mediumImpact();
+                Navigator.pop(context);
+              },
             ),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios,
-                  color: Colors.white, size: 18),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
-          const SizedBox(width: 16),
-          // Title section with improved typography
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Lihat Jawaban Siswa',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.2,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black38,
-                        offset: const Offset(0, 2),
-                        blurRadius: 4,
-                      ),
-                    ],
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 6),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    widget.examName,
-                    style: const TextStyle(
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Lihat Jawaban Siswa',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                       color: Colors.white,
+                      height: 1.1,
+                      letterSpacing: 0.5,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black26,
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    widget.examName,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+            SizedBox(width: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedBuilder(
+        animation: _pulseAnimation,
+        builder: (context, child) {
+          return Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.12),
+              boxShadow: [
+                BoxShadow(
+                  color: _highlightColor
+                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
+                  blurRadius: 12 * (1 + _pulseAnimation.value),
+                  spreadRadius: 2 * _pulseAnimation.value,
+                )
+              ],
+              border: Border.all(
+                color: Colors.white
+                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 24,
+            ),
+          );
+        },
       ),
     );
   }
@@ -277,7 +336,6 @@ class _OnlineExamResultQuestionsScreenState
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       child: Stack(
         children: [
-          // Main Card with enhanced shadow and animation
           GestureDetector(
             onTap: () => Get.toNamed(
                 "/OnlineExamResultAnswerScreen/${widget.examId}/${question.question_id}/${base64.encode(utf8.encode(widget.examName))}/${question.type}"),
@@ -304,9 +362,8 @@ class _OnlineExamResultQuestionsScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Stunning 3D Header with Parallax Effect
                     Container(
-                      height: 160, // Increased for more impact
+                      height: 160,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
@@ -323,15 +380,12 @@ class _OnlineExamResultQuestionsScreenState
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
-                          // Advanced geometric pattern effect
                           CustomPaint(
                             painter: UltraModernPatternPainter(
                               primaryColor: Colors.white.withOpacity(0.12),
                               secondaryColor: Colors.white.withOpacity(0.06),
                             ),
                           ),
-
-                          // Radial glow effect (adds depth)
                           Positioned(
                             top: -40,
                             right: -40,
@@ -350,8 +404,6 @@ class _OnlineExamResultQuestionsScreenState
                               ),
                             ),
                           ),
-
-                          // Glass-effect Type Badge with ultra-modern styling
                           Positioned(
                             top: 20,
                             left: 20,
@@ -387,7 +439,6 @@ class _OnlineExamResultQuestionsScreenState
                                   Stack(
                                     alignment: Alignment.center,
                                     children: [
-                                      // Outer glow
                                       Container(
                                         width: 26,
                                         height: 26,
@@ -395,7 +446,6 @@ class _OnlineExamResultQuestionsScreenState
                                           color: Colors.white.withOpacity(0.2),
                                         ),
                                       ),
-                                      // Icon with glow effect
                                       Icon(
                                         _getTypeIcon(question.type),
                                         color: Colors.white,
@@ -417,8 +467,6 @@ class _OnlineExamResultQuestionsScreenState
                               ),
                             ),
                           ),
-
-                          // Premium Points Badge with floating effect
                           Positioned(
                             top: 20,
                             right: 20,
@@ -446,7 +494,6 @@ class _OnlineExamResultQuestionsScreenState
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  // 3D star effect
                                   Stack(
                                     alignment: Alignment.center,
                                     children: [
@@ -480,8 +527,6 @@ class _OnlineExamResultQuestionsScreenState
                               ),
                             ),
                           ),
-
-                          // Question Title with cinematic styling
                           Positioned(
                             bottom: 22,
                             left: 20,
@@ -489,7 +534,6 @@ class _OnlineExamResultQuestionsScreenState
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Decorative element
                                 Container(
                                   width: 40,
                                   height: 4,
@@ -537,17 +581,13 @@ class _OnlineExamResultQuestionsScreenState
                         ],
                       ),
                     ),
-
-                    // Question Content with premium styling
                     Container(
                       padding: const EdgeInsets.fromLTRB(24, 26, 24, 20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Section title with modern accent
                           Row(
                             children: [
-                              // Modern vertical line with gradient and glow
                               Container(
                                 width: 4,
                                 height: 20,
@@ -584,10 +624,7 @@ class _OnlineExamResultQuestionsScreenState
                               ),
                             ],
                           ),
-
                           const SizedBox(height: 18),
-
-                          // Question content with enhanced styling
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
@@ -615,10 +652,7 @@ class _OnlineExamResultQuestionsScreenState
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-
                           const SizedBox(height: 24),
-
-                          // Options Information with stunning styling
                           Container(
                             padding: const EdgeInsets.all(18),
                             decoration: BoxDecoration(
@@ -647,7 +681,6 @@ class _OnlineExamResultQuestionsScreenState
                             ),
                             child: Row(
                               children: [
-                                // Animated pulse container (simulated with Stack)
                                 Stack(
                                   alignment: Alignment.center,
                                   children: [
@@ -715,7 +748,6 @@ class _OnlineExamResultQuestionsScreenState
                                   ],
                                 ),
                                 const Spacer(),
-                                // Stunning arrow indicator
                                 Container(
                                   width: 32,
                                   height: 32,
@@ -736,8 +768,6 @@ class _OnlineExamResultQuestionsScreenState
                         ],
                       ),
                     ),
-
-                    // Ultra-modern Action Footer
                     Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -764,7 +794,6 @@ class _OnlineExamResultQuestionsScreenState
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          // View Button with premium styling
                           Material(
                             color: Colors.transparent,
                             borderRadius: BorderRadius.circular(16),
@@ -798,7 +827,6 @@ class _OnlineExamResultQuestionsScreenState
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    // Layered icon effect
                                     Stack(
                                       alignment: Alignment.center,
                                       children: [
@@ -821,28 +849,29 @@ class _OnlineExamResultQuestionsScreenState
                                     const SizedBox(width: 10),
                                     Row(
                                       children: [
-                                      Text(
-                                        "Lihat Jawaban",
-                                        style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14.5,
-                                        letterSpacing: 0.5,
-                                        shadows: [
-                                          Shadow(
-                                          color: Colors.black.withOpacity(0.3),
-                                          blurRadius: 2,
-                                          offset: const Offset(0, 1),
+                                        Text(
+                                          "Lihat Jawaban",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14.5,
+                                            letterSpacing: 0.5,
+                                            shadows: [
+                                              Shadow(
+                                                color: Colors.black
+                                                    .withOpacity(0.3),
+                                                blurRadius: 2,
+                                                offset: const Offset(0, 1),
+                                              ),
+                                            ],
                                           ),
-                                        ],
                                         ),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.arrow_forward_rounded,
-                                        color: Colors.white.withOpacity(0.9),
-                                        size: 16,
-                                      ),
+                                        const SizedBox(width: 4),
+                                        Icon(
+                                          Icons.arrow_forward_rounded,
+                                          color: Colors.white.withOpacity(0.9),
+                                          size: 16,
+                                        ),
                                       ],
                                     ),
                                   ],
@@ -939,46 +968,45 @@ class _OnlineExamResultQuestionsScreenState
   }
 
   @override
-  void initState() {
-    super.initState();
-    context.read<QuestionOnlineExamCubit>().getOnlineExamResultQuestions(
-          examId: widget.examId,
-          search: _searchController.text,
-        );
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
             colors: [
-              const Color(0xFF8B0000).withOpacity(0.9),
-              const Color(0xFF6B0000),
-              const Color(0xFF4B0000),
-              Theme.of(context).colorScheme.secondary,
+              _primaryColor,
+              Color(0xFF5A2223),
             ],
-            stops: const [0.2, 0.4, 0.6, 1.0],
           ),
         ),
         child: SafeArea(
           child: Column(
             children: [
-              FadeInDown(
-                duration: const Duration(milliseconds: 600),
-                child: _buildHeader(),
-              ),
+              _buildHeader(),
               Expanded(
                 child: Container(
+                  margin: EdgeInsets.only(top: 20),
                   decoration: BoxDecoration(
                     color: Colors.grey[50],
-                    borderRadius: const BorderRadius.only(
+                    borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30),
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _glowColor.withOpacity(0.2),
+                        blurRadius: 20,
+                        spreadRadius: 5,
+                        offset: Offset(0, -5),
+                      ),
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 30,
+                        offset: Offset(0, -10),
+                      ),
+                    ],
                   ),
                   child: BlocBuilder<QuestionOnlineExamCubit,
                       QuestionOnlineExamState>(

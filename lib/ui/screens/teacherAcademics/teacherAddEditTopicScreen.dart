@@ -26,6 +26,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
+import 'package:flutter/services.dart';
+import 'package:animate_do/animate_do.dart';
 
 class TeacherAddEditTopicScreen extends StatefulWidget {
   final Topic? topic;
@@ -83,10 +85,23 @@ class TeacherAddEditTopicScreen extends StatefulWidget {
       _TeacherAddEditTopicScreenState();
 }
 
-class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen> {
+class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
+    with TickerProviderStateMixin {
   late ClassSection? _selectedClassSection = widget.selectedClassSection;
   late TeacherSubject? _selectedSubject = widget.selectedSubject;
   late Lesson? _selectedLesson = widget.selectedLesson;
+
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
+  // Theme colors - Softer Maroon palette
+  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
+  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
+  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
+  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
 
   //This will determine if need to refresh the previous page
   //topics data. If teacher remove the the any study material
@@ -108,6 +123,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen> {
 
   @override
   void initState() {
+    super.initState();
     Future.delayed(Duration.zero, () {
       if (mounted) {
         context
@@ -116,13 +132,36 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen> {
                 classSectionId: _selectedClassSection?.id);
       }
     });
-    super.initState();
+
+    // Add animation controllers initialization
+    _animationController = AnimationController(
+      duration: Duration(milliseconds: 1000),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+    _animationController.forward();
+
+    // Controller for pulse animation
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+
+    _pulseAnimation = CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
   void dispose() {
     _topicNameTextEditingController.dispose();
     _topicDescriptionTextEditingController.dispose();
+    _animationController.dispose();
+    _pulseController.dispose();
     super.dispose();
   }
 
@@ -784,6 +823,133 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen> {
           );
   }
 
+  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedBuilder(
+        animation: _pulseAnimation,
+        builder: (context, child) {
+          return Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.12),
+              boxShadow: [
+                BoxShadow(
+                  color: _highlightColor
+                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
+                  blurRadius: 12 * (1 + _pulseAnimation.value),
+                  spreadRadius: 2 * _pulseAnimation.value,
+                )
+              ],
+              border: Border.all(
+                color: Colors.white
+                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 24,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildCircleButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white.withOpacity(0.15),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          customBorder: CircleBorder(),
+          onTap: () {
+            HapticFeedback.lightImpact();
+            onTap();
+          },
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 20,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnimatedHeader() {
+    return SlideInDown(
+      duration: Duration(milliseconds: 800),
+      child: Container(
+        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Row(
+          children: [
+            // Back button with smaller padding
+            _buildGlowingIconButton(
+              Icons.arrow_back_rounded,
+              () {
+                HapticFeedback.mediumImpact();
+                Get.back(result: refreshTopicsInPreviousPage);
+              },
+            ),
+
+            SizedBox(width: 16),
+
+            // Title and subtitle in column
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.topic != null ? 'Edit Topik' : 'Buat Topik',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      height: 1.1,
+                      letterSpacing: 0.5,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black26,
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    widget.topic != null
+                        ? 'Perbarui detail topik pembelajaran'
+                        : 'Tambahkan topik pembelajaran baru',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -798,147 +964,142 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen> {
         body: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
               colors: [
-                Color(0xFF8B0000).withOpacity(0.9),
-                Color(0xFF6B0000),
-                Color(0xFF4B0000),
-                Theme.of(context).colorScheme.secondary,
+                _primaryColor,
+                Color(0xFF5A2223), // Softer deeper maroon
               ],
-              stops: [0.2, 0.4, 0.6, 1.0],
             ),
           ),
           child: SafeArea(
             child: Column(
               children: [
-                // Custom App Bar
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.arrow_back_ios, color: Colors.white),
-                        onPressed: () =>
-                            Get.back(result: refreshTopicsInPreviousPage),
-                      ),
-                      Text(
-                        widget.topic != null ? 'Edit Topik' : 'Buat Topik',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Content
+                _buildAnimatedHeader(),
                 Expanded(
                   child: Container(
+                    margin: EdgeInsets.only(top: 20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Colors.grey[50],
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(30),
                         topRight: Radius.circular(30),
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _glowColor.withOpacity(0.2),
+                          blurRadius: 20,
+                          spreadRadius: 5,
+                          offset: Offset(0, -5),
+                        ),
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 30,
+                          offset: Offset(0, -10),
+                        ),
+                      ],
                     ),
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.all(20),
-                      physics: BouncingScrollPhysics(),
-                      child: Column(
-                        children: [
-                          // Header with Icon
-                          Container(
-                            padding: EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Theme.of(context)
-                                      .colorScheme
-                                      .primary
-                                      .withOpacity(0.9),
-                                  Theme.of(context)
-                                      .colorScheme
-                                      .secondary
-                                      .withOpacity(0.7),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30),
+                      ),
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.all(20),
+                        physics: BouncingScrollPhysics(),
+                        child: Column(
+                          children: [
+                            // Header with Icon
+                            Container(
+                              padding: EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Theme.of(context)
+                                        .colorScheme
+                                        .primary
+                                        .withOpacity(0.9),
+                                    Theme.of(context)
+                                        .colorScheme
+                                        .secondary
+                                        .withOpacity(0.7),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(15),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 10,
+                                    spreadRadius: 2,
+                                  )
                                 ],
                               ),
-                              borderRadius: BorderRadius.circular(15),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 10,
-                                  spreadRadius: 2,
-                                )
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.topic_rounded,
-                                  size: 42,
-                                  color: Colors.white,
-                                )
-                                    .animate()
-                                    .scale(duration: 500.ms)
-                                    .then()
-                                    .shimmer(duration: 1000.ms),
-                                SizedBox(height: 15),
-                                Text(
-                                  widget.topic != null
-                                      ? "Edit Topik"
-                                      : "Buat Topik",
-                                  style: TextStyle(
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: 0.5,
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.topic_rounded,
+                                    size: 42,
                                     color: Colors.white,
-                                    shadows: [
-                                      Shadow(
-                                        blurRadius: 10,
-                                        color: Colors.black26,
-                                        offset: Offset(2, 2),
-                                      ),
-                                    ],
+                                  )
+                                      .animate()
+                                      .scale(duration: 500.ms)
+                                      .then()
+                                      .shimmer(duration: 1000.ms),
+                                  SizedBox(height: 15),
+                                  Text(
+                                    widget.topic != null
+                                        ? "Edit Topik"
+                                        : "Buat Topik",
+                                    style: TextStyle(
+                                      fontSize: 26,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 0.5,
+                                      color: Colors.white,
+                                      shadows: [
+                                        Shadow(
+                                          blurRadius: 10,
+                                          color: Colors.black26,
+                                          offset: Offset(2, 2),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
 
-                          SizedBox(height: 25),
+                            SizedBox(height: 25),
 
-                          // Form Content
-                          BlocConsumer<ClassSectionsAndSubjectsCubit,
-                              ClassSectionsAndSubjectsState>(
-                            listener: (context, state) {
-                              if (state
-                                  is ClassSectionsAndSubjectsFetchSuccess) {
-                                if (_selectedClassSection == null) {
-                                  changeSelectedClassSection(
-                                      state.classSections.firstOrNull,
-                                      fetchNewSubjects: false);
+                            // Form Content
+                            BlocConsumer<ClassSectionsAndSubjectsCubit,
+                                ClassSectionsAndSubjectsState>(
+                              listener: (context, state) {
+                                if (state
+                                    is ClassSectionsAndSubjectsFetchSuccess) {
+                                  if (_selectedClassSection == null) {
+                                    changeSelectedClassSection(
+                                        state.classSections.firstOrNull,
+                                        fetchNewSubjects: false);
+                                  }
+                                  if (_selectedSubject == null) {
+                                    changeSelectedTeacherSubject(
+                                        state.subjects.firstOrNull);
+                                  }
                                 }
-                                if (_selectedSubject == null) {
-                                  changeSelectedTeacherSubject(
-                                      state.subjects.firstOrNull);
-                                }
-                              }
-                            },
-                            builder: (context, state) {
-                              return _buildFormContent(state);
-                            },
-                          ),
+                              },
+                              builder: (context, state) {
+                                return _buildFormContent(state);
+                              },
+                            ),
 
-                          SizedBox(height: 30),
+                            SizedBox(height: 30),
 
-                          // Submit Button
-                          _buildSubmitButton(),
-                        ],
+                            // Submit Button
+                            _buildSubmitButton(),
+                          ],
+                        ),
                       ),
                     ),
                   ),
