@@ -23,13 +23,13 @@ class EditQuestionScreen extends StatefulWidget {
   State<EditQuestionScreen> createState() => _EditQuestionScreenState();
 }
 
-class _EditQuestionScreenState extends State<EditQuestionScreen> {
+class _EditQuestionScreenState extends State<EditQuestionScreen>
+    with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController nameController;
   late TextEditingController questionController;
   late TextEditingController pointController;
   late TextEditingController noteController;
-  // late String selectedType;
   late int idBankSoal;
   List<Map<String, dynamic>> options = [];
   late int version;
@@ -39,9 +39,19 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
   dynamic? _imageFile;
   final ImagePicker _picker = ImagePicker();
 
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
+  // Theme colors - Softer Maroon palette
+  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon - UPDATED
+  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
+  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
+  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
+  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
+
   void _loadImage() async {
     _imageFile = await Api.fetchImg(widget.questionData?["image"]);
-    setState(() {}); // Perbarui UI setelah gambar dimuat
+    setState(() {});
   }
 
   bool _isSubmitting = false;
@@ -62,8 +72,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
     selectedType = widget.questionData?['type'] ?? 'multiple_choice';
     version = 1;
 
-    print("RIEL");
-
     String jsonString =
         JsonEncoder.withIndent("  ").convert(widget.questionData);
 
@@ -79,7 +87,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
       options =
           List<Map<String, dynamic>>.from(widget.questionData!['options']);
     } else {
-      // Inisialisasi dengan 2 opsi untuk multiple choice
       if (selectedType == 'multiple_choice') {
         options = List.generate(
             2,
@@ -92,6 +99,26 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
         options = _getDefaultOptionsForType(selectedType);
       }
     }
+
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+
+    _pulseAnimation = CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    questionController.dispose();
+    pointController.dispose();
+    noteController.dispose();
+    _pulseController.dispose();
+    super.dispose();
   }
 
   String toRomanNumeral(int number) {
@@ -100,24 +127,37 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
     }
 
     List<int> values = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
-    List<String> symbols = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"];
-    
+    List<String> symbols = [
+      "M",
+      "CM",
+      "D",
+      "CD",
+      "C",
+      "XC",
+      "L",
+      "XL",
+      "X",
+      "IX",
+      "V",
+      "IV",
+      "I"
+    ];
+
     String result = "";
     int num = number;
-    
+
     for (int i = 0; i < values.length; i++) {
       while (num >= values[i]) {
         result += symbols[i];
         num -= values[i];
       }
     }
-    
-    // Jika masih ada sisa (untuk angka sangat besar), tambahkan 'M' berulang
+
     while (num > 0) {
       result += "M";
       num -= 1000;
     }
-    
+
     return result;
   }
 
@@ -125,16 +165,16 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
     if (number < 1) {
       return "Angka harus lebih besar dari 0";
     }
-    
+
     String result = "";
     int num = number;
-    
+
     while (num > 0) {
       int remainder = (num - 1) % 26;
       result = String.fromCharCode(65 + remainder) + result;
       num = (num - 1) ~/ 26;
     }
-    
+
     return result;
   }
 
@@ -166,15 +206,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
     }
   }
 
-  @override
-  void dispose() {
-    nameController.dispose();
-    questionController.dispose();
-    pointController.dispose();
-    noteController.dispose();
-    super.dispose();
-  }
-
   void _onTypeChanged(String? value) {
     if (value != null) {
       setState(() {
@@ -195,7 +226,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
 
   void _addAnswerOption() {
     setState(() {
-      // Sesuaikan logika penambahan opsi berdasarkan tipe soal
       switch (selectedType) {
         case 'essay':
         case 'short_answer':
@@ -207,7 +237,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
           });
           break;
         case 'multiple_choice':
-          // Logika untuk pilihan ganda tetap sama
           options.add({
             'text': '',
             'percentage': 0,
@@ -215,7 +244,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
           });
           break;
         case 'true_false':
-          // Tidak perlu menambah opsi untuk true/false
           break;
       }
     });
@@ -224,15 +252,9 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
   void _removeAnswerOption(int index) {
     if (options.length > 2) {
       setState(() {
-        // Simpan nilai persentase sebelum menghapus opsi
         bool wasCorrectAnswer = options[index]['percentage'] == 100;
-
-        // Hapus opsi
         options.removeAt(index);
-
-        // Jika opsi yang dihapus adalah jawaban benar
         if (wasCorrectAnswer && options.isNotEmpty) {
-          // Reset persentase ke opsi pertama
           options[0]['percentage'] = 100;
         }
       });
@@ -286,7 +308,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
             }
           });
 
-          // Show auto-dismissing success snackbar
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Container(
@@ -318,7 +339,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
             ),
           );
 
-          // Add slight delay before popping
           Future.delayed(Duration(milliseconds: 2200), () {
             if (context.mounted) {
               Get.back(result: true);
@@ -362,89 +382,108 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
     }
   }
 
+  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedBuilder(
+        animation: _pulseAnimation,
+        builder: (context, child) {
+          return Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.12),
+              boxShadow: [
+                BoxShadow(
+                  color: _highlightColor
+                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
+                  blurRadius: 12 * (1 + _pulseAnimation.value),
+                  spreadRadius: 2 * _pulseAnimation.value,
+                )
+              ],
+              border: Border.all(
+                color: Colors.white
+                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 24,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
             colors: [
-              Color(0xFF8B0000).withOpacity(0.9),
-              Color(0xFF6B0000),
-              Color(0xFF4B0000),
-              Theme.of(context).colorScheme.secondary,
+              _primaryColor,
+              Color(0xFF5A2223),
             ],
-            stops: [0.2, 0.4, 0.6, 1.0],
           ),
         ),
         child: SafeArea(
           child: Column(
             children: [
-              // Custom App Bar
-              FadeInDown(
-                duration: Duration(milliseconds: 600),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.arrow_back_ios, color: Colors.white),
-                        onPressed: () => Get.back(),
-                      ),
-                      Text(
-                        'Edit Soal',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Form Content
+              _buildAnimatedHeader(),
               Expanded(
                 child: Container(
+                  margin: EdgeInsets.only(top: 20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Colors.grey[50],
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30),
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _glowColor.withOpacity(0.2),
+                        blurRadius: 20,
+                        spreadRadius: 5,
+                        offset: Offset(0, -5),
+                      ),
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 30,
+                        offset: Offset(0, -10),
+                      ),
+                    ],
                   ),
-                  child: Form(
-                    key: _formKey,
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.all(20),
-                      physics: BouncingScrollPhysics(),
-                      child: Column(
-                        children: [
-                          // Question Info Card
-                          FadeInUp(
-                            duration: Duration(milliseconds: 800),
-                            child: _buildQuestionInfoCard(),
-                          ),
-
-                          SizedBox(height: 20),
-                          _buildQuestionTypeSelector(),
-
-                          if (selectedType == 'multiple_choice')
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                    child: Form(
+                      key: _formKey,
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.all(20),
+                        physics: BouncingScrollPhysics(),
+                        child: Column(
+                          children: [
+                            FadeInUp(
+                              duration: Duration(milliseconds: 800),
+                              child: _buildQuestionInfoCard(),
+                            ),
+                            SizedBox(height: 20),
+                            _buildQuestionTypeSelector(),
                             SizedBox(height: 15),
-                          if (selectedType == 'multiple_choice')
-                            _buildMultipleChoiceOrder(),
-
-                          SizedBox(height: 20),
-
-                          // Answer Options Card
-                          _buildAnswerOptionsCard(),
-
-                          SizedBox(height: 30),
-
-                          Container(
+                            if (selectedType == 'multiple_choice')
+                              _buildMultipleChoiceOrder(),
+                            SizedBox(height: 20),
+                            _buildAnswerOptionsCard(),
+                            SizedBox(height: 30),
+                            Container(
                               padding: EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -555,14 +594,14 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                                       ),
                                     ),
                                 ],
-                              )),
-
-                          // Submit Button
-                          FadeInUp(
-                            duration: Duration(milliseconds: 1200),
-                            child: _buildSubmitButton(),
-                          ),
-                        ],
+                              ),
+                            ),
+                            FadeInUp(
+                              duration: Duration(milliseconds: 1200),
+                              child: _buildSubmitButton(),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -570,6 +609,61 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnimatedHeader() {
+    return SlideInDown(
+      duration: Duration(milliseconds: 800),
+      child: Container(
+        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Row(
+          children: [
+            _buildGlowingIconButton(
+              Icons.arrow_back_rounded,
+              () {
+                HapticFeedback.mediumImpact();
+                Get.back();
+              },
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Edit Soal',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      height: 1.1,
+                      letterSpacing: 0.5,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black26,
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Perbarui pertanyaan untuk bank soal',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -626,7 +720,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
               fillColor: Colors.grey.shade50,
             ),
             maxLines: 2,
-            // Remove validator here
           ),
           SizedBox(height: 15),
           TextFormField(
@@ -717,10 +810,8 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
               'short_answer', 'Jawaban Singkat', Icons.short_text),
           _buildDropdownItem('numeric', 'Numerik', Icons.numbers),
         ],
-        // Ubah null menjadi _onTypeChanged untuk mengaktifkan perubahan tipe soal
         onChanged: (String? newValue) {
           if (newValue != null && newValue != selectedType) {
-            // Tampilkan dialog konfirmasi
             showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -738,7 +829,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
                         Navigator.pop(context);
                         setState(() {
                           selectedType = newValue;
-                          // Reset opsi sesuai tipe soal baru
                           options = _getDefaultOptionsForType(newValue);
                         });
                       },
@@ -848,8 +938,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
               ),
             ),
             SizedBox(height: 20),
-
-            // Different layouts based on question type
             if (selectedType == 'multiple_choice') ...[
               ...options
                   .asMap()
@@ -861,7 +949,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
               _buildTrueFalseOption(0, 'Benar'),
               _buildTrueFalseOption(1, 'Salah'),
             ] else ...[
-              // Untuk essay, short_answer, dan numeric menggunakan tampilan yang sama
               _buildEssayOption(),
             ],
           ],
@@ -1013,22 +1100,14 @@ class _EditQuestionScreenState extends State<EditQuestionScreen> {
           children: [
             Row(
               children: [
-Text(
-  "${selectedOrderType == 'roman_uppercase'
-      ? toRomanNumeral(index + 1).toUpperCase()
-      : selectedOrderType == 'roman_lowercase'
-          ? toRomanNumeral(index + 1).toLowerCase()
-          : selectedOrderType == 'alphabet_uppercase'
-              ? toBaseAZ(index + 1).toUpperCase()
-              : selectedOrderType == 'alphabet_lowercase'
-                  ? toBaseAZ(index + 1).toLowerCase()
-                  : (index + 1).toString()}.",
-  style: TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 18,
-    color: Theme.of(context).colorScheme.secondary,
-  ),
-),
+                Text(
+                  "${selectedOrderType == 'roman_uppercase' ? toRomanNumeral(index + 1).toUpperCase() : selectedOrderType == 'roman_lowercase' ? toRomanNumeral(index + 1).toLowerCase() : selectedOrderType == 'alphabet_uppercase' ? toBaseAZ(index + 1).toUpperCase() : selectedOrderType == 'alphabet_lowercase' ? toBaseAZ(index + 1).toLowerCase() : (index + 1).toString()}.",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
                 SizedBox(width: 10),
                 Expanded(
                   child: TextFormField(
@@ -1049,8 +1128,7 @@ Text(
                     },
                   ),
                 ),
-                // Ubah kondisi menjadi > 2
-                if (options.length > 2) // Minimal 2 opsi jawaban
+                if (options.length > 2)
                   IconButton(
                     icon: Icon(Icons.delete_outline, color: Colors.red),
                     onPressed: () => _removeAnswerOption(index),
@@ -1272,23 +1350,6 @@ Text(
               ],
             ),
             SizedBox(height: 12),
-            // TextFormField(
-            //   initialValue: options[index]['percentage'].toString(),
-            //   decoration: InputDecoration(
-            //     labelText: 'Persentase Nilai',
-            //     suffixText: '%',
-            //     border:
-            //         OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            //     filled: true,
-            //     fillColor: Colors.grey.shade50,
-            //   ),
-            //   keyboardType: TextInputType.number,
-            //   validator: (v) => v?.isEmpty ?? true ? 'Wajib diisi' : null,
-            //   onChanged: (value) => setState(() {
-            //     options[index]['percentage'] = int.tryParse(value) ?? 0;
-            //   }),
-            // ),
-            // SizedBox(height: 12),
             TextFormField(
               initialValue: options[index]['feedback'],
               decoration: InputDecoration(
@@ -1350,7 +1411,6 @@ Text(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header
                     Container(
                       padding: EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -1386,14 +1446,11 @@ Text(
                         ],
                       ),
                     ),
-
-                    // Content
                     Padding(
                       padding: EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Input Jawaban dengan AnimatedSize
                           AnimatedSize(
                             duration: Duration(milliseconds: 200),
                             curve: Curves.easeInOut,
@@ -1447,7 +1504,7 @@ Text(
                               inputFormatters: selectedType == 'numeric'
                                   ? [FilteringTextInputFormatter.digitsOnly]
                                   : null,
-                              maxLines: null, // Allow unlimited lines
+                              maxLines: null,
                               minLines: selectedType == 'essay' ? 3 : 1,
                               textInputAction: selectedType == 'essay'
                                   ? TextInputAction.newline
@@ -1462,8 +1519,6 @@ Text(
                             ),
                           ),
                           SizedBox(height: 16),
-
-                          // Persentase Nilai
                           Row(
                             children: [
                               Expanded(
@@ -1497,8 +1552,6 @@ Text(
                             ],
                           ),
                           SizedBox(height: 16),
-
-                          // Feedback
                           AnimatedSize(
                             duration: Duration(milliseconds: 200),
                             curve: Curves.easeInOut,
@@ -1543,8 +1596,6 @@ Text(
             ),
           ),
         ),
-
-        // Tombol Tambah Jawaban
         if (selectedType != 'true_false')
           Center(
             child: TextButton.icon(
@@ -1566,7 +1617,6 @@ Text(
   }
 
   Widget _buildShortAnswerOption() {
-    // Gunakan tampilan yang sama dengan essay
     return _buildEssayOption();
   }
 
@@ -1587,7 +1637,6 @@ Text(
   }
 
   Widget _buildNumericOption() {
-    // Gunakan tampilan yang sama dengan essay
     return _buildEssayOption();
   }
 
@@ -1626,7 +1675,6 @@ Text(
       for (var option in options) {
         final percentage = option['percentage'] as int;
         final point = (defaultPoint * percentage / 100).round();
-        // Update point value in option
         option['point'] = point;
       }
     });
