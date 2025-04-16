@@ -1388,10 +1388,65 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    // Show edit and delete buttons for latest version
+                    // Show edit, delete, and detail buttons for latest version
                     if (versionIndex == 0)
                       Row(
                         children: [
+                          // View Detail Button (tambahan baru)
+                          Material(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(16),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(16),
+                              onTap: () =>
+                                  _showDetailQuestionSheet(question, version),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      _getTypeColor(version.type).withOpacity(0.8),
+                                      Color.lerp(_getTypeColor(version.type),
+                                              Colors.black, 0.2)!
+                                          .withOpacity(0.8),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: _getTypeColor(version.type)
+                                          .withOpacity(0.3),
+                                      blurRadius: 12,
+                                      offset: Offset(0, 5),
+                                      spreadRadius: -2,
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.visibility_outlined,
+                                        size: 18, color: Colors.white),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Lihat Detail',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          SizedBox(width: 12),
+
                           // Edit Button
                           Material(
                             color: Colors.transparent,
