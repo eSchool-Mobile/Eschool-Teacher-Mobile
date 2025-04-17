@@ -553,33 +553,32 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
     return Column(
       children: [
         if (!_hasShownTooltip)
-         
-        if (_allQuestions.length > 5)
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    spreadRadius: 0,
-                    offset: Offset(0, 5))
-              ],
-            ),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Cari soal...',
-                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 15),
-                prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
-                border: InputBorder.none,
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          if (_allQuestions.length > 5)
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      spreadRadius: 0,
+                      offset: Offset(0, 5))
+                ],
+              ),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Cari soal...',
+                  hintStyle: TextStyle(color: Colors.grey[400], fontSize: 15),
+                  prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
+                  border: InputBorder.none,
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                ),
               ),
             ),
-          ),
         Expanded(
           child: _filteredQuestions.isEmpty
               ? _buildNoDataWidget()
@@ -943,267 +942,249 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header with gradient and pattern - with curved corners
-        Container(
-          height: 160,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(28),
-              topRight: Radius.circular(28),
-            ),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                _getTypeColor(version.type),
-                Color.lerp(_getTypeColor(version.type), Colors.black, 0.2)!,
-                _getTypeColor(version.type).withOpacity(0.85),
-              ],
-              stops: [0.2, 0.6, 0.9],
-            ),
-          ),
+        // Header section - using AspectRatio for consistent sizing
+        AspectRatio(
+          aspectRatio: 2,
           child: ClipRRect(
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(28),
               topRight: Radius.circular(28),
             ),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                // Pattern background
-                CustomPaint(
-                  painter: UltraModernPatternPainter(
-                    primaryColor: Colors.white.withOpacity(0.12),
-                    secondaryColor: Colors.white.withOpacity(0.06),
-                  ),
-                  size: Size.infinite,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    _getTypeColor(version.type),
+                    Color.lerp(_getTypeColor(version.type), Colors.black, 0.2)!,
+                    _getTypeColor(version.type).withOpacity(0.85),
+                  ],
+                  stops: [0.2, 0.6, 0.9],
                 ),
-
-                // Light effect
-                Positioned(
-                  top: -40,
-                  right: -40,
-                  child: Container(
-                    height: 180,
-                    width: 180,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          Colors.white.withOpacity(0.3),
-                          Colors.white.withOpacity(0),
-                        ],
-                        stops: [0.1, 1.0],
-                      ),
+              ),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Pattern background
+                  CustomPaint(
+                    painter: UltraModernPatternPainter(
+                      primaryColor: Colors.white.withOpacity(0.12),
+                      secondaryColor: Colors.white.withOpacity(0.06),
                     ),
+                    size: Size.infinite,
                   ),
-                ),
 
-                // Type Badge and other positioned elements
-                Positioned(
-                  top: 20,
-                  left: 20,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                          color: Colors.white.withOpacity(0.5), width: 1),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
-                          blurRadius: 15,
-                          spreadRadius: -5,
+                  // Light effect
+                  Positioned(
+                    top: -40,
+                    right: -40,
+                    child: Container(
+                      height: 180,
+                      width: 180,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Colors.white.withOpacity(0.3),
+                            Colors.white.withOpacity(0)
+                          ],
+                          stops: [0.1, 1.0],
                         ),
-                      ],
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Colors.white.withOpacity(0.4),
-                          Colors.white.withOpacity(0.1)
+                      ),
+                    ),
+                  ),
+
+                  // Badge tipe soal
+                  Positioned(
+                    top: 20,
+                    left: 20,
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                            color: Colors.white.withOpacity(0.5), width: 1),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.15),
+                            blurRadius: 15,
+                            spreadRadius: -5,
+                          ),
+                        ],
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.white.withOpacity(0.4),
+                            Colors.white.withOpacity(0.1)
+                          ],
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            _getTypeIcon(version.type),
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            _getTypeName(version.type),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.4,
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                  ),
+
+                  // Badge poin
+                  Positioned(
+                    top: 20,
+                    right: 20,
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.star_rounded,
+                            color: Colors.amber,
+                            size: 18,
+                          ),
+                          SizedBox(width: 6),
+                          Text(
+                            '${question.defaultPoint} poin',
+                            style: TextStyle(
+                              color: Colors.grey[800],
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Badge versi
+                  Positioned(
+                    top: 70,
+                    right: 20,
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.5),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.history,
+                            color: Colors.white,
+                            size: 14,
+                          ),
+                          SizedBox(width: 6),
+                          Text(
+                            "Versi ${totalVersions - versionIndex}/${totalVersions}",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Judul soal
+                  Positioned(
+                    bottom: 22,
+                    left: 20,
+                    right: 20,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Container(
-                              width: 26,
-                              height: 26,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                        Container(
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.8),
+                            borderRadius: BorderRadius.circular(2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.white.withOpacity(0.4),
+                                blurRadius: 3,
+                                spreadRadius: 1,
                               ),
-                            ),
-                            Icon(_getTypeIcon(version.type),
-                                color: Colors.white, size: 18),
-                          ],
-                        ),
-                        SizedBox(width: 10),
-                        Text(
-                          _getTypeName(version.type),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.4,
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                Positioned(
-                  top: 20,
-                  right: 20,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 12,
-                          offset: Offset(0, 5),
-                        ),
-                        BoxShadow(
-                          color: _getTypeColor(version.type).withOpacity(0.3),
-                          blurRadius: 16,
-                          offset: Offset(0, 2),
-                          spreadRadius: -5,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Icon(Icons.star_rounded,
-                                color: Colors.amber.shade100, size: 26),
-                            Icon(Icons.star_rounded,
-                                color: Colors.amber.shade300, size: 22),
-                            Icon(Icons.star_rounded,
-                                color: Colors.amber, size: 18),
-                          ],
-                        ),
-                        SizedBox(width: 8),
+                        SizedBox(height: 12),
                         Text(
-                          '${question.defaultPoint} poin',
+                          parseHtmlString(version.question).split('\n').first,
                           style: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 14.5,
+                            color: Colors.white,
+                            fontSize: 19,
                             fontWeight: FontWeight.w700,
+                            height: 1.3,
+                            letterSpacing: 0.3,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black.withOpacity(0.3),
+                                blurRadius: 5,
+                              ),
+                              Shadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 8,
+                              ),
+                            ],
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
                   ),
-                ),
-
-                Positioned(
-                  top: 70,
-                  right: 20,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.5),
-                        width: 1,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.history,
-                          color: Colors.white,
-                          size: 14,
-                        ),
-                        SizedBox(width: 6),
-                        Text(
-                          "Versi ${totalVersions - versionIndex}/${totalVersions}",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                Positioned(
-                  bottom: 22,
-                  left: 20,
-                  right: 20,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.8),
-                          borderRadius: BorderRadius.circular(2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.white.withOpacity(0.3),
-                              blurRadius: 4,
-                              spreadRadius: 1,
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 12),
-                      Text(
-                        parseHtmlString(version.question).split('\n').first,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 19,
-                          fontWeight: FontWeight.w700,
-                          height: 1.3,
-                          letterSpacing: 0.3,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withOpacity(0.4),
-                              offset: Offset(0, 2),
-                              blurRadius: 5,
-                            ),
-                            Shadow(
-                              color:
-                                  _getTypeColor(version.type).withOpacity(0.6),
-                              offset: Offset(0, 1),
-                              blurRadius: 8,
-                            ),
-                          ],
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
 
+        // Content section with improved layout
         Container(
           padding: EdgeInsets.fromLTRB(24, 26, 24, 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Question content header
               Row(
                 children: [
                   Container(
@@ -1240,8 +1221,11 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   ),
                 ],
               ),
+
+              // Question content
               SizedBox(height: 18),
               Container(
+                width: double.infinity,
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade50,
@@ -1255,21 +1239,19 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                     ),
                   ],
                 ),
-                child: SingleChildScrollView(
-                  child: Text(
-                    parseHtmlString(version.question),
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.grey[800],
-                      height: 1.5,
-                      letterSpacing: 0.2,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
+                child: Text(
+                  parseHtmlString(version.question),
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.grey[800],
+                    height: 1.5,
+                    letterSpacing: 0.2,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
+
+              // Options section
               SizedBox(height: 24),
               Container(
                 padding: EdgeInsets.all(18),
@@ -1298,6 +1280,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                 ),
                 child: Row(
                   children: [
+                    // Stacked circles with icon
                     Stack(
                       alignment: Alignment.center,
                       children: [
@@ -1327,8 +1310,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                                 _getTypeColor(version.type).withOpacity(0.15),
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color:
-                                  _getTypeColor(version.type).withOpacity(0.6),
+                              color: _getTypeColor(version.type),
                               width: 1.5,
                             ),
                           ),
@@ -1340,7 +1322,10 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         ),
                       ],
                     ),
+
                     SizedBox(width: 18),
+
+                    // Options text
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -1349,23 +1334,23 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                           style: TextStyle(
                             color: Colors.grey[500],
                             fontSize: 13.5,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.3,
                           ),
                         ),
-                        SizedBox(height: 6),
+                        SizedBox(height: 4),
                         Text(
-                          '${version.options.length} opsi tersedia',
+                          '${version.options.length} Opsi',
                           style: TextStyle(
                             color: Colors.grey[800],
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.2,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
                     ),
+
                     Spacer(),
+
+                    // Arrow indicator
                     Container(
                       width: 32,
                       height: 32,
@@ -1382,6 +1367,8 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   ],
                 ),
               ),
+
+              // Spacer for pagination indicators
               SizedBox(height: totalVersions > 1 ? 40 : 20),
             ],
           ),
