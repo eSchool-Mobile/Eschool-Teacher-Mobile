@@ -54,7 +54,8 @@ class Holiday {
         schoolId = json['school_id'] as int?,
         createdAt = json['created_at'] as String?,
         updatedAt = json['updated_at'] as String?,
-        defaultDateFormat = json['default_date_format'] as String?;
+       defaultDateFormat = json['default_date_format']?['start_date'] as String?;
+
 
   Map<String, dynamic> toJson() => {
         'id': id,

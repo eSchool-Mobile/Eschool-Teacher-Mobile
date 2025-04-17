@@ -1897,57 +1897,6 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                   ],
                 ),
               ),
-
-                // Swipe indicators (now showing on each page)
-              if (totalVersions > 1)
-                Positioned(
-                  top: 0,
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Row(
-                    children: [
-                      // Left arrow indicator (if not at first page)
-                      if (versionIndex > 0)
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Container(
-                            margin: EdgeInsets.only(left: 12),
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.chevron_left,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ),
-                        ),
-                      // Right arrow indicator (if not at last page)
-                      if (versionIndex < totalVersions - 1)
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Container(
-                            margin: EdgeInsets.only(right: 12),
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.chevron_right,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
             ],
           ),
         ),

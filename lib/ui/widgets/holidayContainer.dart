@@ -56,7 +56,8 @@ class _HolidayContainerState extends State<HolidayContainer> {
           duration: const Duration(milliseconds: 300),
           margin: widget.margin,
           width: widget.width,
-          constraints: const BoxConstraints(minHeight: 145),
+          constraints:
+              const BoxConstraints(minHeight: 155), // Increased from 145
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(16.0),
@@ -157,7 +158,7 @@ class _HolidayContainerState extends State<HolidayContainer> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const SizedBox(height: 10.0),
+                          const SizedBox(height: 6.0), // Reduced from 10.0
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -184,7 +185,7 @@ class _HolidayContainerState extends State<HolidayContainer> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8.0),
+                          const SizedBox(height: 6.0), // Reduced from 8.0
                           if (widget.holiday.end_date != null)
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -209,7 +210,7 @@ class _HolidayContainerState extends State<HolidayContainer> {
                                 ),
                               ],
                             ),
-                          const SizedBox(height: 8.0),
+                          const SizedBox(height: 6.0), // Reduced from 8.0
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
