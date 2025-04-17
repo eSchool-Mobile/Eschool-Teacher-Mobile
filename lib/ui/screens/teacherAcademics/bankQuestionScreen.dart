@@ -1540,14 +1540,14 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                     Icon(Icons.delete_outline_rounded,
                                         size: 18, color: Colors.red.shade700),
                                     SizedBox(width: 8),
-                                    Text(
-                                      'Hapus',
-                                      style: TextStyle(
-                                        color: Colors.red.shade700,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
-                                      ),
-                                    ),
+                                    // Text(
+                                    //   'Hapus',
+                                    //   style: TextStyle(
+                                    //     color: Colors.red.shade700,
+                                    //     fontWeight: FontWeight.w600,
+                                    //     fontSize: 14,
+                                    //   ),
+                                    // ),
                                   ],
                                 ),
                               ),
