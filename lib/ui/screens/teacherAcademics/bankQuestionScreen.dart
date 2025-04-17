@@ -1082,8 +1082,11 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(28),
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height * 0.6,
+          child: Container(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height * 0.4,
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
+            ),
             child: PageView.builder(
               controller: pageController,
               // Add smooth page physics
@@ -1211,37 +1214,40 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                           ),
                         ],
                       ),
+                      // Ganti bagian Container pertanyaan dalam _buildVersionCardWithActionsImproved
+
                       SizedBox(height: 18),
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade50,
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(color: Colors.grey.shade100),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.02),
-                                blurRadius: 8,
-                                offset: Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            parseHtmlString(version.question),
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.grey[800],
-                              height: 1.5,
-                              letterSpacing: 0.2,
-                              fontWeight: FontWeight.w500,
+                      Container(
+                        // Hapus constraints fixed height, biarkan container menyesuaikan dengan kontennya
+                        width: double.infinity, // Pastikan lebar penuh
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(color: Colors.grey.shade100),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.02),
+                              blurRadius: 8,
+                              offset: Offset(0, 4),
                             ),
-                            maxLines: 8,
-                            overflow: TextOverflow.ellipsis,
+                          ],
+                        ),
+                        child: Text(
+                          parseHtmlString(version.question),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey[800],
+                            height: 1.5,
+                            letterSpacing: 0.2,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
+                      SizedBox(height: 2),
 
+                      // Pilihan Jawaban section
+                      Container(),
                       SizedBox(height: 24),
 
                       // Pilihan Jawaban section
@@ -1407,7 +1413,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                   borderRadius: BorderRadius.circular(16),
                                   gradient: LinearGradient(
                                     colors: [
-                                      _getTypeColor(version.type).withOpacity(0.8),
+                                      _getTypeColor(version.type)
+                                          .withOpacity(0.8),
                                       Color.lerp(_getTypeColor(version.type),
                                               Colors.black, 0.2)!
                                           .withOpacity(0.8),
