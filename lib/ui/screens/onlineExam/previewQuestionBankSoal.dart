@@ -10,6 +10,7 @@ import 'package:html/parser.dart' show parse;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../cubits/teacherAcademics/assignment/questionBankCubit.dart';
 import 'package:flutter/services.dart';
+import 'dart:ui'; // Untuk BackdropFilter
 
 class PreviewQuestionBankSoal extends StatefulWidget {
   final BankSoalQuestion bank;
@@ -79,7 +80,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
   List<dynamic> _allQuestions = [];
   List<dynamic> _filteredQuestions = [];
   bool _showSearch = false;
-  Set<int> _selectedQuestions = {};
+  Map<int, Set<int>> _selectedQuestions = {};
   late AnimationController _selectionController;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
@@ -237,15 +238,56 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
 
   void _toggleQuestionSelection(int index) {
     final question = _filteredQuestions[index];
-    if (question.selected) return;
+    final questionId = question.id;
+    final activeVersionIndex = _getActiveVersionIndex(questionId);
+    final versionId =
+        question.versions[question.versions.length - 1 - activeVersionIndex].id;
 
-    setState(() {
-      if (_selectedQuestions.contains(index)) {
-        _selectedQuestions.remove(index);
-      } else {
-        _selectedQuestions.add(index);
-      }
-    });
+    // Check if this specific version is already selected
+    bool isVersionSelected = false;
+    if (_selectedQuestions.containsKey(index)) {
+      isVersionSelected =
+          _selectedQuestions[index]!.contains(activeVersionIndex);
+    }
+
+    if (isVersionSelected) {
+      // Unselect this version
+      setState(() {
+        _selectedQuestions[index]!.remove(activeVersionIndex);
+        if (_selectedQuestions[index]!.isEmpty) {
+          _selectedQuestions.remove(index);
+        }
+      });
+    } else {
+      // Select this version
+      setState(() {
+        if (!_selectedQuestions.containsKey(index)) {
+          _selectedQuestions[index] = {};
+        }
+        _selectedQuestions[index]!.add(activeVersionIndex);
+      });
+    }
+  }
+
+  bool _isVersionSelected(int questionIndex, int versionIndex) {
+    if (!_selectedQuestions.containsKey(questionIndex)) {
+      return false;
+    }
+    return _selectedQuestions[questionIndex]!.contains(versionIndex);
+  }
+
+  bool _isVersionDisabled(dynamic question, int versionIndex) {
+    // If the question doesn't have a versions array or the index is out of bounds, return false
+    if (question.versions == null || versionIndex >= question.versions.length) {
+      return false;
+    }
+
+    // Calculate the actual version index in the versions array (since it's reversed in the UI)
+    final displayIndex = question.versions.length - 1 - versionIndex;
+    final version = question.versions[displayIndex];
+
+    // Check if this specific version is already added to the exam
+    return version.selected == true;
   }
 
   Widget _buildHeader() {
@@ -709,159 +751,220 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
     );
   }
 
-  // New method to build swipeable question card
   Widget _buildSwipeableQuestionCard(dynamic question, int index) {
-    bool isSelected = _selectedQuestions.contains(index);
-    bool isDisabled = question.selected;
     final int questionVersionsCount = question.versions.length;
     final PageController pageController = _getPageController(question.id);
     final int activeVersionIndex = _getActiveVersionIndex(question.id);
+
+    // Check if this specific version is selected
+    bool isSelected = _selectedQuestions.containsKey(index) &&
+        _selectedQuestions[index]!.contains(activeVersionIndex);
+
+    // Check if this specific version is disabled
+    bool isVersionDisabled = _isVersionDisabled(question, activeVersionIndex);
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       child: Stack(
         children: [
-          // Main Card dengan enhanced shadow dan animasi
-          GestureDetector(
-            onTap: isDisabled
-                ? () {
-                    Get.snackbar(
-                      'Soal Sudah Ditambahkan',
-                      'Soal ini sudah ada dalam ujian',
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.orange,
-                      colorText: Colors.white,
-                      margin: EdgeInsets.all(16),
-                      borderRadius: 8,
-                      duration: Duration(seconds: 2),
-                    );
-                  }
-                : () => _toggleQuestionSelection(index),
-            // Deteksi horizontal drag khusus untuk swipe
-            behavior: HitTestBehavior.deferToChild,
-            child: AnimatedContainer(
-              duration: Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(
-                    color: isSelected
-                        ? Theme.of(context).colorScheme.secondary
-                        : Colors.transparent,
-                    width: 2.5),
-                boxShadow: [
-                  BoxShadow(
-                    color: isSelected
-                        ? Theme.of(context)
-                            .colorScheme
-                            .secondary
-                            .withOpacity(0.3)
-                        : _getTypeColor(
-                                question.versions[activeVersionIndex].type)
-                            .withOpacity(0.12),
-                    blurRadius: isSelected ? 15 : 40,
-                    offset: Offset(0, 15),
-                    spreadRadius: isSelected ? 2 : 0,
-                  ),
-                  BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
-                      blurRadius: 12,
-                      offset: Offset(0, 8)),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(28),
-                child: Container(
-                  constraints: BoxConstraints(
-                    minHeight: MediaQuery.of(context).size.height * 0.4,
-                    maxHeight: MediaQuery.of(context).size.height *
-                        0.63, // Increased from 0.6
-                  ),
-                  child: PageView.builder(
-                    controller: pageController,
-                    physics: const BouncingScrollPhysics(
-                      parent: AlwaysScrollableScrollPhysics(),
-                    ),
-                    pageSnapping: true,
-                    allowImplicitScrolling: true,
-                    padEnds: false,
-                    itemCount: questionVersionsCount,
-                    onPageChanged: (index) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (mounted) {
-                          HapticFeedback.lightImpact();
-                          _setActiveVersionIndex(question.id, index);
+          // Main card dan PageView
+          AnimatedContainer(
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.secondary
+                      : Colors.transparent,
+                  width: 2.5),
+              boxShadow: [
+                BoxShadow(
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.secondary.withOpacity(0.3)
+                      : _getTypeColor(
+                              question.versions[activeVersionIndex].type)
+                          .withOpacity(0.12),
+                  blurRadius: isSelected ? 15 : 40,
+                  offset: Offset(0, 15),
+                  spreadRadius: isSelected ? 2 : 0,
+                ),
+                BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 12,
+                    offset: Offset(0, 8)),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(28),
+              child: Container(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height * 0.4,
+                  maxHeight: MediaQuery.of(context).size.height * 0.63,
+                ),
+                child: PageView.builder(
+                  controller: pageController,
+                  physics: const BouncingScrollPhysics(),
+                  pageSnapping: true,
+                  allowImplicitScrolling: true,
+                  padEnds: false,
+                  itemCount: questionVersionsCount,
+                  onPageChanged: (index) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) {
+                        HapticFeedback.lightImpact();
+                        _setActiveVersionIndex(question.id, index);
+                      }
+                    });
+                  },
+                  itemBuilder: (context, vIndex) {
+                    final displayIndex = questionVersionsCount - 1 - vIndex;
+                    final version = question.versions[displayIndex];
+
+                    // Cek apakah versi ini terkunci
+                    final bool thisVersionDisabled =
+                        _isVersionDisabled(question, vIndex);
+
+                    return AnimatedBuilder(
+                      animation: pageController,
+                      builder: (context, child) {
+                        double value = 1.0;
+                        if (pageController.position.hasContentDimensions) {
+                          value = pageController.page! - vIndex;
+                          value = (1 - (value.abs() * 0.3)).clamp(0.85, 1.0);
                         }
-                      });
-                    },
-                    itemBuilder: (context, index) {
-                      final displayIndex = questionVersionsCount - 1 - index;
-                      final version = question.versions[displayIndex];
 
-                      return AnimatedBuilder(
-                        animation: pageController,
-                        builder: (context, child) {
-                          double value = 1.0;
+                        return Transform(
+                          transform: Matrix4.identity()
+                            ..setEntry(3, 2, 0.001)
+                            ..rotateY(
+                                value - 1 != 0.0 ? (value - 1) * 0.5 : 0.0),
+                          alignment: value < 0
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
+                          child: Transform.scale(
+                            scale: value,
+                            child: Stack(
+                              children: [
+                                // Konten soal
+                                _buildQuestionVersionContent(version, question,
+                                    vIndex, questionVersionsCount),
 
-                          if (pageController.position.hasContentDimensions) {
-                            value = pageController.page! - index;
-                            value = (1 - (value.abs() * 0.3)).clamp(0.85, 1.0);
-                          }
-
-                          return Transform(
-                            transform: Matrix4.identity()
-                              ..setEntry(3, 2, 0.001)
-                              ..rotateY(
-                                  value - 1 != 0.0 ? (value - 1) * 0.5 : 0.0),
-                            alignment: value < 0
-                                ? Alignment.centerRight
-                                : Alignment.centerLeft,
-                            child: Transform.scale(
-                              scale: value,
-                              child: child,
+                                // Overlay langsung dalam PageView item dengan border radius
+                                if (thisVersionDisabled)
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(28),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        // Gradient overlay untuk efek visual yang lebih menarik
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: [
+                                            Colors.grey.withOpacity(0.6),
+                                            Colors.grey.withOpacity(0.7),
+                                          ],
+                                        ),
+                                      ),
+                                      child: BackdropFilter(
+                                        filter: ImageFilter.blur(
+                                            sigmaX: 1.5, sigmaY: 1.5),
+                                        child: Center(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Container(
+                                                padding: EdgeInsets.all(12),
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Colors.white
+                                                      .withOpacity(0.15),
+                                                ),
+                                                child: Icon(Icons.lock,
+                                                    color: Colors.white,
+                                                    size: 32),
+                                              ),
+                                              SizedBox(height: 16),
+                                              Container(
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 20,
+                                                    vertical: 10),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black
+                                                      .withOpacity(0.2),
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                ),
+                                                child: Text(
+                                                  'Versi soal ini sudah ditambahkan',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 14,
+                                                  ),
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
-                          );
-                        },
-                        child: _buildQuestionVersionContent(
-                            version, question, index, questionVersionsCount),
-                      );
-                    },
-                  ),
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
               ),
             ),
           ),
 
-          // Overlay untuk kartu yang dinonaktifkan (soal sudah dipilih)
-          if (isDisabled)
-            Positioned.fill(
-              child: ClipRRect(
-                borderRadius: cardBorderRadius, // Apply same border radius
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.5),
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.lock, color: Colors.white, size: 32),
-                        SizedBox(height: 8),
-                        Text(
-                          'Soal sudah ditambahkan',
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
+          // Layer untuk menangkap tap (tidak mengganggu swipe)
+          Positioned.fill(
+            child: Stack(
+              children: [
+                // Layer transparan untuk mengambil gestur tap
+                Positioned.fill(
+                  child: GestureDetector(
+                    onTap: () {
+                      print(
+                          'Tap detected on question $index, version $activeVersionIndex');
+                      // Tambahkan umpan balik haptic untuk memastikan tap terdeteksi
+                      HapticFeedback.mediumImpact();
+
+                      if (isVersionDisabled) {
+                        Get.snackbar(
+                          'Versi Soal Sudah Ditambahkan',
+                          'Versi soal ini sudah ada dalam ujian',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.orange,
+                          colorText: Colors.white,
+                          margin: EdgeInsets.all(16),
+                          borderRadius: 8,
+                          duration: Duration(seconds: 2),
+                        );
+                      } else {
+                        setState(() {
+                          _toggleQuestionSelection(index);
+                        });
+                      }
+                    },
+                    // Gunakan translucent untuk memastikan tap ditangkap dengan baik
+                    behavior: HitTestBehavior.translucent,
                   ),
                 ),
-              ),
+              ],
             ),
+          ),
 
-          // Indikator seleksi dengan animasi
+          // Indicator for selected version
           if (isSelected)
             Positioned(
               top: 8,
@@ -1442,19 +1545,23 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
         };
       }
 
-      for (int index in _selectedQuestions) {
-        final question = _filteredQuestions[index];
-        // Use the active version index instead of always using the last version
-        final activeVersionIndex = _getActiveVersionIndex(question.id);
-        final displayIndex = question.versions.length - 1 - activeVersionIndex;
-        final version = question.versions[displayIndex];
+      // Process all selected questions with their specific versions
+      _selectedQuestions.forEach((questionIndex, selectedVersions) {
+        final question = _filteredQuestions[questionIndex];
 
-        assignQuestions[version.id.toString()] = {
-          'question_id': version.id,
-          'marks': question.defaultPoint,
-          'from_bank': true
-        };
-      }
+        // For each selected version of this question
+        for (int versionIndex in selectedVersions) {
+          // Convert from UI index to actual version index
+          final displayIndex = question.versions.length - 1 - versionIndex;
+          final version = question.versions[displayIndex];
+
+          assignQuestions[version.id.toString()] = {
+            'question_id': version.id,
+            'marks': question.defaultPoint,
+            'from_bank': true
+          };
+        }
+      });
 
       await repository.storeOnlineExamQuestions(
         examId: widget.examId,

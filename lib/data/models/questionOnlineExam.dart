@@ -26,20 +26,44 @@ class QuestionOnlineExam {
   });
 
   factory QuestionOnlineExam.fromJson(Map<String, dynamic> json) {
-    final options = (json['options'] as List?)?.first ?? {};
-    print("OPTIONSS");
+    // Ambil semua options, bukan hanya yang pertama
+    final options = json['options'] ?? [];
+
+    // Ambil versi dengan penanganan yang lebih baik
+    var version = json['version'];
+
+    // Pastikan kita mendapatkan nilai versi yang benar
+    // Log lebih detail untuk membantu debug
+    print(
+        'Question ID: ${json['id']}, Raw version: $version, Type: ${version.runtimeType}');
+
+    // Penanganan khusus untuk nilai versi
+    String versionStr;
+    if (version == null) {
+      versionStr = '1';
+    } else if (version is int) {
+      versionStr = version.toString();
+    } else if (version is double) {
+      versionStr = version.toString();
+    } else if (version is String) {
+      versionStr = version;
+    } else {
+      versionStr = version.toString();
+    }
+
     return QuestionOnlineExam(
       id: json['id'] ?? 0,
       question_id: json['question_id'] ?? 0,
       question: json['question_text'] ?? '',
-      correctAnswer: options['is_answer'] == 1 ? 'A' : '',
+      correctAnswer: json['options'] != null &&
+              json['options'].isNotEmpty &&
+              json['options'][0]['is_answer'] == 1
+          ? 'A'
+          : '',
       marks: json['marks'] ?? 0,
-      title: 'Ini soal',
-      options:
-          (json['type'] == 'multiple_choice' || json['type'] == 'true_false')
-              ? options
-              : null,
-      version: '1.0',
+      title: json['title'] ?? 'Soal',
+      options: options,
+      version: versionStr,
       onlineExamId: json['exam_id'],
       type: json['type'] ?? 'multiple_choice',
     );

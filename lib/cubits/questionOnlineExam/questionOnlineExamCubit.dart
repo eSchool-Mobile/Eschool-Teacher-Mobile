@@ -39,10 +39,15 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
     try {
       emit(QuestionOnlineExamLoading());
       final questions = await _repository.getOnlineExamQuestions(examId);
-      print("TEST");
+
+      // Debug info lebih detail
+      for (var q in questions) {
+        print(
+            'Question ID: ${q.id}, Version: ${q.version}, Type: ${q.version.runtimeType}');
+      }
+
       emit(QuestionOnlineExamSuccess(questions));
     } catch (e) {
-      print("TEST ERROR");
       emit(QuestionOnlineExamFailure(e.toString()));
     }
   }

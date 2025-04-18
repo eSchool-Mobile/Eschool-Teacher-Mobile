@@ -140,6 +140,25 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
     return htmlText.replaceAll(exp, '');
   }
 
+  String _getVersionText(QuestionOnlineExam question) {
+    // Cek apakah versi tersedia dan valid
+    if (question.version != null && question.version!.isNotEmpty) {
+      // Versi bisa dalam format apa saja, misalnya "1.0" atau "2"
+      return "Versi ${question.version}";
+    }
+
+    // Jika tidak ada data versi, periksa apakah ada informasi lain yang bisa digunakan
+    if (question.id > 0 && question.question_id > 0) {
+      // Jika ID berbeda dengan question_id, ini mungkin versi lain
+      int versionNumber =
+          (question.id % 10) + 1; // Hanya sebagai contoh formula
+      return "Versi $versionNumber";
+    }
+
+    // Default fallback
+    return "Versi 1";
+  }
+
   Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
@@ -175,7 +194,6 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
       ),
     );
   }
-
 
   Widget _buildAddButton() {
     return AnimatedBuilder(
@@ -283,7 +301,6 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-
                 SizedBox(width: 8),
 
                 // Add button with pulse effect
@@ -585,7 +602,8 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
             children: [
               ListView.builder(
                 // Ubah dari GridView ke ListView
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                 physics: BouncingScrollPhysics(),
                 itemCount: questions.length,
                 itemBuilder: (context, index) {
@@ -641,9 +659,8 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                   Text(
                                     'Pilih beberapa soal untuk dihapus sekaligus',
                                     style: TextStyle(
-                                      fontSize: 12.0, 
-                                      color: Colors.grey[600]
-                                    ),
+                                        fontSize: 12.0,
+                                        color: Colors.grey[600]),
                                   ),
                                 ],
                               ),
@@ -879,6 +896,43 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                       color: Colors.grey[800],
                                       fontSize: 14.5,
                                       fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Badge versi soal
+                          Positioned(
+                            top: 70,
+                            right: 20,
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.5),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.history,
+                                    color: Colors.white,
+                                    size: 14,
+                                  ),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    "Versi ${question.version}",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ],

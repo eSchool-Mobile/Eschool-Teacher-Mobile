@@ -258,10 +258,8 @@ class OnlineExamRepository {
     }
   }
 
-  Future<List<QuestionOnlineExam>> getOnlineExamQuestions(
-    int examId, {
-    int? bankId,
-  }) async {
+  Future<List<QuestionOnlineExam>> getOnlineExamQuestions(int examId,
+      {int? bankId}) async {
     try {
       final response = await Api.get(
         url: "${Api.getOnlineExamQuestions}/$examId",
@@ -271,9 +269,18 @@ class OnlineExamRepository {
 
       print('Questions Response: $response');
 
+      // Debug di repository untuk melihat respons asli dari API
+      print('Raw Response: $response');
+
       if (response['error'] == false) {
         final data = response['data'] as Map<String, dynamic>;
         final examQuestions = data['exam_questions'] as List;
+
+        // Debug untuk melihat nilai versi pada data soal
+        for (var q in examQuestions) {
+          print(
+              'Raw question data - ID: ${q['id']}, Version: ${q['version']}, Type: ${q['version'].runtimeType}');
+        }
 
         return examQuestions.map((question) {
           // Parse options
@@ -285,13 +292,12 @@ class OnlineExamRepository {
             id: question['id'] ?? 0,
             question_id: question['question_id'] ?? 0,
             question: question['question_text'] ?? '',
-            correctAnswer: options['is_answer'] == 1
-                ? 'A'
-                : '', // Sesuaikan dengan response API
+            correctAnswer: options['is_answer'] == 1 ? 'A' : '',
             marks: question['marks'] ?? 0,
             options: question['options'],
             title: '', // Bisa diambil dari exam['title'] jika diperlukan
-            version: '1.0', // Sesuaikan dengan kebutuhan
+            version: question['version']?.toString() ??
+                '1', // PERBAIKAN DISINI - ambil dari API
             type: question["type"] ?? "multiple_choice",
             onlineExamId: examId ?? 0,
           );
