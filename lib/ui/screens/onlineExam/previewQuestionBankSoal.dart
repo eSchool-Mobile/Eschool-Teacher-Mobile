@@ -772,8 +772,12 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(28),
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.6,
+                child: Container(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height * 0.4,
+                    maxHeight: MediaQuery.of(context).size.height *
+                        0.63, // Increased from 0.6
+                  ),
                   child: PageView.builder(
                     controller: pageController,
                     physics: const BouncingScrollPhysics(
@@ -889,47 +893,6 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                     ),
                   );
                 },
-              ),
-            ),
-
-          // Version indicators if there are multiple versions
-          if (questionVersionsCount > 1)
-            Positioned(
-              bottom: 80,
-              left: 0,
-              right: 0,
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(questionVersionsCount, (index) {
-                    final isActive = index == activeVersionIndex;
-                    return GestureDetector(
-                      onTap: () {
-                        _getPageController(question.id).animateToPage(
-                          index,
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                        );
-                      },
-                      child: Container(
-                        width: isActive ? 24 : 8,
-                        height: 8,
-                        margin: EdgeInsets.symmetric(horizontal: 3),
-                        decoration: BoxDecoration(
-                          color: isActive
-                              ? _getTypeColor(question
-                                  .versions[questionVersionsCount -
-                                      1 -
-                                      activeVersionIndex]
-                                  .type)
-                              : Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    );
-                  }),
-                ),
               ),
             ),
         ],
@@ -1368,8 +1331,42 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                 ),
               ),
 
-              // Spacer for pagination indicators
-              SizedBox(height: totalVersions > 1 ? 40 : 20),
+              // Version indicators - moved from Positioned widget to here
+              if (totalVersions > 1)
+                Container(
+                  margin: EdgeInsets.only(top: 24),
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(totalVersions, (index) {
+                      // Change the active detection logic
+                      final isActive = index == versionIndex;
+                      return GestureDetector(
+                        onTap: () {
+                          _getPageController(question.id).animateToPage(
+                            index, // Directly use index instead of inverting it
+                            duration: Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        },
+                        child: Container(
+                          width: isActive ? 24 : 8,
+                          height: 8,
+                          margin: EdgeInsets.symmetric(horizontal: 3),
+                          decoration: BoxDecoration(
+                            color: isActive
+                                ? _getTypeColor(version.type)
+                                : Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+
+              // Small spacer at the end
+              SizedBox(height: 20),
             ],
           ),
         ),
