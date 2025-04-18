@@ -1111,7 +1111,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         ),
                         SizedBox(height: 12),
                         Text(
-                          parseHtmlString(version.question).split('\n').first,
+                          version.name,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 19,
