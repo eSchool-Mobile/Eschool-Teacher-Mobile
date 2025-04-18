@@ -25,6 +25,7 @@ import 'package:lottie/lottie.dart';
 import 'package:flutter/services.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ExamsScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -67,12 +68,12 @@ class _ExamsScreenState extends State<ExamsScreen>
   // Refined elegant maroon-based color palette
   final Color primaryColor = const Color(0xFF8B2635); // Deep maroon primary
   final Color accentColor = const Color(0xFFD4A59A); // Soft rose accent
-  final Color completedColor = 
+  final Color completedColor =
       const Color(0xFF7D3C50); // Elegant maroon - sophisticated and modern
   final Color ongoingColor =
-       const Color(0xFF7D3C50);  // Navy blue - deeper and more elegant
+      const Color(0xFF7D3C50); // Navy blue - deeper and more elegant
   final Color upcomingColor =
-       const Color(0xFF7D3C50); // Burgundy red - less harsh
+      const Color(0xFF7D3C50); // Burgundy red - less harsh
   final Color cardBackgroundColor = const Color(0xFFFAF3F0); // Cream background
   final Color cardBorderColor = const Color(0xFFE7D8D1); // Soft border color
   final Color cardTextPrimary = const Color(0xFF3F3F3F); // Dark gray for text
@@ -494,15 +495,14 @@ class _ExamsScreenState extends State<ExamsScreen>
     final bool hasTimetable = (exam.timetableSlots ?? []).isNotEmpty;
     DateTime? examDate;
     String dayString = "";
-    String dateString = "";
-
+    String monthString = "";
 
     // Parse and format date safely
     if (exam.examStartingDate != null && exam.examStartingDate!.isNotEmpty) {
       try {
         examDate = DateTime.parse(exam.examStartingDate!);
         dayString = examDate.day.toString();
-    
+        monthString = months[examDate.month - 1].substring(0, 3);
       } catch (e) {
         // Keep default values if parsing fails
       }
@@ -514,40 +514,24 @@ class _ExamsScreenState extends State<ExamsScreen>
     final isOngoing = statusKey == 'ongoing';
 
     final statusColor = _getStatusColor(statusKey);
-    final lightStatusColor = statusColor.withOpacity(0.15);
+
+    // Generate random angle for the background pattern
+    final randomAngle = (index * 37) % 360;
 
     return Hero(
       tag: 'exam-${exam.id}',
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white,
-              lightStatusColor,
-            ],
-          ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: statusColor.withOpacity(0.2),
-              spreadRadius: 1,
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+        margin: const EdgeInsets.only(bottom: 20),
         child: Material(
           color: Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           child: InkWell(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
             splashColor: statusColor.withOpacity(0.1),
             highlightColor: statusColor.withOpacity(0.05),
             onTap: () {
               if (hasTimetable) {
+                HapticFeedback.mediumImpact();
                 Utils.showBottomSheet(
                   child: OfflineExamTimetableBottomsheet(
                     timetableSlots: exam.timetableSlots ?? [],
@@ -558,110 +542,245 @@ class _ExamsScreenState extends State<ExamsScreen>
                 );
               }
             },
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Date container with glass effect
-                  Container(
-                    width: 58,
-                    height: 78,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: statusColor.withOpacity(0.2),
-                          spreadRadius: 1,
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                      border: Border.all(
-                        color: statusColor.withOpacity(0.3),
-                        width: 1.5,
+            child: Stack(
+              children: [
+                // Background pattern
+                Positioned.fill(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: CustomPaint(
+                      painter: ExamCardBackgroundPainter(
+                        color: statusColor.withOpacity(0.06),
+                        angle: randomAngle.toDouble(),
                       ),
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          dayString,
-                          style: GoogleFonts.poppins(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: statusColor,
+                  ),
+                ),
+
+                // Main card content
+                Container(
+                  padding: const EdgeInsets.all(0),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: statusColor.withOpacity(0.1),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
+                        spreadRadius: 2,
+                      ),
+                      BoxShadow(
+                        color: Colors.white.withOpacity(0.5),
+                        blurRadius: 15,
+                        offset: const Offset(0, 4),
+                        spreadRadius: -5,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      // Header with status & date
+                      ClipRRect(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                statusColor.withOpacity(0.9),
+                                statusColor,
+                              ],
+                            ),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 20),
+                          child: Row(
+                            children: [
+                              // Status indicator with icon
+                              Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.25),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  isCompleted
+                                      ? Icons.check_circle
+                                      : isOngoing
+                                          ? Icons.access_time_filled
+                                          : Icons.event_available,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                _getStatusText(statusKey),
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Spacer(),
+                              // Date display
+                              if (examDate != null)
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.25),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.calendar_today,
+                                        color: Colors.white,
+                                        size: 14,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        Utils.formatDate(examDate),
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
+                      ),
 
-                  // Exam details
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      // Main content
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                            // Day container
+                            Container(
+                              width: 65,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    statusColor.withOpacity(0.8),
+                                    statusColor.withOpacity(0.6),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: statusColor.withOpacity(0.3),
+                                    blurRadius: 10,
+                                    offset: const Offset(2, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Stack(
                                 children: [
-                                  CustomTextContainer(
-                                    textKey: exam.name ?? "-",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black87,
+                                  // Background pattern
+                                  Positioned.fill(
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(14),
+                                      child: Opacity(
+                                        opacity: 0.15,
+                                        child: CustomPaint(
+                                          painter: CirclePatternPainter(
+                                              color: Colors.white),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
-                                  CustomTextContainer(
-                                    textKey: Utils()
-                                        .cleanClassName(exam.className ?? "-"),
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      color: Colors.grey[600],
+                                  // Content
+                                  Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          dayString,
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        Text(
+                                          monthString,
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color:
+                                                Colors.white.withOpacity(0.85),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: statusColor.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(30),
-                                border: Border.all(
-                                  color: statusColor.withOpacity(0.3),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
+                            SizedBox(width: 16),
+
+                            // Exam details
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(
-                                    isCompleted
-                                        ? Icons.check_circle
-                                        : isOngoing
-                                            ? Icons.access_time_filled
-                                            : Icons.event_available,
-                                    color: statusColor,
-                                    size: 14,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  CustomTextContainer(
-                                    textKey: _getStatusText(statusKey),
+                                  Text(
+                                    exam.name ?? "-",
                                     style: GoogleFonts.poppins(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: statusColor,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  SizedBox(height: 10),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color: statusColor.withOpacity(0.08),
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(
+                                        color: statusColor.withOpacity(0.2),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.groups_rounded,
+                                          size: 16,
+                                          color: statusColor.withOpacity(0.7),
+                                        ),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          Utils().cleanClassName(
+                                              exam.className ?? "-"),
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
@@ -669,55 +788,95 @@ class _ExamsScreenState extends State<ExamsScreen>
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        Divider(
-                            height: 1, thickness: 1, color: Colors.grey[200]),
-                        const SizedBox(height: 12),
-                        if (hasTimetable)
-                          Row(
+                      ),
+
+                      // Footer with timetable indicator
+                      if (hasTimetable)
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: statusColor.withOpacity(0.05),
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(20),
+                              bottomRight: Radius.circular(20),
+                            ),
+                            border: Border(
+                              top: BorderSide(
+                                color: statusColor.withOpacity(0.1),
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              if (examDate != null) ...[
-                                const Spacer(),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.schedule,
+                                    size: 16,
+                                    color: statusColor.withOpacity(0.7),
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: statusColor.withOpacity(0.08),
-                                    borderRadius: BorderRadius.circular(4),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "${exam.timetableSlots?.length ?? 0} Mata Pelajaran",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black87,
+                                    ),
                                   ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.calendar_today_outlined,
-                                        size: 12,
-                                        color: statusColor,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        Utils.formatDate(examDate),
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          color: statusColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                ],
+                              ),
+                              Text(
+                                "Lihat Detail",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: statusColor,
                                 ),
-                              ],
+                              ),
                             ],
                           ),
-                      ],
+                        ),
+                    ],
+                  ),
+                ),
+
+                // Decorative corner accent
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: statusColor.withOpacity(0.2),
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(20),
+                        bottomLeft: Radius.circular(30),
+                      ),
+                    ),
+                    child: CustomPaint(
+                      painter: CornerDecoratorPainter(color: statusColor),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
-      ),
+      )
+          .animate(delay: (80 * index).ms)
+          .fadeIn(duration: 600.ms, curve: Curves.easeOut)
+          .slideY(
+              begin: 0.2, end: 0, duration: 800.ms, curve: Curves.easeOutQuint)
+          .scale(
+              begin: const Offset(0.97, 0.97),
+              end: const Offset(1.0, 1.0),
+              duration: 800.ms,
+              curve: Curves.easeOutQuint),
     );
   }
 
@@ -752,39 +911,79 @@ class _ExamsScreenState extends State<ExamsScreen>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Lottie.network(
-            'https://assets6.lottiefiles.com/packages/lf20_ysrn2iwp.json',
-            width: 180,
-            height: 180,
+          LottieBuilder.network(
+            'https://assets1.lottiefiles.com/packages/lf20_kljv8dtk.json',
+            width: 220,
+            height: 220,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 20),
           Text(
             _filterStatus == "Semua"
-                ? "Belum ada ujian tersedia"
+                ? "Belum ada jadwal ujian tersedia"
                 : "Tidak ditemukan hasil pencarian",
             style: GoogleFonts.poppins(
               fontSize: 18,
-              color: Colors.grey[600],
+              color: primaryColor,
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 12),
-          ElevatedButton.icon(
-            onPressed: getExams,
-            icon: const Icon(Icons.refresh_rounded),
-            label: const Text("Refresh"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primaryColor,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
+          SizedBox(height: 16),
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [primaryColor, primaryColor.withOpacity(0.8)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                BoxShadow(
+                  color: primaryColor.withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ElevatedButton.icon(
+              onPressed: getExams,
+              icon: Icon(Icons.refresh_rounded),
+              label: Text("Refresh"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                shadowColor: Colors.transparent,
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
               ),
             ),
           ),
         ],
       ),
-    ).animate().fadeIn(delay: 300.ms, duration: 600.ms);
+    ).animate().fadeIn(delay: 300.ms, duration: 600.ms).scale(
+        begin: const Offset(0.8, 0.8), end: const Offset(1.0, 1.0), 
+        duration: 600.ms, curve: Curves.easeOutQuint);
+  }
+
+  Widget _buildLoadingShimmer() {
+    return ListView.builder(
+      itemCount: 3,
+      itemBuilder: (context, index) {
+        return Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            margin: EdgeInsets.only(bottom: 20),
+            height: 180,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -1002,6 +1201,10 @@ class _ExamsScreenState extends State<ExamsScreen>
                                         onTapRetry: getExams,
                                       ),
                                     );
+                                  }
+
+                                  if (state is OfflineExamsFetchInProgress) {
+                                    return _buildLoadingShimmer();
                                   }
 
                                   return Center(
@@ -1561,7 +1764,6 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                           ),
                         ],
                       ),
-                  
                     ),
                   ],
                 ),
@@ -1914,4 +2116,102 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
       ),
     );
   }
+}
+
+class ExamCardBackgroundPainter extends CustomPainter {
+  final Color color;
+  final double angle;
+
+  ExamCardBackgroundPainter({required this.color, required this.angle});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color;
+
+    final center = Offset(size.width / 2, size.height / 2);
+
+    // Draw patterned background with rotated lines
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(angle * (3.14159 / 180));
+    canvas.translate(-center.dx, -center.dy);
+
+    final spacing = 12.0;
+    for (double i = -size.width; i < size.width * 2; i += spacing) {
+      canvas.drawLine(
+        Offset(i, -size.height),
+        Offset(i + size.height * 2, size.height * 2),
+        paint..strokeWidth = 4,
+      );
+    }
+
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
+class CirclePatternPainter extends CustomPainter {
+  final Color color;
+
+  CirclePatternPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    // Draw decorative circles
+    canvas.drawCircle(
+      Offset(size.width * 0.3, size.height * 0.3),
+      size.width * 0.4,
+      paint,
+    );
+
+    canvas.drawCircle(
+      Offset(size.width * 0.7, size.height * 0.7),
+      size.width * 0.3,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
+class CornerDecoratorPainter extends CustomPainter {
+  final Color color;
+
+  CornerDecoratorPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color.withOpacity(0.4)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    final path = Path()
+      ..moveTo(size.width * 0.3, 0)
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width, size.height * 0.7)
+      ..close();
+
+    canvas.drawPath(path, paint);
+
+    // Draw a smaller accent path
+    final path2 = Path()
+      ..moveTo(size.width * 0.5, 0)
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width, size.height * 0.5)
+      ..close();
+
+    canvas.drawPath(path2, paint..color = color.withOpacity(0.6));
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

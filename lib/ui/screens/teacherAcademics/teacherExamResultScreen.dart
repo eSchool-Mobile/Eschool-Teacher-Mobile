@@ -99,13 +99,30 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
   }
 
   void getStudents() {
-    print(
-        "Fetching students with params: classSectionId= ${_selectedClassSection?.id}, examId= ${_selectedExam?.examID}, classSubjectId= ${_selectedExamTimetableSubject?.subjectId}");
-    context.read<StudentsByClassSectionCubit>().fetchStudents(
-        status: StudentListStatus.active,
-        classSectionId: _selectedClassSection?.id ?? 0,
-        examId: _selectedExam?.examID ?? 0,
-        classSubjectId: _selectedExamTimetableSubject?.subjectId ?? 0);
+    // Check if we have a valid subject
+    if (_selectedExamTimetableSubject == null &&
+        _selectedExam?.examTimetable?.isNotEmpty == true) {
+      // Try to select the first valid subject
+      _selectedExamTimetableSubject = _selectedExam?.examTimetable?.firstOrNull;
+    }
+
+    // Only fetch if we have a valid subject
+    if (_selectedExamTimetableSubject != null) {
+      print(
+          "Fetching students with params: classSectionId= ${_selectedClassSection?.id}, "
+          "examId= ${_selectedExam?.examID}, classSubjectId= ${_selectedExamTimetableSubject?.subjectId}");
+
+      context.read<StudentsByClassSectionCubit>().fetchStudents(
+          status: StudentListStatus.active,
+          classSectionId: _selectedClassSection?.id ?? 0,
+          examId: _selectedExam?.examID ?? 0,
+          classSubjectId: _selectedExamTimetableSubject?.subjectId ?? 0);
+    } else {
+      // Handle case when no subject is available
+      context.read<StudentsByClassSectionCubit>().updateState(
+          StudentsByClassSectionFetchFailure(
+              "Tidak ada mata pelajaran dalam ujian ini. Silakan pilih ujian lain."));
+    }
   }
 
   void setupMarksInitialValues(List<StudentDetails> students) {
@@ -274,7 +291,16 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
                   child: ErrorContainer(
                     errorMessage: state.errorMessage,
                     onTapRetry: () {
-                      getStudents();
+                      if (state.errorMessage.contains("Ujian belum selesai")) {
+                        // For this specific error, guide the user to select a different exam
+                        Utils.showSnackBar(
+                            message:
+                                "Silakan pilih ujian yang telah selesai untuk menginput nilai",
+                            context: context);
+                      } else {
+                        // For other errors, retry
+                        getStudents();
+                      }
                     },
                   ),
                 ),
@@ -625,3 +651,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
     );
   }
 }
+
+// Wherever your API call is handled (likely in the studentRepository.dart file)
+// Update the error handling to provide a more user-friendly message for this specific error
+
