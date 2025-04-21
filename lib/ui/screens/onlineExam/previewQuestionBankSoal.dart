@@ -1314,6 +1314,8 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                     letterSpacing: 0.2,
                     fontWeight: FontWeight.w500,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
 
