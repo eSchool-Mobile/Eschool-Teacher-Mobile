@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'dart:math' show sin, cos, pi;
 
 class TeacherExamResultScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -51,6 +52,55 @@ class TeacherExamResultScreen extends StatefulWidget {
   @override
   State<TeacherExamResultScreen> createState() =>
       _TeacherExamResultScreenState();
+}
+
+class PatternPainter extends CustomPainter {
+  final double amplitude;
+  final Color color;
+
+  PatternPainter({
+    required this.amplitude,
+    required this.color,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    final path = Path();
+
+    // Draw a wavy pattern
+    final double width = size.width;
+    final double height = size.height;
+
+    path.moveTo(0, height / 2);
+
+    for (double x = 0; x < width; x += 10) {
+      final y = height / 2 + amplitude * sin(x * 0.1);
+      path.lineTo(x, y);
+    }
+
+    canvas.drawPath(path, paint);
+
+    // Draw a second wave offset slightly
+    final path2 = Path();
+    path2.moveTo(0, height / 2 + 10);
+
+    for (double x = 0; x < width; x += 10) {
+      final y = height / 2 + 10 + amplitude * cos(x * 0.1);
+      path2.lineTo(x, y);
+    }
+
+    canvas.drawPath(path2, paint);
+  }
+
+  @override
+  bool shouldRepaint(PatternPainter oldDelegate) {
+    return oldDelegate.amplitude != amplitude || oldDelegate.color != color;
+  }
 }
 
 class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
@@ -703,116 +753,225 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
     required TextEditingController controller,
     required int index,
   }) {
-    return FadeInUp(
-      duration: Duration(milliseconds: 400 + (index * 50)),
-      child: Container(
-        margin: EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              blurRadius: 10,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              // Number container
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: _primaryColor.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    (index + 1).toString().padLeft(2, '0'),
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: _primaryColor,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 16),
+    // Calculate a unique hue for each student card based on their index
+    final double hueValue = (index * 15) % 360;
+    final Color accentColor =
+        HSLColor.fromAHSL(0.2, hueValue, 0.6, 0.8).toColor();
 
-              // Student name
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      studentDetails.fullName ?? "",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[800],
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (studentDetails.rollNumber != null)
-                      Text(
-                        "No. Absen: ${studentDetails.rollNumber}",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
+    return AnimationConfiguration.staggeredList(
+      position: index,
+      duration: Duration(milliseconds: 450),
+      child: SlideAnimation(
+        horizontalOffset: 50.0,
+        child: FadeInAnimation(
+          child: Container(
+            margin: EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: _primaryColor.withOpacity(0.05),
+                  blurRadius: 15,
+                  offset: Offset(0, 5),
+                ),
+                BoxShadow(
+                  color: accentColor.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: Offset(0, 2),
+                  spreadRadius: 2,
+                ),
+              ],
+              border: Border.all(
+                color: Colors.grey.shade100,
+                width: 1.0,
+              ),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                splashColor: _primaryColor.withOpacity(0.05),
+                highlightColor: Colors.transparent,
+                onTap: () {
+                  // Optional: Add focus to the text field when tapped
+                  FocusScope.of(context).requestFocus(FocusNode());
+                  controller.selection = TextSelection(
+                      baseOffset: 0, extentOffset: controller.text.length);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Student avatar/number container with gradient
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              _primaryColor.withOpacity(0.8),
+                              _accentColor,
+                            ],
+                          ),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: _primaryColor.withOpacity(0.2),
+                              blurRadius: 8,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            (index + 1).toString().padLeft(2, '0'),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black26,
+                                  blurRadius: 2,
+                                  offset: Offset(0, 1),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                  ],
-                ),
-              ),
+                      SizedBox(width: 16),
 
-              // Marks input
-              Container(
-                width: 70,
-                height: 45,
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-                child: TextField(
-                  controller: controller,
-                  textAlign: TextAlign.center,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-              ),
+                      // Student info
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                // Student name with icon
 
-              // Total marks indicator
-              Container(
-                margin: EdgeInsets.only(left: 8),
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: _primaryColor.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  "/${_selectedExamTimetableSubject?.totalMarks ?? 0}",
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: _primaryColor,
-                    fontWeight: FontWeight.w500,
+                                Expanded(
+                                  child: Text(
+                                    studentDetails.fullName ?? "",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.grey[800],
+                                      letterSpacing: 0.2,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 6),
+                            if (studentDetails.rollNumber != null)
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.badge_outlined,
+                                    size: 14,
+                                    color: Colors.grey[500],
+                                  ),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    "No. Absen: ${studentDetails.rollNumber}",
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
+                      ),
+
+                      // Score input with animated container
+                      Container(
+                        width: 76,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.grey[100]!,
+                              Colors.grey[50]!,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey[300]!),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.1),
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // Background score indicator
+                            if (controller.text.isNotEmpty)
+                              AnimatedContainer(
+                                duration: Duration(milliseconds: 300),
+                                height: double.infinity,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(11),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      _primaryColor.withOpacity(0.05),
+                                      _accentColor.withOpacity(0.08),
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                            // Input field
+                            TextField(
+                              controller: controller,
+                              textAlign: TextAlign.center,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: _primaryColor,
+                                letterSpacing: 0.5,
+                              ),
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.zero,
+                                hintText: "0",
+                                hintStyle: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -825,14 +984,14 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
       builder: (context, studentState) {
         if (studentState is StudentsByClassSectionFetchSuccess) {
           return Container(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  spreadRadius: 0,
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 20,
+                  spreadRadius: 5,
                   offset: Offset(0, -5),
                 ),
               ],
@@ -848,103 +1007,232 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                 }
               },
               builder: (context, state) {
-                return Container(
-                  height: 56,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [_primaryColor, _accentColor],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _primaryColor.withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: Offset(0, 4),
-                        spreadRadius: -2,
+                return AnimatedBuilder(
+                  animation: _pulseAnimation,
+                  builder: (context, child) {
+                    return Container(
+                      height: 60,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            _primaryColor,
+                            _accentColor,
+                            Color(0xFF8A2A2A),
+                          ],
+                          stops: [0.0, 0.6, 1.0],
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: _primaryColor.withOpacity(0.3),
+                            blurRadius: 12 + (8 * _pulseAnimation.value),
+                            offset: Offset(0, 4),
+                            spreadRadius: -2 + (1 * _pulseAnimation.value),
+                          ),
+                          BoxShadow(
+                            color: _glowColor.withOpacity(
+                                0.1 + (0.1 * _pulseAnimation.value)),
+                            blurRadius: 20 + (10 * _pulseAnimation.value),
+                            offset: Offset(0, 2),
+                            spreadRadius: 0,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {
-                        if (state is SubmitExamMarksSubmitInProgress) {
-                          return;
-                        } else {
-                          for (int i = 0; i < marksControllers.length; i++) {
-                            if (marksControllers[i].text.trim().isEmpty) {
-                              Utils.showSnackBar(
-                                  message: pleaseAddMarksToAllStudentsKey,
-                                  context: context);
-                              return;
-                            } else if ((int.tryParse(
-                                        marksControllers[i].text) ??
-                                    0) >
-                                (_selectedExamTimetableSubject?.totalMarks ??
-                                    0)) {
-                              Utils.showSnackBar(
-                                  message: cannotAddMoreMarksThenTotalKey,
-                                  context: context);
-                              return;
-                            }
-                          }
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            // Add haptic feedback for better user experience
+                            HapticFeedback.mediumImpact();
 
-                          context
-                              .read<SubmitExamMarksCubit>()
-                              .submitOfflineExamMarks(
-                                classSubjectId:
-                                    _selectedExamTimetableSubject?.subjectId ??
-                                        0,
-                                examId: _selectedExam?.examID ?? 0,
-                                marksDetails: List.generate(
-                                  marksControllers.length,
-                                  (index) => (
-                                    obtainedMarks: int.tryParse(
-                                            marksControllers[index].text) ??
-                                        0,
-                                    studentId: studentState
-                                            .studentDetailsList[index].id ??
-                                        0
-                                  ),
-                                ),
-                              );
-                        }
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Center(
-                        child: state is SubmitExamMarksSubmitInProgress
-                            ? SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.check_circle_outline,
-                                    color: Colors.white,
-                                    size: 22,
-                                  ),
-                                  SizedBox(width: 10),
-                                  Text(
-                                    Utils.getTranslatedLabel(submitResultKey),
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16,
+                            if (state is SubmitExamMarksSubmitInProgress) {
+                              return;
+                            } else {
+                              for (int i = 0;
+                                  i < marksControllers.length;
+                                  i++) {
+                                if (marksControllers[i].text.trim().isEmpty) {
+                                  Utils.showSnackBar(
+                                      message: pleaseAddMarksToAllStudentsKey,
+                                      context: context);
+                                  return;
+                                } else if ((int.tryParse(
+                                            marksControllers[i].text) ??
+                                        0) >
+                                    (_selectedExamTimetableSubject
+                                            ?.totalMarks ??
+                                        0)) {
+                                  Utils.showSnackBar(
+                                      message: cannotAddMoreMarksThenTotalKey,
+                                      context: context);
+                                  return;
+                                }
+                              }
+
+                              context
+                                  .read<SubmitExamMarksCubit>()
+                                  .submitOfflineExamMarks(
+                                    classSubjectId:
+                                        _selectedExamTimetableSubject
+                                                ?.subjectId ??
+                                            0,
+                                    examId: _selectedExam?.examID ?? 0,
+                                    marksDetails: List.generate(
+                                      marksControllers.length,
+                                      (index) => (
+                                        obtainedMarks: int.tryParse(
+                                                marksControllers[index].text) ??
+                                            0,
+                                        studentId: studentState
+                                                .studentDetailsList[index].id ??
+                                            0
+                                      ),
+                                    ),
+                                  );
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(16),
+                          highlightColor: Colors.white.withOpacity(0.1),
+                          splashColor: Colors.white.withOpacity(0.2),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Subtle animated pattern
+                              Positioned.fill(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: ShaderMask(
+                                    shaderCallback: (Rect bounds) {
+                                      return LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          Colors.white.withOpacity(0.1),
+                                          Colors.white.withOpacity(0.05),
+                                        ],
+                                      ).createShader(bounds);
+                                    },
+                                    blendMode: BlendMode.srcIn,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            Colors.white.withOpacity(0.1),
+                                            Colors.white.withOpacity(0.05),
+                                          ],
+                                        ),
+                                      ),
+                                      child: CustomPaint(
+                                        painter: PatternPainter(
+                                          amplitude:
+                                              4 + (2 * _pulseAnimation.value),
+                                          color: Colors.white.withOpacity(0.07),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ],
+                                ),
                               ),
+
+                              // Button content
+                              Center(
+                                child: state is SubmitExamMarksSubmitInProgress
+                                    ? SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          // Animated icon
+                                          AnimatedBuilder(
+                                            animation: _pulseAnimation,
+                                            builder: (context, child) {
+                                              return Transform.scale(
+                                                scale: 1.0 +
+                                                    0.1 * _pulseAnimation.value,
+                                                child: Container(
+                                                  padding: EdgeInsets.all(6),
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: Colors.white
+                                                        .withOpacity(0.15 +
+                                                            0.05 *
+                                                                _pulseAnimation
+                                                                    .value),
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.check_circle_outline,
+                                                    color: Colors.white,
+                                                    size: 20,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                          SizedBox(width: 12),
+
+                                          // Text with subtle animation
+                                          Text(
+                                            Utils.getTranslatedLabel(
+                                                submitResultKey),
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 17,
+                                              letterSpacing: 0.5,
+                                              shadows: [
+                                                Shadow(
+                                                  color: Colors.black26,
+                                                  offset: Offset(0, 1),
+                                                  blurRadius: 2,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+
+                              // Top highlight for 3D effect
+                              Positioned(
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                height: 1.5,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                      colors: [
+                                        Colors.white.withOpacity(0.1),
+                                        Colors.white.withOpacity(0.3),
+                                        Colors.white.withOpacity(0.1),
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(16),
+                                      topRight: Radius.circular(16),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 );
               },
             ),
@@ -1102,18 +1390,70 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                 // Bulk marks assignment
                 _buildBulkMarksAssignment(),
 
-                // Students list
-                Padding(
-                  padding: EdgeInsets.only(bottom: 8),
-                  child: Text(
-                    "Daftar Siswa (${filteredStudents.length})",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey[800],
+                // Students list heading with animation
+                FadeInLeft(
+                  duration: Duration(milliseconds: 600),
+                  child: Container(
+                    margin: EdgeInsets.only(bottom: 16),
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [
+                          _primaryColor.withOpacity(0.1),
+                          Colors.transparent,
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: _primaryColor.withOpacity(0.1),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: _primaryColor.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.people_alt_outlined,
+                            color: _primaryColor,
+                            size: 16,
+                          ),
+                        ),
+                        SizedBox(width: 12),
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "Daftar Siswa ",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: _primaryColor,
+                                ),
+                              ),
+                              TextSpan(
+                                text: "(${filteredStudents.length})",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: _primaryColor.withOpacity(0.7),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
+
+                // Students list
                 ...List.generate(filteredStudents.length, (index) {
                   int originalIndex =
                       state.studentDetailsList.indexOf(filteredStudents[index]);
