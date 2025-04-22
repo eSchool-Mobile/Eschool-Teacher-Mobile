@@ -61,9 +61,11 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
   Exam? _selectedExam;
 
   List<TextEditingController> marksControllers = [];
+  late TextEditingController bulkMarksController;
 
   @override
   void initState() {
+    bulkMarksController = TextEditingController();
     Future.delayed(Duration.zero, () {
       if (mounted) {
         context.read<ClassesCubit>().getClasses();
@@ -77,6 +79,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
     for (var element in marksControllers) {
       element.dispose();
     }
+    bulkMarksController.dispose();
     super.dispose();
   }
 
@@ -99,14 +102,11 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
   }
 
   void getStudents() {
-    // Check if we have a valid subject
     if (_selectedExamTimetableSubject == null &&
         _selectedExam?.examTimetable?.isNotEmpty == true) {
-      // Try to select the first valid subject
       _selectedExamTimetableSubject = _selectedExam?.examTimetable?.firstOrNull;
     }
 
-    // Only fetch if we have a valid subject
     if (_selectedExamTimetableSubject != null) {
       print(
           "Fetching students with params: classSectionId= ${_selectedClassSection?.id}, "
@@ -118,7 +118,6 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
           examId: _selectedExam?.examID ?? 0,
           classSubjectId: _selectedExamTimetableSubject?.subjectId ?? 0);
     } else {
-      // Handle case when no subject is available
       context.read<StudentsByClassSectionCubit>().updateState(
           StudentsByClassSectionFetchFailure(
               "Tidak ada mata pelajaran dalam ujian ini. Silakan pilih ujian lain."));
@@ -131,7 +130,6 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
     }
     marksControllers.clear();
     for (int i = 0; i < students.length; i++) {
-      //pre-filling marks if already there for the user for selected subject
       marksControllers.add(TextEditingController(
           text: students[i]
               .examMarks
@@ -140,6 +138,113 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
               ?.obtainedMarks
               .toString()));
     }
+  }
+
+  void applyBulkMarksToAll() {
+    if (bulkMarksController.text.isEmpty) {
+      Utils.showSnackBar(
+          message: "Silakan masukkan nilai terlebih dahulu", context: context);
+      return;
+    }
+
+    int bulkMark = int.tryParse(bulkMarksController.text) ?? 0;
+    int totalMarks = _selectedExamTimetableSubject?.totalMarks ?? 0;
+
+    if (bulkMark > totalMarks) {
+      Utils.showSnackBar(
+          message: "Nilai tidak boleh melebihi nilai maksimum ($totalMarks)",
+          context: context);
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Konfirmasi"),
+        content:
+            Text("Semua siswa akan mendapatkan nilai $bulkMark. Lanjutkan?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal"),
+          ),
+          TextButton(
+            onPressed: () {
+              for (var controller in marksControllers) {
+                controller.text = bulkMark.toString();
+              }
+              Navigator.pop(context);
+              Utils.showSnackBar(
+                  message: "Nilai berhasil diterapkan ke semua siswa",
+                  context: context);
+            },
+            child: const Text("Ya"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBulkMarksAssignment() {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      padding: EdgeInsets.all(appContentHorizontalPadding),
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(5),
+        border: Border.all(
+            color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Nilai Massal",
+            style: TextStyle(
+              fontSize: Utils.getScaledValue(context, 16),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: CustomTextFieldContainer(
+                  hintTextKey: "Masukkan nilai untuk semua siswa",
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  bottomPadding: 0,
+                  textEditingController: bulkMarksController,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  keyboardType: TextInputType.number,
+                ),
+              ),
+              const SizedBox(width: 10),
+              SizedBox(
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: applyBulkMarksToAll,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text("Terapkan"),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          Text(
+            "Catatan: Tindakan ini akan mengubah nilai semua siswa",
+            style: TextStyle(
+              fontSize: Utils.getScaledValue(context, 12),
+              fontStyle: FontStyle.italic,
+              color: Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildStudentContainer(
@@ -206,7 +311,6 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
             StudentsByClassSectionState>(
           listener: (context, state) {
             if (state is StudentsByClassSectionFetchSuccess) {
-              //Setting up marks text editing controllers before build
               setupMarksInitialValues(state.studentDetailsList);
             }
           },
@@ -225,6 +329,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
               }
               return Column(
                 children: [
+                  _buildBulkMarksAssignment(),
                   Container(
                     width: MediaQuery.of(context).size.width,
                     padding: EdgeInsets.all(appContentHorizontalPadding),
@@ -292,13 +397,11 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
                     errorMessage: state.errorMessage,
                     onTapRetry: () {
                       if (state.errorMessage.contains("Ujian belum selesai")) {
-                        // For this specific error, guide the user to select a different exam
                         Utils.showSnackBar(
                             message:
                                 "Silakan pilih ujian yang telah selesai untuk menginput nilai",
                             context: context);
                       } else {
-                        // For other errors, retry
                         getStudents();
                       }
                     },
@@ -358,7 +461,6 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
                         return;
                       } else {
                         for (int i = 0; i < marksControllers.length; i++) {
-                          //checking for empty or wrong values
                           if (marksControllers[i].text.trim().isEmpty) {
                             Utils.showSnackBar(
                                 message: pleaseAddMarksToAllStudentsKey,
@@ -533,7 +635,6 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
                         child: BlocBuilder<ExamsCubit, ExamsState>(
                           builder: (context, examState) {
                             return FilterButton(
-                              // Perbaikan aziz
                               onTap: () {
                                 if (examState is ExamsFetchSuccess) {
                                   if ((_selectedExam?.examTimetable ?? [])
@@ -651,7 +752,3 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
     );
   }
 }
-
-// Wherever your API call is handled (likely in the studentRepository.dart file)
-// Update the error handling to provide a more user-friendly message for this specific error
-
