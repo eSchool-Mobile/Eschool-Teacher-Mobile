@@ -503,7 +503,9 @@ class _TeacherEditAssignmentSubmissionScreenState
                                             child: Container(
                                               width: double.infinity,
                                               padding: EdgeInsets.symmetric(
-                                                  vertical: 24, horizontal: 20),
+                                                  vertical: 16,
+                                                  horizontal:
+                                                      16), // Reduced padding
                                               decoration: BoxDecoration(
                                                 gradient: LinearGradient(
                                                   begin: Alignment.topLeft,
@@ -524,10 +526,10 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                     color: Theme.of(context)
                                                         .colorScheme
                                                         .primary
-                                                        .withOpacity(0.3),
-                                                    blurRadius: 15,
-                                                    spreadRadius: 2,
-                                                    offset: Offset(0, 4),
+                                                        .withOpacity(0.25),
+                                                    blurRadius: 12,
+                                                    spreadRadius: 1,
+                                                    offset: Offset(0, 3),
                                                   )
                                                 ],
                                               ),
@@ -537,13 +539,13 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.center,
                                                 children: [
-                                                  // Animated icon with glow effect
+                                                  // Reduced icon size and padding
                                                   AnimatedBuilder(
                                                     animation: _pulseAnimation,
                                                     builder: (context, child) {
                                                       return Container(
-                                                        padding:
-                                                            EdgeInsets.all(16),
+                                                        padding: EdgeInsets.all(
+                                                            12), // Reduced padding
                                                         decoration:
                                                             BoxDecoration(
                                                           color: Colors.white
@@ -558,8 +560,8 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                                   .withOpacity(0.1 *
                                                                       _pulseAnimation
                                                                           .value),
-                                                              blurRadius: 20,
-                                                              spreadRadius: 4 *
+                                                              blurRadius: 15,
+                                                              spreadRadius: 3 *
                                                                   _pulseAnimation
                                                                       .value,
                                                             )
@@ -568,7 +570,8 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                         child: Icon(
                                                           Icons
                                                               .assignment_outlined,
-                                                          size: 42,
+                                                          size:
+                                                              32, // Reduced icon size
                                                           color: Colors.white,
                                                         ),
                                                       );
@@ -580,7 +583,9 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                       .shimmer(
                                                           duration: 1000.ms),
 
-                                                  SizedBox(height: 16),
+                                                  SizedBox(
+                                                      height:
+                                                          12), // Reduced spacing
 
                                                   // Assignment name with animated underline
                                                   Text(
@@ -672,51 +677,6 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                   )
                                                       .animate()
                                                       .fadeIn(delay: 600.ms),
-
-                                                  // Due date chip
-                                                  Container(
-                                                    margin: EdgeInsets.only(
-                                                        top: 12),
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 12,
-                                                            vertical: 6),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.white
-                                                          .withOpacity(0.2),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              30),
-                                                    ),
-                                                    child: Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        Icon(
-                                                          Icons
-                                                              .calendar_today_rounded,
-                                                          size: 14,
-                                                          color: Colors.white,
-                                                        ),
-                                                        SizedBox(width: 6),
-                                                        Text(
-                                                          "Due: ${widget.assignmentSubmission.assignment.dueDate}",
-                                                          style: TextStyle(
-                                                            fontSize: 13,
-                                                            color: Colors.white,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  )
-                                                      .animate()
-                                                      .fadeIn(delay: 800.ms)
-                                                      .moveY(
-                                                          begin: 10,
-                                                          end: 0,
-                                                          duration: 500.ms),
                                                 ],
                                               ),
                                             ),
@@ -917,10 +877,7 @@ class _TeacherEditAssignmentSubmissionScreenState
 
                                                             SizedBox(height: 8),
 
-                                                          
-
                                                             // Additional student info
-
                                                           ],
                                                         ),
                                                       ),
@@ -928,7 +885,6 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                   ),
 
                                                   // Status badge
-                                               
                                                 ],
                                               ),
                                             ),
@@ -1072,10 +1028,16 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                       .fadeIn(delay: 300.ms)
                                                       .custom(
                                                         duration: 600.ms,
-                                                        curve: Curves.easeOutExpo,
-                                                        builder: (context, value, child) {
+                                                        curve:
+                                                            Curves.easeOutExpo,
+                                                        builder: (context,
+                                                            value, child) {
                                                           return SizedBox(
-                                                            width: value * MediaQuery.of(context).size.width,
+                                                            width: value *
+                                                                MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width,
                                                             child: child,
                                                           );
                                                         },
@@ -1702,7 +1664,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                                           16),
                                                             ),
                                                           ),
-                                                        ],      
+                                                        ],
                                                       ),
                                                     )
                                                         .animate()
@@ -1711,6 +1673,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                             begin: 0.2,
                                                             end: 0,
                                                             duration: 400.ms),
+                                                    SizedBox(height: 24),
                                                   ],
 
                                                   // Feedback Field with enhanced styling
@@ -2143,10 +2106,16 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                         .fadeIn(delay: 300.ms)
                                                         .custom(
                                                           duration: 600.ms,
-                                                          curve: Curves.easeOutExpo,
-                                                          builder: (context, value, child) {
+                                                          curve: Curves
+                                                              .easeOutExpo,
+                                                          builder: (context,
+                                                              value, child) {
                                                             return SizedBox(
-                                                              width: value * MediaQuery.of(context).size.width,
+                                                              width: value *
+                                                                  MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width,
                                                               child: child,
                                                             );
                                                           },
@@ -2227,10 +2196,8 @@ class _TeacherEditAssignmentSubmissionScreenState
 
                                                           SizedBox(height: 10),
 
-
-
                                                           // Line at the bottom with student signature
-                                                          ],
+                                                        ],
                                                       ),
                                                     )
                                                         .animate()
@@ -2460,10 +2427,16 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                         .fadeIn(delay: 300.ms)
                                                         .custom(
                                                           duration: 600.ms,
-                                                          curve: Curves.easeOutExpo,
-                                                          builder: (context, value, child) {
+                                                          curve: Curves
+                                                              .easeOutExpo,
+                                                          builder: (context,
+                                                              value, child) {
                                                             return SizedBox(
-                                                              width: value * MediaQuery.of(context).size.width,
+                                                              width: value *
+                                                                  MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width,
                                                               child: child,
                                                             );
                                                           },
