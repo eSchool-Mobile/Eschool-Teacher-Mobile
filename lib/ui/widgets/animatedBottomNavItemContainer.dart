@@ -89,153 +89,85 @@ class _AnimatedBottomNavItemContainerState
 
     return GestureDetector(
       onTap: () {
-        HapticFeedback.mediumImpact(); // Enhanced haptic feedback
+        HapticFeedback.mediumImpact();
         widget.onTap(widget.index);
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeOutQuart,
         width: 80,
-        padding: const EdgeInsets.symmetric(vertical: 10.0),
-        child: Stack(
-          alignment: Alignment.center,
+        padding:
+            const EdgeInsets.symmetric(vertical: 16.0), // Increased padding
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Background glow effect (only for selected item)
-            if (isSelected)
-              AnimatedBuilder(
-                animation: _animationController,
-                builder: (context, child) {
-                  return Positioned(
-                    bottom: 0,
-                    child: Container(
-                      width: 60,
-                      height: 3,
-                      decoration: BoxDecoration(
-                        color: _primaryColor,
-                        borderRadius: BorderRadius.circular(3),
-                        boxShadow: [
-                          BoxShadow(
-                            color: _primaryColor.withOpacity(0.5),
-                            blurRadius: 10,
-                            spreadRadius: -2,
-                          ),
-                        ],
+            // Icon with animations
+            AnimatedBuilder(
+              animation: _animationController,
+              builder: (context, child) {
+                return Transform.translate(
+                  offset: Offset(0, -_slideAnimation.value),
+                  child: Transform.scale(
+                    scale: _scaleAnimation.value,
+                    child: ShaderMask(
+                      shaderCallback: (Rect bounds) {
+                        return isSelected
+                            ? ui.Gradient.linear(
+                                const Offset(0, 0),
+                                Offset(0, bounds.height),
+                                [
+                                  _primaryColor,
+                                  _accentColor,
+                                ],
+                              )
+                            : ui.Gradient.linear(
+                                const Offset(0, 0),
+                                const Offset(0, 24),
+                                [
+                                  Colors.grey.shade600,
+                                  Colors.grey.shade500,
+                                ],
+                              );
+                      },
+                      child: SvgPicture.asset(
+                        "assets/images/${isSelected ? widget.bottomNavItem.selectedIconPath : widget.bottomNavItem.iconPath}",
+                        width: 22, // Reduced size for better integration
+                        height: 22, // Reduced size for better integration
+                        color: Colors.white,
                       ),
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
+            ),
 
-            // NeumorphismBackground (subtle raised effect)
-            AnimatedContainer(
+            SizedBox(height: 8),
+
+            // Text with animations
+            AnimatedDefaultTextStyle(
               duration: const Duration(milliseconds: 300),
-              margin: EdgeInsets.symmetric(horizontal: 10),
-              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-              decoration: BoxDecoration(
+              style: TextStyle(
+                fontSize: isSelected ? 12 : 11,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 color: isSelected
-                    ? _primaryColor.withOpacity(0.08)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: isSelected
+                    ? _primaryColor
+                    : Theme.of(context).colorScheme.secondary.withOpacity(0.7),
+                letterSpacing: isSelected ? 0.2 : 0,
+                // Add shadow for better readability against background
+                shadows: isSelected
                     ? [
-                        BoxShadow(
-                          color: Colors.white.withOpacity(0.1),
-                          offset: Offset(0, -2),
-                          blurRadius: 6,
-                          spreadRadius: 0,
-                        ),
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
-                          spreadRadius: 0,
-                        ),
+                        Shadow(
+                          color: Colors.white.withOpacity(0.5),
+                          offset: Offset(0, 0.5),
+                          blurRadius: 0.5,
+                        )
                       ]
                     : [],
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Icon with animations
-                  AnimatedBuilder(
-                    animation: _animationController,
-                    builder: (context, child) {
-                      return Transform.translate(
-                        offset: Offset(0, -_slideAnimation.value),
-                        child: Transform.scale(
-                          scale: _scaleAnimation.value,
-                          child: ShaderMask(
-                            shaderCallback: (Rect bounds) {
-                              return isSelected
-                                  ? ui.Gradient.linear(
-                                      const Offset(0, 0),
-                                      Offset(0, bounds.height),
-                                      [
-                                        _primaryColor,
-                                        _accentColor,
-                                      ],
-                                    )
-                                  : ui.Gradient.linear(
-                                      const Offset(0, 0),
-                                      const Offset(0, 24),
-                                      [
-                                        Colors.grey.shade600,
-                                        Colors.grey.shade500,
-                                      ],
-                                    );
-                            },
-                            child: SvgPicture.asset(
-                              "assets/images/${isSelected ? widget.bottomNavItem.selectedIconPath : widget.bottomNavItem.iconPath}",
-                              width: 24,
-                              height: 24,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-
-                  SizedBox(height: 8),
-
-                  // Text with animations
-                  AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 300),
-                    style: TextStyle(
-                      fontSize: isSelected ? 12 : 11,
-                      fontWeight:
-                          isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: isSelected
-                          ? _primaryColor
-                          : Theme.of(context)
-                              .colorScheme
-                              .secondary
-                              .withOpacity(0.7),
-                      letterSpacing: isSelected ? 0.2 : 0,
-                    ),
-                    child: Text(
-                      widget.bottomNavItem.title,
-                    ),
-                  ),
-                ],
+              child: Text(
+                widget.bottomNavItem.title,
               ),
             ),
-
-            // Ripple effect on tap
-            if (isSelected)
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: AnimatedOpacity(
-                    duration: Duration(milliseconds: 200),
-                    opacity: 0.1,
-                    child: CustomPaint(
-                      painter: RipplePainter(
-                        color: _primaryColor,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
           ],
         ),
       ),
