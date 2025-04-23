@@ -5,15 +5,11 @@ import 'package:eschool_saas_staff/cubits/teacherAcademics/exam/submitExamMarksC
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/exam.dart';
 import 'package:eschool_saas_staff/data/models/studentDetails.dart';
-import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -21,10 +17,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'dart:math' show sin, cos, pi;
 
 class TeacherExamResultScreen extends StatefulWidget {
   static Widget getRouteInstance() {
-    //final arguments = Get.arguments as Map<String,dynamic>;
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -55,15 +54,105 @@ class TeacherExamResultScreen extends StatefulWidget {
       _TeacherExamResultScreenState();
 }
 
-class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
+class PatternPainter extends CustomPainter {
+  final double amplitude;
+  final Color color;
+
+  PatternPainter({
+    required this.amplitude,
+    required this.color,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    final path = Path();
+
+    // Draw a wavy pattern
+    final double width = size.width;
+    final double height = size.height;
+
+    path.moveTo(0, height / 2);
+
+    for (double x = 0; x < width; x += 10) {
+      final y = height / 2 + amplitude * sin(x * 0.1);
+      path.lineTo(x, y);
+    }
+
+    canvas.drawPath(path, paint);
+
+    // Draw a second wave offset slightly
+    final path2 = Path();
+    path2.moveTo(0, height / 2 + 10);
+
+    for (double x = 0; x < width; x += 10) {
+      final y = height / 2 + 10 + amplitude * cos(x * 0.1);
+      path2.lineTo(x, y);
+    }
+
+    canvas.drawPath(path2, paint);
+  }
+
+  @override
+  bool shouldRepaint(PatternPainter oldDelegate) {
+    return oldDelegate.amplitude != amplitude || oldDelegate.color != color;
+  }
+}
+
+class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
+    with TickerProviderStateMixin {
   ClassSection? _selectedClassSection;
   ExamTimeTable? _selectedExamTimetableSubject;
   Exam? _selectedExam;
 
   List<TextEditingController> marksControllers = [];
+  late TextEditingController bulkMarksController;
+  late TextEditingController searchController;
+
+  // Animation controllers
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
+  // Theme colors - Softer Maroon palette
+  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
+  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
+  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
+  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
 
   @override
   void initState() {
+    bulkMarksController = TextEditingController();
+    searchController = TextEditingController();
+
+    // Initialize animation controllers
+    _animationController = AnimationController(
+      duration: Duration(milliseconds: 1000),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+    _animationController.forward();
+
+    // Add pulse animation controller
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+
+    _pulseAnimation = CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    );
+
     Future.delayed(Duration.zero, () {
       if (mounted) {
         context.read<ClassesCubit>().getClasses();
@@ -77,6 +166,10 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
     for (var element in marksControllers) {
       element.dispose();
     }
+    bulkMarksController.dispose();
+    searchController.dispose();
+    _animationController.dispose();
+    _pulseController.dispose();
     super.dispose();
   }
 
@@ -90,7 +183,6 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
   }
 
   void getExams() {
-    print("Fetching exams for class section: ${_selectedClassSection?.id}");
     context.read<ExamsCubit>().fetchExamsList(
           examStatus: 2, //exam should be finished
           publishStatus: 0, //exam should not be published
@@ -99,26 +191,18 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
   }
 
   void getStudents() {
-    // Check if we have a valid subject
     if (_selectedExamTimetableSubject == null &&
         _selectedExam?.examTimetable?.isNotEmpty == true) {
-      // Try to select the first valid subject
       _selectedExamTimetableSubject = _selectedExam?.examTimetable?.firstOrNull;
     }
 
-    // Only fetch if we have a valid subject
     if (_selectedExamTimetableSubject != null) {
-      print(
-          "Fetching students with params: classSectionId= ${_selectedClassSection?.id}, "
-          "examId= ${_selectedExam?.examID}, classSubjectId= ${_selectedExamTimetableSubject?.subjectId}");
-
       context.read<StudentsByClassSectionCubit>().fetchStudents(
           status: StudentListStatus.active,
           classSectionId: _selectedClassSection?.id ?? 0,
           examId: _selectedExam?.examID ?? 0,
           classSubjectId: _selectedExamTimetableSubject?.subjectId ?? 0);
     } else {
-      // Handle case when no subject is available
       context.read<StudentsByClassSectionCubit>().updateState(
           StudentsByClassSectionFetchFailure(
               "Tidak ada mata pelajaran dalam ujian ini. Silakan pilih ujian lain."));
@@ -131,7 +215,6 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
     }
     marksControllers.clear();
     for (int i = 0; i < students.length; i++) {
-      //pre-filling marks if already there for the user for selected subject
       marksControllers.add(TextEditingController(
           text: students[i]
               .examMarks
@@ -142,181 +225,754 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
     }
   }
 
-  Widget _buildStudentContainer(
-      {required StudentDetails studentDetails,
-      required TextEditingController controller,
-      required int index}) {
-    final border = BorderSide(color: Theme.of(context).colorScheme.tertiary);
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      height: Utils().getResponsiveHeight(context, 70),
-      padding: EdgeInsets.symmetric(
-          horizontal: appContentHorizontalPadding, vertical: 10),
-      decoration: BoxDecoration(
-          border: Border(left: border, bottom: border, right: border)),
-      child: Row(
-        children: [
-          CustomTextContainer(
-            textKey: (index + 1).toString().padLeft(2, '0'),
-            style: TextStyle(fontSize: Utils.getScaledValue(context, 15)),
+  void applyBulkMarksToAll() {
+    if (bulkMarksController.text.isEmpty) {
+      Utils.showSnackBar(
+          message: "Silakan masukkan nilai terlebih dahulu", context: context);
+      return;
+    }
+
+    int bulkMark = int.tryParse(bulkMarksController.text) ?? 0;
+    int totalMarks = _selectedExamTimetableSubject?.totalMarks ?? 0;
+
+    if (bulkMark > totalMarks) {
+      Utils.showSnackBar(
+          message: "Nilai tidak boleh melebihi nilai maksimum ($totalMarks)",
+          context: context);
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Konfirmasi"),
+        content:
+            Text("Semua siswa akan mendapatkan nilai $bulkMark. Lanjutkan?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal"),
           ),
-          const SizedBox(
-            width: 20,
-          ),
-          Expanded(
-            child: CustomTextContainer(
-              textKey: studentDetails.fullName ?? "",
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: Utils.getScaledValue(context, 15)),
-            ),
-          ),
-          const SizedBox(
-            width: 20,
-          ),
-          SizedBox(
-            width: 85,
-            height: 50,
-            child: CustomTextFieldContainer(
-              hintTextKey: "",
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              bottomPadding: 0,
-              textEditingController: controller,
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              keyboardType: TextInputType.number,
-            ),
+          TextButton(
+            onPressed: () {
+              for (var controller in marksControllers) {
+                controller.text = bulkMark.toString();
+              }
+              Navigator.pop(context);
+              Utils.showSnackBar(
+                  message: "Nilai berhasil diterapkan ke semua siswa",
+                  context: context);
+            },
+            child: const Text("Ya"),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStudentsContainer() {
-    TextStyle titleStyle = TextStyle(
-      fontSize: Utils.getScaledValue(context, 16),
-      fontWeight: FontWeight.w600,
-    );
-    return Align(
-      alignment: Alignment.topCenter,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.only(
-            top: Utils.appContentTopScrollPadding(context: context) + 145,
-            bottom: 70),
-        child: BlocConsumer<StudentsByClassSectionCubit,
-            StudentsByClassSectionState>(
-          listener: (context, state) {
-            if (state is StudentsByClassSectionFetchSuccess) {
-              //Setting up marks text editing controllers before build
-              setupMarksInitialValues(state.studentDetailsList);
-            }
-          },
-          builder: (context, state) {
-            if (state is StudentsByClassSectionFetchSuccess) {
-              if (state.studentDetailsList.isEmpty) {
-                return Center(
-                  child: Text(
-                    "Tidak ada hasil ujian",
-                    style: TextStyle(
-                      fontSize: Utils.getScaledValue(context, 18),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                );
-              }
-              return Column(
+  // New UI Components
+  Widget _buildAnimatedHeader() {
+    return SlideInDown(
+      duration: Duration(milliseconds: 800),
+      child: Container(
+        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Row(
+          children: [
+            // Back button with smaller padding
+            _buildGlowingIconButton(
+              Icons.arrow_back_rounded,
+              () {
+                HapticFeedback.mediumImpact();
+                Get.back();
+              },
+            ),
+
+            SizedBox(width: 16),
+
+            // Title and subtitle in column
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.all(appContentHorizontalPadding),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                    ),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: 45,
-                          decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.only(
-                                  topRight: Radius.circular(5.0),
-                                  topLeft: Radius.circular(5.0)),
-                              color: Theme.of(context).colorScheme.tertiary),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: appContentHorizontalPadding,
-                              vertical: 10),
-                          child: Row(
-                            children: [
-                              CustomTextContainer(
-                                textKey: "No",
-                                style: titleStyle,
-                              ),
-                              const SizedBox(
-                                width: 20,
-                              ),
-                              Expanded(
-                                child: CustomTextContainer(
-                                  textKey: nameKey,
-                                  style: titleStyle,
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 20,
-                              ),
-                              CustomTextContainer(
-                                textKey:
-                                    "${Utils.getTranslatedLabel(totalMarksKey)} ${_selectedExamTimetableSubject?.totalMarks}",
-                                style: titleStyle,
-                              ),
-                            ],
-                          ),
+                  Text(
+                    'Hasil Ujian',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      height: 1.1,
+                      letterSpacing: 0.5,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black26,
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
                         ),
-                        ...List.generate(state.studentDetailsList.length,
-                            (index) {
-                          return _buildStudentContainer(
-                            controller: marksControllers[index],
-                            studentDetails: state.studentDetailsList[index],
-                            index: index,
-                          );
-                        }),
                       ],
                     ),
                   ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Input dan kelola nilai ujian siswa',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ],
-              );
-            } else if (state is StudentsByClassSectionFetchFailure) {
-              return Center(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      top: topPaddingOfErrorAndLoadingContainer),
-                  child: ErrorContainer(
-                    errorMessage: state.errorMessage,
-                    onTapRetry: () {
-                      if (state.errorMessage.contains("Ujian belum selesai")) {
-                        // For this specific error, guide the user to select a different exam
-                        Utils.showSnackBar(
-                            message:
-                                "Silakan pilih ujian yang telah selesai untuk menginput nilai",
-                            context: context);
-                      } else {
-                        // For other errors, retry
-                        getStudents();
-                      }
-                    },
-                  ),
-                ),
-              );
-            } else {
-              return Center(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      top: topPaddingOfErrorAndLoadingContainer),
-                  child: CustomCircularProgressIndicator(
-                    indicatorColor: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              );
-            }
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedBuilder(
+        animation: _pulseAnimation,
+        builder: (context, child) {
+          return Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.12),
+              boxShadow: [
+                BoxShadow(
+                  color: _highlightColor
+                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
+                  blurRadius: 12 * (1 + _pulseAnimation.value),
+                  spreadRadius: 2 * _pulseAnimation.value,
+                )
+              ],
+              border: Border.all(
+                color: Colors.white
+                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 24,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSearchAndFilter() {
+    return SlideInUp(
+      duration: Duration(milliseconds: 800),
+      child: Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          children: [
+            _buildSearchBar(),
+            SizedBox(height: 20),
+            _buildFilterSection(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return FadeInDown(
+      duration: Duration(milliseconds: 600),
+      child: Container(
+        height: 55,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 10,
+              offset: Offset(0, 5),
+            ),
+          ],
+        ),
+        child: TextField(
+          controller: searchController,
+          decoration: InputDecoration(
+            hintText: 'Cari siswa...',
+            prefixIcon: Icon(Icons.search, color: _primaryColor),
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          ),
+          onChanged: (value) {
+            // Implement search functionality here
+            setState(() {});
           },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterSection() {
+    return BlocBuilder<ClassesCubit, ClassesState>(
+      builder: (context, state) {
+        return FadeInDown(
+          duration: Duration(milliseconds: 700),
+          child: Container(
+            padding: EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: _primaryColor.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.filter_alt_rounded, color: _primaryColor),
+                        SizedBox(width: 10),
+                        Text(
+                          'Filter Hasil Ujian',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: _primaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          if (state is ClassesFetchSuccess) {
+                            changeSelectedClassSection(
+                                context
+                                    .read<ClassesCubit>()
+                                    .getAllClasses()
+                                    .firstOrNull,
+                                fetchNewSubjects: true);
+                          }
+                        });
+                      },
+                      child: Text(
+                        'Reset',
+                        style: TextStyle(color: _primaryColor),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 15),
+
+                // Class Section Dropdown
+                BlocBuilder<ClassesCubit, ClassesState>(
+                  builder: (context, state) {
+                    if (state is ClassesFetchSuccess) {
+                      List<ClassSection> classes =
+                          context.read<ClassesCubit>().getAllClasses();
+                      return _buildDropdown(
+                        value: _selectedClassSection,
+                        items: classes
+                            .map((cls) => DropdownMenuItem<ClassSection>(
+                                  value: cls,
+                                  child: Text(Utils()
+                                      .cleanClassName(cls.fullName ?? "")),
+                                ))
+                            .toList(),
+                        onChanged: (value) {
+                          changeSelectedClassSection(value);
+                        },
+                        icon: Icons.school_rounded,
+                        label: 'Pilih Kelas',
+                      );
+                    }
+                    return Container();
+                  },
+                ),
+
+                SizedBox(height: 15),
+
+                // Exam Dropdown
+                BlocBuilder<ExamsCubit, ExamsState>(
+                  builder: (context, state) {
+                    if (state is ExamsFetchSuccess) {
+                      return _buildDropdown(
+                        value: _selectedExam,
+                        items: state.examList
+                            .map((exam) => DropdownMenuItem<Exam>(
+                                  value: exam,
+                                  child: Text(exam.examName ?? ""),
+                                ))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedExam = value;
+                            _selectedExamTimetableSubject =
+                                _selectedExam?.examTimetable?.firstOrNull;
+                            getStudents();
+                          });
+                        },
+                        icon: Icons.assignment_outlined,
+                        label: 'Pilih Ujian',
+                      );
+                    }
+                    return Container();
+                  },
+                ),
+
+                SizedBox(height: 15),
+
+                // Subject Dropdown
+                BlocBuilder<ExamsCubit, ExamsState>(
+                  builder: (context, examState) {
+                    if (examState is ExamsFetchSuccess &&
+                        _selectedExam != null) {
+                      List<ExamTimeTable> subjects = _selectedExam
+                              ?.examTimetable
+                              ?.where((timetable) =>
+                                  timetable.subjectName?.isNotEmpty ?? false)
+                              .toList() ??
+                          [];
+
+                      return _buildDropdown(
+                        value: _selectedExamTimetableSubject,
+                        items: subjects
+                            .map((subject) => DropdownMenuItem<ExamTimeTable>(
+                                  value: subject,
+                                  child: Text(subject.subjectName ?? ""),
+                                ))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedExamTimetableSubject = value;
+                            getStudents();
+                          });
+                        },
+                        icon: Icons.book_outlined,
+                        label: 'Pilih Mata Pelajaran',
+                      );
+                    }
+                    return Container();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDropdown<T>({
+    required T? value,
+    required List<DropdownMenuItem<T>> items,
+    required Function(T?) onChanged,
+    required IconData icon,
+    required String label,
+  }) {
+    return DropdownButtonFormField<T>(
+      value: value,
+      decoration: InputDecoration(
+        prefixIcon: Icon(icon, color: _primaryColor),
+        labelText: label,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: _primaryColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: _primaryColor),
+        ),
+      ),
+      items: items,
+      onChanged: onChanged,
+      isExpanded: true,
+      hint: Text(
+        label,
+        style: TextStyle(
+          fontSize: 14,
+          color: Colors.grey[600],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBulkMarksAssignment() {
+    return FadeInUp(
+      duration: Duration(milliseconds: 600),
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        padding: EdgeInsets.all(20),
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: _primaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.assignment_turned_in_rounded,
+                    color: _primaryColor,
+                    size: 20,
+                  ),
+                ),
+                SizedBox(width: 12),
+                Text(
+                  "Nilai Massal",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[800],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey[300]!),
+                    ),
+                    child: TextField(
+                      controller: bulkMarksController,
+                      textAlign: TextAlign.center,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: "Masukkan nilai untuk semua siswa",
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(horizontal: 15),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 16),
+                InkWell(
+                  onTap: applyBulkMarksToAll,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    height: 50,
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [_primaryColor, _accentColor],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _primaryColor.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Terapkan",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: 14,
+                  color: Colors.grey[500],
+                ),
+                SizedBox(width: 6),
+                Text(
+                  "Tindakan ini akan mengubah nilai siswa",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey[500],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStudentContainer({
+    required StudentDetails studentDetails,
+    required TextEditingController controller,
+    required int index,
+  }) {
+    // Calculate a unique hue for each student card based on their index
+    final double hueValue = (index * 15) % 360;
+    final Color accentColor =
+        HSLColor.fromAHSL(0.2, hueValue, 0.6, 0.8).toColor();
+
+    return AnimationConfiguration.staggeredList(
+      position: index,
+      duration: Duration(milliseconds: 450),
+      child: SlideAnimation(
+        horizontalOffset: 50.0,
+        child: FadeInAnimation(
+          child: Container(
+            margin: EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: _primaryColor.withOpacity(0.05),
+                  blurRadius: 15,
+                  offset: Offset(0, 5),
+                ),
+                BoxShadow(
+                  color: accentColor.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: Offset(0, 2),
+                  spreadRadius: 2,
+                ),
+              ],
+              border: Border.all(
+                color: Colors.grey.shade100,
+                width: 1.0,
+              ),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                splashColor: _primaryColor.withOpacity(0.05),
+                highlightColor: Colors.transparent,
+                onTap: () {
+                  // Optional: Add focus to the text field when tapped
+                  FocusScope.of(context).requestFocus(FocusNode());
+                  controller.selection = TextSelection(
+                      baseOffset: 0, extentOffset: controller.text.length);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Student avatar/number container with gradient
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              _primaryColor.withOpacity(0.8),
+                              _accentColor,
+                            ],
+                          ),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: _primaryColor.withOpacity(0.2),
+                              blurRadius: 8,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            (index + 1).toString().padLeft(2, '0'),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black26,
+                                  blurRadius: 2,
+                                  offset: Offset(0, 1),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 16),
+
+                      // Student info
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                // Student name with icon
+
+                                Expanded(
+                                  child: Text(
+                                    studentDetails.fullName ?? "",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.grey[800],
+                                      letterSpacing: 0.2,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 6),
+                            if (studentDetails.rollNumber != null)
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.badge_outlined,
+                                    size: 14,
+                                    color: Colors.grey[500],
+                                  ),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    "No. Absen: ${studentDetails.rollNumber}",
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
+                      ),
+
+                      // Score input with animated container
+                      Container(
+                        width: 76,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.grey[100]!,
+                              Colors.grey[50]!,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey[300]!),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.1),
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // Background score indicator
+                            if (controller.text.isNotEmpty)
+                              AnimatedContainer(
+                                duration: Duration(milliseconds: 300),
+                                height: double.infinity,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(11),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      _primaryColor.withOpacity(0.05),
+                                      _accentColor.withOpacity(0.08),
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                            // Input field
+                            TextField(
+                              controller: controller,
+                              textAlign: TextAlign.center,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: _primaryColor,
+                                letterSpacing: 0.5,
+                              ),
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.zero,
+                                hintText: "0",
+                                hintStyle: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -327,331 +983,655 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen> {
         StudentsByClassSectionState>(
       builder: (context, studentState) {
         if (studentState is StudentsByClassSectionFetchSuccess) {
-          return Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              padding: EdgeInsets.all(appContentHorizontalPadding),
-              decoration: BoxDecoration(boxShadow: const [
-                BoxShadow(color: Colors.black12, blurRadius: 1, spreadRadius: 1)
-              ], color: Theme.of(context).colorScheme.surface),
-              width: MediaQuery.of(context).size.width,
-              height: 70,
-              child: BlocConsumer<SubmitExamMarksCubit, SubmitExamMarksState>(
-                listener: (context, state) {
-                  if (state is SubmitExamMarksSubmitSuccess) {
-                    Utils.showSnackBar(
-                        message: resultAddedSuccessfullyKey, context: context);
-                  } else if (state is SubmitExamMarksSubmitFailure) {
-                    Utils.showSnackBar(
-                        message: state.errorMessage, context: context);
-                  }
-                },
-                builder: (context, state) {
-                  return CustomRoundedButton(
-                    height: 40,
-                    widthPercentage: 1.0,
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    buttonTitle: submitResultKey,
-                    showBorder: false,
-                    onTap: () {
-                      if (state is SubmitExamMarksSubmitInProgress) {
-                        return;
-                      } else {
-                        for (int i = 0; i < marksControllers.length; i++) {
-                          //checking for empty or wrong values
-                          if (marksControllers[i].text.trim().isEmpty) {
-                            Utils.showSnackBar(
-                                message: pleaseAddMarksToAllStudentsKey,
-                                context: context);
-                            return;
-                          } else if ((int.tryParse(marksControllers[i].text) ??
-                                  0) >
-                              (_selectedExamTimetableSubject?.totalMarks ??
-                                  0)) {
-                            Utils.showSnackBar(
-                                message: cannotAddMoreMarksThenTotalKey,
-                                context: context);
-                            return;
-                          }
-                        }
-                        if (marksControllers
-                            .any((element) => element.text.trim().isEmpty)) {
-                          return;
-                        }
-                        context
-                            .read<SubmitExamMarksCubit>()
-                            .submitOfflineExamMarks(
-                              classSubjectId:
-                                  _selectedExamTimetableSubject?.subjectId ?? 0,
-                              examId: _selectedExam?.examID ?? 0,
-                              marksDetails: List.generate(
-                                marksControllers.length,
-                                (index) => (
-                                  obtainedMarks: int.tryParse(
-                                          marksControllers[index].text) ??
-                                      0,
-                                  studentId: studentState
-                                          .studentDetailsList[index].id ??
-                                      0
+          return Container(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 20,
+                  spreadRadius: 5,
+                  offset: Offset(0, -5),
+                ),
+              ],
+            ),
+            child: BlocConsumer<SubmitExamMarksCubit, SubmitExamMarksState>(
+              listener: (context, state) {
+                if (state is SubmitExamMarksSubmitSuccess) {
+                  Utils.showSnackBar(
+                      message: resultAddedSuccessfullyKey, context: context);
+                } else if (state is SubmitExamMarksSubmitFailure) {
+                  Utils.showSnackBar(
+                      message: state.errorMessage, context: context);
+                }
+              },
+              builder: (context, state) {
+                return AnimatedBuilder(
+                  animation: _pulseAnimation,
+                  builder: (context, child) {
+                    return Container(
+                      height: 60,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            _primaryColor,
+                            _accentColor,
+                            Color(0xFF8A2A2A),
+                          ],
+                          stops: [0.0, 0.6, 1.0],
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: _primaryColor.withOpacity(0.3),
+                            blurRadius: 12 + (8 * _pulseAnimation.value),
+                            offset: Offset(0, 4),
+                            spreadRadius: -2 + (1 * _pulseAnimation.value),
+                          ),
+                          BoxShadow(
+                            color: _glowColor.withOpacity(
+                                0.1 + (0.1 * _pulseAnimation.value)),
+                            blurRadius: 20 + (10 * _pulseAnimation.value),
+                            offset: Offset(0, 2),
+                            spreadRadius: 0,
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            // Add haptic feedback for better user experience
+                            HapticFeedback.mediumImpact();
+
+                            if (state is SubmitExamMarksSubmitInProgress) {
+                              return;
+                            } else {
+                              for (int i = 0;
+                                  i < marksControllers.length;
+                                  i++) {
+                                if (marksControllers[i].text.trim().isEmpty) {
+                                  Utils.showSnackBar(
+                                      message: pleaseAddMarksToAllStudentsKey,
+                                      context: context);
+                                  return;
+                                } else if ((int.tryParse(
+                                            marksControllers[i].text) ??
+                                        0) >
+                                    (_selectedExamTimetableSubject
+                                            ?.totalMarks ??
+                                        0)) {
+                                  Utils.showSnackBar(
+                                      message: cannotAddMoreMarksThenTotalKey,
+                                      context: context);
+                                  return;
+                                }
+                              }
+
+                              context
+                                  .read<SubmitExamMarksCubit>()
+                                  .submitOfflineExamMarks(
+                                    classSubjectId:
+                                        _selectedExamTimetableSubject
+                                                ?.subjectId ??
+                                            0,
+                                    examId: _selectedExam?.examID ?? 0,
+                                    marksDetails: List.generate(
+                                      marksControllers.length,
+                                      (index) => (
+                                        obtainedMarks: int.tryParse(
+                                                marksControllers[index].text) ??
+                                            0,
+                                        studentId: studentState
+                                                .studentDetailsList[index].id ??
+                                            0
+                                      ),
+                                    ),
+                                  );
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(16),
+                          highlightColor: Colors.white.withOpacity(0.1),
+                          splashColor: Colors.white.withOpacity(0.2),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Subtle animated pattern
+                              Positioned.fill(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: ShaderMask(
+                                    shaderCallback: (Rect bounds) {
+                                      return LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          Colors.white.withOpacity(0.1),
+                                          Colors.white.withOpacity(0.05),
+                                        ],
+                                      ).createShader(bounds);
+                                    },
+                                    blendMode: BlendMode.srcIn,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            Colors.white.withOpacity(0.1),
+                                            Colors.white.withOpacity(0.05),
+                                          ],
+                                        ),
+                                      ),
+                                      child: CustomPaint(
+                                        painter: PatternPainter(
+                                          amplitude:
+                                              4 + (2 * _pulseAnimation.value),
+                                          color: Colors.white.withOpacity(0.07),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            );
-                      }
-                    },
-                    child: state is SubmitExamMarksSubmitInProgress
-                        ? const CustomCircularProgressIndicator(
-                            strokeWidth: 2,
-                            widthAndHeight: 20,
-                          )
-                        : null,
-                  );
-                },
-              ),
+
+                              // Button content
+                              Center(
+                                child: state is SubmitExamMarksSubmitInProgress
+                                    ? SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          // Animated icon
+                                          AnimatedBuilder(
+                                            animation: _pulseAnimation,
+                                            builder: (context, child) {
+                                              return Transform.scale(
+                                                scale: 1.0 +
+                                                    0.1 * _pulseAnimation.value,
+                                                child: Container(
+                                                  padding: EdgeInsets.all(6),
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: Colors.white
+                                                        .withOpacity(0.15 +
+                                                            0.05 *
+                                                                _pulseAnimation
+                                                                    .value),
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.check_circle_outline,
+                                                    color: Colors.white,
+                                                    size: 20,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                          SizedBox(width: 12),
+
+                                          // Text with subtle animation
+                                          Text(
+                                            Utils.getTranslatedLabel(
+                                                submitResultKey),
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 17,
+                                              letterSpacing: 0.5,
+                                              shadows: [
+                                                Shadow(
+                                                  color: Colors.black26,
+                                                  offset: Offset(0, 1),
+                                                  blurRadius: 2,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+
+                              // Top highlight for 3D effect
+                              Positioned(
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                height: 1.5,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                      colors: [
+                                        Colors.white.withOpacity(0.1),
+                                        Colors.white.withOpacity(0.3),
+                                        Colors.white.withOpacity(0.1),
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(16),
+                                      topRight: Radius.circular(16),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
             ),
           );
         }
-        return const SizedBox();
+        return SizedBox();
       },
     );
   }
 
-  Widget _buildAppbarAndFilters() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: BlocConsumer<ClassesCubit, ClassesState>(
+  Widget _buildStudentsList() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: BlocConsumer<StudentsByClassSectionCubit,
+          StudentsByClassSectionState>(
         listener: (context, state) {
-          if (state is ClassesFetchSuccess) {
-            if (_selectedClassSection == null) {
-              print("Initializing selected class section");
-              changeSelectedClassSection(
-                  context.read<ClassesCubit>().getAllClasses().firstOrNull,
-                  fetchNewSubjects: false);
-            }
+          if (state is StudentsByClassSectionFetchSuccess) {
+            setupMarksInitialValues(state.studentDetailsList);
           }
         },
         builder: (context, state) {
-          return Column(
-            children: [
-              const CustomAppbar(titleKey: offlineExamResultKey),
-              AppbarFilterBackgroundContainer(
-                height: 130,
-                child: LayoutBuilder(builder: (context, boxConstraints) {
-                  return Column(
-                    children: [
-                      SizedBox(
-                        height: 40,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            FilterButton(
-                              onTap: () {
-                                if (state is ClassesFetchSuccess &&
-                                    context
-                                        .read<ClassesCubit>()
-                                        .getAllClasses()
-                                        .isNotEmpty) {
-                                  Utils.showBottomSheet(
-                                      child: FilterSelectionBottomsheet<
-                                          ClassSection>(
-                                        onSelection: (value) {
-                                          changeSelectedClassSection(value!);
-                                          Get.back();
-                                        },
-                                        selectedValue: _selectedClassSection!,
-                                        titleKey: classKey,
-                                        values: context
-                                            .read<ClassesCubit>()
-                                            .getAllClasses(),
-                                      ),
-                                      context: context);
-                                }
-                              },
-                              titleKey: _selectedClassSection?.id == null
-                                  ? classKey
-                                  : Utils().cleanClassName(
-                                      (_selectedClassSection?.fullName ?? "")),
-                              width: boxConstraints.maxWidth * (0.48),
-                            ),
-                            BlocConsumer<ExamsCubit, ExamsState>(
-                              listener: (context, state) {
-                                if (state is ExamsFetchSuccess) {
-                                  print(
-                                      "Exams fetched successfully. Total exams: ${state.examList.length}");
-                                  _selectedExam = state.examList.firstOrNull;
-                                  print(
-                                      "Selected exam: ${_selectedExam?.examName}, ID: ${_selectedExam?.examID}");
-                                  _selectedExamTimetableSubject =
-                                      _selectedExam?.examTimetable?.firstOrNull;
-                                  print(
-                                      "Selected subject: ${_selectedExamTimetableSubject?.subjectName}, ID: ${_selectedExamTimetableSubject?.subjectId}");
-                                  setState(() {});
+          if (state is StudentsByClassSectionFetchSuccess) {
+            if (state.studentDetailsList.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.assignment_outlined,
+                      size: 80,
+                      color: Colors.grey[400],
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      "Tidak ada hasil ujian",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
 
-                                  getStudents();
-                                }
-                              },
-                              builder: (context, state) {
-                                return FilterButton(
-                                  onTap: () {
-                                    if (state is ExamsFetchSuccess &&
-                                        state.examList.isNotEmpty) {
-                                      Utils.showBottomSheet(
-                                          child:
-                                              FilterSelectionBottomsheet<Exam>(
-                                            selectedValue: _selectedExam!,
-                                            titleKey: examKey,
-                                            values: state.examList,
-                                            onSelection: (value) {
-                                              Get.back();
-                                              if (value != _selectedExam) {
-                                                _selectedExam = value;
-                                                _selectedExamTimetableSubject =
-                                                    _selectedExam?.examTimetable
-                                                        ?.firstOrNull;
-                                                getStudents();
-                                                setState(() {});
-                                              }
-                                            },
-                                          ),
-                                          context: context);
-                                    }
-                                  },
-                                  titleKey: _selectedExam?.examID == null
-                                      ? examKey
-                                      : _selectedExam?.examName ?? "",
-                                  width: boxConstraints.maxWidth * 0.48,
-                                );
-                              },
+            List<StudentDetails> filteredStudents = state.studentDetailsList;
+            if (searchController.text.isNotEmpty) {
+              filteredStudents = state.studentDetailsList
+                  .where((student) => (student.fullName ?? "")
+                      .toLowerCase()
+                      .contains(searchController.text.toLowerCase()))
+                  .toList();
+            }
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Exam Info Header
+                FadeInUp(
+                  duration: Duration(milliseconds: 500),
+                  child: Container(
+                    margin: EdgeInsets.only(bottom: 16),
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          _accentColor.withOpacity(0.9),
+                          _primaryColor,
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _primaryColor.withOpacity(0.3),
+                          blurRadius: 10,
+                          offset: Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(
+                                Icons.assignment_outlined,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _selectedExam?.examName ?? "",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    _selectedExamTimetableSubject
+                                            ?.subjectName ??
+                                        "",
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.9),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      SizedBox(
-                        height: 40,
-                        child: BlocBuilder<ExamsCubit, ExamsState>(
-                          builder: (context, examState) {
-                            return FilterButton(
-                              // Perbaikan aziz
-                              onTap: () {
-                                if (examState is ExamsFetchSuccess) {
-                                  if ((_selectedExam?.examTimetable ?? [])
-                                      .isEmpty) {
-                                    return;
-                                  }
-                                  Utils.showBottomSheet(
-                                    child: FilterSelectionBottomsheet<
-                                        ExamTimeTable>(
-                                      selectedValue:
-                                          _selectedExamTimetableSubject!,
-                                      titleKey: subjectKey,
-                                      values: _selectedExam?.examTimetable
-                                              ?.where((timetable) =>
-                                                  timetable.subjectName
-                                                      ?.isNotEmpty ??
-                                                  false)
-                                              .toList() ??
-                                          [],
-                                      onSelection: (value) {
-                                        _selectedExamTimetableSubject = value;
-                                        getStudents();
-                                        Get.back();
-                                        setState(() {});
-                                      },
-                                    ),
-                                    context: context,
-                                  );
-                                }
-                              },
-                              titleKey:
-                                  _selectedExamTimetableSubject?.id == null
-                                      ? subjectKey
-                                      : _selectedExamTimetableSubject
-                                              ?.subjectName ??
-                                          "",
-                              width: boxConstraints.maxWidth,
-                            );
-                          },
+                        SizedBox(height: 16),
+                        Row(
+                          children: [
+                            _buildExamInfoItem(
+                              icon: Icons.class_outlined,
+                              label: Utils().cleanClassName(
+                                  _selectedClassSection?.fullName ?? ""),
+                            ),
+                            SizedBox(width: 16),
+                            _buildExamInfoItem(
+                              icon: Icons.people_outline,
+                              label: "${state.studentDetailsList.length} Siswa",
+                            ),
+                            SizedBox(width: 16),
+                            _buildExamInfoItem(
+                              icon: Icons.grading_outlined,
+                              label:
+                                  "Nilai Max: ${_selectedExamTimetableSubject?.totalMarks ?? 0}",
+                            ),
+                          ],
                         ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Bulk marks assignment
+                _buildBulkMarksAssignment(),
+
+                // Students list heading with animation
+                FadeInLeft(
+                  duration: Duration(milliseconds: 600),
+                  child: Container(
+                    margin: EdgeInsets.only(bottom: 16),
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [
+                          _primaryColor.withOpacity(0.1),
+                          Colors.transparent,
+                        ],
                       ),
-                    ],
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: _primaryColor.withOpacity(0.1),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: _primaryColor.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.people_alt_outlined,
+                            color: _primaryColor,
+                            size: 16,
+                          ),
+                        ),
+                        SizedBox(width: 12),
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "Daftar Siswa ",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: _primaryColor,
+                                ),
+                              ),
+                              TextSpan(
+                                text: "(${filteredStudents.length})",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: _primaryColor.withOpacity(0.7),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Students list
+                ...List.generate(filteredStudents.length, (index) {
+                  int originalIndex =
+                      state.studentDetailsList.indexOf(filteredStudents[index]);
+                  return _buildStudentContainer(
+                    controller: marksControllers[originalIndex],
+                    studentDetails: filteredStudents[index],
+                    index: index,
                   );
                 }),
+                SizedBox(height: 100), // Bottom padding for scroll
+              ],
+            );
+          } else if (state is StudentsByClassSectionFetchFailure) {
+            return Center(
+              child: ErrorContainer(
+                errorMessage: state.errorMessage,
+                onTapRetry: () {
+                  if (state.errorMessage.contains("Ujian belum selesai")) {
+                    Utils.showSnackBar(
+                        message:
+                            "Silakan pilih ujian yang telah selesai untuk menginput nilai",
+                        context: context);
+                  } else {
+                    getStudents();
+                  }
+                },
               ),
-            ],
-          );
+            );
+          } else {
+            return Center(
+              child: Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: 8,
+                  itemBuilder: (_, __) => Container(
+                    margin: EdgeInsets.only(bottom: 12),
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
         },
+      ),
+    );
+  }
+
+  Widget _buildExamInfoItem({required IconData icon, required String label}) {
+    return Expanded(
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: Colors.white.withOpacity(0.9),
+          ),
+          SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.9),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    print('TeacherExamResultScreen()');
     return Scaffold(
-      body: Stack(
-        children: [
-          BlocBuilder<ExamsCubit, ExamsState>(builder: (context, examState) {
-            return BlocBuilder<ClassesCubit, ClassesState>(
-              builder: (context, state) {
-                if (state is ClassesFetchSuccess &&
-                    examState is ExamsFetchSuccess) {
-                  if (examState.examList.isEmpty) {
-                    return Center(
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          top: Utils.appContentTopScrollPadding(
-                                  context: context) +
-                              10,
-                        ),
-                        child: CustomTextContainer(
-                          textKey: Utils.getTranslatedLabel(
-                              'Tidak Ada Hasil Ujian Offline'),
-                        ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [
+              _primaryColor,
+              Color(0xFF5A2223), // Softer deeper maroon
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              _buildAnimatedHeader(),
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.only(top: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _glowColor.withOpacity(0.2),
+                        blurRadius: 20,
+                        spreadRadius: 5,
+                        offset: Offset(0, -5),
                       ),
-                    );
-                  }
-                  return Stack(
-                    children: [
-                      _buildStudentsContainer(),
-                      _buildSubmitButton(),
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 30,
+                        offset: Offset(0, -10),
+                      ),
                     ],
-                  );
-                }
-                if (state is ClassesFetchFailure) {
-                  return Center(
-                      child: ErrorContainer(
-                    errorMessage: state.errorMessage,
-                    onTapRetry: () {
-                      context.read<ClassesCubit>().getClasses();
-                    },
-                  ));
-                }
-                if (examState is ExamsFetchFailure) {
-                  return Center(
-                      child: ErrorContainer(
-                    errorMessage: examState.errorMessage,
-                    onTapRetry: () {
-                      getExams();
-                    },
-                  ));
-                }
-                return Center(
-                  child: CustomCircularProgressIndicator(
-                    indicatorColor: Theme.of(context).colorScheme.primary,
                   ),
-                );
-              },
-            );
-          }),
-          _buildAppbarAndFilters(),
-        ],
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                    child: BlocBuilder<ClassesCubit, ClassesState>(
+                      builder: (context, state) {
+                        if (state is ClassesFetchSuccess) {
+                          return Stack(
+                            children: [
+                              // Main content with search, filter and student list
+                              SingleChildScrollView(
+                                padding: EdgeInsets.only(bottom: 70),
+                                physics: BouncingScrollPhysics(),
+                                child: Column(
+                                  children: [
+                                    _buildSearchAndFilter(),
+                                    _buildStudentsList(),
+                                  ],
+                                ),
+                              ),
+
+                              // Submit button at bottom
+                              Positioned(
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                child: _buildSubmitButton(),
+                              ),
+                            ],
+                          );
+                        }
+                        if (state is ClassesFetchFailure) {
+                          return Center(
+                            child: ErrorContainer(
+                              errorMessage: state.errorMessage,
+                              onTapRetry: () {
+                                context.read<ClassesCubit>().getClasses();
+                              },
+                            ),
+                          );
+                        }
+                        return Center(
+                          child: CircularProgressIndicator(
+                            color: _primaryColor,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 }
-
-// Wherever your API call is handled (likely in the studentRepository.dart file)
-// Update the error handling to provide a more user-friendly message for this specific error
-
