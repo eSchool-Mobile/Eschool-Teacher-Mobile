@@ -1242,6 +1242,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                             letterSpacing: 0.2,
                             fontWeight: FontWeight.w500,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       SizedBox(height: 2),

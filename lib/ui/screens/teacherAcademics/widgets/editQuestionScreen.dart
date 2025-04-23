@@ -61,15 +61,15 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
   @override
   void initState() {
     super.initState();
-    nameController =
-        TextEditingController(text: widget.questionData?['name'] ?? '');
+    nameController = TextEditingController(
+        text: stripHtmlTags(widget.questionData?['name'] ?? ''));
     selectedOrderType = widget.questionData?['typeOrder'] ?? 'numeric';
-    questionController =
-        TextEditingController(text: widget.questionData?['question'] ?? '');
+    questionController = TextEditingController(
+        text: stripHtmlTags(widget.questionData?['question'] ?? ''));
     pointController = TextEditingController(
         text: widget.questionData?['default_point']?.toString() ?? '100');
-    noteController =
-        TextEditingController(text: widget.questionData?['note'] ?? '');
+    noteController = TextEditingController(
+        text: stripHtmlTags(widget.questionData?['note'] ?? ''));
     idBankSoal = widget.questionData?['idBankSoal'];
     selectedType = widget.questionData?['type'] ?? 'multiple_choice';
     version = 1;
@@ -86,8 +86,14 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
     }
 
     if (widget.questionData?['options'] != null) {
-      options =
-          List<Map<String, dynamic>>.from(widget.questionData!['options']);
+      options = List<Map<String, dynamic>>.from(
+          widget.questionData!['options'].map((opt) {
+        return {
+          'text': stripHtmlTags(opt['text'] ?? ''),
+          'percentage': opt['percentage'] ?? 0,
+          'feedback': stripHtmlTags(opt['feedback'] ?? ''),
+        };
+      }).toList());
     } else {
       if (selectedType == 'multiple_choice') {
         options = List.generate(
@@ -178,6 +184,21 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
     }
 
     return result;
+  }
+
+  String stripHtmlTags(String htmlString) {
+    if (htmlString == null || htmlString.isEmpty) {
+      return '';
+    }
+    // Remove all HTML tags
+    final strippedString = htmlString.replaceAll(RegExp(r'<[^>]*>'), '');
+    // Decode HTML entities
+    return strippedString
+        .replaceAll('&nbsp;', ' ')
+        .replaceAll('&amp;', '&')
+        .replaceAll('&lt;', '<')
+        .replaceAll('&gt;', '>')
+        .replaceAll('&quot;', '"');
   }
 
   void _onOrderTypeChanged(String type) {

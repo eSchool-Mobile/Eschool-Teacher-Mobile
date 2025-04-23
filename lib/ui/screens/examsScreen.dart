@@ -515,6 +515,11 @@ class _ExamsScreenState extends State<ExamsScreen>
 
     final statusColor = _getStatusColor(statusKey);
 
+    // Define header colors to match page header
+    final headerStartColor = primaryColor; // 0xFF8B2635
+    final headerEndColor =
+        Color(0xFF5A2223); // Deeper shade matching page header
+
     // Generate random angle for the background pattern
     final randomAngle = (index * 37) % 360;
 
@@ -580,7 +585,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                   ),
                   child: Column(
                     children: [
-                      // Header with status & date
+                      // Header with status & date - Updated to match page header gradient
                       ClipRRect(
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(20),
@@ -592,8 +597,8 @@ class _ExamsScreenState extends State<ExamsScreen>
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                statusColor.withOpacity(0.9),
-                                statusColor,
+                                headerStartColor,
+                                headerEndColor,
                               ],
                             ),
                           ),
@@ -667,7 +672,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Day container
+                            // Day container - Updated to match page header gradient
                             Container(
                               width: 65,
                               height: 80,
@@ -676,14 +681,14 @@ class _ExamsScreenState extends State<ExamsScreen>
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [
-                                    statusColor.withOpacity(0.8),
-                                    statusColor.withOpacity(0.6),
+                                    headerStartColor,
+                                    headerEndColor,
                                   ],
                                 ),
                                 borderRadius: BorderRadius.circular(14),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: statusColor.withOpacity(0.3),
+                                    color: headerStartColor.withOpacity(0.3),
                                     blurRadius: 10,
                                     offset: const Offset(2, 3),
                                   ),
@@ -843,26 +848,6 @@ class _ExamsScreenState extends State<ExamsScreen>
                     ],
                   ),
                 ),
-
-                // Decorative corner accent
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.2),
-                      borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(20),
-                        bottomLeft: Radius.circular(30),
-                      ),
-                    ),
-                    child: CustomPaint(
-                      painter: CornerDecoratorPainter(color: statusColor),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -962,8 +947,10 @@ class _ExamsScreenState extends State<ExamsScreen>
         ],
       ),
     ).animate().fadeIn(delay: 300.ms, duration: 600.ms).scale(
-        begin: const Offset(0.8, 0.8), end: const Offset(1.0, 1.0), 
-        duration: 600.ms, curve: Curves.easeOutQuint);
+        begin: const Offset(0.8, 0.8),
+        end: const Offset(1.0, 1.0),
+        duration: 600.ms,
+        curve: Curves.easeOutQuint);
   }
 
   Widget _buildLoadingShimmer() {

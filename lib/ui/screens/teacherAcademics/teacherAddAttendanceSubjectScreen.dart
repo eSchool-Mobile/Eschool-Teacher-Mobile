@@ -337,15 +337,15 @@ class _TeacherAddAttendanceScreenSubjectState
               listener: (context, submitAttendanceSubjectState) {
             if (submitAttendanceSubjectState
                 is SubmitAttendanceSubjectSuccess) {
-                SnackBarUtils.showSnackBar(
+              SnackBarUtils.showSnackBar(
                 context: context,
                 message: "✅ Berhasil menyimpan Kehadiran pelajaran!",
                 backgroundColor: Colors.green.shade700,
                 textColor: Colors.white,
-                );
+              );
 
-                // Optional: Add haptic feedback
-                HapticFeedback.mediumImpact();
+              // Optional: Add haptic feedback
+              HapticFeedback.mediumImpact();
               resetForm();
               Navigator.pop(context);
             } else if (submitAttendanceSubjectState
@@ -382,15 +382,37 @@ class _TeacherAddAttendanceScreenSubjectState
                       return;
                     }
 
-                    // // Update validation message
-                    // if (_selectedMateri.isEmpty) {
-                    //   Utils.showAnimatedSnackBar(
-                    //     message: "Materi pembelajaran wajib diisi! ✏️",
-                    //     context: context,
-                    //     isSuccess: false,
-                    //   );
-                    //   return;
-                    // }
+                    // Log detailed submission data
+                    print('=== ATTENDANCE SUBMISSION DATA ===');
+                    print('📅 Date: ${Utils.formatDate(_selectedDateTime)}');
+                    print(
+                        '🏫 Class: ${_selectedClassSection?.fullName} (ID: ${_selectedClassSection?.id})');
+                    print('📚 Timetable ID: $_selectedTimeTableId');
+                    print('⏱️ JP Count: $_selectedJumlahJp');
+                    print(
+                        '📝 Materi: ${_selectedMateri.isEmpty ? "(empty)" : _selectedMateri}');
+                    print('📎 Lampiran: ${_selectedLampiran ?? "(none)"}');
+                    print('👥 Attendance Report:');
+
+                    for (var attendance in attendanceReport) {
+                      String status = '';
+                      switch (attendance.status) {
+                        case StudentAttendanceStatus.present:
+                          status = '✅ Present';
+                          break;
+                        case StudentAttendanceStatus.absent:
+                          status = '❌ Absent';
+                          break;
+                        // case StudentAttendanceStatus.leave:
+                        //   status = '🏝️ Leave';
+                        //   break;
+                        default:
+                          status = '❓ Unknown';
+                      }
+                      print(
+                          '   Student ID: ${attendance.studentId} - Status: $status');
+                    }
+                    print('================================');
 
                     context
                         .read<SubmitAttendanceSubjectCubit>()
