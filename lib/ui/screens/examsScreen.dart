@@ -1676,432 +1676,569 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
         }
       });
 
+    // Group slots by date
+    Map<String, List<OfflineExamTimeTableSlot>> groupedByDate = {};
+    for (var slot in sortedSlots) {
+      if (slot.date == null) continue;
+
+      String formattedDate = '';
+      try {
+        final date = DateTime.parse(slot.date!);
+        formattedDate = Utils.formatDate(date);
+      } catch (e) {
+        continue;
+      }
+
+      if (!groupedByDate.containsKey(formattedDate)) {
+        groupedByDate[formattedDate] = [];
+      }
+      groupedByDate[formattedDate]!.add(slot);
+    }
+
     return CustomBottomsheet(
       titleLabelKey: exam.name ?? "Jadwal Ujian",
       child: Column(
-        mainAxisSize: MainAxisSize.min, // Fix for flex layout error
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Exam details card
-          Container(
-            margin: const EdgeInsets.only(bottom: 20),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  primaryColor.withOpacity(0.1),
-                  primaryColor.withOpacity(0.05),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: primaryColor.withOpacity(0.2),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: primaryColor.withOpacity(0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.school_rounded,
-                        color: primaryColor,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Kelas",
-                            style: GoogleFonts.poppins(
-                              color: Colors.grey[600],
-                              fontSize: 12,
-                            ),
-                          ),
-                          Text(
-                            Utils().cleanClassName(exam.className ?? "-"),
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.2),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                const Divider(height: 1),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    _buildExamInfoItem(
-                      icon: Icons.calendar_today_rounded,
-                      label: "Tanggal Mulai",
-                      value: exam.examStartingDate != null
-                          ? Utils.formatDate(
-                              DateTime.parse(exam.examStartingDate!))
-                          : "-",
-                    ),
-                    const SizedBox(width: 16),
-                    _buildExamInfoItem(
-                      icon: Icons.calendar_today_rounded,
-                      label: "Tanggal Selesai",
-                      value: exam.examEndingDate != null
-                          ? Utils.formatDate(
-                              DateTime.parse(exam.examEndingDate!))
-                          : "-",
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+          // Exam Header Card
+          _buildExamHeaderCard(context),
+          SizedBox(height: 20),
 
-          // Timeline of exam subjects - using Flexible instead of Expanded to fix layout issue
+          // Timetable content
           Flexible(
             child: sortedSlots.isEmpty
-                ? Center(
-                    child: Text(
-                      "Tidak ada jadwal tersedia",
+                ? _buildEmptyState()
+                : _buildTimetableContent(context, groupedByDate),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExamHeaderCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            primaryColor,
+            Color.lerp(primaryColor, Colors.black, 0.3) ?? primaryColor,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Exam title and class
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      exam.name ?? "Jadwal Ujian",
                       style: GoogleFonts.poppins(
-                        color: Colors.grey[600],
-                        fontSize: 15,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                    ),
+                    SizedBox(height: 4),
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        Utils().cleanClassName(exam.className ?? "-"),
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  )
-                : ListView.builder(
-                    shrinkWrap: true, // Add shrinkWrap to fix layout issue
-                    itemCount: sortedSlots.length,
-                    padding: const EdgeInsets.only(bottom: 32),
-                    itemBuilder: (context, index) {
-                      final slot = sortedSlots[index];
-                      final bool isLast = index == sortedSlots.length - 1;
-                      DateTime? slotDate;
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.school_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+            ],
+          ),
 
-                      try {
-                        slotDate = DateTime.parse(slot.date!);
-                      } catch (e) {
-                        // Handle date parsing error
-                      }
+          SizedBox(height: 16),
 
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Timeline indicator
-                          Column(
-                            children: [
-                              Container(
-                                width: 20,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                  color: primaryColor,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 3,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: primaryColor.withOpacity(0.3),
-                                      blurRadius: 5,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              if (!isLast)
-                                Container(
-                                  width: 2,
-                                  height: 100,
-                                  color: primaryColor.withOpacity(0.3),
-                                ),
-                            ],
-                          ),
-
-                          // Subject details
-                          Expanded(
-                            child: Container(
-                              margin:
-                                  const EdgeInsets.only(left: 16, bottom: 24),
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.15),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                                border: Border.all(
-                                  color: Colors.grey[200]!,
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(10),
-                                        decoration: BoxDecoration(
-                                          color: primaryColor.withOpacity(0.1),
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        child: Icon(
-                                          Icons.book,
-                                          size: 20,
-                                          color: primaryColor,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            CustomTextContainer(
-                                              textKey: slot.subject
-                                                      ?.getSybjectNameWithType() ??
-                                                  "-",
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                            if (slotDate != null)
-                                              Text(
-                                                Utils.formatDate(slotDate),
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 14,
-                                                  color: Colors.grey[600],
-                                                ),
-                                              ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 16),
-
-                                  // Time info
-                                  Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: primaryColor.withOpacity(0.05),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.access_time_rounded,
-                                          size: 18,
-                                          color: primaryColor,
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Text(
-                                          "${Utils.formatTime(
-                                            timeOfDay: TimeOfDay(
-                                              hour:
-                                                  Utils.getHourFromTimeDetails(
-                                                      time: slot.startTime!),
-                                              minute: Utils
-                                                  .getMinuteFromTimeDetails(
-                                                      time: slot.startTime!),
-                                            ),
-                                            context: context,
-                                          )} - ${Utils.formatTime(
-                                            timeOfDay: TimeOfDay(
-                                              hour:
-                                                  Utils.getHourFromTimeDetails(
-                                                      time: slot.endTime!),
-                                              minute: Utils
-                                                  .getMinuteFromTimeDetails(
-                                                      time: slot.endTime!),
-                                            ),
-                                            context: context,
-                                          )}",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.grey[800],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-
-                                  // Marks details
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: _buildMarkInfo(
-                                          label: "Total Nilai",
-                                          value: "${slot.totalMarks ?? 0}",
-                                          icon: Icons.grade_rounded,
-                                          color: primaryColor,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: _buildMarkInfo(
-                                          label: "Nilai Kelulusan",
-                                          value: "${slot.passingMarks ?? 0}",
-                                          icon: Icons.check_circle_rounded,
-                                          color: const Color(0xFF43A047),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            )
-                                .animate()
-                                .slideX(
-                                  begin: 0.3,
-                                  end: 0,
-                                  duration: const Duration(milliseconds: 600),
-                                  delay: Duration(milliseconds: 100 * index),
-                                  curve: Curves.easeOutQuint,
-                                )
-                                .fadeIn(
-                                  duration: const Duration(milliseconds: 600),
-                                  delay: Duration(milliseconds: 100 * index),
-                                ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
+          // Dates info
+          Row(
+            children: [
+              _buildDateInfo(
+                label: "Tanggal Mulai",
+                value: exam.examStartingDate != null &&
+                        exam.examStartingDate!.isNotEmpty
+                    ? Utils.formatDate(DateTime.parse(exam.examStartingDate!))
+                    : "-",
+                icon: Icons.calendar_today_rounded,
+              ),
+              SizedBox(width: 16),
+              _buildDateInfo(
+                label: "Tanggal Selesai",
+                value: exam.examEndingDate != null &&
+                        exam.examEndingDate!.isNotEmpty
+                    ? Utils.formatDate(DateTime.parse(exam.examEndingDate!))
+                    : "-",
+                icon: Icons.event_rounded,
+              ),
+            ],
           ),
         ],
       ),
-    );
+    ).animate().fadeIn(duration: 400.ms).scale(
+          begin: const Offset(0.95, 0.95),
+          end: const Offset(1, 1),
+          duration: 500.ms,
+          curve: Curves.easeOutQuint,
+        );
   }
 
-  Widget _buildExamInfoItem({
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
+  Widget _buildDateInfo(
+      {required String label, required String value, required IconData icon}) {
     return Expanded(
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
+      child: Container(
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(
               icon,
-              size: 16,
-              color: primaryColor,
+              color: Colors.white,
+              size: 18,
             ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: Colors.grey[600],
+            SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Colors.white.withOpacity(0.8),
+                    ),
                   ),
-                ),
-                Text(
-                  value,
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                  Text(
+                    value,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildMarkInfo({
-    required String label,
+  Widget _buildTimetableContent(BuildContext context,
+      Map<String, List<OfflineExamTimeTableSlot>> groupedByDate) {
+    return ListView.builder(
+      shrinkWrap: true,
+      padding: EdgeInsets.only(bottom: 24),
+      itemCount: groupedByDate.length,
+      itemBuilder: (context, dateIndex) {
+        final date = groupedByDate.keys.elementAt(dateIndex);
+        final slots = groupedByDate[date]!;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Date header
+            Padding(
+              padding: const EdgeInsets.only(left: 4, top: 8, bottom: 12),
+              child: Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: primaryColor,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: primaryColor.withOpacity(0.2),
+                          blurRadius: 6,
+                          offset: Offset(0, 2),
+                        )
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.event,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                        SizedBox(width: 6),
+                        Text(
+                          date,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Divider(
+                      height: 20,
+                      thickness: 1,
+                      indent: 12,
+                      endIndent: 4,
+                      color: Colors.grey[300],
+                    ),
+                  ),
+                ],
+              ),
+            ).animate().fadeIn(
+                  duration: 400.ms,
+                  delay: (100 * dateIndex).ms,
+                ),
+
+            // Subjects for this date
+            ...List.generate(
+              slots.length,
+              (index) => _buildSubjectCard(
+                  context, slots[index], dateIndex * 100 + index),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildSubjectCard(
+      BuildContext context, OfflineExamTimeTableSlot slot, int animationIndex) {
+    final subjectName = slot.subject?.getSybjectNameWithType() ?? "-";
+
+    return Container(
+      margin: EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.15),
+            blurRadius: 8,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Subject header
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: primaryColor.withOpacity(0.08),
+                border: Border(
+                  left: BorderSide(
+                    color: primaryColor,
+                    width: 4,
+                  ),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: primaryColor.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.book,
+                      size: 20,
+                      color: primaryColor,
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Mata Pelajaran",
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        CustomTextContainer(
+                          textKey: subjectName,
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Time info
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.grey.withOpacity(0.1),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.access_time_rounded,
+                          size: 18,
+                          color: primaryColor,
+                        ),
+                        SizedBox(width: 12),
+                        Text(
+                          "${Utils.formatTime(
+                            timeOfDay: TimeOfDay(
+                              hour: Utils.getHourFromTimeDetails(
+                                  time: slot.startTime!),
+                              minute: Utils.getMinuteFromTimeDetails(
+                                  time: slot.startTime!),
+                            ),
+                            context: context,
+                          )} - ${Utils.formatTime(
+                            timeOfDay: TimeOfDay(
+                              hour: Utils.getHourFromTimeDetails(
+                                  time: slot.endTime!),
+                              minute: Utils.getMinuteFromTimeDetails(
+                                  time: slot.endTime!),
+                            ),
+                            context: context,
+                          )}",
+                          style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        Spacer(),
+                        Container(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            _calculateDuration(slot.startTime!, slot.endTime!),
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: primaryColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: 16),
+
+                  // Marks info
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildMarkCard(
+                          title: "Total Nilai",
+                          value: "${slot.totalMarks ?? 0}",
+                          icon: Icons.grade_rounded,
+                          color: primaryColor,
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: _buildMarkCard(
+                          title: "Nilai Kelulusan",
+                          value: "${slot.passingMarks ?? 0}",
+                          icon: Icons.check_circle_rounded,
+                          color: Color(0xFF43A047),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    )
+        .animate()
+        .fadeIn(duration: 500.ms, delay: (100 * animationIndex).ms)
+        .slideX(
+            begin: 0.2,
+            end: 0,
+            curve: Curves.easeOutQuint,
+            duration: 600.ms,
+            delay: (100 * animationIndex).ms);
+  }
+
+  Widget _buildMarkCard({
+    required String title,
     required String value,
     required IconData icon,
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(10),
+        gradient: LinearGradient(
+          colors: [
+            color.withOpacity(0.1),
+            color.withOpacity(0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: color.withOpacity(0.2),
         ),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            icon,
-            size: 20,
-            color: color,
+          Row(
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: color,
+              ),
+              SizedBox(width: 8),
+              Text(
+                title,
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[700],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                Text(
-                  value,
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: color,
-                  ),
-                ),
-              ],
+          SizedBox(height: 6),
+          Text(
+            value,
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: color,
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.event_busy,
+            size: 64,
+            color: Colors.grey[400],
+          ),
+          SizedBox(height: 16),
+          Text(
+            "Tidak ada jadwal tersedia",
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 500.ms);
+  }
+
+  String _calculateDuration(String startTime, String endTime) {
+    try {
+      final startHour = Utils.getHourFromTimeDetails(time: startTime);
+      final startMinute = Utils.getMinuteFromTimeDetails(time: startTime);
+      final endHour = Utils.getHourFromTimeDetails(time: endTime);
+      final endMinute = Utils.getMinuteFromTimeDetails(time: endTime);
+
+      final startMinutes = startHour * 60 + startMinute;
+      final endMinutes = endHour * 60 + endMinute;
+      final durationMinutes = endMinutes - startMinutes;
+
+      if (durationMinutes <= 0) return "N/A";
+
+      final hours = durationMinutes ~/ 60;
+      final minutes = durationMinutes % 60;
+
+      if (hours > 0) {
+        return "$hours jam ${minutes > 0 ? "$minutes menit" : ""}";
+      } else {
+        return "$minutes menit";
+      }
+    } catch (e) {
+      return "N/A";
+    }
   }
 }
 
