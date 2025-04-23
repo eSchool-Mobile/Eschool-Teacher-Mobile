@@ -1935,7 +1935,11 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
     final result = await Get.toNamed(
       Routes.editQuestionScreen,
       arguments: {
-        'questionData': questionData, // Pass data with the key 'questionData'
+        'questionData': questionData,
+        'idList': {
+          'bankSoalSoalId': question.id,
+          'subjectId': widget.subject.subject.id,
+        },
       },
     );
 

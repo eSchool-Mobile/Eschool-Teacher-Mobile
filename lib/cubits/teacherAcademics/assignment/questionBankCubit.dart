@@ -90,6 +90,7 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
       emit(QuestionBankError(e.toString()));
     }
   }
+
   Future<void> fetchBankSoal(int subjectId) async {
     try {
       emit(QuestionBankLoading());
@@ -195,8 +196,8 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
         image: image,
       );
 
-      final questions =
-          await _repository.getBankQuestions(subjectId: subjectId, bankId: banksoalId);
+      final questions = await _repository.getBankQuestions(
+          subjectId: subjectId, bankId: banksoalId);
       emit(BankQuestionsFetchSuccess(questions));
     } catch (e) {
       print('\n=== ERROR IN CUBIT ===');
@@ -221,6 +222,7 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
     dynamic? image, // Tambahkan parameter image
     String? orderType,
   }) async {
+    print("OKKK 10");
     try {
       emit(QuestionBankLoading());
 
@@ -246,8 +248,8 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
       print("OK 12");
 
       // Fetch updated questions after successful update
-      final questions =
-          await _repository.getBankQuestions(subjectId: subjectId, bankId: bankSoalId);
+      final questions = await _repository.getBankQuestions(
+          subjectId: subjectId, bankId: bankSoalId);
       print("OK 13");
       emit(BankQuestionsFetchSuccess(questions));
       print("OK 14");
@@ -255,8 +257,8 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
       // Check if error message indicates success
       if (e.toString().contains('Soal Updated Successfully')) {
         // Fetch updated questions even though we got an error
-        final questions =
-            await _repository.getBankQuestions(subjectId: subjectId, bankId: banksoalSoalId);
+        final questions = await _repository.getBankQuestions(
+            subjectId: subjectId, bankId: banksoalSoalId);
         emit(BankQuestionsFetchSuccess(questions));
         return;
       }

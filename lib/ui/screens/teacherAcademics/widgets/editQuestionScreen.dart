@@ -16,8 +16,10 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 class EditQuestionScreen extends StatefulWidget {
   final Map<String, dynamic>? questionData;
+  final Map<String, int>? idList;
 
-  const EditQuestionScreen({Key? key, this.questionData}) : super(key: key);
+  const EditQuestionScreen({Key? key, this.questionData, this.idList})
+      : super(key: key);
 
   @override
   State<EditQuestionScreen> createState() => _EditQuestionScreenState();
@@ -280,9 +282,32 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
         await Future.delayed(Duration(seconds: 2));
 
         try {
+          print(widget.idList);
+          print({
+            "banksoalSoalId": widget.idList!['bankSoalSoalId'],
+            "subjectId": widget.idList!['subjectId'],
+            "bankSoalId": idBankSoal,
+            "name": nameController.text.trim(),
+            "type": selectedType,
+            "orderType": selectedOrderType,
+            "defaultPoint": int.parse(pointController.text),
+            "question": questionController.text.trim(),
+            "note": noteController.text.trim(),
+            "image": _imageFile,
+            "options": options
+                .map((opt) => QuestionOption(
+                      text: opt['text'].toString(),
+                      percentage: int.parse(opt['percentage'].toString()),
+                      feedback: opt['feedback'].toString(),
+                    ))
+                .toList()
+          });
+
+          print("===;");
+
           await context.read<QuestionBankCubit>().updateQuestion(
-                banksoalSoalId: widget.questionData!['banksoal_soal_id'],
-                subjectId: widget.questionData!['subject_id'],
+                banksoalSoalId: widget.idList!['bankSoalSoalId'] ?? 0,
+                subjectId: widget.idList!['subjectId'] ?? 0,
                 bankSoalId: idBankSoal,
                 name: nameController.text.trim(),
                 type: selectedType,
@@ -299,6 +324,8 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                         ))
                     .toList(),
               );
+
+          print("AMAN ABDURRAHMAN");
 
           Get.back(result: {
             'success': true,
@@ -345,6 +372,8 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
             }
           });
         } catch (e) {
+          print("ABDURRAHMAN SALAM");
+          print(e.toString());
           if (!e.toString().contains('validation.exists') ||
               !e.toString().toLowerCase().contains('updated')) {
             Get.snackbar(
