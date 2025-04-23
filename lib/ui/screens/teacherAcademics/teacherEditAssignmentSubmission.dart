@@ -2218,386 +2218,346 @@ class _TeacherEditAssignmentSubmissionScreenState
                                           ],
 
                                           // Attachments Section - Enhanced version
-                                          if (widget.assignmentSubmission.file
+                                            if (widget.assignmentSubmission.file
                                               .isNotEmpty) ...[
-                                            SlideInRight(
-                                              duration:
-                                                  Duration(milliseconds: 500),
-                                              child: Container(
-                                                padding: EdgeInsets.all(20),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(16),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.black
-                                                          .withOpacity(0.05),
-                                                      blurRadius: 10,
-                                                      spreadRadius: 0,
-                                                      offset: Offset(0, 4),
+                                            Container(
+                                              padding: EdgeInsets.all(20),
+                                              decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                BorderRadius.circular(16),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                color: Colors.black
+                                                  .withOpacity(0.05),
+                                                blurRadius: 10,
+                                                spreadRadius: 0,
+                                                offset: Offset(0, 4),
+                                                ),
+                                              ],
+                                              border: Border.all(
+                                                color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary
+                                                  .withOpacity(0.1),
+                                                width: 1.5,
+                                              ),
+                                              ),
+                                              child: Column(
+                                              crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                              children: [
+                                                // Section header
+                                                Row(
+                                                children: [
+                                                  Container(
+                                                  padding:
+                                                    EdgeInsets.all(8),
+                                                  decoration:
+                                                    BoxDecoration(
+                                                    color: Theme.of(
+                                                        context)
+                                                      .colorScheme
+                                                      .primary
+                                                      .withOpacity(0.1),
+                                                    shape:
+                                                      BoxShape.circle,
+                                                  ),
+                                                  child: Icon(
+                                                    Icons
+                                                      .cloud_upload_outlined,
+                                                    size: 18,
+                                                    color: Theme.of(
+                                                        context)
+                                                      .colorScheme
+                                                      .primary,
+                                                  ),
+                                                  ),
+                                                  SizedBox(width: 10),
+                                                  Text(
+                                                  Utils.getTranslatedLabel(
+                                                    filesKey),
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                      FontWeight.bold,
+                                                    color: Theme.of(
+                                                        context)
+                                                      .colorScheme
+                                                      .secondary,
+                                                    letterSpacing: 0.3,
+                                                  ),
+                                                  ),
+                                                  Spacer(),
+                                                  // File count badge
+                                                  Container(
+                                                  padding: EdgeInsets
+                                                    .symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 4),
+                                                  decoration:
+                                                    BoxDecoration(
+                                                    color: Theme.of(
+                                                        context)
+                                                      .colorScheme
+                                                      .primary
+                                                      .withOpacity(0.1),
+                                                    borderRadius:
+                                                      BorderRadius
+                                                        .circular(20),
+                                                    border: Border.all(
+                                                    color: Theme.of(
+                                                        context)
+                                                      .colorScheme
+                                                      .primary
+                                                      .withOpacity(
+                                                        0.2),
+                                                    width: 1,
                                                     ),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                      MainAxisSize.min,
+                                                    children: [
+                                                    Icon(
+                                                      Icons.attach_file,
+                                                      size: 14,
+                                                      color: Theme.of(
+                                                          context)
+                                                        .colorScheme
+                                                        .primary,
+                                                    ),
+                                                    SizedBox(width: 4),
+                                                    Text(
+                                                      "${widget.assignmentSubmission.file.length} ${widget.assignmentSubmission.file.length > 1 ? 'files' : 'file'}",
+                                                      style: TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                        FontWeight
+                                                          .w600,
+                                                      color: Theme.of(
+                                                          context)
+                                                        .colorScheme
+                                                        .primary,
+                                                      ),
+                                                    ),
+                                                    ],
+                                                  ),
+                                                  ),
+                                                ],
+                                                ),
+
+                                                // Divider with gradient
+                                                Container(
+                                                margin: EdgeInsets.symmetric(
+                                                  vertical: 16),
+                                                height: 2,
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                  colors: [
+                                                    Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                                    Theme.of(context)
+                                                      .colorScheme
+                                                      .primary
+                                                      .withOpacity(0.1),
                                                   ],
-                                                  border: Border.all(
-                                                    color: Theme.of(context)
+                                                  begin: Alignment
+                                                    .centerLeft,
+                                                  end: Alignment
+                                                    .centerRight,
+                                                  ),
+                                                  borderRadius:
+                                                    BorderRadius.circular(
+                                                      10),
+                                                ),
+                                                ),
+
+                                                // File list with consistent styling
+                                                ...widget
+                                                  .assignmentSubmission.file
+                                                  .map(
+                                                (studyMaterial) {
+                                                  final extension =
+                                                    studyMaterial.fileName
+                                                      .split('.')
+                                                      .last
+                                                      .toLowerCase();
+                                                  final extensionLabel =
+                                                    extension.length > 5
+                                                      ? extension
+                                                        .substring(
+                                                          0, 3)
+                                                      : extension;
+
+                                                  // Icons based on file type
+                                                  IconData fileIcon;
+                                                  if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']
+                                                    .contains(extension)) {
+                                                  fileIcon =
+                                                    Icons.image_outlined;
+                                                  } else if (['pdf'].contains(
+                                                    extension)) {
+                                                  fileIcon = Icons
+                                                    .picture_as_pdf_outlined;
+                                                  } else if (['doc', 'docx', 'txt', 'rtf']
+                                                    .contains(extension)) {
+                                                  fileIcon = Icons
+                                                    .description_outlined;
+                                                  } else if (['xls', 'xlsx', 'csv']
+                                                    .contains(extension)) {
+                                                  fileIcon = Icons
+                                                    .table_chart_outlined;
+                                                  } else if (['ppt', 'pptx']
+                                                    .contains(extension)) {
+                                                  fileIcon = Icons
+                                                    .slideshow_outlined;
+                                                  } else if (['zip', 'rar', '7z', 'tar', 'gz']
+                                                    .contains(extension)) {
+                                                  fileIcon = Icons
+                                                    .folder_zip_outlined;
+                                                  } else {
+                                                  fileIcon = Icons
+                                                    .insert_drive_file_outlined;
+                                                  }
+
+                                                  return Container(
+                                                  margin: EdgeInsets.only(
+                                                    bottom: 12),
+                                                  decoration:
+                                                    BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                      BorderRadius
+                                                        .circular(12),
+                                                    border: Border.all(
+                                                    color: Theme.of(
+                                                        context)
+                                                      .colorScheme
+                                                      .primary
+                                                      .withOpacity(
+                                                        0.2),
+                                                    width: 1.5,
+                                                    ),
+                                                    boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors
+                                                        .black
+                                                        .withOpacity(
+                                                          0.03),
+                                                      blurRadius: 6,
+                                                      spreadRadius: 0,
+                                                      offset:
+                                                        Offset(0, 2),
+                                                    ),
+                                                    ],
+                                                  ),
+                                                  child: ListTile(
+                                                    contentPadding:
+                                                      EdgeInsets
+                                                        .symmetric(
+                                                          horizontal:
+                                                            16,
+                                                          vertical:
+                                                            8),
+                                                    leading: Container(
+                                                    width: 42,
+                                                    height: 42,
+                                                    decoration:
+                                                      BoxDecoration(
+                                                      color: Theme.of(
+                                                          context)
                                                         .colorScheme
                                                         .primary
-                                                        .withOpacity(0.1),
-                                                    width: 1.5,
-                                                  ),
-                                                ),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    // Section header with cloud icon
-                                                    Row(
-                                                      children: [
-                                                        // Animated icon with glow effect
-                                                        AnimatedBuilder(
-                                                          animation:
-                                                              _pulseAnimation,
-                                                          builder:
-                                                              (context, child) {
-                                                            return Container(
-                                                              padding:
-                                                                  EdgeInsets
-                                                                      .all(8),
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .colorScheme
-                                                                    .primary
-                                                                    .withOpacity(
-                                                                        0.1),
-                                                                shape: BoxShape
-                                                                    .circle,
-                                                                boxShadow: [
-                                                                  BoxShadow(
-                                                                    color: Theme.of(
-                                                                            context)
-                                                                        .colorScheme
-                                                                        .primary
-                                                                        .withOpacity(0.1 *
-                                                                            _pulseAnimation.value),
-                                                                    blurRadius:
-                                                                        4,
-                                                                    spreadRadius: 1 *
-                                                                        _pulseAnimation
-                                                                            .value,
-                                                                  )
-                                                                ],
-                                                              ),
-                                                              child: Icon(
-                                                                Icons
-                                                                    .cloud_upload_outlined,
-                                                                size: 18,
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .colorScheme
-                                                                    .primary,
-                                                              ),
-                                                            );
-                                                          },
-                                                        ),
-
-                                                        SizedBox(width: 10),
-
-                                                        Text(
-                                                          Utils
-                                                              .getTranslatedLabel(
-                                                                  filesKey),
-                                                          style: TextStyle(
-                                                            fontSize: 18,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            color: Theme.of(
-                                                                    context)
-                                                                .colorScheme
-                                                                .secondary,
-                                                            letterSpacing: 0.3,
-                                                          ),
-                                                        ),
-
-                                                        Spacer(),
-
-                                                        // File count badge
-                                                        Container(
-                                                          padding: EdgeInsets
-                                                              .symmetric(
-                                                                  horizontal:
-                                                                      10,
-                                                                  vertical: 4),
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Theme.of(
-                                                                    context)
-                                                                .colorScheme
-                                                                .primary
-                                                                .withOpacity(
-                                                                    0.1),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        20),
-                                                            border: Border.all(
-                                                              color: Theme.of(
-                                                                      context)
-                                                                  .colorScheme
-                                                                  .primary
-                                                                  .withOpacity(
-                                                                      0.2),
-                                                              width: 1,
-                                                            ),
-                                                          ),
-                                                          child: Row(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .min,
-                                                            children: [
-                                                              Icon(
-                                                                Icons
-                                                                    .attach_file,
-                                                                size: 14,
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .colorScheme
-                                                                    .primary,
-                                                              ),
-                                                              SizedBox(
-                                                                  width: 4),
-                                                              Text(
-                                                                "${widget.assignmentSubmission.file.length} ${widget.assignmentSubmission.file.length > 1 ? 'files' : 'file'}",
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontSize: 12,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                  color: Theme.of(
-                                                                          context)
-                                                                      .colorScheme
-                                                                      .primary,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    )
-                                                        .animate()
-                                                        .fadeIn(
-                                                            duration: 400.ms)
-                                                        .slideY(
-                                                            begin: -0.2,
-                                                            end: 0,
-                                                            duration: 400.ms),
-
-                                                    // Divider with gradient
-                                                    Container(
-                                                      margin:
-                                                          EdgeInsets.symmetric(
-                                                              vertical: 16),
-                                                      height: 2,
-                                                      decoration: BoxDecoration(
-                                                        gradient:
-                                                            LinearGradient(
-                                                          colors: [
-                                                            Theme.of(context)
-                                                                .colorScheme
-                                                                .primary,
-                                                            Theme.of(context)
-                                                                .colorScheme
-                                                                .primary
-                                                                .withOpacity(
-                                                                    0.1),
-                                                          ],
-                                                          begin: Alignment
-                                                              .centerLeft,
-                                                          end: Alignment
-                                                              .centerRight,
-                                                        ),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
+                                                        .withOpacity(
+                                                          0.12),
+                                                      shape: BoxShape
+                                                        .circle,
+                                                    ),
+                                                    child: Center(
+                                                      child: Icon(
+                                                      fileIcon,
+                                                      color: Theme.of(
+                                                          context)
+                                                        .colorScheme
+                                                        .primary,
+                                                      size: 22,
                                                       ),
-                                                    )
-                                                        .animate()
-                                                        .fadeIn(delay: 300.ms)
-                                                        .custom(
-                                                          duration: 600.ms,
-                                                          curve: Curves
-                                                              .easeOutExpo,
-                                                          builder: (context,
-                                                              value, child) {
-                                                            return SizedBox(
-                                                              width: value *
-                                                                  MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .width,
-                                                              child: child,
-                                                            );
-                                                          },
-                                                        ),
+                                                    ),
+                                                    ),
+                                                    title: Text(
+                                                    studyMaterial
+                                                      .fileName,
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                        FontWeight
+                                                          .w600,
+                                                      fontSize: 15,
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                      TextOverflow
+                                                        .ellipsis,
+                                                    ),
+                                                    subtitle: Text(
+                                                      studyMaterial.fileUrl != null 
+                                                        ? "Tap to open file"
+                                                        : "File unavailable",
+                                                      style: TextStyle(
+                                                        color: Colors
+                                                          .grey
+                                                          .shade600,
+                                                        fontSize:
+                                                          12,
+                                                      ),
+                                                    ),
+                                                    trailing: Container(
+                                                    padding: EdgeInsets
+                                                      .symmetric(
+                                                        horizontal:
+                                                          8,
+                                                        vertical:
+                                                          4),
+                                                    decoration:
+                                                      BoxDecoration(
+                                                      color: Theme.of(
+                                                          context)
+                                                        .colorScheme
+                                                        .primary,
+                                                      borderRadius:
+                                                        BorderRadius
+                                                          .circular(
+                                                            6),
+                                                    ),
+                                                    child: Text(
+                                                      extensionLabel
+                                                        .toUpperCase(),
+                                                      style: TextStyle(
+                                                      color: Colors
+                                                        .white,
+                                                      fontSize: 10,
+                                                      fontWeight:
+                                                        FontWeight
+                                                          .bold,
+                                                      letterSpacing:
+                                                        0.5,
+                                                      ),
+                                                    ),
+                                                    ),
+                                                    onTap: () {
+                                                    // Handle file tap - you can use the StudyMaterialContainer's logic here
+                                   
 
-                                                    // File list with enhanced styling
-                                                    ...widget
-                                                        .assignmentSubmission
-                                                        .file
-                                                        .asMap()
-                                                        .entries
-                                                        .map(
-                                                      (entry) {
-                                                        final index = entry.key;
-                                                        final studyMaterial =
-                                                            entry.value;
-
-                                                        return FadeInRight(
-                                                          delay: Duration(
-                                                              milliseconds:
-                                                                  100 * index),
-                                                          duration: Duration(
-                                                              milliseconds:
-                                                                  400),
-                                                          child: Container(
-                                                            margin:
-                                                                EdgeInsets.only(
-                                                                    bottom: 12),
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              gradient:
-                                                                  LinearGradient(
-                                                                begin: Alignment
-                                                                    .topLeft,
-                                                                end: Alignment
-                                                                    .bottomRight,
-                                                                colors: [
-                                                                  Colors.white,
-                                                                  Theme.of(
-                                                                          context)
-                                                                      .colorScheme
-                                                                      .primary
-                                                                      .withOpacity(
-                                                                          0.05),
-                                                                ],
-                                                              ),
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          12),
-                                                              border:
-                                                                  Border.all(
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .colorScheme
-                                                                    .primary
-                                                                    .withOpacity(
-                                                                        0.2),
-                                                                width: 1.5,
-                                                              ),
-                                                              boxShadow: [
-                                                                BoxShadow(
-                                                                  color: Colors
-                                                                      .black
-                                                                      .withOpacity(
-                                                                          0.03),
-                                                                  blurRadius: 6,
-                                                                  spreadRadius:
-                                                                      0,
-                                                                  offset:
-                                                                      Offset(
-                                                                          0, 2),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            child: Stack(
-                                                              children: [
-                                                                // File container with enhanced visuals
-                                                                ClipRRect(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              12),
-                                                                  child:
-                                                                      StudyMaterialContainer(
-                                                                    showOnlyStudyMaterialTitles:
-                                                                        true,
-                                                                    showEditAndDeleteButton:
-                                                                        false,
-                                                                    studyMaterial:
-                                                                        studyMaterial,
-                                                                  ),
-                                                                ),
-
-                                                                // Right corner badge with file extension
-                                                                Positioned(
-                                                                  top: 0,
-                                                                  right: 0,
-                                                                  child:
-                                                                      Container(
-                                                                    padding: EdgeInsets.symmetric(
-                                                                        horizontal:
-                                                                            8,
-                                                                        vertical:
-                                                                            4),
-                                                                    decoration:
-                                                                        BoxDecoration(
-                                                                      color: _getFileTypeColor(
-                                                                          studyMaterial
-                                                                              .fileName),
-                                                                      borderRadius:
-                                                                          BorderRadius
-                                                                              .only(
-                                                                        bottomLeft:
-                                                                            Radius.circular(8),
-                                                                        topRight:
-                                                                            Radius.circular(10),
-                                                                      ),
-                                                                    ),
-                                                                    child: Text(
-                                                                      _getFileExtension(
-                                                                              studyMaterial.fileName)
-                                                                          .toUpperCase(),
-                                                                      style:
-                                                                          TextStyle(
-                                                                        color: Colors
-                                                                            .white,
-                                                                        fontSize:
-                                                                            10,
-                                                                        fontWeight:
-                                                                            FontWeight.bold,
-                                                                        letterSpacing:
-                                                                            0.5,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          )
-                                                              .animate(
-                                                                  onPlay: (controller) =>
-                                                                      controller.repeat(
-                                                                          reverse:
-                                                                              true))
-                                                              .then(
-                                                                  delay:
-                                                                      1500.ms)
-                                                              .shimmer(
-                                                                  duration:
-                                                                      1500.ms,
-                                                                  delay:
-                                                                      2000.ms),
-                                                        );
-                                                      },
-                                                    ).toList(),
-                                                  ],
-                                                ),
+                                                    },
+                                                  ),
+                                                  );
+                                                },
+                                                ).toList(),
+                                              ],
                                               ),
                                             ),
-                                          ],
+                                            ],
 
                                           // Add spacing at the bottom if there's a submit button
                                           if (!isNonEditable)
