@@ -890,91 +890,12 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                     ),
                   ],
                 ),
-
-                // Enhanced time information panel
-                Container(
-                  margin: const EdgeInsets.only(top: 16),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        currentColor.withOpacity(0.05),
-                        currentColor.withOpacity(0.1),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: currentColor.withOpacity(0.15),
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      if (status.startTime != null) ...[
-                        _buildTimeInfoRow(
-                          "Waktu Mulai",
-                          status.startTime ?? "-",
-                          Icons.play_circle_fill_rounded,
-                          activeColor,
-                        ),
-                      ],
-                      if (status.status == 2 && status.endTime != null) ...[
-                        if (status.startTime != null)
-                          const SizedBox(height: 12),
-                        _buildTimeInfoRow(
-                          "Waktu Selesai",
-                          status.endTime ?? "-",
-                          Icons.check_circle_rounded,
-                          completedColor,
-                        ),
-                      ],
-                      if (isActive && status.startTime != null) ...[
-                        const SizedBox(height: 12),
-                        _buildEnhancedDurationProgressBar(
-                            status.startTime!, currentColor),
-                      ],
-                    ],
-                  ),
-                ),
+                // Add an empty SizedBox to create vertical space
+                SizedBox(height: 40),
               ],
             ),
           ),
 
-          // Enhanced decorative accent element
-          Positioned(
-            top: 0,
-            right: 0,
-            child: Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    currentColor.withOpacity(0.5),
-                    currentColor.withOpacity(0.8),
-                  ],
-                ),
-                borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(16),
-                  bottomLeft: Radius.circular(30),
-                ),
-              ),
-              child: Center(
-                child: Icon(
-                  isActive
-                      ? Icons.hourglass_top_rounded
-                      : Icons.emoji_events_rounded,
-                  size: 22,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          
           // Elegant delete button as a small floating action icon
           Positioned(
             right: 16,
@@ -1007,7 +928,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                   child: Padding(
                     padding: EdgeInsets.all(8),
                     child: Icon(
-                      Icons.restart_alt_rounded,
+                        Icons.delete_outline,
                       color: Colors.white,
                       size: 18,
                     ),
@@ -1728,45 +1649,44 @@ Widget _buildEnhancedStatusBadge(int status) {
       Color(0xFFFFBF47); // Changed to golden yellow to match statistics
 
   return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-    decoration: BoxDecoration(
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: isActive
-            ? [activeColor.withOpacity(0.7), activeColor]
-            : [completedColor.withOpacity(0.7), completedColor],
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isActive
+              ? [activeColor.withOpacity(0.7), activeColor]
+              : [completedColor.withOpacity(0.7), completedColor],
+        ),
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: isActive
+                ? activeColor.withOpacity(0.3)
+                : completedColor.withOpacity(0.3),
+            blurRadius: 8,
+            spreadRadius: 0,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      borderRadius: BorderRadius.circular(30),
-      boxShadow: [
-        BoxShadow(
-          color: isActive
-              ? activeColor.withOpacity(0.3)
-              : completedColor.withOpacity(0.3),
-          blurRadius: 8,
-          spreadRadius: 0,
-          offset: const Offset(0, 2),
-        ),
-      ],
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          isActive ? Icons.pending_rounded : Icons.check_circle_rounded,
-          size: 16,
-          color: Colors.white,
-        ),
-        const SizedBox(width: 6),
-        Text(
-          isActive ? "Aktif" : "Selesai",
-          style: GoogleFonts.poppins(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isActive ? Icons.pending_rounded : Icons.check_circle_rounded,
+            size: 16,
             color: Colors.white,
           ),
-        ),
-      ],
-    ),
-  );
-  }
+          const SizedBox(width: 6),
+          Text(
+            isActive ? "Aktif" : "Selesai",
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ));
+}

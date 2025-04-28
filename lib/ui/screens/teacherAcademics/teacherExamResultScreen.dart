@@ -679,7 +679,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                         fontWeight: FontWeight.w600,
                       ),
                       decoration: InputDecoration(
-                        hintText: "Masukkan nilai untuk semua siswa",
+                        hintText: "Input Nilai",
                         hintStyle: TextStyle(color: Colors.grey[400]),
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.symmetric(horizontal: 15),

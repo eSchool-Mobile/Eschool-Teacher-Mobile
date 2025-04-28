@@ -840,7 +840,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     if (banks.isEmpty && _searchController.text.isNotEmpty) {
       return Center(
         child: Text(
-          'Tidak ada bank soal yang cocok dengan pencarian1',
+          'Tidak ada bank soal yang cocok dengan pencarian',
           style: TextStyle(color: Colors.grey[600]),
         ),
       );
@@ -1113,99 +1113,69 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                         ),
                                       ),
 
-                                      // Arrow button with animations and effects
-                                      AnimatedContainer(
-                                        duration: Duration(milliseconds: 300),
-                                        width: isHovered ? 50 : 45,
-                                        height: isHovered ? 50 : 45,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          gradient: LinearGradient(
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                            colors: isHovered
-                                                ? [
-                                                    Colors.white
-                                                        .withOpacity(0.3),
-                                                    Colors.white
-                                                        .withOpacity(0.1)
-                                                  ]
-                                                : [
-                                                    Colors.white
-                                                        .withOpacity(0.2),
-                                                    Colors.white
-                                                        .withOpacity(0.05)
-                                                  ],
-                                          ),
-                                          boxShadow: isHovered
-                                              ? [
-                                                  BoxShadow(
-                                                    color: neonGlowColor
-                                                        .withOpacity(0.4),
-                                                    blurRadius: 15,
-                                                    spreadRadius: 1,
-                                                  ),
-                                                ]
-                                              : [],
-                                          border: Border.all(
-                                            color:
-                                                Colors.white.withOpacity(0.3),
-                                            width: 1,
-                                          ),
-                                        ),
-                                        child: AnimatedBuilder(
-                                          animation: _pulseAnimation,
-                                          builder: (context, child) {
-                                            return Transform.rotate(
-                                              angle: isHovered ? 0.1 : 0,
-                                              child: Transform.scale(
-                                                scale: isHovered
-                                                    ? 1.0 +
-                                                        0.15 *
-                                                            _pulseAnimation
-                                                                .value
-                                                    : 1.0,
-                                                child: Icon(
-                                                  Icons.arrow_forward_rounded,
-                                                  color: Colors.white,
-                                                  size: isHovered ? 25 : 22,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
+                                      // Three-dots menu button
+                                      _buildMoreOptionsButton(
+                                        bank: bank,
+                                        banks: banks,
+                                        index: index,
+                                        isHovered: isHovered,
+                                        neonGlowColor: neonGlowColor,
                                       ),
                                     ],
                                   ),
 
-                                  // Tambahkan action bar untuk tombol edit dan delete
-                                  SizedBox(height: 16),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      // Edit button
-                                      _buildActionButtonImproved(
-                                        icon: Icons.edit_outlined,
-                                        label: 'Edit',
-                                        onPressed: () =>
-                                            _showEditBankDialog(banks, index),
-                                        isHovered: isHovered,
-                                        neonGlowColor: neonGlowColor,
-                                        isPrimary: true,
-                                      ),
-                                      SizedBox(width: 12),
-                                      // Delete button
-                                      _buildActionButtonImproved(
-                                        icon: Icons.delete_outline,
-                                        label: 'Hapus',
-                                        onPressed: () =>
-                                            _showDeleteConfirmation(
-                                                context, bank),
-                                        isHovered: isHovered,
-                                        neonGlowColor: neonGlowColor,
-                                        isDanger: true,
-                                      ),
-                                    ],
+                                  SizedBox(height: 0),
+
+                                  // Arrow button repositioned at bottom right for better layout
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: AnimatedBuilder(
+                                      animation: _pulseAnimation,
+                                      builder: (context, child) {
+                                        return Container(
+                                          width: 42,
+                                          height: 42,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.white.withOpacity(
+                                                isHovered ? 0.2 : 0.15),
+                                            border: Border.all(
+                                              color: Colors.white.withOpacity(
+                                                  isHovered ? 0.3 : 0.2),
+                                              width: 1.5,
+                                            ),
+                                            boxShadow: isHovered
+                                                ? [
+                                                    BoxShadow(
+                                                      color: neonGlowColor
+                                                          .withOpacity(0.2 +
+                                                              0.1 *
+                                                                  _pulseAnimation
+                                                                      .value),
+                                                      blurRadius: 10,
+                                                      spreadRadius: 1 *
+                                                          _pulseAnimation.value,
+                                                    )
+                                                  ]
+                                                : [],
+                                          ),
+                                          child: Center(
+                                            child: Transform.scale(
+                                              scale: isHovered
+                                                  ? 1.0 +
+                                                      0.15 *
+                                                          _pulseAnimation.value
+                                                  : 1.0,
+                                              child: Icon(
+                                                Icons.arrow_forward_rounded,
+                                                color: Colors.white,
+                                                size: 22,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
                                   ),
                                 ],
                               ),
@@ -1238,37 +1208,124 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     );
   }
 
-  // Helper method untuk tombol aksi (edit dan delete)
-  Widget _buildActionButton(
-      IconData icon, VoidCallback onPressed, bool isHovered, Color glowColor) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 300),
-        padding: EdgeInsets.all(10), // Ukuran padding yang lebih besar
-        margin: EdgeInsets.only(left: 4), // Margin untuk jarak antar tombol
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white.withOpacity(0.15),
-          boxShadow: isHovered
-              ? [
-                  BoxShadow(
-                    color: glowColor.withOpacity(0.3), // Efek glow lebih kuat
-                    blurRadius: 8,
-                    spreadRadius: 1,
-                  )
-                ]
-              : [],
-          border: Border.all(
-            color: Colors.white.withOpacity(0.25), // Border lebih terlihat
-            width: 1.2, // Sedikit lebih tebal
+  Widget _buildMoreOptionsButton({
+    required BankSoal bank,
+    required List<BankSoal> banks,
+    required int index,
+    required bool isHovered,
+    required Color neonGlowColor,
+  }) {
+    return PopupMenuButton<String>(
+      offset: Offset(0, 50),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      position: PopupMenuPosition.under,
+      elevation: 8,
+      tooltip: "Opsi",
+      color: Colors.white.withOpacity(0.95),
+      splashRadius: 24,
+      onSelected: (value) {
+        if (value == 'edit') {
+          _showEditBankDialog(banks, index);
+        } else if (value == 'delete') {
+          _showDeleteConfirmation(context, bank);
+        }
+      },
+      itemBuilder: (BuildContext context) => [
+        PopupMenuItem<String>(
+          value: 'edit',
+          height: 50,
+          child: Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: _accentColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.edit_outlined,
+                  color: _accentColor,
+                  size: 18,
+                ),
+              ),
+              SizedBox(width: 12),
+              Text(
+                'Edit Bank Soal',
+                style: TextStyle(
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 15,
+                ),
+              ),
+            ],
           ),
         ),
-        child: Icon(
-          icon,
-          color: Colors.white,
-          size: 18, // Ukuran ikon sedikit lebih besar
+        PopupMenuItem<String>(
+          value: 'delete',
+          height: 50,
+          child: Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.delete_outline,
+                  color: Colors.red,
+                  size: 18,
+                ),
+              ),
+              SizedBox(width: 12),
+              Text(
+                'Hapus Bank Soal',
+                style: TextStyle(
+                  color: Colors.red.shade700,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 15,
+                ),
+              ),
+            ],
+          ),
         ),
+      ],
+      child: AnimatedBuilder(
+        animation: _pulseAnimation,
+        builder: (context, child) {
+          return Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(isHovered ? 0.2 : 0.15),
+              border: Border.all(
+                color: Colors.white.withOpacity(isHovered ? 0.3 : 0.2),
+                width: 1.5,
+              ),
+              boxShadow: isHovered
+                  ? [
+                      BoxShadow(
+                        color: neonGlowColor
+                            .withOpacity(0.2 + 0.1 * _pulseAnimation.value),
+                        blurRadius: 10,
+                        spreadRadius: 1 * _pulseAnimation.value,
+                      )
+                    ]
+                  : [],
+            ),
+            child: Center(
+              child: Transform.scale(
+                scale: isHovered ? 1.0 + 0.15 * _pulseAnimation.value : 1.0,
+                child: Icon(
+                  Icons.more_vert_rounded,
+                  color: Colors.white,
+                  size: 22,
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -1314,7 +1371,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                     ),
                     SizedBox(width: 16),
                     Text(
-                      'Tambah Bank Soal',
+                      'Tambah Bank',
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.secondary,
                         fontWeight: FontWeight.bold,

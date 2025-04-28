@@ -1840,21 +1840,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                                 .grey.shade400,
                                                             fontSize: 14,
                                                           ),
-                                                          prefixIcon: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .only(
-                                                                    left: 12,
-                                                                    top: 12),
-                                                            child: Icon(
-                                                              Icons
-                                                                  .comment_outlined,
-                                                              color: Theme.of(
-                                                                      context)
-                                                                  .colorScheme
-                                                                  .primary,
-                                                            ),
-                                                          ),
+
                                                           prefixIconConstraints:
                                                               BoxConstraints(
                                                             minWidth: 40,

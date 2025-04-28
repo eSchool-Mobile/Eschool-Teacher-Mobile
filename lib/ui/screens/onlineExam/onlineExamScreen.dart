@@ -204,9 +204,50 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Archive button with icon only
-                _buildCircleButton(
-                  icon: Icons.archive_outlined,
-                  onTap: () => Get.toNamed(Routes.archiveOnlineExam),
+                AnimatedBuilder(
+                  animation: _pulseAnimation,
+                  builder: (context, child) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.white.withOpacity(0.3),
+                            Colors.white.withOpacity(0.2),
+                          ],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.white
+                                .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
+                            blurRadius: 12 * (1 + _pulseAnimation.value),
+                            spreadRadius: 2 * _pulseAnimation.value,
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        shape: CircleBorder(),
+                        child: InkWell(
+                          customBorder: CircleBorder(),
+                          onTap: () {
+                            HapticFeedback.mediumImpact();
+                            Get.toNamed(Routes.archiveOnlineExam);
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Icon(
+                              Icons.archive_outlined,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
 
                 SizedBox(width: 8),
@@ -525,7 +566,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
             splashColor: colorScheme['primary']!.withOpacity(0.05),
             child: Ink(
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 237, 237, 237), // Very slightly off-white
+                color: Color.fromARGB(
+                    255, 237, 237, 237), // Very slightly off-white
                 borderRadius: BorderRadius.circular(32),
                 // Keep your existing shadows if desired
               ),
@@ -581,24 +623,6 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                       Colors.white.withOpacity(0.2),
                                       Colors.transparent,
                                     ],
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            // Subject Badge
-                            Positioned(
-                              top: 20,
-                              left: 24,
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(30),
-                                  border: Border.all(
-                                    color: Colors.white.withOpacity(0.3),
-                                    width: 1,
                                   ),
                                 ),
                               ),
@@ -714,7 +738,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                       arguments: exam,
                                     ),
                                     icon: Icons.edit_outlined,
-                                    label: 'Edit Ujian',
+                                    label: 'Edit',
                                     gradient: LinearGradient(
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
@@ -736,7 +760,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                   child: _buildModernActionButton(
                                     onTap: () => _showDeleteConfirmation(exam),
                                     icon: Icons.archive_outlined,
-                                    label: 'Arsipkan',
+                                    label: 'Arsip',
                                     gradient: LinearGradient(
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
@@ -799,9 +823,10 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                 padding: EdgeInsets.all(20),
                                 child: Row(
                                   children: [
-                                    // Icon Container
+                                    // Icon Container - reduced padding
                                     Container(
-                                      padding: EdgeInsets.all(12),
+                                      padding:
+                                          EdgeInsets.all(10), // Reduced from 12
                                       decoration: BoxDecoration(
                                         color: colorScheme['primary']!
                                             .withOpacity(0.1),
@@ -810,12 +835,12 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                       child: Icon(
                                         Icons.question_answer_rounded,
                                         color: colorScheme['primary'],
-                                        size: 22,
+                                        size: 20, // Reduced from 22
                                       ),
                                     ),
-                                    SizedBox(width: 16),
+                                    SizedBox(width: 12), // Reduced from 16
 
-                                    // Text Content
+                                    // Text Content - with overflow handling
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -828,6 +853,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                               color: colorScheme['neutral1'],
                                               fontSize: 16,
                                             ),
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                           SizedBox(height: 4),
                                           Text(
@@ -836,14 +862,16 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                               color: colorScheme['neutral2'],
                                               fontSize: 14,
                                             ),
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ],
                                       ),
                                     ),
 
-                                    // Arrow Icon
+                                    // Arrow Icon - reduced padding
                                     Container(
-                                      padding: EdgeInsets.all(10),
+                                      padding:
+                                          EdgeInsets.all(8), // Reduced from 10
                                       decoration: BoxDecoration(
                                         color: colorScheme['primary']!
                                             .withOpacity(0.07),
@@ -852,7 +880,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                       child: Icon(
                                         Icons.arrow_forward_rounded,
                                         color: colorScheme['primary'],
-                                        size: 18,
+                                        size: 16, // Reduced from 18
                                       ),
                                     ),
                                   ],
@@ -1321,13 +1349,6 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                     borderRadius: BorderRadius.circular(30),
                                   ),
                                   elevation: 4,
-                                  action: SnackBarAction(
-                                    label: 'Lihat Arsip',
-                                    textColor: Colors.white,
-                                    onPressed: () {
-                                      Get.toNamed(Routes.archiveOnlineExam);
-                                    },
-                                  ),
                                 ),
                               );
 

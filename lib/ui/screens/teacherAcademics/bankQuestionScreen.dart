@@ -1546,9 +1546,14 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.delete_outline_rounded,
-                                        size: 18, color: Colors.red.shade700),
-                                    SizedBox(width: 8),
+                                    Center(
+                                      child: Icon(
+                                        Icons.delete_outline_rounded,
+                                        size: 18, 
+                                        color: Colors.red.shade700,
+                                      ),
+                                    )
+                   
                                     // Text(
                                     //   'Hapus',
                                     //   style: TextStyle(
@@ -2042,6 +2047,10 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
 
   void _showDetailQuestionSheet(
       q.Question question, q.QuestionVersion version) {
+    // Cek apakah ini versi terbaru dari soal
+    // Versi terakhir di array selalu merupakan versi terbaru
+    final isLatestVersion = question.versions.last.id == version.id;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -2055,7 +2064,12 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
           ),
           child: Container(
             color: Colors.white,
-            child: _buildDetailQuestionContent(question, version),
+            child: _buildDetailQuestionContent(
+              question,
+              version,
+              isLatestVersion:
+                  isLatestVersion, // Teruskan informasi versi terbaru
+            ),
           ),
         ),
       ),
@@ -2122,7 +2136,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
   }
 
   Widget _buildDetailQuestionContent(
-      q.Question question, q.QuestionVersion version) {
+      q.Question question, q.QuestionVersion version,
+      {bool isLatestVersion = false}) {
     return Stack(
       children: [
         // Base white background container yang menutupi seluruh area (kecuali gradient header)
@@ -2824,30 +2839,31 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                             ),
                           ),
 
-                          SizedBox(width: 16),
-
-                          // Edit button
-                          Expanded(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(vertical: 16),
-                                backgroundColor: _getTypeColor(version.type),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
+                          // Edit button - hanya tampilkan jika versi terbaru
+                          if (isLatestVersion) ...[
+                            SizedBox(width: 16),
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.symmetric(vertical: 16),
+                                  backgroundColor: _getTypeColor(version.type),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
                                 ),
-                              ),
-                              onPressed: () =>
-                                  _navigateToEditQuestion(question, version),
-                              child: Text(
-                                "Edit",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
+                                onPressed: () =>
+                                    _navigateToEditQuestion(question, version),
+                                child: Text(
+                                  "Edit",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),

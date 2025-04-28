@@ -530,7 +530,6 @@ class _ProfileContainerState extends State<ProfileContainer>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                    
                       const SizedBox(height: 8),
                       Row(
                         children: [
@@ -967,30 +966,138 @@ class LogoutConfirmationDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      child: FadeInUp(
+        duration: const Duration(milliseconds: 300),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white,
+                AppColorPalette.warmBeige.withOpacity(0.9),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+                blurRadius: 20,
+                spreadRadius: 5,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Illustration
+              Container(
+                width: 100,
+                height: 100,
+                margin: const EdgeInsets.only(bottom: 20),
+                child: Lottie.network(
+                  'https://assets3.lottiefiles.com/packages/lf20_ryltkdmr.json',
+                  // Fallback if network fails
+                  errorBuilder: (context, error, stackTrace) => Icon(
+                    Icons.logout_rounded,
+                    size: 60,
+                    color: AppColorPalette.primaryMaroon,
+                  ),
+                ),
+              ),
+
+              // Title
+              Text(
+                "Konfirmasi Keluar",
+                style: GoogleFonts.poppins(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: AppColorPalette.primaryMaroon,
+                ),
+                textAlign: TextAlign.center,
+              ),
+
+              const SizedBox(height: 12),
+
+              // Message
+              Text(
+                "Apakah Anda yakin ingin keluar dari aplikasi?",
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: Colors.black87,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+
+              const SizedBox(height: 32),
+
+              // Buttons
+              Row(
+                children: [
+                  // Cancel button
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Get.back(result: false),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.black87,
+                        backgroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          side: BorderSide(
+                            color: Colors.grey.withOpacity(0.3),
+                            width: 1,
+                          ),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        "Batal",
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 16),
+
+                  // Confirm button
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Get.back(result: true),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: AppColorPalette.primaryMaroon,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        "Keluar",
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
-      title: const CustomTextContainer(textKey: sureToLogoutKey),
-      actions: [
-        CustomTextButton(
-            buttonTextKey: noKey,
-            textStyle: TextStyle(
-              fontSize: Utils.getScaledValue(context, 15),
-            ),
-            onTapButton: () {
-              Get.back(result: false);
-            }),
-        CustomTextButton(
-            textStyle: TextStyle(
-              color: Colors.red,
-              fontSize: Utils.getScaledValue(context, 15),
-            ),
-            buttonTextKey: yesKey,
-            onTapButton: () {
-              Get.back(result: true);
-            }),
-      ],
     );
   }
 }
