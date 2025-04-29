@@ -348,13 +348,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
 
           print("AMAN ABDURRAHMAN");
 
-          Get.back(result: {
-            'success': true,
-            'updatedData': {
-              'id': widget.questionData!['banksoal_soal_id'],
-              'defaultPoint': int.parse(pointController.text),
-            }
-          });
+          Get.back(result: true);
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -386,12 +380,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
               elevation: 4,
             ),
           );
-
-          Future.delayed(Duration(milliseconds: 2200), () {
-            if (context.mounted) {
-              Get.back(result: true);
-            }
-          });
         } catch (e) {
           print("ABDURRAHMAN SALAM");
           print(e.toString());
@@ -790,8 +778,8 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                 // Question field
                 _buildAnimatedFormField(
                   controller: questionController,
-                    label: 'Pertanyaan',
-                    icon: Icons.help_outline_rounded,
+                  label: 'Pertanyaan',
+                  icon: Icons.help_outline_rounded,
                   hint: 'Masukkan pertanyaan lengkap',
                   maxLines: null,
                   minLines: 3,
@@ -1086,10 +1074,10 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                       Icon(Icons.warning_amber_rounded, color: Colors.amber),
                       SizedBox(width: 10),
                       Text(
-                      'Konfirmasi Perubahan',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                        'Konfirmasi Perubahan',
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
                       ),
                     ],
                   ),

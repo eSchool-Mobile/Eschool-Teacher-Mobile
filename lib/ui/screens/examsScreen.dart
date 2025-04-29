@@ -835,7 +835,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                                 ],
                               ),
                               Text(
-                                "Lihat Detail",
+                                "Selengkapnya",
                                 style: GoogleFonts.poppins(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
@@ -896,11 +896,6 @@ class _ExamsScreenState extends State<ExamsScreen>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          LottieBuilder.network(
-            'https://assets1.lottiefiles.com/packages/lf20_kljv8dtk.json',
-            width: 220,
-            height: 220,
-          ),
           SizedBox(height: 20),
           Text(
             _filterStatus == "Semua"

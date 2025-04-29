@@ -19,6 +19,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'dart:math' show sin, cos, pi;
 
@@ -1254,6 +1256,45 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
           }
         },
         builder: (context, state) {
+          // Show message prompt when no class or exam is selected yet
+          if (_selectedClassSection == null || _selectedExam == null) {
+            return Center(
+              child: FadeIn(
+                duration: Duration(milliseconds: 800),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(height: 40),
+                    Icon(
+                      Icons.assignment_outlined,
+                      size: 80,
+                      color: Colors.grey[400],
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      "Pilih Kelas dan ujian untuk melihat hasil",
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: _accentColor,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Data siswa akan tampil setelah kelas & ujian dipilih",
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
           if (state is StudentsByClassSectionFetchSuccess) {
             if (state.studentDetailsList.isEmpty) {
               return Center(

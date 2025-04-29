@@ -16,12 +16,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
   static Widget getRouteInstance() {
-    //final arguments = Get.arguments as Map<String,dynamic>;
     return BlocProvider(
       create: (context) => EditProfileCubit(),
       child: const EditProfileScreen(),
@@ -36,7 +37,8 @@ class EditProfileScreen extends StatefulWidget {
   State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
-class _EditProfileScreenState extends State<EditProfileScreen> {
+class _EditProfileScreenState extends State<EditProfileScreen>
+    with SingleTickerProviderStateMixin {
   TextEditingController firstName = TextEditingController();
   TextEditingController lastName = TextEditingController();
   TextEditingController mobileNumber = TextEditingController();
@@ -49,8 +51,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String profileImage = '';
   String? uploadedPicture;
 
+  // Animation controllers
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  // Soft maroon color scheme
+  final Color primaryMaroon = const Color(0xFF8B1F41);
+  final Color lightMaroon = const Color(0xFFBF6680);
+  final Color accentMaroon = const Color(0xFF5D1429);
+  final Color backgroundMaroon = const Color(0xFFFDF6F8);
+
   @override
   void initState() {
+    // Initialize animation controller
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    );
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutQuint),
+    );
+
+    // Start animation
+    _animationController.forward();
+
     firstName = TextEditingController(
         text: context.read<AuthCubit>().getUserDetails().firstName ?? "");
     lastName = TextEditingController(
@@ -94,10 +125,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     dateOfBirth.dispose();
     currentAddress.dispose();
     permanentAddress.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
   Future<void> _addFiles() async {
+    HapticFeedback.mediumImpact();
     final result = await Utils.openFilePicker(
         context: context, allowMultiple: false, type: FileType.image);
     if (result != null) {
@@ -109,103 +142,191 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget _buildLabelWithTextEditingController(
       {required String labelTitle,
       required String textFieldHintTextKey,
-      required TextEditingController textEditingController}) {
+      required TextEditingController textEditingController,
+      IconData? prefixIcon}) {
     final screenWidth = MediaQuery.of(context).size.width;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CustomTextContainer(
-          textKey: labelTitle,
-          style: TextStyle(
-              fontSize: Utils.getScaledValue(context, 15.5),
-              color: Theme.of(context).colorScheme.secondary.withOpacity(0.76)),
-        ),
-        SizedBox(height: screenWidth * 0.015),
-        CustomTextFieldContainer(
-          textEditingController: textEditingController,
-          hintTextKey: textFieldHintTextKey,
-        ),
-      ],
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
+            child: Row(
+              children: [
+                Icon(
+                  prefixIcon ?? Icons.person_outline,
+                  size: 18,
+                  color: primaryMaroon,
+                ),
+                SizedBox(width: 8),
+                Text(
+                  labelTitle.tr,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: accentMaroon,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  offset: const Offset(0, 3),
+                  blurRadius: 10,
+                  spreadRadius: 0,
+                )
+              ],
+            ),
+            child: TextFormField(
+              controller: textEditingController,
+              style: GoogleFonts.poppins(
+                fontSize: 15,
+                color: Colors.black87,
+              ),
+              decoration: InputDecoration(
+                hintText: textFieldHintTextKey.tr,
+                hintStyle: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.black26,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: primaryMaroon, width: 1.5),
+                ),
+                filled: true,
+                fillColor: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildDateOfBirthContainer() {
     final screenWidth = MediaQuery.of(context).size.width;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CustomTextContainer(
-          textKey: dateOfBirthKey,
-          style: TextStyle(
-              fontSize: Utils.getScaledValue(context, 15.5),
-              color: Theme.of(context).colorScheme.secondary.withOpacity(0.76)),
-        ),
-        SizedBox(
-          height: screenWidth * 0.015,
-        ),
-        GestureDetector(
-          onTap: () async {
-            final selectedDate = await showDatePicker(
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.cake_outlined,
+                  size: 18,
+                  color: primaryMaroon,
+                ),
+                SizedBox(width: 8),
+                Text(
+                  dateOfBirthKey.tr,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: accentMaroon,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: () async {
+              HapticFeedback.lightImpact();
+              final selectedDate = await showDatePicker(
                 context: context,
                 currentDate: _dateOfBirth,
                 firstDate: DateTime(1900),
-                lastDate: DateTime.now());
-            if (selectedDate != null) {
-              _dateOfBirth = selectedDate;
-              dateOfBirth.text = DateFormat("dd-MM-yyyy").format(_dateOfBirth);
-              setState(() {});
-            }
-          },
-          child: Container(
-            height: screenWidth * 0.125,
-            padding:
-                EdgeInsets.symmetric(horizontal: appContentHorizontalPadding),
-            decoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                borderRadius: BorderRadius.circular(5),
-                border:
-                    Border.all(color: Theme.of(context).colorScheme.tertiary)),
-            alignment: AlignmentDirectional.centerStart,
-            child: CustomTextContainer(
-              textKey: dateOfBirth.text,
-              style: TextStyle(fontSize: Utils.getScaledValue(context, 14.5)),
-            ),
-          ),
-        ),
-        SizedBox(
-          height: screenWidth * 0.0375,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRadioselection(String title, String apiValue) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    return Container(
-      margin: EdgeInsets.only(bottom: screenWidth * 0.035),
-      decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: BorderRadius.circular(screenWidth * 0.0125),
-          border: Border.all(color: Theme.of(context).colorScheme.tertiary)),
-      alignment: Alignment.center,
-      padding: EdgeInsetsDirectional.only(start: appContentHorizontalPadding),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text(
-            title.tr,
-            style: TextStyle(
-              fontSize: Utils.getScaledValue(context, 15),
-            ),
-          ),
-          Radio(
-            value: title,
-            groupValue: selectedGender,
-            onChanged: (value) {
-              setState(() {
-                selectedGender = value.toString();
-              });
+                lastDate: DateTime.now(),
+                builder: (context, child) {
+                  return Theme(
+                    data: Theme.of(context).copyWith(
+                      colorScheme: ColorScheme.light(
+                        primary: primaryMaroon,
+                        onPrimary: Colors.white,
+                        onSurface: Colors.black,
+                      ),
+                      textButtonTheme: TextButtonThemeData(
+                        style: TextButton.styleFrom(
+                          foregroundColor: primaryMaroon,
+                        ),
+                      ),
+                    ),
+                    child: child!,
+                  );
+                },
+              );
+              if (selectedDate != null) {
+                _dateOfBirth = selectedDate;
+                dateOfBirth.text =
+                    DateFormat("dd-MM-yyyy").format(_dateOfBirth);
+                setState(() {});
+              }
             },
+            child: Container(
+              height: 56,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    offset: const Offset(0, 3),
+                    blurRadius: 10,
+                    spreadRadius: 0,
+                  )
+                ],
+              ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200, width: 1),
+                ),
+                alignment: AlignmentDirectional.centerStart,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      dateOfBirth.text.isEmpty
+                          ? dateOfBirthKey.tr
+                          : dateOfBirth.text,
+                      style: GoogleFonts.poppins(
+                        fontSize: 15,
+                        color: dateOfBirth.text.isEmpty
+                            ? Colors.black26
+                            : Colors.black87,
+                      ),
+                    ),
+                    Icon(
+                      Icons.calendar_today,
+                      color: primaryMaroon,
+                      size: 18,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -214,262 +335,559 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Widget _buildGenderSelector() {
     final screenWidth = MediaQuery.of(context).size.width;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CustomTextContainer(
-          textKey: genderKey,
-          style: TextStyle(
-            fontSize: Utils.getScaledValue(context, 15.5),
-            color: Theme.of(context).colorScheme.secondary.withOpacity(0.76),
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.people_outline,
+                  size: 18,
+                  color: primaryMaroon,
+                ),
+                SizedBox(width: 8),
+                Text(
+                  genderKey.tr,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: accentMaroon,
+                  ),
+                ),
+              ],
+            ),
           ),
+          Row(
+            children: [
+              Expanded(
+                child: _buildGenderOption("male", Icons.male),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildGenderOption("female", Icons.female),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGenderOption(String gender, IconData icon) {
+    bool isSelected = selectedGender == gender;
+
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        setState(() {
+          selectedGender = gender;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        height: 56,
+        decoration: BoxDecoration(
+          color: isSelected ? primaryMaroon.withOpacity(0.1) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? primaryMaroon : Colors.grey.shade200,
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: primaryMaroon.withOpacity(0.15),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                    offset: const Offset(0, 3),
+                  )
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    blurRadius: 6,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 2),
+                  )
+                ],
         ),
-        SizedBox(height: screenWidth * 0.025),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Expanded(flex: 1, child: _buildRadioselection("male", "male")),
-            SizedBox(width: screenWidth * 0.035),
-            Expanded(flex: 1, child: _buildRadioselection("female", "female")),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? primaryMaroon : Colors.grey,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              gender.tr,
+              style: GoogleFonts.poppins(
+                fontSize: 15,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: isSelected ? primaryMaroon : Colors.black87,
+              ),
+            ),
           ],
         ),
-      ],
+      ),
     );
   }
 
   Widget _buildUpdateProfileButton(EditProfileState state) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    return Align(
-        alignment: Alignment.bottomCenter,
-        child: Container(
-          padding: EdgeInsets.all(appContentHorizontalPadding),
-          decoration: BoxDecoration(boxShadow: const [
-            BoxShadow(color: Colors.black12, blurRadius: 1, spreadRadius: 1)
-          ], color: Theme.of(context).colorScheme.surface),
-          width: MediaQuery.of(context).size.width,
-          height: screenWidth * 0.175,
-          child: CustomRoundedButton(
-            height: screenWidth * 0.1,
-            widthPercentage: 1.0,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            buttonTitle: updateProfileKey,
-            showBorder: false,
-            child: state is EditProfileProgress
-                ? const CustomCircularProgressIndicator()
-                : null,
-            onTap: () {
-              if (state is EditProfileProgress) {
-                return;
-              }
-              if (firstName.text.trim().isEmpty ||
-                  // lastName.text.trim().isEmpty ||
-                  mobileNumber.text.trim().isEmpty ||
-                  email.text.trim().isEmpty ||
-                  dateOfBirth.text.trim().isEmpty) {
-                Utils.showSnackBar(
-                    message: pleaseAddNeededDetailsKey, context: context);
-                return;
-              }
-
-              String apiDateFormat = "";
-              try {
-                final inputDate =
-                    DateFormat("dd-MM-yyyy").parse(dateOfBirth.text.trim());
-                apiDateFormat = DateFormat("yyyy-MM-dd").format(inputDate);
-              } catch (e) {
-                apiDateFormat = dateOfBirth.text.trim();
-              }
-              context.read<EditProfileCubit>().editProfile(
-                  firstName: firstName.text.trim(),
-                  lastName: lastName.text.trim(),
-                  mobileNumber: mobileNumber.text.trim(),
-                  email: email.text.trim(),
-                  dateOfBirth: dateOfBirth.text.trim(),
-                  currentAddress: currentAddress.text.trim(),
-                  permanentAddress: permanentAddress.text.trim(),
-                  gender: selectedGender,
-                  image: uploadedPicture ?? "");
-            },
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.07),
+            offset: const Offset(0, -4),
+            blurRadius: 20,
           ),
-        ));
+        ],
+      ),
+      child: SafeArea(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: 56,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [primaryMaroon, accentMaroon],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: primaryMaroon.withOpacity(0.3),
+                offset: const Offset(0, 4),
+                blurRadius: 15,
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () {
+                if (state is EditProfileProgress) {
+                  return;
+                }
+
+                HapticFeedback.mediumImpact();
+
+                if (firstName.text.trim().isEmpty ||
+                    mobileNumber.text.trim().isEmpty ||
+                    email.text.trim().isEmpty ||
+                    dateOfBirth.text.trim().isEmpty) {
+                  Utils.showSnackBar(
+                      message: pleaseAddNeededDetailsKey, context: context);
+                  return;
+                }
+
+                String apiDateFormat = "";
+                try {
+                  final inputDate =
+                      DateFormat("dd-MM-yyyy").parse(dateOfBirth.text.trim());
+                  apiDateFormat = DateFormat("yyyy-MM-dd").format(inputDate);
+                } catch (e) {
+                  apiDateFormat = dateOfBirth.text.trim();
+                }
+                context.read<EditProfileCubit>().editProfile(
+                    firstName: firstName.text.trim(),
+                    lastName: lastName.text.trim(),
+                    mobileNumber: mobileNumber.text.trim(),
+                    email: email.text.trim(),
+                    dateOfBirth: dateOfBirth.text.trim(),
+                    currentAddress: currentAddress.text.trim(),
+                    permanentAddress: permanentAddress.text.trim(),
+                    gender: selectedGender,
+                    image: uploadedPicture ?? "");
+              },
+              child: Center(
+                child: state is EditProfileProgress
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.check_circle_outline,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            updateProfileKey.tr,
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-        body: BlocConsumer<EditProfileCubit, EditProfileState>(
-            listener: (context, state) {
-      if (state is EditProfileSuccess) {
-        context.read<AuthCubit>().updateuserDetail(state.userDetails);
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Container(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.check_circle, color: Colors.white),
-                  SizedBox(width: 12),
-                  Text(
-                    'Profil berhasil diperbarui!',
-                    style: TextStyle(
-                      color: Colors.white, 
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+      backgroundColor: backgroundMaroon,
+      body: BlocConsumer<EditProfileCubit, EditProfileState>(
+          listener: (context, state) {
+        if (state is EditProfileSuccess) {
+          context.read<AuthCubit>().updateuserDetail(state.userDetails);
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Container(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.check_circle, color: Colors.white),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Profil berhasil diperbarui!',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              backgroundColor: Colors.green.shade400,
+              duration: const Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              elevation: 4,
+            ),
+          );
+        } else if (state is EditProfileFailure) {
+          Utils.showSnackBar(message: state.errorMessage, context: context);
+        }
+      }, builder: (context, state) {
+        return PopScope(
+          canPop: state is! EditProfileProgress,
+          child: Stack(
+            children: [
+              // Custom app bar with elegant design
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [primaryMaroon, primaryMaroon.withOpacity(0.8)],
+                    ),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(30),
+                      bottomRight: Radius.circular(30),
                     ),
                   ),
-                ],
-              ),
-            ),
-            backgroundColor: Colors.green.shade400,
-            duration: Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            elevation: 4,
-          ),
-        );
-      } else if (state is EditProfileFailure) {
-        Utils.showSnackBar(message: state.errorMessage, context: context);
-      }
-    }, builder: (context, state) {
-      return PopScope(
-        canPop: state is! EditProfileProgress,
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.topCenter,
-              child: SingleChildScrollView(
-                padding: EdgeInsets.only(
-                    bottom: screenWidth * 0.25,
-                    top: Utils.appContentTopScrollPadding(context: context) +
-                        screenWidth * 0.0625),
-                child: Container(
-                  color: Theme.of(context).colorScheme.surface,
-                  width: MediaQuery.of(context).size.width,
-                  padding: EdgeInsets.all(appContentHorizontalPadding),
                   child: Column(
                     children: [
-                      SizedBox(
-                        height: screenWidth * 0.0375,
+                      // Title and back button at the very top
+                      Container(
+                        padding: EdgeInsets.only(
+                            top: MediaQuery.of(context).padding.top,
+                            left: 8.0,
+                            right: 8.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.arrow_back_ios,
+                                  color: Colors.white),
+                              padding: EdgeInsets.zero,
+                              constraints: BoxConstraints(),
+                              onPressed: () {
+                                if (state is EditProfileProgress) {
+                                  return;
+                                }
+                                Get.back();
+                              },
+                            ),
+                            Text(
+                              editProfileKey.tr,
+                              style: GoogleFonts.poppins(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      SizedBox(
-                        height: screenWidth * 0.3,
-                        width: screenWidth * 0.3,
+                      // Empty space for the profile image that will overlap
+                      Expanded(child: Container()),
+                    ],
+                  ),
+                ),
+              ),
+              // Loading indicator
+              if (state is EditProfileProgress)
+                const Center(
+                  child: CustomCircularProgressIndicator(),
+                ),
+              // Background gradient
+              Positioned.fill(
+                top: 200,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        backgroundMaroon,
+                        backgroundMaroon.withOpacity(0.8),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              // Top shadow
+
+              // Bottom shadow
+
+              // Main content
+              Positioned.fill(
+                top: 150,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFDF6F8),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: SlideTransition(
+                    position: _slideAnimation,
+                    child: FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.only(
+                            top: 80, bottom: 100, left: 24, right: 24),
+                        physics: const BouncingScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 24.0),
+                              child: Text(
+                                "Personal Information",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: accentMaroon,
+                                ),
+                              ),
+                            ),
+                            _buildLabelWithTextEditingController(
+                              labelTitle: firstNameKey,
+                              textFieldHintTextKey: firstNameKey,
+                              textEditingController: firstName,
+                              prefixIcon: Icons.person_outline,
+                            ),
+                            _buildLabelWithTextEditingController(
+                              labelTitle: lastNameKey,
+                              textFieldHintTextKey: lastNameKey,
+                              textEditingController: lastName,
+                              prefixIcon: Icons.person_outline,
+                            ),
+                            _buildLabelWithTextEditingController(
+                              labelTitle: emailKey,
+                              textFieldHintTextKey: emailKey,
+                              textEditingController: email,
+                              prefixIcon: Icons.email_outlined,
+                            ),
+                            _buildLabelWithTextEditingController(
+                              labelTitle: mobileNumberKey,
+                              textFieldHintTextKey: mobileNumberKey,
+                              textEditingController: mobileNumber,
+                              prefixIcon: Icons.phone_outlined,
+                            ),
+                            _buildDateOfBirthContainer(),
+                            _buildGenderSelector(),
+                            if (context.read<AuthCubit>().isTeacher()) ...[
+                              const SizedBox(height: 24),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 16.0),
+                                child: Text(
+                                  "Address Information",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: accentMaroon,
+                                  ),
+                                ),
+                              ),
+                              _buildLabelWithTextEditingController(
+                                labelTitle: currentAddressKey,
+                                textFieldHintTextKey: currentAddressKey,
+                                textEditingController: currentAddress,
+                                prefixIcon: Icons.home_outlined,
+                              ),
+                              _buildLabelWithTextEditingController(
+                                labelTitle: permanentAddressKey,
+                                textFieldHintTextKey: permanentAddressKey,
+                                textEditingController: permanentAddress,
+                                prefixIcon: Icons.location_on_outlined,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Profile image with hero animation
+              Positioned(
+                top: 100,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Hero(
+                    tag: "profileImage",
+                    child: Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 15,
+                            spreadRadius: 5,
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
                         child: Stack(
                           children: [
-                            Container(
-                              width: screenWidth * 0.25,
-                              height: screenWidth * 0.25,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(
-                                      screenWidth * 0.025),
-                                  image: profileImage.isEmpty
-                                      ? null
-                                      : DecorationImage(
-                                          fit: BoxFit.cover,
-                                          image: CachedNetworkImageProvider(
-                                              profileImage)),
-                                  color:
-                                      Theme.of(context).colorScheme.tertiary),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(60),
                               child: uploadedPicture != null
                                   ? Image.file(
                                       File(uploadedPicture!),
-                                      width: 150,
-                                      height: 150,
+                                      width: 120,
+                                      height: 120,
                                       fit: BoxFit.cover,
                                     )
-                                  : profileImage.isEmpty
-                                      ? const Center(
-                                          child: Icon(
-                                            Icons.person,
-                                            size: 25,
+                                  : profileImage.isNotEmpty
+                                      ? CachedNetworkImage(
+                                          imageUrl: profileImage,
+                                          width: 120,
+                                          height: 120,
+                                          fit: BoxFit.cover,
+                                          placeholder: (context, url) =>
+                                              Container(
+                                            color: lightMaroon.withOpacity(0.3),
+                                            child: const Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            ),
+                                          ),
+                                          errorWidget: (context, url, error) =>
+                                              Container(
+                                            color: lightMaroon.withOpacity(0.3),
+                                            child: const Icon(
+                                              Icons.person,
+                                              size: 60,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         )
-                                      : null,
+                                      : Container(
+                                          color: lightMaroon.withOpacity(0.3),
+                                          child: const Icon(
+                                            Icons.person,
+                                            size: 60,
+                                            color: Colors.white,
+                                          ),
+                                        ),
                             ),
-                            Align(
-                              alignment: AlignmentDirectional.bottomEnd,
-                              child: Container(
-                                margin: const EdgeInsetsDirectional.only(
-                                    bottom: 7.50, end: 7.50),
-                                width: 35,
-                                height: 35,
-                                decoration: BoxDecoration(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    borderRadius: BorderRadius.circular(2.50)),
-                                child: GestureDetector(
-                                  child: Icon(
-                                    Icons.camera_alt_outlined,
-                                    color:
-                                        Theme.of(context).colorScheme.surface,
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap: _addFiles,
+                                child: Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [primaryMaroon, accentMaroon],
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: primaryMaroon.withOpacity(0.3),
+                                        blurRadius: 8,
+                                        spreadRadius: 2,
+                                      ),
+                                    ],
                                   ),
-                                  onTap: () => _addFiles(),
+                                  child: const Icon(
+                                    Icons.camera_alt,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
                                 ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(
-                        height: 20.0,
-                      ),
-                      _buildLabelWithTextEditingController(
-                          labelTitle: firstNameKey,
-                          textFieldHintTextKey: firstNameKey,
-                          textEditingController: firstName),
-                      _buildLabelWithTextEditingController(
-                          labelTitle: lastNameKey,
-                          textFieldHintTextKey: lastNameKey,
-                          textEditingController: lastName),
-                      _buildLabelWithTextEditingController(
-                          labelTitle: mobileNumberKey,
-                          textFieldHintTextKey: mobileNumberKey,
-                          textEditingController: mobileNumber),
-                      _buildLabelWithTextEditingController(
-                          labelTitle: emailKey,
-                          textFieldHintTextKey: emailKey,
-                          textEditingController: email),
-                      _buildDateOfBirthContainer(),
-                      context.read<AuthCubit>().isTeacher()
-                          ? _buildLabelWithTextEditingController(
-                              labelTitle: currentAddressKey,
-                              textFieldHintTextKey: currentAddressKey,
-                              textEditingController: currentAddress)
-                          : const SizedBox(),
-                      context.read<AuthCubit>().isTeacher()
-                          ? _buildLabelWithTextEditingController(
-                              labelTitle: permanentAddressKey,
-                              textFieldHintTextKey: permanentAddressKey,
-                              textEditingController: permanentAddress)
-                          : const SizedBox(),
-                      _buildGenderSelector(),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            _buildUpdateProfileButton(state),
-            Align(
-              alignment: Alignment.topCenter,
-              child: CustomAppbar(
-                titleKey: editProfileKey,
-                onBackButtonTap: () {
-                  if (state is EditProfileProgress) {
-                    return;
-                  }
-                  Get.back();
-                },
+
+              // Update profile button
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: _buildUpdateProfileButton(state),
               ),
-            )
-          ],
-        ),
-      );
-    }));
+            ],
+          ),
+        );
+      }),
+    );
   }
 }

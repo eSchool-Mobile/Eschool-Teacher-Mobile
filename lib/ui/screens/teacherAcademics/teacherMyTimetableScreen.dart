@@ -1,4 +1,3 @@
-
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
@@ -48,11 +47,12 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen> {
     return WeekdaysContainer(
       selectedDayKey: _selectedDayKey,
       onSelectionChange: (String newSelection) {
+        print("Day selection changed to: $newSelection");
         setState(() {
           _selectedDayKey = newSelection;
         });
 
-        // Add this code to fetch data for the selected day
+        // Fetch timetable for the selected day
         context
             .read<TeacherMyTimetableCubit>()
             .getTeacherMyTimetable(isRefresh: true, dayKey: newSelection);
@@ -107,6 +107,14 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final state = context.watch<TeacherMyTimetableCubit>().state;
+    print("Current state: $state");
+    if (state is TeacherMyTimetableFetchSuccess) {
+      print("Total slots in state: ${state.timeTableSlots.length}");
+      print("Selected day: $_selectedDayKey");
+      print("Days in data: ${state.timeTableSlots.map((s) => s.day).toSet()}");
+    }
+
     return Scaffold(
       body: Stack(
         children: [
@@ -200,5 +208,3 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen> {
     );
   }
 }
-
-

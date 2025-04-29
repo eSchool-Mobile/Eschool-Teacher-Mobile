@@ -695,7 +695,6 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
     );
   }
 
-  // Ubah method build() untuk menghapus FloatingActionButton
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -703,102 +702,112 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
       child: Scaffold(
         backgroundColor: _primaryColor,
         extendBodyBehindAppBar: true,
-        body: Stack(
-          children: [
-            // Animated background with advanced effects
-            _buildAnimatedBackground(),
+        body: BlocListener<QuestionBankCubit, QuestionBankState>(
+          listener: (context, state) {
+            // When we receive a BankQuestionsFetchSuccess state, we update the filtered questions
+            if (state is BankQuestionsFetchSuccess) {
+              setState(() {
+                _filteredQuestions = state.questions;
+              });
+            }
+          },
+          child: Stack(
+            children: [
+              // Animated background with advanced effects
+              _buildAnimatedBackground(),
 
-            // Content with parallax scroll effect
-            SafeArea(
-              child: NotificationListener<ScrollNotification>(
-                onNotification: (notification) {
-                  if (notification is ScrollUpdateNotification) {
-                    setState(() {
-                      _dragPosition = notification.metrics.pixels / 10;
-                    });
-                  }
-                  return false;
-                },
-                child: Column(
-                  children: [
-                    // Custom app bar with advanced animated elements
-                    _buildHeader(),
+              // Content with parallax scroll effect
+              SafeArea(
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (notification) {
+                    if (notification is ScrollUpdateNotification) {
+                      setState(() {
+                        _dragPosition = notification.metrics.pixels / 10;
+                      });
+                    }
+                    return false;
+                  },
+                  child: Column(
+                    children: [
+                      // Custom app bar with advanced animated elements
+                      _buildHeader(),
 
-                    // Main content with curved container and 3D effect
-                    Expanded(
-                      child: Container(
-                        margin: EdgeInsets.only(top: 15),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.white.withOpacity(0.95),
-                              Color(0xFFFFF0F0),
+                      // Main content with curved container and 3D effect
+                      Expanded(
+                        child: Container(
+                          margin: EdgeInsets.only(top: 15),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.white.withOpacity(0.95),
+                                Color(0xFFFFF0F0),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(40),
+                              topRight: Radius.circular(40),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: _glowColor.withOpacity(0.2),
+                                blurRadius: 20,
+                                spreadRadius: 5,
+                                offset: Offset(0, -5),
+                              ),
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 30,
+                                offset: Offset(0, -10),
+                              ),
                             ],
                           ),
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(40),
-                            topRight: Radius.circular(40),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: _glowColor.withOpacity(0.2),
-                              blurRadius: 20,
-                              spreadRadius: 5,
-                              offset: Offset(0, -5),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(40),
+                              topRight: Radius.circular(40),
                             ),
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 30,
-                              offset: Offset(0, -10),
+                            child: BlocBuilder<QuestionBankCubit,
+                                QuestionBankState>(
+                              builder: (context, state) {
+                                if (state is QuestionBankLoading) {
+                                  return _buildShimmerLoading();
+                                }
+                                if (state is BankQuestionsFetchSuccess) {
+                                  return state.questions.isEmpty
+                                      ? _buildEmptyState()
+                                      : _buildContent(state.questions);
+                                }
+                                if (state is QuestionBankError) {
+                                  return Center(
+                                    child: ErrorContainer(
+                                      errorMessage:
+                                          "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
+                                      onTapRetry: () {
+                                        context
+                                            .read<QuestionBankCubit>()
+                                            .fetchBankQuestions(
+                                              subjectId:
+                                                  widget.subject.subject.id,
+                                              bankId: widget.bankSoal.id,
+                                            );
+                                      },
+                                    ),
+                                  );
+                                }
+                                return SizedBox();
+                              },
                             ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(40),
-                            topRight: Radius.circular(40),
-                          ),
-                          child:
-                              BlocBuilder<QuestionBankCubit, QuestionBankState>(
-                            builder: (context, state) {
-                              if (state is QuestionBankLoading) {
-                                return _buildShimmerLoading();
-                              }
-                              if (state is BankQuestionsFetchSuccess) {
-                                return state.questions.isEmpty
-                                    ? _buildEmptyState()
-                                    : _buildContent(state.questions);
-                              }
-                              if (state is QuestionBankError) {
-                                return Center(
-                                  child: ErrorContainer(
-                                    errorMessage:
-                                        "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
-                                    onTapRetry: () {
-                                      context
-                                          .read<QuestionBankCubit>()
-                                          .fetchBankQuestions(
-                                            subjectId:
-                                                widget.subject.subject.id,
-                                            bankId: widget.bankSoal.id,
-                                          );
-                                    },
-                                  ),
-                                );
-                              }
-                              return SizedBox();
-                            },
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1549,11 +1558,11 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                     Center(
                                       child: Icon(
                                         Icons.delete_outline_rounded,
-                                        size: 18, 
+                                        size: 18,
                                         color: Colors.red.shade700,
                                       ),
                                     )
-                   
+
                                     // Text(
                                     //   'Hapus',
                                     //   style: TextStyle(
@@ -1951,7 +1960,9 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
     );
 
     if (result == true) {
+      // Explicitly reload questions when we get true result
       _loadQuestions();
+  
     }
   }
 

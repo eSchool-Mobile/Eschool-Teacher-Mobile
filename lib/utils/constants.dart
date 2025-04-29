@@ -39,6 +39,10 @@ String defaultSchoolCode = "SCH20247";
 String defaultEmail = "agungcahyono533@gmail.com";
 String defaultPassword = "081230093978";
 
+// String defaultSchoolCode = "";
+// String defaultEmail = "";
+// String defaultPassword = "";
+
 // String defaultSchoolCode = "SCH20247";
 // String defaultEmail = "adminsmk8malang@gmail.com";
 // String defaultPassword = "0341479148";

@@ -926,7 +926,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                         color: Colors.white),
                                     SizedBox(width: 12),
                                     Text(
-                                      'Ujian berhasil dihapus secara permanen!',
+                                      'Ujian berhasil dihapus!',
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 16,
