@@ -38,7 +38,7 @@ class RecapAttendanceContainer extends StatelessWidget {
       return;
     }
 
-    final url = Uri.parse('https://eschool.ac.id/recap-download'
+    final url = Uri.parse('https://esbeta.deanry.my.id/recap-download'
         '?school_id=$schoolId' // Gunakan schoolId yang diterima dari parameter
         '&class_id=${section.classDetails?.id}'
         '&class_section_id=${section.id}'

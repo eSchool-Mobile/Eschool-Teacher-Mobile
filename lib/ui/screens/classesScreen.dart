@@ -1,3 +1,5 @@
+import 'dart:ui';
+import 'dart:math';
 import 'package:eschool_saas_staff/cubits/academics/classesWithTeacherDetailsCubit.dart';
 import 'package:eschool_saas_staff/data/models/subjectTeacher.dart';
 import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
@@ -10,12 +12,14 @@ import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/services.dart';
 
 class ClassesScreen extends StatefulWidget {
   const ClassesScreen({super.key});
 
   static Widget getRouteInstance() {
-    //final arguments = Get.arguments as Map<String,dynamic>;
     return BlocProvider(
       create: (context) => ClassesWithTeacherDetailsCubit(),
       child: const ClassesScreen(),
@@ -30,85 +34,987 @@ class ClassesScreen extends StatefulWidget {
   State<ClassesScreen> createState() => _ClassesScreenState();
 }
 
-class _ClassesScreenState extends State<ClassesScreen> {
+class _ClassesScreenState extends State<ClassesScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  final ScrollController _scrollController = ScrollController();
+  bool _isScrolled = false;
+
   @override
   void initState() {
-    Future.delayed(Duration.zero, () {
-      if (mounted) {
-        context
-            .read<ClassesWithTeacherDetailsCubit>()
-            .getClassesWithTeacherDetails();
-      }
-    });
     super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    )..forward();
+
+    _scrollController.addListener(_scrollListener);
+
+    Future.delayed(Duration.zero, () {
+      getClassesWithTeacherDetails();
+    });
+  }
+
+  void _scrollListener() {
+    if (_scrollController.offset > 10 && !_isScrolled) {
+      setState(() {
+        _isScrolled = true;
+      });
+    } else if (_scrollController.offset <= 10 && _isScrolled) {
+      setState(() {
+        _isScrolled = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void getClassesWithTeacherDetails() async {
+    context
+        .read<ClassesWithTeacherDetailsCubit>()
+        .getClassesWithTeacherDetails();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: const CustomAppbar(titleKey: viewClassesKey),
-        body: BlocBuilder<ClassesWithTeacherDetailsCubit,
-            ClassesWithTeacherDetailsState>(
-          builder: (context, state) {
-            if (state is ClassesWithTeacherDetailsFetchSuccess) {
-              return ListView.builder(
-                  padding: EdgeInsets.all(appContentHorizontalPadding),
-                  itemCount: state.classes.length,
-                  itemBuilder: (context, index) {
-                    final classSection = state.classes[index];
-                    return Padding(
-                      padding:
-                          EdgeInsets.only(bottom: appContentHorizontalPadding),
-                      child: ListTile(
-                        onTap: () {
-                          Utils.showBottomSheet(
-                              child: ClassSubjectsBottomsheet(
-                                  subjectTeachers:
-                                      classSection.subjectTeachers ?? []),
-                              context: context);
+    return Theme(
+      data: Theme.of(context).copyWith(
+        colorScheme: Theme.of(context).colorScheme.copyWith(
+              primary: AppColorPalette.primaryMaroon,
+              secondary: AppColorPalette.secondaryMaroon,
+              surface: Colors.white,
+              background: Colors.white,
+            ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Stack(
+          children: [
+            // Enhanced Animated Background Pattern
+            AnimatedPositioned(
+              duration: Duration(seconds: 1),
+              curve: Curves.easeInOut,
+              top: 0,
+              left: 0,
+              right: 0,
+              height: MediaQuery.of(context).size.height,
+              child: AnimatedOpacity(
+                duration: Duration(seconds: 1),
+                opacity: 0.15,
+                child: Stack(
+                  children: [
+                    CustomPaint(
+                      painter: BackgroundPatternPainter(
+                        color: AppColorPalette.primaryMaroon,
+                      ),
+                    ),
+                    // Decorative particles for modern look
+                    ...List.generate(10, (index) {
+                      return Positioned(
+                        top: Random().nextDouble() *
+                            MediaQuery.of(context).size.height,
+                        left: Random().nextDouble() *
+                            MediaQuery.of(context).size.width,
+                        child: AnimatedContainer(
+                          duration: Duration(seconds: 2 + index),
+                          width: 4 + Random().nextDouble() * 8,
+                          height: 4 + Random().nextDouble() * 8,
+                          decoration: BoxDecoration(
+                            color:
+                                AppColorPalette.primaryMaroon.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            ),
+
+            // Main Content with Enhanced Animation
+            SafeArea(
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(0, (1 - _controller.value) * 30),
+                    child: Opacity(
+                      opacity: _controller.value,
+                      child: BlocBuilder<ClassesWithTeacherDetailsCubit,
+                          ClassesWithTeacherDetailsState>(
+                        builder: (context, state) {
+                          if (state is ClassesWithTeacherDetailsFetchSuccess) {
+                            if (state.classes.isEmpty) {
+                              return _buildEmptyState(context);
+                            }
+                            return _buildSuccessState(context, state);
+                          }
+
+                          if (state is ClassesWithTeacherDetailsFetchFailure) {
+                            return _buildErrorState(context, state);
+                          }
+
+                          return _buildLoadingState(context);
                         },
-                        trailing: const Icon(Icons.arrow_right),
-                        tileColor: Theme.of(context).colorScheme.surface,
-                        title: CustomTextContainer(
-                            textKey: classSection.fullName ?? ""),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            CustomTextContainer(
-                                textKey:
-                                    "${Utils.getTranslatedLabel(classTeacherKey)} : ${classSection.getClassTeacherNames()}"),
-                            (classSection.classDetails?.semesterName ?? '')
-                                    .isEmpty
-                                ? const SizedBox()
-                                : CustomTextContainer(
-                                    textKey:
-                                        "${Utils.getTranslatedLabel(semesterKey)} : ${classSection.classDetails?.semesterName}"),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // Enhanced Curved AppBar with Animation
+            AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                return Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: ClipPath(
+                    clipper: EnhancedCurvedBottomClipper(),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(
+                        sigmaX: 10 * _controller.value,
+                        sigmaY: 10 * _controller.value,
+                      ),
+                      child: AnimatedContainer(
+                        duration: Duration(milliseconds: 300),
+                        height: 145.0,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              AppColorPalette.primaryMaroon
+                                  .withOpacity(_isScrolled ? 0.95 : 0.85),
+                              AppColorPalette.secondaryMaroon
+                                  .withOpacity(_isScrolled ? 0.9 : 0.8),
+                            ],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColorPalette.primaryMaroon
+                                  .withOpacity(0.2),
+                              blurRadius: _isScrolled ? 15 : 5,
+                              offset: Offset(0, _isScrolled ? 5 : 2),
+                            ),
                           ],
                         ),
+                        child: SafeArea(
+                          bottom: false,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24.0,
+                              vertical: 16.0,
+                            ),
+                            child: Row(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        // Add back button here
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            gradient: LinearGradient(
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                              colors: [
+                                                Colors.white.withOpacity(0.3),
+                                                Colors.white.withOpacity(0.1),
+                                              ],
+                                            ),
+                                            border: Border.all(
+                                              color:
+                                                  Colors.white.withOpacity(0.5),
+                                              width: 1,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(0.1),
+                                                blurRadius: 8,
+                                                spreadRadius: 1,
+                                              ),
+                                            ],
+                                          ),
+                                          child: ClipOval(
+                                            child: BackdropFilter(
+                                              filter: ImageFilter.blur(
+                                                  sigmaX: 3, sigmaY: 3),
+                                              child: IconButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                  HapticFeedback.mediumImpact();
+                                                },
+                                                icon: Icon(
+                                                  Icons.arrow_back_ios_rounded,
+                                                  color: Colors.white,
+                                                  size: 18,
+                                                ),
+                                                padding: EdgeInsets.all(8),
+                                                constraints: BoxConstraints(),
+                                                splashRadius: 24,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(width: 8),
+                                        CustomTextContainer(
+                                          textKey: viewClassesKey,
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.white,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 6),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
-                    );
-                  });
-            }
-            if (state is ClassesWithTeacherDetailsFetchFailure) {
-              return Center(
-                child: ErrorContainer(
-                  errorMessage: state.errorMessage,
-                  onTapRetry: () {
-                    context
-                        .read<ClassesWithTeacherDetailsCubit>()
-                        .getClassesWithTeacherDetails();
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Center(
+          child: SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Enhanced animated empty state icon
+                TweenAnimationBuilder(
+                    duration: Duration(seconds: 2),
+                    tween: Tween<double>(begin: 0.8, end: 1.0),
+                    curve: Curves.elasticOut,
+                    builder: (context, value, child) {
+                      return Transform.scale(
+                        scale: value,
+                        child: Container(
+                          width: 180,
+                          height: 180,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color:
+                                AppColorPalette.primaryMaroon.withOpacity(0.1),
+                          ),
+                          child: Center(
+                            child: Transform.scale(
+                              scale: 1 + sin(_controller.value * 2 * pi) * 0.05,
+                              child: Icon(
+                                Icons.school_outlined,
+                                size: 100,
+                                color: AppColorPalette.primaryMaroon
+                                    .withOpacity(0.7),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                const SizedBox(height: 32),
+
+                // Enhanced no classes text
+                ShaderMask(
+                  shaderCallback: (bounds) => LinearGradient(
+                    colors: [
+                      AppColorPalette.primaryMaroon,
+                      AppColorPalette.secondaryMaroon,
+                    ],
+                  ).createShader(bounds),
+                  child: CustomTextContainer(
+                    textKey:
+                        Utils.getTranslatedLabel(noClassSectionSelectedKey),
+                    style: GoogleFonts.poppins(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Action button
+                ElevatedButton.icon(
+                  onPressed: () {
+                    getClassesWithTeacherDetails();
+                    HapticFeedback.mediumImpact();
                   },
+                  icon: Icon(Icons.refresh_rounded),
+                  label: Text(
+                    "Refresh Classes",
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColorPalette.primaryMaroon,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSuccessState(
+      BuildContext context, ClassesWithTeacherDetailsFetchSuccess state) {
+    return AnimationLimiter(
+      child: CustomScrollView(
+        controller: _scrollController,
+        physics: BouncingScrollPhysics(),
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.only(
+                top: Utils.appContentTopScrollPadding(context: context) +
+                    60, // Increased from 25 to 60
+                bottom: 16,
+                left: appContentHorizontalPadding,
+                right: appContentHorizontalPadding,
+              ),
+              child: _buildEnhancedHeaderCard(context),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => AnimationConfiguration.staggeredList(
+                  position: index,
+                  duration: const Duration(milliseconds: 600),
+                  child: SlideAnimation(
+                    horizontalOffset: 50.0,
+                    child: FadeInAnimation(
+                      curve: Curves.easeOut,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: _buildEnhancedClassCard(
+                            context, state.classes[index], index),
+                      ),
+                    ),
+                  ),
+                ),
+                childCount: state.classes.length,
+              ),
+            ),
+          ),
+          // Add some bottom padding for better scroll experience
+          SliverToBoxAdapter(
+            child: SizedBox(height: 80),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEnhancedHeaderCard(BuildContext context) {
+    return Hero(
+      tag: 'class_list_title',
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        child: Stack(
+          children: [
+            // Enhanced Main Card with Improved Frosted Glass Effect
+            Card(
+              elevation: 16,
+              shadowColor: AppColorPalette.primaryMaroon.withOpacity(0.3),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(28),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(28),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(28),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          AppColorPalette.primaryMaroon.withOpacity(0.9),
+                          AppColorPalette.secondaryMaroon.withOpacity(0.9),
+                        ],
+                        stops: const [0.2, 1.0],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+                          blurRadius: 15,
+                          offset: Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Enhanced Top Section with Title and Icon
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      CustomTextContainer(
+                                        textKey: classListKey,
+                                        style: GoogleFonts.poppins(
+                                          fontSize:
+                                              Utils.getScaledValue(context, 24),
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Icon(
+                                        Icons.workspace_premium,
+                                        color: Colors.white.withOpacity(0.9),
+                                        size: 20,
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    width: 60,
+                                    height: 3,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.7),
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 16),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // Enhanced Decorative Elements
+            Positioned(
+              right: -25,
+              bottom: -15,
+              child: Icon(
+                Icons.school,
+                size: 100,
+                color: Colors.white.withOpacity(0.08),
+              ),
+            ),
+
+            // Enhanced Decorative Elements
+            ...List.generate(4, (index) {
+              return Positioned(
+                left: 15 + (index * 15),
+                top: 15 + (index * 10),
+                child: Container(
+                  width: 30 - (index * 5),
+                  height: 30 - (index * 5),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.1 - (index * 0.02)),
+                  ),
                 ),
               );
-            }
-            return Center(
-              child: CustomCircularProgressIndicator(
-                indicatorColor: Theme.of(context).colorScheme.primary,
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEnhancedClassCard(
+      BuildContext context, dynamic classSection, int index) {
+    final bool isEven = index.isEven;
+    final cardGradient = [
+      Colors.white,
+      Colors.white,
+    ];
+
+    return TweenAnimationBuilder(
+      duration: Duration(milliseconds: 300),
+      tween: Tween<double>(begin: 0.96, end: 1.0),
+      builder: (context, scale, child) {
+        return Transform.scale(
+          scale: scale,
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 8),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  Utils.showBottomSheet(
+                      child: _buildEnhancedBottomSheet(
+                          classSection.subjectTeachers ?? []),
+                      context: context);
+                },
+                borderRadius: BorderRadius.circular(24),
+                splashColor: AppColorPalette.primaryMaroon.withOpacity(0.2),
+                highlightColor: AppColorPalette.primaryMaroon.withOpacity(0.1),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: cardGradient,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+                        blurRadius: 15,
+                        offset: Offset(0, 8),
+                        spreadRadius: 1,
+                      ),
+                    ],
+                    border: Border.all(
+                      color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      _buildEnhancedCardHeader(context, classSection, isEven),
+                      _buildEnhancedCardBody(context, classSection, isEven),
+                    ],
+                  ),
+                ),
               ),
-            );
-          },
-        ));
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEnhancedCardHeader(
+      BuildContext context, dynamic details, bool isEven) {
+    return Container(
+      padding: EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: AppColorPalette.primaryMaroon.withOpacity(0.15),
+            width: 1.5,
+          ),
+        ),
+        gradient: LinearGradient(
+          begin: isEven ? Alignment.centerLeft : Alignment.centerRight,
+          end: isEven ? Alignment.centerRight : Alignment.centerLeft,
+          colors: [
+            AppColorPalette.primaryMaroon.withOpacity(0.15),
+            AppColorPalette.secondaryMaroon.withOpacity(0.08),
+          ],
+        ),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  details.fullName ?? 'Class Section',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: AppColorPalette.primaryMaroon,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEnhancedCardBody(
+      BuildContext context, dynamic details, bool isEven) {
+    // For class teacher names
+    final classTeacherNames = details.getClassTeacherNames();
+
+    return Padding(
+      padding: EdgeInsets.all(20),
+      child: Column(
+        children: [
+          _buildEnhancedInfoRow(
+              context, 'Guru Kelas', classTeacherNames, Icons.person_outline,
+              gradient: [
+                AppColorPalette.primaryMaroon.withOpacity(0.08),
+                AppColorPalette.secondaryMaroon.withOpacity(0.02),
+              ]),
+
+          // Add spacing before button
+          SizedBox(height: 20),
+
+          // Smaller Selengkapnya button
+          Align(
+            alignment: Alignment.centerRight,
+            child: ElevatedButton(
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                Utils.showBottomSheet(
+                    child: _buildEnhancedBottomSheet(
+                        details.subjectTeachers ?? []),
+                    context: context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColorPalette.primaryMaroon,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 2,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Selengkapnya",
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13,
+                    ),
+                  ),
+                  SizedBox(width: 4),
+                  Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 14,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoChip(BuildContext context, String label, String value,
+      IconData icon, bool isAlt) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: isAlt
+            ? AppColorPalette.primaryMaroon.withOpacity(0.07)
+            : AppColorPalette.secondaryMaroon.withOpacity(0.07),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isAlt
+              ? AppColorPalette.primaryMaroon.withOpacity(0.1)
+              : AppColorPalette.secondaryMaroon.withOpacity(0.1),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 20,
+            color: isAlt
+                ? AppColorPalette.primaryMaroon.withOpacity(0.7)
+                : AppColorPalette.secondaryMaroon.withOpacity(0.7),
+          ),
+          SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: AppColorPalette.primaryMaroon.withOpacity(0.6),
+                  ),
+                ),
+                Text(
+                  value,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColorPalette.primaryMaroon.withOpacity(0.9),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEnhancedInfoRow(
+      BuildContext context, String label, String value, IconData icon,
+      {required List<Color> gradient}) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColorPalette.primaryMaroon.withOpacity(0.12),
+            AppColorPalette.secondaryMaroon.withOpacity(0.08),
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColorPalette.primaryMaroon.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColorPalette.primaryMaroon.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Icon(icon, size: 24, color: Colors.white),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColorPalette.secondaryMaroon,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  value,
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: AppColorPalette.primaryMaroon,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEnhancedBottomSheet(List<SubjectTeacher> subjectTeachers) {
+    return ClassSubjectsBottomsheet(subjectTeachers: subjectTeachers);
+  }
+
+  Widget _buildErrorState(
+      BuildContext context, ClassesWithTeacherDetailsFetchFailure state) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Error illustration or icon
+          Container(
+            width: 150,
+            height: 150,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+            ),
+            child: Center(
+              child: Icon(
+                Icons.error_outline_rounded,
+                size: 70,
+                color: AppColorPalette.primaryMaroon.withOpacity(0.7),
+              ),
+            ),
+          ),
+          SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            child: Text(
+              'Oops! Something went wrong',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+                color: AppColorPalette.primaryMaroon,
+              ),
+            ),
+          ),
+          SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            child: Text(
+              state.errorMessage,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: AppColorPalette.secondaryMaroon.withOpacity(0.8),
+              ),
+            ),
+          ),
+          SizedBox(height: 32),
+          ElevatedButton.icon(
+            onPressed: () => getClassesWithTeacherDetails(),
+            icon: Icon(Icons.refresh_rounded),
+            label: Text(
+              "Try Again",
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColorPalette.primaryMaroon,
+              foregroundColor: Colors.white,
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingState(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Enhanced loading animation
+          TweenAnimationBuilder(
+            duration: const Duration(milliseconds: 1500),
+            tween: Tween<double>(begin: 0.0, end: 1.0),
+            builder: (context, value, child) {
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Outer circle
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+                        width: 4,
+                      ),
+                    ),
+                  ),
+                  // Animated progress circle
+                  SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: CircularProgressIndicator(
+                      value: null,
+                      strokeWidth: 4,
+                      backgroundColor: Colors.transparent,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppColorPalette.primaryMaroon,
+                      ),
+                    ),
+                  ),
+                  // Center icon
+                  Icon(
+                    Icons.school_rounded,
+                    color: AppColorPalette.primaryMaroon,
+                    size: 40,
+                  ),
+                ],
+              );
+            },
+          ),
+          SizedBox(height: 32),
+          Text(
+            "Memuat Kelas...",
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: AppColorPalette.primaryMaroon,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            "Mohon tunggu selagi kami memuat data kelas",
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: AppColorPalette.secondaryMaroon.withOpacity(0.7),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -119,20 +1025,247 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomBottomsheet(
-        titleLabelKey: classSubjectsKey,
-        child: Column(
-          children: subjectTeachers
-              .map((subjectTeacher) => ListTile(
-                    tileColor: Theme.of(context).colorScheme.surface,
-                    title: CustomTextContainer(
-                        textKey:
-                            subjectTeacher.subject?.getSybjectNameWithType() ??
-                                ''),
-                    subtitle: CustomTextContainer(
-                        textKey:
-                            "${Utils.getTranslatedLabel(teacherKey)} : ${subjectTeacher.teacher?.fullName ?? '-'}"),
-                  ))
-              .toList(),
-        ));
+      titleLabelKey: classSubjectsKey,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Row(
+              children: [
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Mata Pelajaran dan Guru',
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColorPalette.primaryMaroon,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColorPalette.primaryMaroon,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    '${subjectTeachers.length} Subjects',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Divider(
+            color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+            thickness: 1.5,
+          ),
+          SizedBox(height: 8),
+          AnimationLimiter(
+            child: Column(
+              children: List.generate(
+                subjectTeachers.length,
+                (index) => AnimationConfiguration.staggeredList(
+                  position: index,
+                  duration: Duration(milliseconds: 400),
+                  child: SlideAnimation(
+                    verticalOffset: 30,
+                    child: FadeInAnimation(
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          color: index.isEven
+                              ? AppColorPalette.primaryMaroon.withOpacity(0.1)
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color:
+                                AppColorPalette.primaryMaroon.withOpacity(0.25),
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColorPalette.primaryMaroon
+                                  .withOpacity(0.15),
+                              blurRadius: 8,
+                              offset: Offset(0, 3),
+                              spreadRadius: 0.5,
+                            ),
+                          ],
+                        ),
+                        child: ListTile(
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          title: CustomTextContainer(
+                            textKey: subjectTeachers[index]
+                                    .subject
+                                    ?.getSybjectNameWithType() ??
+                                '',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColorPalette.primaryMaroon,
+                            ),
+                          ),
+                          subtitle: Padding(
+                            padding: const EdgeInsets.only(top: 4.0),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.person_outline_rounded,
+                                  size: 16,
+                                  color: AppColorPalette.primaryMaroon,
+                                ),
+                                SizedBox(width: 4),
+                                Expanded(
+                                  child: CustomTextContainer(
+                                    textKey:
+                                        "${Utils.getTranslatedLabel(teacherKey)} : ${subjectTeachers[index].teacher?.fullName ?? '-'}",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColorPalette.secondaryMaroon,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          trailing: Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColorPalette.primaryMaroon
+                                  .withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.arrow_forward_rounded,
+                              size: 18,
+                              color: AppColorPalette.primaryMaroon,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
+}
+
+class BackgroundPatternPainter extends CustomPainter {
+  final Color color;
+
+  BackgroundPatternPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    // Main wave
+    final path = Path()
+      ..moveTo(0, size.height * 0.2)
+      ..quadraticBezierTo(
+        size.width * 0.25,
+        size.height * 0.05,
+        size.width * 0.5,
+        size.height * 0.15,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.75,
+        size.height * 0.25,
+        size.width,
+        size.height * 0.2,
+      )
+      ..lineTo(size.width, 0)
+      ..lineTo(0, 0)
+      ..close();
+
+    canvas.drawPath(path, paint);
+
+    // Secondary decorative waves
+    final path2 = Path()
+      ..moveTo(0, size.height * 0.45)
+      ..cubicTo(
+        size.width * 0.3,
+        size.height * 0.4,
+        size.width * 0.6,
+        size.height * 0.55,
+        size.width,
+        size.height * 0.47,
+      )
+      ..lineTo(size.width, size.height * 0.45)
+      ..lineTo(0, size.height * 0.45)
+      ..close();
+
+    canvas.drawPath(
+      path2,
+      Paint()
+        ..color = color.withOpacity(0.2)
+        ..style = PaintingStyle.fill,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class EnhancedCurvedBottomClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(0, size.height - 40);
+
+    path.quadraticBezierTo(
+      size.width * 0.1,
+      size.height,
+      size.width * 0.3,
+      size.height - 25,
+    );
+
+    path.quadraticBezierTo(
+      size.width * 0.5,
+      size.height - 50,
+      size.width * 0.7,
+      size.height - 25,
+    );
+
+    path.quadraticBezierTo(
+      size.width * 0.9,
+      size.height,
+      size.width,
+      size.height - 40,
+    );
+
+    path.lineTo(size.width, 0);
+    path.close();
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
+
+class AppColorPalette {
+  static const Color primaryMaroon = Color(0xFF8B1F41);
+  static const Color secondaryMaroon = Color(0xFFA84B5C);
+  static const Color lightMaroon = Color(0xFFE7C8CD);
+  static const Color accentPink = Color(0xFFF4D0D9);
+  static const Color warmBeige = Color(0xFFF5E6E8);
+  static const Color shadowColor = Color(0x298B1F41);
 }
