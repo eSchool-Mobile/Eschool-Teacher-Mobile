@@ -118,6 +118,7 @@ class _RecapAttendanceSubjectScreenState
     print('Class ID: $classId');
     print('Class Section ID: $classSectionId');
 
+    // final url = Uri.parse('https://eschool.ac.id/recap-download'
     final url = Uri.parse('https://eschool.ac.id/recap-download'
         '?school_id=$schoolId'
         '&class_id=$classId'

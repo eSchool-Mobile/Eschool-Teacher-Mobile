@@ -2,14 +2,54 @@ import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCubit.dart';
 
-class WeekdaysContainer extends StatelessWidget {
+
+class WeekdaysContainer extends StatefulWidget {
   final String selectedDayKey;
   final Function(String newSelection) onSelectionChange;
   const WeekdaysContainer(
       {super.key,
       required this.selectedDayKey,
       required this.onSelectionChange});
+
+  @override
+  _WeekdaysContainerState createState() => _WeekdaysContainerState();
+}
+
+class _WeekdaysContainerState extends State<WeekdaysContainer> {
+  late String _selectedDayKey;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDayKey = widget.selectedDayKey;
+  }
+
+  void _onSelectionChange(String abbreviatedDayKey) {
+    Map<String, String> dayMapping = {
+      'mon': 'Monday',
+      'tue': 'Tuesday',
+      'wed': 'Wednesday',
+      'thu': 'Thursday',
+      'fri': 'Friday',
+      'sat': 'Saturday',
+      'sun': 'Sunday',
+    };
+
+    String fullDayName =
+        dayMapping[abbreviatedDayKey.toLowerCase()] ?? abbreviatedDayKey;
+    print("Day selection changed to: $abbreviatedDayKey -> $fullDayName");
+
+    setState(() {
+      _selectedDayKey = abbreviatedDayKey;
+    });
+
+    context
+        .read<TeacherMyTimetableCubit>()
+        .getTeacherMyTimetable(isRefresh: true, dayKey: abbreviatedDayKey);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +67,7 @@ class WeekdaysContainer extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: Utils.weekDays.map((dayKey) {
-            final isSelected = dayKey == selectedDayKey;
+            final isSelected = dayKey == _selectedDayKey;
             return Padding(
               padding: const EdgeInsetsDirectional.only(end: 12.5),
               child: GestureDetector(
@@ -35,7 +75,7 @@ class WeekdaysContainer extends StatelessWidget {
                   if (isSelected) {
                     return;
                   }
-                  onSelectionChange(dayKey);
+                  _onSelectionChange(dayKey);
                 },
                 child: CircleAvatar(
                   radius: 25,

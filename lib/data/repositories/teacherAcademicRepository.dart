@@ -7,15 +7,32 @@ import 'dart:convert';
 class TeacherAcademicsRepository {
   Future<List<TimeTableSlot>> getTeacherMyTimetable({String? dayKey}) async {
     try {
+      // Convert abbreviated day to full day name
+      String? fullDayName;
+      if (dayKey != null) {
+        // Convert from abbreviated to full day name
+        Map<String, String> dayMapping = {
+          'mon': 'Monday',
+          'tue': 'Tuesday',
+          'wed': 'Wednesday',
+          'thu': 'Thursday',
+          'fri': 'Friday',
+          'sat': 'Saturday',
+          'sun': 'Sunday',
+        };
+        fullDayName = dayMapping[dayKey.toLowerCase()] ?? dayKey;
+      }
+
+      print("Requesting with day parameter: ${fullDayName ?? 'none'}");
+
       final response = await Api.get(
-        url: dayKey != null
-            ? "${Api.getTeacherMyTimetable}?day_key=$dayKey"
+        url: fullDayName != null
+            ? "${Api.getTeacherMyTimetable}?day=$fullDayName"
             : Api.getTeacherMyTimetable,
         useAuthToken: true,
       );
 
-      print("API Response type: ${response['data'].runtimeType}");
-      print("Raw API Response: ${response['data']}");
+      print("API Response for day $fullDayName: ${response['data']}");
 
       // Handle both Map and List responses
       if (response['data'] is Map<String, dynamic>) {
@@ -85,5 +102,3 @@ class TeacherAcademicsRepository {
     }
   }
 }
-
-

@@ -16,7 +16,9 @@ import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/route_manager.dart';
+import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/services.dart';
 
 class LeavesScreen extends StatefulWidget {
   final bool showMyLeaves;
@@ -50,13 +52,76 @@ class LeavesScreen extends StatefulWidget {
   State<LeavesScreen> createState() => _LeavesScreenState();
 }
 
-class _LeavesScreenState extends State<LeavesScreen> {
+class _LeavesScreenState extends State<LeavesScreen>
+    with TickerProviderStateMixin {
   SessionYear? _selectedSessionYear;
   late String _selectedMonthKey = months[(DateTime.now().month - 1)];
+  double _headerHeight = 200.0;
+  final ScrollController _scrollController = ScrollController();
+
+  // Animation controllers
+  late final AnimationController _animationController;
+  late final Animation<double> _fadeAnimation;
+  late final AnimationController _pulseController;
+  late final Animation<double> _pulseAnimation;
+
+  // Define theme colors
+  final Color maroonPrimary = Color(0xFF8B1F41);
+  final Color maroonLight = Color(0xFFAC3B5C);
+  final Color maroonDark = Color(0xFF6A0F2A);
+  final Color accentColor = Color(0xFFF5EBE0);
+  final Color bgColor = Color(0xFFFAF6F2);
+  final Color cardColor = Colors.white;
+  final Color textDarkColor = Color(0xFF2D2D2D);
+  final Color textMediumColor = Color(0xFF717171);
+  final Color borderColor = Color(0xFFE8E8E8);
 
   @override
   void initState() {
     super.initState();
+
+    // Primary animation controller for fade effects
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 800),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    // Pulse animation for interactive elements
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.08).animate(
+      CurvedAnimation(
+        parent: _pulseController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    // Start animations
+    _animationController.forward();
+
+    // Scroll listener for collapsing header effect
+    _scrollController.addListener(() {
+      if (_scrollController.offset > 50 && _headerHeight == 200.0) {
+        setState(() {
+          _headerHeight = 120.0;
+        });
+      } else if (_scrollController.offset <= 50 && _headerHeight == 120.0) {
+        setState(() {
+          _headerHeight = 200.0;
+        });
+      }
+    });
+
     Future.delayed(Duration.zero, () {
       if (mounted) {
         context.read<SessionYearsCubit>().getSessionYears();
@@ -64,13 +129,23 @@ class _LeavesScreenState extends State<LeavesScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _pulseController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   void changeSelectedSessionYear(SessionYear sessionYear) {
+    HapticFeedback.lightImpact();
     _selectedSessionYear = sessionYear;
     setState(() {});
     getLeaves();
   }
 
   void changeSelectedMonth(String month) {
+    HapticFeedback.lightImpact();
     _selectedMonthKey = month;
     setState(() {});
     getLeaves();
@@ -93,40 +168,122 @@ class _LeavesScreenState extends State<LeavesScreen> {
       {required double width, required String title, required String value}) {
     return Container(
       width: width,
-      height: Utils().getResponsiveHeight(context, 80),
+      height: Utils().getResponsiveHeight(context, 100),
       decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Theme.of(context).colorScheme.tertiary)),
-      padding: EdgeInsets.symmetric(
-          vertical: 10, horizontal: appContentHorizontalPadding),
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 15,
+            offset: Offset(0, 5),
+            spreadRadius: 0,
+          )
+        ],
+      ),
+      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CustomTextContainer(
-            textKey: value,
-            style: TextStyle(
-                fontSize: Utils.getScaledValue(context, 22),
-                fontWeight: FontWeight.w600),
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: maroonPrimary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  title == allowedLeavesKey
+                      ? Icons.event_available
+                      : Icons.event_busy,
+                  size: 18,
+                  color: maroonPrimary,
+                ),
+              ),
+              SizedBox(width: 12),
+              Text(
+                title.tr,
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 14,
+                  color: textMediumColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
-          const Spacer(),
-          CustomTextContainer(
-            textKey: title,
+          Spacer(),
+          Text(
+            value,
             style: TextStyle(
-                height: 1.1,
-                fontSize: Utils.getScaledValue(context, 18),
-                color:
-                    Theme.of(context).colorScheme.secondary.withOpacity(0.76)),
+              fontFamily: 'Poppins',
+              fontSize: 24,
+              fontWeight: FontWeight.w600,
+              color: maroonPrimary,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildLeavesContainer() {
-    TextStyle titleStyle = TextStyle(
-        fontSize: Utils.getScaledValue(context, 16),
-        fontWeight: FontWeight.w500);
+  Widget _buildLeaveTableHeader() {
+    return Container(
+      height: 50,
+      decoration: BoxDecoration(
+        color: maroonPrimary.withOpacity(0.1),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 40,
+            child: Text(
+              "No",
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: maroonPrimary,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 5,
+            child: Text(
+              leaveDateKey.tr,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: maroonPrimary,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 100,
+            child: Text(
+              statusKey.tr,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: maroonPrimary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLeaveListContainer() {
     return BlocBuilder<UserLeavesCubit, UserLeavesState>(
       builder: (context, state) {
         if (state is UserLeavesFetchSuccess) {
@@ -134,121 +291,261 @@ class _LeavesScreenState extends State<LeavesScreen> {
             return Center(
               child: Padding(
                 padding: EdgeInsets.only(
-                  top: Utils.appContentTopScrollPadding(context: context) + 110,
+                  top: 100,
                 ),
-                child: CustomTextContainer(
-                  textKey: Utils.getTranslatedLabel('Tidak mengajukan cuti'),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.event_busy,
+                      size: 64,
+                      color: maroonPrimary.withOpacity(0.5),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      "Tidak ada pengajuan cuti",
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: textMediumColor,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );
           }
-          return Align(
-            alignment: Alignment.topCenter,
+
+          double remainingLeaves = (state.monthlyAllowedLeaves -
+              context
+                  .read<UserLeavesCubit>()
+                  .getTakenLeavesCount(monthNumber: getSelectedMonthNumber()));
+          remainingLeaves = remainingLeaves < 0 ? 0 : remainingLeaves;
+
+          return FadeTransition(
+            opacity: _fadeAnimation,
             child: SingleChildScrollView(
-              padding: EdgeInsets.only(
-                  top:
-                      Utils.appContentTopScrollPadding(context: context) + 100),
+              controller: _scrollController,
+              padding: EdgeInsets.only(top: 200, bottom: 30),
+              physics: BouncingScrollPhysics(),
               child: Column(
                 children: [
                   Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: appContentHorizontalPadding),
-                    child: LayoutBuilder(builder: (context, boxConstraints) {
-                      double remainingLeaves = (state.monthlyAllowedLeaves -
-                          context.read<UserLeavesCubit>().getTakenLeavesCount(
-                              monthNumber: getSelectedMonthNumber()));
-                      remainingLeaves =
-                          remainingLeaves < 0 ? 0 : remainingLeaves;
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildLeaveCountContainer(
-                              width: boxConstraints.maxWidth * (0.48),
-                              title: allowedLeavesKey,
-                              value: state.monthlyAllowedLeaves
-                                  .toStringAsFixed(0)),
-                          _buildLeaveCountContainer(
-                              width: boxConstraints.maxWidth * (0.48),
-                              title: remainingLeavesKey,
-                              value: remainingLeaves.toStringAsFixed(0)),
-                        ],
-                      );
-                    }),
-                  ),
-                  const SizedBox(
-                    height: 25,
-                  ),
-                  Container(
-                    padding: EdgeInsets.all(appContentHorizontalPadding),
-                    color: Theme.of(context).colorScheme.surface,
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height * 1,
+                    padding: EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: appContentHorizontalPadding),
-                          height: 40,
-                          width: double.maxFinite,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              color: Theme.of(context).colorScheme.tertiary),
-                          child:
-                              LayoutBuilder(builder: (context, boxConstraints) {
-                            return Row(
+                        Text(
+                          "Ringkasan Cuti",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: textDarkColor,
+                          ),
+                        ),
+                        Text(
+                          "Informasi jatah cuti bulan ini",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 13,
+                            color: textMediumColor,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+
+                        // Leave count summary
+                        LayoutBuilder(builder: (context, boxConstraints) {
+                          return Row(
+                            children: [
+                              _buildLeaveCountContainer(
+                                width: boxConstraints.maxWidth * 0.48,
+                                title: allowedLeavesKey,
+                                value: state.monthlyAllowedLeaves
+                                    .toStringAsFixed(0),
+                              ),
+                              SizedBox(width: boxConstraints.maxWidth * 0.04),
+                              _buildLeaveCountContainer(
+                                width: boxConstraints.maxWidth * 0.48,
+                                title: remainingLeavesKey,
+                                value: remainingLeaves.toStringAsFixed(0),
+                              ),
+                            ],
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: 24),
+
+                  // Leave applications section
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: maroonPrimary.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                Icons.list_alt_rounded,
+                                color: maroonPrimary,
+                                size: 20,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                SizedBox(
-                                  width: boxConstraints.maxWidth * (0.14),
-                                  child: CustomTextContainer(
-                                    textKey: "No",
-                                    style: titleStyle,
+                                Text(
+                                  "Riwayat Pengajuan",
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: textDarkColor,
                                   ),
                                 ),
-                                SizedBox(
-                                  width: boxConstraints.maxWidth * (0.5),
-                                  child: CustomTextContainer(
-                                    textKey: leaveDateKey,
-                                    style: titleStyle,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: boxConstraints.maxWidth * (0.3),
-                                  child: CustomTextContainer(
-                                    textKey: statusKey,
-                                    style: titleStyle,
+                                Text(
+                                  "${state.leaves.length} pengajuan",
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 13,
+                                    color: textMediumColor,
                                   ),
                                 ),
                               ],
-                            );
-                          }),
+                            ),
+                            Spacer(),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: maroonPrimary.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(
+                                  color: maroonPrimary.withOpacity(0.3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Text(
+                                "${state.leaves.length} Cuti",
+                                style: TextStyle(
+                                  color: maroonPrimary,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
+                        SizedBox(height: 16),
+
+                        // Leave applications list
                         Container(
-                          width: double.maxFinite,
                           decoration: BoxDecoration(
-                              border: Border(
-                                  right: BorderSide(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .tertiary),
-                                  left: BorderSide(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .tertiary)),
-                              borderRadius: const BorderRadius.only(
-                                  bottomLeft: Radius.circular(5),
-                                  bottomRight: Radius.circular(5)),
-                              color: Theme.of(context).colorScheme.surface),
-                          child: Column(
-                            children: List.generate(
-                                state.leaves.length,
-                                (index) => AppliedLeaveContainer(
-                                    leaveRequest: state.leaves[index],
-                                    index: index)).toList(),
+                            color: cardColor,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 15,
+                                offset: Offset(0, 5),
+                                spreadRadius: 0,
+                              )
+                            ],
                           ),
-                        )
+                          child: Column(
+                            children: [
+                              _buildLeaveTableHeader(),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: cardColor,
+                                  borderRadius: BorderRadius.only(
+                                    bottomLeft: Radius.circular(16),
+                                    bottomRight: Radius.circular(16),
+                                  ),
+                                ),
+                                child: ListView.separated(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: state.leaves.length,
+                                  separatorBuilder: (context, index) => Divider(
+                                    color: borderColor,
+                                    height: 1,
+                                  ),
+                                  itemBuilder: (context, index) {
+                                    final leave = state.leaves[index];
+                                    return Container(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 12, horizontal: 16),
+                                      child: Row(
+                                        children: [
+                                          SizedBox(
+                                            width: 40,
+                                            child: Text(
+                                              "${index + 1}",
+                                              style: TextStyle(
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 14,
+                                                color: textDarkColor,
+                                              ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 5,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "${leave.fromDate != null ? Utils.formatDate(DateTime.parse(leave.fromDate!)) : ''}",
+                                                  style: TextStyle(
+                                                    fontFamily: 'Poppins',
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 14,
+                                                    color: textDarkColor,
+                                                  ),
+                                                ),
+                                                if (leave.fromDate !=
+                                                    leave.toDate)
+                                                  Text(
+                                                    "s/d ${leave.toDate != null ? Utils.formatDate(DateTime.parse(leave.toDate!)) : ''}",
+                                                    style: TextStyle(
+                                                      fontFamily: 'Poppins',
+                                                      fontSize: 12,
+                                                      color: textMediumColor,
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 100,
+                                            child:
+                                                _buildStatusBadge(leave.status?.toString() ?? ''),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -267,71 +564,225 @@ class _LeavesScreenState extends State<LeavesScreen> {
         }
 
         return Center(
-          child: CustomCircularProgressIndicator(
-            indicatorColor: Theme.of(context).colorScheme.primary,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 60,
+                height: 60,
+                child: CircularProgressIndicator(
+                  color: maroonPrimary,
+                  strokeWidth: 4,
+                ),
+              ),
+              SizedBox(height: 24),
+              Text(
+                "Memuat data...",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: textMediumColor,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         );
       },
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        body: Stack(
-      children: [
-        BlocBuilder<SessionYearsCubit, SessionYearsState>(
-          builder: (context, state) {
-            if (state is SessionYearsFetchSuccess) {
-              return _buildLeavesContainer();
-            }
+  Widget _buildStatusBadge(String status) {
+    Color bgColor;
+    Color textColor;
+    String label;
 
-            if (state is SessionYearsFetchFailure) {
-              return Center(
-                child: ErrorContainer(
-                  errorMessage: state.errorMessage,
-                  onTapRetry: () {
-                    context.read<SessionYearsCubit>().getSessionYears();
-                  },
-                ),
-              );
-            }
+    switch (status.toLowerCase()) {
+      case 'approved':
+        bgColor = Colors.green.shade50;
+        textColor = Colors.green.shade700;
+        label = "Disetujui";
+        break;
+      case 'pending':
+        bgColor = Colors.orange.shade50;
+        textColor = Colors.orange.shade700;
+        label = "Menunggu";
+        break;
+      case 'rejected':
+        bgColor = Colors.red.shade50;
+        textColor = Colors.red.shade700;
+        label = "Ditolak";
+        break;
+      default:
+        bgColor = Colors.grey.shade50;
+        textColor = Colors.grey.shade700;
+        label = status;
+    }
 
-            return Center(
-              child: CustomCircularProgressIndicator(
-                indicatorColor: Theme.of(context).colorScheme.primary,
-              ),
-            );
-          },
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: textColor,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+          fontFamily: 'Poppins',
         ),
-        Align(
-          alignment: Alignment.topCenter,
-          child: Column(
-            children: [
-              CustomAppbar(
-                  titleKey: widget.showMyLeaves
-                      ? myLeaveKey
-                      : (widget.userDetails?.fullName ?? "")),
-              BlocConsumer<SessionYearsCubit, SessionYearsState>(
-                listener: (context, state) {
-                  if (state is SessionYearsFetchSuccess) {
-                    if (state.sessionYears.isNotEmpty) {
-                      changeSelectedSessionYear(state.sessionYears
-                          .where((element) => element.isThisDefault())
-                          .first);
-                    }
-                  }
-                },
-                builder: (context, state) {
-                  return AppbarFilterBackgroundContainer(
-                    child: LayoutBuilder(builder: (context, boxConstraints) {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          FilterButton(
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  Widget _buildHeaderSection() {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 400),
+      curve: Curves.easeOutQuint,
+      height: _headerHeight,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [maroonPrimary, maroonDark],
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(30),
+          bottomRight: Radius.circular(30),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: maroonPrimary.withOpacity(0.3),
+            blurRadius: 20,
+            offset: Offset(0, 10),
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Stack(
+          children: [
+            // Decorative elements
+            Positioned(
+              right: -20,
+              top: -20,
+              child: Container(
+                width: 140,
+                height: 140,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+            Positioned(
+              left: -30,
+              bottom: -30,
+              child: Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+
+            // Content
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Back button and title row
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Back button
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            Icons.arrow_back_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      // Title and subtitle in a column
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.showMyLeaves
+                                  ? myLeaveKey.tr
+                                  : (widget.userDetails?.fullName ?? ""),
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                            // Only show subtitle when header is expanded
+                            if (_headerHeight > 130)
+                              AnimatedOpacity(
+                                opacity: (_headerHeight - 130) / 70,
+                                duration: Duration(milliseconds: 200),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 4.0),
+                                  child: Text(
+                                    "Riwayat pengajuan cuti",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white.withOpacity(0.9),
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  Spacer(),
+
+                  // Filter section at bottom of header
+                  BlocConsumer<SessionYearsCubit, SessionYearsState>(
+                    listener: (context, state) {
+                      if (state is SessionYearsFetchSuccess) {
+                        if (state.sessionYears.isNotEmpty) {
+                          changeSelectedSessionYear(state.sessionYears
+                              .where((element) => element.isThisDefault())
+                              .first);
+                        }
+                      }
+                    },
+                    builder: (context, state) {
+                      if (state is SessionYearsFetchSuccess) {
+                        return Row(
+                          children: [
+                            _buildFilterButton(
+                              title: _selectedSessionYear?.name ??
+                                  sessionYearKey.tr,
+                              icon: Icons.calendar_today_rounded,
                               onTap: () {
-                                if (state is SessionYearsFetchSuccess &&
-                                    state.sessionYears.isNotEmpty) {
+                                if (state.sessionYears.isNotEmpty) {
                                   Utils.showBottomSheet(
                                       child: FilterSelectionBottomsheet<
                                           SessionYear>(
@@ -346,10 +797,11 @@ class _LeavesScreenState extends State<LeavesScreen> {
                                       context: context);
                                 }
                               },
-                              titleKey:
-                                  _selectedSessionYear?.name ?? sessionYearKey,
-                              width: boxConstraints.maxWidth * (0.49)),
-                          FilterButton(
+                            ),
+                            SizedBox(width: 10),
+                            _buildFilterButton(
+                              title: _selectedMonthKey.tr,
+                              icon: Icons.event_note_rounded,
                               onTap: () {
                                 Utils.showBottomSheet(
                                     child: FilterSelectionBottomsheet<String>(
@@ -363,18 +815,138 @@ class _LeavesScreenState extends State<LeavesScreen> {
                                     ),
                                     context: context);
                               },
-                              titleKey: _selectedMonthKey,
-                              width: boxConstraints.maxWidth * (0.49)),
-                        ],
-                      );
-                    }),
-                  );
-                },
+                            ),
+                          ],
+                        );
+                      }
+                      return SizedBox();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterButton({
+    required String title,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.3),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                color: Colors.white,
+                size: 18,
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Poppins',
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Icon(
+                Icons.arrow_drop_down,
+                color: Colors.white,
+                size: 20,
               ),
             ],
           ),
-        )
-      ],
-    ));
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = ThemeData(
+      primaryColor: maroonPrimary,
+      scaffoldBackgroundColor: bgColor,
+      textTheme: GoogleFonts.poppinsTextTheme(),
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: maroonPrimary,
+        primary: maroonPrimary,
+        secondary: maroonLight,
+      ),
+    );
+
+    return Theme(
+      data: theme,
+      child: Scaffold(
+        backgroundColor: bgColor,
+        body: Stack(
+          children: [
+            BlocBuilder<SessionYearsCubit, SessionYearsState>(
+              builder: (context, state) {
+                if (state is SessionYearsFetchSuccess) {
+                  return _buildLeaveListContainer();
+                }
+
+                if (state is SessionYearsFetchFailure) {
+                  return Center(
+                    child: ErrorContainer(
+                      errorMessage: state.errorMessage,
+                      onTapRetry: () {
+                        context.read<SessionYearsCubit>().getSessionYears();
+                      },
+                    ),
+                  );
+                }
+
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 60,
+                        height: 60,
+                        child: CircularProgressIndicator(
+                          color: maroonPrimary,
+                          strokeWidth: 4,
+                        ),
+                      ),
+                      SizedBox(height: 24),
+                      Text(
+                        "Memuat data...",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: textMediumColor,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            _buildHeaderSection(),
+          ],
+        ),
+      ),
+    );
   }
 }

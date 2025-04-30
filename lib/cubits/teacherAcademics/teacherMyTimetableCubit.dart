@@ -1,4 +1,3 @@
-
 import 'package:eschool_saas_staff/data/models/timeTableSlot.dart';
 import 'package:eschool_saas_staff/data/repositories/teacherAcademicRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -62,12 +61,19 @@ class TeacherMyTimetableCubit extends Cubit<TeacherMyTimetableState> {
     try {
       emit(TeacherMyTimetableFetchInProgress());
 
+      print("Requesting timetable data for day: ${dayKey ?? 'all days'}");
+
       // Pass the dayKey to the repository method
       final slots = await _teacherAcademicsRepository.getTeacherMyTimetable(
           dayKey: dayKey);
 
       print(
           "Fetched ${slots.length} timetable slots for day: ${dayKey ?? 'all days'}");
+      // Log each slot for debugging
+      slots.forEach((slot) {
+        print(
+            "Slot - Day: ${slot.day}, Subject: ${slot.subject?.name}, Time: ${slot.startTime}-${slot.endTime}");
+      });
 
       emit(TeacherMyTimetableFetchSuccess(timeTableSlots: slots));
     } catch (e) {
@@ -76,5 +82,3 @@ class TeacherMyTimetableCubit extends Cubit<TeacherMyTimetableState> {
     }
   }
 }
-
-

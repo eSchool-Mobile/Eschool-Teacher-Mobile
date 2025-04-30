@@ -37,7 +37,10 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen> {
     super.initState();
     Future.delayed(Duration.zero, () {
       if (mounted) {
-        context.read<TeacherMyTimetableCubit>().getTeacherMyTimetable();
+        // Initially fetch with the selected day key
+        context.read<TeacherMyTimetableCubit>().getTeacherMyTimetable(
+              dayKey: _selectedDayKey,
+            );
         context.read<ClassesCubit>().getAllClasses();
       }
     });
