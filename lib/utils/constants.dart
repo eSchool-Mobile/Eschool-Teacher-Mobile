@@ -35,17 +35,17 @@ int nextSearchRequestQueryTimeInMilliSeconds = 700;
 int searchRequestPerodicMilliSeconds = 100;
 double topPaddingOfErrorAndLoadingContainer = 150;
 
-String defaultSchoolCode = "SCH20247";
-String defaultEmail = "agungcahyono533@gmail.com";
-String defaultPassword = "081230093978";
+// String defaultSchoolCode = "SCH20247";
+// String defaultEmail = "agungcahyono533@gmail.com";
+// String defaultPassword = "081230093978";
 
 // String defaultSchoolCode = "";
 // String defaultEmail = "";
 // String defaultPassword = "";
 
-// String defaultSchoolCode = "SCH20247";
-// String defaultEmail = "adminsmk8malang@gmail.com";
-// String defaultPassword = "0341479148";
+String defaultSchoolCode = "SCH20247";
+String defaultEmail = "adminsmk8malang@gmail.com";
+String defaultPassword = "0341479148";
 
 //R String defaultSchoolCode = "";
 // String defaultEmail = "";

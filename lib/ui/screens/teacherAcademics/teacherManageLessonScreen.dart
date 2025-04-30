@@ -1174,7 +1174,9 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
       child: SingleChildScrollView(
         controller: _scrollController,
         padding: EdgeInsets.only(
-            bottom: 70,
+            bottom: (_selectedClassSection != null && _selectedSubject != null)
+                ? 70
+                : 20,
             top: Utils.appContentTopScrollPadding(context: context) + 145),
         child: BlocBuilder<LessonsCubit, LessonsState>(
           builder: (context, state) {
@@ -1203,49 +1205,52 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                               color: textMediumColor,
                             ),
                           ),
-                          SizedBox(height: 20),
-                          CustomRoundedButton(
-                            height: 46,
-                            widthPercentage: 0.6,
-                            backgroundColor: maroonPrimary,
-                            buttonTitle: createLessonKey,
-                            radius: 16,
-                            textSize: 14,
-                            fontWeight: FontWeight.w600,
-                            showBorder: false,
-                            onTap: () {
-                              Get.toNamed(Routes.teacherAddEditLessonScreen,
-                                      arguments: TeacherAddEditLessonScreen
-                                          .buildArguments(
-                                              lesson: null,
-                                              selectedClassSection:
-                                                  _selectedClassSection,
-                                              selectedSubject:
-                                                  _selectedSubject))
-                                  ?.then((value) {
-                                if (value != null && value is bool && value) {
-                                  getLessons();
-                                }
-                              });
-                            },
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.add_circle_outline,
-                                    color: Colors.white),
-                                SizedBox(width: 8),
-                                Text(
-                                  Utils.getTranslatedLabel(createLessonKey),
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    fontFamily: 'Poppins',
-                                    color: Colors.white,
+                          if (_selectedClassSection != null &&
+                              _selectedSubject != null) ...[
+                            SizedBox(height: 20),
+                            CustomRoundedButton(
+                              height: 46,
+                              widthPercentage: 0.6,
+                              backgroundColor: maroonPrimary,
+                              buttonTitle: createLessonKey,
+                              radius: 16,
+                              textSize: 14,
+                              fontWeight: FontWeight.w600,
+                              showBorder: false,
+                              onTap: () {
+                                Get.toNamed(Routes.teacherAddEditLessonScreen,
+                                        arguments: TeacherAddEditLessonScreen
+                                            .buildArguments(
+                                                lesson: null,
+                                                selectedClassSection:
+                                                    _selectedClassSection,
+                                                selectedSubject:
+                                                    _selectedSubject))
+                                    ?.then((value) {
+                                  if (value != null && value is bool && value) {
+                                    getLessons();
+                                  }
+                                });
+                              },
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.add_circle_outline,
+                                      color: Colors.white),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    Utils.getTranslatedLabel(createLessonKey),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Poppins',
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),
@@ -1331,6 +1336,13 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
   }
 
   Widget _buildSubmitButton() {
+    final bool showButton =
+        _selectedClassSection != null && _selectedSubject != null;
+
+    if (!showButton) {
+      return SizedBox.shrink();
+    }
+
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(

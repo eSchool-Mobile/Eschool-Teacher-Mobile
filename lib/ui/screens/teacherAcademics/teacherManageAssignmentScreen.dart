@@ -1445,6 +1445,11 @@ class _TeacherManageAssignmentScreenState
   }
 
   Widget _buildSubmitButton() {
+    // Only show button if both filters are selected
+    if (_selectedClassSection == null || _selectedSubject == null) {
+      return SizedBox.shrink(); // Return empty widget if filters not selected
+    }
+
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(

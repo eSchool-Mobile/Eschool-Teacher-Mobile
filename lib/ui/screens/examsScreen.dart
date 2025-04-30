@@ -212,6 +212,7 @@ class _ExamsScreenState extends State<ExamsScreen>
   void _showFilterBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true, // Allow the modal to take up more space
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -220,178 +221,192 @@ class _ExamsScreenState extends State<ExamsScreen>
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
             return Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Handle Bar
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      margin: EdgeInsets.only(top: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[400],
-                        borderRadius: BorderRadius.circular(2),
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Handle Bar
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        margin: EdgeInsets.only(top: 8, bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[400],
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                       ),
                     ),
-                  ),
-                  // Title
-                  Text(
-                    'Filter Ujian',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: primaryColor,
+                    // Title
+                    Text(
+                      'Filter Ujian',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: primaryColor,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 16),
-                  // Date Range Filter
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () async {
-                            final DateTime? picked = await showDatePicker(
-                              context: modalContext,
-                              initialDate: _startDate ?? DateTime.now(),
-                              firstDate: DateTime(2020),
-                              lastDate: DateTime(2030),
-                            );
-                            if (picked != null) {
-                              setModalState(() {
-                                _startDate = picked;
-                              });
-                              setState(() {
-                                _startDate = picked;
-                              });
-                            }
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 12, horizontal: 16),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              _startDate != null
-                                  ? DateFormat('dd/MM/yyyy').format(_startDate!)
-                                  : 'Dari',
-                              style: TextStyle(
-                                  fontSize: 16, color: Colors.grey[800]),
+                    SizedBox(height: 16),
+                    // Date Range Filter
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () async {
+                              final DateTime? picked = await showDatePicker(
+                                context: modalContext,
+                                initialDate: _startDate ?? DateTime.now(),
+                                firstDate: DateTime(2020),
+                                lastDate: DateTime(2030),
+                              );
+                              if (picked != null) {
+                                setModalState(() {
+                                  _startDate = picked;
+                                });
+                                setState(() {
+                                  _startDate = picked;
+                                });
+                              }
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 12, horizontal: 16),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                _startDate != null
+                                    ? DateFormat('dd/MM/yyyy')
+                                        .format(_startDate!)
+                                    : 'Dari',
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.grey[800]),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8),
-                        child: Text(
-                          '-',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          child: Text(
+                            '-',
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () async {
-                            final DateTime? picked = await showDatePicker(
-                              context: modalContext,
-                              initialDate: _endDate ?? DateTime.now(),
-                              firstDate: DateTime(2020),
-                              lastDate: DateTime(2030),
-                            );
-                            if (picked != null) {
-                              setModalState(() {
-                                _endDate = picked;
-                              });
-                              setState(() {
-                                _endDate = picked;
-                              });
-                            }
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 12, horizontal: 16),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              _endDate != null
-                                  ? DateFormat('dd/MM/yyyy').format(_endDate!)
-                                  : 'Sampai',
-                              style: TextStyle(
-                                  fontSize: 16, color: Colors.grey[800]),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () async {
+                              final DateTime? picked = await showDatePicker(
+                                context: modalContext,
+                                initialDate: _endDate ?? DateTime.now(),
+                                firstDate: DateTime(2020),
+                                lastDate: DateTime(2030),
+                              );
+                              if (picked != null) {
+                                setModalState(() {
+                                  _endDate = picked;
+                                });
+                                setState(() {
+                                  _endDate = picked;
+                                });
+                              }
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 12, horizontal: 16),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                _endDate != null
+                                    ? DateFormat('dd/MM/yyyy').format(_endDate!)
+                                    : 'Sampai',
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.grey[800]),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  // Status Filter Options
-                  Column(
-                    children: [
-                      _buildFilterOption('Semua', setModalState),
-                      _buildFilterOption('Selesai', setModalState),
-                      _buildFilterOption('Akan Datang', setModalState),
-                      _buildFilterOption('Sedang Berlangsung', setModalState),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  // Apply Filter Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _isFiltering = true;
-                        });
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColor,
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Text('Terapkan Filter'),
+                      ],
                     ),
-                  ),
-                  SizedBox(height: 8),
-                  // Reset Filter Button
-                  if (_filterStatus != "Semua" ||
-                      _startDate != null ||
-                      _endDate != null)
+                    SizedBox(height: 16),
+                    // Status Filter Options - wrap in Container with fixed height
+                    Container(
+                      constraints: BoxConstraints(maxHeight: 200),
+                      child: ListView(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        children: [
+                          _buildFilterOption('Semua', setModalState),
+                          _buildFilterOption('Selesai', setModalState),
+                          _buildFilterOption('Akan Datang', setModalState),
+                          _buildFilterOption(
+                              'Sedang Berlangsung', setModalState),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    // Apply Filter Button
                     SizedBox(
                       width: double.infinity,
-                      child: TextButton(
+                      child: ElevatedButton(
                         onPressed: () {
-                          setModalState(() {
-                            _filterStatus = "Semua";
-                            _startDate = null;
-                            _endDate = null;
-                          });
                           setState(() {
-                            _filterStatus = "Semua";
-                            _startDate = null;
-                            _endDate = null;
-                            _isFiltering = false;
+                            _isFiltering = true;
                           });
                           Navigator.pop(context);
                         },
-                        style: TextButton.styleFrom(
-                          foregroundColor: Colors.grey[700],
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColor,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
-                        child: Text('Reset Filter'),
+                        child: Text('Terapkan Filter'),
                       ),
                     ),
-                ],
+                    SizedBox(height: 8),
+                    // Reset Filter Button
+                    if (_filterStatus != "Semua" ||
+                        _startDate != null ||
+                        _endDate != null)
+                      SizedBox(
+                        width: double.infinity,
+                        child: TextButton(
+                          onPressed: () {
+                            setModalState(() {
+                              _filterStatus = "Semua";
+                              _startDate = null;
+                              _endDate = null;
+                            });
+                            setState(() {
+                              _filterStatus = "Semua";
+                              _startDate = null;
+                              _endDate = null;
+                              _isFiltering = false;
+                            });
+                            Navigator.pop(context);
+                          },
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.grey[700],
+                          ),
+                          child: Text('Reset Filter'),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             );
           },
@@ -1236,277 +1251,286 @@ class _ExamsScreenState extends State<ExamsScreen>
       duration: Duration(milliseconds: 800),
       child: Padding(
         padding: EdgeInsets.fromLTRB(15, 15, 15, 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                // Back button with advanced ripple and glow effects
-                _buildGlowingIconButton(
-                  Icons.arrow_back_rounded,
-                  () {
-                    HapticFeedback.mediumImpact();
-                    Get.back();
-                  },
-                ),
-                SizedBox(width: 15),
-
-                // Title with modern styling
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Jadwal Ujian",
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.8,
-                          color: Colors.white,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: 6),
-                      Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'Ujian Siswa',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  // Back button with advanced ripple and glow effects
+                  _buildGlowingIconButton(
+                    Icons.arrow_back_rounded,
+                    () {
+                      HapticFeedback.mediumImpact();
+                      Get.back();
+                    },
                   ),
-                ),
+                  SizedBox(width: 15),
 
-                // Filter button instead of search
-                AnimatedBuilder(
-                  animation: _pulseAnimation,
-                  builder: (context, child) {
-                    return GestureDetector(
-                      onTap: () {
-                        HapticFeedback.mediumImpact();
-                        _showFilterBottomSheet(context);
-                      },
-                      child: Container(
-                        margin: EdgeInsets.only(right: 12),
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.15),
-                          boxShadow: [
-                            BoxShadow(
-                              color: _highlightColor.withOpacity(
-                                  0.1 + 0.1 * _pulseAnimation.value),
-                              blurRadius: 12 * (1 + _pulseAnimation.value),
-                              spreadRadius: 2 * _pulseAnimation.value,
-                            )
-                          ],
-                          border: Border.all(
-                            color: Colors.white.withOpacity(
-                                0.1 + 0.05 * _pulseAnimation.value),
-                            width: 1.5,
+                  // Title with modern styling
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Jadwal Ujian",
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.8,
+                            color: Colors.white,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: 6),
+                        Container(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            'Ujian Siswa',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
-                        child: Icon(
-                          Icons.filter_list,
-                          color: Colors.white,
-                          size: 22,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
+                      ],
+                    ),
+                  ),
 
-            // Filter indicator chips - show applied filters
-            if (_isFiltering)
-              Container(
-                margin: EdgeInsets.only(top: 16),
-                height: 40,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      if (_filterStatus != "Semua")
-                        _buildFilterChip(
-                          label: _filterStatus,
-                          color: _getFilterStatusColor(_filterStatus),
+                  // Filter button instead of search
+                  AnimatedBuilder(
+                    animation: _pulseAnimation,
+                    builder: (context, child) {
+                      return GestureDetector(
+                        onTap: () {
+                          HapticFeedback.mediumImpact();
+                          _showFilterBottomSheet(context);
+                        },
+                        child: Container(
+                          margin: EdgeInsets.only(right: 12),
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white.withOpacity(0.15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: _highlightColor.withOpacity(
+                                    0.1 + 0.1 * _pulseAnimation.value),
+                                blurRadius: 12 * (1 + _pulseAnimation.value),
+                                spreadRadius: 2 * _pulseAnimation.value,
+                              )
+                            ],
+                            border: Border.all(
+                              color: Colors.white.withOpacity(
+                                  0.1 + 0.05 * _pulseAnimation.value),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.filter_list,
+                            color: Colors.white,
+                            size: 22,
+                          ),
                         ),
-                      if (_startDate != null && _endDate != null)
-                        _buildFilterChip(
-                          label:
-                              "${DateFormat('dd/MM/yyyy').format(_startDate!)} - ${DateFormat('dd/MM/yyyy').format(_endDate!)}",
-                          color: primaryColor,
-                        )
-                      else if (_startDate != null)
-                        _buildFilterChip(
-                          label:
-                              "Dari ${DateFormat('dd/MM/yyyy').format(_startDate!)}",
-                          color: primaryColor,
-                        )
-                      else if (_endDate != null)
-                        _buildFilterChip(
-                          label:
-                              "Sampai ${DateFormat('dd/MM/yyyy').format(_endDate!)}",
-                          color: primaryColor,
-                        ),
-                      if (_isFiltering)
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _filterStatus = "Semua";
-                              _startDate = null;
-                              _endDate = null;
-                              _isFiltering = false;
-                            });
-                            getExams();
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.3),
-                                width: 1,
+                      );
+                    },
+                  ),
+                ],
+              ),
+
+              // Filter indicator chips - show applied filters
+              if (_isFiltering)
+                Container(
+                  margin: EdgeInsets.only(top: 16),
+                  height: 40,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        if (_filterStatus != "Semua")
+                          _buildFilterChip(
+                            label: _filterStatus,
+                            color: _getFilterStatusColor(_filterStatus),
+                          ),
+                        if (_startDate != null && _endDate != null)
+                          _buildFilterChip(
+                            label:
+                                "${DateFormat('dd/MM/yyyy').format(_startDate!)} - ${DateFormat('dd/MM/yyyy').format(_endDate!)}",
+                            color: primaryColor,
+                          )
+                        else if (_startDate != null)
+                          _buildFilterChip(
+                            label:
+                                "Dari ${DateFormat('dd/MM/yyyy').format(_startDate!)}",
+                            color: primaryColor,
+                          )
+                        else if (_endDate != null)
+                          _buildFilterChip(
+                            label:
+                                "Sampai ${DateFormat('dd/MM/yyyy').format(_endDate!)}",
+                            color: primaryColor,
+                          ),
+                        if (_isFiltering)
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _filterStatus = "Semua";
+                                _startDate = null;
+                                _endDate = null;
+                                _isFiltering = false;
+                              });
+                              getExams();
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.close,
+                                      color: Colors.white, size: 16),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    "Reset Filter",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.close,
-                                    color: Colors.white, size: 16),
-                                SizedBox(width: 4),
-                                Text(
-                                  "Reset Filter",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ).animate().fadeIn(duration: 300.ms).slideY(
+                    begin: -0.2,
+                    end: 0,
+                    duration: 300.ms,
+                    curve: Curves.easeOut),
+
+              // Show filters row - Session Years and Medium filters remain
+              if (_showFilters)
+                Container(
+                  margin: EdgeInsets.only(top: 16, bottom: 8),
+                  height: 50,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      _buildFilterOptionChip(
+                        label: _selectedSessionYear?.name ?? "Tahun Ajaran",
+                        icon: Icons.calendar_today_outlined,
+                        onTap: () {
+                          if (context.read<SessionYearsAndMediumsCubit>().state
+                              is SessionYearsAndMediumsFetchSuccess) {
+                            final state = context
+                                .read<SessionYearsAndMediumsCubit>()
+                                .state as SessionYearsAndMediumsFetchSuccess;
+
+                            Utils.showBottomSheet(
+                              context: context,
+                              child: FilterSelectionBottomsheet(
+                                titleKey: "Pilih Tahun Ajaran",
+                                values: state.sessionYears
+                                    .map((e) => {
+                                          "id": e.id,
+                                          "title": e.name,
+                                        })
+                                    .toList(),
+                                selectedValue: _selectedSessionYear?.id,
+                                onSelection: (selectedItem) {
+                                  final sessionYear =
+                                      state.sessionYears.firstWhere(
+                                    (element) =>
+                                        element.id ==
+                                        (selectedItem
+                                            as Map<String, dynamic>)['id'],
+                                  );
+                                  changeSelectedSessionYear(sessionYear);
+                                  getExams();
+                                },
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                      SizedBox(width: 10),
+                      _buildFilterOptionChip(
+                        label: _selectedMedium?.name ?? "Bahasa",
+                        icon: Icons.language_rounded,
+                        onTap: () {
+                          if (context.read<SessionYearsAndMediumsCubit>().state
+                              is SessionYearsAndMediumsFetchSuccess) {
+                            final state = context
+                                .read<SessionYearsAndMediumsCubit>()
+                                .state as SessionYearsAndMediumsFetchSuccess;
+
+                            Utils.showBottomSheet(
+                              context: context,
+                              child: FilterSelectionBottomsheet(
+                                titleKey: "Pilih Bahasa",
+                                values: state.mediums
+                                    .map((e) => {
+                                          "id": e.id,
+                                          "title": e.name,
+                                        })
+                                    .toList(),
+                                selectedValue: _selectedMedium?.id,
+                                onSelection: (selectedItem) {
+                                  final medium = state.mediums.firstWhere(
+                                    (element) =>
+                                        element.id ==
+                                        (selectedItem
+                                            as Map<String, dynamic>)['id'],
+                                  );
+                                  changeSelectedMedium(medium);
+                                  getExams();
+                                },
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                      if (_selectedSessionYear != null ||
+                          _selectedMedium != null)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: _buildFilterOptionChip(
+                            label: "Reset Filter",
+                            icon: Icons.refresh_rounded,
+                            onTap: () {
+                              setState(() {
+                                _selectedSessionYear = null;
+                                _selectedMedium = null;
+                              });
+                              getExams();
+                            },
                           ),
                         ),
                     ],
                   ),
-                ),
-              ).animate().fadeIn(duration: 300.ms).slideY(
-                  begin: -0.2, end: 0, duration: 300.ms, curve: Curves.easeOut),
-
-            // Show filters row - Session Years and Medium filters remain
-            if (_showFilters)
-              Container(
-                margin: EdgeInsets.only(top: 16, bottom: 8),
-                height: 50,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    _buildFilterOptionChip(
-                      label: _selectedSessionYear?.name ?? "Tahun Ajaran",
-                      icon: Icons.calendar_today_outlined,
-                      onTap: () {
-                        if (context.read<SessionYearsAndMediumsCubit>().state
-                            is SessionYearsAndMediumsFetchSuccess) {
-                          final state = context
-                              .read<SessionYearsAndMediumsCubit>()
-                              .state as SessionYearsAndMediumsFetchSuccess;
-
-                          Utils.showBottomSheet(
-                            context: context,
-                            child: FilterSelectionBottomsheet(
-                              titleKey: "Pilih Tahun Ajaran",
-                              values: state.sessionYears
-                                  .map((e) => {
-                                        "id": e.id,
-                                        "title": e.name,
-                                      })
-                                  .toList(),
-                              selectedValue: _selectedSessionYear?.id,
-                              onSelection: (selectedItem) {
-                                final sessionYear =
-                                    state.sessionYears.firstWhere(
-                                  (element) =>
-                                      element.id ==
-                                      (selectedItem
-                                          as Map<String, dynamic>)['id'],
-                                );
-                                changeSelectedSessionYear(sessionYear);
-                                getExams();
-                              },
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                    SizedBox(width: 10),
-                    _buildFilterOptionChip(
-                      label: _selectedMedium?.name ?? "Bahasa",
-                      icon: Icons.language_rounded,
-                      onTap: () {
-                        if (context.read<SessionYearsAndMediumsCubit>().state
-                            is SessionYearsAndMediumsFetchSuccess) {
-                          final state = context
-                              .read<SessionYearsAndMediumsCubit>()
-                              .state as SessionYearsAndMediumsFetchSuccess;
-
-                          Utils.showBottomSheet(
-                            context: context,
-                            child: FilterSelectionBottomsheet(
-                              titleKey: "Pilih Bahasa",
-                              values: state.mediums
-                                  .map((e) => {
-                                        "id": e.id,
-                                        "title": e.name,
-                                      })
-                                  .toList(),
-                              selectedValue: _selectedMedium?.id,
-                              onSelection: (selectedItem) {
-                                final medium = state.mediums.firstWhere(
-                                  (element) =>
-                                      element.id ==
-                                      (selectedItem
-                                          as Map<String, dynamic>)['id'],
-                                );
-                                changeSelectedMedium(medium);
-                                getExams();
-                              },
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                    if (_selectedSessionYear != null || _selectedMedium != null)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: _buildFilterOptionChip(
-                          label: "Reset Filter",
-                          icon: Icons.refresh_rounded,
-                          onTap: () {
-                            setState(() {
-                              _selectedSessionYear = null;
-                              _selectedMedium = null;
-                            });
-                            getExams();
-                          },
-                        ),
-                      ),
-                  ],
-                ),
-              ).animate().fadeIn(duration: 300.ms).slideY(
-                  begin: -0.2, end: 0, duration: 300.ms, curve: Curves.easeOut),
-          ],
+                ).animate().fadeIn(duration: 300.ms).slideY(
+                    begin: -0.2,
+                    end: 0,
+                    duration: 300.ms,
+                    curve: Curves.easeOut),
+            ],
+          ),
         ),
       ),
     );
