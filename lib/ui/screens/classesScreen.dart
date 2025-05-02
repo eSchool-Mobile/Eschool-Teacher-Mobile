@@ -1028,135 +1028,205 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
       titleLabelKey: classSubjectsKey,
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: Row(
+          // Elegant header with subtle gradient
+          Container(
+            margin: EdgeInsets.only(bottom: 24),
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(vertical: 22, horizontal: 24),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                colors: [
+                  AppColorPalette.primaryMaroon.withOpacity(0.9),
+                  AppColorPalette.primaryMaroon.withOpacity(0.85),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColorPalette.shadowColor.withOpacity(0.25),
+                  blurRadius: 12,
+                  spreadRadius: 2,
+                  offset: Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Mata Pelajaran dan Guru',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColorPalette.primaryMaroon,
-                    ),
+                Text(
+                  'Daftar Mata Pelajaran',
+                  style: GoogleFonts.poppins(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
                   ),
                 ),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppColorPalette.primaryMaroon,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    '${subjectTeachers.length} Subjects',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
+                SizedBox(height: 8),
+                Row(
+                  children: [
+                    Container(
+                      height: 2,
+                      width: 40,
+                      color: Colors.white.withOpacity(0.7),
                     ),
-                  ),
+                    SizedBox(width: 8),
+                    Text(
+                      '${subjectTeachers.length} mata pelajaran',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          Divider(
-            color: AppColorPalette.primaryMaroon.withOpacity(0.2),
-            thickness: 1.5,
-          ),
-          SizedBox(height: 8),
+
+          // Elegant subject list with minimalist design
           AnimationLimiter(
-            child: Column(
-              children: List.generate(
-                subjectTeachers.length,
-                (index) => AnimationConfiguration.staggeredList(
+            child: ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: subjectTeachers.length,
+              itemBuilder: (context, index) {
+                // Get subject name and teacher
+                final subject =
+                    subjectTeachers[index].subject?.getSybjectNameWithType() ??
+                        '';
+                final teacher = subjectTeachers[index].teacher?.fullName ?? '-';
+
+                return AnimationConfiguration.staggeredList(
                   position: index,
-                  duration: Duration(milliseconds: 400),
+                  duration: Duration(milliseconds: 450),
                   child: SlideAnimation(
-                    verticalOffset: 30,
+                    horizontalOffset: 50,
                     child: FadeInAnimation(
                       child: Container(
-                        margin: EdgeInsets.only(bottom: 12),
+                        margin: EdgeInsets.only(bottom: 16),
                         decoration: BoxDecoration(
-                          color: index.isEven
-                              ? AppColorPalette.primaryMaroon.withOpacity(0.1)
-                              : Colors.white,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color:
-                                AppColorPalette.primaryMaroon.withOpacity(0.25),
+                                AppColorPalette.primaryMaroon.withOpacity(0.15),
                             width: 1.5,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColorPalette.primaryMaroon
-                                  .withOpacity(0.15),
-                              blurRadius: 8,
-                              offset: Offset(0, 3),
-                              spreadRadius: 0.5,
+                              color: Colors.black.withOpacity(0.04),
+                              blurRadius: 15,
+                              spreadRadius: 1,
+                              offset: Offset(0, 5),
                             ),
                           ],
                         ),
-                        child: ListTile(
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          title: CustomTextContainer(
-                            textKey: subjectTeachers[index]
-                                    .subject
-                                    ?.getSybjectNameWithType() ??
-                                '',
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppColorPalette.primaryMaroon,
-                            ),
-                          ),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.only(top: 4.0),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.person_outline_rounded,
-                                  size: 16,
-                                  color: AppColorPalette.primaryMaroon,
-                                ),
-                                SizedBox(width: 4),
-                                Expanded(
-                                  child: CustomTextContainer(
-                                    textKey:
-                                        "${Utils.getTranslatedLabel(teacherKey)} : ${subjectTeachers[index].teacher?.fullName ?? '-'}",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColorPalette.secondaryMaroon,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          trailing: Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: AppColorPalette.primaryMaroon
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () {
+                                HapticFeedback.lightImpact();
+                              },
+                              splashColor: AppColorPalette.primaryMaroon
                                   .withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.arrow_forward_rounded,
-                              size: 18,
-                              color: AppColorPalette.primaryMaroon,
+                              highlightColor: AppColorPalette.primaryMaroon
+                                  .withOpacity(0.05),
+                              child: Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Subject title
+                                    CustomTextContainer(
+                                      textKey: subject,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColorPalette.primaryMaroon,
+                                        height: 1.3,
+                                      ),
+                                    ),
+
+                                    // Divider line
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 12),
+                                      child: Container(
+                                        height: 1,
+                                        width: double.infinity,
+                                        color: AppColorPalette.primaryMaroon
+                                            .withOpacity(0.1),
+                                      ),
+                                    ),
+
+                                    // Teacher info - elegant and simple
+                                    Row(
+                                      children: [
+                                        // Profile avatar
+                                        Container(
+                                          width: 48,
+                                          height: 48,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: AppColorPalette.primaryMaroon
+                                                .withOpacity(0.1),
+                                          ),
+                                          child: Center(
+                                            child: Icon(
+                                              Icons.person_rounded,
+                                              color:
+                                                  AppColorPalette.primaryMaroon,
+                                              size: 24,
+                                            ),
+                                          ),
+                                        ),
+
+                                        SizedBox(width: 14),
+
+                                        // Teacher name and role
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                teacher,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.black87,
+                                                ),
+                                              ),
+                                              Text(
+                                                'Guru Pengajar',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: Colors.black54,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
         ],

@@ -15,12 +15,13 @@ import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ManageNotificationScreen extends StatefulWidget {
   const ManageNotificationScreen({super.key});
 
   static Widget getRouteInstance() {
-    //final arguments = Get.arguments as Map<String,dynamic>;
     return BlocProvider(
       create: (context) => NotificationsCubit(),
       child: ManageNotificationScreen(
@@ -41,15 +42,27 @@ class ManageNotificationScreen extends StatefulWidget {
       ManageNotificationScreenState();
 }
 
-class ManageNotificationScreenState extends State<ManageNotificationScreen> {
+class ManageNotificationScreenState extends State<ManageNotificationScreen> with TickerProviderStateMixin {
   late final ScrollController _scrollController = ScrollController()
     ..addListener(scrollListener);
+  late AnimationController _fabAnimationController;
+  late Animation<double> _fabAnimation;
 
   @override
   void initState() {
     super.initState();
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _fabAnimation = CurvedAnimation(
+      parent: _fabAnimationController,
+      curve: Curves.easeInOut,
+    );
+
     Future.delayed(Duration.zero, () {
       getNotifications();
+      _fabAnimationController.forward();
     });
   }
 
@@ -59,9 +72,10 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen> {
 
   @override
   void dispose() {
-    super.dispose();
     _scrollController.removeListener(scrollListener);
     _scrollController.dispose();
+    _fabAnimationController.dispose();
+    super.dispose();
   }
 
   void scrollListener() {
@@ -73,184 +87,239 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen> {
     }
   }
 
-  Widget _buildAddNotificationButton() {
+  Widget _buildAddNotificationFAB() {
     return context
             .read<StaffAllowedPermissionsAndModulesCubit>()
             .isPermissionGiven(permission: createNotificationPermissionKey)
         ? BlocBuilder<NotificationsCubit, NotificationsState>(
             builder: (context, state) {
               if (state is NotificationsFetchSuccess) {
-                return Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                      padding: EdgeInsets.all(appContentHorizontalPadding),
-                      decoration: BoxDecoration(boxShadow: const [
-                        BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 1,
-                            spreadRadius: 1)
-                      ], color: Theme.of(context).colorScheme.surface),
-                      width: MediaQuery.of(context).size.width,
-                      height: 70,
-                      child: CustomRoundedButton(
-                        height: 40,
-                        widthPercentage: 1.0,
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        buttonTitle: addNotificationKey,
-                        showBorder: false,
-                        onTap: () {
-                          Get.toNamed(Routes.addNotificationScreen);
-                        },
-                      ),
-                    ));
+                return ScaleTransition(
+                  scale: _fabAnimation,
+                  child: FloatingActionButton.extended(
+                    onPressed: () {
+                      Get.toNamed(Routes.addNotificationScreen);
+                    },
+                    icon: const Icon(Icons.add),
+                    label: Text(Utils.getTranslatedLabel(context, addNotificationKey)),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    elevation: 4.0,
+                  ),
+                );
               }
-
               return const SizedBox();
             },
           )
         : const SizedBox();
   }
 
+  Widget _buildNotificationCard(notification, int index, bool isLoading) {
+    return AnimationConfiguration.staggeredList(
+      position: index,
+      duration: const Duration(milliseconds: 375),
+      child: SlideAnimation(
+        verticalOffset: 50.0,
+        child: FadeInAnimation(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6.0),
+            child: Slidable(
+              endActionPane: ActionPane(
+                motion: const ScrollMotion(),
+                children: [
+                  SlidableAction(
+                    onPressed: (_) {
+                      // View notification details
+                    },
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Colors.white,
+                    icon: Icons.visibility,
+                    label: Utils.getTranslatedLabel(context, viewKey),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ],
+              ),
+              child: Card(
+                elevation: 2.0,
+                margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      "${index + 1}",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    notification.title ?? "",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  subtitle: notification.description != null && notification.description!.isNotEmpty
+                      ? Text(
+                          notification.description!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Theme.of(context).textTheme.bodySmall?.color,
+                          ),
+                        )
+                      : null,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.calendar_month, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        notification.createdAt ?? "",
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    // Handle notification tap
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: AnimatedOpacity(
+        opacity: 1.0,
+        duration: const Duration(milliseconds: 500),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.notifications_off_outlined,
+              size: 80,
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              Utils.getTranslatedLabel(context, "noNotificationsFoundKey"),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              Utils.getTranslatedLabel(context, "createNewNotificationKey"),
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).textTheme.bodySmall?.color,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Stack(
-      children: [
-        BlocBuilder<NotificationsCubit, NotificationsState>(
-          builder: (context, state) {
-            if (state is NotificationsFetchSuccess) {
-              return Align(
-                alignment: Alignment.topCenter,
-                child: RefreshIndicator(
-                  onRefresh: () async {
-                    getNotifications();
-                  },
-                  displacement:
-                      Utils.appContentTopScrollPadding(context: context) + 25,
-                  child: SingleChildScrollView(
-                    controller: _scrollController,
-                    padding: EdgeInsets.only(
-                        bottom: 100,
-                        top:
-                            Utils.appContentTopScrollPadding(context: context) +
-                                25),
-                    child: Container(
-                      padding: EdgeInsets.all(appContentHorizontalPadding),
-                      color: Theme.of(context).colorScheme.surface,
-                      width: MediaQuery.of(context).size.width,
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: appContentHorizontalPadding),
-                            height: 40,
-                            width: double.maxFinite,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                color: Theme.of(context).colorScheme.tertiary),
-                            child: LayoutBuilder(
-                                builder: (context, boxConstraints) {
-                              return Row(
-                                children: [
-                                  SizedBox(
-                                    width: boxConstraints.maxWidth * (0.15),
-                                    child:
-                                        const CustomTextContainer(textKey: "#"),
-                                  ),
-                                  SizedBox(
-                                    width: boxConstraints.maxWidth * (0.85),
-                                    child: const CustomTextContainer(
-                                        textKey: nameKey),
-                                  ),
-                                ],
-                              );
-                            }),
-                          ),
-                          Container(
-                            width: double.maxFinite,
-                            decoration: BoxDecoration(
-                                border: Border(
-                                    right: BorderSide(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .tertiary),
-                                    left: BorderSide(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .tertiary)),
-                                borderRadius: const BorderRadius.only(
-                                    bottomLeft: Radius.circular(5),
-                                    bottomRight: Radius.circular(5)),
-                                color: Theme.of(context).colorScheme.surface),
-                            child: Column(
-                              children: List.generate(
-                                  state.notifications.length, (index) {
-                                if (context
-                                    .read<NotificationsCubit>()
-                                    .hasMore()) {
-                                  if (index == state.notifications.length - 1) {
-                                    if (state.fetchMoreError) {
-                                      return Center(
+      floatingActionButton: _buildAddNotificationFAB(),
+      body: Stack(
+        children: [
+          BlocBuilder<NotificationsCubit, NotificationsState>(
+            builder: (context, state) {
+              if (state is NotificationsFetchSuccess) {
+                return state.notifications.isEmpty
+                    ? _buildEmptyState()
+                    : Align(
+                        alignment: Alignment.topCenter,
+                        child: RefreshIndicator(
+                          onRefresh: () async {
+                            getNotifications();
+                          },
+                          displacement:
+                              Utils.appContentTopScrollPadding(context: context) + 25,
+                          child: AnimationLimiter(
+                            child: ListView.builder(
+                              controller: _scrollController,
+                              padding: EdgeInsets.only(
+                                bottom: 100,
+                                top: Utils.appContentTopScrollPadding(context: context) + 25,
+                                left: 16,
+                                right: 16,
+                              ),
+                              itemCount: state.notifications.length + (context.read<NotificationsCubit>().hasMore() ? 1 : 0),
+                              itemBuilder: (context, index) {
+                                if (index == state.notifications.length) {
+                                  if (state.fetchMoreError) {
+                                    return Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
                                         child: CustomTextButton(
-                                            buttonTextKey: retryKey,
-                                            onTapButton: () {
-                                              context
-                                                  .read<NotificationsCubit>()
-                                                  .fetchMore();
-                                            }),
-                                      );
-                                    }
-                                    return Padding(
-                                      padding: const EdgeInsets.only(top: 10.0),
-                                      child: Center(
-                                        child: CustomCircularProgressIndicator(
-                                          indicatorColor: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
+                                          buttonTextKey: retryKey,
+                                          onTapButton: () {
+                                            context.read<NotificationsCubit>().fetchMore();
+                                          },
                                         ),
                                       ),
                                     );
                                   }
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                    child: Center(
+                                      child: CustomCircularProgressIndicator(
+                                        indicatorColor: Theme.of(context).colorScheme.primary,
+                                      ),
+                                    ),
+                                  );
                                 }
-                                return AdminNotificationDetailsContainer(
-                                    notificationDetails:
-                                        state.notifications[index],
-                                    index: index);
-                              }).toList(),
+                                return _buildNotificationCard(
+                                  state.notifications[index],
+                                  index,
+                                  false,
+                                );
+                              },
                             ),
-                          )
-                        ],
-                      ),
-                    ),
+                          ),
+                        ),
+                      );
+              }
+
+              if (state is NotificationsFetchFailure) {
+                return Center(
+                  child: ErrorContainer(
+                    errorMessage: state.errorMessage,
+                    onTapRetry: () {
+                      getNotifications();
+                    },
                   ),
-                ),
-              );
-            }
+                );
+              }
 
-            if (state is NotificationsFetchFailure) {
+              // Loading state
               return Center(
-                child: ErrorContainer(
-                  errorMessage: state.errorMessage,
-                  onTapRetry: () {
-                    getNotifications();
-                  },
-                ),
-              );
-            }
-
-            return Center(
-              child: CustomCircularProgressIndicator(
-                indicatorColor: Theme.of(context).colorScheme.primary,
-              ),
-            );
-          },
-        ),
-        _buildAddNotificationButton(),
-        const Align(
-          alignment: Alignment.topCenter,
-          child: CustomAppbar(titleKey: manageNotificationKey),
-        ),
-      ],
-    ));
-  }
-}
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CustomCircularProgressIndicator(
+                      indicatorColor: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(height: 16),
+                    TweenAnimationBuilder<double>(
+                      duration: const Duration(milliseconds: 800),
+                      tween: Tween<double>(begin: 0.0, end: 1.0),
