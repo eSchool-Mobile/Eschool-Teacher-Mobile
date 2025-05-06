@@ -15,6 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class ClassesScreen extends StatefulWidget {
   const ClassesScreen({super.key});
@@ -39,6 +40,9 @@ class _ClassesScreenState extends State<ClassesScreen>
   late AnimationController _controller;
   final ScrollController _scrollController = ScrollController();
   bool _isScrolled = false;
+  bool _isSearchActive = false;
+  TextEditingController _searchController = TextEditingController();
+  String _searchQuery = "";
 
   @override
   void initState() {
@@ -72,6 +76,7 @@ class _ClassesScreenState extends State<ClassesScreen>
     _controller.dispose();
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -170,129 +175,397 @@ class _ClassesScreenState extends State<ClassesScreen>
               ),
             ),
 
-            // Enhanced Curved AppBar with Animation
-            AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                return Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: ClipPath(
-                    clipper: EnhancedCurvedBottomClipper(),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(
-                        sigmaX: 10 * _controller.value,
-                        sigmaY: 10 * _controller.value,
-                      ),
-                      child: AnimatedContainer(
-                        duration: Duration(milliseconds: 300),
-                        height: 145.0,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              AppColorPalette.primaryMaroon
-                                  .withOpacity(_isScrolled ? 0.95 : 0.85),
-                              AppColorPalette.secondaryMaroon
-                                  .withOpacity(_isScrolled ? 0.9 : 0.8),
-                            ],
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColorPalette.primaryMaroon
-                                  .withOpacity(0.2),
-                              blurRadius: _isScrolled ? 15 : 5,
-                              offset: Offset(0, _isScrolled ? 5 : 2),
-                            ),
+            // Enhanced Search Bar
+            _buildSearchBar(),
+
+            // New Enhanced AppBar
+            _buildAppBar(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + 80,
+      left: 0,
+      right: 0,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        height: _isSearchActive ? 56 : 0,
+        curve: Curves.easeInOut,
+        child: _isSearchActive
+            ? Container(
+                margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Cari kelas...',
+                    prefixIcon: Icon(Icons.search,
+                        color: AppColorPalette.secondaryMaroon),
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.close,
+                          color: AppColorPalette.secondaryMaroon),
+                      onPressed: () {
+                        setState(() {
+                          _searchController.clear();
+                          _searchQuery = "";
+                          _isSearchActive = false;
+                        });
+                      },
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value;
+                    });
+                  },
+                ),
+              )
+            : SizedBox.shrink(),
+      ),
+    );
+  }
+
+  Widget _buildAppBar() {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Container(
+        height: MediaQuery.of(context).padding.top + 80,
+        child: Stack(
+          children: [
+            // Fancy gradient background with animated particles
+            Positioned.fill(
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (context, _) {
+                  return ShaderMask(
+                    shaderCallback: (Rect bounds) {
+                      return LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFF690013),
+                          AppColorPalette.primaryMaroon,
+                          Color(0xFFA12948),
+                          AppColorPalette.secondaryMaroon,
+                        ],
+                        stops: [0.0, 0.3, 0.6, 1.0],
+                        transform: GradientRotation(_controller.value * 0.02),
+                      ).createShader(bounds);
+                    },
+                    blendMode: BlendMode.srcATop,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF800020),
+                            Color(0xFF9A1E3C),
                           ],
                         ),
-                        child: SafeArea(
-                          bottom: false,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24.0,
-                              vertical: 16.0,
-                            ),
-                            child: Row(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        // Add back button here
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            gradient: LinearGradient(
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                              colors: [
-                                                Colors.white.withOpacity(0.3),
-                                                Colors.white.withOpacity(0.1),
-                                              ],
-                                            ),
-                                            border: Border.all(
-                                              color:
-                                                  Colors.white.withOpacity(0.5),
-                                              width: 1,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black
-                                                    .withOpacity(0.1),
-                                                blurRadius: 8,
-                                                spreadRadius: 1,
-                                              ),
-                                            ],
-                                          ),
-                                          child: ClipOval(
-                                            child: BackdropFilter(
-                                              filter: ImageFilter.blur(
-                                                  sigmaX: 3, sigmaY: 3),
-                                              child: IconButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                  HapticFeedback.mediumImpact();
-                                                },
-                                                icon: Icon(
-                                                  Icons.arrow_back_ios_rounded,
-                                                  color: Colors.white,
-                                                  size: 18,
-                                                ),
-                                                padding: EdgeInsets.all(8),
-                                                constraints: BoxConstraints(),
-                                                splashRadius: 24,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(width: 8),
-                                        CustomTextContainer(
-                                          textKey: viewClassesKey,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.white,
-                                            letterSpacing: 0.5,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 6),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(30),
+                          bottomRight: Radius.circular(30),
                         ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // Decorative design elements
+            Positioned.fill(
+              child: CustomPaint(
+                painter: AppBarDecorationPainter(
+                  color: Colors.white.withOpacity(0.07),
+                ),
+              ),
+            ),
+
+            // Animated glowing effect
+            AnimatedBuilder(
+              animation: _controller,
+              builder: (context, _) {
+                return Positioned(
+                  top: -100 + (_controller.value * 20),
+                  right: -60 + (_controller.value * 10),
+                  child: Container(
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          Colors.white.withOpacity(0.2),
+                          Colors.white.withOpacity(0.1),
+                          Colors.white.withOpacity(0.0),
+                        ],
+                        stops: [0.0, 0.5, 1.0],
                       ),
                     ),
                   ),
                 );
               },
+            ),
+
+            // Main app bar content with frosted glass effect
+            Positioned(
+              bottom: 10,
+              left: 16,
+              right: 16,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.2),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        // Back button with ripple effect
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Material(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(12),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              highlightColor: Colors.white.withOpacity(0.1),
+                              splashColor: Colors.white.withOpacity(0.2),
+                              onTap: () => Navigator.of(context).pop(),
+                              child: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  Icons.arrow_back_ios_rounded,
+                                  color: Colors.white,
+                                  size: 22,
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                            .animate()
+                            .fadeIn(duration: 400.ms, curve: Curves.easeOut)
+                            .slideX(begin: -0.3, end: 0),
+
+                        // Animated divider
+                        Container(
+                          height: 24,
+                          width: 1.5,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.white.withOpacity(0.0),
+                                Colors.white.withOpacity(0.4),
+                                Colors.white.withOpacity(0.0),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Title with animated badge
+                        Expanded(
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Main title
+                              Center(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Animated icon
+                                    AnimatedBuilder(
+                                      animation: _controller,
+                                      builder: (context, child) {
+                                        return Transform.rotate(
+                                          angle: _controller.value * 0.05,
+                                          child: Container(
+                                            padding: EdgeInsets.all(6),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              gradient: LinearGradient(
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                                colors: [
+                                                  Colors.white.withOpacity(0.9),
+                                                  Colors.white.withOpacity(0.4),
+                                                ],
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withOpacity(0.2),
+                                                  blurRadius: 4,
+                                                  offset: Offset(0, 2),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Icon(
+                                              Icons.school,
+                                              color:
+                                                  AppColorPalette.primaryMaroon,
+                                              size: 20,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+
+                                    SizedBox(width: 12),
+
+                                    // Title text with glowing effect
+                                    ShaderMask(
+                                      shaderCallback: (Rect bounds) {
+                                        return LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: [
+                                            Colors.white,
+                                            Colors.white.withOpacity(0.9),
+                                          ],
+                                        ).createShader(bounds);
+                                      },
+                                      blendMode: BlendMode.srcIn,
+                                      child: Text(
+                                        'Daftar Kelas',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.black26,
+                                              offset: Offset(0, 1),
+                                              blurRadius: 3,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Animated divider
+                        Container(
+                          height: 24,
+                          width: 1.5,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.white.withOpacity(0.0),
+                                Colors.white.withOpacity(0.4),
+                                Colors.white.withOpacity(0.0),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Search button with interactive animation
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Material(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(12),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              highlightColor: Colors.white.withOpacity(0.1),
+                              splashColor: Colors.white.withOpacity(0.2),
+                              onTap: () {
+                                setState(() {
+                                  _isSearchActive = !_isSearchActive;
+                                  if (!_isSearchActive) {
+                                    _searchController.clear();
+                                    _searchQuery = "";
+                                  }
+                                });
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: _isSearchActive
+                                      ? Border.all(
+                                          color: Colors.white.withOpacity(0.4),
+                                          width: 1.5,
+                                        )
+                                      : null,
+                                ),
+                                child: AnimatedSwitcher(
+                                  duration: Duration(milliseconds: 400),
+                                  transitionBuilder: (Widget child,
+                                      Animation<double> animation) {
+                                    return RotationTransition(
+                                      turns: Tween<double>(begin: 0.5, end: 1.0)
+                                          .animate(animation),
+                                      child: ScaleTransition(
+                                        scale: animation,
+                                        child: FadeTransition(
+                                          opacity: animation,
+                                          child: child,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: _isSearchActive
+                                      ? Icon(
+                                          Icons.close_rounded,
+                                          key: ValueKey<bool>(true),
+                                          color: Colors.white,
+                                          size: 22,
+                                        )
+                                      : Icon(
+                                          Icons.search_rounded,
+                                          key: ValueKey<bool>(false),
+                                          color: Colors.white,
+                                          size: 22,
+                                        ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                            .animate()
+                            .fadeIn(duration: 400.ms, curve: Curves.easeOut)
+                            .slideX(begin: 0.3, end: 0),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -396,6 +669,15 @@ class _ClassesScreenState extends State<ClassesScreen>
 
   Widget _buildSuccessState(
       BuildContext context, ClassesWithTeacherDetailsFetchSuccess state) {
+    // Filter classes based on search query if active
+    final classes = _searchQuery.isEmpty
+        ? state.classes
+        : state.classes
+            .where((classSection) => (classSection.fullName ?? "")
+                .toLowerCase()
+                .contains(_searchQuery.toLowerCase()))
+            .toList();
+
     return AnimationLimiter(
       child: CustomScrollView(
         controller: _scrollController,
@@ -410,7 +692,28 @@ class _ClassesScreenState extends State<ClassesScreen>
                 left: appContentHorizontalPadding,
                 right: appContentHorizontalPadding,
               ),
-              child: _buildEnhancedHeaderCard(context),
+              child: classes.isEmpty && _searchQuery.isNotEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Kelas tidak ditemukan',
+                            style: GoogleFonts.poppins(
+                              color: Colors.grey[600],
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ).animate().fadeIn(delay: 300.ms)
+                  : _buildEnhancedHeaderCard(context),
             ),
           ),
           SliverPadding(
@@ -427,12 +730,12 @@ class _ClassesScreenState extends State<ClassesScreen>
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 16.0),
                         child: _buildEnhancedClassCard(
-                            context, state.classes[index], index),
+                            context, classes[index], index),
                       ),
                     ),
                   ),
                 ),
-                childCount: state.classes.length,
+                childCount: classes.length,
               ),
             ),
           ),
@@ -1338,4 +1641,40 @@ class AppColorPalette {
   static const Color accentPink = Color(0xFFF4D0D9);
   static const Color warmBeige = Color(0xFFF5E6E8);
   static const Color shadowColor = Color(0x298B1F41);
+}
+
+class AppBarDecorationPainter extends CustomPainter {
+  final Color color;
+
+  AppBarDecorationPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path()
+      ..moveTo(0, size.height * 0.5)
+      ..quadraticBezierTo(
+        size.width * 0.25,
+        size.height * 0.4,
+        size.width * 0.5,
+        size.height * 0.5,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.75,
+        size.height * 0.6,
+        size.width,
+        size.height * 0.5,
+      )
+      ..lineTo(size.width, 0)
+      ..lineTo(0, 0)
+      ..close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

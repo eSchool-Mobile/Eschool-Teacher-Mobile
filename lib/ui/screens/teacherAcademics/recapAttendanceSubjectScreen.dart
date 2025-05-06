@@ -12,6 +12,10 @@ import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:ui';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'dart:math';
 
 class RecapAttendanceSubjectScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -33,46 +37,65 @@ class RecapAttendanceSubjectScreen extends StatefulWidget {
 }
 
 class _RecapAttendanceSubjectScreenState
-    extends State<RecapAttendanceSubjectScreen> {
-  // Replace _selectedDateTime with _selectedYear
+    extends State<RecapAttendanceSubjectScreen> with TickerProviderStateMixin {
   int _selectedYear = DateTime.now().year;
   ClassSection? _selectedClassSection;
   List<ClassSection> _filteredClassSections = [];
   int? teacherId;
   int? schoolId;
   String? email;
-  // String? token;
+
+  final Color _maroonPrimary = const Color(0xFF800020);
+  final Color _maroonLight = const Color(0xFFAA6976);
+
+  late AnimationController _fabAnimationController;
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _fabAnimationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 300));
+    _scrollController.addListener(_scrollListener);
+  }
+
+  void _scrollListener() {
+    if (_scrollController.offset > 50) {
+      _fabAnimationController.forward();
+    } else {
+      _fabAnimationController.reverse();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    _fabAnimationController.dispose();
+    super.dispose();
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    print("didChangeDependencies called");
     _loadClassTeacherData();
   }
 
   void _loadClassTeacherData() {
     final userDetails = context.read<AuthCubit>().getUserDetails();
-    // final authToken = AuthRepository.getAuthToken();
 
     setState(() {
       teacherId = userDetails.id;
       schoolId = userDetails.schoolId;
       email = userDetails.email ?? "";
-      // token = authToken;
-      print("Loaded teacher Id: $teacherId");
-      print("Loaded school Id: $schoolId");
-      print("Loaded school Id: $email");
-      // print("Loaded token : $token");
     });
     context.read<ClassesCubit>().getClasses();
   }
 
   void getRecap({int? type}) {
     if (_selectedClassSection == null) {
-      print("Invalid class section ID");
       return;
     }
-    // Implement the logic to fetch recap data based on the selected class section and date
   }
 
   void _showYearPicker() {
@@ -102,35 +125,24 @@ class _RecapAttendanceSubjectScreenState
     );
   }
 
-  // Update download method to handle year
   void downloadRecap(int classId, int classSectionId, int month) async {
     if (schoolId == null || email == null) {
-      print('Ada parameter yang kosong');
-      return; // Add return to prevent further execution
+      return;
     }
 
     final encodedEmail = Uri.encodeComponent(email!);
 
-    // Debug logs
-    print('Downloading recap for:');
-    print('Year: $_selectedYear');
-    print('Month: $month');
-    print('Class ID: $classId');
-    print('Class Section ID: $classSectionId');
-
-    // final url = Uri.parse('https://eschool.ac.id/recap-download'
     final url = Uri.parse('https://esbeta.deanry.my.id/recap-download'
         '?school_id=$schoolId'
         '&class_id=$classId'
         '&class_section_id=$classSectionId'
         '&month=$month'
-        '&year=$_selectedYear' // This ensures we use the selected year
+        '&year=$_selectedYear'
         '&email=$encodedEmail'
         '&gm=naowndoianwodinaiwondaoiwnd');
 
     try {
       if (await canLaunchUrl(url)) {
-        print('Launching URL: $url'); // Debug log
         await launchUrl(url);
       } else {
         throw 'Could not launch $url';
@@ -141,124 +153,376 @@ class _RecapAttendanceSubjectScreenState
   }
 
   void filterClassSections(List<ClassSection> classSections, int teacherId) {
-    print("Filtering class sections for teacherId: $teacherId");
-
     _filteredClassSections = classSections.where((classSection) {
-      print(
-          "Checking class section: ${classSection.name} (ID: ${classSection.id})");
-
       if (classSection.classTeachers == null ||
           classSection.classTeachers!.isEmpty) {
-        print("No class teachers found for ${classSection.name}");
         return false;
       }
 
-      // Debug: Print all teachers in this section
-      print("Class teachers for ${classSection.name}:");
-      for (var teacher in classSection.classTeachers!) {
-        print("- Teacher ID: ${teacher.teacherId}");
-        print("- Teacher Detail ID: ${teacher.teacher?.id}");
-        print("- Class Section ID: ${teacher.classSectionId}");
-        print("- Current Section ID: ${classSection.id}");
-      }
-
-      // Loop through setiap class_teacher
       for (var classTeacher in classSection.classTeachers!) {
-        // Step 1: Cek teacher.id
-        if (classTeacher.teacher?.id == teacherId) {
-          print("Found matching teacher.id for class ${classSection.name}");
-
-          // Step 2: Cek teacher_id
-          if (classTeacher.teacherId == teacherId) {
-            print("Verified teacher_id match");
-
-            // Step 3: Cek class_section_id dengan id class section
-            if (classTeacher.classSectionId == classSection.id) {
-              print("Verified as class teacher for ${classSection.name}:");
-              print("- teacher.id: ${classTeacher.teacher?.id}");
-              print("- teacher_id: ${classTeacher.teacherId}");
-              print(
-                  "- class_section_id: ${classTeacher.classSectionId} matches section.id: ${classSection.id}");
-              return true;
-            }
-          }
+        if (classTeacher.teacher?.id == teacherId &&
+            classTeacher.teacherId == teacherId &&
+            classTeacher.classSectionId == classSection.id) {
+          return true;
         }
       }
       return false;
     }).toList();
-
-    print(
-        "Final filtered classes for teacher $teacherId: ${_filteredClassSections.map((e) => e.name).toList()}");
   }
 
-  // Di RecapAttendanceSubjectScreen, update _buildRecapTable untuk mengirim schoolId
   Widget _buildRecapTable(List<ClassSection> classes) {
     return SingleChildScrollView(
+      controller: _scrollController,
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: EdgeInsets.only(
-        top: Utils.appContentTopScrollPadding(context: context) + 100,
+        // Adjust top padding to position content below the app bar
+        top: MediaQuery.of(context).padding.top + 180,
         bottom: 25,
       ),
-      child: RecapAttendanceContainer(
-        classSections: classes,
-        selectedYear: _selectedYear,
-        email: email, // Tambahkan email
-        schoolId: schoolId, // Tambahkan schoolId
-        onDownload: (classSection, month) {
-          final classId = classSection.classDetails?.id ?? 0;
-          final classSectionId = classSection.id ?? 0;
-          downloadRecap(classId, classSectionId, month);
-        },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title section
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  Utils.getTranslatedLabel(recapAttendanceSubjectKey),
+                  style: GoogleFonts.poppins(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: _maroonPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Rekap kehadiran mata pelajaran tahun $_selectedYear',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          )
+              .animate()
+              .fadeIn(duration: 400.ms)
+              .slideY(begin: -0.1, end: 0, curve: Curves.easeOutQuad),
+
+          // Recap attendance container
+          RecapAttendanceContainer(
+            classSections: classes,
+            selectedYear: _selectedYear,
+            email: email,
+            schoolId: schoolId,
+            onDownload: (classSection, month) {
+              final classId = classSection.classDetails?.id ?? 0;
+              final classSectionId = classSection.id ?? 0;
+              downloadRecap(classId, classSectionId, month);
+            },
+          ).animate().fadeIn(duration: 500.ms).slideY(
+                begin: 0.05,
+                end: 0,
+                curve: Curves.easeOutQuad,
+                duration: 500.ms,
+              ),
+        ],
       ),
     );
   }
 
-  Widget _buildAppbarAndFilters() {
+  Widget _buildAppBar() {
     return Align(
       alignment: Alignment.topCenter,
-      child: BlocConsumer<ClassesCubit, ClassesState>(
-        listener: (context, state) {
-          if (state is ClassesFetchSuccess) {
-            print("ClassesFetchSuccess state received");
-            if (teacherId != null) {
-              print("Teacher ID: $teacherId");
-              print(
-                  "Primary Classes: ${state.primaryClasses.map((e) => e.name).toList()}");
-
-              filterClassSections(state.primaryClasses, teacherId!);
-
-              if (_selectedClassSection == null &&
-                  _filteredClassSections.isNotEmpty) {
-                _selectedClassSection = _filteredClassSections.first;
-                setState(() {});
-                getRecap();
-              }
-            }
-          }
-        },
-        builder: (context, state) {
-          return Column(
-            children: [
-              const CustomAppbar(titleKey: recapAttendanceSubjectKey),
-              AppbarFilterBackgroundContainer(
-                height: Utils().getResponsiveHeight(context, 85),
-                child: LayoutBuilder(builder: (context, boxConstraints) {
-                  return Column(
-                    children: [
-                      SizedBox(
-                        height: 40,
-                        child: FilterButton(
-                          onTap: _showYearPicker,
-                          titleKey: 'Tahun $_selectedYear',
-                          width: boxConstraints.maxWidth * (0.98),
+      child: Container(
+        height: MediaQuery.of(context).padding.top +
+            150, // Height for app bar with filters
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: AnimatedBuilder(
+                animation: _fabAnimationController,
+                builder: (context, _) {
+                  return ShaderMask(
+                    shaderCallback: (Rect bounds) {
+                      return LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFF690013),
+                          _maroonPrimary,
+                          Color(0xFFA12948),
+                          _maroonLight,
+                        ],
+                        stops: [0.0, 0.3, 0.6, 1.0],
+                        transform: GradientRotation(
+                            _fabAnimationController.value * 0.02),
+                      ).createShader(bounds);
+                    },
+                    blendMode: BlendMode.srcATop,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF800020),
+                            Color(0xFF9A1E3C),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(30),
+                          bottomRight: Radius.circular(30),
                         ),
                       ),
-                    ],
+                    ),
                   );
-                }),
+                },
               ),
-            ],
-          );
-        },
+            ),
+            Positioned.fill(
+              child: CustomPaint(
+                painter: AppBarDecorationPainter(
+                  color: Colors.white.withOpacity(0.07),
+                ),
+              ),
+            ),
+            AnimatedBuilder(
+              animation: _fabAnimationController,
+              builder: (context, _) {
+                return Positioned(
+                  top: -100 + (_fabAnimationController.value * 20),
+                  right: -60 + (_fabAnimationController.value * 10),
+                  child: Container(
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          Colors.white.withOpacity(0.2),
+                          Colors.white.withOpacity(0.1),
+                          Colors.white.withOpacity(0.0),
+                        ],
+                        stops: [0.0, 0.5, 1.0],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 10,
+              left: 16,
+              right: 16,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.2),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Material(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(12),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              highlightColor: Colors.white.withOpacity(0.1),
+                              splashColor: Colors.white.withOpacity(0.2),
+                              onTap: () => Navigator.of(context).pop(),
+                              child: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  Icons.arrow_back_ios_rounded,
+                                  color: Colors.white,
+                                  size: 22,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          height: 24,
+                          width: 1.5,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.white.withOpacity(0.0),
+                                Colors.white.withOpacity(0.4),
+                                Colors.white.withOpacity(0.0),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Center(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    AnimatedBuilder(
+                                      animation: _fabAnimationController,
+                                      builder: (context, child) {
+                                        return Transform.rotate(
+                                          angle: _fabAnimationController.value *
+                                              0.05,
+                                          child: Container(
+                                            padding: EdgeInsets.all(6),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              gradient: LinearGradient(
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                                colors: [
+                                                  Colors.white.withOpacity(0.9),
+                                                  Colors.white.withOpacity(0.4),
+                                                ],
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withOpacity(0.2),
+                                                  blurRadius: 4,
+                                                  offset: Offset(0, 2),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Icon(
+                                              Icons.receipt_long_rounded,
+                                              color: _maroonPrimary,
+                                              size: 20,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    SizedBox(width: 12),
+                                    ShaderMask(
+                                      shaderCallback: (Rect bounds) {
+                                        return LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: [
+                                            Colors.white,
+                                            Colors.white.withOpacity(0.9),
+                                          ],
+                                        ).createShader(bounds);
+                                      },
+                                      blendMode: BlendMode.srcIn,
+                                      child: Text(
+                                        Utils.getTranslatedLabel(
+                                            recapAttendanceSubjectKey),
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.black26,
+                                              offset: Offset(0, 1),
+                                              blurRadius: 3,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 10,
+              left: 16,
+              right: 16,
+              child: BlocBuilder<ClassesCubit, ClassesState>(
+                builder: (context, state) {
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                      child: Container(
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: _showYearPicker,
+                            highlightColor: Colors.white.withOpacity(0.1),
+                            splashColor: Colors.white.withOpacity(0.2),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.calendar_today_rounded,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                  SizedBox(width: 12),
+                                  Text(
+                                    'Tahun $_selectedYear',
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                      .animate()
+                      .fadeIn(duration: 500.ms, delay: 200.ms)
+                      .slideY(begin: -0.2, end: 0, curve: Curves.easeOutQuad);
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -295,9 +559,50 @@ class _RecapAttendanceSubjectScreenState
               );
             },
           ),
-          _buildAppbarAndFilters(),
+          _buildAppBar(),
         ],
       ),
     );
+  }
+}
+
+// Custom painter for decorative elements
+class AppBarDecorationPainter extends CustomPainter {
+  final Color color;
+
+  AppBarDecorationPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    // Draw decorative circles
+    canvas.drawCircle(Offset(size.width * 0.9, size.height * 0.2), 30, paint);
+    canvas.drawCircle(Offset(size.width * 0.1, size.height * 0.8), 20, paint);
+    canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.15), 15, paint);
+    canvas.drawCircle(Offset(size.width * 0.7, size.height * 0.7), 10, paint);
+    canvas.drawCircle(Offset(size.width * 0.2, size.height * 0.4), 8, paint);
+
+    // Draw arc
+    final arcPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+
+    final arcRect = Rect.fromLTRB(size.width * 0.1, size.height * 0.2,
+        size.width * 0.6, size.height * 0.6);
+    canvas.drawArc(arcRect, 0.2, 1.5, false, arcPaint);
+
+    // Draw another arc
+    final arcRect2 = Rect.fromLTRB(size.width * 0.5, size.height * 0.4,
+        size.width * 0.9, size.height * 0.8);
+    canvas.drawArc(arcRect2, 3, 1.5, false, arcPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
   }
 }

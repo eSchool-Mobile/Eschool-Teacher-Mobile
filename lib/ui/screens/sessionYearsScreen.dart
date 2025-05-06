@@ -1,16 +1,20 @@
+import 'dart:ui';
+import 'dart:math';
 import 'package:eschool_saas_staff/cubits/academics/sessionYearsCubit.dart';
+import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
+import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
+import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
+import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
+import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:glassmorphism/glassmorphism.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lottie/lottie.dart';
-import 'dart:ui';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class SessionYearsScreen extends StatefulWidget {
   const SessionYearsScreen({super.key});
@@ -31,970 +35,1268 @@ class SessionYearsScreen extends StatefulWidget {
 }
 
 class _SessionYearsScreenState extends State<SessionYearsScreen>
-    with TickerProviderStateMixin {
-  late AnimationController _fadeController;
-  late AnimationController _slideController;
-
-  int _selectedIndex = -1;
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
   final ScrollController _scrollController = ScrollController();
-
-  // Enhanced soft maroon color palette
-  final List<Color> _gradientColors = [
-    const Color(0xFF9E2A2B), // Deep soft maroon
-    const Color(0xFFE09F7D), // Soft peach
-  ];
-
-  // Updated shadow colors for more elegant look
-  final List<BoxShadow> _cardShadows = [
-    const BoxShadow(
-      color: Color(0x20800000),
-      blurRadius: 15,
-      offset: Offset(0, 5),
-      spreadRadius: 1,
-    ),
-    const BoxShadow(
-      color: Color(0x10800000),
-      blurRadius: 25,
-      offset: Offset(0, 8),
-      spreadRadius: -2,
-    ),
-  ];
-
-  // Pattern opacity
-  final double _patternOpacity = 0.03;
+  bool _isScrolled = false;
+  bool _isSearchActive = false;
+  TextEditingController _searchController = TextEditingController();
+  String _searchQuery = "";
 
   @override
   void initState() {
     super.initState();
-
-    _fadeController = AnimationController(
+    _controller = AnimationController(
+      duration: const Duration(seconds: 1),
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
+    )..forward();
 
-    _slideController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
+    _scrollController.addListener(_scrollListener);
 
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) {
-        context.read<SessionYearsCubit>().getSessionYears();
-        _fadeController.forward();
-        _slideController.forward();
-      }
+    Future.delayed(Duration.zero, () {
+      getSessionYears();
     });
   }
 
-  void _selectYear(int index) {
-    setState(() {
-      if (_selectedIndex == index) {
-        _selectedIndex = -1;
-      } else {
-        _selectedIndex = index;
-      }
-    });
+  void _scrollListener() {
+    if (_scrollController.offset > 10 && !_isScrolled) {
+      setState(() {
+        _isScrolled = true;
+      });
+    } else if (_scrollController.offset <= 10 && _isScrolled) {
+      setState(() {
+        _isScrolled = false;
+      });
+    }
   }
 
-  Color _getRandomPastelColor(int index) {
-    // Enhanced color palette with soft maroon tones
-    final List<Color> pastelColors = [
-      const Color(0xFF8C1C13), // Deep burgundy
-      const Color(0xFFBF4342), // Rusty rose
-      const Color(0xFFA75D5D), // Dusted clay
-      const Color(0xFFC16E70), // Rose taupe
-      const Color(0xFFD19C97), // Rosy brown
-      const Color(0xFF9D5C63), // Rose dust
-      const Color(0xFFBA6E6E), // Copper rose
-      const Color(0xFF7C383B), // Wine
-      const Color(0xFFAF4035), // Russet
-      const Color(0xFFCB5D61), // Light carmine
-    ];
+  @override
+  void dispose() {
+    _controller.dispose();
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
 
-    return pastelColors[index % pastelColors.length];
+  void getSessionYears() async {
+    context.read<SessionYearsCubit>().getSessionYears();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final size = MediaQuery.of(context).size;
-
-    // Update system UI overlay style for immersive experience
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: theme.scaffoldBackgroundColor,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ));
-
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(0),
-        child: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          systemOverlayStyle: const SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            statusBarIconBrightness: Brightness.light,
-          ),
-        ),
+    return Theme(
+      data: Theme.of(context).copyWith(
+        colorScheme: Theme.of(context).colorScheme.copyWith(
+              primary: AppColorPalette.primaryMaroon,
+              secondary: AppColorPalette.secondaryMaroon,
+              surface: Colors.white,
+              background: Colors.white,
+            ),
       ),
-      body: BlocBuilder<SessionYearsCubit, SessionYearsState>(
-        builder: (context, state) {
-          return CustomScrollView(
-            controller: _scrollController,
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              // Custom App Bar with gradient
-              SliverAppBar(
-                expandedHeight: size.height * 0.28,
-                floating: false,
-                pinned: true,
-                elevation: 0,
-                backgroundColor: Colors.transparent,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: Stack(
-                    children: [
-                      // Gradient background
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: _gradientColors,
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                        ),
-                      ),
-
-                      // Decorative patterns
-                      Positioned(
-                        right: -30,
-                        top: -30,
-                        child: SlideTransition(
-                          position: _slideController.drive(Tween(
-                            begin: const Offset(0.2, -0.2),
-                            end: Offset.zero,
-                          )),
-                          child: Opacity(
-                            opacity: 0.1,
-                            child: Icon(
-                              Icons.calendar_today_rounded,
-                              size: size.width * 0.5,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // Lower decorative element
-                      Positioned(
-                        left: -40,
-                        bottom: -10,
-                        child: SlideTransition(
-                          position: _slideController.drive(Tween(
-                            begin: const Offset(-0.2, 0.2),
-                            end: Offset.zero,
-                          )),
-                          child: Opacity(
-                            opacity: 0.15,
-                            child: Icon(
-                              Icons.school_rounded,
-                              size: size.width * 0.3,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // Content
-                      Positioned.fill(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                  height:
-                                      MediaQuery.of(context).padding.top + 16),
-
-                              // Title row (back button removed)
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  // Adding space at the beginning to move text to the right
-                                  SizedBox(
-                                      width: MediaQuery.of(context).size.width *
-                                          0.10),
-
-                                  // Title and subtitle
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        // Main title
-                                        ShaderMask(
-                                          shaderCallback: (Rect bounds) {
-                                            return LinearGradient(
-                                              colors: [
-                                                Colors.white,
-                                                Colors.white.withOpacity(0.8)
-                                              ],
-                                              begin: Alignment.topCenter,
-                                              end: Alignment.bottomCenter,
-                                            ).createShader(bounds);
-                                          },
-                                          child: Text(
-                                            'Tahun Akademik',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 22,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                              letterSpacing: 0.3,
-                                            ),
-                                          ),
-                                        )
-                                            .animate()
-                                            .fadeIn(
-                                                duration: 600.ms, delay: 200.ms)
-                                            .slideY(
-                                                begin: 0.2,
-                                                end: 0,
-                                                duration: 500.ms,
-                                                curve: Curves.easeOutQuad),
-
-                                        const SizedBox(height: 4),
-
-                                        // Subtitle
-                                        Text(
-                                          'Kelola periode tahun akademik sekolah',
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w400,
-                                            color:
-                                                Colors.white.withOpacity(0.8),
-                                          ),
-                                        )
-                                            .animate()
-                                            .fadeIn(
-                                                duration: 600.ms, delay: 300.ms)
-                                            .slideY(
-                                                begin: 0.2,
-                                                end: 0,
-                                                duration: 500.ms,
-                                                curve: Curves.easeOutQuad),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              const Spacer(),
-
-                              const SizedBox(height: 24),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                bottom: PreferredSize(
-                  preferredSize: const Size.fromHeight(0),
-                  child: Container(
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: theme.scaffoldBackgroundColor,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(24),
-                        topRight: Radius.circular(24),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Stack(
+          children: [
+            AnimatedPositioned(
+              duration: Duration(seconds: 1),
+              curve: Curves.easeInOut,
+              top: 0,
+              left: 0,
+              right: 0,
+              height: MediaQuery.of(context).size.height,
+              child: AnimatedOpacity(
+                duration: Duration(seconds: 1),
+                opacity: 0.15,
+                child: Stack(
+                  children: [
+                    CustomPaint(
+                      painter: BackgroundPatternPainter(
+                        color: AppColorPalette.primaryMaroon,
                       ),
                     ),
-                    child: Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              // Content
-              if (state is SessionYearsFetchSuccess) ...[
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                  sliver: SliverToBoxAdapter(
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
+                    ...List.generate(10, (index) {
+                      return Positioned(
+                        top: Random().nextDouble() *
+                            MediaQuery.of(context).size.height,
+                        left: Random().nextDouble() *
+                            MediaQuery.of(context).size.width,
+                        child: AnimatedContainer(
+                          duration: Duration(seconds: 2 + index),
+                          width: 4 + Random().nextDouble() * 8,
+                          height: 4 + Random().nextDouble() * 8,
                           decoration: BoxDecoration(
-                            color: _gradientColors[0].withOpacity(0.1),
+                            color:
+                                AppColorPalette.primaryMaroon.withOpacity(0.4),
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.calendar_view_month_rounded,
-                                size: 16,
-                                color: _gradientColors[0],
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                '${state.sessionYears.length} Tahun Akademik',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: _gradientColors[0],
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            ),
+            SafeArea(
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(0, (1 - _controller.value) * 30),
+                    child: Opacity(
+                      opacity: _controller.value,
+                      child: BlocBuilder<SessionYearsCubit, SessionYearsState>(
+                        builder: (context, state) {
+                          if (state is SessionYearsFetchSuccess) {
+                            if (state.sessionYears.isEmpty) {
+                              return _buildEmptyState(context);
+                            }
+                            return _buildSuccessState(context, state);
+                          }
+
+                          if (state is SessionYearsFetchFailure) {
+                            return _buildErrorState(context, state);
+                          }
+
+                          return _buildLoadingState(context);
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            _buildSearchBar(),
+            _buildAppBar(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + 80,
+      left: 0,
+      right: 0,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        height: _isSearchActive ? 56 : 0,
+        curve: Curves.easeInOut,
+        child: _isSearchActive
+            ? Container(
+                margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Cari tahun ajaran...',
+                    prefixIcon: Icon(Icons.search,
+                        color: AppColorPalette.secondaryMaroon),
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.close,
+                          color: AppColorPalette.secondaryMaroon),
+                      onPressed: () {
+                        setState(() {
+                          _searchController.clear();
+                          _searchQuery = "";
+                          _isSearchActive = false;
+                        });
+                      },
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value;
+                    });
+                  },
+                ),
+              )
+            : SizedBox.shrink(),
+      ),
+    );
+  }
+
+  Widget _buildAppBar() {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Container(
+        height: MediaQuery.of(context).padding.top + 80,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (context, _) {
+                  return ShaderMask(
+                    shaderCallback: (Rect bounds) {
+                      return LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFF690013),
+                          AppColorPalette.primaryMaroon,
+                          Color(0xFFA12948),
+                          AppColorPalette.secondaryMaroon,
+                        ],
+                        stops: [0.0, 0.3, 0.6, 1.0],
+                        transform: GradientRotation(_controller.value * 0.02),
+                      ).createShader(bounds);
+                    },
+                    blendMode: BlendMode.srcATop,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF800020),
+                            Color(0xFF9A1E3C),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(30),
+                          bottomRight: Radius.circular(30),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Positioned.fill(
+              child: CustomPaint(
+                painter: AppBarDecorationPainter(
+                  color: Colors.white.withOpacity(0.07),
+                ),
+              ),
+            ),
+            AnimatedBuilder(
+              animation: _controller,
+              builder: (context, _) {
+                return Positioned(
+                  top: -100 + (_controller.value * 20),
+                  right: -60 + (_controller.value * 10),
+                  child: Container(
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          Colors.white.withOpacity(0.2),
+                          Colors.white.withOpacity(0.1),
+                          Colors.white.withOpacity(0.0),
+                        ],
+                        stops: [0.0, 0.5, 1.0],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+            Positioned(
+              bottom: 10,
+              left: 16,
+              right: 16,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.2),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Material(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(12),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              highlightColor: Colors.white.withOpacity(0.1),
+                              splashColor: Colors.white.withOpacity(0.2),
+                              onTap: () => Navigator.of(context).pop(),
+                              child: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  Icons.arrow_back_ios_rounded,
+                                  color: Colors.white,
+                                  size: 22,
                                 ),
                               ),
-                            ],
+                            ),
                           ),
                         )
                             .animate()
-                            .fadeIn(duration: 600.ms, delay: 400.ms)
-                            .slideX(begin: -0.2, end: 0, duration: 500.ms),
-                      ],
-                    ),
-                  ),
-                ),
-
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-                  sliver: SliverList.builder(
-                    itemCount: state.sessionYears.length,
-                    itemBuilder: (context, index) {
-                      final sessionYear = state.sessionYears[index];
-                      final bool isDefault = sessionYear.isThisDefault();
-                      final bool isSelected = _selectedIndex == index;
-                      final Color cardColor = _getRandomPastelColor(index);
-                      final int yearNumber = DateTime.now().year - index;
-
-                      // Calculate the darkness of the card color for contrast
-                      final isDark = cardColor.computeLuminance() < 0.5;
-
-                      return AnimationConfiguration.staggeredList(
-                        position: index,
-                        duration: const Duration(milliseconds: 500),
-                        child: SlideAnimation(
-                          verticalOffset: 50.0,
-                          child: FadeInAnimation(
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 24),
-                              child: GestureDetector(
-                                onTap: () => _selectYear(index),
-                                child: Stack(
-                                  clipBehavior: Clip.none,
+                            .fadeIn(duration: 400.ms, curve: Curves.easeOut)
+                            .slideX(begin: -0.3, end: 0),
+                        Container(
+                          height: 24,
+                          width: 1.5,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.white.withOpacity(0.0),
+                                Colors.white.withOpacity(0.4),
+                                Colors.white.withOpacity(0.0),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Center(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    // Main card with glassmorphism effect
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(24),
-                                        boxShadow: _cardShadows,
-                                      ),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(24),
-                                        child: BackdropFilter(
-                                          filter: ImageFilter.blur(
-                                              sigmaX: 0, sigmaY: 0),
+                                    AnimatedBuilder(
+                                      animation: _controller,
+                                      builder: (context, child) {
+                                        return Transform.rotate(
+                                          angle: _controller.value * 0.05,
                                           child: Container(
-                                            width: double.infinity,
+                                            padding: EdgeInsets.all(6),
                                             decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
                                               gradient: LinearGradient(
                                                 begin: Alignment.topLeft,
                                                 end: Alignment.bottomRight,
                                                 colors: [
-                                                  cardColor,
-                                                  Color.lerp(cardColor,
-                                                      Colors.white, 0.2)!,
+                                                  Colors.white.withOpacity(0.9),
+                                                  Colors.white.withOpacity(0.4),
                                                 ],
                                               ),
-                                              borderRadius:
-                                                  BorderRadius.circular(24),
-                                              border: Border.all(
-                                                color: Colors.white
-                                                    .withOpacity(0.2),
-                                                width: 1.5,
-                                              ),
-                                            ),
-                                            child: Stack(
-                                              children: [
-                                                // Background patterns
-                                                Positioned(
-                                                  right: -30,
-                                                  top: -30,
-                                                  child: Icon(
-                                                    Icons
-                                                        .calendar_today_rounded,
-                                                    size: 120,
-                                                    color: Colors.white
-                                                        .withOpacity(
-                                                            _patternOpacity),
-                                                  ),
-                                                ),
-                                                Positioned(
-                                                  left: -20,
-                                                  bottom: -15,
-                                                  child: Icon(
-                                                    Icons.school_rounded,
-                                                    size: 80,
-                                                    color: Colors.white
-                                                        .withOpacity(
-                                                            _patternOpacity),
-                                                  ),
-                                                ),
-
-                                                // Card content
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(20),
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Row(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          // Year icon with glass effect
-                                                          Container(
-                                                            width: 60,
-                                                            height: 60,
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: Colors
-                                                                  .white
-                                                                  .withOpacity(
-                                                                      0.2),
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          18),
-                                                              border:
-                                                                  Border.all(
-                                                                color: Colors
-                                                                    .white
-                                                                    .withOpacity(
-                                                                        0.4),
-                                                                width: 1.5,
-                                                              ),
-                                                              boxShadow: [
-                                                                BoxShadow(
-                                                                  color: cardColor
-                                                                      .withOpacity(
-                                                                          0.5),
-                                                                  blurRadius: 8,
-                                                                  offset:
-                                                                      const Offset(
-                                                                          0, 3),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            child: Center(
-                                                              child: Icon(
-                                                                isDefault
-                                                                    ? Icons
-                                                                        .school_rounded
-                                                                    : Icons
-                                                                        .calendar_today_rounded,
-                                                                color: Colors
-                                                                    .white
-                                                                    .withOpacity(
-                                                                        0.95),
-                                                                size: 28,
-                                                              ),
-                                                            ),
-                                                          ),
-
-                                                          const SizedBox(
-                                                              width: 20),
-
-                                                          // Year details
-                                                          Expanded(
-                                                            child: Column(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .spaceBetween,
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .center,
-                                                                  children: [
-                                                                    Expanded(
-                                                                      child:
-                                                                          Text(
-                                                                        sessionYear.name ??
-                                                                            "",
-                                                                        style: GoogleFonts
-                                                                            .poppins(
-                                                                          fontSize:
-                                                                              22,
-                                                                          fontWeight:
-                                                                              FontWeight.w700,
-                                                                          color: Colors
-                                                                              .white
-                                                                              .withOpacity(0.95),
-                                                                          letterSpacing:
-                                                                              0.2,
-                                                                          shadows: [
-                                                                            Shadow(
-                                                                              color: Colors.black.withOpacity(0.2),
-                                                                              blurRadius: 2,
-                                                                              offset: const Offset(0, 1),
-                                                                            ),
-                                                                          ],
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                    if (isSelected)
-                                                                      Container(
-                                                                        padding: const EdgeInsets
-                                                                            .all(
-                                                                            5),
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          color: Colors
-                                                                              .white
-                                                                              .withOpacity(0.95),
-                                                                          shape:
-                                                                              BoxShape.circle,
-                                                                          boxShadow: [
-                                                                            BoxShadow(
-                                                                              color: cardColor.withOpacity(0.5),
-                                                                              blurRadius: 8,
-                                                                              offset: const Offset(0, 2),
-                                                                            ),
-                                                                          ],
-                                                                        ),
-                                                                        child:
-                                                                            Icon(
-                                                                          Icons
-                                                                              .check_rounded,
-                                                                          color:
-                                                                              cardColor,
-                                                                          size:
-                                                                              18,
-                                                                        ),
-                                                                      ).animate().fadeIn(duration: 300.ms).scale(
-                                                                          begin: const Offset(
-                                                                              0.8,
-                                                                              0.8),
-                                                                          end: const Offset(
-                                                                              1.0,
-                                                                              1.0),
-                                                                          duration:
-                                                                              300.ms),
-                                                                  ],
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-
-                                                      // Details section if selected
-                                                      if (isSelected) ...[
-                                                        Container(
-                                                          margin:
-                                                              const EdgeInsets
-                                                                  .only(
-                                                                  top: 20,
-                                                                  bottom: 4),
-                                                          height: 1,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            gradient:
-                                                                LinearGradient(
-                                                              colors: [
-                                                                Colors.white
-                                                                    .withOpacity(
-                                                                        0.1),
-                                                                Colors.white
-                                                                    .withOpacity(
-                                                                        0.4),
-                                                                Colors.white
-                                                                    .withOpacity(
-                                                                        0.1),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-
-                                                        const SizedBox(
-                                                            height: 20),
-
-                                                        // Actions
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .end,
-                                                          children: [
-                                                            _actionButtonEnhanced(
-                                                              icon: Icons
-                                                                  .edit_rounded,
-                                                              label: 'Edit',
-                                                              cardColor:
-                                                                  cardColor,
-                                                              bgColor: Colors
-                                                                  .white
-                                                                  .withOpacity(
-                                                                      0.9),
-                                                              onTap: () {
-                                                                ScaffoldMessenger.of(
-                                                                        context)
-                                                                    .showSnackBar(
-                                                                  SnackBar(
-                                                                    content:
-                                                                        Text(
-                                                                      'Edit: ${sessionYear.name}',
-                                                                      style: GoogleFonts
-                                                                          .poppins(),
-                                                                    ),
-                                                                    behavior:
-                                                                        SnackBarBehavior
-                                                                            .floating,
-                                                                    width: MediaQuery.of(context)
-                                                                            .size
-                                                                            .width *
-                                                                        0.9,
-                                                                    duration: const Duration(
-                                                                        milliseconds:
-                                                                            1500),
-                                                                  ),
-                                                                );
-                                                              },
-                                                            ),
-                                                            const SizedBox(
-                                                                width: 10),
-                                                            if (!isDefault)
-                                                              _actionButtonEnhanced(
-                                                                icon: Icons
-                                                                    .delete_outline_rounded,
-                                                                label: 'Hapus',
-                                                                cardColor:
-                                                                    cardColor,
-                                                                bgColor: Colors
-                                                                    .white
-                                                                    .withOpacity(
-                                                                        0.9),
-                                                                textColor: Colors
-                                                                    .red
-                                                                    .shade700,
-                                                                iconColor: Colors
-                                                                    .red
-                                                                    .shade700,
-                                                                onTap: () {
-                                                                  ScaffoldMessenger.of(
-                                                                          context)
-                                                                      .showSnackBar(
-                                                                    SnackBar(
-                                                                      content:
-                                                                          Text(
-                                                                        'Hapus: ${sessionYear.name}',
-                                                                        style: GoogleFonts
-                                                                            .poppins(),
-                                                                      ),
-                                                                      behavior:
-                                                                          SnackBarBehavior
-                                                                              .floating,
-                                                                      width: MediaQuery.of(context)
-                                                                              .size
-                                                                              .width *
-                                                                          0.9,
-                                                                      duration: const Duration(
-                                                                          milliseconds:
-                                                                              1500),
-                                                                    ),
-                                                                  );
-                                                                },
-                                                              ),
-                                                            if (!isDefault)
-                                                              const SizedBox(
-                                                                  width: 10),
-                                                            _actionButtonEnhanced(
-                                                              icon: isDefault
-                                                                  ? Icons
-                                                                      .check_circle_rounded
-                                                                  : Icons
-                                                                      .check_circle_outline_rounded,
-                                                              label: isDefault
-                                                                  ? 'Default'
-                                                                  : 'Set Default',
-                                                              cardColor:
-                                                                  cardColor,
-                                                              bgColor: Colors
-                                                                  .white
-                                                                  .withOpacity(
-                                                                      0.9),
-                                                              textColor: isDefault
-                                                                  ? Colors.green
-                                                                      .shade700
-                                                                  : cardColor,
-                                                              iconColor: isDefault
-                                                                  ? Colors.green
-                                                                      .shade700
-                                                                  : cardColor,
-                                                              onTap: () {
-                                                                if (!isDefault) {
-                                                                  ScaffoldMessenger.of(
-                                                                          context)
-                                                                      .showSnackBar(
-                                                                    SnackBar(
-                                                                      content:
-                                                                          Text(
-                                                                        'Set as Default: ${sessionYear.name}',
-                                                                        style: GoogleFonts
-                                                                            .poppins(),
-                                                                      ),
-                                                                      behavior:
-                                                                          SnackBarBehavior
-                                                                              .floating,
-                                                                      width: MediaQuery.of(context)
-                                                                              .size
-                                                                              .width *
-                                                                          0.9,
-                                                                      duration: const Duration(
-                                                                          milliseconds:
-                                                                              1500),
-                                                                    ),
-                                                                  );
-                                                                }
-                                                              },
-                                                            ),
-                                                          ],
-                                                        ).animate().fadeIn(
-                                                            duration: 400.ms),
-                                                      ],
-                                                    ],
-                                                  ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withOpacity(0.2),
+                                                  blurRadius: 4,
+                                                  offset: Offset(0, 2),
                                                 ),
                                               ],
                                             ),
+                                            child: Icon(
+                                              Icons.calendar_today_rounded,
+                                              color:
+                                                  AppColorPalette.primaryMaroon,
+                                              size: 20,
+                                            ),
                                           ),
+                                        );
+                                      },
+                                    ),
+                                    SizedBox(width: 12),
+                                    ShaderMask(
+                                      shaderCallback: (Rect bounds) {
+                                        return LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: [
+                                            Colors.white,
+                                            Colors.white.withOpacity(0.9),
+                                          ],
+                                        ).createShader(bounds);
+                                      },
+                                      blendMode: BlendMode.srcIn,
+                                      child: Text(
+                                        'Tahun Ajaran',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.black26,
+                                              offset: Offset(0, 1),
+                                              blurRadius: 3,
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),
-
-                                    // Default badge
-
-                                    // Current Year Indicator
                                   ],
                                 ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          height: 24,
+                          width: 1.5,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.white.withOpacity(0.0),
+                                Colors.white.withOpacity(0.4),
+                                Colors.white.withOpacity(0.0),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Material(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(12),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              highlightColor: Colors.white.withOpacity(0.1),
+                              splashColor: Colors.white.withOpacity(0.2),
+                              onTap: () {
+                                setState(() {
+                                  _isSearchActive = !_isSearchActive;
+                                  if (!_isSearchActive) {
+                                    _searchController.clear();
+                                    _searchQuery = "";
+                                  }
+                                });
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: _isSearchActive
+                                      ? Border.all(
+                                          color: Colors.white.withOpacity(0.4),
+                                          width: 1.5,
+                                        )
+                                      : null,
+                                ),
+                                child: AnimatedSwitcher(
+                                  duration: Duration(milliseconds: 400),
+                                  transitionBuilder: (Widget child,
+                                      Animation<double> animation) {
+                                    return RotationTransition(
+                                      turns: Tween<double>(begin: 0.5, end: 1.0)
+                                          .animate(animation),
+                                      child: ScaleTransition(
+                                        scale: animation,
+                                        child: FadeTransition(
+                                          opacity: animation,
+                                          child: child,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: _isSearchActive
+                                      ? Icon(
+                                          Icons.close_rounded,
+                                          key: ValueKey<bool>(true),
+                                          color: Colors.white,
+                                          size: 22,
+                                        )
+                                      : Icon(
+                                          Icons.search_rounded,
+                                          key: ValueKey<bool>(false),
+                                          color: Colors.white,
+                                          size: 22,
+                                        ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                            .animate()
+                            .fadeIn(duration: 400.ms, curve: Curves.easeOut)
+                            .slideX(begin: 0.3, end: 0),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Center(
+          child: SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TweenAnimationBuilder(
+                    duration: Duration(seconds: 2),
+                    tween: Tween<double>(begin: 0.8, end: 1.0),
+                    curve: Curves.elasticOut,
+                    builder: (context, value, child) {
+                      return Transform.scale(
+                        scale: value,
+                        child: Container(
+                          width: 180,
+                          height: 180,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color:
+                                AppColorPalette.primaryMaroon.withOpacity(0.1),
+                          ),
+                          child: Center(
+                            child: Transform.scale(
+                              scale: 1 + sin(_controller.value * 2 * pi) * 0.05,
+                              child: Icon(
+                                Icons.calendar_today_outlined,
+                                size: 100,
+                                color: AppColorPalette.primaryMaroon
+                                    .withOpacity(0.7),
                               ),
                             ),
                           ),
                         ),
                       );
-                    },
+                    }),
+                const SizedBox(height: 32),
+                ShaderMask(
+                  shaderCallback: (bounds) => LinearGradient(
+                    colors: [
+                      AppColorPalette.primaryMaroon,
+                      AppColorPalette.secondaryMaroon,
+                    ],
+                  ).createShader(bounds),
+                  child: CustomTextContainer(
+                    textKey: "Tidak ada tahun ajaran",
+                    style: GoogleFonts.poppins(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-
-                // Bottom space
-                SliverToBoxAdapter(
-                  child: SizedBox(
-                      height: MediaQuery.of(context).padding.bottom + 80),
+                const SizedBox(height: 24),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    getSessionYears();
+                    HapticFeedback.mediumImpact();
+                  },
+                  icon: Icon(Icons.refresh_rounded),
+                  label: Text(
+                    "Refresh Tahun Ajaran",
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColorPalette.primaryMaroon,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 4,
+                  ),
                 ),
-              ] else if (state is SessionYearsFetchFailure) ...[
-                SliverFillRemaining(
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: FadeTransition(
-                        opacity: _fadeController,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // Error animation
-                            Lottie.network(
-                              'https://assets1.lottiefiles.com/packages/lf20_snmohqxj.json',
-                              width: 120,
-                              height: 120,
-                              repeat: true,
-                              frameRate: FrameRate(60),
-                            ),
-                            const SizedBox(height: 24),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
-                            // Error message
-                            Text(
-                              'Gagal Memuat Data',
-                              style: GoogleFonts.poppins(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: _gradientColors[0],
-                              ),
-                            ),
-                            const SizedBox(height: 8),
+  Widget _buildSuccessState(
+      BuildContext context, SessionYearsFetchSuccess state) {
+    final sessionYears = _searchQuery.isEmpty
+        ? state.sessionYears
+        : state.sessionYears
+            .where((sessionYear) => (sessionYear.name ?? "")
+                .toLowerCase()
+                .contains(_searchQuery.toLowerCase()))
+            .toList();
 
-                            Text(
-                              state.errorMessage,
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: theme.colorScheme.onBackground
-                                    .withOpacity(0.7),
-                              ),
+    return AnimationLimiter(
+      child: CustomScrollView(
+        controller: _scrollController,
+        physics: BouncingScrollPhysics(),
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.only(
+                top: Utils.appContentTopScrollPadding(context: context) + 60,
+                bottom: 16,
+                left: appContentHorizontalPadding,
+                right: appContentHorizontalPadding,
+              ),
+              child: sessionYears.isEmpty && _searchQuery.isNotEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Tahun ajaran tidak ditemukan',
+                            style: GoogleFonts.poppins(
+                              color: Colors.grey[600],
+                              fontSize: 16,
                             ),
-                            const SizedBox(height: 24),
-
-                            // Retry button
-                            GlassmorphicContainer(
-                              width: 160,
-                              height: 50,
-                              borderRadius: 25,
-                              blur: 10,
-                              alignment: Alignment.center,
-                              border: 1,
-                              linearGradient: LinearGradient(
-                                colors: [
-                                  Colors.white.withOpacity(0.2),
-                                  Colors.white.withOpacity(0.1),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderGradient: LinearGradient(
-                                colors: [
-                                  Colors.white.withOpacity(0.2),
-                                  Colors.white.withOpacity(0.1),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(25),
-                                  onTap: () {
-                                    context
-                                        .read<SessionYearsCubit>()
-                                        .getSessionYears();
-                                  },
-                                  child: Center(
-                                    child: Text(
-                                      'Coba Lagi',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
+                      ),
+                    ).animate().fadeIn(delay: 300.ms)
+                  : _buildEnhancedHeaderCard(context),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => AnimationConfiguration.staggeredList(
+                  position: index,
+                  duration: const Duration(milliseconds: 600),
+                  child: SlideAnimation(
+                    horizontalOffset: 50.0,
+                    child: FadeInAnimation(
+                      curve: Curves.easeOut,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: _buildEnhancedSessionYearCard(
+                            context, sessionYears[index], index),
                       ),
                     ),
                   ),
                 ),
-              ] else ...[
-                // Loading state
-                SliverFillRemaining(
-                  child: Center(
-                    child: FadeTransition(
-                      opacity: _fadeController,
+                childCount: sessionYears.length,
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: SizedBox(height: 80),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEnhancedHeaderCard(BuildContext context) {
+    return Hero(
+      tag: 'session_year_list_title',
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        child: Stack(
+          children: [
+            Card(
+              elevation: 16,
+              shadowColor: AppColorPalette.primaryMaroon.withOpacity(0.3),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(28),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(28),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(28),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          AppColorPalette.primaryMaroon.withOpacity(0.9),
+                          AppColorPalette.secondaryMaroon.withOpacity(0.9),
+                        ],
+                        stops: const [0.2, 1.0],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+                          blurRadius: 15,
+                          offset: Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
                       child: Column(
-                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Loading animation
-                          Lottie.network(
-                            'https://assets6.lottiefiles.com/packages/lf20_usmfx6bp.json',
-                            width: 150,
-                            height: 150,
-                            frameRate: FrameRate(60),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      CustomTextContainer(
+                                        textKey: sessionYearKey,
+                                        style: GoogleFonts.poppins(
+                                          fontSize:
+                                              Utils.getScaledValue(context, 24),
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Icon(
+                                        Icons.workspace_premium,
+                                        color: Colors.white.withOpacity(0.9),
+                                        size: 20,
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    width: 60,
+                                    height: 3,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.7),
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 16),
-
-                          // Loading text
-                          Text(
-                            'Memuat Data Tahun Akademik...',
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: _gradientColors[0],
-                            ),
-                          ),
                         ],
                       ),
                     ),
                   ),
                 ),
-              ],
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _actionButtonEnhanced({
-    required IconData icon,
-    required String label,
-    required Color cardColor,
-    required Color bgColor,
-    Color? textColor,
-    Color? iconColor,
-    required VoidCallback onTap,
-  }) {
-    final effectiveTextColor = textColor ?? cardColor;
-    final effectiveIconColor = iconColor ?? cardColor;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        splashColor: cardColor.withOpacity(0.1),
-        highlightColor: cardColor.withOpacity(0.05),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: cardColor.withOpacity(0.2),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
               ),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 18,
-                color: effectiveIconColor,
+            ),
+            Positioned(
+              right: -25,
+              bottom: -15,
+              child: Icon(
+                Icons.calendar_today,
+                size: 100,
+                color: Colors.white.withOpacity(0.08),
               ),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: GoogleFonts.poppins(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: effectiveTextColor,
+            ),
+            ...List.generate(4, (index) {
+              return Positioned(
+                left: 15 + (index * 15),
+                top: 15 + (index * 10),
+                child: Container(
+                  width: 30 - (index * 5),
+                  height: 30 - (index * 5),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.1 - (index * 0.02)),
+                  ),
                 ),
-              ),
-            ],
-          ),
+              );
+            }),
+          ],
         ),
       ),
     );
   }
+
+  Widget _buildEnhancedSessionYearCard(
+      BuildContext context, dynamic sessionYear, int index) {
+    final bool isEven = index.isEven;
+    final cardGradient = [
+      Colors.white,
+      Colors.white,
+    ];
+
+    return TweenAnimationBuilder(
+      duration: Duration(milliseconds: 300),
+      tween: Tween<double>(begin: 0.96, end: 1.0),
+      builder: (context, scale, child) {
+        return Transform.scale(
+          scale: scale,
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 8),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                },
+                borderRadius: BorderRadius.circular(24),
+                splashColor: AppColorPalette.primaryMaroon.withOpacity(0.2),
+                highlightColor: AppColorPalette.primaryMaroon.withOpacity(0.1),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: cardGradient,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+                        blurRadius: 15,
+                        offset: Offset(0, 8),
+                        spreadRadius: 1,
+                      ),
+                    ],
+                    border: Border.all(
+                      color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      _buildEnhancedCardHeader(context, sessionYear, isEven),
+                      _buildEnhancedCardBody(context, sessionYear, isEven),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEnhancedCardHeader(
+      BuildContext context, dynamic sessionYear, bool isEven) {
+    return Container(
+      padding: EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: AppColorPalette.primaryMaroon.withOpacity(0.15),
+            width: 1.5,
+          ),
+        ),
+        gradient: LinearGradient(
+          begin: isEven ? Alignment.centerLeft : Alignment.centerRight,
+          end: isEven ? Alignment.centerRight : Alignment.centerLeft,
+          colors: [
+            AppColorPalette.primaryMaroon.withOpacity(0.15),
+            AppColorPalette.secondaryMaroon.withOpacity(0.08),
+          ],
+        ),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  sessionYear.name ?? 'Session Year',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: AppColorPalette.primaryMaroon,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEnhancedCardBody(
+      BuildContext context, dynamic sessionYear, bool isEven) {
+    String yearStatus =
+        sessionYear.isThisDefault() ? "Default" : "Tahun Ajaran";
+
+    return Padding(
+      padding: EdgeInsets.all(20),
+      child: Column(
+        children: [
+          _buildEnhancedInfoRow(
+              context, 'Status', yearStatus, Icons.check_circle_outline,
+              gradient: [
+                AppColorPalette.primaryMaroon.withOpacity(0.08),
+                AppColorPalette.secondaryMaroon.withOpacity(0.02),
+              ]),
+          SizedBox(height: 20),
+          if (sessionYear.isThisDefault())
+            Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColorPalette.primaryMaroon,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColorPalette.primaryMaroon.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.star_rounded,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                    SizedBox(width: 6),
+                    Text(
+                      "Default",
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEnhancedInfoRow(
+      BuildContext context, String label, String value, IconData icon,
+      {required List<Color> gradient}) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColorPalette.primaryMaroon.withOpacity(0.12),
+            AppColorPalette.secondaryMaroon.withOpacity(0.08),
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColorPalette.primaryMaroon.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColorPalette.primaryMaroon.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Icon(icon, size: 24, color: Colors.white),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColorPalette.secondaryMaroon,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  value,
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: AppColorPalette.primaryMaroon,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState(
+      BuildContext context, SessionYearsFetchFailure state) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 150,
+            height: 150,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+            ),
+            child: Center(
+              child: Icon(
+                Icons.error_outline_rounded,
+                size: 70,
+                color: AppColorPalette.primaryMaroon.withOpacity(0.7),
+              ),
+            ),
+          ),
+          SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            child: Text(
+              'Oops! Something went wrong',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+                color: AppColorPalette.primaryMaroon,
+              ),
+            ),
+          ),
+          SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            child: Text(
+              state.errorMessage,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: AppColorPalette.secondaryMaroon.withOpacity(0.8),
+              ),
+            ),
+          ),
+          SizedBox(height: 32),
+          ElevatedButton.icon(
+            onPressed: () => getSessionYears(),
+            icon: Icon(Icons.refresh_rounded),
+            label: Text(
+              "Try Again",
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColorPalette.primaryMaroon,
+              foregroundColor: Colors.white,
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingState(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          TweenAnimationBuilder(
+            duration: const Duration(milliseconds: 1500),
+            tween: Tween<double>(begin: 0.0, end: 1.0),
+            builder: (context, value, child) {
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+                        width: 4,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: CircularProgressIndicator(
+                      value: null,
+                      strokeWidth: 4,
+                      backgroundColor: Colors.transparent,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppColorPalette.primaryMaroon,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    Icons.calendar_today_rounded,
+                    color: AppColorPalette.primaryMaroon,
+                    size: 40,
+                  ),
+                ],
+              );
+            },
+          ),
+          SizedBox(height: 32),
+          Text(
+            "Memuat Tahun Ajaran...",
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: AppColorPalette.primaryMaroon,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            "Mohon tunggu selagi kami memuat data tahun ajaran",
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: AppColorPalette.secondaryMaroon.withOpacity(0.7),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class BackgroundPatternPainter extends CustomPainter {
+  final Color color;
+
+  BackgroundPatternPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path()
+      ..moveTo(0, size.height * 0.2)
+      ..quadraticBezierTo(
+        size.width * 0.25,
+        size.height * 0.05,
+        size.width * 0.5,
+        size.height * 0.15,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.75,
+        size.height * 0.25,
+        size.width,
+        size.height * 0.2,
+      )
+      ..lineTo(size.width, 0)
+      ..lineTo(0, 0)
+      ..close();
+
+    canvas.drawPath(path, paint);
+
+    final path2 = Path()
+      ..moveTo(0, size.height * 0.45)
+      ..cubicTo(
+        size.width * 0.3,
+        size.height * 0.4,
+        size.width * 0.6,
+        size.height * 0.55,
+        size.width,
+        size.height * 0.47,
+      )
+      ..lineTo(size.width, size.height * 0.45)
+      ..lineTo(0, size.height * 0.45)
+      ..close();
+
+    canvas.drawPath(
+      path2,
+      Paint()
+        ..color = color.withOpacity(0.2)
+        ..style = PaintingStyle.fill,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class AppColorPalette {
+  static const Color primaryMaroon = Color(0xFF8B1F41);
+  static const Color secondaryMaroon = Color(0xFFA84B5C);
+  static const Color lightMaroon = Color(0xFFE7C8CD);
+  static const Color accentPink = Color(0xFFF4D0D9);
+  static const Color warmBeige = Color(0xFFF5E6E8);
+  static const Color shadowColor = Color(0x298B1F41);
+}
+
+class AppBarDecorationPainter extends CustomPainter {
+  final Color color;
+
+  AppBarDecorationPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path()
+      ..moveTo(0, size.height * 0.5)
+      ..quadraticBezierTo(
+        size.width * 0.25,
+        size.height * 0.4,
+        size.width * 0.5,
+        size.height * 0.5,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.75,
+        size.height * 0.6,
+        size.width,
+        size.height * 0.5,
+      )
+      ..lineTo(size.width, 0)
+      ..lineTo(0, 0)
+      ..close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

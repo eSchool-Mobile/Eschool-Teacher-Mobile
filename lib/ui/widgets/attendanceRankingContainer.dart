@@ -24,6 +24,29 @@ class AttendanceRankingContainer extends StatefulWidget {
       _AttendanceRankingContainerState();
 }
 
+class BackgroundPainter extends CustomPainter {
+  final Color color;
+
+  BackgroundPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+    
+    // Create a pattern of circles or dots
+    for (double x = 0; x < size.width; x += 20) {
+      for (double y = 0; y < size.height; y += 20) {
+        canvas.drawCircle(Offset(x, y), 2, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
 class _AttendanceRankingContainerState
     extends State<AttendanceRankingContainer> {
   @override

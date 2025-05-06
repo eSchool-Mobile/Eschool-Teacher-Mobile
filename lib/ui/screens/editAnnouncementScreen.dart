@@ -21,6 +21,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'dart:math';
+import 'dart:ui';
 
 class EditAnnouncementScreen extends StatefulWidget {
   final Announcement announcement;
@@ -52,8 +56,14 @@ class EditAnnouncementScreen extends StatefulWidget {
   State<EditAnnouncementScreen> createState() => _EditAnnouncementScreenState();
 }
 
-class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
+class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
+    with TickerProviderStateMixin {
   List<ClassSection> _selectedClassSections = [];
+
+  // Define the maroon color palette
+  final Color _maroonPrimary = const Color(0xFF800020);
+  final Color _maroonLight = const Color(0xFFAA6976);
+  final Color _maroonDark = const Color(0xFF690013);
 
   late final TextEditingController _titleTextEditingController =
       TextEditingController(text: widget.announcement.title ?? "");
@@ -66,12 +76,33 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
 
   bool refreshAnnouncementsInPreviousPage = false;
 
+  // Animation controllers
+  late final AnimationController _fabAnimationController;
+  late final AnimationController _formAnimationController;
+  late final ScrollController _scrollController = ScrollController()
+    ..addListener(_scrollListener);
+
+  int _activeSection = 0; // 0 = title, 1 = description, 2 = classes, 3 = files
+  double _contentOpacity = 0.0;
+  bool _isSubmitting = false;
+
   @override
   void initState() {
     super.initState();
+    _fabAnimationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 300));
+    _formAnimationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 800));
+
     Future.delayed(Duration.zero, () {
       if (mounted) {
         context.read<ClassesCubit>().getClasses();
+        _formAnimationController.forward();
+        Future.delayed(Duration(milliseconds: 200), () {
+          setState(() {
+            _contentOpacity = 1.0;
+          });
+        });
       }
     });
   }
@@ -80,7 +111,18 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
   void dispose() {
     _titleTextEditingController.dispose();
     _descriptionTextEditingController.dispose();
+    _fabAnimationController.dispose();
+    _formAnimationController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.offset > 50) {
+      _fabAnimationController.forward();
+    } else {
+      _fabAnimationController.reverse();
+    }
   }
 
   Future<void> _pickFiles() async {
@@ -91,333 +133,1094 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
     }
   }
 
+  Widget _buildHeaderSection() {
+    return Container(
+      padding: EdgeInsets.only(
+          top: MediaQuery.of(context).padding.top + 10,
+          bottom: 15,
+          left: 16,
+          right: 16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            _maroonDark,
+            _maroonPrimary,
+            Color(0xFFA12948),
+            _maroonLight,
+          ],
+          stops: [0.0, 0.3, 0.6, 1.0],
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(30),
+          bottomRight: Radius.circular(30),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: _maroonPrimary.withOpacity(0.3),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // App bar with back button
+          _buildAppBar(),
+
+          SizedBox(height: 16),
+
+          // Header content
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Animated icon
+
+              SizedBox(width: 16),
+
+              // Title and subtitle
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                    Text(
+                      'Perbarui informasi pengumuman Anda',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.white.withOpacity(0.9),
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
+                ),
+              ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.2, end: 0),
+            ],
+          ),
+
+          SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppBar() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // Back button with ripple effect
+        Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            highlightColor: Colors.white.withOpacity(0.1),
+            splashColor: Colors.white.withOpacity(0.2),
+            onTap: () {
+              if (context.read<EditGeneralAnnouncementCubit>().state
+                  is! EditGeneralAnnouncementInProgress) {
+                Get.back();
+              }
+            },
+            child: Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.arrow_back_ios_rounded,
+                color: Colors.white,
+                size: 22,
+              ),
+            ),
+          ),
+        )
+            .animate()
+            .fadeIn(duration: 400.ms, curve: Curves.easeOut)
+            .slideX(begin: -0.3, end: 0),
+
+        // Title with glassmorphism
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.2),
+              width: 1,
+            ),
+          ),
+          child: Text(
+            Utils.getTranslatedLabel(editAnnouncementKey),
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+        ).animate().fadeIn(duration: 500.ms),
+
+        // Empty widget to balance the row
+        SizedBox(width: 40),
+      ],
+    );
+  }
+
   Widget _buildSubmitButton() {
     return BlocBuilder<ClassesCubit, ClassesState>(
       builder: (context, state) {
         if (state is! ClassesFetchSuccess) {
           return const SizedBox();
         }
-        return Align(
-            alignment: Alignment.bottomCenter,
-            child: BlocConsumer<EditGeneralAnnouncementCubit,
-                EditGeneralAnnouncementState>(
-              listener: (context, editGeneralAnnouncementState) {
-                if (editGeneralAnnouncementState
-                    is EditGeneralAnnouncementSuccess) {
-                  Get.back();
-                    // Show auto-dismissing success snackbar
-                    ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Container(
-                      padding: EdgeInsets.symmetric(vertical: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                        Icon(Icons.check_circle, color: Colors.white),
-                        SizedBox(width: 12),
-                        Text(
-                          'Pengumuman berhasil diperbarui!',
-                          style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        ],
-                      ),
-                      ),
-                      backgroundColor: Colors.green.shade400,
-                      duration: Duration(seconds: 2),
-                      behavior: SnackBarBehavior.floating,
-                      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      ),
-                      elevation: 4,
-                    ),
-                    );
-
-                    // Add slight delay before popping 
-                    Future.delayed(Duration(milliseconds: 2200), () {
-                    if (context.mounted) {
-                      Get.back(result: true);
-                    }
-                    });
-                } else if (editGeneralAnnouncementState
-                    is EditGeneralAnnouncementFailure) {
-                  Utils.showSnackBar(
-                      message: editGeneralAnnouncementState.errorMessage,
-                      context: context);
-                }
-              },
-              builder: (context, editGeneralAnnouncementState) {
-                return PopScope(
-                  canPop: editGeneralAnnouncementState
-                      is! EditGeneralAnnouncementInProgress,
-                  child: Container(
-                    padding: EdgeInsets.all(appContentHorizontalPadding),
-                    decoration: BoxDecoration(boxShadow: const [
-                      BoxShadow(
-                          color: Colors.black12, blurRadius: 1, spreadRadius: 1)
-                    ], color: Theme.of(context).colorScheme.surface),
-                    width: MediaQuery.of(context).size.width,
-                    height: 70,
-                    child: CustomRoundedButton(
-                      height: 40,
-                      widthPercentage: 1.0,
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      buttonTitle: editKey,
-                      showBorder: false,
-                      child: editGeneralAnnouncementState
-                              is EditGeneralAnnouncementInProgress
-                          ? const CustomCircularProgressIndicator()
-                          : null,
-                      onTap: () {
-                        if (editGeneralAnnouncementState
-                            is EditGeneralAnnouncementInProgress) {
-                          return;
-                        }
-
-                        if (_titleTextEditingController.text.trim().isEmpty) {
-                          Utils.showSnackBar(
-                              message: pleaseEnterTitleKey, context: context);
-                          return;
-                        }
-
-                        if (_selectedClassSections.isEmpty) {
-                          Utils.showSnackBar(
-                              message: pleaseSelectAtLeastOneClassKey,
-                              context: context);
-                          return;
-                        }
-
-                        context
-                            .read<EditGeneralAnnouncementCubit>()
-                            .editGeneralAnnouncement(
-                                announcementId: widget.announcement.id ?? 0,
-                                description: _descriptionTextEditingController
-                                    .text
-                                    .trim(),
-                                filePaths: _pickedFiles
-                                    .map((e) => e.path ?? "")
-                                    .toList(),
-                                title: _titleTextEditingController.text.trim(),
-                                classSectionIds: _selectedClassSections
-                                    .map((e) => e.id ?? 0)
-                                    .toList());
-                      },
+        return AnimatedBuilder(
+            animation: _fabAnimationController,
+            builder: (context, child) {
+              return Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.white.withOpacity(0.0),
+                        Colors.white.withOpacity(0.9),
+                        Colors.white,
+                      ],
                     ),
                   ),
-                );
-              },
-            ));
+                  child: BlocConsumer<EditGeneralAnnouncementCubit,
+                      EditGeneralAnnouncementState>(
+                    listener: (context, editGeneralAnnouncementState) {
+                      if (editGeneralAnnouncementState
+                          is EditGeneralAnnouncementSuccess) {
+                        Get.back();
+                        // Show auto-dismissing success snackbar
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Container(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.check_circle, color: Colors.white),
+                                  SizedBox(width: 12),
+                                  Text(
+                                    'Pengumuman berhasil diperbarui!',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            backgroundColor: Colors.green.shade400,
+                            duration: Duration(seconds: 2),
+                            behavior: SnackBarBehavior.floating,
+                            margin: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            elevation: 4,
+                          ),
+                        );
+
+                        // Add slight delay before popping
+                        Future.delayed(Duration(milliseconds: 2200), () {
+                          if (context.mounted) {
+                            Get.back(result: true);
+                          }
+                        });
+                      } else if (editGeneralAnnouncementState
+                          is EditGeneralAnnouncementFailure) {
+                        setState(() {
+                          _isSubmitting = false;
+                        });
+                        Utils.showSnackBar(
+                            message: editGeneralAnnouncementState.errorMessage,
+                            context: context);
+                      }
+                    },
+                    builder: (context, editGeneralAnnouncementState) {
+                      final bool isLoading = editGeneralAnnouncementState
+                          is EditGeneralAnnouncementInProgress;
+                      _isSubmitting = isLoading;
+
+                      return PopScope(
+                        canPop: !isLoading,
+                        child: Container(
+                          width: double.infinity,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: isLoading
+                                  ? [Colors.grey.shade400, Colors.grey.shade500]
+                                  : [_maroonPrimary, _maroonLight],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: isLoading
+                                    ? Colors.grey.withOpacity(0.3)
+                                    : _maroonPrimary.withOpacity(0.3),
+                                offset: const Offset(0, 4),
+                                blurRadius: 12,
+                                spreadRadius: -2,
+                              ),
+                            ],
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(16),
+                              highlightColor: Colors.white.withOpacity(0.1),
+                              splashColor: Colors.white.withOpacity(0.2),
+                              onTap: () {
+                                if (isLoading) return;
+
+                                if (_titleTextEditingController.text
+                                    .trim()
+                                    .isEmpty) {
+                                  Utils.showSnackBar(
+                                      message: pleaseEnterTitleKey,
+                                      context: context);
+                                  return;
+                                }
+
+                                if (_selectedClassSections.isEmpty) {
+                                  Utils.showSnackBar(
+                                      message: pleaseSelectAtLeastOneClassKey,
+                                      context: context);
+                                  return;
+                                }
+
+                                context
+                                    .read<EditGeneralAnnouncementCubit>()
+                                    .editGeneralAnnouncement(
+                                        announcementId:
+                                            widget.announcement.id ?? 0,
+                                        description:
+                                            _descriptionTextEditingController
+                                                .text
+                                                .trim(),
+                                        filePaths: _pickedFiles
+                                            .map((e) => e.path ?? "")
+                                            .toList(),
+                                        title: _titleTextEditingController.text
+                                            .trim(),
+                                        classSectionIds: _selectedClassSections
+                                            .map((e) => e.id ?? 0)
+                                            .toList());
+
+                                setState(() {
+                                  _isSubmitting = true;
+                                });
+                              },
+                              child: Center(
+                                child: isLoading
+                                    ? SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2.5,
+                                        ),
+                                      )
+                                    : Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.save_rounded,
+                                            color: Colors.white,
+                                            size: 22,
+                                          ),
+                                          SizedBox(width: 12),
+                                          Text(
+                                            Utils.getTranslatedLabel(editKey),
+                                            style: GoogleFonts.poppins(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                            ),
+                          ),
+                        ).animate(target: isLoading ? 0 : 1).custom(
+                              duration: 300.ms,
+                              builder: (context, value, child) =>
+                                  Transform.scale(
+                                scale: 0.95 + (0.05 * value),
+                                child: child,
+                              ),
+                            ),
+                      );
+                    },
+                  ),
+                ),
+              );
+            });
       },
+    );
+  }
+
+  Widget _buildContentSection(
+      Widget icon, String title, String subtitle, Widget content,
+      {bool isActive = false}) {
+    return AnimatedOpacity(
+      opacity: _contentOpacity,
+      duration: Duration(milliseconds: 300),
+      child: Container(
+        margin: EdgeInsets.only(bottom: 24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: isActive
+                  ? _maroonPrimary.withOpacity(0.1)
+                  : Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: Offset(0, 4),
+              spreadRadius: isActive ? 2 : 0,
+            ),
+          ],
+          border: isActive
+              ? Border.all(color: _maroonPrimary.withOpacity(0.3), width: 1.5)
+              : Border.all(color: Colors.grey.shade200),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: isActive
+                    ? _maroonPrimary.withOpacity(0.08)
+                    : Colors.grey.shade50,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: isActive
+                          ? _maroonPrimary.withOpacity(0.1)
+                          : Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: icon,
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: isActive
+                                ? _maroonPrimary
+                                : Colors.grey.shade800,
+                          ),
+                        ),
+                        Text(
+                          subtitle,
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Content
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: content,
+            ),
+          ],
+        ),
+      ).animate(target: isActive ? 1 : 0).custom(
+            duration: 300.ms,
+            builder: (context, value, child) => Transform.scale(
+              scale: 0.98 + (0.02 * value),
+              child: child,
+            ),
+          ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Stack(
-      children: [
-        BlocConsumer<ClassesCubit, ClassesState>(
-          listener: (context, state) {
-            if (state is ClassesFetchSuccess) {
-              if (context.read<ClassesCubit>().getAllClasses().isNotEmpty) {
-                for (var classSection
-                    in context.read<ClassesCubit>().getAllClasses()) {
-                  final announcementSentToThisClass = widget
-                          .announcement.announcementClasses
-                          ?.indexWhere((element) =>
-                              element.classSectionId == classSection.id) !=
-                      -1;
-                  if (announcementSentToThisClass) {
-                    _selectedClassSections.add(classSection);
-                  }
-                }
-              }
-            }
-          },
-          builder: (context, state) {
-            if (state is ClassesFetchSuccess) {
-              return Align(
-                alignment: Alignment.topCenter,
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(
-                      bottom: 100,
-                      left: appContentHorizontalPadding,
-                      right: appContentHorizontalPadding,
-                      top: Utils.appContentTopScrollPadding(context: context) +
-                          20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CustomTextFieldContainer(
-                          textEditingController: _titleTextEditingController,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.surface,
-                          hintTextKey: titleKey),
-                      CustomTextFieldContainer(
-                          textEditingController:
-                              _descriptionTextEditingController,
-                          maxLines: 5,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.surface,
-                          hintTextKey: descriptionKey),
-                      CustomSelectionDropdownSelectionButton(
-                          onTap: () {
-                            Utils.showBottomSheet(
-                                    child: MultiSelectionValueBottomsheet<
-                                            ClassSection>(
-                                        values: context
-                                            .read<ClassesCubit>()
-                                            .getAllClasses(),
-                                        selectedValues:
-                                            List.from(_selectedClassSections),
-                                        titleKey: titleKey),
-                                    context: context)
-                                .then((value) {
-                              if (value != null) {
-                                final classes =
-                                    List<ClassSection>.from(value as List);
+      backgroundColor: Color(0xFFF8F5F7),
+      body: Stack(
+        children: [
+          // Background decoration
+          Positioned.fill(
+            child: CustomPaint(
+              painter: BackgroundDecorationPainter(),
+            ),
+          ),
 
-                                _selectedClassSections =
-                                    List<ClassSection>.from(classes);
-                                setState(() {});
-                              }
-                            });
-                          },
-                          titleKey: classSectionKey),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Wrap(
-                        alignment: WrapAlignment.start,
-                        direction: Axis.horizontal,
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: _selectedClassSections
-                            .map(
-                              (classSection) => Container(
-                                padding:
-                                    EdgeInsets.all(appContentHorizontalPadding),
-                                color: Theme.of(context).colorScheme.surface,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    CustomTextContainer(
-                                        textKey: classSection.fullName ?? "-"),
-                                  ],
-                                ),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                      _files.isEmpty
-                          ? const SizedBox()
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                CustomTextContainer(
-                                  textKey: filesKey,
-                                  style: TextStyle(
-                                      fontSize: 16.0,
-                                      fontWeight: FontWeight.w600,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary),
-                                ),
-                                const SizedBox(
-                                  height: 15.0,
-                                ),
+          // Main content
+          Column(
+            children: [
+              // Header section
+              _buildHeaderSection(),
+
+              // Scrollable content
+              Expanded(
+                child: BlocConsumer<ClassesCubit, ClassesState>(
+                  listener: (context, state) {
+                    if (state is ClassesFetchSuccess) {
+                      if (_selectedClassSections.isEmpty &&
+                          context
+                              .read<ClassesCubit>()
+                              .getAllClasses()
+                              .isNotEmpty) {
+                        for (var classSection
+                            in context.read<ClassesCubit>().getAllClasses()) {
+                          final announcementSentToThisClass = widget
+                                  .announcement.announcementClasses
+                                  ?.indexWhere((element) =>
+                                      element.classSectionId ==
+                                      classSection.id) !=
+                              -1;
+                          if (announcementSentToThisClass) {
+                            _selectedClassSections.add(classSection);
+                          }
+                        }
+                        setState(() {});
+                      }
+                    }
+                  },
+                  builder: (context, state) {
+                    if (state is ClassesFetchSuccess) {
+                      return AnimatedOpacity(
+                        duration: Duration(milliseconds: 500),
+                        opacity: _formAnimationController.value,
+                        child: SingleChildScrollView(
+                          controller: _scrollController,
+                          padding: EdgeInsets.only(
+                              left: 16, right: 16, bottom: 100, top: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Title section
+                              _buildContentSection(
+                                Icon(Icons.title_rounded,
+                                    color: _activeSection == 0
+                                        ? _maroonPrimary
+                                        : Colors.grey.shade600,
+                                    size: 22),
+                                'Judul Pengumuman',
+                                'Masukkan judul yang jelas dan ringkas',
                                 Column(
-                                  children: _files
-                                      .map(
-                                        (studyMaterial) => Padding(
-                                          padding:
-                                              const EdgeInsets.only(bottom: 15),
-                                          child: StudyMaterialContainer(
-                                            onDeleteStudyMaterial: (fileId) {
-                                              _files.removeWhere((element) =>
-                                                  element.id == fileId);
-                                              refreshAnnouncementsInPreviousPage =
-                                                  true;
-                                              setState(() {});
-                                            },
-                                            showOnlyStudyMaterialTitles: true,
-                                            showEditAndDeleteButton: true,
-                                            studyMaterial: studyMaterial,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    TextFormField(
+                                      controller: _titleTextEditingController,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 15,
+                                        color: Colors.black87,
+                                      ),
+                                      decoration: InputDecoration(
+                                        hintText:
+                                            Utils.getTranslatedLabel(titleKey),
+                                        hintStyle: GoogleFonts.poppins(
+                                          fontSize: 15,
+                                          color: Colors.grey.shade400,
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.grey.shade50,
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey.shade300,
                                           ),
                                         ),
-                                      )
-                                      .toList(),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          borderSide: BorderSide(
+                                            color: _maroonPrimary,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 16,
+                                        ),
+                                      ),
+                                      cursorColor: _maroonPrimary,
+                                      onTap: () {
+                                        setState(() {
+                                          _activeSection = 0;
+                                        });
+                                      },
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                      const SizedBox(
-                        height: 25,
-                      ),
-                      UploadImageOrFileButton(
-                        uploadFile: true,
-                        includeImageFileOnlyAllowedNote: true,
-                        onTap: () {
-                          _pickFiles();
-                        },
-                      ),
-                      ...List.generate(_pickedFiles.length, (index) => index)
-                          .map(
-                        (index) => Padding(
-                          padding: const EdgeInsets.only(top: 15),
-                          child: CustomFileContainer(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.surface,
-                            onDelete: () {
-                              _pickedFiles.removeAt(index);
-                              setState(() {});
-                            },
-                            title: _pickedFiles[index].name,
+                                isActive: _activeSection == 0,
+                              ),
+
+                              // Description section
+                              _buildContentSection(
+                                Icon(Icons.description_outlined,
+                                    color: _activeSection == 1
+                                        ? _maroonPrimary
+                                        : Colors.grey.shade600,
+                                    size: 22),
+                                'Deskripsi',
+                                'Berikan detail pengumuman dengan jelas',
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    TextFormField(
+                                      controller:
+                                          _descriptionTextEditingController,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 15,
+                                        color: Colors.black87,
+                                      ),
+                                      maxLines: 6,
+                                      decoration: InputDecoration(
+                                        hintText: Utils.getTranslatedLabel(
+                                            descriptionKey),
+                                        hintStyle: GoogleFonts.poppins(
+                                          fontSize: 15,
+                                          color: Colors.grey.shade400,
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.grey.shade50,
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey.shade300,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          borderSide: BorderSide(
+                                            color: _maroonPrimary,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 16,
+                                        ),
+                                      ),
+                                      cursorColor: _maroonPrimary,
+                                      onTap: () {
+                                        setState(() {
+                                          _activeSection = 1;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                isActive: _activeSection == 1,
+                              ),
+
+                              // Class selection section
+                              _buildContentSection(
+                                Icon(Icons.people_outlined,
+                                    color: _activeSection == 2
+                                        ? _maroonPrimary
+                                        : Colors.grey.shade600,
+                                    size: 22),
+                                'Kelas Penerima',
+                                'Pilih kelas yang akan menerima pengumuman',
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _activeSection = 2;
+                                        });
+                                        Utils.showBottomSheet(
+                                                child: MultiSelectionValueBottomsheet<
+                                                        ClassSection>(
+                                                    values: context
+                                                        .read<ClassesCubit>()
+                                                        .getAllClasses(),
+                                                    selectedValues: List.from(
+                                                        _selectedClassSections),
+                                                    titleKey: titleKey),
+                                                context: context)
+                                            .then((value) {
+                                          if (value != null) {
+                                            final classes =
+                                                List<ClassSection>.from(
+                                                    value as List);
+                                            _selectedClassSections =
+                                                List<ClassSection>.from(
+                                                    classes);
+                                            setState(() {});
+                                          }
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 14,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey.shade50,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: _activeSection == 2
+                                                ? _maroonPrimary
+                                                : Colors.grey.shade300,
+                                            width:
+                                                _activeSection == 2 ? 1.5 : 1,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.class_outlined,
+                                              color: _maroonLight,
+                                              size: 20,
+                                            ),
+                                            SizedBox(width: 12),
+                                            Text(
+                                              Utils.getTranslatedLabel(
+                                                  classSectionKey),
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 15,
+                                                color: Colors.grey.shade700,
+                                              ),
+                                            ),
+                                            Spacer(),
+                                            Icon(
+                                              Icons.arrow_forward_ios_rounded,
+                                              color: Colors.grey.shade400,
+                                              size: 16,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+
+                                    SizedBox(height: 16),
+
+                                    // Selected classes
+                                    if (_selectedClassSections.isNotEmpty)
+                                      Container(
+                                        padding: EdgeInsets.all(16),
+                                        decoration: BoxDecoration(
+                                          color:
+                                              _maroonPrimary.withOpacity(0.05),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.check_circle_outline,
+                                                  color: _maroonPrimary,
+                                                  size: 16,
+                                                ),
+                                                SizedBox(width: 8),
+                                                Text(
+                                                  'Kelas Terpilih: ${_selectedClassSections.length}',
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: _maroonPrimary,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(height: 12),
+                                            Wrap(
+                                              spacing: 10,
+                                              runSpacing: 10,
+                                              children: _selectedClassSections
+                                                  .map((classSection) {
+                                                return Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 8,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            30),
+                                                    border: Border.all(
+                                                      color: _maroonLight
+                                                          .withOpacity(0.3),
+                                                    ),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.black
+                                                            .withOpacity(0.03),
+                                                        blurRadius: 4,
+                                                        offset: Offset(0, 2),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.groups_rounded,
+                                                        color: _maroonLight,
+                                                        size: 16,
+                                                      ),
+                                                      SizedBox(width: 6),
+                                                      Text(
+                                                        classSection.fullName ??
+                                                            "-",
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                          fontSize: 13,
+                                                          color: Colors
+                                                              .grey.shade800,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    else
+                                      Container(
+                                        padding: EdgeInsets.all(16),
+                                        decoration: BoxDecoration(
+                                          color: Colors.amber.shade50,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: Colors.amber.shade200,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.warning_amber_rounded,
+                                              color: Colors.amber.shade800,
+                                              size: 20,
+                                            ),
+                                            SizedBox(width: 12),
+                                            Expanded(
+                                              child: Text(
+                                                'Pilih minimal satu kelas untuk melanjutkan',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 13,
+                                                  color: Colors.amber.shade900,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                isActive: _activeSection == 2,
+                              ),
+
+                              // Files section
+                              _buildContentSection(
+                                Icon(Icons.attach_file_rounded,
+                                    color: _activeSection == 3
+                                        ? _maroonPrimary
+                                        : Colors.grey.shade600,
+                                    size: 22),
+                                'Lampiran',
+                                'Tambah atau kelola file lampiran',
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Existing files
+                                    if (_files.isNotEmpty)
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 6,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: _maroonPrimary,
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                            ),
+                                            child: Text(
+                                              'File Yang Tersedia (${_files.length})',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(height: 12),
+                                          Column(
+                                            children:
+                                                _files.map((studyMaterial) {
+                                              return Container(
+                                                margin:
+                                                    EdgeInsets.only(bottom: 12),
+                                                child: StudyMaterialContainer(
+                                                  onDeleteStudyMaterial:
+                                                      (fileId) {
+                                                    _files.removeWhere(
+                                                        (element) =>
+                                                            element.id ==
+                                                            fileId);
+                                                    refreshAnnouncementsInPreviousPage =
+                                                        true;
+                                                    setState(() {});
+                                                  },
+                                                  showOnlyStudyMaterialTitles:
+                                                      true,
+                                                  showEditAndDeleteButton: true,
+                                                  studyMaterial: studyMaterial,
+                                                ),
+                                              );
+                                            }).toList(),
+                                          ),
+                                          Divider(height: 32),
+                                        ],
+                                      ),
+
+                                    // File picker button
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _activeSection = 3;
+                                        });
+                                        _pickFiles();
+                                      },
+                                      child: Container(
+                                        width: double.infinity,
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 16,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color:
+                                              _maroonPrimary.withOpacity(0.08),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color:
+                                                _maroonPrimary.withOpacity(0.2),
+                                            width: 1.5,
+                                            style: BorderStyle.solid,
+                                          ),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            Container(
+                                              padding: EdgeInsets.all(12),
+                                              decoration: BoxDecoration(
+                                                color: _maroonPrimary
+                                                    .withOpacity(0.1),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Icon(
+                                                Icons.file_upload_outlined,
+                                                color: _maroonPrimary,
+                                                size: 28,
+                                              ),
+                                            ),
+                                            SizedBox(height: 12),
+                                            Text(
+                                              'Tambah File Lampiran',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w600,
+                                                color: _maroonPrimary,
+                                              ),
+                                            ),
+                                            SizedBox(height: 8),
+                                            Text(
+                                              'File gambar dan dokumen (jpg, png, pdf, doc, dll)',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 13,
+                                                color: Colors.grey.shade600,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+
+                                    // Picked files list
+                                    if (_pickedFiles.isNotEmpty)
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(height: 16),
+                                          Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 6,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.blue.shade500,
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                            ),
+                                            child: Text(
+                                              'File Baru Dipilih (${_pickedFiles.length})',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(height: 12),
+                                          Column(
+                                            children: List.generate(
+                                                _pickedFiles.length, (index) {
+                                              return Container(
+                                                margin:
+                                                    EdgeInsets.only(bottom: 12),
+                                                child: CustomFileContainer(
+                                                  backgroundColor: Colors.white,
+                                                  onDelete: () {
+                                                    _pickedFiles
+                                                        .removeAt(index);
+                                                    setState(() {});
+                                                  },
+                                                  title:
+                                                      _pickedFiles[index].name,
+                                                ),
+                                              );
+                                            }),
+                                          ),
+                                        ],
+                                      ),
+                                  ],
+                                ),
+                                isActive: _activeSection == 3,
+                              ),
+                            ],
                           ),
                         ),
-                      )
-                    ],
-                  ),
-                ),
-              );
-            }
+                      );
+                    }
 
-            if (state is ClassesFetchFailure) {
-              return Center(
-                child: ErrorContainer(
-                  errorMessage: state.errorMessage,
-                  onTapRetry: () {
-                    context.read<ClassesCubit>().getClasses();
+                    if (state is ClassesFetchFailure) {
+                      return Center(
+                        child: ErrorContainer(
+                          errorMessage: state.errorMessage,
+                          onTapRetry: () {
+                            context.read<ClassesCubit>().getClasses();
+                          },
+                        ),
+                      );
+                    }
+
+                    return Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CustomCircularProgressIndicator(
+                            indicatorColor: _maroonPrimary,
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'Memuat data...',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ).animate().fadeIn(duration: 300.ms);
                   },
                 ),
-              );
-            }
-
-            return Center(
-              child: CustomCircularProgressIndicator(
-                indicatorColor: Theme.of(context).colorScheme.primary,
               ),
-            );
-          },
-        ),
-        _buildSubmitButton(),
-        Align(
-            alignment: Alignment.topCenter,
-            child: CustomAppbar(
-              titleKey: editAnnouncementKey,
-              onBackButtonTap: () {
-                if (context.read<EditGeneralAnnouncementCubit>().state
-                    is EditGeneralAnnouncementInProgress) {
-                  return;
-                }
+            ],
+          ),
 
-                Get.back();
-              },
-            ))
-      ],
-    ));
+          // Submit button
+          _buildSubmitButton(),
+        ],
+      ),
+    );
   }
+}
+
+class BackgroundDecorationPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.grey.shade100
+      ..style = PaintingStyle.fill;
+
+    // Draw decorative circles
+    canvas.drawCircle(Offset(size.width * 0.9, size.height * 0.1), 60, paint);
+    canvas.drawCircle(Offset(size.width * 0.1, size.height * 0.3), 40, paint);
+    canvas.drawCircle(Offset(size.width * 0.8, size.height * 0.6), 30, paint);
+    canvas.drawCircle(Offset(size.width * 0.3, size.height * 0.8), 50, paint);
+
+    final dotPaint = Paint()
+      ..color = Colors.grey.shade200
+      ..style = PaintingStyle.fill;
+
+    // Draw dot pattern
+    for (double i = 0; i < size.width; i += 30) {
+      for (double j = 0; j < size.height; j += 30) {
+        if (Random().nextBool() && Random().nextInt(10) > 7) {
+          canvas.drawCircle(Offset(i, j), 2, dotPaint);
+        }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
