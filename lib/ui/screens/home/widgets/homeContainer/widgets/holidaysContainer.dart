@@ -49,7 +49,7 @@ class HolidaysContainer extends StatelessWidget {
                 height: 15,
               ),
               SizedBox(
-                height: 125,
+                height: 150,
                 child: ListView.builder(
                   itemCount: holidays.length,
                   scrollDirection: Axis.horizontal,

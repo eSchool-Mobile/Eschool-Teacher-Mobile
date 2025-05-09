@@ -22,7 +22,6 @@ class AttendanceRankingItemContainer extends StatefulWidget {
   State<AttendanceRankingItemContainer> createState() =>
       _AttendanceRankingItemContainerState();
 }
-
 class _AttendanceRankingItemContainerState
     extends State<AttendanceRankingItemContainer> {
   @override

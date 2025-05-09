@@ -370,9 +370,19 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     return BlocBuilder<OnlineExamCubit, OnlineExamState>(
       builder: (context, state) {
         List<SubjectDetail> subjects = [];
-        if (state is OnlineExamSuccess) {
+        if (state is OnlineExamSuccess && state.subjectDetails != null) {
+          // Filter out null items and safely convert valid ones
           subjects = state.subjectDetails
-              .map((e) => SubjectDetail.fromJson(e))
+              .where((e) => e != null) // Filter out null items
+              .map((e) {
+                try {
+                  return SubjectDetail.fromJson(e);
+                } catch (error) {
+                  print("Error converting subject detail: $error");
+                  return null;
+                }
+              })
+              .whereType<SubjectDetail>() // Filter out failed conversions
               .toList();
         }
 

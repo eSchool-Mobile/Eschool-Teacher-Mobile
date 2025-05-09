@@ -8,6 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'dart:math';
+import 'dart:ui';
+import 'package:flutter/services.dart';
 
 class HolidaysScreen extends StatefulWidget {
   final List<Holiday> holidays;
@@ -29,52 +33,56 @@ class HolidaysScreen extends StatefulWidget {
   State<HolidaysScreen> createState() => _HolidaysScreenState();
 }
 
+class AppColorPalette {
+  static const Color primaryMaroon = Color(0xFF8B1F41);
+  static const Color secondaryMaroon = Color(0xFFA84B5C);
+  static const Color lightMaroon = Color(0xFFE7C8CD);
+  static const Color accentPink = Color(0xFFF4D0D9);
+  static const Color warmBeige = Color(0xFFF5E6E8);
+  static const Color shadowColor = Color(0x298B1F41);
+}
+
 class _HolidaysScreenState extends State<HolidaysScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  String _searchQuery = '';
-  bool _isSearching = false;
+
   List<Holiday> _filteredHolidays = [];
   final TextEditingController _searchController = TextEditingController();
-  final maroonColor = Color(0xFF800020);
+  final ScrollController _scrollController = ScrollController();
+  bool _isScrolled = false;
 
   @override
   void initState() {
     super.initState();
     _controller =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 500));
+        AnimationController(vsync: this, duration: Duration(seconds: 1));
     _controller.forward();
     _filteredHolidays = widget.holidays;
+    _scrollController.addListener(_scrollListener);
+  }
+
+  void _scrollListener() {
+    if (_scrollController.offset > 10 && !_isScrolled) {
+      setState(() {
+        _isScrolled = true;
+      });
+    } else if (_scrollController.offset <= 10 && _isScrolled) {
+      setState(() {
+        _isScrolled = false;
+      });
+    }
   }
 
   @override
   void dispose() {
     _controller.dispose();
     _searchController.dispose();
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
     super.dispose();
   }
 
-  void _filterHolidays() {
-    if (_searchQuery.isEmpty) {
-      setState(() {
-        _filteredHolidays = widget.holidays;
-      });
-      return;
-    }
-
-    setState(() {
-      _filteredHolidays = widget.holidays.where((holiday) {
-        return (holiday.title
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false) ||
-            (holiday.description
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false);
-      }).toList();
-    });
-  }
+  
 
   Map<String, List<Holiday>> _groupHolidaysByMonth(List<Holiday> holidays) {
     final Map<String, List<Holiday>> grouped = {};
@@ -105,178 +113,518 @@ class _HolidaysScreenState extends State<HolidaysScreen>
   Widget build(BuildContext context) {
     final groupedHolidays = _groupHolidaysByMonth(_filteredHolidays);
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.grey[50]!,
-                  Colors.white,
-                ],
-              ),
+    return Theme(
+      data: Theme.of(context).copyWith(
+        colorScheme: Theme.of(context).colorScheme.copyWith(
+              primary: AppColorPalette.primaryMaroon,
+              secondary: AppColorPalette.secondaryMaroon,
+              surface: Colors.white,
+              background: Colors.white,
             ),
-          ),
-
-          // Background decoration
-          Positioned(
-            top: -100,
-            right: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: maroonColor.withOpacity(0.06),
-              ),
-            ),
-          ),
-
-          SafeArea(
-            child: Column(
-              children: [
-                // Holiday List
-                Expanded(
-                  child: _filteredHolidays.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                FontAwesomeIcons.calendarXmark,
-                                size: 60,
-                                color: Colors.grey[400],
-                              ),
-                              SizedBox(height: 16),
-                              Text(
-                                _searchQuery.isEmpty
-                                    ? "Belum ada jadwal liburan"
-                                    : "Tidak ditemukan hasil pencarian",
-                                style: TextStyle(
-                                  fontSize: 17,
-                                  color: Colors.grey[600],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ).animate().fadeIn(delay: 300.ms)
-                      : ListView.builder(
-                          padding: EdgeInsets.fromLTRB(
-                              appContentHorizontalPadding,
-                              8,
-                              appContentHorizontalPadding,
-                              30),
-                          itemCount: groupedHolidays.length,
-                          itemBuilder: (context, index) {
-                            final monthYear =
-                                groupedHolidays.keys.elementAt(index);
-                            final holidays = groupedHolidays[monthYear]!;
-
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: 16, bottom: 12, left: 6),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 14, vertical: 6),
-                                        decoration: BoxDecoration(
-                                          color: maroonColor,
-                                          borderRadius:
-                                              BorderRadius.circular(18),
-                                        ),
-                                        child: Text(
-                                          monthYear,
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Divider(
-                                          height: 20,
-                                          thickness: 1,
-                                          indent: 14,
-                                          endIndent: 8,
-                                          color: Colors.grey[200],
-                                        ),
-                                      ),
-                                      Text(
-                                        '${holidays.length} hari',
-                                        style: TextStyle(
-                                          color: Colors.grey[600],
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                ...List.generate(
-                                  holidays.length,
-                                  (i) => HolidayContainer(
-                                    holiday: holidays[i],
-                                    width: MediaQuery.of(context).size.width,
-                                    margin: const EdgeInsetsDirectional.only(
-                                        bottom: 16),
-                                  )
-                                      .animate(delay: (50 * i).ms)
-                                      .fadeIn(duration: 400.ms)
-                                      .slideY(
-                                          begin: 0.1,
-                                          end: 0,
-                                          duration: 400.ms,
-                                          curve: Curves.easeOutQuad),
-                                ),
-                              ],
-                            )
-                                .animate(delay: (100 * index).ms)
-                                .fadeIn(duration: 400.ms);
-                          },
-                        ),
-                ),
-              ],
-            ),
-          ),
-
-          // AppBar
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border(
-                  bottom: BorderSide(
-                    color: Colors.grey[200]!,
-                    width: 1,
-                  ),
-                ),
-              ),
-              child: SafeArea(
-                bottom: false,
-                child: Row(
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Stack(
+          children: [
+            // Enhanced Animated Background Pattern
+            AnimatedPositioned(
+              duration: Duration(seconds: 1),
+              curve: Curves.easeInOut,
+              top: 0,
+              left: 0,
+              right: 0,
+              height: MediaQuery.of(context).size.height,
+              child: AnimatedOpacity(
+                duration: Duration(seconds: 1),
+                opacity: 0.15,
+                child: Stack(
                   children: [
-                    Expanded(
-                      child: CustomAppbar(titleKey: holidaysKey),
+                    CustomPaint(
+                      painter: BackgroundPatternPainter(
+                        color: AppColorPalette.primaryMaroon,
+                      ),
                     ),
+                    // Decorative particles for modern look
+                    ...List.generate(10, (index) {
+                      return Positioned(
+                        top: Random().nextDouble() *
+                            MediaQuery.of(context).size.height,
+                        left: Random().nextDouble() *
+                            MediaQuery.of(context).size.width,
+                        child: AnimatedContainer(
+                          duration: Duration(seconds: 2 + index),
+                          width: 4 + Random().nextDouble() * 8,
+                          height: 4 + Random().nextDouble() * 8,
+                          decoration: BoxDecoration(
+                            color:
+                                AppColorPalette.primaryMaroon.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                      );
+                    }),
                   ],
                 ),
               ),
             ),
-          ),
-        ],
+
+            // Main Content with Enhanced Animation
+            SafeArea(
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(0, (1 - _controller.value) * 30),
+                    child: Opacity(
+                      opacity: _controller.value,
+                      child: Column(
+                        children: [
+                          // Adjusted padding to account for custom app bar
+                          SizedBox(height: 80),
+
+                         // Holiday List
+                           Expanded(
+                            child: _filteredHolidays.isEmpty
+                                ? Center(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          FontAwesomeIcons.calendarXmark,
+                                          size: 60,
+                                          color: Colors.grey[400],
+                                        ),
+                                        SizedBox(height: 16),
+                                    
+                                      ],
+                                    ),
+                                  ).animate().fadeIn(delay: 300.ms)
+                                : ListView.builder(
+                                    controller: _scrollController,
+                                    padding: EdgeInsets.fromLTRB(
+                                        appContentHorizontalPadding,
+                                        8,
+                                        appContentHorizontalPadding,
+                                        30),
+                                    itemCount: groupedHolidays.length,
+                                    itemBuilder: (context, index) {
+                                      final monthYear =
+                                          groupedHolidays.keys.elementAt(index);
+                                      final holidays =
+                                          groupedHolidays[monthYear]!;
+
+                                      return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: 16, bottom: 12, left: 6),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 14,
+                                                      vertical: 6),
+                                                  decoration: BoxDecoration(
+                                                    color: AppColorPalette
+                                                        .primaryMaroon,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            18),
+                                                  ),
+                                                  child: Text(
+                                                    monthYear,
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  child: Divider(
+                                                    height: 20,
+                                                    thickness: 1,
+                                                    indent: 14,
+                                                    endIndent: 8,
+                                                    color: Colors.grey[200],
+                                                  ),
+                                                ),
+                                                Text(
+                                                  '${holidays.length} hari',
+                                                  style: TextStyle(
+                                                    color: Colors.grey[600],
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 13,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          ...List.generate(
+                                            holidays.length,
+                                            (i) => HolidayContainer(
+                                              holiday: holidays[i],
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              margin:
+                                                  const EdgeInsetsDirectional
+                                                      .only(bottom: 16),
+                                            )
+                                                .animate(delay: (50 * i).ms)
+                                                .fadeIn(duration: 400.ms)
+                                                .slideY(
+                                                    begin: 0.1,
+                                                    end: 0,
+                                                    duration: 400.ms,
+                                                    curve: Curves.easeOutQuad),
+                                          ),
+                                        ],
+                                      )
+                                          .animate(delay: (100 * index).ms)
+                                          .fadeIn(duration: 400.ms);
+                                    },
+                                  ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+
+
+            // New Enhanced AppBar
+            _buildAppBar(),
+          ],
+        ),
       ),
-    ).animate().fadeIn(duration: 400.ms);
+    );
   }
+
+ 
+
+  Widget _buildAppBar() {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Container(
+        height: MediaQuery.of(context).padding.top + 80,
+        child: Stack(
+          children: [
+            // Fancy gradient background with animated particles
+            Positioned.fill(
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (context, _) {
+                  return ShaderMask(
+                    shaderCallback: (Rect bounds) {
+                      return LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFF690013),
+                          AppColorPalette.primaryMaroon,
+                          Color(0xFFA12948),
+                          AppColorPalette.secondaryMaroon,
+                        ],
+                        stops: [0.0, 0.3, 0.6, 1.0],
+                        transform: GradientRotation(_controller.value * 0.02),
+                      ).createShader(bounds);
+                    },
+                    blendMode: BlendMode.srcATop,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF800020),
+                            Color(0xFF9A1E3C),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(30),
+                          bottomRight: Radius.circular(30),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // Decorative design elements
+            Positioned.fill(
+              child: CustomPaint(
+                painter: AppBarDecorationPainter(
+                  color: Colors.white.withOpacity(0.07),
+                ),
+              ),
+            ),
+
+            // Animated glowing effect
+            AnimatedBuilder(
+              animation: _controller,
+              builder: (context, _) {
+                return Positioned(
+                  top: -100 + (_controller.value * 20),
+                  right: -60 + (_controller.value * 10),
+                  child: Container(
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          Colors.white.withOpacity(0.2),
+                          Colors.white.withOpacity(0.1),
+                          Colors.white.withOpacity(0.0),
+                        ],
+                        stops: [0.0, 0.5, 1.0],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            // Main app bar content with frosted glass effect
+            Positioned(
+              bottom: 10,
+              left: 16,
+              right: 16,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.2),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        // Back button with ripple effect
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Material(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(12),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              highlightColor: Colors.white.withOpacity(0.1),
+                              splashColor: Colors.white.withOpacity(0.2),
+                              onTap: () => Navigator.of(context).pop(),
+                              child: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  Icons.arrow_back_ios_rounded,
+                                  color: Colors.white,
+                                  size: 22,
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                            .animate()
+                            .fadeIn(duration: 400.ms, curve: Curves.easeOut)
+                            .slideX(begin: -0.3, end: 0),
+
+                        // Animated divider
+                        Container(
+                          height: 24,
+                          width: 1.5,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.white.withOpacity(0.0),
+                                Colors.white.withOpacity(0.4),
+                                Colors.white.withOpacity(0.0),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Title with animated badge
+                        Expanded(
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Main title
+                              Center(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+               
+
+                                    // Title text with glowing effect
+                                    Center(
+                                      child: ShaderMask(
+                                      shaderCallback: (Rect bounds) {
+                                        return LinearGradient(
+                                        colors: [
+                                          Colors.white,
+                                          Colors.white.withOpacity(0.9),
+                                        ],
+                                        ).createShader(bounds);
+                                      },
+                                      blendMode: BlendMode.srcIn,
+                                      child: Text(
+                                        Utils.getTranslatedLabel(holidaysKey),
+                                        textAlign: TextAlign.center,
+                                        style: GoogleFonts.poppins(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                        ),
+                                      ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Animated divider
+                        Container(
+                          height: 24,
+                          width: 1.5,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.white.withOpacity(0.0),
+                                Colors.white.withOpacity(0.4),
+                                Colors.white.withOpacity(0.0),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Search button with interactive animation
+
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class BackgroundPatternPainter extends CustomPainter {
+  final Color color;
+
+  BackgroundPatternPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    // Main wave
+    final path = Path()
+      ..moveTo(0, size.height * 0.2)
+      ..quadraticBezierTo(
+        size.width * 0.25,
+        size.height * 0.05,
+        size.width * 0.5,
+        size.height * 0.15,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.75,
+        size.height * 0.25,
+        size.width,
+        size.height * 0.2,
+      )
+      ..lineTo(size.width, 0)
+      ..lineTo(0, 0)
+      ..close();
+
+    canvas.drawPath(path, paint);
+
+    // Secondary decorative waves
+    final path2 = Path()
+      ..moveTo(0, size.height * 0.45)
+      ..cubicTo(
+        size.width * 0.3,
+        size.height * 0.4,
+        size.width * 0.6,
+        size.height * 0.55,
+        size.width,
+        size.height * 0.47,
+      )
+      ..lineTo(size.width, size.height * 0.45)
+      ..lineTo(0, size.height * 0.45)
+      ..close();
+
+    canvas.drawPath(
+      path2,
+      Paint()
+        ..color = color.withOpacity(0.2)
+        ..style = PaintingStyle.fill,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class AppBarDecorationPainter extends CustomPainter {
+  final Color color;
+
+  AppBarDecorationPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path()
+      ..moveTo(0, size.height * 0.5)
+      ..quadraticBezierTo(
+        size.width * 0.25,
+        size.height * 0.4,
+        size.width * 0.5,
+        size.height * 0.5,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.75,
+        size.height * 0.6,
+        size.width,
+        size.height * 0.5,
+      )
+      ..lineTo(size.width, 0)
+      ..lineTo(0, 0)
+      ..close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

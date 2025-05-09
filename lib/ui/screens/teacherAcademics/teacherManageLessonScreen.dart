@@ -1207,49 +1207,9 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                           ),
                           if (_selectedClassSection != null &&
                               _selectedSubject != null) ...[
-                            SizedBox(height: 20),
-                            CustomRoundedButton(
-                              height: 46,
-                              widthPercentage: 0.6,
-                              backgroundColor: maroonPrimary,
-                              buttonTitle: createLessonKey,
-                              radius: 16,
-                              textSize: 14,
-                              fontWeight: FontWeight.w600,
-                              showBorder: false,
-                              onTap: () {
-                                Get.toNamed(Routes.teacherAddEditLessonScreen,
-                                        arguments: TeacherAddEditLessonScreen
-                                            .buildArguments(
-                                                lesson: null,
-                                                selectedClassSection:
-                                                    _selectedClassSection,
-                                                selectedSubject:
-                                                    _selectedSubject))
-                                    ?.then((value) {
-                                  if (value != null && value is bool && value) {
-                                    getLessons();
-                                  }
-                                });
-                              },
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.add_circle_outline,
-                                      color: Colors.white),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    Utils.getTranslatedLabel(createLessonKey),
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      fontFamily: 'Poppins',
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                       
+                            //       if (value != null && value is bool && value) {
+                 
                           ],
                         ],
                       ),

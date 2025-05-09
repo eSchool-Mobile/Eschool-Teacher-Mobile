@@ -417,76 +417,13 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
       builder: (context, state) {
         return PopScope(
           canPop: state is! ApplyLeaveInProgress,
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-            decoration: BoxDecoration(
-              color: cardColor,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
-                  blurRadius: 20,
-                  offset: Offset(0, -4),
-                  spreadRadius: 2,
-                )
-              ],
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(32),
-                topRight: Radius.circular(32),
-              ),
-            ),
-            child: SafeArea(
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Optional summary before submit
-                  if (_leaveDays.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: maroonPrimary.withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.calendar_month,
-                              color: maroonPrimary,
-                              size: 20,
-                            ),
-                          ),
-                          SizedBox(width: 12),
-                          Expanded(
-                            child: RichText(
-                              text: TextSpan(
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: textMediumColor,
-                                  fontFamily: 'Poppins',
-                                ),
-                                children: [
-                                  TextSpan(
-                                    text: 'Total: ',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: '${_leaveDays.length} hari',
-                                    style: TextStyle(
-                                      color: maroonPrimary,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+             
 
                   // Submit button with animation
                   TweenAnimationBuilder<double>(
@@ -1451,7 +1388,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                 child: Padding(
                                   padding: const EdgeInsets.only(top: 4.0),
                                   child: Text(
-                                                      "Silakan isi formulir pengajuan cuti Anda",
+                                    "Silakan isi formulir pengajuan cuti Anda",
                                     style: TextStyle(
                                       fontSize: 14,
                                       color: Colors.white.withOpacity(0.9),

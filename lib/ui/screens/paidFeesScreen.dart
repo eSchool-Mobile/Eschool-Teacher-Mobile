@@ -1008,7 +1008,7 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
                                         ),
                                       ),
                                       Text(
-                                        '${studentsList.length} siswa tersedia',
+                                        '${studentsList.length} siswa',
                                         style: GoogleFonts.poppins(
                                           fontSize: 12,
                                           color: Colors.white.withOpacity(0.8),
@@ -1850,6 +1850,21 @@ class _StudentPaidFeeDetailsContainerState
                                 value: formatRupiah(widget.compolsoryFeeAmount +
                                     widget.optionalFeeAmount),
                                 icon: Icons.monetization_on_outlined,
+                              ),
+
+                              _buildInfoRow(
+                                label: 'ID Siswa',
+                                value: '${widget.studentDetails.id ?? "N/A"}',
+                                icon: Icons.person_pin,
+                                valueColor: Colors.indigo[700],
+                              ),
+
+                              _buildInfoRow(
+                                label: 'ID Biaya',
+                                value:
+                                    '${widget.studentDetails.paidFeeDetails?.feesId ?? "N/A"}',
+                                icon: Icons.receipt,
+                                valueColor: Colors.purple[700],
                               ),
 
                               _buildInfoRow(

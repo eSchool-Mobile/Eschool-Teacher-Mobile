@@ -42,15 +42,29 @@ class DownloadStudentFeeReceiptCubit
       final path = (await getApplicationDocumentsDirectory()).path;
       filePath = "$path/Student-Fees/$studentName-$feeId.pdf";
 
+      print('===== DOWNLOADING RECEIPT PDF =====');
+      print('Student ID: $studentId');
+      print('Fee ID: $feeId');
+      print('Student Name: $studentName');
+      print('File Path: $filePath');
+
       final File file = File(filePath);
 
       final slipContent = await _feeRepository.downloadStudentFeeReceipt(
           studentId: studentId, feeId: feeId);
 
+      print('Receipt content length: ${slipContent.length} bytes');
+
       await file.create(recursive: true);
       await file.writeAsBytes(base64Decode(slipContent));
+
+      print('===== PDF RECEIPT DOWNLOADED SUCCESSFULLY =====');
+      print('Saved to: $filePath');
+
       emit(DownloadStudentFeeReceiptSuccess(downloadedFilePath: filePath));
     } catch (e) {
+      print('===== ERROR DOWNLOADING PDF RECEIPT =====');
+      print('Error: ${e.toString()}');
       emit(DownloadStudentFeeReceiptFailure(defaultErrorMessageKey));
     }
   }

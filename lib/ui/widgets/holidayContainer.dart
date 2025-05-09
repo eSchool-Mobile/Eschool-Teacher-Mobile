@@ -56,8 +56,7 @@ class _HolidayContainerState extends State<HolidayContainer> {
           duration: const Duration(milliseconds: 300),
           margin: widget.margin,
           width: widget.width,
-          constraints:
-              const BoxConstraints(minHeight: 155), // Increased from 145
+          constraints: const BoxConstraints(minHeight: 150),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(16.0),
@@ -98,6 +97,7 @@ class _HolidayContainerState extends State<HolidayContainer> {
                         Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Center(
@@ -124,7 +124,7 @@ class _HolidayContainerState extends State<HolidayContainer> {
                                   textAlign: TextAlign.center,
                                 ),
                               ),
-                              SizedBox(height: 6),
+                              SizedBox(height: 4),
                               Center(
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
@@ -153,12 +153,11 @@ class _HolidayContainerState extends State<HolidayContainer> {
                   Flexible(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 16.0, horizontal: 16.0),
+                          vertical: 12.0, horizontal: 16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const SizedBox(height: 6.0), // Reduced from 10.0
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -175,17 +174,17 @@ class _HolidayContainerState extends State<HolidayContainer> {
                                 child: CustomTextContainer(
                                   textKey: widget.holiday.description ?? "",
                                   style: TextStyle(
-                                    height: 1.3,
-                                    fontSize: Utils.getScaledValue(context, 15),
+                                    height: 1.2,
+                                    fontSize: Utils.getScaledValue(context, 14),
                                     color: Colors.grey.shade700,
                                   ),
-                                  maxLines: 3,
+                                  maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 6.0), // Reduced from 8.0
+                          SizedBox(height: 4),
                           if (widget.holiday.end_date != null)
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -200,9 +199,9 @@ class _HolidayContainerState extends State<HolidayContainer> {
                                   child: Text(
                                     holidayStartDate == holidayEndDate
                                         ? "1 hari"
-                                        : "${holidayEndDate.difference(holidayStartDate).inDays + 1} hari (sampai ${holidayEndDate.day} ${months[holidayEndDate.month - 1]} ${holidayEndDate.year})",
+                                        : "${holidayEndDate.difference(holidayStartDate).inDays + 1} hari (sampai ${holidayEndDate.day} ${months[holidayEndDate.month - 1]})",
                                     style: TextStyle(
-                                      fontSize: 13,
+                                      fontSize: 12,
                                       color: Colors.grey.shade700,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -210,7 +209,7 @@ class _HolidayContainerState extends State<HolidayContainer> {
                                 ),
                               ],
                             ),
-                          const SizedBox(height: 6.0), // Reduced from 8.0
+                          Spacer(),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -219,7 +218,7 @@ class _HolidayContainerState extends State<HolidayContainer> {
                                 style: TextStyle(
                                   color: maroonColor,
                                   fontWeight: FontWeight.w500,
-                                  fontSize: 13,
+                                  fontSize: 12,
                                 ),
                               ),
                               SizedBox(width: 4),

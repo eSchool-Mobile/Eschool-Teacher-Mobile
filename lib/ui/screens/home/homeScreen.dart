@@ -16,7 +16,7 @@ import 'package:eschool_saas_staff/ui/screens/home/widgets/forceUpdateDialogCont
 import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/homeContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/profileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/teacherHomeContainer/teacherHomeContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/bottomNavItemContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/animatedBottomNavigation.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/notificationUtility.dart';
 import 'package:eschool_saas_staff/utils/systemModulesAndPermissions.dart';
@@ -97,10 +97,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         iconPath: "academics.svg",
         title: academicsKey,
         selectedIconPath: "academics_active.svg"),
-    // BottomNavItem(
-    //     iconPath: "chat.svg",
-    //     title: chatKey,
-    //     selectedIconPath: "chat_active.svg"),
     BottomNavItem(
         iconPath: "profile.svg",
         title: profileKey,
@@ -114,31 +110,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Widget _buildBottomNavigationContainer() {
-    return Align(
-      alignment: Alignment.bottomCenter,
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
       child: Container(
         width: MediaQuery.of(context).size.width,
-        height: 80 + MediaQuery.of(context).padding.bottom * (0.5),
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          boxShadow: const [
-            BoxShadow(
-                color: Colors.black12,
-                offset: Offset(0, 0),
-                blurRadius: 1,
-                spreadRadius: 1)
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: List.generate(_bottomNavItems.length, (index) => index)
-              .map((index) => BottomNavItemContainer(
-                  index: index,
-                  bottomNavItem: _bottomNavItems[index],
-                  onTap: changeCurrentBottomNavIndex,
-                  selectedBottomNavIndex: _currentSelectedBottomNavIndex))
-              .toList(),
+        height: 140 + MediaQuery.of(context).padding.bottom * (0.5),
+        color: Colors.transparent,
+        child: AnimatedBottomNavigation(
+          items: _bottomNavItems,
+          selectedIndex: _currentSelectedBottomNavIndex,
+          onItemSelected: changeCurrentBottomNavIndex,
         ),
       ),
     );
@@ -179,33 +162,21 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   children: [
                     Align(
                       alignment: Alignment.topCenter,
-                      child: IndexedStack(
-                        index: _currentSelectedBottomNavIndex,
-                        children: [
-                          //two different containers for 2 different user types
-                          if (context.read<AuthCubit>().isTeacher()) ...[
-                            const TeacherHomeContainer(),
-                          ] else ...[
-                            HomeContainer(key: HomeContainer.widgetKey),
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: 120),
+                        child: IndexedStack(
+                          index: _currentSelectedBottomNavIndex,
+                          children: [
+                            //two different containers for 2 different user types
+                            if (context.read<AuthCubit>().isTeacher()) ...[
+                              const TeacherHomeContainer(),
+                            ] else ...[
+                              HomeContainer(key: HomeContainer.widgetKey),
+                            ],
+                            const AcademicsContainer(),
+                            if (chatModuleEnabled) const ProfileContainer(),
                           ],
-                          const AcademicsContainer(),
-                          if (chatModuleEnabled)
-                            // MultiBlocProvider(
-                            //   providers: [
-                            //     BlocProvider(
-                            //       create: (_) => ParentsUserChatHistoryCubit(),
-                            //     ),
-                            //     BlocProvider(
-                            //       create: (_) => StudentsUserChatHistoryCubit(),
-                            //     ),
-                            //     BlocProvider(
-                            //       create: (_) => StaffsUserChatHistoryCubit(),
-                            //     ),
-                            //   ],
-                            //   child: const ChatContainer(),
-                            // ),
-                            const ProfileContainer(),
-                        ],
+                        ),
                       ),
                     ),
 

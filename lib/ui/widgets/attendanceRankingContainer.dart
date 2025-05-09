@@ -12,11 +12,13 @@ import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherClassSecti
 class AttendanceRankingContainer extends StatefulWidget {
   final AttendanceRanking attendanceRankings;
   final bool showAllStudents;
+  final String searchQuery;
 
   const AttendanceRankingContainer({
     super.key,
     required this.attendanceRankings,
     required this.showAllStudents,
+    this.searchQuery = "",
   });
 
   @override
@@ -34,7 +36,7 @@ class BackgroundPainter extends CustomPainter {
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.fill;
-    
+
     // Create a pattern of circles or dots
     for (double x = 0; x < size.width; x += 20) {
       for (double y = 0; y < size.height; y += 20) {
@@ -360,18 +362,26 @@ class _AttendanceRankingContainerState
           ),
         ],
       ),
-      child: ListView(
-        shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
-        children: widget.showAllStudents
-            ? _buildAllStudentsList()
-            : _buildTopStudentsList(),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: 400), // Set a max height
+        child: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: widget.showAllStudents
+                ? _buildAllStudentsList()
+                : _buildTopStudentsList(),
+          ),
+        ),
       ),
     );
   }
 
   List<Widget> _buildAllStudentsList() {
-    return (widget.attendanceRankings.allStudents ?? []).map((student) {
+    return (widget.attendanceRankings.allStudents ?? [])
+        .where((student) => (student.studentName?.toLowerCase() ?? '')
+            .contains(widget.searchQuery.toLowerCase()))
+        .map((student) {
       return AttendanceRankingItemContainer(
         topStudents: TopStudents(
           rank: widget.attendanceRankings.allStudents!.indexOf(student) + 1,
@@ -389,6 +399,9 @@ class _AttendanceRankingContainerState
   List<Widget> _buildTopStudentsList() {
     return (widget.attendanceRankings.groupedByClassLevel ?? [])
         .expand((classLevel) => (classLevel.topStudents ?? []))
+        .where((student) => student.studentName
+            .toLowerCase()
+            .contains(widget.searchQuery.toLowerCase()))
         .map((student) => AttendanceRankingItemContainer(
               topStudents: student,
               index: student.rank ?? 0,

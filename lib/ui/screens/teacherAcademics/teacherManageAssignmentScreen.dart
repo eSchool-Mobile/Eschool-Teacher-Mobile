@@ -1310,7 +1310,7 @@ class _TeacherManageAssignmentScreenState
                           ),
                           SizedBox(height: 16),
                           Text(
-                            Utils.getTranslatedLabel(noAssignmentKey),
+                            "Belum ada tugas tersedia",
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
@@ -1319,48 +1319,6 @@ class _TeacherManageAssignmentScreenState
                             ),
                           ),
                           SizedBox(height: 20),
-                          CustomRoundedButton(
-                            height: 46,
-                            widthPercentage: 0.6,
-                            backgroundColor: maroonPrimary,
-                            buttonTitle: createAssignmentKey,
-                            radius: 16,
-                            textSize: 14,
-                            fontWeight: FontWeight.w600,
-                            showBorder: false,
-                            onTap: () {
-                              Get.toNamed(Routes.teacherAddEditAssignmentScreen,
-                                      arguments: TeacherAddEditAssignmentScreen
-                                          .buildArguments(
-                                              assignment: null,
-                                              selectedClassSection:
-                                                  _selectedClassSection,
-                                              selectedSubject:
-                                                  _selectedSubject))
-                                  ?.then((value) {
-                                if (value != null && value is bool && value) {
-                                  getAssignments();
-                                }
-                              });
-                            },
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.add_circle_outline,
-                                    color: Colors.white),
-                                SizedBox(width: 8),
-                                Text(
-                                  Utils.getTranslatedLabel(createAssignmentKey),
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    fontFamily: 'Poppins',
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
                         ],
                       ),
                     ),

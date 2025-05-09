@@ -703,29 +703,47 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
 
                                 // Counter badge with animation
                                 Container(
-                                  width: 40,
-                                  height: 40,
+                                  padding: const EdgeInsets.all(4),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(12),
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(22),
+                                  boxShadow: [
+                                    BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 4,
+                                    offset: Offset(0, 2),
+                                    ),
+                                  ],
                                   ),
-                                  child: Center(
-                                    child: Text(
-                                      state.payrolls.length.toString(),
+                                  child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                 
+                                  child: Row(
+                                    children: [
+                                    Icon(
+                                      Icons.check_circle,
+                                      size: 16,
+                                      color: Color(0xFF28A745),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      "Dibayar",
                                       style: GoogleFonts.poppins(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                        color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF28A745),
                                       ),
                                     ),
+                                    ],
                                   ),
-                                ).animate().fadeIn(duration: 400.ms).scale(
-                                    begin: Offset(0.8, 0.8),
-                                    end: Offset(1.0, 1.0),
-                                    duration: 400.ms),
-                              ],
-                            ),
-                          ),
+                                  ),
+                                ),
+                                ],
+                              ),
+                              ),
 
                           // Payroll items list
                           Column(
@@ -750,6 +768,7 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
               ),
             ),
           );
+            
         }
 
         if (state is MyPayRollFetchFailure) {
@@ -1174,34 +1193,7 @@ class _MyPayrollDetailsContainerState extends State<MyPayrollDetailsContainer>
                             // Right side with status and expand button
                             Row(
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Color(0xFF28A745).withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.check_circle,
-                                        size: 16,
-                                        color: Color(0xFF28A745),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        "Dibayar",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(0xFF28A745),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                              
                                 const SizedBox(width: 8),
                                 Transform.rotate(
                                   angle:

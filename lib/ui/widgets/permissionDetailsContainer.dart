@@ -98,27 +98,20 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
     String translatedType;
     IconData iconData;
 
-    switch (type) {
-      case 'Sick':
-        backgroundColor = _maroonPrimary.withOpacity(0.12);
-        textColor = _maroonPrimary;
-        shadowColor = _maroonPrimary.withOpacity(0.2);
-        translatedType = 'Sakit';
-        iconData = Icons.healing;
-        break;
-      case 'Leave':
-        backgroundColor = _goldAccent.withOpacity(0.25);
-        textColor = const Color(0xFF8B6E44);
-        shadowColor = _goldAccent.withOpacity(0.3);
-        translatedType = 'Izin';
-        iconData = Icons.event_busy;
-        break;
-      default:
-        backgroundColor = Colors.grey.shade200;
-        textColor = Colors.grey.shade700;
-        shadowColor = Colors.grey.withOpacity(0.2);
-        translatedType = type;
-        iconData = Icons.help_outline;
+    // Set defaults based on type
+    if (type.toLowerCase() == 'sick') {
+      translatedType = 'Sakit';
+      backgroundColor = Colors.red.shade50;
+      textColor = Colors.red.shade700;
+      shadowColor = Colors.red.shade200.withOpacity(0.3);
+      iconData = Icons.healing;
+    } else {
+      // Default to Leave or any other type
+      translatedType = 'Izin';
+      backgroundColor = Colors.blue.shade50;
+      textColor = Colors.blue.shade700;
+      shadowColor = Colors.blue.shade200.withOpacity(0.3);
+      iconData = Icons.event_busy;
     }
 
     return AnimatedContainer(
@@ -324,7 +317,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                                       : null,
                                                   valueColor:
                                                       AlwaysStoppedAnimation<
-                                                          Color>(_maroonPrimary),
+                                                              Color>(
+                                                          _maroonPrimary),
                                                   strokeWidth: 3,
                                                 ),
                                               ),
@@ -341,8 +335,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                         ),
                                       );
                                     },
-                                    errorBuilder:
-                                        (context, error, stackTrace) {
+                                    errorBuilder: (context, error, stackTrace) {
                                       return Container(
                                         height: 240,
                                         decoration: BoxDecoration(
@@ -350,8 +343,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                           borderRadius:
                                               BorderRadius.circular(16),
                                           border: Border.all(
-                                            color: _maroonLight.withOpacity(
-                                                0.2),
+                                            color:
+                                                _maroonLight.withOpacity(0.2),
                                             width: 1,
                                           ),
                                         ),
@@ -517,8 +510,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         _buildLeaveTypeChip(
-                          widget.permissionDetails.leaves.last.leaveDetail
-                                  ?.last.type ??
+                          widget.permissionDetails.leaves.last.leaveDetail?.last
+                                  .type ??
                               '',
                         ),
                         Material(
@@ -760,9 +753,9 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                               ),
                             ),
                             child: Text(
-                              translateRole(widget.permissionDetails.leaves.last
-                                      .reason ??
-                                  ''),
+                              translateRole(
+                                  widget.permissionDetails.leaves.last.reason ??
+                                      ''),
                               style: const TextStyle(
                                 fontSize: 15,
                                 height: 1.6,
@@ -781,86 +774,101 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                         padding: const EdgeInsets.only(top: 24),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             // School branding indicator
-                            Row(
-                              children: [
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: _maroonDark,
-                                  ),
-                                  child: const Center(
-                                    child: Text(
-                                      "S",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "eSchool",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: _maroonDark.withOpacity(0.8),
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            // Date container
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 10),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    _maroonLight.withOpacity(0.2),
-                                    _goldAccent.withOpacity(0.15),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.03),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                                border: Border.all(
-                                  color: _maroonLight.withOpacity(0.2),
-                                ),
-                              ),
+                            Flexible(
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(
-                                    Icons.calendar_today_rounded,
-                                    size: 16,
-                                    color: _maroonDark,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    widget.permissionDetails.leaves.last
-                                            .fromDate ??
-                                        '',
-                                    style: TextStyle(
-                                      fontSize: 14,
+                                  Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
                                       color: _maroonDark,
-                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    child: const Center(
+                                      child: Text(
+                                        "S",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Flexible(
+                                    child: Text(
+                                      "eSchool",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: _maroonDark.withOpacity(0.8),
+                                        letterSpacing: 0.5,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ],
+                              ),
+                            ),
+
+                            const SizedBox(width: 8),
+
+                            // Date container
+                            Flexible(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: isSmallScreen ? 12 : 16,
+                                    vertical: 10),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      _maroonLight.withOpacity(0.2),
+                                      _goldAccent.withOpacity(0.15),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.03),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                  border: Border.all(
+                                    color: _maroonLight.withOpacity(0.2),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_today_rounded,
+                                      size: 16,
+                                      color: _maroonDark,
+                                    ),
+                                    SizedBox(width: isSmallScreen ? 6 : 10),
+                                    Flexible(
+                                      child: Text(
+                                        widget.permissionDetails.leaves.last
+                                                .fromDate ??
+                                            '',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: _maroonDark,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -888,8 +896,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
             offset: Offset(0, 20 * (1 - value)),
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 24, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 margin: EdgeInsets.symmetric(
                     horizontal: appContentHorizontalPadding),
                 decoration: BoxDecoration(
@@ -1000,8 +1008,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                           width: 48,
                           height: 48,
                           child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                                _maroonPrimary),
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(_maroonPrimary),
                             strokeWidth: 4,
                           ),
                         ),
@@ -1043,9 +1051,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                         duration: const Duration(milliseconds: 1500),
                         curve: Curves.easeInOut,
                         left: value > 0.5 ? 0 : 140 * (1 - value * 2),
-                        right: value > 0.5
-                            ? 140 * (1 - (value - 0.5) * 2)
-                            : 0,
+                        right: value > 0.5 ? 140 * (1 - (value - 0.5) * 2) : 0,
                         top: 0,
                         bottom: 0,
                         child: Container(

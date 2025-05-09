@@ -689,20 +689,26 @@ Widget _buildBottomSheet(BuildContext context) {
               "is_answer": (int.tryParse(entry.value.text) ?? 0) > 0 ? 1 : 0
             };
           }).toList())) {
-            SnackBarUtils.showSnackBar(
-              context: context,
-              message: "Nilai berhasil disimpan!",
-              backgroundColor: Colors.green.shade700,
-              textColor: Colors.white,
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  "Nilai berhasil disimpan!",
+                  style: TextStyle(color: Colors.white),
+                ),
+                backgroundColor: Colors.green.shade700,
+              ),
             );
           }
           else {
-            SnackBarUtils.showSnackBar(
-              context: context,
-              message: "Gagal menyimpan nilai!",
-              backgroundColor: Colors.red.shade700,
-              textColor: Colors.white,
-          );
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  "Gagal menyimpan nilai!",
+                  style: TextStyle(color: Colors.white),
+                ),
+                backgroundColor: Colors.red.shade700,
+              ),
+            );
           }
         },
         child: Text(
