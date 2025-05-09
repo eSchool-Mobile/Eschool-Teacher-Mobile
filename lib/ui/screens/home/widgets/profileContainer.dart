@@ -18,6 +18,7 @@ import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
 import 'package:animate_do/animate_do.dart';
@@ -26,6 +27,7 @@ import 'dart:ui';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class AppColorPalette {
   static const Color primaryMaroon = Color(0xFF8B1F41);
@@ -48,6 +50,12 @@ class _ProfileContainerState extends State<ProfileContainer>
   late AnimationController _animationController;
   late Animation<double> _animation;
 
+  // Maroon color palette for app bar
+  final Color maroonPrimary = const Color(0xFF800020); // Deep maroon
+  final Color maroonLight = const Color(0xFFAA6976); // Light maroon
+  final Color maroonDark =
+      const Color.fromARGB(255, 124, 9, 31); // Darker variant
+
   @override
   void initState() {
     super.initState();
@@ -58,6 +66,12 @@ class _ProfileContainerState extends State<ProfileContainer>
 
     _animation =
         Tween<double>(begin: 0, end: 2 * pi).animate(_animationController);
+
+    // Set system UI overlay style for status bar
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+    ));
   }
 
   @override
@@ -95,7 +109,8 @@ class _ProfileContainerState extends State<ProfileContainer>
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 padding: EdgeInsetsDirectional.only(
-                  top: Utils.appContentTopScrollPadding(context: context) + 120,
+                  top: Utils.appContentTopScrollPadding(context: context) +
+                      180, // Increased top padding to accommodate new app bar
                   end: appContentHorizontalPadding,
                   start: appContentHorizontalPadding,
                   bottom: 100,
@@ -239,8 +254,8 @@ class _ProfileContainerState extends State<ProfileContainer>
               ),
             ),
 
-            // Enhanced Glassmorphic AppBar
-            _buildEnhancedAppBar(context: context),
+            // Enhanced Curved App Bar
+            _buildDramaticCurvedAppBar(context: context),
           ],
         );
       },
@@ -313,296 +328,6 @@ class _ProfileContainerState extends State<ProfileContainer>
                 ),
               ),
             ],
-          ),
-          // const SizedBox(height: 16),
-          // Row(
-          //   children: [
-          //     Expanded(
-          //       child: _buildQuickStatCard(
-          //         context,
-          //         "Kehadiran Bulan Ini",
-          //         "87%",
-          //         Icons.calendar_today,
-          //       ),
-          //     ),
-          //     const SizedBox(width: 12),
-          //     Expanded(
-          //       child: _buildQuickStatCard(
-          //         context,
-          //         "Cuti Tersedia",
-          //         "12 hari",
-          //         Icons.event_available,
-          //       ),
-          //     ),
-          //   ],
-          // ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickStatCard(
-      BuildContext context, String title, String value, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.7),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColorPalette.primaryMaroon.withOpacity(0.1),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                icon,
-                size: 16,
-                color: AppColorPalette.secondaryMaroon,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  title,
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: Colors.black54,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              )
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColorPalette.primaryMaroon,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEnhancedAppBar({required BuildContext context}) {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.white.withOpacity(0.95),
-                  Colors.white.withOpacity(0.9),
-                ],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  offset: const Offset(0, 2),
-                  blurRadius: 8,
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CustomAppbar(
-                  titleKey: profileKey,
-                  showBackButton: false,
-                ),
-                _buildProfileHeader(context),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // String getRoles(BuildContext context) {
-  //   final roles = context.read<AuthCubit>().getUserDetails().roles ?? [];
-  //   return roles.join(", ");
-  // }
-
-  Widget _buildProfileHeader(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      child: Stack(
-        children: [
-          // Background pattern
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColorPalette.warmBeige.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-          ),
-
-          // Content
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Hero(
-                  tag: 'profile_image',
-                  child: Stack(
-                    children: [
-                      // Glowing effect
-                      Container(
-                        height: 80,
-                        width: 80,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            colors: [
-                              AppColorPalette.primaryMaroon.withOpacity(0.5),
-                              AppColorPalette.primaryMaroon.withOpacity(0),
-                            ],
-                            stops: const [0.5, 1.0],
-                          ),
-                        ),
-                      ),
-
-                      // Actual image
-                      Container(
-                        height: 80,
-                        width: 80,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AppColorPalette.primaryMaroon,
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColorPalette.primaryMaroon
-                                  .withOpacity(0.2),
-                              blurRadius: 10,
-                              spreadRadius: 2,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: ProfileImageContainer(
-                          imageUrl: context
-                                  .read<AuthCubit>()
-                                  .getUserDetails()
-                                  .image ??
-                              "",
-                          heightAndWidth: 80,
-                        ),
-                      ),
-
-                      // Status indicator
-                      Positioned(
-                        bottom: 0,
-                        right: 4,
-                        child: Container(
-                          height: 18,
-                          width: 18,
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 2,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: AppColorPalette.primaryMaroon
-                                  .withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.school_outlined,
-                              size: 14,
-                              color: AppColorPalette.primaryMaroon,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              context
-                                      .read<AuthCubit>()
-                                      .getUserDetails()
-                                      .school
-                                      ?.name ??
-                                  "-",
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: Colors.black, // Changed to black
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: AppColorPalette.primaryMaroon
-                                  .withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.email_outlined,
-                              size: 14,
-                              color: AppColorPalette.primaryMaroon,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              context
-                                      .read<AuthCubit>()
-                                      .getUserDetails()
-                                      .email ??
-                                  "-",
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: Colors.black, // Changed to black
-                                fontWeight: FontWeight.w600,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
@@ -872,6 +597,273 @@ class _ProfileContainerState extends State<ProfileContainer>
       ),
     );
   }
+
+  Widget _buildDramaticCurvedAppBar({required BuildContext context}) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Container(
+        height: 200 +
+            MediaQuery.of(context)
+                .padding
+                .top, // Increased height to accommodate profile info
+        width: MediaQuery.of(context).size.width,
+        child: Stack(
+          fit: StackFit.expand,
+          clipBehavior: Clip.none,
+          children: [
+            // Background with dramatically curved bottom
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: CustomPaint(
+                painter: DramaticCurvedGradientPainter(
+                  colors: [
+                    maroonDark,
+                    maroonPrimary,
+                    Color(0xFF9A1E3C),
+                    maroonLight,
+                  ],
+                  stops: [0.0, 0.3, 0.6, 1.0],
+                ),
+              ),
+            ),
+
+            // Static decorative elements
+            Positioned(
+              top: -40,
+              right: -20,
+              child: Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.07),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 30,
+              left: -30,
+              child: Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.07),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 35,
+              left: MediaQuery.of(context).size.width * 0.65,
+              child: Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.07),
+                ),
+              ),
+            ),
+
+            // Enhanced static wave pattern
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: CustomPaint(
+                painter: EnhancedWavePatternPainter(
+                  color1: Colors.white.withOpacity(0.1),
+                  color2: Colors.white.withOpacity(0.07),
+                ),
+                child: SizedBox(
+                  height: 80,
+                  width: MediaQuery.of(context).size.width,
+                ),
+              ),
+            ),
+
+            // App bar title
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 15,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Text(
+                  "Profil",
+                  style: GoogleFonts.poppins(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+
+            // Profile card
+            Positioned(
+              bottom: 20,
+              left: 16,
+              right: 16,
+              child: Container(
+                height: 100,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: maroonPrimary.withOpacity(0.3),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                      spreadRadius: 0,
+                    ),
+                    BoxShadow(
+                      color: maroonLight.withOpacity(0.15),
+                      blurRadius: 25,
+                      offset: const Offset(0, 10),
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
+                child: _buildProfileInfo(context),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileInfo(BuildContext context) {
+    return Row(
+      children: [
+        // Profile image with elegant gradient border
+        Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [maroonPrimary, maroonDark],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: maroonPrimary.withOpacity(0.3),
+                blurRadius: 8,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(2),
+          child: CircleAvatar(
+            backgroundColor: Colors.white,
+            radius: 35,
+            backgroundImage:
+                (context.read<AuthCubit>().getUserDetails().image ?? "")
+                        .isNotEmpty
+                    ? CachedNetworkImageProvider(
+                        context.read<AuthCubit>().getUserDetails().image ?? "",
+                      )
+                    : null,
+            child:
+                (context.read<AuthCubit>().getUserDetails().image ?? "").isEmpty
+                    ? Icon(
+                        Icons.person,
+                        color: maroonPrimary,
+                        size: 40,
+                      )
+                    : null,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                context.read<AuthCubit>().getUserDetails().firstName ??
+                    "Pengguna",
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: maroonPrimary,
+                  height: 1,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: maroonPrimary.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.school_outlined,
+                      size: 14,
+                      color: maroonPrimary,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      context.read<AuthCubit>().getUserDetails().school?.name ??
+                          "-",
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: maroonPrimary.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.email_outlined,
+                      size: 14,
+                      color: maroonPrimary,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      context.read<AuthCubit>().getUserDetails().email ?? "-",
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class BackgroundPatternPainter extends CustomPainter {
@@ -1100,4 +1092,139 @@ class LogoutConfirmationDialog extends StatelessWidget {
       ),
     );
   }
+}
+
+// Custom painter for dramatically curved gradient background
+class DramaticCurvedGradientPainter extends CustomPainter {
+  final List<Color> colors;
+  final List<double> stops;
+
+  DramaticCurvedGradientPainter({
+    required this.colors,
+    required this.stops,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint();
+    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+
+    // Create gradient
+    paint.shader = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: colors,
+      stops: stops,
+    ).createShader(rect);
+
+    // Create dramatic double-curved path with deep valleys
+    final path = Path();
+    path.lineTo(0, size.height - 60);
+
+    // First dramatic curve
+    final firstControlPoint = Offset(size.width * 0.25, size.height + 30);
+    final firstEndPoint = Offset(size.width * 0.5, size.height - 40);
+    path.quadraticBezierTo(firstControlPoint.dx, firstControlPoint.dy,
+        firstEndPoint.dx, firstEndPoint.dy);
+
+    // Second dramatic curve
+    final secondControlPoint = Offset(size.width * 0.75, size.height - 110);
+    final secondEndPoint = Offset(size.width, size.height - 50);
+    path.quadraticBezierTo(secondControlPoint.dx, secondControlPoint.dy,
+        secondEndPoint.dx, secondEndPoint.dy);
+
+    // Complete the path
+    path.lineTo(size.width, 0);
+    path.close();
+
+    canvas.drawPath(path, paint);
+
+    // Add more dramatic highlights for enhanced depth
+    final highlightPaint = Paint()
+      ..color = Colors.white.withOpacity(0.15)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
+
+    final highlightPath = Path();
+    highlightPath.moveTo(0, size.height - 58);
+    highlightPath.quadraticBezierTo(firstControlPoint.dx,
+        firstControlPoint.dy - 4, firstEndPoint.dx, firstEndPoint.dy - 3);
+    highlightPath.quadraticBezierTo(secondControlPoint.dx,
+        secondControlPoint.dy - 3, secondEndPoint.dx, secondEndPoint.dy - 3);
+
+    canvas.drawPath(highlightPath, highlightPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// Enhanced wave pattern for more visual impact
+class EnhancedWavePatternPainter extends CustomPainter {
+  final Color color1;
+  final Color color2;
+
+  EnhancedWavePatternPainter({
+    required this.color1,
+    required this.color2,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint paint = Paint()..style = PaintingStyle.fill;
+
+    // First enhanced wave with more dramatic peaks and valleys
+    final path = Path();
+    path.moveTo(0, size.height * 0.3);
+
+    // First dramatic curve set - more pronounced waves
+    path.cubicTo(size.width * 0.15, size.height * 0.1, size.width * 0.35,
+        size.height * 0.6, size.width * 0.5, size.height * 0.2);
+
+    // Second dramatic curve set
+    path.cubicTo(size.width * 0.65, size.height * -0.2, size.width * 0.85,
+        size.height * 0.4, size.width, size.height * 0.3);
+
+    path.lineTo(size.width, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+
+    paint.color = color1;
+    canvas.drawPath(path, paint);
+
+    // Second enhanced wave with different pattern
+    final secondPath = Path();
+    secondPath.moveTo(0, size.height * 0.5);
+
+    // First dramatic curve
+    secondPath.cubicTo(size.width * 0.2, size.height * 0.3, size.width * 0.4,
+        size.height * 0.8, size.width * 0.6, size.height * 0.4);
+
+    // Second dramatic curve
+    secondPath.cubicTo(size.width * 0.75, size.height * 0.1, size.width * 0.9,
+        size.height * 0.6, size.width, size.height * 0.35);
+
+    secondPath.lineTo(size.width, size.height);
+    secondPath.lineTo(0, size.height);
+    secondPath.close();
+
+    paint.color = color2;
+    canvas.drawPath(secondPath, paint);
+
+    // Add more dramatic decorative elements
+    final circlePaint = Paint()
+      ..color = color1
+      ..style = PaintingStyle.fill;
+
+    // Larger circles for better visibility
+    canvas.drawCircle(
+        Offset(size.width * 0.85, size.height * 0.2), 25, circlePaint);
+    canvas.drawCircle(
+        Offset(size.width * 0.15, size.height * 0.7), 20, circlePaint);
+    canvas.drawCircle(
+        Offset(size.width * 0.6, size.height * 0.6), 15, circlePaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

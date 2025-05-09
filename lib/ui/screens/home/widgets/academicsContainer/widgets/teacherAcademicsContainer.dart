@@ -85,7 +85,8 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.only(
-                  top: 16, // Changed from 120 to 16
+                  top:
+                      60, // Increased from 16 to 60 to create more space from the appbar
                   left: 16,
                   right: 16,
                   bottom: 100,
@@ -98,6 +99,9 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                       child: FadeInAnimation(child: widget),
                     ),
                     children: [
+                      // Added an empty SizedBox to provide additional space from the appbar
+                      const SizedBox(height: 30),
+
                       _buildMenuSection(
                         context: context,
                         title: "Jadwal",

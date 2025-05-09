@@ -28,12 +28,12 @@ class _AnimatedBottomNavigationState extends State<AnimatedBottomNavigation>
   double horizontalMargin = 15.0;
   late int noOfIcons;
 
-  // Soft maroon color palette
-  final Color softMaroon = const Color(0xFFAA4A6A); // Base soft maroon
-  final Color lightMaroon =
-      const Color(0xFFCF7A95); // Lighter variant for highlights
-  final Color darkMaroon =
-      const Color(0xFF8A3A54); // Darker variant for contrasts
+  // Updated maroon color palette to match TeacherAddAttendanceSubjectScreen
+  final Color maroonPrimary = const Color(0xFF800020); // Main maroon color
+  final Color maroonLight =
+      const Color(0xFFAA6976); // Lighter maroon for accents
+  final Color maroonDark =
+      const Color(0xFF690013); // Darker maroon for subtle effects
 
   late double position;
   late AnimationController controller;
@@ -101,15 +101,15 @@ class _AnimatedBottomNavigationState extends State<AnimatedBottomNavigation>
         return CustomPaint(
           painter: AppBarPainter(
             animation.value,
-            circleColor: softMaroon,
+            circleColor:
+                maroonPrimary, // Use maroon primary color for the circle
             navigationBarColor: Colors.white,
-            selectedIndex:
-                widget.selectedIndex, // Pass the selected index to the painter
+            selectedIndex: widget.selectedIndex,
           ),
           size: Size(MediaQuery.of(context).size.width - (2 * horizontalMargin),
-              100.0), // Meningkatkan tinggi dari 90 ke 100
+              100.0),
           child: SizedBox(
-            height: 140.0, // Meningkatkan tinggi dari 130 ke 140
+            height: 140.0,
             width: MediaQuery.of(context).size.width - (2 * horizontalMargin),
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
@@ -126,7 +126,7 @@ class _AnimatedBottomNavigationState extends State<AnimatedBottomNavigation>
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 375),
                       curve: Curves.easeOut,
-                      height: 125, // Meningkatkan tinggi dari 115 ke 125
+                      height: 125,
                       width: (MediaQuery.of(context).size.width -
                               (2 * horizontalMargin) -
                               (2 * horizontalPadding)) /
@@ -156,7 +156,8 @@ class _AnimatedBottomNavigationState extends State<AnimatedBottomNavigation>
                                   width: 28.0,
                                   color: isSelected
                                       ? Colors.white
-                                      : Colors.black87,
+                                      : maroonPrimary.withOpacity(
+                                          0.7), // Use maroon color for unselected icons
                                 ),
                               ),
                             ),
@@ -168,7 +169,8 @@ class _AnimatedBottomNavigationState extends State<AnimatedBottomNavigation>
                               style: TextStyle(
                                 fontSize: Utils.getScaledValue(context, 14.0),
                                 fontWeight: FontWeight.w500,
-                                color: Colors.black87,
+                                color: maroonPrimary.withOpacity(
+                                    0.8), // Use maroon color for text
                               ),
                             ),
                           ],

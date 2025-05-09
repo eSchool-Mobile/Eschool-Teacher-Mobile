@@ -8,7 +8,8 @@ class AppBarPainter extends CustomPainter {
 
   AppBarPainter(
     this.x, {
-    this.circleColor = const Color(0xFFAA4A6A), // Soft maroon for the circle
+    this.circleColor =
+        const Color(0xFF800020), // Updated to match maroon primary
     this.navigationBarColor = Colors.white,
     this.selectedIndex = 0, // Default to home (first tab)
   });
