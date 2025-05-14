@@ -9,6 +9,7 @@ import 'dart:io';
 import '../../../cubits/teacherAcademics/assignment/questionBankCubit.dart';
 import 'package:eschool_saas_staff/data/models/question.dart';
 import '../../../data/models/subjectQuestion.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 
 class AddQuestionScreen extends StatefulWidget {
   final int bankSoalId;
@@ -423,83 +424,47 @@ class _AddQuestionScreenState extends State<AddQuestionScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor:
+          Colors.grey[50], // White background for the entire scaffold
+      // Using CustomModernAppBar without add button
+      appBar: CustomModernAppBar(
+        title: 'Tambah Pertanyaan',
+        icon: Icons.question_answer_rounded,
+        fabAnimationController: _animationController,
+        primaryColor: _primaryColor,
+        lightColor: _glowColor,
+        onBackPressed: () => Navigator.of(context).pop(),
+        showAddButton: false, // Not showing add button as requested
+      ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              _primaryColor,
-              Color(0xFF5A2223), // Softer deeper maroon
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildAnimatedHeader(),
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.only(top: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _glowColor.withOpacity(0.2),
-                        blurRadius: 20,
-                        spreadRadius: 5,
-                        offset: Offset(0, -5),
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 30,
-                        offset: Offset(0, -10),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    child: Form(
-                      key: _formKey,
-                      child: SingleChildScrollView(
-                        padding: EdgeInsets.all(20),
-                        physics: BouncingScrollPhysics(),
-                        child: Column(
-                          children: [
-                            FadeInUp(
-                              duration: Duration(milliseconds: 800),
-                              child: _buildQuestionInfoCard(),
-                            ),
-                            SizedBox(height: 20),
-                            _buildQuestionTypeSelector(),
-                            SizedBox(height: 20),
-                            if (selectedType == 'multiple_choice')
-                              _buildMultipleChoiceOrder(),
-                            if (selectedType == 'multiple_choice')
-                              SizedBox(height: 20),
-                            _buildAnswerOptionsCard(),
-                            SizedBox(height: 30),
-                            _buildImageSection(),
-                            SizedBox(height: 30),
-                            FadeInUp(
-                              duration: Duration(milliseconds: 1200),
-                              child: _buildSubmitButton(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+        color: Colors.grey[50], // Ensure the container is white too
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(20),
+            physics: BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                FadeInUp(
+                  duration: Duration(milliseconds: 800),
+                  child: _buildQuestionInfoCard(),
                 ),
-              ),
-            ],
+                SizedBox(height: 20),
+                _buildQuestionTypeSelector(),
+                SizedBox(height: 20),
+                if (selectedType == 'multiple_choice')
+                  _buildMultipleChoiceOrder(),
+                if (selectedType == 'multiple_choice') SizedBox(height: 20),
+                _buildAnswerOptionsCard(),
+                SizedBox(height: 30),
+                _buildImageSection(),
+                SizedBox(height: 30),
+                FadeInUp(
+                  duration: Duration(milliseconds: 1200),
+                  child: _buildSubmitButton(),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -1792,11 +1757,9 @@ class _AddQuestionScreenState extends State<AddQuestionScreen>
   }
 
   void _updateAllPointsBasedOnPercentages() {
-    final defaultPoint = int.tryParse(_defaultPointController.text) ?? 100;
-    for (int i = 0; i < _percentageControllers.length; i++) {
-      final percentage = int.tryParse(_percentageControllers[i].text) ?? 0;
-      final point = (defaultPoint * percentage / 100).round();
-    }
+    // This method is a placeholder for future functionality
+    // It would calculate points based on percentages
+    // Keeping it as an empty implementation for now
   }
 
   // Add these helper methods
@@ -1861,65 +1824,6 @@ class _AddQuestionScreenState extends State<AddQuestionScreen>
               size: 20,
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAnimatedHeader() {
-    return SlideInDown(
-      duration: Duration(milliseconds: 800),
-      child: Container(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Row(
-          children: [
-            // Back button with smaller padding
-            _buildGlowingIconButton(
-              Icons.arrow_back_rounded,
-              () {
-                HapticFeedback.mediumImpact();
-                Get.back();
-              },
-            ),
-
-            SizedBox(width: 16),
-
-            // Title and subtitle in column
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Tambah Soal',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      height: 1.1,
-                      letterSpacing: 0.5,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Buat soal baru untuk bank soal',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
         ),
       ),
     );

@@ -8,6 +8,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import 'package:flutter/services.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 
 class QuestionOnlineExamScreen extends StatefulWidget {
   final int examId;
@@ -243,153 +244,62 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
     );
   }
 
-  Widget _buildAnimatedHeader() {
-    return SlideInDown(
-      duration: Duration(milliseconds: 800),
-      child: Container(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Row(
-          children: [
-            // Back button with smaller padding
-            _buildGlowingIconButton(
-              Icons.arrow_back_rounded,
-              () {
-                HapticFeedback.mediumImpact();
-                Get.back();
-              },
-            ),
-
-            SizedBox(width: 16),
-
-            // Title and subtitle in column
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Soal Ujian Online',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      height: 1.1,
-                      letterSpacing: 0.5,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Bank Soal: ${selectedBankId ?? "Belum dipilih"}',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Action buttons in a row
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(width: 8),
-
-                // Add button with pulse effect
-                _buildAddButton(),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    // Set system UI overlay style to ensure status bar has proper contrast
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent, // Make status bar transparent
+      statusBarIconBrightness:
+          Brightness.dark, // Dark icons for light background
+    ));
+
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              _primaryColor,
-              Color(0xFF5A2223), // Softer deeper maroon
-            ],
+      backgroundColor:
+          Colors.grey[50], // Set the scaffold background to white/light grey
+      // Use extendBodyBehindAppBar to extend content behind the app bar
+      extendBodyBehindAppBar: true,
+      appBar: CustomModernAppBar(
+        title: 'Daftar Soal',
+        icon: Icons.question_answer,
+        fabAnimationController: _animationController,
+        primaryColor: _primaryColor,
+        lightColor: _accentColor,
+        onBackPressed: () => Navigator.of(context).pop(),
+        showAddButton: false,
+        showArchiveButton: false,
+        showFilterButton: false,
+      ),
+      body: Column(
+        children: [
+          // Add padding for content below custom appbar when using extendBodyBehindAppBar
+          SizedBox(height: 90),
+
+          // Main Content
+          Expanded(
+            child:
+                BlocBuilder<QuestionOnlineExamCubit, QuestionOnlineExamState>(
+              builder: (context, state) {
+                // Keep the existing state handling code
+                if (state is QuestionOnlineExamLoading) {
+                  return _buildLoadingState();
+                }
+
+                if (state is QuestionOnlineExamFailure) {
+                  return _buildErrorState(state.message);
+                }
+
+                if (state is QuestionOnlineExamSuccess) {
+                  if (state.questions.isEmpty) {
+                    return _buildEmptyState();
+                  }
+                  return _buildQuestionsList(state.questions);
+                }
+
+                return SizedBox();
+              },
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Use the new animated header instead of the old custom app bar
-              _buildAnimatedHeader(),
-
-              // Main Content
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.only(top: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _glowColor.withOpacity(0.2),
-                        blurRadius: 20,
-                        spreadRadius: 5,
-                        offset: Offset(0, -5),
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 30,
-                        offset: Offset(0, -10),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    child: BlocBuilder<QuestionOnlineExamCubit,
-                        QuestionOnlineExamState>(
-                      builder: (context, state) {
-                        // Keep the existing state handling code
-                        if (state is QuestionOnlineExamLoading) {
-                          return _buildLoadingState();
-                        }
-
-                        if (state is QuestionOnlineExamFailure) {
-                          return _buildErrorState(state.message);
-                        }
-
-                        if (state is QuestionOnlineExamSuccess) {
-                          if (state.questions.isEmpty) {
-                            return _buildEmptyState();
-                          }
-                          return _buildQuestionsList(state.questions);
-                        }
-
-                        return SizedBox();
-                      },
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        ],
       ),
       // Keep the existing floating action button
       floatingActionButton: _selectedQuestions.isNotEmpty

@@ -7,9 +7,9 @@ import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:intl/intl.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:glassmorphism/glassmorphism.dart';
 import 'package:flutter/services.dart';
 import 'dart:math';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 
 class CreateOnlineExam extends StatefulWidget {
   @override
@@ -26,42 +26,74 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
   int duration = 0;
   DateTime? startDate;
   TimeOfDay? startTime;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomModernAppBar(
+        title: 'Buat Ujian Online',
+        icon: Icons.assignment,
+        fabAnimationController: _animationController,
+        primaryColor: Color(0xFF7A1E23),
+        lightColor: Color(0xFFB84D4D),
+        onBackPressed: () => Navigator.of(context).pop(),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 10),
+                FadeInDown(
+                  duration: Duration(milliseconds: 500),
+                  child: _buildBasicInfoSection(),
+                ),
+                SizedBox(height: 20),
+                FadeInDown(
+                  duration: Duration(milliseconds: 600),
+                  delay: Duration(milliseconds: 100),
+                  child: _buildExamDetailsSection(),
+                ),
+                SizedBox(height: 30),
+                _buildSubmitButton(),
+                SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-  // Animation controllers - matching onlineExamScreen
-  late AnimationController _animationController;
-  late Animation<double> _animation;
-  late AnimationController _pulseController;
+  // Animation controllers for the UI elements
+  late AnimationController _animationController; // For the AppBar
+  late AnimationController _pulseController; // For pulsing effects
   late Animation<double> _pulseAnimation;
-
-  // Theme colors - Softer Maroon palette - matching onlineExamScreen
-  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
-  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
-  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
-  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
-  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
+  // Theme colors for elements within the screen
+  final Color _highlightColor = Color(0xFFB84D4D); // For widget highlights
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _examKeyController = TextEditingController();
   final TextEditingController _durationController = TextEditingController();
   final TextEditingController _startDateController = TextEditingController();
   final TextEditingController _startTimeController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
     context.read<OnlineExamCubit>().getOnlineExams();
 
-    // Initialize animation controllers - matching onlineExamScreen
+    // Initialize animation controller for the CustomModernAppBar
     _animationController = AnimationController(
       duration: Duration(milliseconds: 1000),
       vsync: this,
     );
-    _animation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
+
+    // Start the animation
     _animationController.forward();
 
+    // Setup pulse animation for button effects
     _pulseController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 1200),
@@ -75,8 +107,11 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
 
   @override
   void dispose() {
+    // Dispose animation controllers
     _animationController.dispose();
     _pulseController.dispose();
+
+    // Dispose text controllers
     _titleController.dispose();
     _examKeyController.dispose();
     _durationController.dispose();
@@ -86,64 +121,6 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
   }
 
   // Header methods copied from onlineExamScreen
-  Widget _buildAnimatedHeader() {
-    return SlideInDown(
-      duration: Duration(milliseconds: 800),
-      child: Container(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Row(
-          children: [
-            // Back button with smaller padding
-            _buildGlowingIconButton(
-              Icons.arrow_back_rounded,
-              () {
-                HapticFeedback.mediumImpact();
-                Get.back();
-              },
-            ),
-
-            SizedBox(width: 16),
-
-            // Title and subtitle in column
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Buat Ujian',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      height: 1.1,
-                      letterSpacing: 0.5,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Tambahkan ujian baru untuk kelas',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
     return GestureDetector(
@@ -655,84 +632,5 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
         );
       });
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              _primaryColor,
-              Color(0xFF5A2223), // Softer deeper maroon
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildAnimatedHeader(),
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.only(top: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _glowColor.withOpacity(0.2),
-                        blurRadius: 20,
-                        spreadRadius: 5,
-                        offset: Offset(0, -5),
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 30,
-                        offset: Offset(0, -10),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.all(20),
-                      physics: BouncingScrollPhysics(),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          children: [
-                            FadeInUp(
-                              duration: Duration(milliseconds: 800),
-                              child: _buildBasicInfoSection(),
-                            ),
-                            SizedBox(height: 25),
-                            FadeInUp(
-                              duration: Duration(milliseconds: 1000),
-                              child: _buildExamDetailsSection(),
-                            ),
-                            SizedBox(height: 30),
-                            _buildSubmitButton(),
-                            SizedBox(height: 20),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

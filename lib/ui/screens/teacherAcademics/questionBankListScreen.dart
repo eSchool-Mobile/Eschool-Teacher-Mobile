@@ -14,6 +14,7 @@ import '../../../data/models/question.dart';
 import '../../../data/models/questionBank.dart';
 import '../../../data/models/subjectQuestion.dart';
 import 'package:eschool_saas_staff/data/repositories/questionBankRepository.dart';
+import '../../widgets/customModernAppBar.dart';
 
 // Controller GetX untuk lifecycle
 class QuestionBankListController extends GetxController {
@@ -326,17 +327,30 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: _primaryColor,
+       
         extendBodyBehindAppBar: true,
+        appBar: CustomModernAppBar(
+          title: widget.subject.subject.name,
+          icon: Icons.school_rounded,
+          fabAnimationController: _breathingController,
+          primaryColor: _primaryColor,
+          lightColor: _accentColor,
+          showAddButton: true,
+          onAddPressed: () {
+            HapticFeedback.mediumImpact();
+            _showAddBankDialog();
+          },
+          onBackPressed: () => Navigator.of(context).pop(),
+        ),
         body: BlocBuilder<QuestionBankCubit, QuestionBankState>(
           builder: (context, state) {
             return Stack(
               children: [
                 // Animated background with advanced effects
-                _buildAnimatedBackground(),
-
-                // Content with parallax scroll effect
+             // Content with parallax scroll effect
                 SafeArea(
+                  top:
+                      false, // Don't add padding at the top to allow white background to extend to status bar
                   child: NotificationListener<ScrollNotification>(
                     onNotification: (notification) {
                       if (notification is ScrollUpdateNotification) {
@@ -348,18 +362,11 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                     },
                     child: Column(
                       children: [
-                        // Custom app bar with advanced animated elements
-                        _buildCustomAppBar(),
-
-                        // Animated search bar
-                        if (state is BankSoalFetchSuccess &&
-                            state.bankSoal.length > 5)
-                          _buildSearchBar(state.bankSoal),
-
-                        // Main content with curved container and 3D effect
+                        // Main content with container positioned below AppBar
                         Expanded(
                           child: Container(
-                            margin: EdgeInsets.only(top: 15),
+                            // Add top margin to start content below the AppBar
+                            margin: EdgeInsets.only(top: kToolbarHeight + 30),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
@@ -369,9 +376,10 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                   Color(0xFFFFF0F0),
                                 ],
                               ),
+                              // Add top border radius for a nice curve
                               borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(40),
-                                topRight: Radius.circular(40),
+                                topLeft: Radius.circular(30),
+                                topRight: Radius.circular(30),
                               ),
                               boxShadow: [
                                 BoxShadow(
@@ -389,10 +397,23 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(40),
-                                topRight: Radius.circular(40),
+                                topLeft: Radius.circular(30),
+                                topRight: Radius.circular(30),
                               ),
-                              child: _buildContentArea(state),
+                              child: Column(
+                                children: [
+                                  // No need for additional padding since we have an AppBar now
+
+                                  // Animated search bar moved inside the white container
+                                  if (state is BankSoalFetchSuccess &&
+                                      state.bankSoal.length > 5)
+                                    _buildSearchBar(state.bankSoal),
+                                  // Content area takes remaining space
+                                  Expanded(
+                                    child: _buildContentArea(state),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -403,73 +424,6 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
               ],
             );
           },
-        ),
-        // Hapus FloatingActionButton di sini
-        // floatingActionButton: _buildAddButton(),
-      ),
-    );
-  }
-
-  Widget _buildCustomAppBar() {
-    return SlideInDown(
-      duration: Duration(milliseconds: 800),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(15, 15, 15, 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                // Back button with advanced ripple and glow effects
-                _buildGlowingIconButton(
-                  Icons.arrow_back_rounded,
-                  () {
-                    HapticFeedback.mediumImpact();
-                    Get.back();
-                  },
-                ),
-                SizedBox(width: 15),
-
-                // Title with animated gradients and text effects
-                Expanded(
-                  child: Text(
-                    ' ${widget.subject.subjectWithName}',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.8,
-                      color: Colors.white,
-                      height: 1.2,
-                    ),
-                    softWrap: true,
-                    overflow: TextOverflow.visible,
-                  ),
-                ),
-
-                // Tambahkan tombol Add di sini
-                _buildAddButtonForAppBar(),
-              ],
-            ),
-            SizedBox(height: 20),
-
-            // Subtitle with animated elements
-            Padding(
-              padding: EdgeInsets.only(left: 15),
-              child: Row(
-                children: [
-                  Text(
-                    'Kelola Bank Soal',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
         ),
       ),
     );
@@ -519,92 +473,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     );
   }
 
-  Widget _buildAnimatedBackground() {
-    return Stack(
-      children: [
-        // Base gradient with softer maroon colors
-        Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              colors: [
-                _primaryColor,
-                Color(0xFF5A2223), // Softer deeper maroon
-              ],
-            ),
-          ),
-        ),
 
-        // Glowing orbs and decorative elements
-        Positioned(
-          top: -60,
-          right: -40,
-          child: AnimatedBuilder(
-            animation: _breathingAnimation,
-            builder: (context, child) {
-              final scale = 1.0 + 0.1 * _breathingAnimation.value;
-              return Transform.scale(
-                scale: scale,
-                child: Container(
-                  width: 180,
-                  height: 180,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        _glowColor.withOpacity(0.4),
-                        _glowColor.withOpacity(0.0),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-        Positioned(
-          bottom: Get.height * 0.35,
-          left: -50,
-          child: AnimatedBuilder(
-            animation: _pulseAnimation,
-            builder: (context, child) {
-              final opacity = 0.15 + 0.1 * _pulseAnimation.value;
-              return Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      _energyColor.withOpacity(opacity),
-                      _energyColor.withOpacity(0.0),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-
-        // Dynamic light rays effect
-        Positioned.fill(
-          child: AnimatedBuilder(
-            animation: _rotationAnimation,
-            builder: (context, child) {
-              return Transform.rotate(
-                angle: _rotationAnimation.value * math.pi * 2,
-                child: CustomPaint(
-                  painter: LightRaysPainter(_highlightColor.withOpacity(0.03)),
-                  size: Size(Get.width, Get.height),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
     return GestureDetector(
@@ -881,7 +750,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
 
         // Interactive card list with 3D effects
         ListView.builder(
-          padding: EdgeInsets.fromLTRB(20, 25, 20, 100),
+          padding: EdgeInsets.fromLTRB(20, 50, 20, 100),
           physics: BouncingScrollPhysics(),
           itemCount: banks.length,
           itemBuilder: (context, index) {
@@ -1830,12 +1699,10 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                 onPressed: () async {
                   try {
                     // Tutup dialog terlebih dahulu
-                    Navigator.pop(context);
-
-                    // Lakukan proses delete
+                    Navigator.pop(context); // Lakukan proses delete
                     await cubit.deleteBankSoal(
                       subjectId: widget.subject.subject.id,
-                      banksoalId: bank.id!,
+                      banksoalId: bank.id,
                     );
 
                     // Refresh data

@@ -9,9 +9,9 @@ import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/addStudyMaterialBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/addedStudyMaterialFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
@@ -22,7 +22,7 @@ import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
+import 'package:get/Get.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -80,6 +80,25 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
   late ClassSection? _selectedClassSection = widget.selectedClassSection;
   late TeacherSubject? _selectedSubject = widget.selectedSubject;
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomModernAppBar(
+        title: widget.lesson != null ? 'Edit Pelajaran' : 'Tambah Pelajaran',
+        icon: Icons.book_rounded,
+        primaryColor: Color(0xFF800020),
+        lightColor: Color(0xFFAA6976),
+        fabAnimationController: _fabAnimationController,
+        onBackPressed: () => Navigator.of(context).pop(),
+        showAddButton: false,
+        showArchiveButton: false,
+        showFilterButton: false,
+        showHelperButton: false,
+      ),
+      body: _buildAddEditLessonForm(),
+    );
+  }
+
   //This will determine if need to refresh the previous page
   //lesson data. If teacher remove the the any study material
   //so we need to fetch the list again
@@ -100,6 +119,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
 
   // Animation controllers for the glowing effects
   late AnimationController _pulseController;
+  late AnimationController _fabAnimationController;
   late Animation<double> _pulseAnimation;
 
   @override
@@ -119,6 +139,11 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
       duration: Duration(milliseconds: 1200),
     )..repeat(reverse: true);
 
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
+
     _pulseAnimation = CurvedAnimation(
       parent: _pulseController,
       curve: Curves.easeInOut,
@@ -132,6 +157,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
     _lessonNameTextEditingController.dispose();
     _lessonDescriptionTextEditingController.dispose();
     _pulseController.dispose();
+    _fabAnimationController.dispose();
     super.dispose();
   }
 
@@ -466,60 +492,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
       physics: BouncingScrollPhysics(),
       child: Column(
         children: [
-          // Header with Icon
-          Container(
-            padding: EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Theme.of(context).colorScheme.primary.withOpacity(0.9),
-                  Theme.of(context).colorScheme.secondary.withOpacity(0.7),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(15),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 10,
-                  spreadRadius: 2,
-                )
-              ],
-            ),
-            child: Column(
-              children: [
-                Icon(
-                  Icons.school_rounded,
-                  size: 42,
-                  color: Colors.white,
-                )
-                    .animate()
-                    .scale(duration: 500.ms)
-                    .then()
-                    .shimmer(duration: 1000.ms),
-                SizedBox(height: 15),
-                Text(
-                  widget.lesson != null ? "Edit Pelajaran" : "Buat Pelajaran",
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(
-                        blurRadius: 10,
-                        color: Colors.black26,
-                        offset: Offset(2, 2),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
 
-          SizedBox(height: 25),
 
           // Form Content
           BlocConsumer<ClassSectionsAndSubjectsCubit,
@@ -870,112 +843,6 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
             ),
           );
         },
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (didPop) {
-        if (didPop) {
-          return;
-        }
-        Get.back(result: refreshLessonsInPreviousPage);
-      },
-      child: Scaffold(
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              colors: [
-                Color(0xFF7A1E23), // Softer deep maroon
-                Color(0xFF5A2223), // Softer deeper maroon
-              ],
-            ),
-          ),
-          child: SafeArea(
-            child: Column(
-              children: [
-                // Custom App Bar
-                SlideInDown(
-                  duration: Duration(milliseconds: 800),
-                  child: Container(
-                    padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                    child: Row(
-                      children: [
-                        // Back button with glowing effect
-                        _buildGlowingIconButton(
-                          Icons.arrow_back_rounded,
-                          () {
-                            HapticFeedback.mediumImpact();
-                            Get.back(result: refreshLessonsInPreviousPage);
-                          },
-                        ),
-
-                        SizedBox(width: 16),
-
-                        // Title and subtitle in column
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.lesson != null
-                                    ? 'Edit Pelajaran'
-                                    : 'Buat Pelajaran',
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  height: 1.1,
-                                  letterSpacing: 0.5,
-                                  shadows: [
-                                    Shadow(
-                                      color: Colors.black26,
-                                      offset: Offset(0, 2),
-                                      blurRadius: 4,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                'Kelola materi pembelajaran',
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.9),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Content
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30),
-                      ),
-                    ),
-                    child: _buildAddEditLessonForm(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

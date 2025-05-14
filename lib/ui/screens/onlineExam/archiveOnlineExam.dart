@@ -8,6 +8,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:intl/intl.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:flutter/services.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 
 class ArchiveOnlineExam extends StatefulWidget {
   @override
@@ -22,6 +23,22 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
   String _selectedFilter = "Semua"; // Variabel untuk filter (default Semua)
   DateTime? _startDate; // State untuk filter tanggal
   DateTime? _endDate; // State untuk filter tanggal
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomModernAppBar(
+        title: 'Arsip Ujian Online',
+        icon: Icons.archive,
+        fabAnimationController: _animationController,
+        primaryColor: _primaryColor,
+        lightColor: _accentColor,
+        onBackPressed: () => Navigator.of(context).pop(),
+        showFilterButton: true,
+        onFilterPressed: () => _showFilterBottomSheet(context),
+      ),
+      body: _buildBody(),
+    );
+  }
 
   // Add these controller declarations
   late AnimationController _animationController;
@@ -35,7 +52,6 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
   final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
   final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
   final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
-
   @override
   void initState() {
     super.initState();
@@ -50,6 +66,9 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
       curve: Curves.easeInOut,
     );
     _animationController.forward();
+
+    // Start the animation loop for the app bar effect
+    _animationController.repeat(reverse: true);
 
     // Add pulse animation controller
     _pulseController = AnimationController(
@@ -76,122 +95,6 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
     if (mounted) {
       context.read<OnlineExamCubit>().getArchivedExams();
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              _primaryColor,
-              Color(0xFF5A2223), // Softer deeper maroon
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildAnimatedHeader(context),
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.only(top: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 10,
-                        spreadRadius: 5,
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    child: _buildBody(),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAnimatedHeader(BuildContext context) {
-    return SlideInDown(
-      duration: Duration(milliseconds: 800),
-      child: Container(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Row(
-          children: [
-            // Back button with glow effect
-            _buildGlowingIconButton(
-              Icons.arrow_back_rounded,
-              () {
-                HapticFeedback.mediumImpact();
-                Get.back();
-              },
-            ),
-
-            SizedBox(width: 16),
-
-            // Title and subtitle in column
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Arsip Ujian',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      height: 1.1,
-                      letterSpacing: 0.5,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Daftar ujian yang diarsipkan',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Filter button with circle design
-            _buildCircleButton(
-              icon: Icons.filter_list,
-              onTap: () => _showFilterBottomSheet(context),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   void _showFilterBottomSheet(BuildContext parentContext) {

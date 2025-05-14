@@ -13,6 +13,7 @@ import 'package:lottie/lottie.dart';
 import '../../../cubits/teacherAcademics/assignment/questionBankCubit.dart';
 import '../../../data/models/question.dart';
 import '../../../data/models/subjectQuestion.dart';
+import '../../../ui/widgets/customModernAppBar.dart';
 
 class QuestionSubjectController extends GetxController {
   final BuildContext context;
@@ -39,34 +40,6 @@ class QuestionSubjectController extends GetxController {
         .fetchTeacherSubjects(isStaffView: isStaffView);
   }
 }
-
-// Animated particle system
-// class ParticleModel {
-//   Offset position;
-//   Color color;
-//   double radius;
-//   double speed;
-//   double theta;
-//   double opacity;
-//   double rotationSpeed;
-
-//   ParticleModel({
-//     required this.position,
-//     required this.color,
-//     required this.radius,
-//     required this.speed,
-//     required this.theta,
-//     required this.opacity,
-//     required this.rotationSpeed,
-//   });
-
-//   void move() {
-//     position += Offset(speed * math.cos(theta), speed * math.sin(theta));
-//     theta += rotationSpeed;
-//     opacity += (math.Random().nextDouble() - 0.5) * 0.03;
-//     opacity = opacity.clamp(0.1, 0.9);
-//   }
-// }
 
 // Light rays painter
 class LightRaysPainter extends CustomPainter {
@@ -104,49 +77,6 @@ class LightRaysPainter extends CustomPainter {
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
-
-// class ParticlesPainter extends CustomPainter {
-//   final List<ParticleModel> particles;
-//   final double time;
-
-//   ParticlesPainter(this.particles, this.time);
-
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     for (var i = 0; i < particles.length; i++) {
-//       final particle = particles[i];
-//       final paint = Paint()
-//         ..color = particle.color.withOpacity(particle.opacity)
-//         ..style = PaintingStyle.fill;
-
-//       // Draw glow effect around particles
-//       if (i % 3 == 0) {
-//         final glowPaint = Paint()
-//           ..color = particle.color.withOpacity(particle.opacity * 0.3)
-//           ..maskFilter = MaskFilter.blur(BlurStyle.normal, 8.0);
-//         canvas.drawCircle(particle.position, particle.radius * 2, glowPaint);
-//       }
-
-//       canvas.drawCircle(particle.position, particle.radius, paint);
-
-//       // Add connecting lines between nearby particles
-//       if (i < particles.length - 1) {
-//         final nextParticle = particles[i + 1];
-//         final distance = (particle.position - nextParticle.position).distance;
-//         if (distance < 80) {
-//           final linePaint = Paint()
-//             ..color = particle.color
-//                 .withOpacity(particle.opacity * 0.2 * (1 - distance / 80))
-//             ..strokeWidth = 1.0;
-//           canvas.drawLine(particle.position, nextParticle.position, linePaint);
-//         }
-//       }
-//     }
-//   }
-
-//   @override
-//   bool shouldRepaint(CustomPainter oldDelegate) => true;
-// }
 
 class QuestionSubjectScreen extends StatefulWidget {
   final bool isStaffView;
@@ -340,28 +270,6 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
     });
   }
 
-  // void _initializeParticles() {
-  //   final random = math.Random();
-  //   for (int i = 0; i < 40; i++) {
-  //     // More particles for denser effect
-  //     _particles.add(
-  //       ParticleModel(
-  //         position: Offset(
-  //           random.nextDouble() * Get.width,
-  //           random.nextDouble() * Get.height / 1.5,
-  //         ),
-  //         color: [_highlightColor, _accentColor, _glowColor][random.nextInt(3)],
-  //         radius: random.nextDouble() * 3.5 + 0.5,
-  //         speed: random.nextDouble() * 0.5 + 0.1,
-  //         theta: random.nextDouble() * math.pi * 2,
-  //         opacity: random.nextDouble() * 0.5 + 0.3,
-  //         rotationSpeed:
-  //             (random.nextDouble() * 0.04) * (random.nextBool() ? 1 : -1),
-  //       ),
-  //     );
-  //   }
-  // }
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -410,83 +318,74 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: _primaryColor,
+        backgroundColor: Colors.white,
         extendBodyBehindAppBar: true,
+        appBar: CustomModernAppBar(
+          title: 'Bank Soal',
+          icon: Icons.book,
+          fabAnimationController: _breathingController,
+          primaryColor: _primaryColor,
+          lightColor: _energyColor,
+          onBackPressed: () => Navigator.pop(context),
+        ),
         body: BlocBuilder<QuestionBankCubit, QuestionBankState>(
           builder: (context, state) {
-            return Stack(
-              children: [
-                // Animated background with advanced effects
-                _buildAnimatedBackground(),
+            return Container(
+              color: Colors.white,
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (notification is ScrollUpdateNotification) {
+                    setState(() {
+                      _dragPosition = notification.metrics.pixels / 10;
+                    });
+                  }
+                  return false;
+                },
+                child: Column(
+                  children: [
+                    // Leave space for the app bar
+                    SizedBox(height: 90),
 
-                // Content with parallax scroll effect
-                SafeArea(
-                  child: NotificationListener<ScrollNotification>(
-                    onNotification: (notification) {
-                      if (notification is ScrollUpdateNotification) {
-                        setState(() {
-                          _dragPosition = notification.metrics.pixels / 10;
-                        });
-                      }
-                      return false;
-                    },
-                    child: Column(
-                      children: [
-                        // Custom app bar with advanced animated elements
-                        _buildCustomAppBar(),
+                    // Animated search bar
+                    if (state is SubjectsFetchSuccess &&
+                        state.subjects.length > 5)
+                      _buildSearchBar(state.subjects),
 
-                        // Animated search bar
-                        if (state is SubjectsFetchSuccess &&
-                            state.subjects.length > 5)
-                          _buildSearchBar(state.subjects),
-
-                        // Main content with curved container and 3D effect
-                        Expanded(
-                          child: Container(
-                            margin: EdgeInsets.only(top: 15),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Colors.white.withOpacity(0.95),
-                                  Color(0xFFFFF0F0),
-                                ],
-                              ),
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(40),
-                                topRight: Radius.circular(40),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: _glowColor.withOpacity(0.2),
-                                  blurRadius: 20,
-                                  spreadRadius: 5,
-                                  offset: Offset(0, -5),
-                                ),
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 30,
-                                  offset: Offset(0, -10),
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(40),
-                                topRight: Radius.circular(40),
-                              ),
-                              child: _buildContentArea(state),
-                            ),
+                    Expanded(
+                      child: Container(
+                        margin: EdgeInsets.only(top: 10),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.white.withOpacity(0.95),
+                              Color(0xFFFFF0F0),
+                            ],
                           ),
+                          borderRadius: BorderRadius.zero,
+                          boxShadow: [
+                            BoxShadow(
+                              color: _glowColor.withOpacity(0.2),
+                              blurRadius: 20,
+                              spreadRadius: 5,
+                              offset: Offset(0, -5),
+                            ),
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 30,
+                              offset: Offset(0, -10),
+                            ),
+                          ],
                         ),
-                      ],
+                        child: _buildContentArea(state),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             );
           },
         ),
@@ -510,28 +409,6 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
             ),
           ),
         ),
-
-        // Advanced particles system
-        // AnimatedBuilder(
-        //   animation: _backgroundAnimationController,
-        //   builder: (context, child) {
-        //     for (var particle in _particles) {
-        //       particle.move();
-        //       // Keep particles within bounds
-        //       if (particle.position.dx < 0 ||
-        //           particle.position.dx > Get.width ||
-        //           particle.position.dy < 0 ||
-        //           particle.position.dy > Get.height / 1.5) {
-        //         particle.theta = math.Random().nextDouble() * math.pi * 2;
-        //       }
-        //     }
-
-        //     return CustomPaint(
-        //       painter: ParticlesPainter(_particles, _backgroundAnimation.value),
-        //       size: Size(Get.width, Get.height),
-        //     );
-        //   },
-        // ),
 
         // Glowing orbs and decorative elements
         Positioned(
@@ -600,64 +477,6 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildCustomAppBar() {
-    return SlideInDown(
-      duration: Duration(milliseconds: 800),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(15, 15, 15, 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                // Back button with advanced ripple and glow effects
-                _buildGlowingIconButton(
-                  Icons.arrow_back_rounded,
-                  () {
-                    HapticFeedback.mediumImpact();
-                    Get.back();
-                  },
-                ),
-                SizedBox(width: 15),
-
-                // Title with animated gradients and text effects
-                Text(
-                  'Bank Soal',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.8,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-
-            // Subtitle with animated elements
-            Padding(
-              padding: EdgeInsets.only(left: 15),
-              child: Row(
-                children: [
-                  // Simple white text without special effects
-                  Text(
-                    'Pilih Mata Pelajaran',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

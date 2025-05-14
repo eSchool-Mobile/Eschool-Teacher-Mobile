@@ -19,6 +19,7 @@ import '../../../app/routes.dart';
 import 'package:flutter/services.dart' show Uint8List;
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../ui/widgets/customModernAppBar.dart';
 
 // Light rays painter
 class LightRaysPainter extends CustomPainter {
@@ -458,207 +459,6 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
     }
   }
 
-  Widget _buildAnimatedBackground() {
-    return Stack(
-      children: [
-        // Base gradient with softer maroon colors
-        Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              colors: [
-                _primaryColor,
-                Color(0xFF5A2223), // Softer deeper maroon (was 0xFF230000)
-              ],
-            ),
-          ),
-        ),
-
-        // Glowing orbs and decorative elements
-        Positioned(
-          top: -60,
-          right: -40,
-          child: AnimatedBuilder(
-            animation: _breathingAnimation,
-            builder: (context, child) {
-              final scale = 1.0 + 0.1 * _breathingAnimation.value;
-              return Transform.scale(
-                scale: scale,
-                child: Container(
-                  width: 180,
-                  height: 180,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        _glowColor.withOpacity(0.4),
-                        _glowColor.withOpacity(0.0),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-        Positioned(
-          bottom: Get.height * 0.35,
-          left: -50,
-          child: AnimatedBuilder(
-            animation: _pulseAnimation,
-            builder: (context, child) {
-              final opacity = 0.15 + 0.1 * _pulseAnimation.value;
-              return Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      _energyColor.withOpacity(opacity),
-                      _energyColor.withOpacity(0.0),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-
-        // Dynamic light rays effect
-        Positioned.fill(
-          child: AnimatedBuilder(
-            animation: _rotationAnimation,
-            builder: (context, child) {
-              return Transform.rotate(
-                angle: _rotationAnimation.value * math.pi * 2,
-                child: CustomPaint(
-                  painter: LightRaysPainter(_highlightColor.withOpacity(0.03)),
-                  size: Size(Get.width, Get.height),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildHeader() {
-    return SlideInDown(
-      duration: Duration(milliseconds: 800),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(15, 15, 15, 10),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                // Back button with advanced ripple and glow effects
-                _buildGlowingIconButton(
-                  Icons.arrow_back_rounded,
-                  () {
-                    HapticFeedback.mediumImpact();
-                    Get.back();
-                  },
-                ),
-                SizedBox(width: 15),
-
-                // Title with modern styling
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(30),
-                            topRight: Radius.circular(30),
-                          ),
-                        ),
-                      ),
-                      Text(
-                        widget.bankSoal.name,
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.8,
-                          color: Colors.white,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: 6),
-                      Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'Bank Soal',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Add Question circular button with animation
-                AnimatedBuilder(
-                  animation: _pulseAnimation,
-                  builder: (context, child) {
-                    final scale = 1.0 + 0.05 * _pulseAnimation.value;
-                    return GestureDetector(
-                      onTap: () {
-                        HapticFeedback.mediumImpact();
-                        _navigateToAddQuestion();
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.15),
-                          boxShadow: [
-                            BoxShadow(
-                              color: _highlightColor.withOpacity(
-                                  0.1 + 0.1 * _pulseAnimation.value),
-                              blurRadius: 12 * (1 + _pulseAnimation.value),
-                              spreadRadius: 2 * _pulseAnimation.value,
-                            )
-                          ],
-                          border: Border.all(
-                            color: Colors.white.withOpacity(
-                                0.1 + 0.05 * _pulseAnimation.value),
-                            width: 1.5,
-                          ),
-                        ),
-                        child: Transform.scale(
-                          scale: scale,
-                          child: Icon(
-                            Icons.add,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
@@ -700,8 +500,19 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: _primaryColor,
+        backgroundColor:
+            Colors.white, // Change to white to extend all the way to status bar
         extendBodyBehindAppBar: true,
+        appBar: CustomModernAppBar(
+          title: widget.bankSoal.name,
+          icon: Icons.question_answer_rounded,
+          fabAnimationController: _breathingController,
+          primaryColor: _primaryColor,
+          lightColor: _accentColor,
+          onBackPressed: () => Navigator.pop(context),
+          showAddButton: true,
+          onAddPressed: _navigateToAddQuestion,
+        ),
         body: BlocListener<QuestionBankCubit, QuestionBankState>(
           listener: (context, state) {
             // When we receive a BankQuestionsFetchSuccess state, we update the filtered questions
@@ -713,97 +524,68 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
           },
           child: Stack(
             children: [
-              // Animated background with advanced effects
-              _buildAnimatedBackground(),
-
-              // Content with parallax scroll effect
-              SafeArea(
-                child: NotificationListener<ScrollNotification>(
-                  onNotification: (notification) {
-                    if (notification is ScrollUpdateNotification) {
-                      setState(() {
-                        _dragPosition = notification.metrics.pixels / 10;
-                      });
-                    }
-                    return false;
-                  },
-                  child: Column(
-                    children: [
-                      // Custom app bar with advanced animated elements
-                      _buildHeader(),
-
-                      // Main content with curved container and 3D effect
-                      Expanded(
-                        child: Container(
-                          margin: EdgeInsets.only(top: 15),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0.95),
-                                Color(0xFFFFF0F0),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(40),
-                              topRight: Radius.circular(40),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: _glowColor.withOpacity(0.2),
-                                blurRadius: 20,
-                                spreadRadius: 5,
-                                offset: Offset(0, -5),
-                              ),
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 30,
-                                offset: Offset(0, -10),
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(40),
-                              topRight: Radius.circular(40),
-                            ),
-                            child: BlocBuilder<QuestionBankCubit,
-                                QuestionBankState>(
-                              builder: (context, state) {
-                                if (state is QuestionBankLoading) {
-                                  return _buildShimmerLoading();
-                                }
-                                if (state is BankQuestionsFetchSuccess) {
-                                  return state.questions.isEmpty
-                                      ? _buildEmptyState()
-                                      : _buildContent(state.questions);
-                                }
-                                if (state is QuestionBankError) {
-                                  return Center(
-                                    child: ErrorContainer(
-                                      errorMessage:
-                                          "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
-                                      onTapRetry: () {
-                                        context
-                                            .read<QuestionBankCubit>()
-                                            .fetchBankQuestions(
-                                              subjectId:
-                                                  widget.subject.subject.id,
-                                              bankId: widget.bankSoal.id,
-                                            );
-                                      },
-                                    ),
-                                  );
-                                }
-                                return SizedBox();
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
+              // Background gradient covering the whole screen
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.white,
+                      Color(0xFFFFF0F0),
                     ],
                   ),
+                ),
+              ),
+              // Content with parallax scroll effect
+              NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (notification is ScrollUpdateNotification) {
+                    setState(() {
+                      _dragPosition = notification.metrics.pixels / 10;
+                    });
+                  }
+                  return false;
+                },
+                child: Column(
+                  children: [
+                    // Add padding to account for app bar
+                    SizedBox(height: MediaQuery.of(context).padding.top + 80),
+
+                    // Main content
+                    Expanded(
+                      child: BlocBuilder<QuestionBankCubit, QuestionBankState>(
+                        builder: (context, state) {
+                          if (state is QuestionBankLoading) {
+                            return _buildShimmerLoading();
+                          }
+                          if (state is BankQuestionsFetchSuccess) {
+                            return state.questions.isEmpty
+                                ? _buildEmptyState()
+                                : _buildContent(state.questions);
+                          }
+                          if (state is QuestionBankError) {
+                            return Center(
+                              child: ErrorContainer(
+                                errorMessage:
+                                    "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
+                                onTapRetry: () {
+                                  context
+                                      .read<QuestionBankCubit>()
+                                      .fetchBankQuestions(
+                                        subjectId: widget.subject.subject.id,
+                                        bankId: widget.bankSoal.id,
+                                      );
+                                },
+                              ),
+                            );
+                          }
+                          // Default case - return an empty container
+                          return SizedBox();
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -1072,7 +854,9 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
   Widget _buildQuestionCard(q.Question question, dynamic latestVersion) {
     final int questionVersionsCount = question.versions.length;
     final PageController pageController = _getPageController(question.id);
-    final int activeVersionIndex = _getActiveVersionIndex(question.id);
+    // Get active version index for this question
+    _getActiveVersionIndex(
+        question.id); // Using but not storing the value directly
 
     return FadeInUp(
       duration: Duration(milliseconds: 500),
@@ -1962,7 +1746,6 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
     if (result == true) {
       // Explicitly reload questions when we get true result
       _loadQuestions();
-  
     }
   }
 
@@ -2651,68 +2434,67 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                       ),
                     ),
 
-                    // Note section (if available)
-                    if (version.note != null && version.note.isNotEmpty)
-                      Container(
-                        padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
-                        color: Colors.white, // Pastikan background tetap putih
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Note header
-                            Row(
-                              children: [
-                                Container(
-                                  width: 38,
-                                  height: 38,
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Icon(
-                                    Icons.notes,
-                                    color: Colors.blue,
-                                    size: 20,
-                                  ),
+                    // Note section (if available)                    if (version.note != null && version.note!.isNotEmpty)
+                    Container(
+                      padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
+                      color: Colors.white, // Pastikan background tetap putih
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Note header
+                          Row(
+                            children: [
+                              Container(
+                                width: 38,
+                                height: 38,
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                                SizedBox(width: 16),
-                                Text(
-                                  "Catatan Soal",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.grey.shade800,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            SizedBox(height: 16),
-
-                            // Note content
-                            Container(
-                              width: double.infinity,
-                              padding: EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                color: Colors.blue.shade50,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: Colors.blue.shade100,
-                                  width: 1,
+                                child: Icon(
+                                  Icons.notes,
+                                  color: Colors.blue,
+                                  size: 20,
                                 ),
                               ),
-                              child: Text(
-                                version.note,
+                              SizedBox(width: 16),
+                              Text(
+                                "Catatan Soal",
                                 style: TextStyle(
-                                  fontSize: 15,
-                                  height: 1.5,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
                                   color: Colors.grey.shade800,
                                 ),
                               ),
+                            ],
+                          ),
+
+                          SizedBox(height: 16),
+
+                          // Note content
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.blue.shade100,
+                                width: 1,
+                              ),
                             ),
-                          ],
-                        ),
+                            child: Text(
+                              version.note,
+                              style: TextStyle(
+                                fontSize: 15,
+                                height: 1.5,
+                                color: Colors.grey.shade800,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
+                    ),
 
                     // Image section (if available)
                     if (version.image != null &&

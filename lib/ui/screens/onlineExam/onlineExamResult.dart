@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
 import 'package:eschool_saas_staff/data/models/exam.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,159 +25,59 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
   String _selectedFilter = "Semua";
   DateTime? _startDate;
   DateTime? _endDate;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomModernAppBar(
+        title: 'Hasil Ujian Online',
+        icon: Icons.assignment_outlined,
+        fabAnimationController: _animationController,
+        primaryColor: _primaryColor,
+        lightColor: _accentColor,
+        onBackPressed: () => Navigator.of(context).pop(),
+        showFilterButton: true,
+        onFilterPressed: () => _showFilterBottomSheet(context),
+        // Keep add, archive, and helper buttons disabled as requested
+        showAddButton: false,
+        showArchiveButton: false,
+        showHelperButton: false,
+      ),
+      body: _buildBody(),
+    );
+  }
 
-  // Add animation controllers
+  // Animation controller for the app bar
   late AnimationController _animationController;
-  late Animation<double> _animation;
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
 
-  // Theme colors - Softer Maroon palette (matching onlineExamScreen)
-  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
-  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
-  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
-  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
-  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
-
+  // Theme colors for the app bar
+  final Color _primaryColor = Color(0xFF7A1E23); // Deep maroon
+  final Color _accentColor = Color(0xFF9D3C3C); // Medium maroon
   @override
   void initState() {
     super.initState();
     context.read<OnlineExamCubit>().getOnlineExams();
 
-    // Initialize animation controllers
+    // Initialize animation controller for the app bar
     _animationController = AnimationController(
       duration: Duration(milliseconds: 1000),
       vsync: this,
     );
-    _animation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
+
+    // Start the animation
     _animationController.forward();
 
-    // Add controller for pulse animation
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
-
-    _pulseAnimation = CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    );
+    // Setup continuous animation for dynamic effects
+    _animationController.repeat(reverse: true, min: 0.9, max: 1.0);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     _animationController.dispose();
-    _pulseController.dispose();
     super.dispose();
   }
 
-  Widget _buildAnimatedHeader() {
-    return SlideInDown(
-      duration: Duration(milliseconds: 800),
-      child: Container(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Row(
-          children: [
-            // Back button with smaller padding
-            _buildGlowingIconButton(
-              Icons.arrow_back_rounded,
-              () {
-                HapticFeedback.mediumImpact();
-                Get.back();
-              },
-            ),
-
-            SizedBox(width: 16),
-
-            // Title and subtitle in column
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Hasil Ujian Online',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      height: 1.1,
-                      letterSpacing: 0.5,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Daftar Ujian Online',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Filter button
-            _buildCircleButton(
-              icon: Icons.filter_list,
-              onTap: () {
-                _showFilterBottomSheet(context);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   // Helper methods for the header components
-  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.12),
-              boxShadow: [
-                BoxShadow(
-                  color: _highlightColor
-                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                  blurRadius: 12 * (1 + _pulseAnimation.value),
-                  spreadRadius: 2 * _pulseAnimation.value,
-                )
-              ],
-              border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
-          );
-        },
-      ),
-    );
-  }
 
   Widget _buildCircleButton({
     required IconData icon,
@@ -202,57 +103,6 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
               color: Colors.white,
               size: 20,
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              _primaryColor,
-              Color(0xFF5A2223), // Softer deeper maroon
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildAnimatedHeader(),
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.only(top: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 10,
-                        spreadRadius: 5,
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    child: _buildBody(),
-                  ),
-                ),
-              ),
-            ],
           ),
         ),
       ),

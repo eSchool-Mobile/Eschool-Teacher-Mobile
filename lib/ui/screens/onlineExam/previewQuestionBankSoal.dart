@@ -1,16 +1,24 @@
+// Dart imports
 import 'dart:convert';
+import 'dart:ui';
 
+// Flutter imports
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+// Package imports
+import 'package:animate_do/animate_do.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
+import 'package:html/parser.dart' show parse;
+
+// App imports
+import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
 import 'package:eschool_saas_staff/data/repositories/onlineExamRepository.dart';
-import 'package:get/get.dart';
-import 'package:eschool_saas_staff/app/routes.dart';
-import 'package:animate_do/animate_do.dart';
-import 'package:html/parser.dart' show parse;
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../cubits/teacherAcademics/assignment/questionBankCubit.dart';
-import 'package:flutter/services.dart';
-import 'dart:ui'; // Untuk BackdropFilter
+import '../../widgets/customModernAppBar.dart';
 
 class PreviewQuestionBankSoal extends StatefulWidget {
   final BankSoalQuestion bank;
@@ -290,81 +298,58 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
     return version.selected == true;
   }
 
-  Widget _buildHeader() {
-    return SlideInDown(
-      duration: Duration(milliseconds: 800),
-      child: Container(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Row(
-          children: [
-            // Back button with smaller padding
-            _buildGlowingIconButton(
-              Icons.arrow_back_rounded,
-              () {
-                HapticFeedback.mediumImpact();
-                Get.back();
-              },
-              _highlightColor,
-            ),
-
-            SizedBox(width: 16),
-
-            // Title and subtitle in column
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.bank.name,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      height: 1.1,
-                      letterSpacing: 0.5,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Bank Soal',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+  void _showHelpInfo() {
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          padding: EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.info_outline_rounded,
+                color: Color(0xFF7A1E23),
+                size: 48,
               ),
-            ),
-
-            // Action buttons in a row - optional based on functionality needed
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Help button with icon only
-                _buildCircleButton(
-                  icon: Icons.help_outline,
-                  onTap: () {
-                    Get.snackbar(
-                      'Bantuan',
-                      'Ketuk kartu soal untuk memilih dan tambahkan ke ujian',
-                      snackPosition: SnackPosition.BOTTOM,
-                    );
-                  },
+              SizedBox(height: 16),
+              Text(
+                'Bantuan',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
-              ],
-            ),
-          ],
+              ),
+          
+              Text(
+                'Ketuk soal untuk memilihnya. Soal yang sudah dipilih akan ditandai dengan centang.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 15),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Soal yang sudah ditambahkan ke ujian akan muncul dalam keadaan terkunci.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 15),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => Get.back(),
+                child: Text('Mengerti'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF7A1E23),
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -440,63 +425,53 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Menggunakan extendBodyBehindAppBar agar background mentok ke status bar
+      extendBodyBehindAppBar: true,
+      appBar: CustomModernAppBar(
+        title: widget.bank.name,
+        icon: Icons.question_answer,
+        fabAnimationController: _pulseController,
+        primaryColor:
+            Color(0xFF7A1E23), // Using the maroon color from state variables
+        lightColor: Color(0xFFB84D4D),
+        onBackPressed: () => Navigator.of(context).pop(),
+        showHelperButton: true,
+        onHelperPressed: _showHelpInfo,
+      ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              _primaryColor,
-              Color(
-                  0xFF5A2223), // Softer deeper maroon, same as in onlineExamScreen
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              FadeInDown(
-                  duration: Duration(milliseconds: 600), child: _buildHeader()),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30)),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30)),
-                    child: BlocConsumer<QuestionBankCubit, QuestionBankState>(
-                      listener: (context, state) {
-                        if (state is BankQuestionsFetchSuccess) {
-                          setState(() {
-                            _allQuestions = List.from(state.questions);
-                            _filterQuestionsLocally();
-                          });
-                        }
-                      },
-                      builder: (context, state) {
-                        if (state is QuestionBankLoading &&
-                            _allQuestions.isEmpty) {
-                          return Center(child: CircularProgressIndicator());
-                        } else if (state is QuestionBankError &&
-                            _allQuestions.isEmpty) {
-                          return Center(
-                              child: Text('Gagal memuat soal: ${state.message}',
-                                  style: TextStyle(color: Colors.red)));
-                        }
-                        return RefreshIndicator(
-                            onRefresh: _fetchQuestions, child: _buildContent());
-                      },
-                    ),
-                  ),
-                ),
+        // Background putih penuh sampai status bar
+        color: Colors.grey[50],
+        child: Column(
+          children: [
+            // Padding for AppBar height
+            SizedBox(height: 80 + MediaQuery.of(context).padding.top),
+
+            // Content area
+            Expanded(
+              child: BlocConsumer<QuestionBankCubit, QuestionBankState>(
+                listener: (context, state) {
+                  if (state is BankQuestionsFetchSuccess) {
+                    setState(() {
+                      _allQuestions = List.from(state.questions);
+                      _filterQuestionsLocally();
+                    });
+                  }
+                },
+                builder: (context, state) {
+                  if (state is QuestionBankLoading && _allQuestions.isEmpty) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (state is QuestionBankError &&
+                      _allQuestions.isEmpty) {
+                    return Center(
+                        child: Text('Gagal memuat soal: ${state.message}',
+                            style: TextStyle(color: Colors.red)));
+                  }
+                  return RefreshIndicator(
+                      onRefresh: _fetchQuestions, child: _buildContent());
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       floatingActionButton: _selectedQuestions.isNotEmpty

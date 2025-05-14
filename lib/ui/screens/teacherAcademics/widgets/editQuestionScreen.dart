@@ -9,10 +9,9 @@ import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 
 class EditQuestionScreen extends StatefulWidget {
   final Map<String, dynamic>? questionData;
@@ -38,7 +37,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
   String selectedType = 'multiple_choice';
   String selectedOrderType = 'numeric';
 
-  dynamic? _imageFile;
+  dynamic _imageFile;
   final ImagePicker _picker = ImagePicker();
 
   late AnimationController _pulseController;
@@ -107,7 +106,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
         options = _getDefaultOptionsForType(selectedType);
       }
     }
-
     _pulseController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 1200),
@@ -117,7 +115,16 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
       parent: _pulseController,
       curve: Curves.easeInOut,
     );
+
+    // Initialize the app bar animation controller
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
   }
+
+  late AnimationController
+      _fabAnimationController; // AnimationController for the app bar
 
   @override
   void dispose() {
@@ -126,6 +133,8 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
     pointController.dispose();
     noteController.dispose();
     _pulseController.dispose();
+    _fabAnimationController
+        .dispose(); // Dispose the app bar animation controller
     super.dispose();
   }
 
@@ -186,7 +195,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
     return result;
   }
 
-  String stripHtmlTags(String htmlString) {
+  String stripHtmlTags(String? htmlString) {
     if (htmlString == null || htmlString.isEmpty) {
       return '';
     }
@@ -458,250 +467,147 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              _primaryColor,
-              Color(0xFF5A2223),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildAnimatedHeader(),
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.only(top: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _glowColor.withOpacity(0.2),
-                        blurRadius: 20,
-                        spreadRadius: 5,
-                        offset: Offset(0, -5),
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 30,
-                        offset: Offset(0, -10),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    child: Form(
-                      key: _formKey,
-                      child: SingleChildScrollView(
-                        padding: EdgeInsets.all(20),
-                        physics: BouncingScrollPhysics(),
-                        child: Column(
-                          children: [
-                            FadeInUp(
-                              duration: Duration(milliseconds: 800),
-                              child: _buildQuestionInfoCard(),
-                            ),
-                            SizedBox(height: 20),
-                            _buildQuestionTypeSelector(),
-                            SizedBox(height: 15),
-                            if (selectedType == 'multiple_choice')
-                              _buildMultipleChoiceOrder(),
-                            SizedBox(height: 20),
-                            _buildAnswerOptionsCard(),
-                            SizedBox(height: 30),
-                            Container(
-                              padding: EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(15),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.1),
-                                    spreadRadius: 1,
-                                    blurRadius: 3,
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Gambar Pertanyaan',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
-                                    ),
-                                  ),
-                                  SizedBox(height: 12),
-                                  if (_imageFile != null) ...[
-                                    Stack(
-                                      alignment: Alignment.topRight,
-                                      children: [
-                                        Container(
-                                          height: 200,
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          child: _imageFile != null
-                                              ? (_imageFile is File
-                                                  ? Image.file(
-                                                      _imageFile as File,
-                                                      fit: BoxFit.cover)
-                                                  : FutureBuilder<Uint8List>(
-                                                      future:
-                                                          (_imageFile as XFile)
-                                                              .readAsBytes(),
-                                                      builder:
-                                                          (context, snapshot) {
-                                                        if (snapshot
-                                                                .connectionState ==
-                                                            ConnectionState
-                                                                .waiting) {
-                                                          return Center(
-                                                              child:
-                                                                  CircularProgressIndicator());
-                                                        }
-                                                        if (snapshot.hasError ||
-                                                            !snapshot.hasData) {
-                                                          return Center(
-                                                              child: Icon(
-                                                                  Icons.error));
-                                                        }
-                                                        return Image.memory(
-                                                            snapshot.data!,
-                                                            fit: BoxFit.cover);
-                                                      },
-                                                    ))
-                                              : null,
-                                        ),
-                                        IconButton(
-                                          icon: Icon(Icons.close,
-                                              color: Colors.red),
-                                          onPressed: () =>
-                                              setState(() => _imageFile = null),
-                                        ),
-                                      ],
-                                    ),
-                                  ] else
-                                    InkWell(
-                                      onTap: _pickImage,
-                                      child: Container(
-                                        height: 100,
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                              color: Colors.grey.shade300),
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        child: Center(
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Icon(
-                                                  Icons
-                                                      .add_photo_alternate_outlined,
-                                                  size: 40,
-                                                  color: Colors.grey),
-                                              SizedBox(height: 8),
-                                              Text(
-                                                'Tambah Gambar',
-                                                style: TextStyle(
-                                                    color: Colors.grey),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            FadeInUp(
-                              duration: Duration(milliseconds: 1200),
-                              child: _buildSubmitButton(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+    // Set status bar to dark icons since background is white
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent, // Make status bar transparent
+      statusBarIconBrightness:
+          Brightness.dark, // Dark icons for white background
+    ));
 
-  Widget _buildAnimatedHeader() {
-    return SlideInDown(
-      duration: Duration(milliseconds: 800),
-      child: Container(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Row(
-          children: [
-            _buildGlowingIconButton(
-              Icons.arrow_back_rounded,
-              () {
-                HapticFeedback.mediumImpact();
-                Get.back();
-              },
-            ),
-            SizedBox(width: 16),
-            Expanded(
+    return Scaffold(
+      appBar: CustomModernAppBar(
+        title: "Edit Soal",
+        icon: Icons.edit_note,
+        fabAnimationController: _fabAnimationController,
+        primaryColor: _primaryColor,
+        lightColor: _highlightColor,
+        onBackPressed: () => Navigator.of(context).pop(),
+        showAddButton: false, // Don't show add button as requested
+      ),
+      body: SafeArea(
+        top: false, // Don't pad the top
+        child: Container(
+          color: Colors.grey[50],
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(20),
+              physics: BouncingScrollPhysics(),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Edit Soal',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                  FadeInUp(
+                    duration: Duration(milliseconds: 800),
+                    child: _buildQuestionInfoCard(),
+                  ),
+                  SizedBox(height: 20),
+                  _buildQuestionTypeSelector(),
+                  SizedBox(height: 15),
+                  if (selectedType == 'multiple_choice')
+                    _buildMultipleChoiceOrder(),
+                  SizedBox(height: 20),
+                  _buildAnswerOptionsCard(),
+                  SizedBox(height: 30),
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
                       color: Colors.white,
-                      height: 1.1,
-                      letterSpacing: 0.5,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.1),
+                          spreadRadius: 1,
+                          blurRadius: 3,
                         ),
                       ],
                     ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Perbarui pertanyaan untuk bank soal',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Gambar Pertanyaan',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
+                        ),
+                        SizedBox(height: 12),
+                        if (_imageFile != null) ...[
+                          Stack(
+                            alignment: Alignment.topRight,
+                            children: [
+                              Container(
+                                height: 200,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: _imageFile is File
+                                    ? Image.file(_imageFile as File,
+                                        fit: BoxFit.cover)
+                                    : FutureBuilder<Uint8List>(
+                                        future:
+                                            (_imageFile as XFile).readAsBytes(),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState ==
+                                              ConnectionState.waiting) {
+                                            return Center(
+                                                child:
+                                                    CircularProgressIndicator());
+                                          }
+                                          if (snapshot.hasError ||
+                                              !snapshot.hasData) {
+                                            return Center(
+                                                child: Icon(Icons.error));
+                                          }
+                                          return Image.memory(snapshot.data!,
+                                              fit: BoxFit.cover);
+                                        },
+                                      ),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.close, color: Colors.red),
+                                onPressed: () =>
+                                    setState(() => _imageFile = null),
+                              ),
+                            ],
+                          ),
+                        ] else
+                          InkWell(
+                            onTap: _pickImage,
+                            child: Container(
+                              height: 100,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.add_photo_alternate_outlined,
+                                        size: 40, color: Colors.grey),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'Tambah Gambar',
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
+                  ),
+                  FadeInUp(
+                    duration: Duration(milliseconds: 1200),
+                    child: _buildSubmitButton(),
                   ),
                 ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

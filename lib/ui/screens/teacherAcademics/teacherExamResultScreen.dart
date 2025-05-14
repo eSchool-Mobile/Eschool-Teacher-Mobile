@@ -6,6 +6,7 @@ import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/exam.dart';
 import 'package:eschool_saas_staff/data/models/studentDetails.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
@@ -22,6 +23,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:math' show sin, cos, pi;
 
 class TeacherExamResultScreen extends StatefulWidget {
@@ -121,13 +123,15 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
+  // App bar animation controller
+  late AnimationController _appBarAnimationController;
+
   // Theme colors - Softer Maroon palette
   final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
   final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
   final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
   final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
   final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
-
   @override
   void initState() {
     bulkMarksController = TextEditingController();
@@ -155,6 +159,12 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
       curve: Curves.easeInOut,
     );
 
+    // Initialize app bar animation controller
+    _appBarAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
+
     Future.delayed(Duration.zero, () {
       if (mounted) {
         context.read<ClassesCubit>().getClasses();
@@ -172,6 +182,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
     searchController.dispose();
     _animationController.dispose();
     _pulseController.dispose();
+    _appBarAnimationController.dispose();
     super.dispose();
   }
 
@@ -272,107 +283,11 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
     );
   }
 
-  // New UI Components
-  Widget _buildAnimatedHeader() {
-    return SlideInDown(
-      duration: Duration(milliseconds: 800),
-      child: Container(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Row(
-          children: [
-            // Back button with smaller padding
-            _buildGlowingIconButton(
-              Icons.arrow_back_rounded,
-              () {
-                HapticFeedback.mediumImpact();
-                Get.back();
-              },
-            ),
-
-            SizedBox(width: 16),
-
-            // Title and subtitle in column
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Hasil Ujian',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      height: 1.1,
-                      letterSpacing: 0.5,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Input dan kelola nilai ujian siswa',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.12),
-              boxShadow: [
-                BoxShadow(
-                  color: _highlightColor
-                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                  blurRadius: 12 * (1 + _pulseAnimation.value),
-                  spreadRadius: 2 * _pulseAnimation.value,
-                )
-              ],
-              border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildSearchAndFilter() {
     return SlideInUp(
       duration: Duration(milliseconds: 800),
       child: Padding(
-        padding: EdgeInsets.all(20),
+        padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
         child: Column(
           children: [
             _buildSearchBar(),
@@ -1578,95 +1493,80 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Set system UI overlay style
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: Colors.grey[50],
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
+
     return Scaffold(
+      appBar: CustomModernAppBar(
+        title: "Hasil Ujian",
+        icon: Icons.assignment_turned_in_rounded,
+        fabAnimationController: _appBarAnimationController,
+        primaryColor: _primaryColor,
+        lightColor:
+            _energyColor, // Using energyColor for better contrast and visual appeal
+        onBackPressed: () => Navigator.pop(context),
+        height: 85, // Slightly taller app bar for better presence
+        showAddButton: false,
+        showArchiveButton: false,
+        showFilterButton: false,
+        showHelperButton: false,
+      ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              _primaryColor,
-              Color(0xFF5A2223), // Softer deeper maroon
-            ],
-          ),
-        ),
+        color: Colors.grey[50],
         child: SafeArea(
+          top:
+              false, // Set to false since the CustomModernAppBar handles the top safe area
           child: Column(
             children: [
-              _buildAnimatedHeader(),
               Expanded(
-                child: Container(
-                  margin: EdgeInsets.only(top: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _glowColor.withOpacity(0.2),
-                        blurRadius: 20,
-                        spreadRadius: 5,
-                        offset: Offset(0, -5),
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 30,
-                        offset: Offset(0, -10),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    child: BlocBuilder<ClassesCubit, ClassesState>(
-                      builder: (context, state) {
-                        if (state is ClassesFetchSuccess) {
-                          return Stack(
-                            children: [
-                              // Main content with search, filter and student list
-                              SingleChildScrollView(
-                                padding: EdgeInsets.only(bottom: 70),
-                                physics: BouncingScrollPhysics(),
-                                child: Column(
-                                  children: [
-                                    _buildSearchAndFilter(),
-                                    _buildStudentsList(),
-                                  ],
-                                ),
-                              ),
-
-                              // Submit button at bottom
-                              Positioned(
-                                bottom: 0,
-                                left: 0,
-                                right: 0,
-                                child: _buildSubmitButton(),
-                              ),
-                            ],
-                          );
-                        }
-                        if (state is ClassesFetchFailure) {
-                          return Center(
-                            child: ErrorContainer(
-                              errorMessage: state.errorMessage,
-                              onTapRetry: () {
-                                context.read<ClassesCubit>().getClasses();
-                              },
+                child: BlocBuilder<ClassesCubit, ClassesState>(
+                  builder: (context, state) {
+                    if (state is ClassesFetchSuccess) {
+                      return Stack(
+                        children: [
+                          // Main content with search, filter and student list
+                          SingleChildScrollView(
+                            padding: EdgeInsets.only(bottom: 70),
+                            physics: BouncingScrollPhysics(),
+                            child: Column(
+                              children: [
+                                _buildSearchAndFilter(),
+                                _buildStudentsList(),
+                              ],
                             ),
-                          );
-                        }
-                        return Center(
-                          child: CircularProgressIndicator(
-                            color: _primaryColor,
                           ),
-                        );
-                      },
-                    ),
-                  ),
+
+                          // Submit button at bottom
+                          Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            child: _buildSubmitButton(),
+                          ),
+                        ],
+                      );
+                    }
+                    if (state is ClassesFetchFailure) {
+                      return Center(
+                        child: ErrorContainer(
+                          errorMessage: state.errorMessage,
+                          onTapRetry: () {
+                            context.read<ClassesCubit>().getClasses();
+                          },
+                        ),
+                      );
+                    }
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: _primaryColor,
+                      ),
+                    );
+                  },
                 ),
               ),
             ],

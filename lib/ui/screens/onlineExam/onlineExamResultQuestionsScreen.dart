@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -164,58 +165,32 @@ class _OnlineExamResultQuestionsScreenState
     super.dispose();
   }
 
-  Widget _buildHeader() {
-    return SlideInDown(
-      duration: Duration(milliseconds: 800),
-      child: Container(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Row(
-          children: [
-            _buildGlowingIconButton(
-              Icons.arrow_back_rounded,
-              () {
-                HapticFeedback.mediumImpact();
-                Navigator.pop(context);
-              },
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Lihat Jawaban Siswa',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      height: 1.1,
-                      letterSpacing: 0.5,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    widget.examName,
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(width: 8),
-          ],
-        ),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomModernAppBar(
+        title: widget.examName,
+        icon: Icons.assessment,
+        fabAnimationController: _pulseController,
+        primaryColor: _primaryColor,
+        lightColor: _accentColor,
+        onBackPressed: () => Navigator.of(context).pop(),
+        showAddButton: false,
+        showArchiveButton: false,
+        showFilterButton: false,
+        showHelperButton: false,
+      ),
+      body: BlocBuilder<QuestionOnlineExamCubit, QuestionOnlineExamState>(
+        builder: (context, state) {
+          if (state is QuestionOnlineExamLoading) {
+            return _buildShimmerLoading();
+          }
+          if (state is QuestionOnlineExamSuccess) {
+            return _buildContent(state.questions);
+          }
+
+          return const Center(child: CircularProgressIndicator());
+        },
       ),
     );
   }
@@ -957,105 +932,6 @@ class _OnlineExamResultQuestionsScreenState
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(28),
                     bottomRight: Radius.circular(28),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              _primaryColor,
-              Color(0xFF5A2223),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildHeader(),
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.only(top: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _glowColor.withOpacity(0.2),
-                        blurRadius: 20,
-                        spreadRadius: 5,
-                        offset: Offset(0, -5),
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 30,
-                        offset: Offset(0, -10),
-                      ),
-                    ],
-                  ),
-                  child: BlocBuilder<QuestionOnlineExamCubit,
-                      QuestionOnlineExamState>(
-                    builder: (context, state) {
-                      if (state is QuestionOnlineExamLoading) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      if (state is QuestionOnlineExamSuccess) {
-                        if (state.questions.isEmpty) {
-                          return Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.search_off,
-                                    size: 80, color: Colors.grey[400]),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'Tidak ada soal tersedia',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.grey[600],
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-                        return _buildContent(state.questions);
-                      }
-                      if (state is QuestionOnlineExamFailure) {
-                        return Center(
-                          child: ErrorContainer(
-                            errorMessage:
-                                "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
-                            onTapRetry: () {
-                              context
-                                  .read<QuestionOnlineExamCubit>()
-                                  .getOnlineExamResultQuestions(
-                                    examId: widget.examId,
-                                    search: _searchController.text,
-                                  );
-                            },
-                          ),
-                        );
-                      }
-                      return const Center(
-                          child: Text('No questions available'));
-                    },
                   ),
                 ),
               ),

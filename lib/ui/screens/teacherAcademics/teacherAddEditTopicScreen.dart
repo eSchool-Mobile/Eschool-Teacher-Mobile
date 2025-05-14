@@ -14,6 +14,7 @@ import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMate
 import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
@@ -95,6 +96,8 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
   late Animation<double> _animation;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+  late AnimationController
+      _fabAnimationController; // Added for CustomModernAppBar
 
   // Theme colors - Softer Maroon palette
   final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
@@ -154,6 +157,13 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
       parent: _pulseController,
       curve: Curves.easeInOut,
     );
+
+    // Initialize fabAnimationController for CustomModernAppBar
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1000),
+    );
+    _fabAnimationController.repeat(reverse: true);
   }
 
   @override
@@ -162,6 +172,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
     _topicDescriptionTextEditingController.dispose();
     _animationController.dispose();
     _pulseController.dispose();
+    _fabAnimationController.dispose(); // Added to dispose the controller
     super.dispose();
   }
 
@@ -889,67 +900,6 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
     );
   }
 
-  Widget _buildAnimatedHeader() {
-    return SlideInDown(
-      duration: Duration(milliseconds: 800),
-      child: Container(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Row(
-          children: [
-            // Back button with smaller padding
-            _buildGlowingIconButton(
-              Icons.arrow_back_rounded,
-              () {
-                HapticFeedback.mediumImpact();
-                Get.back(result: refreshTopicsInPreviousPage);
-              },
-            ),
-
-            SizedBox(width: 16),
-
-            // Title and subtitle in column
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.topic != null ? 'Edit Topik' : 'Buat Topik',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      height: 1.1,
-                      letterSpacing: 0.5,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    widget.topic != null
-                        ? 'Perbarui detail topik pembelajaran'
-                        : 'Tambahkan topik pembelajaran baru',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -961,151 +911,63 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
         Get.back(result: refreshTopicsInPreviousPage);
       },
       child: Scaffold(
+        extendBodyBehindAppBar: true, // Allow content behind status bar
+        appBar: CustomModernAppBar(
+          title: widget.topic != null ? "Edit Topik" : "Tambah Topik",
+          icon: Icons.topic_rounded,
+          fabAnimationController: _fabAnimationController,
+          onBackPressed: () {
+            Get.back(result: refreshTopicsInPreviousPage);
+          },
+          primaryColor: _primaryColor,
+          lightColor: _accentColor,
+          height: 80,
+        ),
         body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              colors: [
-                _primaryColor,
-                Color(0xFF5A2223), // Softer deeper maroon
-              ],
-            ),
-          ),
-          child: SafeArea(
-            child: Column(
-              children: [
-                _buildAnimatedHeader(),
-                Expanded(
-                  child: Container(
-                    margin: EdgeInsets.only(top: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30),
+          color: Colors.grey[50], // White background for the entire screen
+          child: Column(
+            children: [
+              SizedBox(
+                  height: 80 +
+                      MediaQuery.of(context).padding.top), // Space for app bar
+
+              // Main content section
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(20),
+                  physics: BouncingScrollPhysics(),
+                  child: Column(
+                    children: [
+                      // Form Content
+                      BlocConsumer<ClassSectionsAndSubjectsCubit,
+                          ClassSectionsAndSubjectsState>(
+                        listener: (context, state) {
+                          if (state is ClassSectionsAndSubjectsFetchSuccess) {
+                            if (_selectedClassSection == null) {
+                              changeSelectedClassSection(
+                                  state.classSections.firstOrNull,
+                                  fetchNewSubjects: false);
+                            }
+                            if (_selectedSubject == null) {
+                              changeSelectedTeacherSubject(
+                                  state.subjects.firstOrNull);
+                            }
+                          }
+                        },
+                        builder: (context, state) {
+                          return _buildFormContent(state);
+                        },
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: _glowColor.withOpacity(0.2),
-                          blurRadius: 20,
-                          spreadRadius: 5,
-                          offset: Offset(0, -5),
-                        ),
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 30,
-                          offset: Offset(0, -10),
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30),
-                      ),
-                      child: SingleChildScrollView(
-                        padding: EdgeInsets.all(20),
-                        physics: BouncingScrollPhysics(),
-                        child: Column(
-                          children: [
-                            // Header with Icon
-                            Container(
-                              padding: EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Theme.of(context)
-                                        .colorScheme
-                                        .primary
-                                        .withOpacity(0.9),
-                                    Theme.of(context)
-                                        .colorScheme
-                                        .secondary
-                                        .withOpacity(0.7),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(15),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 10,
-                                    spreadRadius: 2,
-                                  )
-                                ],
-                              ),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    Icons.topic_rounded,
-                                    size: 42,
-                                    color: Colors.white,
-                                  )
-                                      .animate()
-                                      .scale(duration: 500.ms)
-                                      .then()
-                                      .shimmer(duration: 1000.ms),
-                                  SizedBox(height: 15),
-                                  Text(
-                                    widget.topic != null
-                                        ? "Edit Topik"
-                                        : "Buat Topik",
-                                    style: TextStyle(
-                                      fontSize: 26,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 0.5,
-                                      color: Colors.white,
-                                      shadows: [
-                                        Shadow(
-                                          blurRadius: 10,
-                                          color: Colors.black26,
-                                          offset: Offset(2, 2),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
 
-                            SizedBox(height: 25),
+                      SizedBox(height: 30),
 
-                            // Form Content
-                            BlocConsumer<ClassSectionsAndSubjectsCubit,
-                                ClassSectionsAndSubjectsState>(
-                              listener: (context, state) {
-                                if (state
-                                    is ClassSectionsAndSubjectsFetchSuccess) {
-                                  if (_selectedClassSection == null) {
-                                    changeSelectedClassSection(
-                                        state.classSections.firstOrNull,
-                                        fetchNewSubjects: false);
-                                  }
-                                  if (_selectedSubject == null) {
-                                    changeSelectedTeacherSubject(
-                                        state.subjects.firstOrNull);
-                                  }
-                                }
-                              },
-                              builder: (context, state) {
-                                return _buildFormContent(state);
-                              },
-                            ),
-
-                            SizedBox(height: 30),
-
-                            // Submit Button
-                            _buildSubmitButton(),
-                          ],
-                        ),
-                      ),
-                    ),
+                      // Submit Button
+                      _buildSubmitButton(),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

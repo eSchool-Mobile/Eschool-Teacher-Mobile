@@ -9,7 +9,7 @@ import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
 import 'package:eschool_saas_staff/data/models/AssignmentFiletype.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCheckboxContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
@@ -29,7 +29,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:glassmorphism/glassmorphism.dart';
 
 class TeacherAddEditAssignmentScreen extends StatefulWidget {
   final Assignment? assignment;
@@ -85,6 +84,50 @@ class _TeacherAddEditAssignmentScreenState
   final _formKey = GlobalKey<FormState>();
   late ClassSection? _selectedClassSection = widget.selectedClassSection;
   late TeacherSubject? _selectedSubject = widget.selectedSubject;
+
+  // Animation controllers
+  late AnimationController _fabAnimationController;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
+  // Theme colors
+  final Color _primaryColor = Color(0xFF7A1E23); // Deep maroon
+  final Color _accentColor = Color(0xFF9D3C3C); // Medium maroon
+  final Color _highlightColor = Color(0xFFB84D4D); // Bright maroon
+  final Color _energyColor = Color(0xFFCE6D6D); // Light maroon
+  final Color _glowColor = Color(0xFFAF4F4F); // Rich maroon
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomModernAppBar(
+        title: widget.assignment != null ? "Edit Tugas" : "Buat Tugas Baru",
+        icon: widget.assignment != null
+            ? Icons.edit_document
+            : Icons.assignment_add,
+        fabAnimationController: _fabAnimationController,
+        primaryColor: _primaryColor,
+        lightColor: _accentColor,
+        onBackPressed: () => Navigator.of(context).pop(),
+        showAddButton: false,
+        showArchiveButton: false,
+        showFilterButton: false,
+        showHelperButton: false,
+      ),
+      body: Stack(
+        children: [
+          _buildAddEditAssignmentForm(),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: _buildSubmitButton(),
+          ),
+        ],
+      ),
+    );
+  }
 
   //This will determine if need to refresh the previous page
   //assignments data. If teacher remove the the any file
@@ -163,23 +206,24 @@ class _TeacherAddEditAssignmentScreenState
 
   late bool _isTextAnswerAllowed;
   late bool _isFileAnswerAllowed;
+  // These variables are already declared above, no need to redeclare
+  // Just using the existing animation controllers
 
-  // Add these color definitions
-  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
-  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
-  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
-  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
-  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
-
-  // Add these animation controllers
-  late AnimationController _animationController;
-  late Animation<double> _animation;
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
-
+  // These colors are used in the UI elements
+  Color get primaryColorUI => _primaryColor;
+  Color get accentColorUI => _accentColor;
+  Color get highlightColorUI => _highlightColor;
+  Color get energyColorUI => _energyColor;
+  Color get glowColorUI => _glowColor;
   @override
   void initState() {
     super.initState();
+
+    // Initialize animation controllers
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
 
     // Add EditAssignment state listener
     context.read<EditAssignmentCubit>().stream.listen((state) {
@@ -282,16 +326,17 @@ class _TeacherAddEditAssignmentScreenState
 
   @override
   void dispose() {
+    _fabAnimationController.dispose();
     _animationController.dispose();
     _pulseController.dispose();
     _assignmentNameTextEditingController.dispose();
     _assignmentDescriptionTextEditingController.dispose();
     _assignmentPointsTextEditingController.dispose();
     _extraResubmissionDaysTextEditingController.dispose();
-    _minPointsTextEditingController.dispose(); // Add this line
-    _startDateTextEditingController.dispose(); // Add this line
-    // _endDateTextEditingController.dispose(); // Add this line
-    _maxFileSizeTextEditingController.dispose(); // Add this line
+    _minPointsTextEditingController.dispose();
+    _startDateTextEditingController.dispose();
+    _endDateTextEditingController.dispose();
+    _maxFileSizeTextEditingController.dispose();
     _maxFileTextEditingController.dispose();
     super.dispose();
   }
@@ -1093,105 +1138,21 @@ class _TeacherAddEditAssignmentScreenState
           bottom: 100,
           left: appContentHorizontalPadding,
           right: appContentHorizontalPadding,
-          top: Utils.appContentTopScrollPadding(context: context) + 20,
+          top: 10, // Reduced padding to bring content closer to the app bar
         ),
         child: FadeInUp(
           duration: Duration(milliseconds: 800),
           child: Column(
             children: [
-              // Header Section with Gradient
-              Container(
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Theme.of(context).colorScheme.primary.withOpacity(0.9),
-                        Theme.of(context)
-                            .colorScheme
-                            .secondary
-                            .withOpacity(0.7),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 10,
-                        spreadRadius: 2,
-                      )
-                    ]),
-                child: Column(
-                  children: [
-                    FadeInDown(
-                      duration: Duration(milliseconds: 400),
-                      child: Icon(
-                        Icons.assignment_rounded,
-                        size: 42,
-                        color: Colors.white,
-                      )
-                          .animate()
-                          .scale(duration: 500.ms)
-                          .then()
-                          .shimmer(duration: 1000.ms),
-                    ),
-                    SizedBox(height: 15),
-                    FadeInUp(
-                      duration: Duration(milliseconds: 600),
-                      child: Text(
-                        widget.assignment != null ? "Edit Tugas" : "Buat Tugas",
-                        style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
-                            color: Colors.white,
-                            shadows: [
-                              Shadow(
-                                  blurRadius: 10,
-                                  color: Colors.black26,
-                                  offset: Offset(2, 2))
-                            ]),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              SizedBox(height: 20),
-
-              // Form Fields with Glassmorphism
-              GlassmorphicContainer(
-                width: double.infinity,
-                height: MediaQuery.of(context).size.height * 0.7,
-                borderRadius: 20,
-                blur: 20,
-                alignment: Alignment.center,
-                border: 2,
-                linearGradient: LinearGradient(
-                  colors: [
-                    Colors.white.withOpacity(0.1),
-                    Colors.white.withOpacity(0.1),
-                  ],
-                ),
-                borderGradient: LinearGradient(
-                  colors: [
-                    Theme.of(context).colorScheme.primary.withOpacity(0.5),
-                    Theme.of(context).colorScheme.secondary.withOpacity(0.5),
-                  ],
-                ),
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      for (var field in _buildFormFields())
-                        field
-                            .animate()
-                            .fadeIn(duration: 600.ms)
-                            .slideX(begin: -0.2, end: 0),
-                    ],
-                  ),
-                ),
+              // Form Fields without wrapper
+              Column(
+                children: [
+                  for (var field in _buildFormFields())
+                    field
+                        .animate()
+                        .fadeIn(duration: 600.ms)
+                        .slideX(begin: -0.2, end: 0),
+                ],
               ),
             ],
           ),
@@ -1555,158 +1516,6 @@ class _TeacherAddEditAssignmentScreenState
               color: Colors.white,
               size: 20,
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAnimatedHeader() {
-    return SlideInDown(
-      duration: Duration(milliseconds: 800),
-      child: Container(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Row(
-          children: [
-            // Back button with smaller padding
-            _buildGlowingIconButton(
-              Icons.arrow_back_ios,
-              () {
-                HapticFeedback.mediumImpact();
-                Get.back();
-              },
-            ),
-
-            SizedBox(width: 16),
-
-            // Title and subtitle in column
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.assignment != null ? 'Edit Tugas' : 'Buat Tugas',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      height: 1.1,
-                      letterSpacing: 0.5,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    widget.assignment != null
-                        ? 'Perbarui informasi tugas'
-                        : 'Buat tugas baru untuk siswa',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              _primaryColor,
-              Color(0xFF5A2223), // Softer deeper maroon
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Use the new animated header
-              _buildAnimatedHeader(),
-
-              // Main content
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.only(top: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _glowColor.withOpacity(0.2),
-                        blurRadius: 20,
-                        spreadRadius: 5,
-                        offset: Offset(0, -5),
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 30,
-                        offset: Offset(0, -10),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.all(20),
-                      physics: BouncingScrollPhysics(),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Your existing content
-                            FadeInUp(
-                              duration: Duration(milliseconds: 800),
-                              child: _buildBasicInfoSection(),
-                            ),
-                            SizedBox(height: 25),
-                            FadeInUp(
-                              duration: Duration(milliseconds: 1000),
-                              child: _buildAssignmentDetailsSection(),
-                            ),
-                            SizedBox(height: 25),
-                            _buildSubmissionDetailsSection(),
-                            SizedBox(height: 25),
-                            FadeInUp(
-                              duration: Duration(milliseconds: 1200),
-                              child: _buildSubmissionSettingsSection(),
-                            ),
-                            SizedBox(height: 30),
-                            _buildSubmitButton(),
-                            SizedBox(height: 20),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
           ),
         ),
       ),

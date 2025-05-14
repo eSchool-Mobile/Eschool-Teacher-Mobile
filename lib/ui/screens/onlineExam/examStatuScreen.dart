@@ -14,6 +14,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 
 class ExamStatusScreen extends StatefulWidget {
   const ExamStatusScreen({Key? key}) : super(key: key);
@@ -36,6 +37,24 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
   late AnimationController _animationController;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomModernAppBar(
+        title: 'Status Ujian',
+        icon: Icons.assignment_outlined,
+        fabAnimationController: _animationController,
+        primaryColor: _primaryColor,
+        lightColor: _glowColor,
+        onBackPressed: () => Navigator.of(context).pop(),
+        showAddButton: false,
+        showArchiveButton: false,
+        showFilterButton: false,
+        showHelperButton: false,
+      ),
+      body: _buildAnimatedBody(),
+    );
+  }
 
   String searchQuery = "";
   String sortBy = "name"; // Default sorting
@@ -928,7 +947,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                   child: Padding(
                     padding: EdgeInsets.all(8),
                     child: Icon(
-                        Icons.delete_outline,
+                      Icons.delete_outline,
                       color: Colors.white,
                       size: 18,
                     ),
@@ -1105,144 +1124,6 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
     );
   }
 
-  // Modern header with glowing buttons
-  Widget _buildAnimatedHeader() {
-    return SlideInDown(
-      duration: Duration(milliseconds: 800),
-      child: Container(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Row(
-          children: [
-            // Back button with smaller padding
-            _buildGlowingIconButton(
-              Icons.arrow_back_rounded,
-              () {
-                HapticFeedback.mediumImpact();
-                Navigator.pop(context);
-              },
-            ),
-
-            SizedBox(width: 16),
-
-            // Title and subtitle in column
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Status Ujian',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      height: 1.1,
-                      letterSpacing: 0.5,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Pantau progress siswa dalam ujian',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Action button
-            _buildCircleButton(
-              icon: Icons.refresh_rounded,
-              onTap: () {
-                HapticFeedback.mediumImpact();
-                if (selectedExam != null) {
-                  context
-                      .read<ExamStatusCubit>()
-                      .getStudentExamStatus(selectedExam!.id);
-                } else {
-                  context.read<OnlineExamCubit>().getOnlineExams();
-                }
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.12),
-              boxShadow: [
-                BoxShadow(
-                  color: _highlightColor
-                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                  blurRadius: 12 * (1 + _pulseAnimation.value),
-                  spreadRadius: 2 * _pulseAnimation.value,
-                )
-              ],
-              border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildCircleButton({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white.withOpacity(0.15),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          customBorder: CircleBorder(),
-          onTap: onTap,
-          child: Padding(
-            padding: EdgeInsets.all(10),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 20,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   // Shimmer loading animation
   Widget _buildShimmerLoading() {
     return Shimmer.fromColors(
@@ -1324,63 +1205,6 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
               ),
             ]
           ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              _primaryColor,
-              Color(0xFF5A2223), // Softer deeper maroon
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildAnimatedHeader(),
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.only(top: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _glowColor.withOpacity(0.2),
-                        blurRadius: 20,
-                        spreadRadius: 5,
-                        offset: Offset(0, -5),
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 30,
-                        offset: Offset(0, -10),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    child: _buildAnimatedBody(),
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

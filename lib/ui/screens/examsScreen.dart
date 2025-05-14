@@ -5,12 +5,12 @@ import 'package:eschool_saas_staff/data/models/medium.dart';
 import 'package:eschool_saas_staff/data/models/offlineExam.dart';
 import 'package:eschool_saas_staff/data/models/offlineExamTimetableSlot.dart';
 import 'package:eschool_saas_staff/data/models/sessionYear.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -983,557 +983,220 @@ class _ExamsScreenState extends State<ExamsScreen>
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          // Background dengan animated gradient
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  primaryColor.withOpacity(0.05),
-                  Colors.white,
-                ],
-              ),
-            ),
-          ),
-
-          // Main content with curved container
-          BlocBuilder<SessionYearsAndMediumsCubit, SessionYearsAndMediumsState>(
-            builder: (context, state) {
-              if (state is SessionYearsAndMediumsFetchSuccess) {
-                if (state.mediums.isNotEmpty && state.sessionYears.isNotEmpty) {
-                  return SafeArea(
-                    child: Stack(
-                      children: [
-                        // Modern header - pindahkan ke belakang
-                        Container(
-                          height: Get.height, // Tambahkan height penuh
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                primaryColor,
-                                Color(0xFF5A2223), // Deeper shade
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Header content
-                        _buildHeader(),
-
-                        // Curved container with exams content - posisikan di atas dengan margin top
-                        Positioned(
-                          top: 170, // Sesuaikan dengan tinggi header
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Colors.white.withOpacity(0.95),
-                                  Color(0xFFFFF0F0),
-                                ],
-                              ),
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(40),
-                                topRight: Radius.circular(40),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: primaryColor.withOpacity(0.2),
-                                  blurRadius: 20,
-                                  spreadRadius: 5,
-                                  offset: Offset(0, -5),
-                                ),
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 30,
-                                  offset: Offset(0, -10),
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(40),
-                                topRight: Radius.circular(40),
-                              ),
-                              child: BlocBuilder<OfflineExamsCubit,
-                                  OfflineExamsState>(
-                                builder: (context, state) {
-                                  if (state is OfflineExamsFetchSuccess) {
-                                    List<OfflineExam> filteredExams =
-                                        _filterExams(state.offlineExams);
-                                    final groupedExams =
-                                        _groupExamsByMonth(filteredExams);
-
-                                    if (groupedExams.isEmpty) {
-                                      return _buildEmptyState();
-                                    }
-
-                                    return RefreshIndicator(
-                                      color: primaryColor,
-                                      backgroundColor: Colors.white,
-                                      strokeWidth: 3,
-                                      onRefresh: getExams,
-                                      child: ListView.builder(
-                                        controller: _scrollController,
-                                        padding: EdgeInsets.fromLTRB(
-                                            appContentHorizontalPadding,
-                                            8,
-                                            appContentHorizontalPadding,
-                                            30),
-                                        itemCount: groupedExams.length,
-                                        itemBuilder: (context, index) {
-                                          final monthYear = groupedExams.keys
-                                              .elementAt(index);
-                                          final exams =
-                                              groupedExams[monthYear]!;
-
-                                          return Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 20,
-                                                    bottom: 16,
-                                                    left: 6),
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                          horizontal: 16,
-                                                          vertical: 8),
-                                                      decoration: BoxDecoration(
-                                                        gradient:
-                                                            LinearGradient(
-                                                          colors: [
-                                                            primaryColor,
-                                                            primaryColor
-                                                                .withOpacity(
-                                                                    0.8),
-                                                          ],
-                                                          begin:
-                                                              Alignment.topLeft,
-                                                          end: Alignment
-                                                              .bottomRight,
-                                                        ),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(20),
-                                                        boxShadow: [
-                                                          BoxShadow(
-                                                            color: primaryColor
-                                                                .withOpacity(
-                                                                    0.3),
-                                                            blurRadius: 8,
-                                                            offset:
-                                                                const Offset(
-                                                                    0, 3),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      child: Text(
-                                                        monthYear,
-                                                        style:
-                                                            GoogleFonts.poppins(
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 14,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      child: Divider(
-                                                        height: 20,
-                                                        thickness: 1,
-                                                        indent: 14,
-                                                        endIndent: 8,
-                                                        color: Colors.grey[300],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              ...List.generate(
-                                                exams.length,
-                                                (i) => _buildExamItem(
-                                                        exams[i], i)
-                                                    .animate(delay: (80 * i).ms)
-                                                    .fadeIn(
-                                                        duration: 500.ms,
-                                                        curve: Curves.easeOut)
-                                                    .slideY(
-                                                        begin: 0.2,
-                                                        end: 0,
-                                                        duration: 600.ms,
-                                                        curve: Curves
-                                                            .easeOutQuint),
-                                              ),
-                                            ],
-                                          )
-                                              .animate(delay: (150 * index).ms)
-                                              .fadeIn(duration: 500.ms);
-                                        },
-                                      ),
-                                    );
-                                  }
-
-                                  if (state is OfflineExamsFetchFailure) {
-                                    return Center(
-                                      child: ErrorContainer(
-                                        errorMessage: state.errorMessage,
-                                        onTapRetry: getExams,
-                                      ),
-                                    );
-                                  }
-
-                                  if (state is OfflineExamsFetchInProgress) {
-                                    return _buildLoadingShimmer();
-                                  }
-
-                                  return Center(
-                                    child: CustomCircularProgressIndicator(
-                                      indicatorColor: primaryColor,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                return const SizedBox();
-              }
-
-              if (state is SessionYearsAndMediumsFetchFailure) {
-                return Center(
-                  child: ErrorContainer(
-                    errorMessage: state.errorMessage,
-                    onTapRetry: () {
-                      context
-                          .read<SessionYearsAndMediumsCubit>()
-                          .getSessionYearsAndMediums();
-                    },
-                  ),
-                );
-              }
-
-              return Center(
-                child: CustomCircularProgressIndicator(
-                  indicatorColor: primaryColor,
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    ).animate().fadeIn(duration: 600.ms);
-  }
-
   Widget _buildHeader() {
     return SlideInDown(
-      duration: Duration(milliseconds: 800),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(15, 15, 15, 10),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  // Back button with advanced ripple and glow effects
-                  _buildGlowingIconButton(
-                    Icons.arrow_back_rounded,
-                    () {
-                      HapticFeedback.mediumImpact();
-                      Get.back();
-                    },
-                  ),
-                  SizedBox(width: 15),
+        duration: Duration(milliseconds: 800),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(15, 15, 15, 10),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    // Back button with advanced ripple and glow effects
 
-                  // Title with modern styling
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Jadwal Ujian",
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.8,
-                            color: Colors.white,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        SizedBox(height: 6),
-                        Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            'Ujian Siswa',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                    // Title with modern styling
 
-                  // Filter button instead of search
-                  AnimatedBuilder(
-                    animation: _pulseAnimation,
-                    builder: (context, child) {
-                      return GestureDetector(
-                        onTap: () {
-                          HapticFeedback.mediumImpact();
-                          _showFilterBottomSheet(context);
-                        },
-                        child: Container(
-                          margin: EdgeInsets.only(right: 12),
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white.withOpacity(0.15),
-                            boxShadow: [
-                              BoxShadow(
-                                color: _highlightColor.withOpacity(
-                                    0.1 + 0.1 * _pulseAnimation.value),
-                                blurRadius: 12 * (1 + _pulseAnimation.value),
-                                spreadRadius: 2 * _pulseAnimation.value,
-                              )
-                            ],
-                            border: Border.all(
-                              color: Colors.white.withOpacity(
-                                  0.1 + 0.05 * _pulseAnimation.value),
-                              width: 1.5,
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.filter_list,
-                            color: Colors.white,
-                            size: 22,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
+                    // Filter button instead of search
 
-              // Filter indicator chips - show applied filters
-              if (_isFiltering)
-                Container(
-                  margin: EdgeInsets.only(top: 16),
-                  height: 40,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        if (_filterStatus != "Semua")
-                          _buildFilterChip(
-                            label: _filterStatus,
-                            color: _getFilterStatusColor(_filterStatus),
-                          ),
-                        if (_startDate != null && _endDate != null)
-                          _buildFilterChip(
-                            label:
-                                "${DateFormat('dd/MM/yyyy').format(_startDate!)} - ${DateFormat('dd/MM/yyyy').format(_endDate!)}",
-                            color: primaryColor,
-                          )
-                        else if (_startDate != null)
-                          _buildFilterChip(
-                            label:
-                                "Dari ${DateFormat('dd/MM/yyyy').format(_startDate!)}",
-                            color: primaryColor,
-                          )
-                        else if (_endDate != null)
-                          _buildFilterChip(
-                            label:
-                                "Sampai ${DateFormat('dd/MM/yyyy').format(_endDate!)}",
-                            color: primaryColor,
-                          ),
-                        if (_isFiltering)
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _filterStatus = "Semua";
-                                _startDate = null;
-                                _endDate = null;
-                                _isFiltering = false;
-                              });
-                              getExams();
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: Colors.white.withOpacity(0.3),
-                                  width: 1,
+                    // Filter indicator chips - show applied filters
+                    if (_isFiltering)
+                      Container(
+                        margin: EdgeInsets.only(top: 16),
+                        height: 40,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              if (_filterStatus != "Semua")
+                                _buildFilterChip(
+                                  label: _filterStatus,
+                                  color: _getFilterStatusColor(_filterStatus),
                                 ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.close,
-                                      color: Colors.white, size: 16),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    "Reset Filter",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w500,
+                              if (_startDate != null && _endDate != null)
+                                _buildFilterChip(
+                                  label:
+                                      "${DateFormat('dd/MM/yyyy').format(_startDate!)} - ${DateFormat('dd/MM/yyyy').format(_endDate!)}",
+                                  color: primaryColor,
+                                )
+                              else if (_startDate != null)
+                                _buildFilterChip(
+                                  label:
+                                      "Dari ${DateFormat('dd/MM/yyyy').format(_startDate!)}",
+                                  color: primaryColor,
+                                )
+                              else if (_endDate != null)
+                                _buildFilterChip(
+                                  label:
+                                      "Sampai ${DateFormat('dd/MM/yyyy').format(_endDate!)}",
+                                  color: primaryColor,
+                                ),
+                              if (_isFiltering)
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _filterStatus = "Semua";
+                                      _startDate = null;
+                                      _endDate = null;
+                                      _isFiltering = false;
+                                    });
+                                    getExams();
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: Colors.white.withOpacity(0.3),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.close,
+                                            color: Colors.white, size: 16),
+                                        SizedBox(width: 4),
+                                        Text(
+                                          "Reset Filter",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ).animate().fadeIn(duration: 300.ms).slideY(
-                    begin: -0.2,
-                    end: 0,
-                    duration: 300.ms,
-                    curve: Curves.easeOut),
-
-              // Show filters row - Session Years and Medium filters remain
-              if (_showFilters)
-                Container(
-                  margin: EdgeInsets.only(top: 16, bottom: 8),
-                  height: 50,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      _buildFilterOptionChip(
-                        label: _selectedSessionYear?.name ?? "Tahun Ajaran",
-                        icon: Icons.calendar_today_outlined,
-                        onTap: () {
-                          if (context.read<SessionYearsAndMediumsCubit>().state
-                              is SessionYearsAndMediumsFetchSuccess) {
-                            final state = context
-                                .read<SessionYearsAndMediumsCubit>()
-                                .state as SessionYearsAndMediumsFetchSuccess;
-
-                            Utils.showBottomSheet(
-                              context: context,
-                              child: FilterSelectionBottomsheet(
-                                titleKey: "Pilih Tahun Ajaran",
-                                values: state.sessionYears
-                                    .map((e) => {
-                                          "id": e.id,
-                                          "title": e.name,
-                                        })
-                                    .toList(),
-                                selectedValue: _selectedSessionYear?.id,
-                                onSelection: (selectedItem) {
-                                  final sessionYear =
-                                      state.sessionYears.firstWhere(
-                                    (element) =>
-                                        element.id ==
-                                        (selectedItem
-                                            as Map<String, dynamic>)['id'],
-                                  );
-                                  changeSelectedSessionYear(sessionYear);
-                                  getExams();
-                                },
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                      SizedBox(width: 10),
-                      _buildFilterOptionChip(
-                        label: _selectedMedium?.name ?? "Bahasa",
-                        icon: Icons.language_rounded,
-                        onTap: () {
-                          if (context.read<SessionYearsAndMediumsCubit>().state
-                              is SessionYearsAndMediumsFetchSuccess) {
-                            final state = context
-                                .read<SessionYearsAndMediumsCubit>()
-                                .state as SessionYearsAndMediumsFetchSuccess;
-
-                            Utils.showBottomSheet(
-                              context: context,
-                              child: FilterSelectionBottomsheet(
-                                titleKey: "Pilih Bahasa",
-                                values: state.mediums
-                                    .map((e) => {
-                                          "id": e.id,
-                                          "title": e.name,
-                                        })
-                                    .toList(),
-                                selectedValue: _selectedMedium?.id,
-                                onSelection: (selectedItem) {
-                                  final medium = state.mediums.firstWhere(
-                                    (element) =>
-                                        element.id ==
-                                        (selectedItem
-                                            as Map<String, dynamic>)['id'],
-                                  );
-                                  changeSelectedMedium(medium);
-                                  getExams();
-                                },
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                      if (_selectedSessionYear != null ||
-                          _selectedMedium != null)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10),
-                          child: _buildFilterOptionChip(
-                            label: "Reset Filter",
-                            icon: Icons.refresh_rounded,
-                            onTap: () {
-                              setState(() {
-                                _selectedSessionYear = null;
-                                _selectedMedium = null;
-                              });
-                              getExams();
-                            },
+                                ),
+                            ],
                           ),
                         ),
-                    ],
-                  ),
-                ).animate().fadeIn(duration: 300.ms).slideY(
-                    begin: -0.2,
-                    end: 0,
-                    duration: 300.ms,
-                    curve: Curves.easeOut),
-            ],
+                      ).animate().fadeIn(duration: 300.ms).slideY(
+                          begin: -0.2,
+                          end: 0,
+                          duration: 300.ms,
+                          curve: Curves.easeOut),
+
+                    // Show filters row - Session Years and Medium filters remain
+                    if (_showFilters)
+                      Container(
+                        margin: EdgeInsets.only(top: 16, bottom: 8),
+                        height: 50,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: [
+                            _buildFilterOptionChip(
+                              label:
+                                  _selectedSessionYear?.name ?? "Tahun Ajaran",
+                              icon: Icons.calendar_today_outlined,
+                              onTap: () {
+                                if (context
+                                        .read<SessionYearsAndMediumsCubit>()
+                                        .state
+                                    is SessionYearsAndMediumsFetchSuccess) {
+                                  final state = context
+                                          .read<SessionYearsAndMediumsCubit>()
+                                          .state
+                                      as SessionYearsAndMediumsFetchSuccess;
+
+                                  Utils.showBottomSheet(
+                                    context: context,
+                                    child: FilterSelectionBottomsheet(
+                                      titleKey: "Pilih Tahun Ajaran",
+                                      values: state.sessionYears
+                                          .map((e) => {
+                                                "id": e.id,
+                                                "title": e.name,
+                                              })
+                                          .toList(),
+                                      selectedValue: _selectedSessionYear?.id,
+                                      onSelection: (selectedItem) {
+                                        final sessionYear =
+                                            state.sessionYears.firstWhere(
+                                          (element) =>
+                                              element.id ==
+                                              (selectedItem as Map<String,
+                                                  dynamic>)['id'],
+                                        );
+                                        changeSelectedSessionYear(sessionYear);
+                                        getExams();
+                                      },
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                            SizedBox(width: 10),
+                            _buildFilterOptionChip(
+                              label: _selectedMedium?.name ?? "Bahasa",
+                              icon: Icons.language_rounded,
+                              onTap: () {
+                                if (context
+                                        .read<SessionYearsAndMediumsCubit>()
+                                        .state
+                                    is SessionYearsAndMediumsFetchSuccess) {
+                                  final state = context
+                                          .read<SessionYearsAndMediumsCubit>()
+                                          .state
+                                      as SessionYearsAndMediumsFetchSuccess;
+
+                                  Utils.showBottomSheet(
+                                    context: context,
+                                    child: FilterSelectionBottomsheet(
+                                      titleKey: "Pilih Bahasa",
+                                      values: state.mediums
+                                          .map((e) => {
+                                                "id": e.id,
+                                                "title": e.name,
+                                              })
+                                          .toList(),
+                                      selectedValue: _selectedMedium?.id,
+                                      onSelection: (selectedItem) {
+                                        final medium = state.mediums.firstWhere(
+                                          (element) =>
+                                              element.id ==
+                                              (selectedItem as Map<String,
+                                                  dynamic>)['id'],
+                                        );
+                                        changeSelectedMedium(medium);
+                                        getExams();
+                                      },
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                            if (_selectedSessionYear != null ||
+                                _selectedMedium != null)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 10),
+                                child: _buildFilterOptionChip(
+                                  label: "Reset Filter",
+                                  icon: Icons.refresh_rounded,
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedSessionYear = null;
+                                      _selectedMedium = null;
+                                    });
+                                    getExams();
+                                  },
+                                ),
+                              ),
+                          ],
+                        ),
+                      ).animate().fadeIn(duration: 300.ms).slideY(
+                          begin: -0.2,
+                          end: 0,
+                          duration: 300.ms,
+                          curve: Curves.easeOut),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   Color _getFilterStatusColor(String status) {
@@ -1623,6 +1286,82 @@ class _ExamsScreenState extends State<ExamsScreen>
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomModernAppBar(
+        title: "Ujian",
+        icon: Icons.assignment_rounded,
+        fabAnimationController: _controller,
+        primaryColor: primaryColor,
+        lightColor: accentColor,
+        onBackPressed: () => Navigator.pop(context),
+        showFilterButton: true,
+        onFilterPressed: () => _showFilterBottomSheet(context),
+      ),
+      body: Column(
+        children: [
+          _buildHeader(),
+          Expanded(
+            child: BlocBuilder<OfflineExamsCubit, OfflineExamsState>(
+              builder: (context, state) {
+                if (state is OfflineExamsFetchSuccess) {
+                  final filteredExams = _filterExams(state.offlineExams);
+                  final groupedExams = _groupExamsByMonth(filteredExams);
+
+                  if (filteredExams.isEmpty) {
+                    return _buildEmptyState();
+                  }
+
+                  return ListView.builder(
+                    controller: _scrollController,
+                    padding: EdgeInsets.fromLTRB(15, 0, 15, 20),
+                    itemCount: groupedExams.length,
+                    itemBuilder: (context, index) {
+                      final monthYear = groupedExams.keys.elementAt(index);
+                      final exams = groupedExams[monthYear]!;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(top: 20, bottom: 10),
+                            child: Text(
+                              monthYear,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: primaryColor,
+                              ),
+                            ),
+                          ),
+                          ...exams
+                              .asMap()
+                              .entries
+                              .map((entry) =>
+                                  _buildExamItem(entry.value, entry.key))
+                              .toList(),
+                        ],
+                      );
+                    },
+                  );
+                } else if (state is OfflineExamsFetchInProgress) {
+                  return _buildLoadingShimmer();
+                } else {
+                  return ErrorContainer(
+                    onTapRetry: getExams,
+                    errorMessage: "Gagal memuat data ujian",
+             
+                  );
+                }
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

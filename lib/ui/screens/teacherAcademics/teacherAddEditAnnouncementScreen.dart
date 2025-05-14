@@ -8,7 +8,7 @@ import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
 import 'package:flutter/services.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
@@ -75,9 +75,31 @@ class TeacherAddEditAnnouncementScreen extends StatefulWidget {
 }
 
 class _TeacherAddEditAnnouncementScreenState
-    extends State<TeacherAddEditAnnouncementScreen> {
+    extends State<TeacherAddEditAnnouncementScreen>
+    with TickerProviderStateMixin {
   late ClassSection? _selectedClassSection = widget.selectedClassSection;
   late TeacherSubject? _selectedSubject = widget.selectedSubject;
+  late AnimationController _fabAnimationController;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomModernAppBar(
+        title:
+            widget.announcement != null ? "Edit Pengumuman" : "Buat Pengumuman",
+        icon: Icons.campaign_rounded,
+        fabAnimationController: _fabAnimationController,
+        onBackPressed: () {
+          Get.back(result: refreshAnnouncementsInPreviousPage);
+        },
+        // Not showing any of the optional buttons as requested
+        showAddButton: false,
+        showArchiveButton: false,
+        showFilterButton: false,
+        showHelperButton: false,
+      ),
+      body: _buildAddEditAnnouncementForm(),
+    );
+  }
 
   //This will determine if need to refresh the previous page
   //announcement data. If teacher remove the the any files
@@ -100,6 +122,13 @@ class _TeacherAddEditAnnouncementScreenState
 
   @override
   void initState() {
+    // Initialize the animation controller for the modern app bar
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 3000),
+    );
+    _fabAnimationController.repeat();
+
     Future.delayed(Duration.zero, () {
       if (mounted) {
         context
@@ -115,6 +144,7 @@ class _TeacherAddEditAnnouncementScreenState
   void dispose() {
     _announcementTitleTextEditingController.dispose();
     _announcementDescriptionTextEditingController.dispose();
+    _fabAnimationController.dispose();
     super.dispose();
   }
 
@@ -218,138 +248,6 @@ class _TeacherAddEditAnnouncementScreenState
           description: _announcementDescriptionTextEditingController.text,
           attachments: uploadedFiles,
         );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF7A1E23).withOpacity(0.9),
-              Color(0xFF5A2223),
-              Color(0xFF5A2223).withOpacity(0.8),
-              Theme.of(context).colorScheme.secondary,
-            ],
-            stops: [0.2, 0.4, 0.6, 1.0],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildHeader(),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                  ),
-                  child: _buildAddEditAnnouncementForm(),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-  Widget _buildHeader() {
-    return AnimatedContainer(
-      duration: Duration(milliseconds: 800),
-      child: Container(
-      child: Container(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-        decoration: BoxDecoration(
-         
-        ),
-        child: Row(
-          children: [
-            // Back button with glowing effect
-            _buildGlowingIconButton(
-              Icons.arrow_back_rounded,
-              () {
-                HapticFeedback.mediumImpact();
-                Get.back();
-              },
-            ),
-            SizedBox(width: 16),
-            // Title and subtitle
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.announcement != null
-                        ? 'Edit Pengumuman'
-                        : 'Buat Pengumuman',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      height: 1.1,
-                      letterSpacing: 0.5,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Kelola pengumuman untuk kelas dan mata pelajaran',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-    );  
-  }
-
-  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white.withOpacity(0.12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.white.withOpacity(0.2),
-              blurRadius: 12,
-              spreadRadius: 2,
-            ),
-          ],
-          border: Border.all(
-            color: Colors.white.withOpacity(0.1),
-            width: 1.5,
-          ),
-        ),
-        child: Icon(
-          icon,
-          color: Colors.white,
-          size: 24,
-        ),
-      ),
-    );
   }
 
   Widget _buildAddEditAnnouncementForm() {

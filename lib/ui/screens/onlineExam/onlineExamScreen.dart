@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/data/models/onlineExam.dart' as exam;
 import 'package:eschool_saas_staff/data/models/subjectDetail.dart';
 import '../../../app/routes.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:glassmorphism/glassmorphism.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:intl/intl.dart';
-import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'dart:math' as math;
 
@@ -25,9 +23,11 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   Map<String, dynamic>? selectedSubject;
   int? selectedSessionYearId;
   late AnimationController _animationController;
-  late Animation<double> _animation;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+
+  // Animation controller for CustomModernAppBar
+  late AnimationController _appBarAnimationController;
 
   SubjectDetail? selectedSubjectDetail;
   List<SubjectDetail> subjectDetails = [];
@@ -35,11 +35,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
 
   // Theme colors - Softer Maroon palette
   final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
-  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
   final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
-  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
-  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
-
   @override
   void initState() {
     super.initState();
@@ -58,10 +54,6 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       duration: Duration(milliseconds: 1000),
       vsync: this,
     );
-    _animation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
     _animationController.forward();
 
     // Add this new controller for pulse animation
@@ -74,6 +66,12 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       parent: _pulseController,
       curve: Curves.easeInOut,
     );
+
+    // Initialize the app bar animation controller
+    _appBarAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
   }
 
   @override
@@ -81,6 +79,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     _animationController.dispose();
     _pulseController.dispose();
     _scrollController.dispose();
+    _appBarAnimationController
+        .dispose(); // Dispose the app bar animation controller
     super.dispose();
   }
 
@@ -90,205 +90,48 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Set status bar to transparent with light icons for better visibility on dark app bar
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
+    ));
+
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              _primaryColor,
-              Color(0xFF5A2223), // Softer deeper maroon
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildAnimatedHeader(),
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.only(top: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _glowColor.withOpacity(0.2),
-                        blurRadius: 20,
-                        spreadRadius: 5,
-                        offset: Offset(0, -5),
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 30,
-                        offset: Offset(0, -10),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    child: _buildAnimatedBody(),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+      backgroundColor: Colors.grey[50],
+      extendBodyBehindAppBar: true,
+      appBar: CustomModernAppBar(
+        title: 'Online Exam',
+        icon: Icons.assignment_outlined,
+        fabAnimationController: _appBarAnimationController,
+        primaryColor: _primaryColor,
+        lightColor: _highlightColor,
+        showAddButton: true,
+        onAddPressed: () => Get.toNamed(Routes.createOnlineExam),
+        showArchiveButton: true,
+        onArchivePressed: () {
+          // Navigate to archived exams page
+          Get.toNamed(Routes.archiveOnlineExam);
+        },
+        onBackPressed: () => Navigator.of(context).pop(),
       ),
+      body: _buildAnimatedBody(),
     );
   }
 
-  Widget _buildAnimatedHeader() {
-    return SlideInDown(
-      duration: Duration(milliseconds: 800),
-      child: Container(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Row(
-          children: [
-            // Back button with smaller padding
-            _buildGlowingIconButton(
-              Icons.arrow_back_rounded,
-              () {
-                HapticFeedback.mediumImpact();
-                Get.back();
-              },
-            ),
-
-            SizedBox(width: 16),
-
-            // Title and subtitle in column
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Ujian Online',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      height: 1.1,
-                      letterSpacing: 0.5,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Kelola dan pantau ujian online',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Action buttons in a row
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Archive button with icon only
-                AnimatedBuilder(
-                  animation: _pulseAnimation,
-                  builder: (context, child) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Colors.white.withOpacity(0.3),
-                            Colors.white.withOpacity(0.2),
-                          ],
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.white
-                                .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                            blurRadius: 12 * (1 + _pulseAnimation.value),
-                            spreadRadius: 2 * _pulseAnimation.value,
-                          ),
-                        ],
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        shape: CircleBorder(),
-                        child: InkWell(
-                          customBorder: CircleBorder(),
-                          onTap: () {
-                            HapticFeedback.mediumImpact();
-                            Get.toNamed(Routes.archiveOnlineExam);
-                          },
-                          child: Padding(
-                            padding: EdgeInsets.all(10),
-                            child: Icon(
-                              Icons.archive_outlined,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-
-                SizedBox(width: 8),
-
-                // Add button with pulse effect
-                _buildAddButton(),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCreateExamButton() {
-    return ElevatedButton.icon(
-      onPressed: () => Get.toNamed(Routes.createOnlineExam),
-      icon: Icon(Icons.add, size: 20),
-      label: Text('Buat Ujian'),
-      style: ElevatedButton.styleFrom(
-        foregroundColor: Theme.of(context).colorScheme.secondary,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        textStyle: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-        ),
-      ),
-    );
-  }
-
+  // _buildCreateExamButton method removed as we're using the CustomModernAppBar add button
   Widget _buildAnimatedBody() {
     return AnimationLimiter(
       child: CustomScrollView(
         controller: _scrollController,
         physics: BouncingScrollPhysics(),
         slivers: [
+          // Add padding for the app bar
+          SliverPadding(
+            padding: EdgeInsets.only(
+                top: 100), // Adjust this value based on your app bar height
+            sliver: SliverToBoxAdapter(child: SizedBox()),
+          ),
           _buildSearchAndFilter(),
           BlocBuilder<OnlineExamCubit, OnlineExamState>(
             builder: (context, state) {
@@ -370,7 +213,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     return BlocBuilder<OnlineExamCubit, OnlineExamState>(
       builder: (context, state) {
         List<SubjectDetail> subjects = [];
-        if (state is OnlineExamSuccess && state.subjectDetails != null) {
+        if (state is OnlineExamSuccess) {
           // Filter out null items and safely convert valid ones
           subjects = state.subjectDetails
               .where((e) => e != null) // Filter out null items
@@ -547,9 +390,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       'gradient1': Color(0xFF7D1F1F), // Lighter maroon
       'gradient2': Color(0xFF9B2F2F), // Medium maroon
       'gradient3': Color(0xFFBF4040), // Soft bright maroon
-    };
-
-    // Calculate the positioning for perfect centering
+    }; // Calculate the positioning for perfect centering
     final double estimatedTextHeight = (exam.title.length / 20).ceil() * 32.0;
     final double minHeight = 240.0; // Minimum height untuk header
     final double maxHeight = 400.0; // Maximum height untuk header
@@ -559,9 +400,6 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       maxHeight,
       math.max(minHeight, estimatedTextHeight + 180.0),
     );
-
-    final cardHeight = 170.0;
-    final centerPosition = headerHeight - (cardHeight / 2);
 
     return FadeInUp(
       duration: Duration(milliseconds: 600),
