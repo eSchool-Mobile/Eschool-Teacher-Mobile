@@ -702,7 +702,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                             Padding(
                               padding: const EdgeInsets.only(bottom: 24.0),
                               child: Text(
-                                "Personal Information",
+                                "Informasi Pribadi",
                                 style: GoogleFonts.poppins(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,

@@ -132,7 +132,7 @@ class _RecapAttendanceSubjectScreenState
 
     final encodedEmail = Uri.encodeComponent(email!);
 
-    final url = Uri.parse('https://esbeta.deanry.my.id/recap-download'
+    final url = Uri.parse('https://eschool.ac.id/recap-download'
         '?school_id=$schoolId'
         '&class_id=$classId'
         '&class_section_id=$classSectionId'

@@ -97,6 +97,8 @@ import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/examStatuScreen.dart';
 import 'package:eschool_saas_staff/cubits/examStatus/examStatusCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/examStatusRepository.dart';
+import 'package:eschool_saas_staff/ui/screens/assignmentMonitoring/assignmentMonitoringScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/assignmentMonitoring/assignmentDetailMonitoringScreen.dart';
 
 // Nama route
 class Routes {
@@ -139,6 +141,9 @@ class Routes {
   static String contactUsScreen = "/contactUS";
   static String privacyPolicyScreen = "/privacyPolicy";
   static String termsAndConditionScreen = "/termsAndCondition";
+  static String assignmentMonitoringScreen = "/assignmentMonitoring";
+  static String assignmentDetailMonitoringScreen =
+      "/assignmentDetailMonitoring";
 
   static String sessionYearsScreen = "/sessionYears";
   static String allowancesAndDeductionsScreen = "/allowancesAndDeductions";
@@ -719,6 +724,23 @@ class Routes {
         ],
         child: ExamStatusScreen(),
       ),
+    ),
+    // Add AssignmentMonitoringScreen route
+    GetPage(
+      name: assignmentMonitoringScreen,
+      page: () => AssignmentMonitoringScreen.getRouteInstance(),
+    ),
+
+    // Add AssignmentDetailMonitoringScreen route
+    GetPage(
+      name: assignmentDetailMonitoringScreen,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return AssignmentDetailMonitoringScreen.getRouteInstance(
+          teacherId: args['teacherId'] as int,
+          teacherName: args['teacherName'] as String,
+        );
+      },
     ),
   ]; // Add semicolon here
 

@@ -946,15 +946,16 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
     final classTeacherNames = details.getClassTeacherNames();
 
     // Get current teacher's subject from the list
-    final currentTeacherSubject = (details.subjectTeachers == null || details.subjectTeachers!.isEmpty)
+    final currentTeacherSubject =
+        (details.subjectTeachers == null || details.subjectTeachers!.isEmpty)
             ? '-'
             : details.subjectTeachers!
-                .firstWhere(
-                  (teacher) => teacher.teacher?.id == getCurrentTeacherId(),
-                  orElse: () => details.subjectTeachers!.first,
-                )
-                .subject
-                ?.name ??
+                    .firstWhere(
+                      (teacher) => teacher.teacher?.id == getCurrentTeacherId(),
+                      orElse: () => details.subjectTeachers!.first,
+                    )
+                    .subject
+                    ?.name ??
                 '-';
 
     return Padding(
@@ -1091,6 +1092,8 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
       {required List<Color> gradient}) {
     return Container(
       padding: EdgeInsets.all(16),
+      margin:
+          EdgeInsets.symmetric(horizontal: 6), // Tambahkan margin horizontal
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -1318,69 +1321,71 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
       child: Column(
         children: [
           // Elegant header with subtle gradient
-          Container(
-            margin: EdgeInsets.only(bottom: 24),
+            Container(
+            margin: EdgeInsets.only(bottom: 24, left: 16, right: 16),
             width: double.infinity,
             padding: EdgeInsets.symmetric(vertical: 22, horizontal: 24),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               gradient: LinearGradient(
-                colors: [
-                  AppColorPalette.primaryMaroon.withOpacity(0.9),
-                  AppColorPalette.primaryMaroon.withOpacity(0.85),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+              colors: [
+                AppColorPalette.primaryMaroon.withOpacity(0.9),
+                AppColorPalette.primaryMaroon.withOpacity(0.85),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
               ),
               boxShadow: [
-                BoxShadow(
-                  color: AppColorPalette.shadowColor.withOpacity(0.25),
-                  blurRadius: 12,
-                  spreadRadius: 2,
-                  offset: Offset(0, 6),
-                ),
+              BoxShadow(
+                color: AppColorPalette.shadowColor.withOpacity(0.25),
+                blurRadius: 12,
+                spreadRadius: 2,
+                offset: Offset(0, 6),
+              ),
               ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+              Text(
+                'Daftar Mata Pelajaran',
+                style: GoogleFonts.poppins(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                letterSpacing: 0.5,
+                ),
+              ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                Container(
+                  height: 2,
+                  width: 40,
+                  color: Colors.white.withOpacity(0.7),
+                ),
+                SizedBox(width: 8),
                 Text(
-                  'Daftar Mata Pelajaran',
+                  '${subjectTeachers.length} mata pelajaran',
                   style: GoogleFonts.poppins(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    letterSpacing: 0.5,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white.withOpacity(0.9),
                   ),
                 ),
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    Container(
-                      height: 2,
-                      width: 40,
-                      color: Colors.white.withOpacity(0.7),
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      '${subjectTeachers.length} mata pelajaran',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white.withOpacity(0.9),
-                      ),
-                    ),
-                  ],
-                ),
+                ],
+              ),
               ],
             ),
-          ),
-
-          // Elegant subject list with minimalist design
-          AnimationLimiter(
-            child: ListView.builder(
+            ), 
+            // Elegant subject list with minimalist design
+            AnimationLimiter(
+              child: ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.symmetric(
+                  horizontal:
+                      16), // Tambahkan margin horizontal untuk subjek kelas
               itemCount: subjectTeachers.length,
               itemBuilder: (context, index) {
                 // Get subject name and teacher
@@ -1396,7 +1401,11 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
                     horizontalOffset: 50,
                     child: FadeInAnimation(
                       child: Container(
-                        margin: EdgeInsets.only(bottom: 16),
+                        margin: EdgeInsets.only(
+                            bottom: 16,
+                            left: 4,
+                            right:
+                                4), // Tambahkan margin horizontal kanan dan kiri
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),

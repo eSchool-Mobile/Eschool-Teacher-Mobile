@@ -3,14 +3,8 @@ import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/leave/userLeavesCubit.dart';
 import 'package:eschool_saas_staff/data/models/sessionYear.dart';
 import 'package:eschool_saas_staff/data/models/userDetails.dart';
-import 'package:eschool_saas_staff/ui/screens/leaves/widgets/appliedLeaveContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
+import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
-import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -62,8 +56,6 @@ class _LeavesScreenState extends State<LeavesScreen>
   // Animation controllers
   late final AnimationController _animationController;
   late final Animation<double> _fadeAnimation;
-  late final AnimationController _pulseController;
-  late final Animation<double> _pulseAnimation;
 
   // Define theme colors
   final Color maroonPrimary = Color(0xFF8B1F41);
@@ -93,19 +85,6 @@ class _LeavesScreenState extends State<LeavesScreen>
       ),
     );
 
-    // Pulse animation for interactive elements
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1500),
-    )..repeat(reverse: true);
-
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.08).animate(
-      CurvedAnimation(
-        parent: _pulseController,
-        curve: Curves.easeInOut,
-      ),
-    );
-
     // Start animations
     _animationController.forward();
 
@@ -122,9 +101,16 @@ class _LeavesScreenState extends State<LeavesScreen>
       }
     });
 
-    Future.delayed(Duration.zero, () {
+    // Set default month to current month
+    _selectedMonthKey = months[(DateTime.now().month - 1)];
+
+    // Initialize data loading pipeline
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        // Get session years first
         context.read<SessionYearsCubit>().getSessionYears();
+        // The BlocConsumer in build method will handle selecting the default session year
+        // and triggering the leaves data fetch after session years are available
       }
     });
   }
@@ -132,7 +118,6 @@ class _LeavesScreenState extends State<LeavesScreen>
   @override
   void dispose() {
     _animationController.dispose();
-    _pulseController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -284,7 +269,13 @@ class _LeavesScreenState extends State<LeavesScreen>
   }
 
   Widget _buildLeaveListContainer() {
-    return BlocBuilder<UserLeavesCubit, UserLeavesState>(
+    return BlocConsumer<UserLeavesCubit, UserLeavesState>(
+      listener: (context, state) {
+        // If we have a session year but no leaves data yet, fetch it
+        if (state is UserLeavesInitial && _selectedSessionYear != null) {
+          getLeaves();
+        }
+      },
       builder: (context, state) {
         if (state is UserLeavesFetchSuccess) {
           if (state.leaves.isEmpty) {
@@ -327,7 +318,7 @@ class _LeavesScreenState extends State<LeavesScreen>
             opacity: _fadeAnimation,
             child: SingleChildScrollView(
               controller: _scrollController,
-              padding: EdgeInsets.only(top: 200, bottom: 30),
+              padding: EdgeInsets.only(top: 20, bottom: 30),
               physics: BouncingScrollPhysics(),
               child: Column(
                 children: [
@@ -531,8 +522,8 @@ class _LeavesScreenState extends State<LeavesScreen>
                                           ),
                                           SizedBox(
                                             width: 100,
-                                            child:
-                                                _buildStatusBadge(leave.status?.toString() ?? ''),
+                                            child: _buildStatusBadge(
+                                                leave.status?.toString() ?? ''),
                                           ),
                                         ],
                                       ),
@@ -638,240 +629,175 @@ class _LeavesScreenState extends State<LeavesScreen>
     );
   }
 
-  Widget _buildHeaderSection() {
-    return AnimatedContainer(
-      duration: Duration(milliseconds: 400),
-      curve: Curves.easeOutQuint,
+  PreferredSizeWidget _buildHeaderSection() {
+    return CustomFilterModernAppBar(
+      title: widget.showMyLeaves
+          ? myLeaveKey.tr
+          : (widget.userDetails?.fullName ?? ""),
+      titleIcon: Icons.event_available_rounded,
+      primaryColor: maroonPrimary,
+      secondaryColor: maroonLight,
+      onBackPressed: () {
+        Navigator.pop(context);
+      },
+      animationController: _animationController,
+      enableAnimations: true,
       height: _headerHeight,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [maroonPrimary, maroonDark],
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(30),
-          bottomRight: Radius.circular(30),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: maroonPrimary.withOpacity(0.3),
-            blurRadius: 20,
-            offset: Offset(0, 10),
-            spreadRadius: 0,
-          ),
-        ],
+      firstFilterItem: FilterItemConfig(
+        title: _selectedSessionYear?.name ?? "Tahun Ajaran",
+        icon: Icons.calendar_today_rounded,
+        onTap: () {
+          if (context.read<SessionYearsCubit>().state
+              is SessionYearsFetchSuccess) {
+            final state = context.read<SessionYearsCubit>().state
+                as SessionYearsFetchSuccess;
+            if (state.sessionYears.isNotEmpty) {
+              _showSessionYearFilter(context, state.sessionYears);
+            }
+          }
+        },
       ),
-      child: SafeArea(
-        child: Stack(
-          children: [
-            // Decorative elements
-            Positioned(
-              right: -20,
-              top: -20,
-              child: Container(
-                width: 140,
-                height: 140,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  shape: BoxShape.circle,
+      secondFilterItem: FilterItemConfig(
+        title: _selectedMonthKey.tr,
+        icon: Icons.date_range_rounded,
+        onTap: () {
+          _showMonthFilter(context);
+        },
+      ),
+    );
+  }
+
+  void _showSessionYearFilter(
+      BuildContext context, List<SessionYear> sessionYears) {
+    // Prevent overflow errors with proper sheet sizing
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6, // Start at 60% of screen height
+        minChildSize: 0.3, // Can be dragged to minimum 30%
+        maxChildSize: 0.9, // Maximum 90% of screen height
+        expand: false,
+        builder: (context, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                 ),
               ),
-            ),
-            Positioned(
-              left: -30,
-              bottom: -30,
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  shape: BoxShape.circle,
+              SizedBox(height: 16),
+              Center(
+                child: Text(
+                  "Pilih Tahun Ajaran",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                  ),
                 ),
               ),
-            ),
-
-            // Content
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Back button and title row
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Back button
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            Icons.arrow_back_rounded,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      // Title and subtitle in a column
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.showMyLeaves
-                                  ? myLeaveKey.tr
-                                  : (widget.userDetails?.fullName ?? ""),
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontFamily: 'Poppins',
-                              ),
-                            ),
-                            // Only show subtitle when header is expanded
-                            if (_headerHeight > 130)
-                              AnimatedOpacity(
-                                opacity: (_headerHeight - 130) / 70,
-                                duration: Duration(milliseconds: 200),
-                                child: Padding(
-                                  padding: const EdgeInsets.only(top: 4.0),
-                                  child: Text(
-                                    "Riwayat pengajuan cuti",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white.withOpacity(0.9),
-                                      fontFamily: 'Poppins',
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  Spacer(),
-
-                  // Filter section at bottom of header
-                  BlocConsumer<SessionYearsCubit, SessionYearsState>(
-                    listener: (context, state) {
-                      if (state is SessionYearsFetchSuccess) {
-                        if (state.sessionYears.isNotEmpty) {
-                          changeSelectedSessionYear(state.sessionYears
-                              .where((element) => element.isThisDefault())
-                              .first);
-                        }
-                      }
-                    },
-                    builder: (context, state) {
-                      if (state is SessionYearsFetchSuccess) {
-                        return Row(
-                          children: [
-                            _buildFilterButton(
-                              title: _selectedSessionYear?.name ??
-                                  sessionYearKey.tr,
-                              icon: Icons.calendar_today_rounded,
-                              onTap: () {
-                                if (state.sessionYears.isNotEmpty) {
-                                  Utils.showBottomSheet(
-                                      child: FilterSelectionBottomsheet<
-                                          SessionYear>(
-                                        selectedValue: _selectedSessionYear!,
-                                        titleKey: sessionYearKey,
-                                        values: state.sessionYears,
-                                        onSelection: (value) {
-                                          changeSelectedSessionYear(value!);
-                                          Get.back();
-                                        },
-                                      ),
-                                      context: context);
-                                }
-                              },
-                            ),
-                            SizedBox(width: 10),
-                            _buildFilterButton(
-                              title: _selectedMonthKey.tr,
-                              icon: Icons.event_note_rounded,
-                              onTap: () {
-                                Utils.showBottomSheet(
-                                    child: FilterSelectionBottomsheet<String>(
-                                      selectedValue: _selectedMonthKey,
-                                      titleKey: monthKey,
-                                      values: months,
-                                      onSelection: (value) {
-                                        changeSelectedMonth(value!);
-                                        Get.back();
-                                      },
-                                    ),
-                                    context: context);
-                              },
-                            ),
-                          ],
-                        );
-                      }
-                      return SizedBox();
-                    },
-                  ),
-                ],
+              SizedBox(height: 16),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  itemCount: sessionYears.length,
+                  itemBuilder: (context, index) {
+                    final year = sessionYears[index];
+                    return ListTile(
+                      title: Text(year.name ?? ""),
+                      trailing: _selectedSessionYear?.id == year.id
+                          ? Icon(Icons.check_circle, color: maroonPrimary)
+                          : null,
+                      onTap: () {
+                        Navigator.pop(context);
+                        changeSelectedSessionYear(year);
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildFilterButton({
-    required String title,
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  void _showMonthFilter(BuildContext context) {
+    // Prevent overflow errors with proper sheet sizing
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6, // Start at 60% of screen height
+        minChildSize: 0.3, // Can be dragged to minimum 30%
+        maxChildSize: 0.9, // Maximum 90% of screen height
+        expand: false,
+        builder: (context, scrollController) => Container(
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.3),
-            ),
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
-          child: Row(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                icon,
-                color: Colors.white,
-                size: 18,
-              ),
-              SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: 'Poppins',
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(30),
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Icon(
-                Icons.arrow_drop_down,
-                color: Colors.white,
-                size: 20,
+              SizedBox(height: 16),
+              Center(
+                child: Text(
+                  "Pilih Bulan",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  itemCount: months.length,
+                  itemBuilder: (context, index) {
+                    final month = months[index];
+                    return ListTile(
+                      title: Text(month.tr),
+                      trailing: _selectedMonthKey == month
+                          ? Icon(Icons.check_circle, color: maroonPrimary)
+                          : null,
+                      onTap: () {
+                        Navigator.pop(context);
+                        changeSelectedMonth(month);
+                      },
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -897,54 +823,64 @@ class _LeavesScreenState extends State<LeavesScreen>
       data: theme,
       child: Scaffold(
         backgroundColor: bgColor,
-        body: Stack(
-          children: [
-            BlocBuilder<SessionYearsCubit, SessionYearsState>(
-              builder: (context, state) {
-                if (state is SessionYearsFetchSuccess) {
-                  return _buildLeaveListContainer();
-                }
+        appBar: _buildHeaderSection(),
+        body: BlocConsumer<SessionYearsCubit, SessionYearsState>(
+          listener: (context, state) {
+            if (state is SessionYearsFetchSuccess) {
+              if (state.sessionYears.isNotEmpty &&
+                  _selectedSessionYear == null) {
+                // Automatically select default session year when data is first loaded
+                final defaultYear = state.sessionYears.firstWhere(
+                    (element) => element.isThisDefault(),
+                    orElse: () => state.sessionYears.first);
+                _selectedSessionYear = defaultYear;
+                // Fetch leaves data once we have the session year
+                getLeaves();
+              }
+            }
+          },
+          builder: (context, state) {
+            if (state is SessionYearsFetchSuccess) {
+              return _buildLeaveListContainer();
+            }
 
-                if (state is SessionYearsFetchFailure) {
-                  return Center(
-                    child: ErrorContainer(
-                      errorMessage: state.errorMessage,
-                      onTapRetry: () {
-                        context.read<SessionYearsCubit>().getSessionYears();
-                      },
+            if (state is SessionYearsFetchFailure) {
+              return Center(
+                child: ErrorContainer(
+                  errorMessage: state.errorMessage,
+                  onTapRetry: () {
+                    context.read<SessionYearsCubit>().getSessionYears();
+                  },
+                ),
+              );
+            }
+
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: CircularProgressIndicator(
+                      color: maroonPrimary,
+                      strokeWidth: 4,
                     ),
-                  );
-                }
-
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 60,
-                        height: 60,
-                        child: CircularProgressIndicator(
-                          color: maroonPrimary,
-                          strokeWidth: 4,
-                        ),
-                      ),
-                      SizedBox(height: 24),
-                      Text(
-                        "Memuat data...",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: textMediumColor,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
                   ),
-                );
-              },
-            ),
-            _buildHeaderSection(),
-          ],
+                  SizedBox(height: 24),
+                  Text(
+                    "Memuat data...",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: textMediumColor,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );

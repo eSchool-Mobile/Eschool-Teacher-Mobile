@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/assignmentCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/deleteAssignmentCubit.dart';
@@ -14,6 +15,7 @@ import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customTit
 import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
+import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
@@ -1403,424 +1405,334 @@ class _TeacherManageAssignmentScreenState
   }
 
   Widget _buildSubmitButton() {
-    // Only show button if both filters are selected
-    if (_selectedClassSection == null || _selectedSubject == null) {
-      return SizedBox.shrink(); // Return empty widget if filters not selected
+    final bool showButton =
+        _selectedClassSection != null && _selectedSubject != null;
+
+    if (!showButton) {
+      return SizedBox.shrink();
     }
 
     return Align(
       alignment: Alignment.bottomCenter,
-      child: Container(
-        padding: EdgeInsets.all(appContentHorizontalPadding),
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 20,
-              offset: Offset(0, -4),
-              spreadRadius: 2,
-            )
-          ],
-          color: cardColor,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(32),
-            topRight: Radius.circular(32),
-          ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
         ),
-        width: MediaQuery.of(context).size.width,
-        height: 90,
-        child: TweenAnimationBuilder<double>(
-          tween: Tween<double>(begin: 0.95, end: 1.0),
-          duration: Duration(milliseconds: 500),
-          builder: (context, value, child) {
-            return Transform.scale(
-              scale: value,
-              child: CustomRoundedButton(
-                height: 56,
-                widthPercentage: 1.0,
-                backgroundColor: maroonPrimary,
-                buttonTitle: createAssignmentKey,
-                radius: 16,
-                textSize: 16,
-                fontWeight: FontWeight.w600,
-                showBorder: false,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      Utils.getTranslatedLabel(createAssignmentKey),
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: 'Poppins',
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Icon(
-                      Icons.add_circle_outline,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ],
-                ),
-                onTap: () {
-                  HapticFeedback.mediumImpact();
-                  Get.toNamed(Routes.teacherAddEditAssignmentScreen,
-                          arguments:
-                              TeacherAddEditAssignmentScreen.buildArguments(
-                                  assignment: null,
-                                  selectedClassSection: _selectedClassSection,
-                                  selectedSubject: _selectedSubject))
-                      ?.then((value) {
-                    if (value != null && value is bool && value) {
-                      getAssignments();
-                    }
-                  });
-                },
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          child: Container(
+            padding: EdgeInsets.all(appContentHorizontalPadding),
+            width: MediaQuery.of(context).size.width,
+            height: 90,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  _getDarkenedColor(maroonPrimary, 0.1),
+                  maroonPrimary,
+                  _getLightenedColor(maroonPrimary, 0.1),
+                  maroonLight,
+                ],
+                stops: const [0.0, 0.3, 0.6, 1.0],
               ),
-            );
-          },
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30),
+                topRight: Radius.circular(30),
+              ),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.2),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: maroonPrimary.withOpacity(0.3),
+                  blurRadius: 20,
+                  offset: Offset(0, -5),
+                  spreadRadius: -2,
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                // Decorative elements like in the AppBar
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: AppBarDecorationPainter(
+                      color: Colors.white.withOpacity(0.07),
+                    ),
+                  ),
+                ),
+                // Animated glowing effect
+                Positioned(
+                  bottom: -80,
+                  right: -40,
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0.8, end: 1.0),
+                    duration: Duration(milliseconds: 2000),
+                    curve: Curves.easeInOut,
+                    builder: (context, value, child) {
+                      return Container(
+                        width: 180,
+                        height: 180,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              Colors.white.withOpacity(0.2 * value),
+                              Colors.white.withOpacity(0.1 * value),
+                              Colors.white.withOpacity(0.0),
+                            ],
+                            stops: const [0.0, 0.5, 1.0],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                // Button content
+                Center(
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0.95, end: 1.0),
+                    duration: Duration(milliseconds: 500),
+                    builder: (context, value, child) {
+                      return Transform.scale(
+                        scale: value,
+                        child: Material(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(15),
+                          child: InkWell(
+                            onTap: () {
+                              HapticFeedback.mediumImpact();
+                              Get.toNamed(Routes.teacherAddEditAssignmentScreen,
+                                      arguments: TeacherAddEditAssignmentScreen
+                                          .buildArguments(
+                                              assignment: null,
+                                              selectedClassSection:
+                                                  _selectedClassSection,
+                                              selectedSubject:
+                                                  _selectedSubject))
+                                  ?.then((value) {
+                                if (value != null && value is bool && value) {
+                                  getAssignments();
+                                }
+                              });
+                            },
+                            borderRadius: BorderRadius.circular(15),
+                            highlightColor: Colors.white.withOpacity(0.1),
+                            splashColor: Colors.white.withOpacity(0.2),
+                            child: Container(
+                              height: 56,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.2),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Center(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Using the same style as in AppBar
+                                    Container(
+                                      padding: const EdgeInsets.all(6),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            Colors.white.withOpacity(0.9),
+                                            Colors.white.withOpacity(0.4),
+                                          ],
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.2),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Icon(
+                                        Icons.add_rounded,
+                                        color: maroonPrimary,
+                                        size: 20,
+                                      ),
+                                    ),
+                                    SizedBox(width: 12),
+                                    // Title text with glowing effect - same as AppBar title
+                                    ShaderMask(
+                                      shaderCallback: (Rect bounds) {
+                                        return LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: [
+                                            Colors.white,
+                                            Colors.white.withOpacity(0.9),
+                                          ],
+                                        ).createShader(bounds);
+                                      },
+                                      blendMode: BlendMode.srcIn,
+                                      child: Text(
+                                        Utils.getTranslatedLabel(
+                                            createAssignmentKey),
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.black26,
+                                              offset: const Offset(0, 1),
+                                              blurRadius: 3,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
+  // Helper functions borrowed from CustomFilterModernAppBar for consistency
+  Color _getLightenedColor(Color baseColor, double factor) {
+    HSLColor hsl = HSLColor.fromColor(baseColor);
+    return hsl
+        .withLightness((hsl.lightness + factor).clamp(0.0, 1.0))
+        .toColor();
+  }
+
+  Color _getDarkenedColor(Color baseColor, double factor) {
+    HSLColor hsl = HSLColor.fromColor(baseColor);
+    return hsl
+        .withLightness((hsl.lightness - factor).clamp(0.0, 1.0))
+        .toColor();
+  }
+
   Widget _buildHeaderSection() {
-    return Container(
-      // Fixed height instead of animated
+    // Create filter configs for the CustomFilterModernAppBar
+    FilterItemConfig? classSectionFilter;
+    FilterItemConfig? subjectFilter;
+
+    // Create filters based on the current state
+    final state = context.read<ClassSectionsAndSubjectsCubit>().state;
+    if (state is ClassSectionsAndSubjectsFetchSuccess) {
+      // Class Section Filter
+      classSectionFilter = FilterItemConfig(
+        title: _selectedClassSection?.name ?? "Pilih Kelas",
+        icon: Icons.class_rounded,
+        onTap: () {
+          if (state.classSections.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Tidak ada kelas yang tersedia"),
+                backgroundColor: maroonPrimary,
+                behavior: SnackBarBehavior.floating,
+                margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            );
+            return;
+          }
+
+          if (_selectedClassSection == null) {
+            changeSelectedClassSection(state.classSections.first,
+                fetchNewSubjects: false);
+          }
+
+          HapticFeedback.lightImpact();
+          Utils.showBottomSheet(
+              child: FilterSelectionBottomsheet<ClassSection>(
+                onSelection: (value) {
+                  if (value != null) {
+                    changeSelectedClassSection(value);
+                    Get.back();
+                  }
+                },
+                selectedValue:
+                    _selectedClassSection ?? state.classSections.first,
+                titleKey: classKey,
+                values: state.classSections,
+              ),
+              context: context);
+        },
+      );
+
+      // Subject Filter
+      subjectFilter = FilterItemConfig(
+        title:
+            _selectedSubject?.subject.getSybjectNameWithType() ?? "Pilih Mapel",
+        icon: Icons.subject_rounded,
+        onTap: () {
+          if (state.subjects.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Tidak ada mata pelajaran yang tersedia"),
+                backgroundColor: maroonPrimary,
+                behavior: SnackBarBehavior.floating,
+                margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            );
+            return;
+          }
+
+          if (_selectedSubject == null) {
+            changeSelectedTeacherSubject(state.subjects.first);
+          }
+
+          HapticFeedback.lightImpact();
+          Utils.showBottomSheet(
+              child: FilterSelectionBottomsheet<TeacherSubject>(
+                onSelection: (value) {
+                  if (value != null) {
+                    changeSelectedTeacherSubject(value);
+                    Get.back();
+                  }
+                },
+                selectedValue: _selectedSubject ?? state.subjects.first,
+                values: state.subjects,
+                titleKey: subjectKey,
+              ),
+              context: context);
+        },
+      );
+    }
+
+    // Return the new modern AppBar with filters
+    return CustomFilterModernAppBar(
+      title: Utils.getTranslatedLabel(manageAssignmentKey),
+      titleIcon: Icons.assignment_rounded,
+      primaryColor: maroonPrimary,
+      secondaryColor: maroonLight,
+      onBackPressed: () => Navigator.pop(context),
+      firstFilterItem: classSectionFilter,
+      secondFilterItem: subjectFilter,
       height: 200.0,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [maroonPrimary, maroonDark],
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(30),
-          bottomRight: Radius.circular(30),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: maroonPrimary.withOpacity(0.3),
-            blurRadius: 20,
-            offset: Offset(0, 10),
-            spreadRadius: 0,
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Stack(
-          children: [
-            // Decorative elements remain unchanged
-            Positioned(
-              right: -20,
-              top: -20,
-              child: Container(
-                width: 140,
-                height: 140,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-            Positioned(
-              left: -30,
-              bottom: -30,
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-
-            // Content
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Back button and title row
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Back button
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            Icons.arrow_back_rounded,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      // Title and subtitle in a column
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              Utils.getTranslatedLabel(manageAssignmentKey),
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontFamily: 'Poppins',
-                              ),
-                            ),
-                            // Always show subtitle
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4.0),
-                              child: Text(
-                                "Kelola tugas untuk kelas Anda",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white.withOpacity(0.9),
-                                  fontFamily: 'Poppins',
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // Add a flexible spacing that adapts to available space
-                  Spacer(flex: 1),
-
-                  // Filter buttons with fixed padding
-                  BlocConsumer<ClassSectionsAndSubjectsCubit,
-                      ClassSectionsAndSubjectsState>(
-                    listener: (context, state) {
-                      if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                        if (_selectedClassSection == null &&
-                            state.classSections.isNotEmpty) {
-                          changeSelectedClassSection(state.classSections.first,
-                              fetchNewSubjects: false);
-                        }
-                        if (_selectedSubject == null &&
-                            state.subjects.isNotEmpty) {
-                          changeSelectedTeacherSubject(state.subjects.first);
-                        }
-                      }
-                    },
-                    builder: (context, state) {
-                      if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                        return Container(
-                          height: 52, // Fixed height always
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    if (state.classSections.isEmpty) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                              "Tidak ada kelas yang tersedia"),
-                                          backgroundColor: maroonPrimary,
-                                          behavior: SnackBarBehavior.floating,
-                                          margin: EdgeInsets.symmetric(
-                                              horizontal: 20, vertical: 10),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(16),
-                                          ),
-                                        ),
-                                      );
-                                      return;
-                                    }
-
-                                    if (_selectedClassSection == null) {
-                                      changeSelectedClassSection(
-                                          state.classSections.first,
-                                          fetchNewSubjects: false);
-                                    }
-
-                                    HapticFeedback.lightImpact();
-                                    Utils.showBottomSheet(
-                                        child: FilterSelectionBottomsheet<
-                                            ClassSection>(
-                                          onSelection: (value) {
-                                            if (value != null) {
-                                              changeSelectedClassSection(value);
-                                              Get.back();
-                                            }
-                                          },
-                                          selectedValue:
-                                              _selectedClassSection ??
-                                                  state.classSections.first,
-                                          titleKey: classKey,
-                                          values: state.classSections,
-                                        ),
-                                        context: context);
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 12),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.15),
-                                      borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(
-                                        color: Colors.white.withOpacity(0.3),
-                                        width: 1,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.class_rounded,
-                                          color: Colors.white,
-                                          size: 18,
-                                        ),
-                                        SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            _selectedClassSection?.name ??
-                                                Utils.getTranslatedLabel(
-                                                    classKey),
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 14,
-                                              fontFamily: 'Poppins',
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        Icon(
-                                          Icons.keyboard_arrow_down_rounded,
-                                          color: Colors.white,
-                                          size: 18,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 12),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    if (state.subjects.isEmpty) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                              "Tidak ada mata pelajaran yang tersedia"),
-                                          backgroundColor: maroonPrimary,
-                                          behavior: SnackBarBehavior.floating,
-                                          margin: EdgeInsets.symmetric(
-                                              horizontal: 20, vertical: 10),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(16),
-                                          ),
-                                        ),
-                                      );
-                                      return;
-                                    }
-
-                                    if (_selectedSubject == null) {
-                                      changeSelectedTeacherSubject(
-                                          state.subjects.first);
-                                    }
-
-                                    HapticFeedback.lightImpact();
-                                    Utils.showBottomSheet(
-                                        child: FilterSelectionBottomsheet<
-                                            TeacherSubject>(
-                                          selectedValue: _selectedSubject ??
-                                              state.subjects.first,
-                                          titleKey: subjectKey,
-                                          values: state.subjects,
-                                          onSelection: (value) {
-                                            if (value != null) {
-                                              changeSelectedTeacherSubject(
-                                                  value);
-                                              Get.back();
-                                            }
-                                          },
-                                        ),
-                                        context: context);
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 12),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.15),
-                                      borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(
-                                        color: Colors.white.withOpacity(0.3),
-                                        width: 1,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.subject_rounded,
-                                          color: Colors.white,
-                                          size: 18,
-                                        ),
-                                        SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            _selectedSubject?.subject
-                                                    .getSybjectNameWithType() ??
-                                                Utils.getTranslatedLabel(
-                                                    subjectKey),
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 14,
-                                              fontFamily: 'Poppins',
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        Icon(
-                                          Icons.keyboard_arrow_down_rounded,
-                                          color: Colors.white,
-                                          size: 18,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                      return Container();
-                    },
-                  ),
-
-                  // Add bottom padding to ensure content doesn't touch the bottom edge
-                  SizedBox(height: 10),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

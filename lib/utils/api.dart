@@ -42,6 +42,10 @@ class Api {
   static String getClasses = "${databaseUrl}classes";
   static String getSessionYears = "${databaseUrl}session-years";
 
+  static String getAssignmentMonitoring =
+      "${databaseUrl}staff/assignment-monitoring/show";
+  static String getTeacherAssignmentMonitoring =
+      "${databaseUrl}staff/assignment-monitoring/teacher";
   static String getStudents = "${databaseUrl}teacher/student-list";
   static String getStaffs = "${databaseUrl}staff/staffs";
   static String getTimeTableOfTeacher = "${databaseUrl}staff/teacher-timetable";

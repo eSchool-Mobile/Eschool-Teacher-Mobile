@@ -123,12 +123,12 @@ class _ProfileContainerState extends State<ProfileContainer>
                       child: FadeInAnimation(child: widget),
                     ),
                     children: <Widget>[
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 8),
 
-                      // Welcome message
-                      _buildWelcomeSection(context),
+                      // // Welcome message
+                      // _buildWelcomeSection(context),
 
-                      const SizedBox(height: 32),
+                      // const SizedBox(height: 32),
 
                       _buildMenuSection(
                         context: context,
@@ -262,77 +262,77 @@ class _ProfileContainerState extends State<ProfileContainer>
     );
   }
 
-  Widget _buildWelcomeSection(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white,
-            AppColorPalette.warmBeige.withOpacity(0.4),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppColorPalette.primaryMaroon.withOpacity(0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppColorPalette.primaryMaroon.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.waving_hand_rounded,
-                  color: Color(0xFF8B0000).withOpacity(0.9),
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Selamat datang,",
-                      style: GoogleFonts.poppins(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color:
-                            Colors.black.withOpacity(0.7), // Changed to black
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      context.read<AuthCubit>().getUserDetails().firstName ??
-                          "Pengguna",
-                      style: GoogleFonts.poppins(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black, // Changed to black
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildWelcomeSection(BuildContext context) {
+  //   return Container(
+  //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+  //     decoration: BoxDecoration(
+  //       gradient: LinearGradient(
+  //         begin: Alignment.topLeft,
+  //         end: Alignment.bottomRight,
+  //         colors: [
+  //           Colors.white,
+  //           AppColorPalette.warmBeige.withOpacity(0.4),
+  //         ],
+  //       ),
+  //       borderRadius: BorderRadius.circular(24),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: AppColorPalette.primaryMaroon.withOpacity(0.05),
+  //           blurRadius: 15,
+  //           offset: const Offset(0, 8),
+  //         ),
+  //       ],
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Row(
+  //           children: [
+  //             Container(
+  //               padding: const EdgeInsets.all(10),
+  //               decoration: BoxDecoration(
+  //                 color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+  //                 borderRadius: BorderRadius.circular(12),
+  //               ),
+  //               child: Icon(
+  //                 Icons.waving_hand_rounded,
+  //                 color: Color(0xFF8B0000).withOpacity(0.9),
+  //                 size: 22,
+  //               ),
+  //             ),
+  //             const SizedBox(width: 14),
+  //             Expanded(
+  //               child: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   Text(
+  //                     "Selamat datang,",
+  //                     style: GoogleFonts.poppins(
+  //                       fontSize: 15,
+  //                       fontWeight: FontWeight.w500,
+  //                       color:
+  //                           Colors.black.withOpacity(0.7), // Changed to black
+  //                     ),
+  //                   ),
+  //                   const SizedBox(height: 4),
+  //                   Text(
+  //                     context.read<AuthCubit>().getUserDetails().firstName ??
+  //                         "Pengguna",
+  //                     style: GoogleFonts.poppins(
+  //                       fontSize: 24,
+  //                       fontWeight: FontWeight.bold,
+  //                       color: Colors.black, // Changed to black
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildMenuSection({
     required BuildContext context,

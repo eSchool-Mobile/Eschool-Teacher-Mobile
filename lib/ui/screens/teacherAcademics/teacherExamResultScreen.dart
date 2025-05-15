@@ -272,9 +272,97 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                 controller.text = bulkMark.toString();
               }
               Navigator.pop(context);
-              Utils.showSnackBar(
-                  message: "Nilai berhasil diterapkan ke semua siswa",
-                  context: context);
+              // Show custom success toast
+              OverlayEntry? overlayEntry;
+
+              void showSuccessToast(String message) {
+                // Remove existing overlay if any
+                overlayEntry?.remove();
+                overlayEntry = null;
+                
+                overlayEntry = OverlayEntry(
+                  builder: (context) => Positioned(
+                    bottom: 70,
+                    left: 20,
+                    right: 20,
+                    child: SlideInUp(
+                      duration: Duration(milliseconds: 300),
+                      child: Material(
+                        elevation: 10,
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.transparent,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Color(0xFF43A047),  // Green shade
+                                Color(0xFF388E3C),  // Slightly darker green
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color(0xFF43A047).withOpacity(0.3),
+                                blurRadius: 12,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.check_circle_outline,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                              SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  message,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.close, color: Colors.white.withOpacity(0.7), size: 18),
+                                onPressed: () {
+                                  overlayEntry?.remove();
+                                  overlayEntry = null;
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+
+                // Show the toast
+                Overlay.of(context).insert(overlayEntry!);
+                
+                // Auto-dismiss after 3 seconds
+                Future.delayed(Duration(seconds: 3), () {
+                  overlayEntry?.remove();
+                  overlayEntry = null;
+                });
+              }
+
+              // Call the custom toast function
+              showSuccessToast("Nilai berhasil diterapkan ke semua siswa");
             },
             child: const Text("Ya"),
           ),
@@ -916,8 +1004,86 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
             child: BlocConsumer<SubmitExamMarksCubit, SubmitExamMarksState>(
               listener: (context, state) {
                 if (state is SubmitExamMarksSubmitSuccess) {
-                  Utils.showSnackBar(
-                      message: resultAddedSuccessfullyKey, context: context);
+                    // Show custom success toast
+                    OverlayEntry? overlayEntry;
+                    
+                    // Remove existing overlay if any
+                    overlayEntry?.remove();
+                    overlayEntry = null;
+                    
+                    overlayEntry = OverlayEntry(
+                    builder: (context) => Positioned(
+                      bottom: 70,
+                      left: 20,
+                      right: 20,
+                      child: SlideInUp(
+                      duration: Duration(milliseconds: 300),
+                      child: Material(
+                        elevation: 10,
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.transparent,
+                        child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color.fromARGB(255, 44, 187, 51),  // Green shade
+                            Color.fromARGB(255, 46, 193, 53),  // Slightly darker green
+                          ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                          BoxShadow(
+                            color: Color(0xFF43A047).withOpacity(0.3),
+                            blurRadius: 12,
+                            offset: Offset(0, 4),
+                          ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                          Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                            Icons.check_circle_outline,
+                            color: Colors.white,
+                            size: 20,
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                            Utils.getTranslatedLabel(resultAddedSuccessfullyKey),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                            ),
+                          ),
+
+                          ],
+                        ),
+                        ),
+                      ),
+                      ),
+                    ),
+                    );
+
+                    // Show the toast
+                    Overlay.of(context).insert(overlayEntry!);
+                    
+                    // Auto-dismiss after 3 seconds
+                    Future.delayed(Duration(seconds: 3), () {
+                    overlayEntry?.remove();
+                    overlayEntry = null;
+                    });
                 } else if (state is SubmitExamMarksSubmitFailure) {
                   Utils.showSnackBar(
                       message: state.errorMessage, context: context);

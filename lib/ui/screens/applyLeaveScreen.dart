@@ -1,10 +1,10 @@
+import 'dart:ui';
 import 'package:eschool_saas_staff/cubits/leave/applyLeaveCubit.dart';
 import 'package:eschool_saas_staff/cubits/leave/leaveSettingsCubit.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
 import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
@@ -21,6 +21,7 @@ import 'package:lottie/lottie.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 // Define our theme colors
 final Color maroonPrimary = Color(0xFF8B1F41);
@@ -62,6 +63,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
   late final Animation<double> _pulseAnimation;
   late final AnimationController _slideController;
   late final Animation<Offset> _slideAnimation;
+  late final AnimationController _appBarAnimationController;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final ScrollController _scrollController = ScrollController();
@@ -122,6 +124,12 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
       ),
     );
 
+    // Initialize app bar animation controller for CustomModernAppBar
+    _appBarAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
+
     // Start animations
     _animationController.forward();
     _slideController.forward();
@@ -156,6 +164,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     _pulseController.dispose();
     _slideController.dispose();
     _scrollController.dispose();
+    _appBarAnimationController.dispose();
     super.dispose();
   }
 
@@ -352,6 +361,21 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     );
   }
 
+  // Helper functions for color manipulation
+  Color _getLightenedColor(Color baseColor, double factor) {
+    HSLColor hsl = HSLColor.fromColor(baseColor);
+    return hsl
+        .withLightness((hsl.lightness + factor).clamp(0.0, 1.0))
+        .toColor();
+  }
+
+  Color _getDarkenedColor(Color baseColor, double factor) {
+    HSLColor hsl = HSLColor.fromColor(baseColor);
+    return hsl
+        .withLightness((hsl.lightness - factor).clamp(0.0, 1.0))
+        .toColor();
+  }
+
   Widget _buildSubmitLeaveContainer() {
     return BlocConsumer<ApplyLeaveCubit, ApplyLeaveState>(
       listener: (context, state) {
@@ -417,88 +441,234 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
       builder: (context, state) {
         return PopScope(
           canPop: state is! ApplyLeaveInProgress,
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-             
-
-                  // Submit button with animation
-                  TweenAnimationBuilder<double>(
-                    tween: Tween<double>(begin: 0.95, end: 1.0),
-                    duration: Duration(milliseconds: 500),
-                    builder: (context, value, child) {
-                      return Transform.scale(
-                        scale: value,
-                        child: CustomRoundedButton(
-                          height: 56,
-                          widthPercentage: 1.0,
-                          backgroundColor: maroonPrimary,
-                          buttonTitle: submitLeaveKey,
-                          radius: 16,
-                          textSize: 16,
-                          fontWeight: FontWeight.w600,
-                          showBorder: false,
-                          child: state is ApplyLeaveInProgress
-                              ? const CustomCircularProgressIndicator(
-                                  indicatorColor: Colors.white)
-                              : Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      submitLeaveKey.tr,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        fontFamily: 'Poppins',
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(width: 8),
-                                    Icon(
-                                      Icons.arrow_forward_rounded,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30),
+                topRight: Radius.circular(30),
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                child: Container(
+                  padding: EdgeInsets.all(appContentHorizontalPadding),
+                  width: MediaQuery.of(context).size.width,
+                  height: 90,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        _getDarkenedColor(maroonPrimary, 0.1),
+                        maroonPrimary,
+                        _getLightenedColor(maroonPrimary, 0.1),
+                        maroonLight,
+                      ],
+                      stops: const [0.0, 0.3, 0.6, 1.0],
+                    ),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.2),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: maroonPrimary.withOpacity(0.3),
+                        blurRadius: 20,
+                        offset: Offset(0, -5),
+                        spreadRadius: -2,
+                      ),
+                    ],
+                  ),
+                  child: Stack(
+                    children: [
+                      // Decorative elements like in the AppBar
+                      Positioned.fill(
+                        child: CustomPaint(
+                          painter: AppBarDecorationPainter(
+                            color: Colors.white.withOpacity(0.07),
+                          ),
+                        ),
+                      ),
+                      // Animated glowing effect
+                      Positioned(
+                        bottom: -80,
+                        right: -40,
+                        child: TweenAnimationBuilder<double>(
+                          tween: Tween<double>(begin: 0.8, end: 1.0),
+                          duration: Duration(milliseconds: 2000),
+                          curve: Curves.easeInOut,
+                          builder: (context, value, child) {
+                            return Container(
+                              width: 180,
+                              height: 180,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: RadialGradient(
+                                  colors: [
+                                    Colors.white.withOpacity(0.2 * value),
+                                    Colors.white.withOpacity(0.1 * value),
+                                    Colors.white.withOpacity(0.0),
                                   ],
+                                  stops: const [0.0, 0.5, 1.0],
                                 ),
-                          onTap: () {
-                            if (state is ApplyLeaveInProgress) {
-                              return;
-                            }
-
-                            if (_textEditingController.text.trim().isEmpty) {
-                              _showAnimatedSnackBar(
-                                  message: pleaseAddReasonKey);
-                              return;
-                            }
-
-                            if (_selectedFromDate == null) {
-                              _showAnimatedSnackBar(
-                                  message: pleaseSelectFromDateKey);
-                              return;
-                            }
-
-                            if (_selectedToDate == null) {
-                              _showAnimatedSnackBar(
-                                  message: pleaseSelectToDateKey);
-                              return;
-                            }
-
-                            context.read<ApplyLeaveCubit>().applyLeave(
-                                attachmentPaths: _uploadedFiles
-                                    .map((file) => (file.path ?? ""))
-                                    .toList(),
-                                reason: _textEditingController.text.trim(),
-                                leaveDays: _leaveDays);
+                              ),
+                            );
                           },
                         ),
-                      );
-                    },
+                      ),
+
+                      // Button content
+                      Center(
+                        child: TweenAnimationBuilder<double>(
+                          tween: Tween<double>(begin: 0.95, end: 1.0),
+                          duration: Duration(milliseconds: 500),
+                          builder: (context, value, child) {
+                            return Transform.scale(
+                              scale: value,
+                              child: Material(
+                                color: Colors.transparent,
+                                borderRadius: BorderRadius.circular(15),
+                                child: InkWell(
+                                  onTap: () {
+                                    if (state is ApplyLeaveInProgress) {
+                                      return;
+                                    }
+
+                                    if (_textEditingController.text
+                                        .trim()
+                                        .isEmpty) {
+                                      _showAnimatedSnackBar(
+                                          message: pleaseAddReasonKey);
+                                      return;
+                                    }
+
+                                    if (_selectedFromDate == null) {
+                                      _showAnimatedSnackBar(
+                                          message: pleaseSelectFromDateKey);
+                                      return;
+                                    }
+
+                                    if (_selectedToDate == null) {
+                                      _showAnimatedSnackBar(
+                                          message: pleaseSelectToDateKey);
+                                      return;
+                                    }
+
+                                    HapticFeedback.mediumImpact();
+                                    context.read<ApplyLeaveCubit>().applyLeave(
+                                        attachmentPaths: _uploadedFiles
+                                            .map((file) => (file.path ?? ""))
+                                            .toList(),
+                                        reason:
+                                            _textEditingController.text.trim(),
+                                        leaveDays: _leaveDays);
+                                  },
+                                  borderRadius: BorderRadius.circular(15),
+                                  highlightColor: Colors.white.withOpacity(0.1),
+                                  splashColor: Colors.white.withOpacity(0.2),
+                                  child: Container(
+                                    height: 56,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.12),
+                                      borderRadius: BorderRadius.circular(15),
+                                      border: Border.all(
+                                        color: Colors.white.withOpacity(0.2),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: state is ApplyLeaveInProgress
+                                          ? const CustomCircularProgressIndicator(
+                                              indicatorColor: Colors.white)
+                                          : Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                // Using the same style as in AppBar
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.all(6),
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    gradient: LinearGradient(
+                                                      begin: Alignment.topLeft,
+                                                      end:
+                                                          Alignment.bottomRight,
+                                                      colors: [
+                                                        Colors.white
+                                                            .withOpacity(0.9),
+                                                        Colors.white
+                                                            .withOpacity(0.4),
+                                                      ],
+                                                    ),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.black
+                                                            .withOpacity(0.2),
+                                                        blurRadius: 4,
+                                                        offset:
+                                                            const Offset(0, 2),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.send_rounded,
+                                                    color: maroonPrimary,
+                                                    size: 20,
+                                                  ),
+                                                ),
+                                                SizedBox(width: 12),
+                                                // Title text with glowing effect - same as AppBar title
+                                                ShaderMask(
+                                                  shaderCallback:
+                                                      (Rect bounds) {
+                                                    return LinearGradient(
+                                                      begin:
+                                                          Alignment.topCenter,
+                                                      end: Alignment
+                                                          .bottomCenter,
+                                                      colors: [
+                                                        Colors.white,
+                                                        Colors.white
+                                                            .withOpacity(0.9),
+                                                      ],
+                                                    ).createShader(bounds);
+                                                  },
+                                                  blendMode: BlendMode.srcIn,
+                                                  child: Text(
+                                                    submitLeaveKey.tr,
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      shadows: [
+                                                        Shadow(
+                                                          color: Colors.black26,
+                                                          offset: const Offset(
+                                                              0, 1),
+                                                          blurRadius: 3,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -1282,137 +1452,6 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     }
   }
 
-  Widget _buildHeaderSection() {
-    return AnimatedContainer(
-      duration: Duration(milliseconds: 400),
-      curve: Curves.easeOutQuint,
-      height: _headerHeight,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [maroonPrimary, maroonDark],
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(30),
-          bottomRight: Radius.circular(30),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: maroonPrimary.withOpacity(0.3),
-            blurRadius: 20,
-            offset: Offset(0, 10),
-            spreadRadius: 0,
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Stack(
-          children: [
-            // Decorative elements
-            Positioned(
-              right: -20,
-              top: -20,
-              child: Container(
-                width: 140,
-                height: 140,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-            Positioned(
-              left: -30,
-              bottom: -30,
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-
-            // Content
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Back button and title row
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Back button
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            Icons.arrow_back_rounded,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      // Title and subtitle in a column
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Pengajuan Cuti",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontFamily: 'Poppins',
-                              ),
-                            ),
-                            // Only show subtitle when header is expanded
-                            if (_headerHeight > 130)
-                              AnimatedOpacity(
-                                opacity: (_headerHeight - 130) /
-                                    70, // Fade out as height decreases
-                                duration: Duration(milliseconds: 200),
-                                child: Padding(
-                                  padding: const EdgeInsets.only(top: 4.0),
-                                  child: Text(
-                                    "Silakan isi formulir pengajuan cuti Anda",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white.withOpacity(0.9),
-                                      fontFamily: 'Poppins',
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // No Spacer needed - this was contributing to the overflow
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildDateRangeSection() {
     return Container(
       margin: EdgeInsets.symmetric(
@@ -1509,6 +1548,15 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
       data: theme,
       child: Scaffold(
         backgroundColor: bgColor,
+        extendBodyBehindAppBar: true,
+        appBar: CustomModernAppBar(
+          title: 'Ajukan Cuti',
+          icon: Icons.event_available_rounded,
+          fabAnimationController: _appBarAnimationController,
+          primaryColor: maroonPrimary,
+          lightColor: maroonLight,
+          onBackPressed: () => Navigator.of(context).pop(),
+        ),
         body: Stack(
           children: [
             BlocBuilder<LeaveSettingsAndSessionYearsCubit,
@@ -1517,7 +1565,6 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                 if (state is LeaveSettingsAndSessionYearsFetchSuccess) {
                   return Column(
                     children: [
-                      _buildHeaderSection(),
                       Expanded(
                         child: FadeTransition(
                           opacity: _fadeAnimation,
@@ -1525,6 +1572,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                             controller: _scrollController,
                             physics: BouncingScrollPhysics(),
                             padding: EdgeInsets.only(
+                              top: 100, // Added top padding for the app bar
                               bottom: 120,
                             ),
                             child: SlideTransition(
@@ -1722,4 +1770,32 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
       ),
     );
   }
+}
+
+// Custom painter for decorative elements in the app bar (needed for the submit button)
+class AppBarDecorationPainter extends CustomPainter {
+  final Color color;
+
+  AppBarDecorationPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Draw decorative shapes similar to those in the app bar
+    final Paint paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    // Draw circles of various sizes on the background for decoration
+    canvas.drawCircle(
+        Offset(size.width * 0.1, size.height * 0.6), size.width * 0.15, paint);
+
+    canvas.drawCircle(
+        Offset(size.width * 0.8, size.height * 0.3), size.width * 0.12, paint);
+
+    canvas.drawCircle(
+        Offset(size.width * 0.5, size.height * 0.8), size.width * 0.08, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

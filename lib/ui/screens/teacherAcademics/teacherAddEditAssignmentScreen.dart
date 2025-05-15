@@ -11,14 +11,11 @@ import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFil
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCheckboxContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/uploadImageOrFileButton.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:file_picker/file_picker.dart';
@@ -81,51 +78,36 @@ class TeacherAddEditAssignmentScreen extends StatefulWidget {
 class _TeacherAddEditAssignmentScreenState
     extends State<TeacherAddEditAssignmentScreen>
     with TickerProviderStateMixin {
-  final _formKey = GlobalKey<FormState>();
   late ClassSection? _selectedClassSection = widget.selectedClassSection;
   late TeacherSubject? _selectedSubject = widget.selectedSubject;
 
   // Animation controllers
   late AnimationController _fabAnimationController;
   late AnimationController _animationController;
-  late Animation<double> _animation;
   late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
 
   // Theme colors
   final Color _primaryColor = Color(0xFF7A1E23); // Deep maroon
   final Color _accentColor = Color(0xFF9D3C3C); // Medium maroon
   final Color _highlightColor = Color(0xFFB84D4D); // Bright maroon
   final Color _energyColor = Color(0xFFCE6D6D); // Light maroon
-  final Color _glowColor = Color(0xFFAF4F4F); // Rich maroon
-  @override
+  final Color _glowColor = Color(0xFFAF4F4F); // Rich maroon  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomModernAppBar(
-        title: widget.assignment != null ? "Edit Tugas" : "Buat Tugas Baru",
-        icon: widget.assignment != null
-            ? Icons.edit_document
-            : Icons.assignment_add,
+        title: widget.assignment != null ? "Edit Tugas" : "Buat Tugas",
+        icon: Icons.assignment_rounded,
         fabAnimationController: _fabAnimationController,
-        primaryColor: _primaryColor,
-        lightColor: _accentColor,
-        onBackPressed: () => Navigator.of(context).pop(),
+        onBackPressed: () {
+          Get.back(result: refreshAssignmentsInPreviousPage);
+        },
+        // Not showing any of the optional buttons as requested
         showAddButton: false,
         showArchiveButton: false,
         showFilterButton: false,
         showHelperButton: false,
       ),
-      body: Stack(
-        children: [
-          _buildAddEditAssignmentForm(),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: _buildSubmitButton(),
-          ),
-        ],
-      ),
+      body: _buildAddEditAssignmentForm(),
     );
   }
 
@@ -154,9 +136,8 @@ class _TeacherAddEditAssignmentScreenState
   late final TextEditingController _extraResubmissionDaysTextEditingController =
       TextEditingController(
           text: widget.assignment?.extraDaysForResubmission.toString() ?? "0");
-
-  late bool _allowedReSubmissionOfRejectedAssignment =
-      widget.assignment?.resubmission == 0;
+  // Using resubmission information from assignment
+  bool _getResubmissionStatus() => widget.assignment?.resubmission == 0;
 
   late DateTime? dueDate =
       DateTime.tryParse(widget.assignment?.dueDate.toString() ?? "");
@@ -217,13 +198,13 @@ class _TeacherAddEditAssignmentScreenState
   Color get glowColorUI => _glowColor;
   @override
   void initState() {
-    super.initState();
-
-    // Initialize animation controllers
+    super
+        .initState(); // Initialize the animation controller for the modern app bar
     _fabAnimationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2000),
-    )..repeat(reverse: true);
+      duration: Duration(milliseconds: 3000),
+    );
+    _fabAnimationController.repeat();
 
     // Add EditAssignment state listener
     context.read<EditAssignmentCubit>().stream.listen((state) {
@@ -235,8 +216,6 @@ class _TeacherAddEditAssignmentScreenState
       }
     });
 
-    // Remove duplicate initialization since it's already initialized as final
-
     // Initialize dates from existing assignment if editing
     if (widget.assignment != null) {
       start_date = widget.assignment!.startDate;
@@ -247,18 +226,8 @@ class _TeacherAddEditAssignmentScreenState
           DateFormat('dd-MM-yyyy').format(widget.assignment!.startDate);
       _endDateTextEditingController.text =
           DateFormat('dd-MM-yyyy').format(widget.assignment!.endDate);
-    }
 
-    // Inisialisasi text controller dengan nilai dari assignment jika ada
-    _startDateTextEditingController.text = widget.assignment != null
-        ? DateFormat('dd-MM-yyyy').format(widget.assignment!.startDate)
-        : '';
-
-    _endDateTextEditingController.text = widget.assignment != null
-        ? DateFormat('dd-MM-yyyy').format(widget.assignment!.endDate)
-        : '';
-
-    if (widget.assignment != null) {
+      // Set description from existing assignment
       _assignmentDescriptionTextEditingController.text =
           widget.assignment!.description;
     }
@@ -306,10 +275,6 @@ class _TeacherAddEditAssignmentScreenState
       duration: Duration(milliseconds: 1000),
       vsync: this,
     );
-    _animation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
     _animationController.forward();
 
     // Add pulse animation controller
@@ -317,11 +282,6 @@ class _TeacherAddEditAssignmentScreenState
       vsync: this,
       duration: Duration(milliseconds: 1200),
     )..repeat(reverse: true);
-
-    _pulseAnimation = CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    );
   }
 
   @override
@@ -839,7 +799,7 @@ class _TeacherAddEditAssignmentScreenState
                         _assignmentDescriptionTextEditingController.text = "";
                         _assignmentPointsTextEditingController.text = "";
                         _extraResubmissionDaysTextEditingController.text = "";
-                        _allowedReSubmissionOfRejectedAssignment = false;
+                        // Reset resubmission status
                         dueDate = null;
                         dueTime = null;
                         uploadedFiles = [];
@@ -972,66 +932,28 @@ class _TeacherAddEditAssignmentScreenState
             Row(
               children: [
                 Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.background,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Theme.of(context).dividerColor,
-                      ),
-                    ),
-                    child: CheckboxListTile(
-                      title: Text(
-                        "Teks",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                      ),
-                      value: _isTextAnswerAllowed,
-                      activeColor: Theme.of(context).colorScheme.secondary,
-                      checkColor: Theme.of(context).colorScheme.background,
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 12),
-                      onChanged: (value) {
-                        setState(() {
-                          _isTextAnswerAllowed = value ?? false;
-                        });
-                      },
-                    ),
+                  child: CustomCheckboxContainer(
+                    titleKey: 'Teks',
+                    backgroundColor: Colors.grey.shade50,
+                    value: _isTextAnswerAllowed,
+                    onValueChanged: (value) {
+                      setState(() {
+                        _isTextAnswerAllowed = value ?? false;
+                      });
+                    },
                   ),
                 ),
                 const SizedBox(width: 15),
                 Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.background,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Theme.of(context).dividerColor,
-                      ),
-                    ),
-                    child: CheckboxListTile(
-                      title: Text(
-                        "File",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                      ),
-                      value: _isFileAnswerAllowed,
-                      activeColor: Theme.of(context).colorScheme.secondary,
-                      checkColor: Theme.of(context).colorScheme.background,
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 12),
-                      onChanged: (value) {
-                        setState(() {
-                          _isFileAnswerAllowed = value ?? false;
-                        });
-                      },
-                    ),
+                  child: CustomCheckboxContainer(
+                    titleKey: 'File',
+                    backgroundColor: Colors.grey.shade50,
+                    value: _isFileAnswerAllowed,
+                    onValueChanged: (value) {
+                      setState(() {
+                        _isFileAnswerAllowed = value ?? false;
+                      });
+                    },
                   ),
                 ),
               ],
@@ -1131,936 +1053,551 @@ class _TeacherAddEditAssignmentScreenState
   }
 
   Widget _buildAddEditAssignmentForm() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.only(
-          bottom: 100,
-          left: appContentHorizontalPadding,
-          right: appContentHorizontalPadding,
-          top: 10, // Reduced padding to bring content closer to the app bar
-        ),
-        child: FadeInUp(
-          duration: Duration(milliseconds: 800),
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(20),
+      physics: BouncingScrollPhysics(),
+      child: Column(
+        children: [
+          // Header with Icon
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 25, horizontal: 20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Theme.of(context).colorScheme.primary.withOpacity(0.9),
+                  Theme.of(context).colorScheme.secondary.withOpacity(0.7),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                )
+              ],
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.assignment_rounded,
+                  size: 42,
+                  color: Colors.white,
+                )
+                    .animate()
+                    .scale(duration: 500.ms)
+                    .then()
+                    .shimmer(duration: 1000.ms),
+                SizedBox(height: 15),
+                Text(
+                  widget.assignment != null ? "Edit Tugas" : "Buat Tugas",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 10,
+                        color: Colors.black26,
+                        offset: Offset(2, 2),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          SizedBox(height: 25),
+
+          // Form Content
+          BlocConsumer<ClassSectionsAndSubjectsCubit,
+              ClassSectionsAndSubjectsState>(
+            listener: (context, state) {
+              if (state is ClassSectionsAndSubjectsFetchSuccess) {
+                if (_selectedClassSection == null) {
+                  changeSelectedClassSection(state.classSections.firstOrNull,
+                      fetchNewSubjects: false);
+                }
+                if (_selectedSubject == null) {
+                  changeSelectedTeacherSubject(state.subjects.firstOrNull);
+                }
+              }
+            },
+            builder: (context, state) {
+              return state is ClassSectionsAndSubjectsFetchFailure
+                  ? Center(
+                      child: ErrorContainer(
+                      errorMessage: state.errorMessage,
+                      onTapRetry: () {
+                        context
+                            .read<ClassSectionsAndSubjectsCubit>()
+                            .getClassSectionsAndSubjects();
+                      },
+                    ))
+                  : _buildFormContent(state);
+            },
+          ),
+
+          SizedBox(height: 30),
+
+          // Submit Button
+          _buildSubmitButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormContent(ClassSectionsAndSubjectsState state) {
+    return Column(
+      children: [
+        // Basic Info Section
+        Container(
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 5,
+                blurRadius: 10,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Form Fields without wrapper
-              Column(
+              Text(
+                'Informasi Dasar',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 20), // Class Section
+              CustomSelectionDropdownSelectionButton(
+                isDisabled: widget.assignment != null,
+                onTap: () {
+                  if (state is ClassSectionsAndSubjectsFetchSuccess) {
+                    Utils.showBottomSheet(
+                      child: FilterSelectionBottomsheet<ClassSection>(
+                        showFilterByLabel: false,
+                        onSelection: (value) {
+                          changeSelectedClassSection(value);
+                          Get.back();
+                        },
+                        selectedValue: _selectedClassSection!,
+                        titleKey: classKey,
+                        values: state.classSections,
+                      ),
+                      context: context,
+                    );
+                  }
+                },
+                titleKey: _selectedClassSection?.fullName ?? 'Pilih Kelas',
+                backgroundColor: Colors.grey.shade50,
+              ),
+
+              SizedBox(height: 15), // Subject
+              CustomSelectionDropdownSelectionButton(
+                isDisabled: widget.assignment != null,
+                onTap: () {
+                  if (state is ClassSectionsAndSubjectsFetchSuccess) {
+                    Utils.showBottomSheet(
+                      child: FilterSelectionBottomsheet<TeacherSubject>(
+                        showFilterByLabel: false,
+                        onSelection: (value) {
+                          changeSelectedTeacherSubject(value!);
+                          Get.back();
+                        },
+                        selectedValue: _selectedSubject!,
+                        titleKey: subjectKey,
+                        values: state.subjects,
+                      ),
+                      context: context,
+                    );
+                  }
+                },
+                titleKey: _selectedSubject?.subject.getSybjectNameWithType() ??
+                    'Pilih Mata Pelajaran',
+                backgroundColor: Colors.grey.shade50,
+              ),
+            ],
+          ),
+        ),
+
+        SizedBox(height: 20),
+
+        // Details Section
+        Container(
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 5,
+                blurRadius: 10,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Detail Tugas',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 20),
+
+              // Assignment Name
+              CustomTextFieldContainer(
+                textEditingController: _assignmentNameTextEditingController,
+                hintTextKey: 'Judul Tugas',
+                backgroundColor: Colors.grey.shade50,
+              ),
+
+              SizedBox(height: 15),
+
+              // Description
+              CustomTextFieldContainer(
+                textEditingController:
+                    _assignmentDescriptionTextEditingController,
+                maxLines: 5,
+                hintTextKey: 'Deskripsi Tugas',
+                backgroundColor: Colors.grey.shade50,
+              ),
+
+              SizedBox(height: 15), // Dates
+              Row(
                 children: [
-                  for (var field in _buildFormFields())
-                    field
-                        .animate()
-                        .fadeIn(duration: 600.ms)
-                        .slideX(begin: -0.2, end: 0),
+                  Expanded(
+                    child: CustomSelectionDropdownSelectionButton(
+                      onTap: () {
+                        _selectStartDate(context);
+                      },
+                      titleKey: start_date != null
+                          ? DateFormat('dd-MM-yyyy').format(start_date!)
+                          : "Tanggal Mulai",
+                      backgroundColor: Colors.grey.shade50,
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: CustomSelectionDropdownSelectionButton(
+                      onTap: () {
+                        _selectEndDate(context);
+                      },
+                      titleKey: end_date != null
+                          ? DateFormat('dd-MM-yyyy').format(end_date!)
+                          : "Tanggal Berakhir",
+                      backgroundColor: Colors.grey.shade50,
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 15), // Due Date & Time
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomSelectionDropdownSelectionButton(
+                      onTap: () {
+                        openDatePicker();
+                      },
+                      titleKey: dueDate != null
+                          ? Utils.getFormattedDate(dueDate!)
+                          : "Tenggat Waktu",
+                      backgroundColor: Colors.grey.shade50,
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: CustomSelectionDropdownSelectionButton(
+                      onTap: () {
+                        openTimePicker();
+                      },
+                      titleKey: dueTime != null
+                          ? Utils.getFormattedDayOfTime(dueTime!)
+                          : "Pilih Jam",
+                      backgroundColor: Colors.grey.shade50,
+                    ),
+                  ),
                 ],
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
 
-  List<Widget> _buildFormFields() {
-    return [
-      BlocConsumer<ClassSectionsAndSubjectsCubit,
-          ClassSectionsAndSubjectsState>(
-        listener: (context, state) {
-          if (state is ClassSectionsAndSubjectsFetchSuccess) {
-            if (_selectedClassSection == null) {
-              changeSelectedClassSection(state.classSections.firstOrNull,
-                  fetchNewSubjects: false);
-            }
-            if (_selectedSubject == null) {
-              changeSelectedTeacherSubject(state.subjects.firstOrNull);
-            }
-          }
-        },
-        builder: (context, state) {
-          return state is ClassSectionsAndSubjectsFetchFailure
-              ? Center(
-                  child: ErrorContainer(
-                  errorMessage: state.errorMessage,
-                  onTapRetry: () {
-                    context
-                        .read<ClassSectionsAndSubjectsCubit>()
-                        .getClassSectionsAndSubjects();
-                  },
-                ))
-              : Column(
-                  children: [
-                    CustomSelectionDropdownSelectionButton(
-                      isDisabled: widget.assignment !=
-                          null, //if user is editing, they can't change class
-                      onTap: () {
-                        if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                          Utils.showBottomSheet(
-                              child: FilterSelectionBottomsheet<ClassSection>(
-                                showFilterByLabel: false,
-                                onSelection: (value) {
-                                  changeSelectedClassSection(value!);
-                                  Get.back();
-                                },
-                                selectedValue: _selectedClassSection!,
-                                titleKey: classKey,
-                                values: state.classSections,
-                              ),
-                              context: context);
-                        }
-                      },
-                      titleKey: _selectedClassSection?.id == null
-                          ? classKey
-                          : (_selectedClassSection?.fullName ?? ""),
-                      backgroundColor:
-                          Theme.of(context).scaffoldBackgroundColor,
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    CustomSelectionDropdownSelectionButton(
-                      isDisabled: widget.assignment !=
-                          null, //if user is editing, they can't change subject
-                      onTap: () {
-                        if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                          Utils.showBottomSheet(
-                              child: FilterSelectionBottomsheet<TeacherSubject>(
-                                showFilterByLabel: false,
-                                selectedValue: _selectedSubject!,
-                                titleKey: subjectKey,
-                                values: state.subjects,
-                                onSelection: (value) {
-                                  changeSelectedTeacherSubject(value!);
-                                  Get.back();
-                                },
-                              ),
-                              context: context);
-                        }
-                      },
-                      titleKey: _selectedSubject?.id == null
-                          ? subjectKey
-                          : _selectedSubject?.subject
-                                  .getSybjectNameWithType() ??
-                              "",
-                      backgroundColor:
-                          Theme.of(context).scaffoldBackgroundColor,
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    CustomTextFieldContainer(
-                        textEditingController:
-                            _assignmentNameTextEditingController,
-                        backgroundColor:
-                            Theme.of(context).scaffoldBackgroundColor,
-                        hintTextKey: assignmentNameKey),
-                    CustomTextFieldContainer(
-                        textEditingController:
-                            _assignmentDescriptionTextEditingController,
-                        maxLines: 5,
-                        backgroundColor:
-                            Theme.of(context).scaffoldBackgroundColor,
-                        hintTextKey: instructionsKey),
-                    Column(
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: CustomSelectionDropdownSelectionButton(
-                                onTap: () {
-                                  _selectStartDate(context); // Update this line
-                                },
-                                titleKey: start_date != null
-                                    ? DateFormat('dd-MM-yyyy')
-                                        .format(start_date!)
-                                    : "Tgl di Mulai",
-                                backgroundColor:
-                                    Theme.of(context).scaffoldBackgroundColor,
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 15,
-                            ),
-                            Expanded(
-                              child: CustomSelectionDropdownSelectionButton(
-                                onTap: () {
-                                  _selectEndDate(context); // Update this line
-                                },
-                                titleKey: end_date != null
-                                    ? DateFormat('dd-MM-yyyy').format(end_date!)
-                                    : "Tgl Berakhir",
-                                backgroundColor:
-                                    Theme.of(context).scaffoldBackgroundColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        // Due Date and Due Time
-                        Row(
-                          children: [
-                            Expanded(
-                              child: CustomSelectionDropdownSelectionButton(
-                                onTap: () {
-                                  openDatePicker();
-                                },
-                                titleKey: dueDate != null
-                                    ? Utils.getFormattedDate(dueDate!)
-                                    : dueDateKey,
-                                backgroundColor:
-                                    Theme.of(context).scaffoldBackgroundColor,
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 15,
-                            ),
-                            Expanded(
-                              child: CustomSelectionDropdownSelectionButton(
-                                onTap: () {
-                                  openTimePicker();
-                                },
-                                titleKey: dueTime != null
-                                    ? Utils.getFormattedDayOfTime(dueTime!)
-                                    : dueTimeKey,
-                                backgroundColor:
-                                    Theme.of(context).scaffoldBackgroundColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    CustomTextFieldContainer(
-                      keyboardType: TextInputType.number,
-                      textEditingController:
-                          _assignmentPointsTextEditingController,
-                      backgroundColor:
-                          Theme.of(context).scaffoldBackgroundColor,
-                      hintTextKey: pointsKey,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    ),
+        SizedBox(height: 20),
 
-                    CustomTextFieldContainer(
-                      textEditingController: _minPointsTextEditingController,
-                      hintTextKey: "Nilai Syarat Kelulusan",
-                      keyboardType: TextInputType.number,
-                      backgroundColor:
-                          Theme.of(context).scaffoldBackgroundColor,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    ),
+        // Points Section
+        Container(
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 5,
+                blurRadius: 10,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Pengaturan Nilai',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 20),
 
-                    CustomTextFieldContainer(
-                        textEditingController:
-                            _extraResubmissionDaysTextEditingController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly
-                        ],
-                        backgroundColor:
-                            Theme.of(context).scaffoldBackgroundColor,
-                        hintTextKey: extraDaysForResubmissionKey),
+              // Points
+              CustomTextFieldContainer(
+                keyboardType: TextInputType.number,
+                textEditingController: _assignmentPointsTextEditingController,
+                hintTextKey: 'Nilai Maksimal',
+                backgroundColor: Colors.grey.shade50,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              ),
 
-                    //pre-added study materials
-                    widget.assignment != null
-                        ? Column(
-                            children: assignmentAttachments
-                                .map(
-                                  (studyMaterial) => Padding(
-                                    padding: const EdgeInsets.only(bottom: 15),
-                                    child: StudyMaterialContainer(
-                                      onDeleteStudyMaterial: (fileId) {
-                                        assignmentAttachments.removeWhere(
-                                            (element) => element.id == fileId);
-                                        refreshAssignmentsInPreviousPage = true;
-                                        setState(() {});
-                                      },
-                                      showOnlyStudyMaterialTitles: true,
-                                      showEditAndDeleteButton: true,
-                                      studyMaterial: studyMaterial,
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                          )
-                        : const SizedBox(),
+              SizedBox(height: 15),
 
-                    _buildAnswerTypeSelection(),
+              // Min Points
+              CustomTextFieldContainer(
+                keyboardType: TextInputType.number,
+                textEditingController: _minPointsTextEditingController,
+                hintTextKey: 'Nilai Minimal Kelulusan',
+                backgroundColor: Colors.grey.shade50,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              ),
 
-                    const SizedBox(height: 15),
+              SizedBox(height: 15),
 
-                    CustomTextFieldContainer(
-                      textEditingController: _maxFileSizeTextEditingController,
-                      hintTextKey: "Maximum File Size (MB)",
-                      keyboardType: TextInputType.number,
-                      backgroundColor:
-                          Theme.of(context).scaffoldBackgroundColor,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    ),
+              // Extra Resubmission Days
+              CustomTextFieldContainer(
+                keyboardType: TextInputType.number,
+                textEditingController:
+                    _extraResubmissionDaysTextEditingController,
+                hintTextKey: 'Hari untuk Pengumpulan Ulang',
+                backgroundColor: Colors.grey.shade50,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              ),
+            ],
+          ),
+        ),
 
-                    const SizedBox(height: 15),
+        SizedBox(height: 20),
 
-                    const SizedBox(height: 15),
-
-                    UploadImageOrFileButton(
-                      uploadFile: true,
-                      includeImageFileOnlyAllowedNote: true,
-                      onTap: () {
-                        _addFiles();
+        // Answer Types Section
+        Container(
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 5,
+                blurRadius: 10,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Jenis Jawaban',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 20), // Answer Types
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomCheckboxContainer(
+                      titleKey: 'Teks',
+                      backgroundColor: Colors.grey.shade50,
+                      value: _isTextAnswerAllowed,
+                      onValueChanged: (value) {
+                        setState(() {
+                          _isTextAnswerAllowed = value ?? false;
+                        });
                       },
                     ),
+                  ),
+                  SizedBox(width: 15),
+                  Expanded(
+                    child: CustomCheckboxContainer(
+                      titleKey: 'File',
+                      backgroundColor: Colors.grey.shade50,
+                      value: _isFileAnswerAllowed,
+                      onValueChanged: (value) {
+                        setState(() {
+                          _isFileAnswerAllowed = value ?? false;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
 
-                    //user's added study materials
-                    ...List.generate(uploadedFiles.length, (index) => index)
-                        .map(
-                      (index) => Padding(
-                        padding: const EdgeInsets.only(top: 15),
-                        child: CustomFileContainer(
-                          backgroundColor:
-                              Theme.of(context).scaffoldBackgroundColor,
-                          onDelete: () {
-                            uploadedFiles.removeAt(index);
-                            setState(() {});
-                          },
-                          title: uploadedFiles[index].name,
-                        ),
+              // File Types if file answer is allowed
+              if (_isFileAnswerAllowed) ...[
+                SizedBox(height: 20),
+
+                Text(
+                  'Jenis File Yang Diizinkan',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+
+                SizedBox(height: 15),
+
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: fileTypes.map((type) {
+                    return FilterChip(
+                      selected: type.isSelected,
+                      label: Text(type.name.toUpperCase()),
+                      backgroundColor: Colors.grey.shade50,
+                      selectedColor: Theme.of(context)
+                          .colorScheme
+                          .secondary
+                          .withOpacity(0.2),
+                      checkmarkColor: Theme.of(context).colorScheme.secondary,
+                      onSelected: (selected) {
+                        setState(() {
+                          type.isSelected = selected;
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+
+                SizedBox(height: 15),
+
+                // Max File Size
+                CustomTextFieldContainer(
+                  keyboardType: TextInputType.number,
+                  textEditingController: _maxFileSizeTextEditingController,
+                  hintTextKey: 'Ukuran Maksimal File (MB)',
+                  backgroundColor: Colors.grey.shade50,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                ),
+              ],
+            ],
+          ),
+        ),
+
+        SizedBox(height: 20),
+
+        // Attachment Section
+        Container(
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 5,
+                blurRadius: 10,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Lampiran',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 20),
+
+              // Existing files if editing
+              if (widget.assignment != null) ...[
+                ...assignmentAttachments.map(
+                  (attachment) => Padding(
+                    padding: EdgeInsets.only(bottom: 10),
+                    child: StudyMaterialContainer(
+                      onDeleteStudyMaterial: (fileId) {
+                        assignmentAttachments
+                            .removeWhere((element) => element.id == fileId);
+                        refreshAssignmentsInPreviousPage = true;
+                        setState(() {});
+                      },
+                      showOnlyStudyMaterialTitles: true,
+                      showEditAndDeleteButton: true,
+                      studyMaterial: attachment,
+                    ),
+                  ),
+                ),
+                if (assignmentAttachments.isNotEmpty) SizedBox(height: 15),
+              ],
+
+              // Newly uploaded files
+              ...uploadedFiles.asMap().entries.map(
+                    (entry) => Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: CustomFileContainer(
+                        backgroundColor: Colors.grey.shade50,
+                        onDelete: () {
+                          uploadedFiles.removeAt(entry.key);
+                          setState(() {});
+                        },
+                        title: entry.value.name,
                       ),
                     ),
-
-                    // ...List.generate(
-                    //     _assignmentUploadedFilesEditingController.length,
-                    //     (index) => index).map(
-                    //   (index) => Padding(
-                    //     padding: const EdgeInsets.only(top: 15),
-                    //     child: CustomFileContainer(
-                    //       backgroundColor:
-                    //           Theme.of(context).scaffoldBackgroundColor,
-                    //       onDelete: () {
-                    //         _assignmentUploadedFilesEditingController
-                    //             .removeAt(index);
-                    //         setState(() {});
-                    //       },
-                    //       title:
-                    //           _assignmentUploadedFilesEditingController[index]
-                    //               .fileName,
-                    //     ),
-                    //   ),
-                    // ),
-                  ],
-                );
-        },
-      ),
-    ];
-  }
-
-  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.12),
-              boxShadow: [
-                BoxShadow(
-                  color: _highlightColor
-                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                  blurRadius: 12 * (1 + _pulseAnimation.value),
-                  spreadRadius: 2 * _pulseAnimation.value,
-                )
-              ],
-              border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildCircleButton({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white.withOpacity(0.15),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          customBorder: CircleBorder(),
-          onTap: () {
-            HapticFeedback.lightImpact();
-            onTap();
-          },
-          child: Padding(
-            padding: EdgeInsets.all(10),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 20,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBasicInfoSection() {
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 5,
-            blurRadius: 10,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Informasi Dasar',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-          ),
-          SizedBox(height: 20),
-          _buildAnimatedTextField(
-            controller: _assignmentNameTextEditingController,
-            label: 'Nama Tugas',
-            icon: Icons.assignment,
-          ),
-          SizedBox(height: 15),
-          _buildClassSectionDropdown(),
-          SizedBox(height: 15),
-          _buildSubjectDropdown(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildClassSectionDropdown() {
-    return BlocBuilder<ClassSectionsAndSubjectsCubit,
-        ClassSectionsAndSubjectsState>(
-      builder: (context, state) {
-        if (state is ClassSectionsAndSubjectsFetchSuccess) {
-          return _buildAnimatedTextField(
-            controller: TextEditingController(
-                text:
-                    _selectedClassSection?.fullName ?? 'Select Class Section'),
-            label: 'Bagian Kelas',
-            icon: Icons.class_,
-            readOnly: true,
-            onTap: () {
-              Utils.showBottomSheet(
-                  child: FilterSelectionBottomsheet<ClassSection>(
-                    showFilterByLabel: false,
-                    onSelection: (value) {
-                      changeSelectedClassSection(value!);
-                      Get.back();
-                    },
-                    selectedValue: _selectedClassSection!,
-                    titleKey: classKey,
-                    values: state.classSections,
                   ),
-                  context: context);
-            },
-          );
-        }
-        return _buildAnimatedTextField(
-          controller: TextEditingController(text: 'Loading...'),
-          label: 'Bagian Kelas',
-          icon: Icons.class_,
-          readOnly: true,
-        );
-      },
-    );
-  }
 
-  Widget _buildSubjectDropdown() {
-    return BlocBuilder<ClassSectionsAndSubjectsCubit,
-        ClassSectionsAndSubjectsState>(
-      builder: (context, state) {
-        if (state is ClassSectionsAndSubjectsFetchSuccess) {
-          return _buildAnimatedTextField(
-            controller: TextEditingController(
-                text: _selectedSubject?.subject.getSybjectNameWithType() ??
-                    'Select Subject'),
-            label: 'Mata pelajaran',
-            icon: Icons.subject,
-            readOnly: true,
-            onTap: () {
-              Utils.showBottomSheet(
-                  child: FilterSelectionBottomsheet<TeacherSubject>(
-                    showFilterByLabel: false,
-                    onSelection: (value) {
-                      changeSelectedTeacherSubject(value!);
-                      Get.back();
-                    },
-                    selectedValue: _selectedSubject!,
-                    titleKey: subjectKey,
-                    values: state.subjects,
-                  ),
-                  context: context);
-            },
-          );
-        }
-        return _buildAnimatedTextField(
-          controller: TextEditingController(text: 'Loading...'),
-          label: 'Mata Pelajaran',
-          icon: Icons.subject,
-          readOnly: true,
-        );
-      },
-    );
-  }
+              SizedBox(height: 15),
 
-  Widget _buildAssignmentDetailsSection() {
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 5,
-            blurRadius: 10,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Detail Tugas',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-          ),
-          SizedBox(height: 20),
-          _buildAnimatedTextField(
-            controller: _assignmentDescriptionTextEditingController,
-            label: 'Keterangan',
-            icon: Icons.description,
-            maxLines:
-                null, // Changed from fixed 3 lines to null for auto-expansion
-          ),
-          SizedBox(height: 15),
-          Row(
-            children: [
-              Expanded(
-                child: _buildAnimatedTextField(
-                  controller: _startDateTextEditingController,
-                  label: 'Tgl Mulai',
-                  icon: Icons.calendar_today,
-                  onTap: () => _selectStartDate(context),
-                  readOnly: true,
-                ),
-              ),
-              SizedBox(width: 15),
-              Expanded(
-                child: _buildAnimatedTextField(
-                  controller: _endDateTextEditingController,
-                  label: 'Tgl Berakhir',
-                  icon: Icons.calendar_today,
-                  onTap: () => _selectEndDate(context),
-                  readOnly: true,
-                ),
+              // Upload button
+              UploadImageOrFileButton(
+                uploadFile: true,
+                includeImageFileOnlyAllowedNote: true,
+                onTap: () {
+                  _addFiles();
+                },
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSubmissionSettingsSection() {
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 5,
-            blurRadius: 10,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Pengaturan Pengiriman',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-          ),
-          SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: CheckboxListTile(
-                  title: Text('Text'),
-                  value: _isTextAnswerAllowed,
-                  onChanged: (value) {
-                    setState(() {
-                      _isTextAnswerAllowed = value ?? false;
-                    });
-                  },
-                ),
-              ),
-              Expanded(
-                child: CheckboxListTile(
-                  title: Text('File'),
-                  value: _isFileAnswerAllowed,
-                  onChanged: (value) {
-                    setState(() {
-                      _isFileAnswerAllowed = value ?? false;
-                    });
-                  },
-                ),
-              ),
-            ],
-          ),
-          if (_isFileAnswerAllowed) ...[
-            SizedBox(height: 15),
-            _buildFileTypeSelection(),
-          ],
-          SizedBox(height: 15),
-          Row(
-            children: [
-              Expanded(
-                child: _buildAnimatedTextField(
-                  controller: _assignmentPointsTextEditingController,
-                  label: 'Nilai',
-                  icon: Icons.star,
-                  keyboardType: TextInputType.number,
-                ),
-              ),
-              SizedBox(width: 15),
-              Expanded(
-                child: _buildAnimatedTextField(
-                  controller: _minPointsTextEditingController,
-                  label: 'Minimum Nilai',
-                  icon: Icons.star_border,
-                  keyboardType: TextInputType.number,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFileTypeSelection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Jenis File yang Diizinkan',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Theme.of(context).colorScheme.secondary,
-          ),
-        ),
-        SizedBox(height: 10),
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: fileTypes
-              .map(
-                (type) => FilterChip(
-                  selected: type.isSelected,
-                  label: Text(type.name.toUpperCase()),
-                  onSelected: (selected) {
-                    setState(() {
-                      type.isSelected = selected;
-                    });
-                  },
-                ),
-              )
-              .toList(),
         ),
       ],
-    );
-  }
-
-  Widget _buildAnimatedTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    int? maxLines = 1, // Change to nullable int with default 1
-    bool readOnly = false,
-    VoidCallback? onTap,
-    TextInputType? keyboardType,
-    Color? iconColor,
-    Color? labelColor,
-  }) {
-    return TextFormField(
-      controller: controller,
-      maxLines: maxLines,
-      minLines:
-          maxLines == null ? 3 : 1, // Set minimum lines when auto-expanding
-      expands: false, // Don't expand to fill all available space
-      readOnly: readOnly,
-      onTap: onTap,
-      keyboardType:
-          keyboardType ?? (maxLines == null ? TextInputType.multiline : null),
-      decoration: InputDecoration(
-        labelText: label,
-        alignLabelWithHint: maxLines != 1, // Align label with top for multiline
-        labelStyle: TextStyle(
-          color: labelColor ?? Theme.of(context).colorScheme.secondary,
-        ),
-        prefixIcon: Icon(
-          icon,
-          color: iconColor ?? Theme.of(context).colorScheme.primary,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide.none,
-        ),
-        filled: true,
-        fillColor: Colors.grey.shade50,
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide:
-              BorderSide(color: Theme.of(context).colorScheme.secondary),
-        ),
-        contentPadding: EdgeInsets.symmetric(
-            vertical: maxLines == null ? 15 : 10, horizontal: 15),
-      ),
-      validator: (v) => v!.isEmpty ? 'Required' : null,
-      textAlignVertical: TextAlignVertical.top,
-    );
-  }
-
-  Widget _buildSubmissionDetailsSection() {
-    return FadeInUp(
-      duration: Duration(milliseconds: 1000),
-      child: Container(
-        padding: EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 5,
-              blurRadius: 10,
-              offset: Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Detail Pengiriman',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-            ),
-            SizedBox(height: 20),
-
-            // Due Date & Time
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    readOnly: true,
-                    onTap: () async {
-                      final DateTime? picked = await showDatePicker(
-                        context: context,
-                        initialDate: dueDate,
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2101),
-                      );
-                      if (picked != null && picked != dueDate) {
-                        setState(() {
-                          dueDate = picked;
-                        });
-                      }
-                    },
-                    decoration: InputDecoration(
-                      labelText: 'Tenggat Tgl',
-                      prefixIcon: Icon(Icons.calendar_today,
-                          color: Theme.of(context).colorScheme.primary),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey.shade50,
-                    ),
-                    controller: TextEditingController(
-                      text: dueDate != null
-                          ? DateFormat('dd-MM-yyyy').format(dueDate!)
-                          : '',
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 15),
-                Expanded(
-                  child: TextFormField(
-                    readOnly: true,
-                    onTap: () async {
-                      final TimeOfDay? picked = await showTimePicker(
-                        context: context,
-                        initialTime: dueTime ?? TimeOfDay.now(),
-                      );
-                      if (picked != null && picked != dueTime) {
-                        setState(() {
-                          dueTime = picked;
-                        });
-                      }
-                    },
-                    decoration: InputDecoration(
-                      labelText: 'Tenggat waktu',
-                      prefixIcon: Icon(Icons.access_time,
-                          color: Theme.of(context).colorScheme.primary),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey.shade50,
-                    ),
-                    controller: TextEditingController(
-                      text: dueTime != null ? dueTime!.format(context) : '',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            SizedBox(height: 15),
-
-            // Max File Settings
-            Row(
-              children: [
-                Expanded(
-                  child: _buildAnimatedTextField(
-                    controller: _maxFileSizeTextEditingController,
-                    label: 'Max',
-                    icon: Icons.file_copy,
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-                SizedBox(width: 15),
-                Expanded(
-                  child: _buildAnimatedTextField(
-                    controller: _extraResubmissionDaysTextEditingController,
-                    label: 'Kirim Ulang',
-                    icon: Icons.replay,
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-              ],
-            ),
-
-            SizedBox(height: 20),
-
-            // File Upload Section
-            Text(
-              'File Terlampir',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            SizedBox(height: 10),
-
-            // Display uploaded files
-            if (uploadedFiles.isNotEmpty) ...[
-              ...uploadedFiles
-                  .map((file) => ListTile(
-                        leading: Icon(Icons.insert_drive_file),
-                        title: Text(file.name),
-                        trailing: IconButton(
-                          icon: Icon(Icons.clear),
-                          onPressed: () {
-                            setState(() {
-                              uploadedFiles.remove(file);
-                            });
-                          },
-                        ),
-                      ))
-                  .toList(),
-              SizedBox(height: 10),
-            ],
-
-            if (_assignmentUploadedFilesEditingController.isNotEmpty) ...[
-              ..._assignmentUploadedFilesEditingController
-                  .map((file) => ListTile(
-                        leading: Icon(Icons.insert_drive_file),
-                        title: Text(file.fileName),
-                        trailing: IconButton(
-                          icon: Icon(Icons.clear),
-                          onPressed: () {
-                            setState(() {
-                              _assignmentUploadedFilesEditingController
-                                  .remove(file);
-                            });
-                          },
-                        ),
-                      ))
-                  .toList(),
-              SizedBox(height: 10),
-            ],
-
-            // Upload button
-            ElevatedButton.icon(
-              onPressed: _addFiles,
-              icon: Icon(Icons.upload_file),
-              label: Text('Tambahkan File'),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

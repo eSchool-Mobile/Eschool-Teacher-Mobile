@@ -878,9 +878,9 @@ class _TeacherAddAttendanceScreenSubjectState
               );
             }
           }, builder: (context, submitAttendanceSubjectState) {
-            final bool isSubmitActive = attendanceReport.isNotEmpty &&
-                !(submitAttendanceSubjectState
-                    is SubmitAttendanceSubjectInProgress);
+            // Always active unless submission is in progress
+            final bool isSubmitActive = !(submitAttendanceSubjectState
+                is SubmitAttendanceSubjectInProgress);
 
             return Align(
               alignment: Alignment.bottomCenter,
@@ -904,30 +904,23 @@ class _TeacherAddAttendanceScreenSubjectState
                   height: 56,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: !isSubmitActive
-                          ? [
-                              _maroonPrimary.withOpacity(0.5),
-                              _maroonLight.withOpacity(0.5),
-                            ]
-                          : [
-                              _maroonPrimary,
-                              Color(0xFF9A1E3C),
-                              _maroonLight,
-                            ],
+                      colors: [
+                        _maroonPrimary,
+                        Color(0xFF9A1E3C),
+                        _maroonLight,
+                      ],
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                     ),
                     borderRadius: BorderRadius.circular(14),
-                    boxShadow: !isSubmitActive
-                        ? []
-                        : [
-                            BoxShadow(
-                              color: _maroonPrimary.withOpacity(0.3),
-                              offset: const Offset(0, 4),
-                              blurRadius: 12,
-                              spreadRadius: 0,
-                            ),
-                          ],
+                    boxShadow: [
+                      BoxShadow(
+                        color: _maroonPrimary.withOpacity(0.3),
+                        offset: const Offset(0, 4),
+                        blurRadius: 12,
+                        spreadRadius: 0,
+                      ),
+                    ],
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: Material(
@@ -938,7 +931,7 @@ class _TeacherAddAttendanceScreenSubjectState
                       splashColor: Colors.white.withOpacity(0.2),
                       onTap: () {
                         if (!isSubmitActive) {
-                          return;
+                          return; // Only check if submission is in progress
                         }
 
                         // Log detailed submission data
@@ -976,7 +969,9 @@ class _TeacherAddAttendanceScreenSubjectState
                             .submitSubjectAttendance(
                               date: _selectedDateTime,
                               classSectionId: _selectedClassSection?.id ?? 0,
-                              attendanceReport: attendanceReport,
+                              attendanceReport: attendanceReport.isEmpty
+                                  ? []
+                                  : attendanceReport,
                               timetableId: _selectedTimeTableId,
                               jumlahJp: _selectedJumlahJp,
                               materi: _selectedMateri,

@@ -98,6 +98,8 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                   child: FadeInAnimation(child: widget),
                 ),
                 children: [
+                  // Added an empty SizedBox to provide additional space from the appbar
+                  const SizedBox(height: 50),
                   // Classes Section
                   staffAllowedPermissionsAndModulesCubit.isPermissionGiven(
                           permission: viewClassesPermissionKey)
@@ -336,6 +338,29 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                       ),
                     ],
                   ),
+
+                  // Assignment Monitoring Section
+                  staffAllowedPermissionsAndModulesCubit.isPermissionGiven(
+                          permission: "assignment-monitoring")
+                      ? _buildMenuSection(
+                          context: context,
+                          title: "Monitoring Tugas",
+                          icon: Icons.assignment_outlined,
+                          iconColor: AppColorPalette.primaryMaroon,
+                          index: 6,
+                          menus: [
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.assessment_outlined,
+                              title: "Monitoring Tugas Guru",
+                              index: 14,
+                              onTap: () {
+                                Get.toNamed(Routes.assignmentMonitoringScreen);
+                              },
+                            ),
+                          ],
+                        )
+                      : const SizedBox(),
 
                   // Online Exam Section
                   _buildMenuSection(
