@@ -535,7 +535,34 @@ class _RecapAttendanceSubjectScreenState
           BlocBuilder<ClassesCubit, ClassesState>(
             builder: (context, state) {
               if (state is ClassesFetchSuccess) {
-                return _buildRecapTable(_filteredClassSections);
+                // Get ALL classes (both primary and other)
+                List<ClassSection> allClasses =
+                    context.read<ClassesCubit>().getAllClasses();
+
+                // Debugging to check if we're getting classes
+                print(
+                    "Received ${allClasses.length} total classes (primary + other)");
+
+                if (teacherId != null) {
+                  // Process for teacher's classes
+                  // First try to filter by teacher ID
+                  filterClassSections(allClasses, teacherId!);
+
+                  // If no filtered classes found, just show all classes
+                  if (_filteredClassSections.isEmpty) {
+                    print(
+                        "No filtered classes found, showing all ${allClasses.length} classes");
+                    return _buildRecapTable(allClasses);
+                  } else {
+                    print(
+                        "Found ${_filteredClassSections.length} classes for teacher ID: $teacherId");
+                    return _buildRecapTable(_filteredClassSections);
+                  }
+                } else {
+                  // If teacherId is null, show all classes
+                  print("Teacher ID is null, showing all classes");
+                  return _buildRecapTable(allClasses);
+                }
               }
               if (state is ClassesFetchFailure) {
                 return Center(
@@ -543,7 +570,8 @@ class _RecapAttendanceSubjectScreenState
                     padding: EdgeInsets.only(
                       top: topPaddingOfErrorAndLoadingContainer,
                     ),
-                    child: Text('Failed to fetch classes data'),
+                    child: Text(
+                        'Failed to fetch classes data: ${state.errorMessage}'),
                   ),
                 );
               }

@@ -1426,7 +1426,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                           ),
                         ),
                         Text(
-                          'Tandai sebagai jawaban benar',
+                          'Tandai Benar',
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
                             color: Colors.grey.shade700,
@@ -1594,7 +1594,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                           activeColor: Colors.green,
                         ),
                         Text(
-                          'Tandai sebagai jawaban benar',
+                          'Tandai Benar',
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
                             color: Colors.grey.shade700,

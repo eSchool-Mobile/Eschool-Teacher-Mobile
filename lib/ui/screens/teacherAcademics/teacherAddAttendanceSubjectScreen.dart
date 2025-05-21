@@ -173,7 +173,8 @@ class _TeacherAddAttendanceScreenSubjectState
     print("Selected timetable: $_selectedTimeTableId");
     if (_selectedClassSection?.id != null) {
       context.read<StudentsByClassSectionCubit>().fetchStudents(
-            status: StudentListStatus.active,
+            status: StudentListStatus
+                .all, // Tampilkan semua siswa termasuk non-aktif
             classSectionId: _selectedClassSection?.id ?? 0,
           );
     } else {

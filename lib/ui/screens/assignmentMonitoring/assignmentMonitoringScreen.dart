@@ -814,41 +814,41 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                       child: Row(
                         children: [
                           SizedBox(
-                            width: 40,
-                            child: Text(
-                              'No',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                                letterSpacing: 0.5,
-                              ),
+                          width: 40,
+                          child: Text(
+                            'No',
+                            style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
                             ),
                           ),
-                          Expanded(
-                            flex: 3,
-                            child: Text(
-                              'Nama Guru',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
                           ),
                           Expanded(
-                            flex: 2,
-                            child: Text(
-                              'Total Tugas',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                                letterSpacing: 0.5,
-                              ),
-                              textAlign: TextAlign.center,
+                          flex: 3,
+                          child: Text(
+                            'Nama Guru',
+                            style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
                             ),
+                          ),
+                          ),
+                          Expanded(
+                          flex: 2,
+                          child: Text(
+                            'Total Tugas',
+                            style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
+                            ),
+                            textAlign: TextAlign.start,
+                          ),
                           ),
                         ],
                       ),
@@ -939,100 +939,90 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                                         ),
                                       ),
 
-                                      const SizedBox(width: 8),
-
-                                      // Name column
+                                      const SizedBox(width: 8), // Name column
                                       Expanded(
                                         flex: 3,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              item.teacherName,
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.grey[800],
-                                              ),
-                                              overflow: TextOverflow.visible,
-                                              softWrap: true,
-                                            ),
-                                            // Add hint text that shows this item is clickable
-                                            Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.touch_app,
-                                                  size: 14,
-                                                  color: maroonPrimary
-                                                      .withOpacity(0.7),
-                                                ),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  'Tap untuk lihat detail',
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 12,
-                                                    color: Colors.grey[500],
-                                                    fontStyle: FontStyle.italic,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
+                                        child: Text(
+                                          item.teacherName,
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.grey[800],
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 2,
                                         ),
                                       ),
 
-                                      // Total assignments column
+                                      // Total assignments column with chevron
                                       Expanded(
                                         flex: 2,
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8, vertical: 6),
-                                          decoration: BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                maroonPrimary,
-                                                maroonLight
-                                              ],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            borderRadius:
-                                                BorderRadius.circular(30),
-                                            border: Border.all(
-                                              color: maroonPrimary
-                                                  .withOpacity(0.3),
-                                              width: 1,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: maroonPrimary
-                                                    .withOpacity(0.2),
-                                                blurRadius: 4,
-                                                offset: const Offset(0, 2),
-                                                spreadRadius: 0,
-                                              ),
-                                            ],
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              // Circle with letter
-
-                                              Text(
-                                                item.totalAssignments
-                                                    .toString(),
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.white,
+                                        child: Row(
+                                          children: [
+                                            // Assignment count pill
+                                            Expanded(
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 6),
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      maroonPrimary,
+                                                      maroonLight
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(30),
+                                                  border: Border.all(
+                                                    color: maroonPrimary
+                                                        .withOpacity(0.3),
+                                                    width: 1,
+                                                  ),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: maroonPrimary
+                                                          .withOpacity(0.2),
+                                                      blurRadius: 4,
+                                                      offset:
+                                                          const Offset(0, 2),
+                                                      spreadRadius: 0,
+                                                    ),
+                                                  ],
                                                 ),
-                                                overflow: TextOverflow.ellipsis,
+                                                child: Text(
+                                                  item.totalAssignments
+                                                      .toString(),
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.white,
+                                                  ),
+                                                  textAlign: TextAlign.center,
+                                                ),
                                               ),
-                                            ],
-                                          ),
+                                            ),
+
+                                            // Chevron icon
+                                            Container(
+                                              margin: const EdgeInsets.only(
+                                                  left: 8),
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: maroonPrimary
+                                                    .withOpacity(0.1),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Icon(
+                                                Icons.arrow_forward_ios_rounded,
+                                                size: 18,
+                                                color: maroonPrimary,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],

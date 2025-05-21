@@ -285,18 +285,35 @@ class Api {
         ...?queryParameters,
       };
 
+      // Get headers
+      final requestHeaders = headers(useAuthToken: useAuthToken ?? true);
+
+      // Special logging for payroll slip download
+      if (url == downloadPayRollSlip) {
+        print("=== PAYROLL PDF API REQUEST DETAILS ===");
+        print("URL: $url");
+        print("Query Parameters: $queryParameters");
+        print("Headers: $requestHeaders");
+      }
+
       final response = await dio.get(
         url,
         queryParameters: queryParameters,
         options: Options(
-          headers: headers(useAuthToken: useAuthToken ?? true),
+          headers: requestHeaders,
           validateStatus: (status) => status! < 500,
         ),
       );
 
       print(url);
       print("Response Status Code: ${response.statusCode}");
-      print("Full Response Data: ${response.data}");
+
+      // For payroll slip, don't log full response as it contains binary data
+      if (url == downloadPayRollSlip) {
+        print("Payroll PDF Response received - not showing full content");
+      } else {
+        print("Full Response Data: ${response.data}");
+      }
 
       if (response.statusCode == 200) {
         if (response.data is Map) {

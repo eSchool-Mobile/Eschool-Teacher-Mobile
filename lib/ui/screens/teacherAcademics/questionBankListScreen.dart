@@ -102,11 +102,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
   final _nameController = TextEditingController();
   final _typeController = TextEditingController(text: 'multiple_choice');
   final _defaultPointController = TextEditingController(text: '10');
-  final TextEditingController _searchController = TextEditingController();
-  List<BankSoal> _filteredBanks = [];
-  bool _showSearch = false;
   late QuestionBankListController _controller;
-
   // Animation controllers
   late AnimationController _backgroundAnimationController;
   late AnimationController _waveAnimationController;
@@ -117,15 +113,12 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
   late AnimationController _pulseController;
   late AnimationController _loadingController;
   late AnimationController _tabTransitionController;
-  late AnimationController _searchExpandController;
-
   // Animations
   late Animation<double> _backgroundAnimation;
   late Animation<double> _waveAnimation;
   late Animation<double> _breathingAnimation;
   late Animation<double> _rotationAnimation;
   late Animation<double> _pulseAnimation;
-  late Animation<double> _searchWidthAnimation;
 
   int _selectedTabIndex = 0;
   int _hoveredCardIndex = -1;
@@ -201,15 +194,9 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
       vsync: this,
       duration: Duration(milliseconds: 1500),
     )..repeat();
-
     _tabTransitionController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 400),
-    );
-
-    _searchExpandController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 300),
     );
 
     // Setup animations
@@ -232,20 +219,9 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
       parent: _rotationController,
       curve: Curves.linear,
     );
-
     _pulseAnimation = CurvedAnimation(
       parent: _pulseController,
       curve: Curves.easeInOut,
-    );
-
-    _searchWidthAnimation = Tween<double>(
-      begin: 0.7,
-      end: 0.9,
-    ).animate(
-      CurvedAnimation(
-        parent: _searchExpandController,
-        curve: Curves.easeOutCubic,
-      ),
     );
 
     // // Initialize particles with enhanced properties
@@ -281,7 +257,6 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     _nameController.dispose();
     _typeController.dispose();
     _defaultPointController.dispose();
-    _searchController.dispose();
     _backgroundAnimationController.dispose();
     _waveAnimationController.dispose();
     _floatingIconsController.dispose();
@@ -291,35 +266,13 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     _pulseController.dispose();
     _loadingController.dispose();
     _tabTransitionController.dispose();
-    _searchExpandController.dispose();
     Get.delete<QuestionBankListController>();
     super.dispose();
   }
 
   void _reloadData() {
     print("Manual reload triggered for QuestionBankListScreen");
-    _searchController.clear();
-    _filteredBanks = [];
-    _showSearch = false;
     context.read<QuestionBankCubit>().fetchBankSoal(widget.subject.subject.id);
-  }
-
-  void _filterBanks(String query, List<BankSoal> banks) {
-    setState(() {
-      if (query.isEmpty) {
-        _filteredBanks = banks;
-      } else {
-        _filteredBanks = banks
-            .where(
-                (bank) => bank.name.toLowerCase().contains(query.toLowerCase()))
-            .toList();
-
-        // Extra haptic feedback on results found
-        if (_filteredBanks.isNotEmpty) {
-          HapticFeedback.selectionClick();
-        }
-      }
-    });
   }
 
   @override
@@ -327,7 +280,6 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-       
         extendBodyBehindAppBar: true,
         appBar: CustomModernAppBar(
           title: widget.subject.subject.name,
@@ -347,7 +299,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
             return Stack(
               children: [
                 // Animated background with advanced effects
-             // Content with parallax scroll effect
+                // Content with parallax scroll effect
                 SafeArea(
                   top:
                       false, // Don't add padding at the top to allow white background to extend to status bar
@@ -404,10 +356,6 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                 children: [
                                   // No need for additional padding since we have an AppBar now
 
-                                  // Animated search bar moved inside the white container
-                                  if (state is BankSoalFetchSuccess &&
-                                      state.bankSoal.length > 5)
-                                    _buildSearchBar(state.bankSoal),
                                   // Content area takes remaining space
                                   Expanded(
                                     child: _buildContentArea(state),
@@ -473,8 +421,6 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     );
   }
 
-
-
   Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
@@ -511,68 +457,12 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     );
   }
 
-  Widget _buildSearchBar(List<BankSoal> banks) {
-    return FadeInDown(
-      delay: Duration(milliseconds: 300),
-      duration: Duration(milliseconds: 800),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Container(
-          height: 55,
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: _highlightColor.withOpacity(0.3),
-              width: 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: _accentColor.withOpacity(0.2),
-                blurRadius: 15,
-                spreadRadius: 0,
-                offset: Offset(0, 5),
-              ),
-            ],
-          ),
-          child: TextField(
-            controller: _searchController,
-            onChanged: (query) => _filterBanks(query, banks),
-            style: TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              hintText: 'Cari bank soal...',
-              hintStyle: TextStyle(color: Colors.white70),
-              prefixIcon: Icon(Icons.search, color: Colors.white70),
-              border: InputBorder.none,
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildContentArea(QuestionBankState state) {
     if (state is QuestionBankLoading) {
       return _buildLoadingView();
     }
 
     if (state is BankSoalFetchSuccess) {
-      // Tetap set _showSearch berdasarkan jumlah bank soal untuk menampilkan search bar
-      _showSearch = state.bankSoal.length > 5;
-
-      // Pastikan _filteredBanks selalu diisi dengan bank soal yang ada
-      if (_searchController.text.isEmpty) {
-        _filteredBanks = state.bankSoal;
-      } else {
-        _filteredBanks = state.bankSoal
-            .where((bank) => bank.name
-                .toLowerCase()
-                .contains(_searchController.text.toLowerCase()))
-            .toList();
-      }
-
       // Tampilkan pesan kosong hanya jika benar-benar tidak ada bank soal
       if (state.bankSoal.isEmpty) {
         return _buildEmptyView();
@@ -583,7 +473,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
         children: [
           // Bagian ini selalu ditampilkan selama ada bank soal
           Expanded(
-            child: _buildBankList(_filteredBanks),
+            child: _buildBankList(state.bankSoal),
           ),
         ],
       );
@@ -706,15 +596,6 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
   }
 
   Widget _buildBankList(List<BankSoal> banks) {
-    if (banks.isEmpty && _searchController.text.isNotEmpty) {
-      return Center(
-        child: Text(
-          'Tidak ada bank soal yang cocok dengan pencarian',
-          style: TextStyle(color: Colors.grey[600]),
-        ),
-      );
-    }
-
     return Stack(
       children: [
         // Holographic background effect

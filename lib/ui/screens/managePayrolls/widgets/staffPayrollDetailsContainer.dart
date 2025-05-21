@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:eschool_saas_staff/cubits/payRoll/downloadPayRollSlipCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
 import 'package:eschool_saas_staff/data/models/staffPayRoll.dart';
@@ -48,6 +47,11 @@ class StaffPayrollDetailsContainerState
   late final FocusNode _netSalaryFocusNode = FocusNode();
   bool _isEditingNetSalary = false;
 
+  late final TextEditingController _basicSalaryTextEditingController =
+      TextEditingController();
+  late final FocusNode _basicSalaryFocusNode = FocusNode();
+  bool _isEditingBasicSalary = false;
+
   late final AnimationController _animationController =
       AnimationController(vsync: this, duration: tileCollapsedDuration);
 
@@ -70,7 +74,7 @@ class StaffPayrollDetailsContainerState
           parent: _animationController, curve: Curves.easeInOut));
 
   late final Animation<double> _cardElevationAnimation =
-      Tween<double>(begin: 2, end: 8).animate(CurvedAnimation(
+      Tween<double>(begin: 1, end: 6).animate(CurvedAnimation(
           parent: _animationController, curve: Curves.easeInOut));
 
   String formatRupiah(double amount) {
@@ -97,7 +101,11 @@ class StaffPayrollDetailsContainerState
         .getNetSalaryAmount(allowedMonthlyLeaves: widget.allowedMonthlyLeaves)
         .toStringAsFixed(2);
 
-    // Add listener to focus node to handle editing state
+    // Initialize basic salary
+    _basicSalaryTextEditingController.text =
+        (widget.staffPayRoll.salary ?? 0.0).toStringAsFixed(2);
+
+    // Add listener to net salary focus node to handle editing state
     _netSalaryFocusNode.addListener(() {
       setState(() {
         _isEditingNetSalary = _netSalaryFocusNode.hasFocus;
@@ -118,12 +126,34 @@ class StaffPayrollDetailsContainerState
         }
       }
     });
+
+    // Add listener to basic salary focus node to handle editing state
+    _basicSalaryFocusNode.addListener(() {
+      setState(() {
+        _isEditingBasicSalary = _basicSalaryFocusNode.hasFocus;
+      });
+
+      // Format the value when focus is lost
+      if (!_basicSalaryFocusNode.hasFocus) {
+        try {
+          final value =
+              double.parse(_basicSalaryTextEditingController.text.trim());
+          _basicSalaryTextEditingController.text = value.toStringAsFixed(2);
+        } catch (e) {
+          // Reset to default if parsing fails
+          _basicSalaryTextEditingController.text =
+              (widget.staffPayRoll.salary ?? 0.0).toStringAsFixed(2);
+        }
+      }
+    });
   }
 
   @override
   void dispose() {
     _netSalaryTextEditingController.dispose();
     _netSalaryFocusNode.dispose();
+    _basicSalaryTextEditingController.dispose();
+    _basicSalaryFocusNode.dispose();
     _animationController.dispose();
     super.dispose();
   }
@@ -134,6 +164,14 @@ class StaffPayrollDetailsContainerState
     } catch (e) {
       return widget.staffPayRoll.getNetSalaryAmount(
           allowedMonthlyLeaves: widget.allowedMonthlyLeaves);
+    }
+  }
+
+  double getBasicSalary() {
+    try {
+      return double.parse(_basicSalaryTextEditingController.text.trim());
+    } catch (e) {
+      return widget.staffPayRoll.salary ?? 0.0;
     }
   }
 
@@ -221,7 +259,7 @@ class StaffPayrollDetailsContainerState
 
   @override
   Widget build(BuildContext context) {
-    final bool canEditNetSalary = !widget.staffPayRoll.receivedPayroll() &&
+    final bool canEditSalary = !widget.staffPayRoll.receivedPayroll() &&
         context
             .read<StaffAllowedPermissionsAndModulesCubit>()
             .isPermissionGiven(permission: editPayrollEditPermissionKey);
@@ -245,14 +283,18 @@ class StaffPayrollDetailsContainerState
               if (_isEditingNetSalary) {
                 _netSalaryFocusNode.unfocus();
               }
+
+              if (_isEditingBasicSalary) {
+                _basicSalaryFocusNode.unfocus();
+              }
             },
             child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 0),
+              margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
               child: Material(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 elevation: _cardElevationAnimation.value,
-                shadowColor: _maroonPrimary.withOpacity(0.2),
+                shadowColor: _maroonPrimary.withOpacity(0.15),
                 clipBehavior: Clip.antiAlias,
                 child: Container(
                   decoration: BoxDecoration(
@@ -297,7 +339,7 @@ class StaffPayrollDetailsContainerState
                             _buildHeaderSection(showCheckSelectionBox),
 
                             // Salary Cards Section
-                            _buildSalaryCardsSection(canEditNetSalary),
+                            _buildSalaryCardsSection(canEditSalary),
 
                             // Expanded details section
                             _buildExpandedDetailsSection(),
@@ -499,48 +541,98 @@ class StaffPayrollDetailsContainerState
             children: [
               // Basic Salary Card
               Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey[200]!),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.account_balance_wallet_outlined,
-                            size: 16,
-                            color: Colors.grey[700],
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Base',
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        widget.staffPayRoll.salary != null
-                            ? formatRupiah(widget.staffPayRoll.salary!)
-                            : "-",
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[800],
+                child: GestureDetector(
+                  onTap: canEditNetSalary
+                      ? () {
+                          setState(() {
+                            _isEditingBasicSalary = true;
+                          });
+                          // Set focus to the text field
+                          _basicSalaryFocusNode.requestFocus();
+                        }
+                      : null,
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                          color: _isEditingBasicSalary
+                              ? _maroonPrimary
+                              : Colors.grey[200]!),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            if (canEditNetSalary) ...[
+                              const Spacer(),
+                              Icon(
+                                Icons.edit,
+                                size: 14,
+                                color: Colors.grey[400],
+                              ),
+                            ],
+                          ],
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+                        const SizedBox(height: 4),
+
+                        // Show either editable text field or static text
+                        if (_isEditingBasicSalary && canEditNetSalary)
+                          TextFormField(
+                            controller: _basicSalaryTextEditingController,
+                            focusNode: _basicSalaryFocusNode,
+                            keyboardType:
+                                TextInputType.numberWithOptions(decimal: true),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r'[0-9.]')),
+                            ],
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[800],
+                            ),
+                            decoration: InputDecoration(
+                              isDense: true,
+                              contentPadding: EdgeInsets.zero,
+                              border: InputBorder.none,
+                              hintText: "0.00",
+                              hintStyle: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[400],
+                              ),
+                              prefix: Text(
+                                "Rp ",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey[800],
+                                ),
+                              ),
+                            ),
+                            onEditingComplete: () {
+                              setState(() {
+                                _isEditingBasicSalary = false;
+                              });
+                              _basicSalaryFocusNode.unfocus();
+                            },
+                          )
+                        else
+                          Text(
+                            formatRupiah(getBasicSalary()),
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[800],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -581,20 +673,6 @@ class StaffPayrollDetailsContainerState
                       children: [
                         Row(
                           children: [
-                            Icon(
-                              Icons.attach_money_rounded,
-                              size: 16,
-                              color: _maroonPrimary,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              'Final',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: _maroonPrimary,
-                              ),
-                            ),
                             if (canEditNetSalary) ...[
                               const Spacer(),
                               Icon(
@@ -605,7 +683,7 @@ class StaffPayrollDetailsContainerState
                             ],
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
 
                         // Show either editable text field or static text
                         if (_isEditingNetSalary && canEditNetSalary)
@@ -740,7 +818,7 @@ class StaffPayrollDetailsContainerState
                     ),
 
                     _buildInfoRow(
-                      label: monthlyLeaveDeductionKey,
+                      label: "Potongan",
                       value: formatRupiah(
                           widget.staffPayRoll.getPossibleSalaryDeductionAmount(
                         allowedLeaves: widget.allowedMonthlyLeaves,
@@ -790,9 +868,9 @@ class StaffPayrollDetailsContainerState
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: [
                                 BoxShadow(
-                                  color: _maroonPrimary.withOpacity(0.3),
-                                  offset: const Offset(0, 3),
-                                  blurRadius: 6,
+                                  color: _maroonPrimary.withOpacity(0.2),
+                                  offset: const Offset(0, 2),
+                                  blurRadius: 5,
                                   spreadRadius: 0,
                                 ),
                               ],

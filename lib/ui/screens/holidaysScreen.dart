@@ -82,8 +82,6 @@ class _HolidaysScreenState extends State<HolidaysScreen>
     super.dispose();
   }
 
-  
-
   Map<String, List<Holiday>> _groupHolidaysByMonth(List<Holiday> holidays) {
     final Map<String, List<Holiday>> grouped = {};
 
@@ -97,7 +95,8 @@ class _HolidaysScreenState extends State<HolidaysScreen>
 
     for (var holiday in sortedHolidays) {
       final dateTime = DateTime.parse(holiday.start_date ?? "");
-      final monthYear = "${months[dateTime.month - 1]} ${dateTime.year}";
+      final monthYear =
+          "${Utils.getMonthFullName(dateTime.month)} ${dateTime.year}";
 
       if (!grouped.containsKey(monthYear)) {
         grouped[monthYear] = [];
@@ -182,8 +181,8 @@ class _HolidaysScreenState extends State<HolidaysScreen>
                           // Adjusted padding to account for custom app bar
                           SizedBox(height: 80),
 
-                         // Holiday List
-                           Expanded(
+                          // Holiday List
+                          Expanded(
                             child: _filteredHolidays.isEmpty
                                 ? Center(
                                     child: Column(
@@ -195,7 +194,6 @@ class _HolidaysScreenState extends State<HolidaysScreen>
                                           color: Colors.grey[400],
                                         ),
                                         SizedBox(height: 16),
-                                    
                                       ],
                                     ),
                                   ).animate().fadeIn(delay: 300.ms)
@@ -297,8 +295,6 @@ class _HolidaysScreenState extends State<HolidaysScreen>
               ),
             ),
 
-
-
             // New Enhanced AppBar
             _buildAppBar(),
           ],
@@ -306,8 +302,6 @@ class _HolidaysScreenState extends State<HolidaysScreen>
       ),
     );
   }
-
- 
 
   Widget _buildAppBar() {
     return Align(
@@ -470,29 +464,27 @@ class _HolidaysScreenState extends State<HolidaysScreen>
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-               
-
                                     // Title text with glowing effect
                                     Center(
                                       child: ShaderMask(
-                                      shaderCallback: (Rect bounds) {
-                                        return LinearGradient(
-                                        colors: [
-                                          Colors.white,
-                                          Colors.white.withOpacity(0.9),
-                                        ],
-                                        ).createShader(bounds);
-                                      },
-                                      blendMode: BlendMode.srcIn,
-                                      child: Text(
-                                        Utils.getTranslatedLabel(holidaysKey),
-                                        textAlign: TextAlign.center,
-                                        style: GoogleFonts.poppins(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
+                                        shaderCallback: (Rect bounds) {
+                                          return LinearGradient(
+                                            colors: [
+                                              Colors.white,
+                                              Colors.white.withOpacity(0.9),
+                                            ],
+                                          ).createShader(bounds);
+                                        },
+                                        blendMode: BlendMode.srcIn,
+                                        child: Text(
+                                          Utils.getTranslatedLabel(holidaysKey),
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                          ),
                                         ),
-                                      ),
                                       ),
                                     ),
                                   ],
@@ -520,7 +512,6 @@ class _HolidaysScreenState extends State<HolidaysScreen>
                         ),
 
                         // Search button with interactive animation
-
                       ],
                     ),
                   ),

@@ -56,6 +56,9 @@ class _StudentAttendanceItemContainerState
   // Animation controller for interactive elements
   late AnimationController _animationController;
 
+  // Flag to check if student is active or has resigned
+  bool get isStudentActive => widget.studentDetails.isActive();
+
   @override
   void initState() {
     super.initState();
@@ -76,6 +79,11 @@ class _StudentAttendanceItemContainerState
 
   // Fixed the overflow issue by using a more space-efficient layout
   Widget _buildStatusPicker(BuildContext context) {
+    // If student isn't active, don't show status picker
+    if (!isStudentActive) {
+      return _buildResignedBadge();
+    }
+
     // Use a Row for horizontal alignment with sufficient space
     return Align(
       alignment: Alignment.centerRight,
@@ -113,6 +121,29 @@ class _StudentAttendanceItemContainerState
     );
   }
 
+  // Badge to show when student has resigned
+  Widget _buildResignedBadge() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.grey.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(
+          color: Colors.grey.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Text(
+        "Non-Aktif",
+        style: GoogleFonts.poppins(
+          color: Colors.grey[600],
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
   // Circular attendance option button - made smaller to fix overflow
   Widget _buildAttendanceOption(
     BuildContext context, {
@@ -127,6 +158,11 @@ class _StudentAttendanceItemContainerState
       child: InkWell(
         borderRadius: BorderRadius.circular(50),
         onTap: () {
+          // Check if student is active before allowing attendance change
+          if (!isStudentActive) {
+            return;
+          }
+
           // Provide haptic feedback for better user experience
           HapticFeedback.lightImpact();
 
@@ -249,16 +285,26 @@ class _StudentAttendanceItemContainerState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Student name - without text ellipsis, allowing full name to be visible
-                      Text(
-                        widget.studentDetails.fullName ?? "",
-                        style: GoogleFonts.poppins(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[800],
-                        ),
-                        overflow: TextOverflow
-                            .visible, // Changed from ellipsis to visible
-                        softWrap: true, // Ensure text can wrap to next line
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              widget.studentDetails.fullName ?? "",
+                              style: GoogleFonts.poppins(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: isStudentActive
+                                    ? Colors.grey[800]
+                                    : Colors.grey[500],
+                                decoration: isStudentActive
+                                    ? TextDecoration.none
+                                    : TextDecoration.lineThrough,
+                              ),
+                              overflow: TextOverflow.visible,
+                              softWrap: true,
+                            ),
+                          ),
+                        ],
                       ),
                       // Student ID if available
                       if (widget.studentDetails.rollNumber != null)
@@ -281,7 +327,9 @@ class _StudentAttendanceItemContainerState
                       4, // Increased flex ratio for status column to prevent overflow
                   child: widget.showStatusPicker
                       ? _buildStatusPicker(context)
-                      : Center(child: _buildStatusBadge()),
+                      : isStudentActive
+                          ? Center(child: _buildStatusBadge())
+                          : Center(child: _buildResignedBadge()),
                 ),
               ],
             ),

@@ -945,19 +945,6 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
     // For class teacher names
     final classTeacherNames = details.getClassTeacherNames();
 
-    // Get current teacher's subject from the list
-    final currentTeacherSubject =
-        (details.subjectTeachers == null || details.subjectTeachers!.isEmpty)
-            ? '-'
-            : details.subjectTeachers!
-                    .firstWhere(
-                      (teacher) => teacher.teacher?.id == getCurrentTeacherId(),
-                      orElse: () => details.subjectTeachers!.first,
-                    )
-                    .subject
-                    ?.name ??
-                '-';
-
     return Padding(
       padding: EdgeInsets.all(20),
       child: Column(
@@ -970,9 +957,8 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
               ]),
 
           SizedBox(height: 16),
-
-          _buildEnhancedInfoRow(context, 'Mata Pelajaran',
-              currentTeacherSubject, Icons.book_outlined,
+          _buildEnhancedInfoRow(context, 'Jumlah Mata Pelajaran',
+              '${details.subjectTeachers?.length ?? 0}', Icons.book_outlined,
               gradient: [
                 AppColorPalette.primaryMaroon.withOpacity(0.08),
                 AppColorPalette.secondaryMaroon.withOpacity(0.02),
@@ -1321,66 +1307,66 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
       child: Column(
         children: [
           // Elegant header with subtle gradient
-            Container(
+          Container(
             margin: EdgeInsets.only(bottom: 24, left: 16, right: 16),
             width: double.infinity,
             padding: EdgeInsets.symmetric(vertical: 22, horizontal: 24),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               gradient: LinearGradient(
-              colors: [
-                AppColorPalette.primaryMaroon.withOpacity(0.9),
-                AppColorPalette.primaryMaroon.withOpacity(0.85),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+                colors: [
+                  AppColorPalette.primaryMaroon.withOpacity(0.9),
+                  AppColorPalette.primaryMaroon.withOpacity(0.85),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
               boxShadow: [
-              BoxShadow(
-                color: AppColorPalette.shadowColor.withOpacity(0.25),
-                blurRadius: 12,
-                spreadRadius: 2,
-                offset: Offset(0, 6),
-              ),
+                BoxShadow(
+                  color: AppColorPalette.shadowColor.withOpacity(0.25),
+                  blurRadius: 12,
+                  spreadRadius: 2,
+                  offset: Offset(0, 6),
+                ),
               ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-              Text(
-                'Daftar Mata Pelajaran',
-                style: GoogleFonts.poppins(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                letterSpacing: 0.5,
-                ),
-              ),
-              SizedBox(height: 8),
-              Row(
-                children: [
-                Container(
-                  height: 2,
-                  width: 40,
-                  color: Colors.white.withOpacity(0.7),
-                ),
-                SizedBox(width: 8),
                 Text(
-                  '${subjectTeachers.length} mata pelajaran',
+                  'Daftar Mata Pelajaran',
                   style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white.withOpacity(0.9),
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
                   ),
                 ),
-                ],
-              ),
+                SizedBox(height: 8),
+                Row(
+                  children: [
+                    Container(
+                      height: 2,
+                      width: 40,
+                      color: Colors.white.withOpacity(0.7),
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      '${subjectTeachers.length} mata pelajaran',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
-            ), 
-            // Elegant subject list with minimalist design
-            AnimationLimiter(
-              child: ListView.builder(
+          ),
+          // Elegant subject list with minimalist design
+          AnimationLimiter(
+            child: ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
               padding: EdgeInsets.symmetric(

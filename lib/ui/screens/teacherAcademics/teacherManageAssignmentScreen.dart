@@ -853,67 +853,45 @@ class _TeacherManageAssignmentScreenState
                                   color: Colors.grey.shade200,
                                   width: 1,
                                 ),
-                              ),
-                              child: Column(
+                              ),                              child: Column(
                                 children: [
-                                  // Points row
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: Colors.amber.withOpacity(0.1),
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        child: Icon(
-                                          Icons.star_rounded,
-                                          color: Colors.amber.shade700,
-                                          size: 18,
-                                        ),
+                                  // Points row in a nice card format
+                                  Container(
+                                    width: double.infinity,
+                                    margin: EdgeInsets.only(bottom: 10),
+                                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                    decoration: BoxDecoration(
+                                      color: Colors.amber.withOpacity(0.08),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Colors.amber.withOpacity(0.3),
+                                        width: 1,
                                       ),
-                                      SizedBox(width: 12),
-                                      Text(
-                                        "${Utils.getTranslatedLabel(pointsKey)}: ",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: textDarkColor,
-                                        ),
-                                      ),
-                                      Text(
-                                        assignment.points.toString(),
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          color: textMediumColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-
-                                  if (assignment.extraDaysForResubmission !=
-                                      0) ...[
-                                    SizedBox(height: 16),
-                                    // Resubmission row
-                                    Row(
+                                    ),
+                                    child: Row(
                                       children: [
                                         Container(
                                           padding: EdgeInsets.all(8),
                                           decoration: BoxDecoration(
-                                            color:
-                                                Colors.green.withOpacity(0.1),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
+                                            color: Colors.amber.withOpacity(0.2),
+                                            borderRadius: BorderRadius.circular(8),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.amber.withOpacity(0.1),
+                                                blurRadius: 4,
+                                                offset: Offset(0, 2),
+                                              ),
+                                            ],
                                           ),
                                           child: Icon(
-                                            Icons.replay_rounded,
-                                            color: Colors.green,
+                                            Icons.star_rounded,
+                                            color: Colors.amber.shade700,
                                             size: 18,
                                           ),
                                         ),
                                         SizedBox(width: 12),
                                         Text(
-                                          "${Utils.getTranslatedLabel(extraDaysForResubmissionKey)}: ",
+                                          "${Utils.getTranslatedLabel(pointsKey)}: ",
                                           style: GoogleFonts.poppins(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
@@ -921,15 +899,72 @@ class _TeacherManageAssignmentScreenState
                                           ),
                                         ),
                                         Text(
-                                          "${assignment.extraDaysForResubmission} Kali",
+                                          assignment.points.toString(),
                                           style: GoogleFonts.poppins(
                                             fontSize: 14,
-                                            color: textMediumColor,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.amber.shade800,
                                           ),
                                         ),
                                       ],
                                     ),
-                                  ],
+                                  ),
+
+                                  // Resubmission row in a matching card format
+                                  if (assignment.extraDaysForResubmission != 0)
+                                    Container(
+                                      width: double.infinity,
+                                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                      decoration: BoxDecoration(
+                                        color: Colors.green.withOpacity(0.08),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: Colors.green.withOpacity(0.3),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            padding: EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color: Colors.green.withOpacity(0.2),
+                                              borderRadius: BorderRadius.circular(8),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.green.withOpacity(0.1),
+                                                  blurRadius: 4,
+                                                  offset: Offset(0, 2),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Icon(
+                                              Icons.replay_rounded,
+                                              color: Colors.green,
+                                              size: 18,
+                                            ),
+                                          ),
+                                          SizedBox(width: 12),
+                                          Text(
+                                            "${Utils.getTranslatedLabel(extraDaysForResubmissionKey)}: ",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: textDarkColor,
+                                            ),
+                                          ),
+                                          Text(
+                                            "${assignment.extraDaysForResubmission}",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.green.shade700,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  
                                 ],
                               ),
                             ),

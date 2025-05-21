@@ -310,7 +310,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                   Icon(Icons.check_circle, color: Colors.white),
                                   SizedBox(width: 12),
                                   Text(
-                                    'Pengumuman berhasil diperbarui!',
+                                    'Pengumuman  diperbarui!',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,

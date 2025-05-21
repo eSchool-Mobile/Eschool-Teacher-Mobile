@@ -49,7 +49,8 @@ class LeavesScreen extends StatefulWidget {
 class _LeavesScreenState extends State<LeavesScreen>
     with TickerProviderStateMixin {
   SessionYear? _selectedSessionYear;
-  late String _selectedMonthKey = months[(DateTime.now().month - 1)];
+  late String _selectedMonthKey =
+      Utils.getMonthFullName(DateTime.now().month).toLowerCase();
   double _headerHeight = 200.0;
   final ScrollController _scrollController = ScrollController();
 
@@ -102,7 +103,8 @@ class _LeavesScreenState extends State<LeavesScreen>
     });
 
     // Set default month to current month
-    _selectedMonthKey = months[(DateTime.now().month - 1)];
+    _selectedMonthKey =
+        Utils.getMonthFullName(DateTime.now().month).toLowerCase();
 
     // Initialize data loading pipeline
     WidgetsBinding.instance.addPostFrameCallback((_) {

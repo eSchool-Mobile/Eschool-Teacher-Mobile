@@ -74,8 +74,6 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
   late final ScrollController _scrollController = ScrollController()
     ..addListener(scrollListener);
 
-
-
   @override
   void dispose() {
     _scrollController.removeListener(scrollListener);
@@ -153,7 +151,8 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
   void getStudentList() {
     attendanceReport.clear();
     context.read<StudentsByClassSectionCubit>().fetchStudents(
-          status: StudentListStatus.active,
+          status:
+              StudentListStatus.all, // Tampilkan semua siswa termasuk non-aktif
           classSectionId: _selectedClassSection?.id ?? 0,
         );
   }
@@ -260,7 +259,6 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                           ),
                         ),
                         const SizedBox(height: 8),
-                       
                       ],
                     ),
                   )
@@ -638,7 +636,6 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
       },
     );
   }
-
 
   Widget _buildAppBar() {
     return Align(

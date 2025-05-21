@@ -520,7 +520,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                       },
                                       blendMode: BlendMode.srcIn,
                                       child: Text(
-                                        'Kelola Pengumuman',
+                                        'Pengumuman',
                                         style: GoogleFonts.poppins(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,

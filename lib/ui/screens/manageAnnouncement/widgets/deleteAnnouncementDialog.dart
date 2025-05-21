@@ -33,7 +33,7 @@ class DeleteAnnouncementDialog extends StatelessWidget {
                     Icon(Icons.check_circle, color: Colors.white),
                     SizedBox(width: 12),
                     Text(
-                      'Pengumuman berhasil dihapus!',
+                      'Pengumuman dihapus!',
                       style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,

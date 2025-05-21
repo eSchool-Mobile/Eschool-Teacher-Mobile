@@ -24,6 +24,14 @@ class _DownloadPayRollSlipDialogState extends State<DownloadPayRollSlipDialog> {
     super.initState();
     Future.delayed(Duration.zero, () {
       if (mounted) {
+        print("=== UI INITIATED PAYROLL PDF DOWNLOAD ===");
+        print("Payroll Details:");
+        print("ID: ${widget.payRoll.id}");
+        print("Title: ${widget.payRoll.title}");
+        print("Month: ${widget.payRoll.month}");
+        print("Year: ${widget.payRoll.year}");
+        print("Amount: ${widget.payRoll.amount}");
+
         context.read<DownloadPayRollSlipCubit>().downloadPayRollSlip(
             payRollId: widget.payRoll.id ?? 0,
             payRollSlipTitle: widget.payRoll.title ?? "-");

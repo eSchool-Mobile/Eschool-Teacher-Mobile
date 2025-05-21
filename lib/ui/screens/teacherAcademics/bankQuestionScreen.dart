@@ -877,8 +877,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
           borderRadius: BorderRadius.circular(28),
           child: Container(
             constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height * 0.4,
-              maxHeight: MediaQuery.of(context).size.height * 0.7,
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
+        
             ),
             child: PageView.builder(
               controller: pageController,
@@ -1299,67 +1299,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                 ),
                               ),
                             ),
-                          ),
-
-                          SizedBox(width: 12),
-
-                          // Delete Button
-                          Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(16),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(16),
-                              onTap: () =>
-                                  _showDeleteQuestionConfirmation(question),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 12),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Colors.white,
-                                      Colors.grey.shade50,
-                                    ],
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                  ),
-                                  border: Border.all(
-                                    color: Colors.grey.shade300,
-                                    width: 1.0,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.06),
-                                      blurRadius: 12,
-                                      offset: Offset(0, 5),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Center(
-                                      child: Icon(
-                                        Icons.delete_outline_rounded,
-                                        size: 18,
-                                        color: Colors.red.shade700,
-                                      ),
-                                    )
-
-                                    // Text(
-                                    //   'Hapus',
-                                    //   style: TextStyle(
-                                    //     color: Colors.red.shade700,
-                                    //     fontWeight: FontWeight.w600,
-                                    //     fontSize: 14,
-                                    //   ),
-                                    // ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+                          ), // Tombol hapus sudah dipindahkan ke bagian atas kartu
                         ],
                       )
                     else
@@ -1564,11 +1504,43 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                     ],
                   ),
                 ),
-              ),
+              ), // Tombol hapus (hanya ditampilkan untuk versi terbaru/versionIndex == 0)
+              if (versionIndex == 0)
+                Positioned(
+                  top: 20,
+                  right: 20,
+                  child: Material(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(14),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: () => _showDeleteQuestionConfirmation(question),
+                      child: Container(
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 8,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.delete_outline_rounded,
+                          size: 20,
+                          color: Colors.red.shade700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
 
               // Badge poin
               Positioned(
-                top: 20,
+                top: 70,
                 right: 20,
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -1607,7 +1579,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
 
               // Badge versi
               Positioned(
-                top: 70,
+                top: 120,
                 right: 20,
                 child: TweenAnimationBuilder(
                   tween: Tween<double>(begin: 0.0, end: 1.0),

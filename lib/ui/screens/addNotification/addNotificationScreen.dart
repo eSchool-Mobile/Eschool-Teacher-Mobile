@@ -8,6 +8,7 @@ import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFil
 import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
@@ -69,6 +70,40 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
   final TextEditingController _messageTextEditingController =
       TextEditingController();
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomModernAppBar(
+        title: 'Tambah Notifikasi',
+        icon: Icons.notifications_active,
+        fabAnimationController: _animationController,
+        primaryColor: _primaryColor,
+        lightColor: _accentColor,
+        onBackPressed: () => Navigator.of(context).pop(),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(appContentHorizontalPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 20),
+                  _buildBasicInfoSection(),
+                  SizedBox(height: 20),
+                  _buildRecipientDetailsSection(),
+                  SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
+          _buildAnimatedSubmitButton(),
+        ],
+      ),
+    );
+  }
+
   List<String> _selectedRoles = [];
 
   List<UserDetails> _selectedUsers = [];
@@ -77,20 +112,13 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
 
   // Tambahkan controller animasi - sesuai dengan createOnlineExam
   late AnimationController _animationController;
-  late Animation<double> _animation;
   late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
 
   // Tema warna - Palette maroon yang lebih lembut - sesuai dengan createOnlineExam
   final Color _primaryColor =
       Color(0xFF7A1E23); // Maroon dalam yang lebih lembut
   final Color _accentColor =
       Color(0xFF9D3C3C); // Maroon medium yang lebih lembut
-  final Color _highlightColor =
-      Color(0xFFB84D4D); // Maroon terang yang lebih lembut
-  final Color _energyColor =
-      Color(0xFFCE6D6D); // Maroon terang yang lebih lembut
-  final Color _glowColor = Color(0xFFAF4F4F); // Maroon kaya yang lebih lembut
 
   @override
   void initState() {
@@ -106,21 +134,12 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
       duration: Duration(milliseconds: 1000),
       vsync: this,
     );
-    _animation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
     _animationController.forward();
 
     _pulseController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 1200),
     )..repeat(reverse: true);
-
-    _pulseAnimation = CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    );
   }
 
   @override
@@ -269,105 +288,6 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
         }
         return const SizedBox();
       },
-    );
-  }
-
-  Widget _buildAnimatedHeader() {
-    return SlideInDown(
-      duration: Duration(milliseconds: 800),
-      child: Container(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Row(
-          children: [
-            // Tombol kembali dengan padding yang lebih kecil
-            _buildGlowingIconButton(
-              Icons.arrow_back_rounded,
-              () {
-                HapticFeedback.mediumImpact();
-                if (context.read<SendNotificationCubit>().state
-                    is SendNotificationInProgress) {
-                  return;
-                }
-                Get.back();
-              },
-            ),
-
-            SizedBox(width: 16),
-
-            // Judul dan subjudul dalam kolom
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Buat Notifikasi',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      height: 1.1,
-                      letterSpacing: 0.5,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Kirim pemberitahuan ke pengguna',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.12),
-              boxShadow: [
-                BoxShadow(
-                  color: _highlightColor
-                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                  blurRadius: 12 * (1 + _pulseAnimation.value),
-                  spreadRadius: 2 * _pulseAnimation.value,
-                )
-              ],
-              border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
-          );
-        },
-      ),
     );
   }
 
@@ -534,7 +454,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
               }
             },
             selectedValue: _sendToUserValue,
-            titleKey: sendToKey,
+            titleKey: "Penerima",
             values: const [
               allUsersKey,
               overDueFeesKey,
@@ -561,7 +481,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
             SizedBox(width: 10),
             Expanded(
               child: Text(
-                _sendToUserValue.isEmpty ? sendToKey : _sendToUserValue,
+                _sendToUserValue.isEmpty ? "Pilih Penerima" : _sendToUserValue,
                 style: TextStyle(
                   fontSize: 14,
                   color: _sendToUserValue.isEmpty
@@ -899,7 +819,18 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
 
   Widget _buildAnimatedSubmitButton() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      width: MediaQuery.of(context).size.width,
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            offset: Offset(0, -2),
+            blurRadius: 6,
+          )
+        ],
+      ),
       child: FadeInUp(
         duration: Duration(milliseconds: 600),
         child: Container(
@@ -1052,109 +983,6 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                 );
               },
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              _primaryColor,
-              Color(0xFF5A2223), // Maroon yang lebih dalam dan lembut
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildAnimatedHeader(),
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.only(top: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _glowColor.withOpacity(0.2),
-                        blurRadius: 20,
-                        spreadRadius: 5,
-                        offset: Offset(0, -5),
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 30,
-                        offset: Offset(0, -10),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    child: BlocBuilder<RolesCubit, RolesState>(
-                      builder: (context, state) {
-                        if (state is RolesFetchSuccess) {
-                          return Stack(
-                            children: [
-                              // Content
-                              SingleChildScrollView(
-                                padding: EdgeInsets.all(20),
-                                physics: BouncingScrollPhysics(),
-                                child: Column(
-                                  children: [
-                                    FadeInUp(
-                                      duration: Duration(milliseconds: 800),
-                                      child: _buildBasicInfoSection(),
-                                    ),
-                                    SizedBox(height: 25),
-                                    FadeInUp(
-                                      duration: Duration(milliseconds: 1000),
-                                      child: _buildRecipientDetailsSection(),
-                                    ),
-                                    SizedBox(height: 30),
-                                    _buildAnimatedSubmitButton(),
-                                    SizedBox(height: 20),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          );
-                        }
-                        if (state is RolesFetchFailure) {
-                          return Center(
-                            child: ErrorContainer(
-                              errorMessage: state.errorMessage,
-                              onTapRetry: () {
-                                context.read<RolesCubit>().getRoles();
-                              },
-                            ),
-                          );
-                        }
-                        return Center(
-                          child: CustomCircularProgressIndicator(
-                            indicatorColor:
-                                Theme.of(context).colorScheme.primary,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),
-            ],
           ),
         ),
       ),

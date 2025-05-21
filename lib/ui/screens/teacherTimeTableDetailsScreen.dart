@@ -1,18 +1,18 @@
 import 'package:eschool_saas_staff/cubits/teacher/timeTableOfTeacherCubit.dart';
 import 'package:eschool_saas_staff/data/models/userDetails.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/timetableSlotContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/weekdaysContainer.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
+import 'package:eschool_saas_staff/utils/constants.dart' as constants;
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
+import 'dart:ui';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class TeacherTimeTableDetailsScreen extends StatefulWidget {
   final UserDetails teacherDetails;
@@ -41,13 +41,77 @@ class TeacherTimeTableDetailsScreen extends StatefulWidget {
       _TeacherTimeTableDetailsScreenState();
 }
 
+// Custom painter for decorative elements
+class AppBarDecorationPainter extends CustomPainter {
+  final Color color;
+
+  AppBarDecorationPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    // Draw decorative circles
+    canvas.drawCircle(Offset(size.width * 0.9, size.height * 0.2), 30, paint);
+    canvas.drawCircle(Offset(size.width * 0.1, size.height * 0.8), 20, paint);
+    canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.15), 15, paint);
+    canvas.drawCircle(Offset(size.width * 0.7, size.height * 0.7), 10, paint);
+    canvas.drawCircle(Offset(size.width * 0.2, size.height * 0.4), 8, paint);
+
+    // Draw arc
+    final arcPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+
+    final arcRect = Rect.fromLTRB(size.width * 0.1, size.height * 0.2,
+        size.width * 0.6, size.height * 0.6);
+    canvas.drawArc(arcRect, 0.2, 1.5, false, arcPaint);
+
+    // Draw another arc
+    final arcRect2 = Rect.fromLTRB(size.width * 0.5, size.height * 0.4,
+        size.width * 0.9, size.height * 0.8);
+    canvas.drawArc(arcRect2, 3, 1.5, false, arcPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
+  }
+}
+
 class _TeacherTimeTableDetailsScreenState
-    extends State<TeacherTimeTableDetailsScreen> {
+    extends State<TeacherTimeTableDetailsScreen> with TickerProviderStateMixin {
   late String _selectedDayKey = Utils.weekDays.first;
+
+  // Animation controller for app bar effects
+  late AnimationController _fabAnimationController;
+  final ScrollController _scrollController = ScrollController();
+
+  // Theme colors
+  final Color _maroonPrimary = const Color(0xFF800020);
+  final Color _maroonLight = const Color(0xFFAA6976);
+
+  // Day mapping for the UI and backend
+  final List<Map<String, String>> _weekDays = [
+    {'key': 'monday', 'short': 'SEN', 'long': 'Senin'},
+    {'key': 'tuesday', 'short': 'SEL', 'long': 'Selasa'},
+    {'key': 'wednesday', 'short': 'RAB', 'long': 'Rabu'},
+    {'key': 'thursday', 'short': 'KAM', 'long': 'Kamis'},
+    {'key': 'friday', 'short': 'JUM', 'long': 'Jumat'},
+    {'key': 'saturday', 'short': 'SAB', 'long': 'Sabtu'},
+    {'key': 'sunday', 'short': 'MIN', 'long': 'Minggu'},
+  ];
 
   @override
   void initState() {
     super.initState();
+    _fabAnimationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 300));
+    _scrollController.addListener(_scrollListener);
+
     Future.delayed(Duration.zero, () {
       if (mounted) {
         context
@@ -57,129 +121,534 @@ class _TeacherTimeTableDetailsScreenState
     });
   }
 
-  Widget _buildDaysContainer() {
-    return WeekdaysContainer(
-      selectedDayKey: _selectedDayKey,
-      onSelectionChange: (String newSelection) {
-        setState(() {
-          _selectedDayKey = newSelection;
-        });
-      },
+  void _scrollListener() {
+    if (_scrollController.offset > 50) {
+      _fabAnimationController.forward();
+    } else {
+      _fabAnimationController.reverse();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    _fabAnimationController.dispose();
+    super.dispose();
+  }
+
+  // New horizontal day selector
+  Widget _buildHorizontalDaySelector() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: BouncingScrollPhysics(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: _weekDays.map((day) {
+            bool isSelected = _selectedDayKey == day['key'];
+            return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: Material(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      setState(() {
+                        _selectedDayKey = day['key']!;
+                      });
+                    },
+                    highlightColor: Colors.white.withOpacity(0.1),
+                    splashColor: Colors.white.withOpacity(0.2),
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 8, horizontal: 14),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: isSelected ? Colors.white : Colors.transparent,
+                        border: Border.all(
+                          color: isSelected
+                              ? Colors.white.withOpacity(0.9)
+                              : Colors.white.withOpacity(0.3),
+                          width: isSelected ? 1 : 0.5,
+                        ),
+                      ),
+                      child: Text(
+                        day['short']!,
+                        style: GoogleFonts.poppins(
+                          color: isSelected ? _maroonPrimary : Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+                    .animate(
+                      autoPlay: false,
+                      target: isSelected ? 1 : 0,
+                    )
+                    .scale(
+                      begin: Offset(1.0, 1.0),
+                      end: Offset(1.05, 1.05),
+                      curve: Curves.easeOutCubic,
+                      duration: Duration(milliseconds: 300),
+                    ));
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppBar() {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Container(
+        height: MediaQuery.of(context).padding.top +
+            220, // Increased height for better spacing between elements
+        child: Stack(
+          children: [
+            // Gradient background with animated shader
+            Positioned.fill(
+              child: AnimatedBuilder(
+                animation: _fabAnimationController,
+                builder: (context, _) {
+                  return ShaderMask(
+                    shaderCallback: (Rect bounds) {
+                      return LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFF690013),
+                          _maroonPrimary,
+                          Color(0xFFA12948),
+                          _maroonLight,
+                        ],
+                        stops: [0.0, 0.3, 0.6, 1.0],
+                        transform: GradientRotation(
+                            _fabAnimationController.value * 0.02),
+                      ).createShader(bounds);
+                    },
+                    blendMode: BlendMode.srcATop,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF800020),
+                            Color(0xFF9A1E3C),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(30),
+                          bottomRight: Radius.circular(30),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // Decorative elements
+            Positioned.fill(
+              child: CustomPaint(
+                painter: AppBarDecorationPainter(
+                  color: Colors.white.withOpacity(0.07),
+                ),
+              ),
+            ),
+
+            // Animated decorative circle
+            AnimatedBuilder(
+              animation: _fabAnimationController,
+              builder: (context, _) {
+                return Positioned(
+                  top: -100 + (_fabAnimationController.value * 20),
+                  right: -60 + (_fabAnimationController.value * 10),
+                  child: Container(
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          Colors.white.withOpacity(0.2),
+                          Colors.white.withOpacity(0.1),
+                          Colors.white.withOpacity(0.0),
+                        ],
+                        stops: [0.0, 0.5, 1.0],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            // App bar with blur effect - Title
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 10,
+              left: 16,
+              right: 16,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.2),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        // Back button
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Material(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(12),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              highlightColor: Colors.white.withOpacity(0.1),
+                              splashColor: Colors.white.withOpacity(0.2),
+                              onTap: () => Navigator.of(context).pop(),
+                              child: Container(
+                                padding: EdgeInsets.all(8),
+                                child: Icon(
+                                  Icons.arrow_back_rounded,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // Separator
+                        Container(
+                          height: 24,
+                          width: 1.5,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.white.withOpacity(0.0),
+                                Colors.white.withOpacity(0.5),
+                                Colors.white.withOpacity(0.0),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Title
+                        Expanded(
+                          child: Center(
+                            child: Text(
+                              Utils.getTranslatedLabel(timetableKey),
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // Teacher Profile Container with blur effect
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 76,
+              left: 16,
+              right: 16,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    height: 75,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.3),
+                        width: 1.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          offset: Offset(0, 10),
+                          blurRadius: 20,
+                          spreadRadius: -5,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 16),
+                        // Upgraded profile image with elegant border
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Colors.white.withOpacity(0.9),
+                                Colors.white.withOpacity(0.5)
+                              ],
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: _maroonPrimary.withOpacity(0.4),
+                                blurRadius: 8,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(2.5),
+                          child: Hero(
+                            tag:
+                                "teacherProfileImage_${widget.teacherDetails.id}",
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(50),
+                              child: Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: _maroonPrimary.withOpacity(0.2),
+                                ),
+                                child: (widget.teacherDetails.image ?? "")
+                                        .isNotEmpty
+                                    ? Image.network(
+                                        widget.teacherDetails.image ?? "",
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                Icon(Icons.person,
+                                                    color: _maroonPrimary,
+                                                    size: 30),
+                                        loadingBuilder:
+                                            (context, child, loadingProgress) {
+                                          if (loadingProgress == null)
+                                            return child;
+                                          return Center(
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: Colors.white,
+                                              value: loadingProgress
+                                                          .expectedTotalBytes !=
+                                                      null
+                                                  ? loadingProgress
+                                                          .cumulativeBytesLoaded /
+                                                      (loadingProgress
+                                                              .expectedTotalBytes ??
+                                                          1)
+                                                  : null,
+                                            ),
+                                          );
+                                        },
+                                      )
+                                    : Icon(
+                                        Icons.person,
+                                        color: Colors.white,
+                                        size: 30,
+                                      ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+
+                        // Teacher information with enhanced styling
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                widget.teacherDetails.fullName ?? "-",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.3,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black.withOpacity(0.3),
+                                      blurRadius: 3,
+                                      offset: Offset(0, 1),
+                                    ),
+                                  ],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                "Guru",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white.withOpacity(0.85),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            )
+                .animate()
+                .fadeIn(duration: 500.ms, delay: 100.ms)
+                .slideY(begin: -0.2, end: 0, curve: Curves.easeOutQuad),
+
+            // Horizontal day selector with elegant design
+            Positioned(
+              bottom: 10,
+              left: 16,
+              right: 16,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Container(
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.2),
+                        width: 1.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: _buildHorizontalDaySelector(),
+                  ),
+                ),
+              ),
+            )
+                .animate()
+                .fadeIn(duration: 500.ms, delay: 200.ms)
+                .slideY(begin: -0.2, end: 0, curve: Curves.easeOutQuad),
+          ],
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Stack(
-      children: [
-        BlocBuilder<TimeTableOfTeacherCubit, TimeTableOfTeacherState>(
-          builder: (context, state) {
-            if (state is TimeTableOfTeacherFetchSuccess) {
-              final slots = state.timeTableSlots
-                  .where((element) =>
-                      element.day ==
-                      weekDays[Utils.weekDays.indexOf(_selectedDayKey)])
-                  .toList();
+      body: Stack(
+        children: [
+          BlocBuilder<TimeTableOfTeacherCubit, TimeTableOfTeacherState>(
+            builder: (context, state) {
+              if (state is TimeTableOfTeacherFetchSuccess) {
+                // Map the UI day key to the backend format
+                // Convert from 'monday' to 'Monday' format as used in the backend
+                String selectedDay =
+                    _selectedDayKey.substring(0, 1).toUpperCase() +
+                        _selectedDayKey.substring(1);
 
-              if (slots.isEmpty) {
-                return const SizedBox();
-              }
-              return Align(
-                alignment: Alignment.topCenter,
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(
-                      top: Utils.appContentTopScrollPadding(context: context) +
-                          200),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.all(appContentHorizontalPadding),
-                    color: Theme.of(context).colorScheme.surface,
-                    child: Column(
-                      children: slots
-                          .map((timeTableSlot) => TimetableSlotContainer(
-                                note: timeTableSlot.note ?? "",
-                                endTime: timeTableSlot.endTime ?? "",
-                                isForClass: false,
-                                classSectionName:
-                                    timeTableSlot.classSection?.fullName ?? "-",
-                                startTime: timeTableSlot.startTime ?? "",
-                                subjectName: timeTableSlot.subject
-                                        ?.getSybjectNameWithType() ??
-                                    "-",
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                ),
-              );
-            }
+                // Filter slots directly with the properly formatted day
+                final slots = state.timeTableSlots
+                    .where((element) => element.day == selectedDay)
+                    .toList();
 
-            if (state is TimeTableOfTeacherFetchFailure) {
-              return Center(
-                child: ErrorContainer(
-                  errorMessage: state.errorMessage,
-                  onTapRetry: () {
-                    context
-                        .read<TimeTableOfTeacherCubit>()
-                        .getTimeTableOfTeacher(
-                            teacherId: widget.teacherDetails.id ?? 0);
-                  },
-                ),
-              );
-            }
-
-            return Center(
-              child: CustomCircularProgressIndicator(
-                indicatorColor: Theme.of(context).colorScheme.primary,
-              ),
-            );
-          },
-        ),
-        Align(
-          alignment: Alignment.topCenter,
-          child: Column(
-            children: [
-              const CustomAppbar(titleKey: timetableKey),
-              Container(
-                width: MediaQuery.of(context).size.width,
-                height: 90,
-                padding: EdgeInsets.all(appContentHorizontalPadding),
-                decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    border: Border(
-                        bottom: BorderSide(
-                            color: Theme.of(context).colorScheme.tertiary),
-                        top: BorderSide(
-                            color: Theme.of(context).colorScheme.tertiary))),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          CustomTextContainer(
-                            textKey: widget.teacherDetails.fullName ?? "-",
-                            style: const TextStyle(fontSize: 22),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
+                if (slots.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 50),
+                      child: CustomTextContainer(
+                        textKey: Utils.getTranslatedLabel(noTimeTableKey),
                       ),
                     ),
-                    ProfileImageContainer(
-                      imageUrl: widget.teacherDetails.image ?? "",
-                      heightAndWidth: 60,
-                    )
-                  ],
+                  );
+                }
+
+                return Align(
+                  alignment: Alignment.topCenter,
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    padding: EdgeInsets.only(
+                        bottom: 25,
+                        top:
+                            Utils.appContentTopScrollPadding(context: context) +
+                                150),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      padding:
+                          EdgeInsets.all(constants.appContentHorizontalPadding),
+                      color: Theme.of(context).colorScheme.surface,
+                      child: Column(
+                        children: slots
+                            .map((timeTableSlot) => TimetableSlotContainer(
+                                  note: timeTableSlot.note ?? "",
+                                  endTime: timeTableSlot.endTime ?? "",
+                                  isForClass: false,
+                                  classSectionName:
+                                      timeTableSlot.classSection?.fullName ??
+                                          "-",
+                                  startTime: timeTableSlot.startTime ?? "",
+                                  subjectName: timeTableSlot.subject
+                                          ?.getSybjectNameWithType() ??
+                                      "-",
+                                ))
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              if (state is TimeTableOfTeacherFetchFailure) {
+                return Center(
+                  child: ErrorContainer(
+                    errorMessage: state.errorMessage,
+                    onTapRetry: () {
+                      context
+                          .read<TimeTableOfTeacherCubit>()
+                          .getTimeTableOfTeacher(
+                              teacherId: widget.teacherDetails.id ?? 0);
+                    },
+                  ),
+                );
+              }
+
+              return Center(
+                child: CustomCircularProgressIndicator(
+                  indicatorColor: Theme.of(context).colorScheme.primary,
                 ),
-              ),
-              _buildDaysContainer(),
-            ],
+              );
+            },
           ),
-        ),
-      ],
-    ));
+          _buildAppBar(),
+        ],
+      ),
+    );
   }
 }

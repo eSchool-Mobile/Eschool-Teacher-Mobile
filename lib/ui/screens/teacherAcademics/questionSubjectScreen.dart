@@ -92,11 +92,7 @@ class QuestionSubjectScreen extends StatefulWidget {
 
 class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
     with TickerProviderStateMixin {
-  final TextEditingController _searchController = TextEditingController();
-  List<SubjectQuestion> _filteredSubjects = [];
-  bool _showSearch = false;
   late QuestionSubjectController _controller;
-
   // Animation controllers
   late AnimationController _backgroundAnimationController;
   late AnimationController _waveAnimationController;
@@ -107,7 +103,6 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
   late AnimationController _pulseController;
   late AnimationController _loadingController;
   late AnimationController _tabTransitionController;
-  late AnimationController _searchExpandController;
 
   // Animations
   late Animation<double> _backgroundAnimation;
@@ -115,7 +110,6 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
   late Animation<double> _breathingAnimation;
   late Animation<double> _rotationAnimation;
   late Animation<double> _pulseAnimation;
-  late Animation<double> _searchWidthAnimation;
 
   int _selectedTabIndex = 0;
   int _hoveredCardIndex = -1;
@@ -195,15 +189,9 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
       vsync: this,
       duration: Duration(milliseconds: 1500),
     )..repeat();
-
     _tabTransitionController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 400),
-    );
-
-    _searchExpandController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 300),
     );
 
     // Setup animations
@@ -226,20 +214,9 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
       parent: _rotationController,
       curve: Curves.linear,
     );
-
     _pulseAnimation = CurvedAnimation(
       parent: _pulseController,
       curve: Curves.easeInOut,
-    );
-
-    _searchWidthAnimation = Tween<double>(
-      begin: 0.7,
-      end: 0.9,
-    ).animate(
-      CurvedAnimation(
-        parent: _searchExpandController,
-        curve: Curves.easeOutCubic,
-      ),
     );
 
     // // Initialize particles with enhanced properties
@@ -272,7 +249,6 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
 
   @override
   void dispose() {
-    _searchController.dispose();
     _backgroundAnimationController.dispose();
     _waveAnimationController.dispose();
     _floatingIconsController.dispose();
@@ -282,37 +258,14 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
     _pulseController.dispose();
     _loadingController.dispose();
     _tabTransitionController.dispose();
-    _searchExpandController.dispose();
     Get.delete<QuestionSubjectController>();
     super.dispose();
   }
 
   void _reloadData() {
-    _searchController.clear();
-    _filteredSubjects = [];
-    _showSearch = false;
     context
         .read<QuestionBankCubit>()
         .fetchTeacherSubjects(isStaffView: widget.isStaffView);
-  }
-
-  void _filterSubjects(String query, List<SubjectQuestion> subjects) {
-    setState(() {
-      if (query.isEmpty) {
-        _filteredSubjects = subjects;
-      } else {
-        _filteredSubjects = subjects
-            .where((subject) => subject.subjectWithName
-                .toLowerCase()
-                .contains(query.toLowerCase()))
-            .toList();
-
-        // Extra haptic feedback on results found
-        if (_filteredSubjects.isNotEmpty) {
-          HapticFeedback.selectionClick();
-        }
-      }
-    });
   }
 
   @override
@@ -347,11 +300,6 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                   children: [
                     // Leave space for the app bar
                     SizedBox(height: 90),
-
-                    // Animated search bar
-                    if (state is SubjectsFetchSuccess &&
-                        state.subjects.length > 5)
-                      _buildSearchBar(state.subjects),
 
                     Expanded(
                       child: Container(
@@ -516,59 +464,13 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
     );
   }
 
-  Widget _buildSearchBar(List<SubjectQuestion> subjects) {
-    return FadeInDown(
-      delay: Duration(milliseconds: 300),
-      duration: Duration(milliseconds: 800),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Container(
-          height: 55,
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: _highlightColor.withOpacity(0.3),
-              width: 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: _accentColor.withOpacity(0.2),
-                blurRadius: 15,
-                spreadRadius: 0,
-                offset: Offset(0, 5),
-              ),
-            ],
-          ),
-          child: TextField(
-            controller: _searchController,
-            onChanged: (query) => _filterSubjects(query, subjects),
-            style: TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              hintText: 'Cari mata pelajaran...',
-              hintStyle: TextStyle(color: Colors.white70),
-              prefixIcon: Icon(Icons.search, color: Colors.white70),
-              border: InputBorder.none,
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildContentArea(QuestionBankState state) {
     if (state is QuestionBankLoading) {
       return _buildLoadingView();
     }
 
     if (state is SubjectsFetchSuccess) {
-      _showSearch = state.subjects.length > 5;
-      if (_filteredSubjects.isEmpty) {
-        _filteredSubjects = state.subjects;
-      }
-      return _buildSubjectsList(_filteredSubjects);
+      return _buildSubjectsList(state.subjects);
     }
 
     if (state is QuestionBankError) {

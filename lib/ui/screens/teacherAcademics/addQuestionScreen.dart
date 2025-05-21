@@ -922,7 +922,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen>
                           ),
                         ),
                         Text(
-                          'Tandai sebagai jawaban benar',
+                          'Tandai benar',
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
                             color: Colors.grey.shade700,
@@ -1089,7 +1089,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen>
                           activeColor: Colors.green,
                         ),
                         Text(
-                          'Tandai sebagai jawaban benar',
+                          'Tandai Benar',
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
                             color: Colors.grey.shade700,

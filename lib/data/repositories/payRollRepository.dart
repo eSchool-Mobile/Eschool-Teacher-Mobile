@@ -22,12 +22,24 @@ class PayRollRepository {
 
   Future<String> downloadPayRollSlip({required int payRollId}) async {
     try {
+      // Print request details
+      print("=== DOWNLOAD PAYROLL PDF REQUEST ===");
+      print("URL: ${Api.downloadPayRollSlip}");
+      print("Parameters: slip_id=$payRollId");
+
       final result = await Api.get(
           url: Api.downloadPayRollSlip,
           queryParameters: {"slip_id": payRollId});
 
+      // Print response info (not the full PDF content as it would be too large)
+      print("=== DOWNLOAD PAYROLL PDF RESPONSE ===");
+      print(
+          "Response received with PDF data length: ${(result['pdf'] ?? "").toString().length}");
+
       return (result['pdf'] ?? "").toString();
     } catch (e) {
+      print("=== DOWNLOAD PAYROLL PDF ERROR ===");
+      print("Error: ${e.toString()}");
       throw ApiException(e.toString());
     }
   }

@@ -3,7 +3,8 @@ import 'package:eschool_saas_staff/cubits/payRoll/staffsPayrollCubit.dart';
 import 'package:eschool_saas_staff/cubits/payRoll/submitStaffsPayRollCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
 import 'package:eschool_saas_staff/data/models/staffPayRoll.dart';
-import 'package:eschool_saas_staff/ui/screens/managePayrolls/widgets/staffPayrollDetailsContainer.dart';
+import 'package:eschool_saas_staff/ui/screens/managePayrolls/widgets/staffPayrollDetailsContainer.dart'
+    hide TextEditingController;
 import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
@@ -55,7 +56,8 @@ class ManagePayrollsScreen extends StatefulWidget {
 class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
     with TickerProviderStateMixin {
   int? _selectedYear;
-  late String _selectedMonthKey = months[(DateTime.now().month - 1)];
+  late String _selectedMonthKey =
+      Utils.getMonthFullName(DateTime.now().month).toLowerCase();
 
   // Color scheme for maroon theme
   final Color _maroonPrimary = const Color(0xFF800020);
@@ -228,9 +230,16 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                                     0.0)
                                 : 0.0;
 
+                            final basicSalary = (index != -1)
+                                ? (_staffsPayRollDetailsContainerKeys[index]
+                                        .currentState
+                                        ?.getBasicSalary() ??
+                                    0.0)
+                                : (staffPayRoll.salary ?? 0.0);
+
                             staffPayRolls.add({
                               "staff_id": staffPayRoll.id,
-                              "basic_salary": staffPayRoll.salary ?? 0.0,
+                              "basic_salary": basicSalary,
                               "amount": netSalary
                             });
                           }
@@ -417,14 +426,6 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                                 color: _maroonPrimary,
                               ),
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Kelola semua gaji staff dengan mudah',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
-                            ),
                           ],
                         ),
                       ).animate().fadeIn(duration: 400.ms).slideY(
@@ -605,7 +606,8 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
 
                             // Staff list items
                             Container(
-                              margin: const EdgeInsets.fromLTRB(12, 0, 12, 16),
+                              margin: const EdgeInsets.fromLTRB(12, 0, 12, 20),
+                              padding: const EdgeInsets.symmetric(vertical: 4),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(color: Colors.grey[200]!),
@@ -629,6 +631,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                                             element.id == staffPayRoll.id);
 
                                     return Container(
+                                      margin: const EdgeInsets.only(bottom: 2),
                                       decoration: BoxDecoration(
                                         color: isSelected
                                             ? _maroonPrimary.withOpacity(0.05)
@@ -1190,6 +1193,8 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                                           selectedValue: _selectedMonthKey,
                                           titleKey: monthKey,
                                           values: months,
+                                          displayFunction: (value) =>
+                                              Utils.getTranslatedLabel(value),
                                           onSelection: (value) {
                                             changeSelectedMonth(value!);
                                             Get.back();
@@ -1216,7 +1221,8 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                                         SizedBox(width: 8),
                                         Flexible(
                                           child: Text(
-                                            _selectedMonthKey,
+                                            Utils.getTranslatedLabel(
+                                                _selectedMonthKey),
                                             style: GoogleFonts.poppins(
                                               color: Colors.white,
                                               fontSize: 14,

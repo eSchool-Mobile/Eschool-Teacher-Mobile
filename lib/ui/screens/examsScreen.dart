@@ -487,10 +487,10 @@ class _ExamsScreenState extends State<ExamsScreen>
       // Skip if date is missing or empty
       if (exam.examStartingDate == null || exam.examStartingDate!.isEmpty)
         continue;
-
       try {
         final dateTime = DateTime.parse(exam.examStartingDate!);
-        final monthYear = "${months[dateTime.month - 1]} ${dateTime.year}";
+        final monthYear =
+            "${Utils.getMonthFullName(dateTime.month)} ${dateTime.year}";
 
         if (!grouped.containsKey(monthYear)) {
           grouped[monthYear] = [];
@@ -507,17 +507,19 @@ class _ExamsScreenState extends State<ExamsScreen>
   }
 
   Widget _buildExamItem(OfflineExam exam, int index) {
-    final bool hasTimetable = (exam.timetableSlots ?? []).isNotEmpty;
+    // Check if timetable is still loading or has items
+    final bool isLoading = exam.timetableSlots == null;
+    final bool hasTimetable = isLoading ||
+        exam.timetableSlots!
+            .isNotEmpty; // Consider as having timetable if it's loading
     DateTime? examDate;
     String dayString = "";
-    String monthString = "";
-
-    // Parse and format date safely
+    String monthString = ""; // Parse and format date safely
     if (exam.examStartingDate != null && exam.examStartingDate!.isNotEmpty) {
       try {
         examDate = DateTime.parse(exam.examStartingDate!);
         dayString = examDate.day.toString();
-        monthString = months[examDate.month - 1].substring(0, 3);
+        monthString = Utils.getMonthName(examDate.month);
       } catch (e) {
         // Keep default values if parsing fails
       }
@@ -539,279 +541,276 @@ class _ExamsScreenState extends State<ExamsScreen>
     final randomAngle = (index * 37) % 360;
 
     return Hero(
-      tag: 'exam-${exam.id}',
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
-        child: Material(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          child: InkWell(
+        tag: 'exam-${exam.id}',
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 20),
+          child: Material(
+            color: Colors.transparent,
             borderRadius: BorderRadius.circular(20),
-            splashColor: statusColor.withOpacity(0.1),
-            highlightColor: statusColor.withOpacity(0.05),
-            onTap: () {
-              if (hasTimetable) {
-                HapticFeedback.mediumImpact();
-                Utils.showBottomSheet(
-                  child: OfflineExamTimetableBottomsheet(
-                    timetableSlots: exam.timetableSlots ?? [],
-                    primaryColor: primaryColor,
-                    exam: exam,
-                  ),
-                  context: context,
-                );
-              }
-            },
-            child: Stack(
-              children: [
-                // Background pattern
-                Positioned.fill(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: CustomPaint(
-                      painter: ExamCardBackgroundPainter(
-                        color: statusColor.withOpacity(0.06),
-                        angle: randomAngle.toDouble(),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(20),
+              splashColor: statusColor.withOpacity(0.1),
+              highlightColor: statusColor.withOpacity(0.05),
+              onTap: () {                if (hasTimetable) {
+                  HapticFeedback.mediumImpact();
+                  Utils.showBottomSheet(
+                    child: OfflineExamTimetableBottomsheet(
+                      timetableSlots: exam.timetableSlots,
+                      primaryColor: primaryColor,
+                      exam: exam,
+                      isLoading: isLoading,
+                    ),
+                    context: context,
+                  );
+                }
+              },
+              child: Stack(
+                children: [
+                  // Background pattern
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: CustomPaint(
+                        painter: ExamCardBackgroundPainter(
+                          color: statusColor.withOpacity(0.06),
+                          angle: randomAngle.toDouble(),
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                // Main card content
-                Container(
-                  padding: const EdgeInsets.all(0),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: statusColor.withOpacity(0.1),
-                        blurRadius: 15,
-                        offset: const Offset(0, 8),
-                        spreadRadius: 2,
-                      ),
-                      BoxShadow(
-                        color: Colors.white.withOpacity(0.5),
-                        blurRadius: 15,
-                        offset: const Offset(0, 4),
-                        spreadRadius: -5,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      // Header with status & date - Updated to match page header gradient
-                      ClipRRect(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20),
+                  // Main card content
+                  Container(
+                    padding: const EdgeInsets.all(0),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: statusColor.withOpacity(0.1),
+                          blurRadius: 15,
+                          offset: const Offset(0, 8),
+                          spreadRadius: 2,
                         ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                headerStartColor,
-                                headerEndColor,
-                              ],
-                            ),
+                        BoxShadow(
+                          color: Colors.white.withOpacity(0.5),
+                          blurRadius: 15,
+                          offset: const Offset(0, 4),
+                          spreadRadius: -5,
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        // Header with status & date - Updated to match page header gradient
+                        ClipRRect(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
                           ),
-                          padding: EdgeInsets.symmetric(
-                              vertical: 12, horizontal: 20),
-                          child: Row(
-                            children: [
-                              // Status indicator with icon
-                              Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.25),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  isCompleted
-                                      ? Icons.check_circle
-                                      : isOngoing
-                                          ? Icons.access_time_filled
-                                          : Icons.event_available,
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  headerStartColor,
+                                  headerEndColor,
+                                ],
                               ),
-                              SizedBox(width: 10),
-                              Text(
-                                _getStatusText(statusKey),
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Spacer(),
-                              // Date display
-                              if (examDate != null)
+                            ),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 12, horizontal: 20),
+                            child: Row(
+                              children: [
+                                // Status indicator with icon
                                 Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 6),
+                                  padding: EdgeInsets.all(8),
                                   decoration: BoxDecoration(
                                     color: Colors.white.withOpacity(0.25),
-                                    borderRadius: BorderRadius.circular(20),
+                                    shape: BoxShape.circle,
                                   ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.calendar_today,
-                                        color: Colors.white,
-                                        size: 14,
-                                      ),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        Utils.formatDate(examDate),
-                                        style: GoogleFonts.poppins(
+                                  child: Icon(
+                                    isCompleted
+                                        ? Icons.check_circle
+                                        : isOngoing
+                                            ? Icons.access_time_filled
+                                            : Icons.event_available,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                ),
+                                SizedBox(width: 10),
+                                Text(
+                                  _getStatusText(statusKey),
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                Spacer(),
+                                // Date display
+                                if (examDate != null)
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.25),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Row(
+                                        children: [
+                                        Icon(
+                                          Icons.calendar_today,
+                                          color: Colors.white,
+                                          size: 14,
+                                        ),
+                                        SizedBox(width: 4),
+                                        Text(
+                                          examDate != null ? _getDayName(examDate.weekday) : "-",
+                                          style: GoogleFonts.poppins(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w500,
                                           color: Colors.white,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
 
-                      // Main content
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Day container - Updated to match page header gradient
-                            Container(
-                              width: 65,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    headerStartColor,
-                                    headerEndColor,
+                        // Main content
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Day container - Updated to match page header gradient
+                              Container(
+                                width: 65,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      headerStartColor,
+                                      headerEndColor,
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(14),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: headerStartColor.withOpacity(0.3),
+                                      blurRadius: 10,
+                                      offset: const Offset(2, 3),
+                                    ),
                                   ],
                                 ),
-                                borderRadius: BorderRadius.circular(14),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: headerStartColor.withOpacity(0.3),
-                                    blurRadius: 10,
-                                    offset: const Offset(2, 3),
-                                  ),
-                                ],
-                              ),
-                              child: Stack(
-                                children: [
-                                  // Background pattern
-                                  Positioned.fill(
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(14),
-                                      child: Opacity(
-                                        opacity: 0.15,
-                                        child: CustomPaint(
-                                          painter: CirclePatternPainter(
-                                              color: Colors.white),
+                                child: Stack(
+                                  children: [
+                                    // Background pattern
+                                    Positioned.fill(
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(14),
+                                        child: Opacity(
+                                          opacity: 0.15,
+                                          child: CustomPaint(
+                                            painter: CirclePatternPainter(
+                                                color: Colors.white),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  // Content
-                                  Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          dayString,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 28,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
+                                    // Content
+                                    Center(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            dayString,
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 28,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
                                           ),
-                                        ),
-                                        Text(
-                                          monthString,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color:
-                                                Colors.white.withOpacity(0.85),
+                                          Text(
+                                            monthString,
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.white
+                                                  .withOpacity(0.85),
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(width: 16),
-
-                            // Exam details
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    exam.name ?? "-",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black87,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  SizedBox(height: 10),
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 5),
-                                    decoration: BoxDecoration(
-                                      color: statusColor.withOpacity(0.08),
-                                      borderRadius: BorderRadius.circular(6),
-                                      border: Border.all(
-                                        color: statusColor.withOpacity(0.2),
-                                        width: 1,
+                                        ],
                                       ),
                                     ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          Icons.groups_rounded,
-                                          size: 16,
-                                          color: statusColor.withOpacity(0.7),
-                                        ),
-                                        SizedBox(width: 6),
-                                        Text(
-                                          Utils().cleanClassName(
-                                              exam.className ?? "-"),
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
+                              SizedBox(width: 16),
 
-                      // Footer with timetable indicator
-                      if (hasTimetable)
+                              // Exam details
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      exam.name ?? "-",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black87,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    SizedBox(height: 10),
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 5),
+                                      decoration: BoxDecoration(
+                                        color: statusColor.withOpacity(0.08),
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(
+                                          color: statusColor.withOpacity(0.2),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.groups_rounded,
+                                            size: 16,
+                                            color: statusColor.withOpacity(0.7),
+                                          ),
+                                          SizedBox(width: 6),
+                                          Text(
+                                            Utils().cleanClassName(
+                                                exam.className ?? "-"),
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ), // Footer with timetable indicator - always show, with loading state when needed
                         Container(
                           padding: EdgeInsets.symmetric(
                               horizontal: 16, vertical: 12),
@@ -839,14 +838,37 @@ class _ExamsScreenState extends State<ExamsScreen>
                                     color: statusColor.withOpacity(0.7),
                                   ),
                                   SizedBox(width: 8),
-                                  Text(
-                                    "${exam.timetableSlots?.length ?? 0} Mata Pelajaran",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
+                                  // Show loading indicator if timetableSlots is null
+                                  exam.timetableSlots == null
+                                      ? Row(
+                                          children: [
+                                            SizedBox(
+                                              width: 14,
+                                              height: 14,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: statusColor,
+                                              ),
+                                            ),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              "Memuat...",
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : Text(
+                                          "${exam.timetableSlots!.length} Mata Pelajaran",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
                                 ],
                               ),
                               Text(
@@ -860,24 +882,26 @@ class _ExamsScreenState extends State<ExamsScreen>
                             ],
                           ),
                         ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ),
-      )
-          .animate(delay: (80 * index).ms)
-          .fadeIn(duration: 600.ms, curve: Curves.easeOut)
-          .slideY(
-              begin: 0.2, end: 0, duration: 800.ms, curve: Curves.easeOutQuint)
-          .scale(
-              begin: const Offset(0.97, 0.97),
-              end: const Offset(1.0, 1.0),
-              duration: 800.ms,
-              curve: Curves.easeOutQuint),
-    );
+          )
+              .animate(delay: (80 * index).ms)
+              .fadeIn(duration: 600.ms, curve: Curves.easeOut)
+              .slideY(
+                  begin: 0.2,
+                  end: 0,
+                  duration: 800.ms,
+                  curve: Curves.easeOutQuint)
+              .scale(
+                  begin: const Offset(0.97, 0.97),
+                  end: const Offset(1.0, 1.0),
+                  duration: 800.ms,
+                  curve: Curves.easeOutQuint),
+        ));
   }
 
   Color _getStatusColor(String status) {
@@ -904,6 +928,20 @@ class _ExamsScreenState extends State<ExamsScreen>
       default:
         return "Tidak Diketahui";
     }
+  }
+  
+  String _getDayName(int weekday) {
+    const days = [
+      '',
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu',
+      'Minggu'
+    ];
+    return days[weekday];
   }
 
   Widget _buildEmptyState() {
@@ -1355,7 +1393,6 @@ class _ExamsScreenState extends State<ExamsScreen>
                   return ErrorContainer(
                     onTapRetry: getExams,
                     errorMessage: "Gagal memuat data ujian",
-             
                   );
                 }
               },
@@ -1408,49 +1445,55 @@ class _ExamsScreenState extends State<ExamsScreen>
       );
 }
 
-class OfflineExamTimetableBottomsheet extends StatelessWidget {
-  final List<OfflineExamTimeTableSlot> timetableSlots;
+class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<OfflineExamTimeTableSlot>? timetableSlots;
   final Color primaryColor;
   final OfflineExam exam;
+  final bool isLoading;
 
   const OfflineExamTimetableBottomsheet({
     super.key,
     required this.timetableSlots,
-    this.primaryColor = const Color(0xFF6A4C93),
+    this.primaryColor = const Color(0xFF8B2635),
     required this.exam,
+    this.isLoading = false,
   });
-
   @override
   Widget build(BuildContext context) {
-    // Sort slots by date
-    final sortedSlots = timetableSlots.toList()
-      ..sort((a, b) {
-        try {
-          final dateA = DateTime.parse(a.date!);
-          final dateB = DateTime.parse(b.date!);
-          return dateA.compareTo(dateB);
-        } catch (e) {
-          return 0;
-        }
-      });
+    // Check if timetableSlots is null or empty
+    final bool hasTimetableData = timetableSlots != null && timetableSlots!.isNotEmpty;
+    
+    // Sort slots by date if they exist
+    final sortedSlots = hasTimetableData 
+        ? (timetableSlots!.toList()..sort((a, b) {
+            try {
+              final dateA = DateTime.parse(a.date!);
+              final dateB = DateTime.parse(b.date!);
+              return dateA.compareTo(dateB);
+            } catch (e) {
+              return 0;
+            }
+          }))
+        : <OfflineExamTimeTableSlot>[];
 
-    // Group slots by date
+    // Group slots by date if they exist
     Map<String, List<OfflineExamTimeTableSlot>> groupedByDate = {};
-    for (var slot in sortedSlots) {
-      if (slot.date == null) continue;
+    if (hasTimetableData) {
+      for (var slot in sortedSlots) {
+        if (slot.date == null) continue;
 
-      String formattedDate = '';
-      try {
-        final date = DateTime.parse(slot.date!);
-        formattedDate = Utils.formatDate(date);
-      } catch (e) {
-        continue;
-      }
+        String formattedDate = '';
+        try {
+          final date = DateTime.parse(slot.date!);
+          formattedDate = Utils.formatDate(date);
+        } catch (e) {
+          continue;
+        }
 
-      if (!groupedByDate.containsKey(formattedDate)) {
-        groupedByDate[formattedDate] = [];
+        if (!groupedByDate.containsKey(formattedDate)) {
+          groupedByDate[formattedDate] = [];
+        }
+        groupedByDate[formattedDate]!.add(slot);
       }
-      groupedByDate[formattedDate]!.add(slot);
     }
 
     return CustomBottomsheet(
@@ -1458,15 +1501,15 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Exam Header Card
+          // Exam Header Card with glass effect
           _buildExamHeaderCard(context),
-          SizedBox(height: 20),
-
-          // Timetable content
+          SizedBox(height: 20),          // Timetable content
           Flexible(
-            child: sortedSlots.isEmpty
-                ? _buildEmptyState()
-                : _buildTimetableContent(context, groupedByDate),
+            child: timetableSlots == null
+                ? _buildLoadingState() // Tampilkan loading state jika timetableSlots == null
+                : sortedSlots.isEmpty
+                    ? _buildEmptyState()
+                    : _buildTimetableContent(context, groupedByDate),
           ),
         ],
       ),
@@ -1475,105 +1518,397 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
 
   Widget _buildExamHeaderCard(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            primaryColor,
-            Color.lerp(primaryColor, Colors.black, 0.3) ?? primaryColor,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: primaryColor.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: primaryColor.withOpacity(0.25),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+            spreadRadius: 0,
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Exam title and class
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      exam.name ?? "Jadwal Ujian",
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Stack(
+          children: [
+            // Fancy gradient background similar to AppBar
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFF690013),
+                      primaryColor,
+                      Color(0xFFA12948),
+                      Color(0xFFAA6976),
+                    ],
+                    stops: [0.0, 0.3, 0.6, 1.0],
+                  ),
+                ),
+              ),
+            ),
+
+            // Decorative pattern elements
+            Positioned.fill(
+              child: CustomPaint(
+                painter: ModernPatternPainter(
+                  color: Colors.white.withOpacity(0.07),
+                ),
+              ),
+            ),
+
+            // Glowing effect similar to AppBar
+            Positioned(
+              top: -70,
+              right: -40,
+              child: Container(
+                width: 150,
+                height: 150,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      Colors.white.withOpacity(0.2),
+                      Colors.white.withOpacity(0.1),
+                      Colors.white.withOpacity(0.0),
+                    ],
+                    stops: [0.0, 0.5, 1.0],
+                  ),
+                ),
+              ),
+            ),
+
+            // Main content with frosted glass effect
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Title row with icon and exam name
+                  Row(
+                    children: [
+                      // Animated icon container like in AppBar
+                      Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Colors.white.withOpacity(0.9),
+                              Colors.white.withOpacity(0.4),
+                            ],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.school_rounded,
+                          color: primaryColor,
+                          size: 20,
+                        ),
                       ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
-                    ),
-                    SizedBox(height: 4),
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(20),
+
+                      SizedBox(width: 12),
+
+                      // Title text with glowing effect
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Exam name with shader mask like in AppBar
+                            ShaderMask(
+                              shaderCallback: (Rect bounds) {
+                                return LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.white,
+                                    Colors.white.withOpacity(0.9),
+                                  ],
+                                ).createShader(bounds);
+                              },
+                              blendMode: BlendMode.srcIn,
+                              child: Text(
+                                exam.name ?? "Jadwal Ujian",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black26,
+                                      offset: Offset(0, 1),
+                                      blurRadius: 3,
+                                    ),
+                                  ],
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+
+                            SizedBox(height: 3),
+
+                            // Class name
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.2),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Text(
+                                Utils().cleanClassName(exam.className ?? "-"),
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      child: Text(
-                        Utils().cleanClassName(exam.className ?? "-"),
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
+                    ],
+                  ),
+
+                  SizedBox(height: 14),
+
+                  // Bottom row with dates and stats in a clean, modern layout
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            // Dates section
+                            Expanded(
+                              flex: 2,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Start date
+                                  Icon(
+                                    Icons.calendar_today_rounded,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Flexible(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Mulai",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 10,
+                                            color:
+                                                Colors.white.withOpacity(0.7),
+                                          ),
+                                        ),
+                                        Text(
+                                          exam.examStartingDate != null &&
+                                                  exam.examStartingDate!
+                                                      .isNotEmpty
+                                              ? Utils.formatDate(DateTime.parse(
+                                                  exam.examStartingDate!))
+                                              : "-",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // Vertical divider
+                            Container(
+                              height: 36,
+                              width: 1,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.white.withOpacity(0.0),
+                                    Colors.white.withOpacity(0.3),
+                                    Colors.white.withOpacity(0.0),
+                                  ],
+                                ),
+                              ),
+                            ), // End date
+                            Expanded(
+                              flex: 2,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 6),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.event_rounded,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Flexible(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Selesai",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 10,
+                                              color:
+                                                  Colors.white.withOpacity(0.7),
+                                            ),
+                                          ),
+                                          Text(
+                                            exam.examEndingDate != null &&
+                                                    exam.examEndingDate!
+                                                        .isNotEmpty
+                                                ? Utils.formatDate(
+                                                    DateTime.parse(
+                                                        exam.examEndingDate!))
+                                                : "-",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            // Vertical divider
+                            Container(
+                              height: 36,
+                              width: 1,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.white.withOpacity(0.0),
+                                    Colors.white.withOpacity(0.3),
+                                    Colors.white.withOpacity(0.0),
+                                  ],
+                                ),
+                              ),
+                            ), // Stats section
+                            Expanded(
+                              flex: 3,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [                              // Subject count
+                                  Column(
+                                    children: [
+                                      Icon(
+                                        Icons.subject_rounded,
+                                        color: Colors.white.withOpacity(0.9),
+                                        size: 16,
+                                      ),
+                                      SizedBox(height: 2),
+                                      Text(
+                                        "${timetableSlots?.length ?? "-"}",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Pelajaran",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 9,
+                                          color: Colors.white.withOpacity(0.7),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                  // Duration
+                                  Column(
+                                    children: [
+                                      Icon(
+                                        Icons.assessment_outlined,
+                                        color: Colors.white.withOpacity(0.9),
+                                        size: 16,
+                                      ),
+                                      SizedBox(height: 2),
+                                      Text(
+                                        _calculateTotalDuration(),
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      Text(
+                                        "Durasi",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 9,
+                                          color: Colors.white.withOpacity(0.7),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.school_rounded,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: 16),
-
-          // Dates info
-          Row(
-            children: [
-              _buildDateInfo(
-                label: "Tanggal Mulai",
-                value: exam.examStartingDate != null &&
-                        exam.examStartingDate!.isNotEmpty
-                    ? Utils.formatDate(DateTime.parse(exam.examStartingDate!))
-                    : "-",
-                icon: Icons.calendar_today_rounded,
-              ),
-              SizedBox(width: 16),
-              _buildDateInfo(
-                label: "Tanggal Selesai",
-                value: exam.examEndingDate != null &&
-                        exam.examEndingDate!.isNotEmpty
-                    ? Utils.formatDate(DateTime.parse(exam.examEndingDate!))
-                    : "-",
-                icon: Icons.event_rounded,
-              ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     ).animate().fadeIn(duration: 400.ms).scale(
           begin: const Offset(0.95, 0.95),
@@ -1582,125 +1917,182 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
           curve: Curves.easeOutQuint,
         );
   }
+  String _calculateTotalDuration() {
+    try {
+      if (timetableSlots == null) {
+        return "-";
+      }
+      
+      int totalMinutes = 0;
 
-  Widget _buildDateInfo(
-      {required String label, required String value, required IconData icon}) {
-    return Expanded(
-      child: Container(
-        padding: EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: Colors.white,
-              size: 18,
-            ),
-            SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: Colors.white.withOpacity(0.8),
-                    ),
-                  ),
-                  Text(
-                    value,
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+      for (var slot in timetableSlots!) {
+        if (slot.startTime != null && slot.endTime != null) {
+          final startHour = Utils.getHourFromTimeDetails(time: slot.startTime!);
+          final startMinute =
+              Utils.getMinuteFromTimeDetails(time: slot.startTime!);
+          final endHour = Utils.getHourFromTimeDetails(time: slot.endTime!);
+          final endMinute = Utils.getMinuteFromTimeDetails(time: slot.endTime!);
+
+          final startTotalMinutes = startHour * 60 + startMinute;
+          final endTotalMinutes = endHour * 60 + endMinute;
+          final duration = endTotalMinutes - startTotalMinutes;
+
+          if (duration > 0) {
+            totalMinutes += duration;
+          }
+        }
+      }
+
+      final hours = totalMinutes ~/ 60;
+      return hours > 0 ? "$hours jam" : "${totalMinutes % 60} menit";
+    } catch (e) {
+      return "-";
+    }
   }
 
   Widget _buildTimetableContent(BuildContext context,
       Map<String, List<OfflineExamTimeTableSlot>> groupedByDate) {
     return ListView.builder(
+      physics: BouncingScrollPhysics(),
       shrinkWrap: true,
       padding: EdgeInsets.only(bottom: 24),
       itemCount: groupedByDate.length,
       itemBuilder: (context, dateIndex) {
         final date = groupedByDate.keys.elementAt(dateIndex);
         final slots = groupedByDate[date]!;
+        final firstDateSlot = slots.first;
+
+        // Parse the date to extract day number and day name
+        DateTime? parsedDate;
+        String dayName = "";
+        String dayNumber = "";
+
+        try {
+          parsedDate = DateTime.parse(firstDateSlot.date!);
+          dayName = _getDayName(parsedDate.weekday);
+          dayNumber = parsedDate.day.toString();
+        } catch (e) {
+          // Use defaults
+        }
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Date header
-            Padding(
-              padding: const EdgeInsets.only(left: 4, top: 8, bottom: 12),
+            // Modern date header with day visualization
+            Container(
+              margin: const EdgeInsets.only(bottom: 18, top: 10),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  // Day number in circle
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    width: 52,
+                    height: 52,
                     decoration: BoxDecoration(
-                      color: primaryColor,
-                      borderRadius: BorderRadius.circular(20),
+                      gradient: LinearGradient(
+                        colors: [primaryColor, Color(0xFF5A2223)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: primaryColor.withOpacity(0.2),
-                          blurRadius: 6,
-                          offset: Offset(0, 2),
-                        )
+                          color: primaryColor.withOpacity(0.25),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
                       ],
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.event,
-                          size: 16,
+                    child: Center(
+                      child: Text(
+                        dayNumber,
+                        style: GoogleFonts.poppins(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
-                        SizedBox(width: 6),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 14),
+
+                  // Day name and date
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          dayName,
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: primaryColor,
+                            height: 1.1,
+                          ),
+                        ),
                         Text(
                           date,
                           style: GoogleFonts.poppins(
                             fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey[700],
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Expanded(
-                    child: Divider(
-                      height: 20,
-                      thickness: 1,
-                      indent: 12,
-                      endIndent: 4,
-                      color: Colors.grey[300],
+
+                  // Exam count chip
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: primaryColor.withOpacity(0.2),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.book_rounded,
+                          size: 16,
+                          color: primaryColor,
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          "${slots.length} Mata Pelajaran",
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: primaryColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-            ).animate().fadeIn(
+            )
+                .animate()
+                .fadeIn(
                   duration: 400.ms,
                   delay: (100 * dateIndex).ms,
+                )
+                .slideX(
+                  begin: -0.1,
+                  end: 0,
+                  duration: 500.ms,
+                  delay: (100 * dateIndex).ms,
+                  curve: Curves.easeOutQuint,
                 ),
 
-            // Subjects for this date
+            // Subjects for this date in a timeline layout
             ...List.generate(
               slots.length,
-              (index) => _buildSubjectCard(
-                  context, slots[index], dateIndex * 100 + index),
+              (index) => _buildSubjectTimelineCard(context, slots[index],
+                  dateIndex * 100 + index, index == slots.length - 1),
             ),
           ],
         );
@@ -1708,243 +2100,282 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
     );
   }
 
-  Widget _buildSubjectCard(
-      BuildContext context, OfflineExamTimeTableSlot slot, int animationIndex) {
+  String _getDayName(int weekday) {
+    const days = [
+      '',
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu',
+      'Minggu'
+    ];
+    return days[weekday];
+  }
+
+  Widget _buildSubjectTimelineCard(BuildContext context,
+      OfflineExamTimeTableSlot slot, int animationIndex, bool isLast) {
     final subjectName = slot.subject?.getSybjectNameWithType() ?? "-";
 
     return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.15),
-            blurRadius: 8,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Subject header
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                color: primaryColor.withOpacity(0.08),
-                border: Border(
-                  left: BorderSide(
-                    color: primaryColor,
-                    width: 4,
+      margin: EdgeInsets.only(left: 26, bottom: isLast ? 0 : 18),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Timeline element
+          Column(
+            children: [
+              Container(
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: primaryColor,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 3,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: primaryColor.withOpacity(0.25),
+                      blurRadius: 4,
+                      spreadRadius: 1,
+                    ),
+                  ],
                 ),
               ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: primaryColor.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.book,
-                      size: 20,
-                      color: primaryColor,
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Mata Pelajaran",
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        CustomTextContainer(
-                          textKey: subjectName,
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ],
-                    ),
+              if (!isLast)
+                Container(
+                  width: 2,
+                  height: 85, // Height adjusted to match the card
+                  color: primaryColor.withOpacity(0.2),
+                ),
+            ],
+          ),
+          SizedBox(width: 16),
+
+          // Card content
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                    spreadRadius: 0,
                   ),
                 ],
               ),
-            ),
-
-            Padding(
-              padding: EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Time info
+                  // Subject header with time
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    padding: EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                     decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.05),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Colors.grey.withOpacity(0.1),
+                      color: primaryColor.withOpacity(0.03),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
+                      ),
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.grey.withOpacity(0.1),
+                        ),
                       ),
                     ),
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.access_time_rounded,
-                          size: 18,
-                          color: primaryColor,
-                        ),
-                        SizedBox(width: 12),
-                        Text(
-                          "${Utils.formatTime(
-                            timeOfDay: TimeOfDay(
-                              hour: Utils.getHourFromTimeDetails(
-                                  time: slot.startTime!),
-                              minute: Utils.getMinuteFromTimeDetails(
-                                  time: slot.startTime!),
-                            ),
-                            context: context,
-                          )} - ${Utils.formatTime(
-                            timeOfDay: TimeOfDay(
-                              hour: Utils.getHourFromTimeDetails(
-                                  time: slot.endTime!),
-                              minute: Utils.getMinuteFromTimeDetails(
-                                  time: slot.endTime!),
-                            ),
-                            context: context,
-                          )}",
-                          style: GoogleFonts.poppins(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black87,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Subject name
+                              CustomTextContainer(
+                                textKey: subjectName,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: primaryColor,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        Spacer(),
+
+                        // Time chip
                         Container(
                           padding:
-                              EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: primaryColor.withOpacity(0.1),
+                            color: Colors.white,
                             borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            _calculateDuration(slot.startTime!, slot.endTime!),
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: primaryColor,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                            border: Border.all(
+                              color: primaryColor.withOpacity(0.2),
                             ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.schedule,
+                                size: 14,
+                                color: primaryColor,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                "${Utils.formatTime(
+                                  timeOfDay: TimeOfDay(
+                                    hour: Utils.getHourFromTimeDetails(
+                                        time: slot.startTime!),
+                                    minute: Utils.getMinuteFromTimeDetails(
+                                        time: slot.startTime!),
+                                  ),
+                                  context: context,
+                                )}",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: primaryColor,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
 
-                  SizedBox(height: 16),
+                  // Details section
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        // Time and duration info
+                        Row(
+                          children: [
+                            _buildInfoItem(
+                              title: "Durasi",
+                              value: _calculateDuration(
+                                  slot.startTime!, slot.endTime!),
+                              icon: Icons.timer_outlined,
+                              color: primaryColor,
+                            ),
+                            SizedBox(width: 8),
+                            _buildInfoItem(
+                              title: "Waktu Selesai",
+                              value: Utils.formatTime(
+                                timeOfDay: TimeOfDay(
+                                  hour: Utils.getHourFromTimeDetails(
+                                      time: slot.endTime!),
+                                  minute: Utils.getMinuteFromTimeDetails(
+                                      time: slot.endTime!),
+                                ),
+                                context: context,
+                              ),
+                              icon: Icons.access_time_filled_rounded,
+                              color: Color(0xFF5A6ACF),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 10),
 
-                  // Marks info
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildMarkCard(
-                          title: "Total Nilai",
-                          value: "${slot.totalMarks ?? 0}",
-                          icon: Icons.grade_rounded,
-                          color: primaryColor,
+                        // Marks row
+                        Row(
+                          children: [
+                            _buildInfoItem(
+                              title: "Nilai Total",
+                              value: "${slot.totalMarks ?? 0}",
+                              icon: Icons.assignment_rounded,
+                              color: Color(0xFF43A047),
+                            ),
+                            SizedBox(width: 8),
+                            _buildInfoItem(
+                              title: "Nilai Kelulusan",
+                              value: "${slot.passingMarks ?? 0}",
+                              icon: Icons.check_circle_rounded,
+                              color: Color(0xFFE57373),
+                            ),
+                          ],
                         ),
-                      ),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: _buildMarkCard(
-                          title: "Nilai Kelulusan",
-                          value: "${slot.passingMarks ?? 0}",
-                          icon: Icons.check_circle_rounded,
-                          color: Color(0xFF43A047),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     )
         .animate()
-        .fadeIn(duration: 500.ms, delay: (100 * animationIndex).ms)
+        .fadeIn(duration: 500.ms, delay: (80 * animationIndex).ms)
         .slideX(
-            begin: 0.2,
+            begin: 0.1,
             end: 0,
             curve: Curves.easeOutQuint,
             duration: 600.ms,
-            delay: (100 * animationIndex).ms);
+            delay: (80 * animationIndex).ms);
   }
 
-  Widget _buildMarkCard({
+  Widget _buildInfoItem({
     required String title,
     required String value,
     required IconData icon,
     required Color color,
   }) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            color.withOpacity(0.1),
-            color.withOpacity(0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    return Expanded(
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.15)),
         ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withOpacity(0.2),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                icon,
-                size: 18,
-                color: color,
-              ),
-              SizedBox(width: 8),
-              Text(
-                title,
-                style: GoogleFonts.poppins(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey[700],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 6),
-          Text(
-            value,
-            style: GoogleFonts.poppins(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 18,
               color: color,
             ),
-          ),
-        ],
+            SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.poppins(
+                      fontSize: 11,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  Text(
+                    value,
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[800],
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1954,17 +2385,33 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.event_busy,
-            size: 64,
-            color: Colors.grey[400],
+          Container(
+            padding: EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: primaryColor.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.event_busy,
+              size: 64,
+              color: primaryColor.withOpacity(0.7),
+            ),
           ),
-          SizedBox(height: 16),
+          SizedBox(height: 20),
           Text(
             "Tidak ada jadwal tersedia",
             style: GoogleFonts.poppins(
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: FontWeight.w500,
+              color: primaryColor,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            "Jadwal ujian akan ditampilkan di sini",
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.normal,
               color: Colors.grey[600],
             ),
           ),
@@ -1997,6 +2444,28 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
     } catch (e) {
       return "N/A";
     }
+  }
+
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(
+            color: primaryColor,
+          ),
+          SizedBox(height: 16),
+          Text(
+            "Memuat data ujian...",
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: primaryColor,
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 500.ms);
   }
 }
 
@@ -2096,4 +2565,54 @@ class CornerDecoratorPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
+class ModernPatternPainter extends CustomPainter {
+  final Color color;
+
+  ModernPatternPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    // Draw decorative patterns
+    // Abstract circular patterns
+    canvas.drawCircle(
+      Offset(size.width * 0.15, size.height * 0.3),
+      size.width * 0.2,
+      paint,
+    );
+
+    canvas.drawCircle(
+      Offset(size.width * 0.85, size.height * 0.7),
+      size.width * 0.15,
+      paint,
+    );
+
+    // Draw diagonal lines
+    for (int i = 0; i < 5; i++) {
+      final offset = i * 20.0;
+      canvas.drawLine(
+        Offset(size.width - offset, 0),
+        Offset(size.width, offset),
+        paint,
+      );
+    }
+
+    // Draw abstract decorations in the corner
+    final path = Path()
+      ..moveTo(size.width, size.height * 0.7)
+      ..lineTo(size.width * 0.7, size.height)
+      ..lineTo(size.width, size.height)
+      ..close();
+
+    canvas.drawPath(path, paint..style = PaintingStyle.fill);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

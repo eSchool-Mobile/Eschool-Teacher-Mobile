@@ -609,7 +609,7 @@ class _TeacherAddEditAnnouncementScreenState
                                 Icon(Icons.check_circle, color: Colors.white),
                                 SizedBox(width: 12),
                                 Text(
-                                  'Pengumuman berhasil diperbarui!',
+                                  'Pengumuman diperbarui!',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
@@ -668,7 +668,7 @@ class _TeacherAddEditAnnouncementScreenState
                                 Icon(Icons.check_circle, color: Colors.white),
                                 SizedBox(width: 12),
                                 Text(
-                                  'Pengumuman berhasil ditambahkan!',
+                                  'Pengumuman ditambahkan!',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,

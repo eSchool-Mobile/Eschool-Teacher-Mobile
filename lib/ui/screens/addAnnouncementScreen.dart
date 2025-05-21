@@ -104,7 +104,7 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen> {
                         Icon(Icons.check_circle, color: Colors.white),
                         SizedBox(width: 12),
                         Text(
-                          'Pengumuman berhasil dikirim!',
+                          'Pengumuman dikirim!',
                           style: TextStyle(
                           color: Colors.white, 
                           fontSize: 16,

@@ -113,8 +113,9 @@ class _HolidayContainerState extends State<HolidayContainer> {
                                 ),
                               ),
                               Center(
-                                child: CustomTextContainer(
-                                  textKey: months[holidayStartDate.month - 1],
+                                child: Text(
+                                  Utils.getMonthFullName(
+                                      holidayStartDate.month),
                                   style: TextStyle(
                                     height: 1.2,
                                     fontSize: Utils.getScaledValue(context, 18),
@@ -199,7 +200,7 @@ class _HolidayContainerState extends State<HolidayContainer> {
                                   child: Text(
                                     holidayStartDate == holidayEndDate
                                         ? "1 hari"
-                                        : "${holidayEndDate.difference(holidayStartDate).inDays + 1} hari (sampai ${holidayEndDate.day} ${months[holidayEndDate.month - 1]})",
+                                        : "${holidayEndDate.difference(holidayStartDate).inDays + 1} hari (sampai ${holidayEndDate.day} ${Utils.getMonthFullName(holidayEndDate.month)})",
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: Colors.grey.shade700,
@@ -311,7 +312,7 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              months[holidayStartDate.month - 1],
+                              Utils.getMonthFullName(holidayStartDate.month),
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.9),
                                 fontSize: 15,

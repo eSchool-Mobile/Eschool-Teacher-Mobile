@@ -271,9 +271,7 @@ class RecapAttendanceContainer extends StatelessWidget {
   }
 
   Widget _buildClassList(int monthIndex, BuildContext context) {
-    // Ambil hanya satu kelas untuk setiap bulan (index pertama)
-    final section = classSections.isNotEmpty ? classSections[0] : null;
-
+    // Tampilkan semua kelas yang tersedia
     return Padding(
       padding: EdgeInsets.all(24),
       child: Column(
@@ -307,8 +305,51 @@ class RecapAttendanceContainer extends StatelessWidget {
             thickness: 1,
             height: 32,
           ),
-          if (section != null) _buildClassItem(section, monthIndex, context),
+          // Menampilkan daftar kelas yang kosong
+          if (classSections.isEmpty)
+            _buildNoClassesMessage()
+          // Menampilkan semua kelas yang tersedia
+          else
+            ...classSections
+                .map((section) => _buildClassItem(section, monthIndex, context))
+                .toList(),
         ],
+      ),
+    );
+  }
+
+  // Widget untuk menampilkan pesan ketika tidak ada kelas
+  Widget _buildNoClassesMessage() {
+    return Container(
+      padding: EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.grey.shade300,
+          width: 1,
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              size: 40,
+              color: Colors.orange[700],
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Tidak ada kelas ditemukan',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade700,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

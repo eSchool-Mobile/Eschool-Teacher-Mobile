@@ -42,6 +42,10 @@ class HomeOverviewDetailsContainer extends StatelessWidget {
     return (showStaffs || showStudents || showTeachers || showLeaveRequests)
         ? Column(
             children: [
+              // Adding top padding to create space between this container and the AppBar
+              const SizedBox(
+                height: 60,
+              ),
               const ContentTitleWithViewMoreButton(
                   showViewMoreButton: false, contentTitleKey: overviewKey),
               const SizedBox(

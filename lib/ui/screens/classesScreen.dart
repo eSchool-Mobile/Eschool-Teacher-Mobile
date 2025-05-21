@@ -888,7 +888,7 @@ class _ClassesScreenState extends State<ClassesScreen>
         return Transform.scale(
           scale: scale,
           child: Container(
-            margin: EdgeInsets.symmetric(vertical: 8),
+            margin: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             child: Material(
               color: Colors.transparent,
               child: InkWell(
@@ -1333,7 +1333,7 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
         children: [
           // Elegant header with subtle gradient
           Container(
-            margin: EdgeInsets.only(bottom: 24),
+            margin: EdgeInsets.only(bottom: 24, left: 12, right: 12),
             width: double.infinity,
             padding: EdgeInsets.symmetric(vertical: 22, horizontal: 24),
             decoration: BoxDecoration(
@@ -1410,7 +1410,8 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
                     horizontalOffset: 50,
                     child: FadeInAnimation(
                       child: Container(
-                        margin: EdgeInsets.only(bottom: 16),
+                        margin:
+                            EdgeInsets.only(bottom: 16, left: 12, right: 12),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
