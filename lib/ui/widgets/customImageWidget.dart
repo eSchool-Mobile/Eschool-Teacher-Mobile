@@ -23,7 +23,6 @@ class CustomImageWidget extends StatelessWidget {
       this.progressIndicatorBuilder,
       this.imageBuilder,
       this.errorWidget});
-
   @override
   Widget build(BuildContext context) {
     return !isFile && !isAsset //it's network in that case

@@ -300,8 +300,9 @@ class _StudentAttendanceItemContainerState
                                     ? TextDecoration.none
                                     : TextDecoration.lineThrough,
                               ),
-                              overflow: TextOverflow.visible,
+                              // Make sure name is fully visible with no ellipsis
                               softWrap: true,
+                              overflow: TextOverflow.visible,
                             ),
                           ),
                         ],

@@ -42,6 +42,7 @@ class TopStudents {
   final int? studentId;
   final dynamic jumlahJpSum; // Changed from String? to dynamic
   final dynamic point; // Changed from String? to dynamic
+  final dynamic alpha_count; // Added for tracking alpha counts
 
   TopStudents({
     this.rank,
@@ -50,8 +51,8 @@ class TopStudents {
     this.studentId,
     this.jumlahJpSum,
     this.point,
+    this.alpha_count,
   });
-
   factory TopStudents.fromJson(Map<String, dynamic> json) {
     return TopStudents(
       rank: json['rank'] as int?,
@@ -60,6 +61,7 @@ class TopStudents {
       studentId: json['student_id'] as int?,
       jumlahJpSum: json['jumlah_jp_sum']?.toString(), // Convert to String
       point: json['point']?.toString(), // Convert to String
+      alpha_count: json['alpha_count']?.toString(), // Convert to String
     );
   }
 }
@@ -71,6 +73,7 @@ class AllStudents {
   final String? className;
   final dynamic jumlahJpSum; // Changed from String? to dynamic
   final dynamic point; // Changed from String? to dynamic
+  final dynamic alpha_count; // Added for tracking alpha counts
 
   AllStudents({
     this.studentId,
@@ -79,8 +82,8 @@ class AllStudents {
     this.className,
     this.jumlahJpSum,
     this.point,
+    this.alpha_count,
   });
-
   factory AllStudents.fromJson(Map<String, dynamic> json) {
     return AllStudents(
       studentId: json['student_id'] as int?,
@@ -89,6 +92,7 @@ class AllStudents {
       className: json['class'] as String?,
       jumlahJpSum: json['jumlah_jp_sum']?.toString(), // Convert to String
       point: json['point']?.toString(), // Convert to String
+      alpha_count: json['alpha_count']?.toString(), // Convert to String
     );
   }
 }

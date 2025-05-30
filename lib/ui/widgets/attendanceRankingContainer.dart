@@ -132,9 +132,9 @@ class _AttendanceRankingContainerState
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Peringkat Kehadiran",
+                                "Data Ketidakhadiran Siswa",
                                 style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 15,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
@@ -156,8 +156,7 @@ class _AttendanceRankingContainerState
                       ],
                     ),
                   ),
-                  SizedBox(width: 8),
-                  _buildFilterButton(),
+               
                 ],
               ),
               SizedBox(height: 20),
@@ -198,6 +197,24 @@ class _AttendanceRankingContainerState
                   ],
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.only(top: 12.0),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    "⚠️ Peringkat 1-3 adalah siswa dengan pelanggaran tertinggi!",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ],
@@ -212,27 +229,7 @@ class _AttendanceRankingContainerState
         .firstOrNull;
   }
 
-  Widget _buildFilterButton() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white12,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.filter_list, color: Colors.white, size: 20),
-          SizedBox(width: 5),
-          Text(
-            widget.showAllStudents ? "Semua Siswa" : "Top Ranking",
-            style: TextStyle(color: Colors.white, fontSize: 14),
-          ),
-        ],
-      ),
-    );
-  }
-
+  
   Widget _buildTopThreeSection() {
     final topThree = widget.showAllStudents
         ? widget.attendanceRankings.allStudents?.take(3).toList() ?? []
@@ -257,13 +254,14 @@ class _AttendanceRankingContainerState
     final verticalPadding = position == 1 ? 0.0 : 20.0;
 
     return Container(
-      width: MediaQuery.of(context).size.width * 0.25,
+      width: MediaQuery.of(context).size.width * 0.27, // Slightly wider
       padding: EdgeInsets.symmetric(horizontal: 4, vertical: verticalPadding),
       child: Transform.scale(
         scale: scale,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Position indicator circle
             Container(
               width: 45,
               height: 45,
@@ -274,6 +272,10 @@ class _AttendanceRankingContainerState
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.4),
+                  width: 2,
+                ),
               ),
               child: Center(
                 child: Icon(_getPositionIcon(position),
@@ -281,28 +283,56 @@ class _AttendanceRankingContainerState
               ),
             ),
             SizedBox(height: 6),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 80),
-              child: Tooltip(
-                message: student?.studentName ?? '-',
-                child: Text(
-                  student?.studentName ?? '-',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: position == 1 ? 13 : 12,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+            
+            // Rank number
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.white10,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                position == 1 ? " #$position" : "#$position",
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            Text(
-              '${student?.point ?? 0} poin',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 11,
+            SizedBox(height: 6),
+            
+            // Student name - improved layout
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 2),
+              constraints: BoxConstraints(minHeight: 36),
+              child: SingleChildScrollView(
+                child: Text(
+                  student?.studentName ?? '-',
+                  style: TextStyle(
+                    color: position <= 3 ? Colors.orange : Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: position == 1 ? 12 : 11,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+            SizedBox(height: 4),
+            
+            // Alpha count - improved layout
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 2),
+              child: Text(
+                'Jumlah alpha: ${student?.alpha_count ?? 0}',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -315,18 +345,18 @@ class _AttendanceRankingContainerState
     switch (position) {
       case 1:
         return [
-          Color(0xFFFFD700), // Bright Gold
-          Color(0xFFDAA520), // Golden Rod
+          Colors.red.shade800, // Merah tua (peringatan)
+          Colors.red.shade600,
         ];
       case 2:
         return [
-          Color(0xFF90CDF4), // Light Sky Blue
-          Color(0xFF63B3ED), // Sky Blue
+          Colors.deepOrange.shade800, // Oranye tua (waspada)
+          Colors.deepOrange.shade600,
         ];
       case 3:
         return [
-          Color(0xFF9AE6B4), // Light Green
-          Color(0xFF68D391), // Medium Green
+          Colors.orange.shade800, // Oranye terang (waspada)
+          Colors.orange.shade600,
         ];
       default:
         return [
@@ -339,11 +369,11 @@ class _AttendanceRankingContainerState
   IconData _getPositionIcon(int position) {
     switch (position) {
       case 1:
-        return Icons.workspace_premium;
+        return Icons.warning_rounded; // Ikon peringatan
       case 2:
-        return Icons.trending_up;
+        return Icons.priority_high_rounded; // Ikon tanda seru
       case 3:
-        return Icons.military_tech;
+        return Icons.error_outline_rounded; // Ikon error outline
       default:
         return Icons.star;
     }
@@ -390,6 +420,7 @@ class _AttendanceRankingContainerState
           studentId: student.studentId,
           jumlahJpSum: student.jumlahJpSum,
           point: student.point,
+          alpha_count: student.alpha_count,
         ),
         index: widget.attendanceRankings.allStudents!.indexOf(student),
       );

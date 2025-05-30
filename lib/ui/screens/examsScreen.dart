@@ -400,9 +400,15 @@ class _ExamsScreenState extends State<ExamsScreen>
                             Navigator.pop(context);
                           },
                           style: TextButton.styleFrom(
-                            foregroundColor: Colors.grey[700],
+                            foregroundColor:
+                                primaryColor, // Changed to maroon color
                           ),
-                          child: Text('Reset Filter'),
+                          child: Text(
+                            'Reset Filter',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
                   ],
@@ -551,7 +557,8 @@ class _ExamsScreenState extends State<ExamsScreen>
               borderRadius: BorderRadius.circular(20),
               splashColor: statusColor.withOpacity(0.1),
               highlightColor: statusColor.withOpacity(0.05),
-              onTap: () {                if (hasTimetable) {
+              onTap: () {
+                if (hasTimetable) {
                   HapticFeedback.mediumImpact();
                   Utils.showBottomSheet(
                     child: OfflineExamTimetableBottomsheet(
@@ -660,7 +667,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Row(
-                                        children: [
+                                      children: [
                                         Icon(
                                           Icons.calendar_today,
                                           color: Colors.white,
@@ -668,11 +675,13 @@ class _ExamsScreenState extends State<ExamsScreen>
                                         ),
                                         SizedBox(width: 4),
                                         Text(
-                                          examDate != null ? _getDayName(examDate.weekday) : "-",
+                                          examDate != null
+                                              ? _getDayName(examDate.weekday)
+                                              : "-",
                                           style: GoogleFonts.poppins(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ],
@@ -755,7 +764,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                                   ],
                                 ),
                               ),
-                              SizedBox(width: 16),
+                              const SizedBox(width: 16),
 
                               // Exam details
                               Expanded(
@@ -929,7 +938,7 @@ class _ExamsScreenState extends State<ExamsScreen>
         return "Tidak Diketahui";
     }
   }
-  
+
   String _getDayName(int weekday) {
     const days = [
       '',
@@ -1085,22 +1094,27 @@ class _ExamsScreenState extends State<ExamsScreen>
                                     padding: EdgeInsets.symmetric(
                                         horizontal: 16, vertical: 8),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.2),
+                                      color: primaryColor.withOpacity(
+                                          0.1), // Changed to maroon with opacity
                                       borderRadius: BorderRadius.circular(20),
                                       border: Border.all(
-                                        color: Colors.white.withOpacity(0.3),
+                                        color: primaryColor.withOpacity(
+                                            0.5), // Changed to maroon with opacity
                                         width: 1,
                                       ),
                                     ),
                                     child: Row(
                                       children: [
                                         Icon(Icons.close,
-                                            color: Colors.white, size: 16),
+                                            color: primaryColor,
+                                            size:
+                                                16), // Changed to maroon color
                                         SizedBox(width: 4),
                                         Text(
                                           "Reset Filter",
                                           style: TextStyle(
-                                            color: Colors.white,
+                                            color:
+                                                primaryColor, // Changed to maroon color
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
@@ -1280,6 +1294,8 @@ class _ExamsScreenState extends State<ExamsScreen>
     required IconData icon,
     required VoidCallback onTap,
   }) {
+    final bool isResetFilter = label == "Reset Filter";
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -1288,7 +1304,9 @@ class _ExamsScreenState extends State<ExamsScreen>
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isResetFilter
+                ? primaryColor
+                : Colors.white, // Changed for Reset Filter
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
@@ -1303,7 +1321,9 @@ class _ExamsScreenState extends State<ExamsScreen>
               Icon(
                 icon,
                 size: 18,
-                color: primaryColor,
+                color: isResetFilter
+                    ? Colors.white
+                    : primaryColor, // Changed for Reset Filter
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -1312,14 +1332,18 @@ class _ExamsScreenState extends State<ExamsScreen>
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.grey[800],
+                    color: isResetFilter
+                        ? Colors.white
+                        : Colors.grey[800], // Changed for Reset Filter
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               Icon(
                 Icons.arrow_drop_down,
-                color: Colors.grey[600],
+                color: isResetFilter
+                    ? Colors.white.withOpacity(0.8)
+                    : Colors.grey[600], // Changed for Reset Filter
               ),
             ],
           ),
@@ -1332,7 +1356,7 @@ class _ExamsScreenState extends State<ExamsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomModernAppBar(
-        title: "Ujian",
+        title: "Jadwal Ujian Offline",
         icon: Icons.assignment_rounded,
         fabAnimationController: _controller,
         primaryColor: primaryColor,
@@ -1445,7 +1469,8 @@ class _ExamsScreenState extends State<ExamsScreen>
       );
 }
 
-class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<OfflineExamTimeTableSlot>? timetableSlots;
+class OfflineExamTimetableBottomsheet extends StatelessWidget {
+  final List<OfflineExamTimeTableSlot>? timetableSlots;
   final Color primaryColor;
   final OfflineExam exam;
   final bool isLoading;
@@ -1460,11 +1485,13 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<Offl
   @override
   Widget build(BuildContext context) {
     // Check if timetableSlots is null or empty
-    final bool hasTimetableData = timetableSlots != null && timetableSlots!.isNotEmpty;
-    
+    final bool hasTimetableData =
+        timetableSlots != null && timetableSlots!.isNotEmpty;
+
     // Sort slots by date if they exist
-    final sortedSlots = hasTimetableData 
-        ? (timetableSlots!.toList()..sort((a, b) {
+    final sortedSlots = hasTimetableData
+        ? (timetableSlots!.toList()
+          ..sort((a, b) {
             try {
               final dateA = DateTime.parse(a.date!);
               final dateB = DateTime.parse(b.date!);
@@ -1497,13 +1524,13 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<Offl
     }
 
     return CustomBottomsheet(
-      titleLabelKey: exam.name ?? "Jadwal Ujian",
+      titleLabelKey: "Jadwal Ujian",
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           // Exam Header Card with glass effect
           _buildExamHeaderCard(context),
-          SizedBox(height: 20),          // Timetable content
+          SizedBox(height: 20), // Timetable content
           Flexible(
             child: timetableSlots == null
                 ? _buildLoadingState() // Tampilkan loading state jika timetableSlots == null
@@ -1518,6 +1545,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<Offl
 
   Widget _buildExamHeaderCard(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -1533,7 +1561,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<Offl
         borderRadius: BorderRadius.circular(20),
         child: Stack(
           children: [
-            // Fancy gradient background similar to AppBar
+            // Fancy gradient background
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
@@ -1541,12 +1569,12 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<Offl
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFF690013),
+                      const Color(0xFF690013),
                       primaryColor,
-                      Color(0xFFA12948),
-                      Color(0xFFAA6976),
+                      const Color(0xFFA12948),
+                      const Color(0xFFAA6976),
                     ],
-                    stops: [0.0, 0.3, 0.6, 1.0],
+                    stops: const [0.0, 0.3, 0.6, 1.0],
                   ),
                 ),
               ),
@@ -1561,7 +1589,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<Offl
               ),
             ),
 
-            // Glowing effect similar to AppBar
+            // Glowing effect
             Positioned(
               top: -70,
               right: -40,
@@ -1576,25 +1604,26 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<Offl
                       Colors.white.withOpacity(0.1),
                       Colors.white.withOpacity(0.0),
                     ],
-                    stops: [0.0, 0.5, 1.0],
+                    stops: const [0.0, 0.5, 1.0],
                   ),
                 ),
               ),
             ),
 
-            // Main content with frosted glass effect
+            // Main content
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Title row with icon and exam name
+                  // Header Section with icon and title
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Animated icon container like in AppBar
+                      // Icon container
                       Container(
-                        padding: EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: LinearGradient(
@@ -1609,25 +1638,25 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<Offl
                             BoxShadow(
                               color: Colors.black.withOpacity(0.2),
                               blurRadius: 4,
-                              offset: Offset(0, 2),
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
                         child: Icon(
                           Icons.school_rounded,
                           color: primaryColor,
-                          size: 20,
+                          size: 22,
                         ),
                       ),
 
-                      SizedBox(width: 12),
+                      const SizedBox(width: 14),
 
-                      // Title text with glowing effect
+                      // Title and class info
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Exam name with shader mask like in AppBar
+                            // Exam name
                             ShaderMask(
                               shaderCallback: (Rect bounds) {
                                 return LinearGradient(
@@ -1643,27 +1672,26 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<Offl
                               child: Text(
                                 exam.name ?? "Jadwal Ujian",
                                 style: GoogleFonts.poppins(
-                                  fontSize: 18,
+                                  fontSize: 19,
                                   fontWeight: FontWeight.bold,
+                                  height: 1.2,
                                   shadows: [
                                     Shadow(
                                       color: Colors.black26,
-                                      offset: Offset(0, 1),
+                                      offset: const Offset(0, 1),
                                       blurRadius: 3,
                                     ),
                                   ],
                                 ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
                               ),
                             ),
 
-                            SizedBox(height: 3),
+                            const SizedBox(height: 6),
 
                             // Class name
                             Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 5),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.15),
                                 borderRadius: BorderRadius.circular(12),
@@ -1675,7 +1703,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<Offl
                               child: Text(
                                 Utils().cleanClassName(exam.className ?? "-"),
                                 style: GoogleFonts.poppins(
-                                  fontSize: 12,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.white,
                                 ),
@@ -1687,217 +1715,79 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<Offl
                     ],
                   ),
 
-                  SizedBox(height: 14),
+                  const SizedBox(height: 18),
 
-                  // Bottom row with dates and stats in a clean, modern layout
+                  // Info Section with glass effect
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                       child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                        padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(14),
                           border: Border.all(
                             color: Colors.white.withOpacity(0.2),
                             width: 1.5,
                           ),
                         ),
-                        child: Row(
+                        child: Column(
                           children: [
-                            // Dates section
-                            Expanded(
-                              flex: 2,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  // Start date
-                                  Icon(
-                                    Icons.calendar_today_rounded,
-                                    color: Colors.white,
-                                    size: 16,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Flexible(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Mulai",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 10,
-                                            color:
-                                                Colors.white.withOpacity(0.7),
-                                          ),
-                                        ),
-                                        Text(
-                                          exam.examStartingDate != null &&
-                                                  exam.examStartingDate!
-                                                      .isNotEmpty
-                                              ? Utils.formatDate(DateTime.parse(
-                                                  exam.examStartingDate!))
-                                              : "-",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.white,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            // Dates Row
+                            Row(
+                              children: [
+                                // Start date
+                                _buildDateInfo(
+                                  icon: Icons.calendar_today_rounded,
+                                  title: "Tanggal Mulai",
+                                  value: exam.examStartingDate != null &&
+                                          exam.examStartingDate!.isNotEmpty
+                                      ? Utils.formatDate(DateTime.parse(
+                                          exam.examStartingDate!))
+                                      : "-",
+                                ),
+
+                                SizedBox(width: 16),
+
+                                // End date
+                                _buildDateInfo(
+                                  icon: Icons.event_rounded,
+                                  title: "Tanggal Selesai",
+                                  value: exam.examEndingDate != null &&
+                                          exam.examEndingDate!.isNotEmpty
+                                      ? Utils.formatDate(
+                                          DateTime.parse(exam.examEndingDate!))
+                                      : "-",
+                                ),
+                              ],
                             ),
 
-                            // Vertical divider
-                            Container(
-                              height: 36,
-                              width: 1,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Colors.white.withOpacity(0.0),
-                                    Colors.white.withOpacity(0.3),
-                                    Colors.white.withOpacity(0.0),
-                                  ],
-                                ),
-                              ),
-                            ), // End date
-                            Expanded(
-                              flex: 2,
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 6),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.event_rounded,
-                                      color: Colors.white,
-                                      size: 16,
-                                    ),
-                                    SizedBox(width: 4),
-                                    Flexible(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "Selesai",
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 10,
-                                              color:
-                                                  Colors.white.withOpacity(0.7),
-                                            ),
-                                          ),
-                                          Text(
-                                            exam.examEndingDate != null &&
-                                                    exam.examEndingDate!
-                                                        .isNotEmpty
-                                                ? Utils.formatDate(
-                                                    DateTime.parse(
-                                                        exam.examEndingDate!))
-                                                : "-",
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.white,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                            const SizedBox(height: 12),
+                            Divider(
+                                color: Colors.white.withOpacity(0.2),
+                                height: 1),
+                            SizedBox(height: 12),
 
-                            // Vertical divider
-                            Container(
-                              height: 36,
-                              width: 1,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Colors.white.withOpacity(0.0),
-                                    Colors.white.withOpacity(0.3),
-                                    Colors.white.withOpacity(0.0),
-                                  ],
+                            // Stats Row
+                            Row(
+                              children: [
+                                // Subject count
+                                _buildStatInfo(
+                                  icon: Icons.subject_rounded,
+                                  value: "${timetableSlots?.length ?? "-"}",
+                                  label: "Pelajaran",
                                 ),
-                              ),
-                            ), // Stats section
-                            Expanded(
-                              flex: 3,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [                              // Subject count
-                                  Column(
-                                    children: [
-                                      Icon(
-                                        Icons.subject_rounded,
-                                        color: Colors.white.withOpacity(0.9),
-                                        size: 16,
-                                      ),
-                                      SizedBox(height: 2),
-                                      Text(
-                                        "${timetableSlots?.length ?? "-"}",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      Text(
-                                        "Pelajaran",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 9,
-                                          color: Colors.white.withOpacity(0.7),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
 
-                                  // Duration
-                                  Column(
-                                    children: [
-                                      Icon(
-                                        Icons.assessment_outlined,
-                                        color: Colors.white.withOpacity(0.9),
-                                        size: 16,
-                                      ),
-                                      SizedBox(height: 2),
-                                      Text(
-                                        _calculateTotalDuration(),
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      Text(
-                                        "Durasi",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 9,
-                                          color: Colors.white.withOpacity(0.7),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                                const SizedBox(width: 24),
+
+                                // Duration
+                                _buildStatInfo(
+                                  icon: Icons.timer_outlined,
+                                  value: _calculateTotalDuration(),
+                                  label: "Total Durasi",
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -1917,12 +1807,109 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<Offl
           curve: Curves.easeOutQuint,
         );
   }
+
+  // Helper method for date information
+  Widget _buildDateInfo({
+    required IconData icon,
+    required String title,
+    required String value,
+  }) {
+    return Expanded(
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 16,
+            ),
+          ),
+          SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 11,
+                    color: Colors.white.withOpacity(0.7),
+                  ),
+                ),
+                Text(
+                  value,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper method for stat information
+  Widget _buildStatInfo({
+    required IconData icon,
+    required String value,
+    required String label,
+  }) {
+    return Expanded(
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+          SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  color: Colors.white.withOpacity(0.7),
+                ),
+              ),
+              Text(
+                value,
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   String _calculateTotalDuration() {
     try {
       if (timetableSlots == null) {
         return "-";
       }
-      
+
       int totalMinutes = 0;
 
       for (var slot in timetableSlots!) {
@@ -1984,6 +1971,8 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<Offl
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  // Adding padding to shift the circular date to the right
+                  SizedBox(width: 15),
                   // Day number in circle
                   Container(
                     width: 52,
@@ -2021,22 +2010,31 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<Offl
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          dayName,
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: primaryColor,
-                            height: 1.1,
-                          ),
-                        ),
-                        Text(
-                          date,
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[700],
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              dayName,
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: primaryColor,
+                                height: 1.1,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              parsedDate != null
+                                  ? DateFormat('MMMM yyyy', 'id')
+                                      .format(parsedDate)
+                                  : "-",
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -2045,32 +2043,6 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<Offl
                   // Exam count chip
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: primaryColor.withOpacity(0.2),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.book_rounded,
-                          size: 16,
-                          color: primaryColor,
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          "${slots.length} Mata Pelajaran",
-                          style: GoogleFonts.poppins(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: primaryColor,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ],
               ),
@@ -2117,44 +2089,11 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<Offl
   Widget _buildSubjectTimelineCard(BuildContext context,
       OfflineExamTimeTableSlot slot, int animationIndex, bool isLast) {
     final subjectName = slot.subject?.getSybjectNameWithType() ?? "-";
-
     return Container(
-      margin: EdgeInsets.only(left: 26, bottom: isLast ? 0 : 18),
+      margin: EdgeInsets.only(left: 41, right: 26, bottom: isLast ? 0 : 18),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Timeline element
-          Column(
-            children: [
-              Container(
-                width: 16,
-                height: 16,
-                decoration: BoxDecoration(
-                  color: primaryColor,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 3,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: primaryColor.withOpacity(0.25),
-                      blurRadius: 4,
-                      spreadRadius: 1,
-                    ),
-                  ],
-                ),
-              ),
-              if (!isLast)
-                Container(
-                  width: 2,
-                  height: 85, // Height adjusted to match the card
-                  color: primaryColor.withOpacity(0.2),
-                ),
-            ],
-          ),
-          SizedBox(width: 16),
-
           // Card content
           Expanded(
             child: Container(
@@ -2175,78 +2114,152 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<Offl
                 children: [
                   // Subject header with time
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                     decoration: BoxDecoration(
-                      color: primaryColor.withOpacity(0.03),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          primaryColor,
+                          Color(0xFF5A2223), // Deeper complementary shade
+                        ],
+                      ),
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(16),
                         topRight: Radius.circular(16),
                       ),
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Colors.grey.withOpacity(0.1),
+                      boxShadow: [
+                        BoxShadow(
+                          color: primaryColor.withOpacity(0.2),
+                          blurRadius: 8,
+                          offset: Offset(0, 1),
                         ),
-                      ),
+                      ],
                     ),
-                    child: Row(
+                    child: Stack(
                       children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Subject name
-                              CustomTextContainer(
-                                textKey: subjectName,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: primaryColor,
-                                ),
-                              ),
-                            ],
+                        // Decorative elegant circle patterns
+                        Positioned.fill(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(16),
+                              topRight: Radius.circular(16),
+                            ),
+                            child: CustomPaint(
+                              painter: ElegantCirclesDecorationPainter(
+                                  color: Colors.white),
+                            ),
                           ),
                         ),
 
-                        // Time chip
-                        Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 4,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                            border: Border.all(
-                              color: primaryColor.withOpacity(0.2),
-                            ),
-                          ),
+                        // Main content
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 18, vertical: 16),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Icon(
-                                Icons.schedule,
-                                size: 14,
-                                color: primaryColor,
-                              ),
-                              SizedBox(width: 4),
-                              Text(
-                                "${Utils.formatTime(
-                                  timeOfDay: TimeOfDay(
-                                    hour: Utils.getHourFromTimeDetails(
-                                        time: slot.startTime!),
-                                    minute: Utils.getMinuteFromTimeDetails(
-                                        time: slot.startTime!),
+                              // Subject icon
+                              Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.3),
+                                    width: 1,
                                   ),
-                                  context: context,
-                                )}",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  color: primaryColor,
+                                ),
+                                child: Icon(
+                                  Icons.book,
+                                  size: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(width: 14),
+
+                              // Subject name with improved typography
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Pelajaran',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.white.withOpacity(0.7),
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                    CustomTextContainer(
+                                      textKey: subjectName,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                        height: 1.2,
+                                        shadows: [
+                                          Shadow(
+                                            color: Colors.black26,
+                                            offset: Offset(0, 1),
+                                            blurRadius: 2,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              // Elegant time display
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      Colors.white.withOpacity(0.95),
+                                      Colors.white.withOpacity(0.85),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 4,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.schedule,
+                                      size: 14,
+                                      color: primaryColor,
+                                    ),
+                                    SizedBox(width: 6),
+                                    Text(
+                                      "${Utils.formatTime(
+                                        timeOfDay: TimeOfDay(
+                                          hour: Utils.getHourFromTimeDetails(
+                                              time: slot.startTime!),
+                                          minute:
+                                              Utils.getMinuteFromTimeDetails(
+                                                  time: slot.startTime!),
+                                        ),
+                                        context: context,
+                                      )}",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: primaryColor,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -2336,7 +2349,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<Offl
   }) {
     return Expanded(
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: color.withOpacity(0.08),
           borderRadius: BorderRadius.circular(12),
@@ -2349,7 +2362,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {  final List<Offl
               size: 18,
               color: color,
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -2615,4 +2628,63 @@ class ModernPatternPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class ElegantCirclesDecorationPainter extends CustomPainter {
+  final Color color;
+
+  ElegantCirclesDecorationPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color.withOpacity(0.2)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    // Draw multiple decorative circles with varying sizes and positions
+    for (int i = 0; i < 5; i++) {
+      double opacity = 0.1 - (i * 0.02);
+      paint.color = color.withOpacity(opacity > 0 ? opacity : 0.01);
+
+      // Large circle in the top right
+      canvas.drawCircle(
+        Offset(size.width * 0.85, size.height * 0.3),
+        size.width * (0.25 + i * 0.1),
+        paint,
+      );
+
+      // Small circle in the bottom left
+      canvas.drawCircle(
+        Offset(size.width * 0.15, size.height * 0.7),
+        size.width * (0.15 + i * 0.05),
+        paint,
+      );
+    }
+
+    // Add a few accent dots
+    paint.style = PaintingStyle.fill;
+    paint.color = color.withOpacity(0.2);
+
+    canvas.drawCircle(
+      Offset(size.width * 0.95, size.height * 0.15),
+      3,
+      paint,
+    );
+
+    canvas.drawCircle(
+      Offset(size.width * 0.05, size.height * 0.85),
+      2,
+      paint,
+    );
+
+    canvas.drawCircle(
+      Offset(size.width * 0.5, size.height * 0.9),
+      4,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

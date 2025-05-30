@@ -19,6 +19,12 @@ class AssignmentMonitoringRepository {
 
       if (submissionStatus != null && submissionStatus.isNotEmpty) {
         queryParameters['submission_status'] = submissionStatus;
+
+        // Make sure to include_zero_assignments when filtering for not_submitted
+        if (submissionStatus == 'not_submitted') {
+          queryParameters['include_zero_assignments'] = 'true';
+          print('DEBUG: Including zero assignments for not_submitted filter');
+        }
       }
 
       // Only include date filters if both are provided
@@ -30,11 +36,34 @@ class AssignmentMonitoringRepository {
         queryParameters['end_date'] = endDate;
       }
 
+      // Print final query parameters
+      print('DEBUG: API Request parameters: $queryParameters');
+
       final result = await Api.get(
         url: Api.getAssignmentMonitoring,
         queryParameters: queryParameters,
         useAuthToken: true,
       );
+
+      // Print response status untuk debugging
+      print(
+          'DEBUG: API Response - error: ${result['error']}, message: ${result['message']}');
+      print('DEBUG: Total records: ${result['data']['total']}');
+
+      // Tambahan log khusus untuk filter not_submitted
+      if (submissionStatus == 'not_submitted') {
+        final rows = result['data']['rows'] as List;
+        if (rows.isNotEmpty) {
+          print(
+              'DEBUG: Found ${rows.length} teachers with not_submitted status');
+          for (int i = 0; i < (rows.length > 3 ? 3 : rows.length); i++) {
+            print(
+                'DEBUG: Teacher: ${rows[i]['teacher_name']}, Total Assignments: ${rows[i]['total_assignments']}');
+          }
+        } else {
+          print('DEBUG: No teachers found with not_submitted status');
+        }
+      }
 
       return {
         "data": AssignmentMonitoringResponse.fromJson(result),

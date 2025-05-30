@@ -289,12 +289,29 @@ class StaffPayrollDetailsContainerState
               }
             },
             child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
-              child: Material(
+              margin: const EdgeInsets.symmetric(
+                  vertical: 18, horizontal: 8), // Tambah jarak antar card
+              decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                elevation: _cardElevationAnimation.value,
-                shadowColor: _maroonPrimary.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: widget.isSelected
+                      ? _maroonPrimary.withOpacity(0.3)
+                      : Colors.grey[300]!,
+                  width: widget.isSelected ? 2 : 1.2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.07),
+                    blurRadius: 14,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+                elevation: 0,
                 clipBehavior: Clip.antiAlias,
                 child: Container(
                   decoration: BoxDecoration(
@@ -419,60 +436,75 @@ class StaffPayrollDetailsContainerState
 
           const SizedBox(width: 12),
 
-          // Staff name
+          // Staff name & status badge (rapi, nama di atas, status di bawah)
           Expanded(
-            child: Text(
-              widget.staffPayRoll.userDetails?.firstName ?? "-",
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[800],
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-
-          // Status badge
-          Container(
-            margin: const EdgeInsets.only(right: 12),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: widget.staffPayRoll.receivedPayroll()
-                  ? Theme.of(context)
-                      .extension<CustomColors>()!
-                      .totalStaffOverviewBackgroundColor!
-                      .withOpacity(0.1)
-                  : _maroonPrimary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  widget.staffPayRoll.receivedPayroll()
-                      ? Icons.check_circle_outline
-                      : Icons.pending_outlined,
-                  size: 14,
-                  color: widget.staffPayRoll.receivedPayroll()
-                      ? Theme.of(context)
-                          .extension<CustomColors>()!
-                          .totalStaffOverviewBackgroundColor
-                      : _maroonPrimary,
-                ),
-                const SizedBox(width: 6),
                 Text(
-                  Utils.getTranslatedLabel(widget.staffPayRoll.receivedPayroll()
-                      ? paidKey
-                      : unpaidKey),
+                  widget.staffPayRoll.userDetails?.fullName ??
+                      (((widget.staffPayRoll.userDetails?.firstName ?? "") +
+                              (widget.staffPayRoll.userDetails?.lastName !=
+                                          null &&
+                                      widget.staffPayRoll.userDetails
+                                              ?.lastName !=
+                                          ''
+                                  ? " " +
+                                      widget.staffPayRoll.userDetails!.lastName!
+                                  : ""))
+                          .trim()),
                   style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[800],
+                  ),
+                  softWrap: true,
+                  // Tidak ada maxLines dan overflow
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
                     color: widget.staffPayRoll.receivedPayroll()
                         ? Theme.of(context)
                             .extension<CustomColors>()!
-                            .totalStaffOverviewBackgroundColor
-                        : _maroonPrimary,
+                            .totalStaffOverviewBackgroundColor!
+                            .withOpacity(0.1)
+                        : _maroonPrimary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        widget.staffPayRoll.receivedPayroll()
+                            ? Icons.check_circle_outline
+                            : Icons.pending_outlined,
+                        size: 14,
+                        color: widget.staffPayRoll.receivedPayroll()
+                            ? Theme.of(context)
+                                .extension<CustomColors>()!
+                                .totalStaffOverviewBackgroundColor
+                            : _maroonPrimary,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        Utils.getTranslatedLabel(
+                            widget.staffPayRoll.receivedPayroll()
+                                ? paidKey
+                                : unpaidKey),
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: widget.staffPayRoll.receivedPayroll()
+                              ? Theme.of(context)
+                                  .extension<CustomColors>()!
+                                  .totalStaffOverviewBackgroundColor
+                              : _maroonPrimary,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

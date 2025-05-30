@@ -1182,6 +1182,16 @@ class _TeacherAddEditAssignmentScreenState
                 ),
               ),
               SizedBox(height: 20), // Class Section
+              // Added label for class section
+              Text(
+                'Kelas',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 8),
               CustomSelectionDropdownSelectionButton(
                 isDisabled: widget.assignment != null,
                 onTap: () {
@@ -1204,8 +1214,17 @@ class _TeacherAddEditAssignmentScreenState
                 titleKey: _selectedClassSection?.fullName ?? 'Pilih Kelas',
                 backgroundColor: Colors.grey.shade50,
               ),
-
               SizedBox(height: 15), // Subject
+              // Added label for subject
+              Text(
+                'Mata Pelajaran',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 8),
               CustomSelectionDropdownSelectionButton(
                 isDisabled: widget.assignment != null,
                 onTap: () {
@@ -1264,24 +1283,52 @@ class _TeacherAddEditAssignmentScreenState
               SizedBox(height: 20),
 
               // Assignment Name
+              // Added label for assignment name
+              Text(
+                'Judul Tugas',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 8),
               CustomTextFieldContainer(
                 textEditingController: _assignmentNameTextEditingController,
-                hintTextKey: 'Judul Tugas',
+                hintTextKey: '',
                 backgroundColor: Colors.grey.shade50,
               ),
-
               SizedBox(height: 15),
 
               // Description
+              // Added label for assignment description
+              Text(
+                'Deskripsi Tugas',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 8),
               CustomTextFieldContainer(
                 textEditingController:
                     _assignmentDescriptionTextEditingController,
                 maxLines: 5,
-                hintTextKey: 'Deskripsi Tugas',
+                hintTextKey: '',
                 backgroundColor: Colors.grey.shade50,
               ),
-
               SizedBox(height: 15), // Dates
+              // Added label for dates
+              Text(
+                'Tanggal Mulai dan Berakhir',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 8),
               Row(
                 children: [
                   Expanded(
@@ -1309,8 +1356,17 @@ class _TeacherAddEditAssignmentScreenState
                   ),
                 ],
               ),
-
               SizedBox(height: 15), // Due Date & Time
+              // Added label for due date and time
+              Text(
+                'Tenggat Waktu Pengumpulan',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 8),
               Row(
                 children: [
                   Expanded(
@@ -1373,33 +1429,61 @@ class _TeacherAddEditAssignmentScreenState
               SizedBox(height: 20),
 
               // Points
+              // Added label for points
+              Text(
+                'Nilai Maksimal',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 8),
               CustomTextFieldContainer(
                 keyboardType: TextInputType.number,
                 textEditingController: _assignmentPointsTextEditingController,
-                hintTextKey: 'Nilai Maksimal',
+                hintTextKey: '',
                 backgroundColor: Colors.grey.shade50,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               ),
-
               SizedBox(height: 15),
 
               // Min Points
+              // Added label for min points
+              Text(
+                'Nilai Minimal Kelulusan',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 8),
               CustomTextFieldContainer(
                 keyboardType: TextInputType.number,
                 textEditingController: _minPointsTextEditingController,
-                hintTextKey: 'Nilai Minimal Kelulusan',
+                hintTextKey: '',
                 backgroundColor: Colors.grey.shade50,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               ),
-
               SizedBox(height: 15),
 
               // Extra Resubmission Days
+              // Added label for resubmission days
+              Text(
+                'Hari untuk Pengumpulan Ulang',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 8),
               CustomTextFieldContainer(
                 keyboardType: TextInputType.number,
                 textEditingController:
                     _extraResubmissionDaysTextEditingController,
-                hintTextKey: 'Hari untuk Pengumpulan Ulang',
+                hintTextKey: '',
                 backgroundColor: Colors.grey.shade50,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               ),
@@ -1436,6 +1520,16 @@ class _TeacherAddEditAssignmentScreenState
                 ),
               ),
               SizedBox(height: 20), // Answer Types
+              // Added label for text answer
+              Text(
+                'Jenis Jawaban yang Diizinkan',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 8),
               Row(
                 children: [
                   Expanded(
@@ -1502,10 +1596,19 @@ class _TeacherAddEditAssignmentScreenState
                     );
                   }).toList(),
                 ),
-
                 SizedBox(height: 15),
 
                 // Max File Size
+                // Added label for max file size
+                Text(
+                  'Ukuran Maksimal File (MB)',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+                SizedBox(height: 8),
                 CustomTextFieldContainer(
                   keyboardType: TextInputType.number,
                   textEditingController: _maxFileSizeTextEditingController,
@@ -1583,10 +1686,19 @@ class _TeacherAddEditAssignmentScreenState
                       ),
                     ),
                   ),
-
               SizedBox(height: 15),
 
               // Upload button
+              // Added label for attachment upload
+              Text(
+                'Tambahkan Lampiran (Opsional)',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 8),
               UploadImageOrFileButton(
                 uploadFile: true,
                 includeImageFileOnlyAllowedNote: true,

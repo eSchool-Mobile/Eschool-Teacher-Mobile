@@ -10,6 +10,7 @@ import 'package:eschool_saas_staff/ui/screens/teacherProfileScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherTimeTableDetailsScreen.dart';
 import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
@@ -26,6 +27,9 @@ import 'package:get/route_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 enum TeacherNavigationType { leave, profile, timetable }
+
+// Menambahkan enum untuk filter status guru
+enum TeacherStatusFilter { all, active, inactive }
 
 class TeachersScreen extends StatefulWidget {
   final TeacherNavigationType teacherNavigationType;
@@ -56,6 +60,9 @@ class _TeachersScreenState extends State<TeachersScreen>
   late final TextEditingController _textEditingController =
       TextEditingController()..addListener(searchQueryTextControllerListener);
 
+  // Variable untuk status filter guru
+  TeacherStatusFilter _currentStatusFilter = TeacherStatusFilter.all;
+
   late int waitForNextRequestSearchQueryTimeInMilliSeconds =
       nextSearchRequestQueryTimeInMilliSeconds;
 
@@ -77,6 +84,7 @@ class _TeachersScreenState extends State<TeachersScreen>
   late Animation<double> _pulseAnimation;
   late AnimationController _rotationController;
   late Animation<double> _rotationAnimation;
+  late AnimationController _fabAnimationController; // Added for CustomModernAppBar
 
   // Untuk efek hover pada item staff
   int _hoveredTeacherIndex = -1;
@@ -141,6 +149,12 @@ class _TeachersScreenState extends State<TeachersScreen>
       begin: 0,
       end: 2 * math.pi,
     ).animate(_rotationController);
+    
+    // Initialize fabAnimationController for CustomModernAppBar
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300),
+    )..forward();
 
     // Start animations
     _fadeController.forward();
@@ -175,6 +189,7 @@ class _TeachersScreenState extends State<TeachersScreen>
     _slideController.dispose();
     _pulseController.dispose();
     _rotationController.dispose();
+    _fabAnimationController.dispose(); // Add this line to dispose the new controller
     _scrollController.dispose();
     super.dispose();
   }
@@ -234,9 +249,17 @@ class _TeachersScreenState extends State<TeachersScreen>
     return viewProfileKey;
   }
 
-
   Widget _buildTeacherList(TeachersFetchSuccess state, BuildContext context) {
-    if (state.teachers.isEmpty) {
+    // Menerapkan filter berdasarkan status guru
+    var filteredTeachers = state.teachers;
+    
+    if (_currentStatusFilter == TeacherStatusFilter.active) {
+      filteredTeachers = state.teachers.where((teacher) => teacher.isActive()).toList();
+    } else if (_currentStatusFilter == TeacherStatusFilter.inactive) {
+      filteredTeachers = state.teachers.where((teacher) => !teacher.isActive()).toList();
+    }
+    
+    if (filteredTeachers.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -274,9 +297,9 @@ class _TeachersScreenState extends State<TeachersScreen>
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         controller: _scrollController,
         physics: BouncingScrollPhysics(),
-        itemCount: state.teachers.length,
+        itemCount: filteredTeachers.length,
         itemBuilder: (context, index) {
-          final teacherDetails = state.teachers[index];
+          final teacherDetails = filteredTeachers[index];
           final bool isHovered = _hoveredTeacherIndex == index;
 
           return AnimationConfiguration.staggeredList(
@@ -497,246 +520,374 @@ class _TeachersScreenState extends State<TeachersScreen>
                 ),
               ),
             ),
-          );
-        },
-      ),
+              );
+          },
+        ),
+      
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    // Need to add a fabAnimationController for the CustomModernAppBar
+    late final AnimationController fabAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300),
+    )..forward();
+
+    String titleKey = "Daftar Guru";
+    if (widget.teacherNavigationType == TeacherNavigationType.leave) {
+      titleKey = "Guru - Cuti";
+    } else if (widget.teacherNavigationType == TeacherNavigationType.timetable) {
+      titleKey = "Guru - Jadwal";
+    } else {
+      titleKey = "Daftar Guru";
+    }
+
     return Scaffold(
-      // Set warna status bar transparan agar app bar terlihat full sampai status bar
-      extendBodyBehindAppBar: true,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(0),
-        child: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            statusBarIconBrightness: Brightness.light,
-          ),
-        ),
+      appBar: CustomModernAppBar(
+        title: titleKey,
+        icon: Icons.people_alt_rounded,
+        fabAnimationController: fabAnimationController,
+        primaryColor: maroonPrimary,
+        lightColor: maroonSecondary,
+        onBackPressed: () => Navigator.of(context).pop(),
+        showFilterButton: true,
+        onFilterPressed: () {
+          // Optional: Implement filter functionality here
+          HapticFeedback.lightImpact();
+          // Show filter options
+          showFilterOptions();
+        },
       ),
-      body: Stack(
+      body: Column(
         children: [
-          // Background dengan gradien dan pattern
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  warmBeige.withOpacity(0.5),
-                  Colors.white,
+          // Search Bar
+          Padding(
+            padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
                 ],
+              ),
+              child: TextField(
+                controller: _textEditingController,
+                decoration: InputDecoration(
+                  hintText: "Cari guru...",
+                  hintStyle: TextStyle(color: Colors.grey),
+                  prefixIcon: Icon(Icons.search, color: maroonPrimary),
+                  suffixIcon: _textEditingController.text.isNotEmpty
+                      ? IconButton(
+                          icon: Icon(Icons.clear, color: Colors.grey),
+                          onPressed: () {
+                            _textEditingController.clear();
+                            getTeachers();
+                          },
+                        )
+                      : null,
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 12),
+                ),
               ),
             ),
           ),
+          
+          // Filter Indicator
+          if (_currentStatusFilter != TeacherStatusFilter.all)
+            Padding(
+              padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
+              child: Row(
+                children: [
+                  Icon(
+                    _currentStatusFilter == TeacherStatusFilter.active
+                        ? Icons.check_circle_outline
+                        : Icons.remove_circle_outline,
+                    color: maroonPrimary,
+                    size: 16,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    _currentStatusFilter == TeacherStatusFilter.active
+                        ? "Menampilkan Guru Aktif"
+                        : "Menampilkan Guru Non-Aktif",
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                  Spacer(),
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        _currentStatusFilter = TeacherStatusFilter.all;
+                      });
+                    },
+                    child: Text(
+                      "Reset",
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: maroonPrimary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
-          // Animated background pattern
-          Positioned.fill(
-            child: AnimatedBuilder(
-              animation: _rotationAnimation,
-              builder: (context, child) {
-                return CustomPaint(
-                  painter: BackgroundPatternPainter(
-                    animation: _rotationAnimation.value,
-                    primaryColor: maroonPrimary.withOpacity(0.03),
-                    accentColor: maroonSecondary.withOpacity(0.02),
+          // Filter Status Indicator
+          if (_currentStatusFilter != TeacherStatusFilter.all)
+            Padding(
+              padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: maroonPrimary.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: maroonPrimary.withOpacity(0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      _currentStatusFilter == TeacherStatusFilter.active 
+                          ? Icons.check_circle_outline 
+                          : Icons.remove_circle_outline,
+                      color: maroonPrimary,
+                      size: 18,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      _currentStatusFilter == TeacherStatusFilter.active
+                          ? "Filter: Guru Aktif"
+                          : "Filter: Guru Non-Aktif",
+                      style: GoogleFonts.poppins(
+                        color: maroonPrimary,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                      ),
+                    ),
+                    Spacer(),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          _currentStatusFilter = TeacherStatusFilter.all;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Padding(
+                        padding: EdgeInsets.all(4),
+                        child: Icon(
+                          Icons.close,
+                          color: maroonPrimary,
+                          size: 16,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+          // Teacher List
+          Expanded(
+            child: BlocBuilder<TeachersCubit, TeachersState>(
+              builder: (context, state) {
+                if (state is TeachersFetchSuccess) {
+                  return _buildTeacherList(state, context);
+                }
+
+                if (state is TeachersFetchFailure) {
+                  return Center(
+                    child: ErrorContainer(
+                      errorMessage: state.errorMessage,
+                      onTapRetry: () {
+                        getTeachers();
+                      },
+                    ),
+                  );
+                }
+
+                return Center(
+                  child: CustomCircularProgressIndicator(
+                    indicatorColor: maroonPrimary,
                   ),
                 );
               },
             ),
           ),
+        ],
+      ),
+    );
 
-          // Content area - Tidak menggunakan SafeArea untuk header
-          Column(
+  }
+
+  void showFilterOptions() {
+    HapticFeedback.lightImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Header section with animations - tanpa SafeArea
-              AnimatedContainer(
-                duration: Duration(milliseconds: 300),
-                curve: Curves.easeOutQuint,
-                // Tambahkan padding top untuk status bar
-                padding:
-                    EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-                height: _headerHeight + MediaQuery.of(context).padding.top,
-                width: double.infinity,
+              Container(
+                margin: EdgeInsets.only(top: 12),
+                height: 4,
+                width: 40,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [maroonPrimary, maroonSecondary],
-                    begin: Alignment.topRight,
-                    end: Alignment.bottomLeft,
-                  ),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: maroonPrimary.withOpacity(0.3),
-                      blurRadius: 20,
-                      offset: Offset(0, 10),
-                      spreadRadius: 0,
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Filter Status Guru",
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    ListTile(
+                      onTap: () {
+                        setState(() {
+                          _currentStatusFilter = TeacherStatusFilter.all;
+                        });
+                        Navigator.pop(context);
+                      },
+                      title: Text(
+                        "Semua Guru",
+                        style: GoogleFonts.poppins(
+                          fontWeight: _currentStatusFilter == TeacherStatusFilter.all 
+                              ? FontWeight.w500 
+                              : FontWeight.normal,
+                          color: _currentStatusFilter == TeacherStatusFilter.all 
+                              ? maroonPrimary 
+                              : Colors.black87,
+                        ),
+                      ),
+                      leading: Icon(
+                        Icons.people_alt_rounded,
+                        color: _currentStatusFilter == TeacherStatusFilter.all 
+                            ? maroonPrimary 
+                            : Colors.grey.shade600,
+                      ),
+                      trailing: _currentStatusFilter == TeacherStatusFilter.all 
+                          ? Icon(Icons.check_circle, color: maroonPrimary) 
+                          : null,
+                      tileColor: _currentStatusFilter == TeacherStatusFilter.all 
+                          ? maroonPrimary.withOpacity(0.05) 
+                          : Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    ListTile(
+                      onTap: () {
+                        setState(() {
+                          _currentStatusFilter = TeacherStatusFilter.active;
+                        });
+                        Navigator.pop(context);
+                      },
+                      title: Text(
+                        "Guru Aktif",
+                        style: GoogleFonts.poppins(
+                          fontWeight: _currentStatusFilter == TeacherStatusFilter.active 
+                              ? FontWeight.w500 
+                              : FontWeight.normal,
+                          color: _currentStatusFilter == TeacherStatusFilter.active 
+                              ? maroonPrimary 
+                              : Colors.black87,
+                        ),
+                      ),
+                      leading: Icon(
+                        Icons.check_circle_outline,
+                        color: _currentStatusFilter == TeacherStatusFilter.active 
+                            ? maroonPrimary 
+                            : Colors.grey.shade600,
+                      ),
+                      trailing: _currentStatusFilter == TeacherStatusFilter.active 
+                          ? Icon(Icons.check_circle, color: maroonPrimary) 
+                          : null,
+                      tileColor: _currentStatusFilter == TeacherStatusFilter.active 
+                          ? maroonPrimary.withOpacity(0.05) 
+                          : Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    ListTile(
+                      onTap: () {
+                        setState(() {
+                          _currentStatusFilter = TeacherStatusFilter.inactive;
+                        });
+                        Navigator.pop(context);
+                      },
+                      title: Text(
+                        "Guru Non-Aktif",
+                        style: GoogleFonts.poppins(
+                          fontWeight: _currentStatusFilter == TeacherStatusFilter.inactive 
+                              ? FontWeight.w500 
+                              : FontWeight.normal,
+                          color: _currentStatusFilter == TeacherStatusFilter.inactive 
+                              ? maroonPrimary 
+                              : Colors.black87,
+                        ),
+                      ),
+                      leading: Icon(
+                        Icons.remove_circle_outline,
+                        color: _currentStatusFilter == TeacherStatusFilter.inactive 
+                            ? maroonPrimary 
+                            : Colors.grey.shade600,
+                      ),
+                      trailing: _currentStatusFilter == TeacherStatusFilter.inactive 
+                          ? Icon(Icons.check_circle, color: maroonPrimary) 
+                          : null,
+                      tileColor: _currentStatusFilter == TeacherStatusFilter.inactive 
+                          ? maroonPrimary.withOpacity(0.05) 
+                          : Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ],
-                ),
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Stack(
-                      children: [
-                        // Decorative elements
-                        Positioned(
-                          right: -20,
-                          top: -20,
-                          child: Container(
-                            width: 150,
-                            height: 150,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: RadialGradient(
-                                colors: [
-                                  Colors.white.withOpacity(0.2),
-                                  Colors.transparent,
-                                ],
-                                stops: [0, 0.7],
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Header content
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Back button and title
-                              Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () => Get.back(),
-                                    child: Container(
-                                      padding: EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Icon(
-                                        Icons.arrow_back,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(width: 16),
-                                  Text(
-                                    "Guru",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              if (!_isScrolled) ...[
-                                SizedBox(height: 16),
-                                Text(
-                                  "Kelola guru dan akses informasi guru secara lebih mudah",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    color: Colors.white.withOpacity(0.9),
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-
-              // Search Bar
-              Padding(
-                padding: EdgeInsets.fromLTRB(24, 24, 24, 16),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: TextField(
-                    controller: _textEditingController,
-                    decoration: InputDecoration(
-                      hintText: "Cari guru...",
-                      hintStyle: TextStyle(color: Colors.grey),
-                      prefixIcon: Icon(Icons.search, color: maroonPrimary),
-                      suffixIcon: _textEditingController.text.isNotEmpty
-                          ? IconButton(
-                              icon: Icon(Icons.clear, color: Colors.grey),
-                              onPressed: () {
-                                _textEditingController.clear();
-                                getTeachers();
-                              },
-                            )
-                          : null,
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                ),
-              ),
-
-              // Teacher List
-              Expanded(
-                child: BlocBuilder<TeachersCubit, TeachersState>(
-                  builder: (context, state) {
-                    if (state is TeachersFetchSuccess) {
-                      return _buildTeacherList(state, context);
-                    }
-
-                    if (state is TeachersFetchFailure) {
-                      return Center(
-                        child: ErrorContainer(
-                          errorMessage: state.errorMessage,
-                          onTapRetry: () {
-                            getTeachers();
-                          },
-                        ),
-                      );
-                    }
-
-                    return Center(
-                      child: CustomCircularProgressIndicator(
-                        indicatorColor: maroonPrimary,
-                      ),
-                    );
-                  },
                 ),
               ),
             ],
           ),
-        ],
-      ),
-    );
+        );
+      },
+    ).then((_) {
+      // Refresh list after filter is selected
+      setState(() {});
+    });
   }
 }
 

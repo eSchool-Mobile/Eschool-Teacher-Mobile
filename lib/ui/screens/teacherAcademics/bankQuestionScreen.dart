@@ -640,13 +640,12 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
             builder: (context, child) {
               return Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 16.0,
+                  horizontal: 8.0, // Reduced horizontal padding
                   vertical: 8.0,
                 ),
                 child: Container(
-                  width: MediaQuery.of(context).size.width *
-                      (_searchWidthAnimation.value),
-                  height: 48.0,
+                  width: MediaQuery.of(context).size.width * 0.95, // Increased width to 95% of screen
+                  height: 52.0, // Slightly taller for better visibility
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(24.0),
@@ -667,9 +666,18 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                         Icons.search,
                         color: _primaryColor,
                       ),
+                      suffixIcon: _searchController.text.isNotEmpty 
+                          ? IconButton(
+                              icon: Icon(Icons.clear, color: Colors.grey),
+                              onPressed: () {
+                                _searchController.clear();
+                                _filterQuestions('', questions);
+                              },
+                            )
+                          : null,
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(
-                        vertical: 12.0,
+                        vertical: 14.0,
                         horizontal: 16.0,
                       ),
                     ),

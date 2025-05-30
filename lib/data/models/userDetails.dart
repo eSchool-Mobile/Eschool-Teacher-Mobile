@@ -171,11 +171,11 @@ class UserDetails {
 
   String getGender() {
     if (gender == "male") {
-      return "Male";
+      return "Laki-Laki";
     }
 
     if (gender == "female") {
-      return "Female";
+      return "Perempuan";
     }
     return gender ?? "-";
   }

@@ -1,3 +1,4 @@
+// This is a temporary file to recreate the staffsScreen.dart file
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
@@ -9,6 +10,8 @@ import 'package:eschool_saas_staff/ui/screens/leaves/leavesScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/staffDetailsScreen.dart';
 import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBarWithTabs.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
@@ -67,54 +70,23 @@ class _StaffsScreenState extends State<StaffsScreen>
   final Color warmBeige = const Color(0xFFF5E6E8);
 
   // Controllers untuk animasi
-  late AnimationController _fadeController;
-  late Animation<double> _fadeAnimation;
-  late AnimationController _slideController;
-  late Animation<Offset> _slideAnimation;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
   late AnimationController _rotationController;
   late Animation<double> _rotationAnimation;
 
+  // Animation controller for CustomModernAppBar
+  late AnimationController _fabAnimationController;
+
   // Untuk efek hover pada item staff
   int _hoveredStaffIndex = -1;
 
-  // Untuk efek scroll header
+  // Untuk efek scroll
   final ScrollController _scrollController = ScrollController();
-  double _headerHeight = 200.0;
-  bool _isScrolled = false;
 
   @override
   void initState() {
     super.initState();
-
-    // Inisialisasi animation controllers
-    _fadeController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 800),
-    );
-
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _fadeController,
-        curve: Curves.easeInOut,
-      ),
-    );
-
-    _slideController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 700),
-    );
-
-    _slideAnimation = Tween<Offset>(
-      begin: Offset(0, 0.2),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _slideController,
-        curve: Curves.easeOutQuint,
-      ),
-    );
 
     // Pulse animation untuk efek interaktif
     _pulseController = AnimationController(
@@ -140,24 +112,11 @@ class _StaffsScreenState extends State<StaffsScreen>
       end: 2 * math.pi,
     ).animate(_rotationController);
 
-    // Start animations
-    _fadeController.forward();
-    _slideController.forward();
-
-    // Listener untuk efek scroll header
-    _scrollController.addListener(() {
-      if (_scrollController.offset > 50 && !_isScrolled) {
-        setState(() {
-          _headerHeight = 120.0;
-          _isScrolled = true;
-        });
-      } else if (_scrollController.offset <= 50 && _isScrolled) {
-        setState(() {
-          _headerHeight = 200.0;
-          _isScrolled = false;
-        });
-      }
-    });
+    // Initialize fabAnimationController for CustomModernAppBar
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
 
     Future.delayed(Duration.zero, () {
       getStaffs();
@@ -169,10 +128,9 @@ class _StaffsScreenState extends State<StaffsScreen>
     waitForNextSearchRequestTimer?.cancel();
     _textEditingController.removeListener(searchQueryTextControllerListener);
     _textEditingController.dispose();
-    _fadeController.dispose();
-    _slideController.dispose();
     _pulseController.dispose();
     _rotationController.dispose();
+    _fabAnimationController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -396,8 +354,6 @@ class _StaffsScreenState extends State<StaffsScreen>
                           ),
                           child: ProfileImageContainer(
                             imageUrl: staffDetails.image ?? "",
-                            // size: 60,
-                            // borderRadius: 30,
                           ),
                         ),
                         SizedBox(width: 16),
@@ -524,15 +480,21 @@ class _StaffsScreenState extends State<StaffsScreen>
     return Scaffold(
       // Set warna status bar transparan agar app bar terlihat full sampai status bar
       extendBodyBehindAppBar: true,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(0),
-        child: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            statusBarIconBrightness: Brightness.light,
-          ),
+      appBar: CustomModernAppBar(
+        title: "Staff",
+        icon: Icons.people,
+        height: 120, // Memperbesar tinggi AppBar untuk mengakomodasi filter
+        fabAnimationController: _fabAnimationController,
+        primaryColor: maroonPrimary,
+        lightColor: maroonSecondary,
+        onBackPressed: () => Get.back(),
+        tabBuilder: (context) => Row(
+          children: [
+            _buildEnhancedTabButton(allKey, _selectedTabKey == allKey),
+            _buildEnhancedTabButton(activeKey, _selectedTabKey == activeKey),
+            _buildEnhancedTabButton(
+                inactiveKey, _selectedTabKey == inactiveKey),
+          ],
         ),
       ),
       body: Stack(
@@ -567,218 +529,81 @@ class _StaffsScreenState extends State<StaffsScreen>
             ),
           ),
 
-          // Content area - Tidak menggunakan SafeArea untuk header
-          Column(
-            children: [
-              // Header section with animations - tanpa SafeArea
-              AnimatedContainer(
-                duration: Duration(milliseconds: 300),
-                curve: Curves.easeOutQuint,
-                // Tambahkan padding top untuk status bar
-                padding:
-                    EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-                height: _headerHeight + MediaQuery.of(context).padding.top,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [maroonPrimary, maroonSecondary],
-                    begin: Alignment.topRight,
-                    end: Alignment.bottomLeft,
-                  ),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: maroonPrimary.withOpacity(0.3),
-                      blurRadius: 20,
-                      offset: Offset(0, 10),
-                      spreadRadius: 0,
-                    ),
-                  ],
-                ),
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Stack(
-                      children: [
-                        // Decorative elements
-                        Positioned(
-                          right: -20,
-                          top: -20,
-                          child: Container(
-                            width: 150,
-                            height: 150,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: RadialGradient(
-                                colors: [
-                                  Colors.white.withOpacity(0.2),
-                                  Colors.transparent,
-                                ],
-                                stops: [0, 0.7],
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Header content
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Back button and title
-                              Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () => Get.back(),
-                                    child: Container(
-                                      padding: EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Icon(
-                                        Icons.arrow_back,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(width: 16),
-                                  Text(
-                                    "Staff",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              if (!_isScrolled) ...[
-                                SizedBox(height: 16),
-                                Text(
-                                  "Kelola staff dan akses informasi staff secara lebih mudah",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    color: Colors.white.withOpacity(0.9),
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-
-                        // Tab bar diposisikan di bawah header agar terlihat "menumpuk"
-                        Positioned(
-                          // Mengubah posisi bottom menjadi lebih ke atas (dari -20 menjadi 5)
-                          bottom: 5,
-                          left: 24,
-                          right: 24,
-                          child: Card(
-                            elevation: 6,
-                            shadowColor: Colors.black26,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: Row(
-                                children: [
-                                  _buildEnhancedTabButton(
-                                      allKey, _selectedTabKey == allKey),
-                                  _buildEnhancedTabButton(
-                                      activeKey, _selectedTabKey == activeKey),
-                                  _buildEnhancedTabButton(inactiveKey,
-                                      _selectedTabKey == inactiveKey),
-                                ],
-                              ),
-                            ),
-                          ),
+          // Content area with proper padding for the AppBar
+          Padding(
+            padding:
+                EdgeInsets.only(top: 120 + MediaQuery.of(context).padding.top),
+            child: Column(
+              children: [
+                // Search Bar
+                Padding(
+                  padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
                         ),
                       ],
                     ),
-                  ),
-                ),
-              ),
-
-              // Spacer untuk memberikan ruang bagi tab bar yang overlapping
-              SizedBox(height: 20),
-
-              // Search Bar
-              Padding(
-                padding: EdgeInsets.fromLTRB(24, 24, 24, 16),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: Offset(0, 4),
+                    child: TextField(
+                      controller: _textEditingController,
+                      decoration: InputDecoration(
+                        hintText: "Cari staff...",
+                        hintStyle: TextStyle(color: Colors.grey),
+                        prefixIcon: Icon(Icons.search, color: maroonPrimary),
+                        suffixIcon: _textEditingController.text.isNotEmpty
+                            ? IconButton(
+                                icon: Icon(Icons.clear, color: Colors.grey),
+                                onPressed: () {
+                                  _textEditingController.clear();
+                                  getStaffs();
+                                },
+                              )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(vertical: 12),
                       ),
-                    ],
-                  ),
-                  child: TextField(
-                    controller: _textEditingController,
-                    decoration: InputDecoration(
-                      hintText: "Cari staff...",
-                      hintStyle: TextStyle(color: Colors.grey),
-                      prefixIcon: Icon(Icons.search, color: maroonPrimary),
-                      suffixIcon: _textEditingController.text.isNotEmpty
-                          ? IconButton(
-                              icon: Icon(Icons.clear, color: Colors.grey),
-                              onPressed: () {
-                                _textEditingController.clear();
-                                getStaffs();
-                              },
-                            )
-                          : null,
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
                 ),
-              ),
 
-              // Staff List
-              Expanded(
-                child: BlocBuilder<StaffsCubit, StaffsState>(
-                  builder: (context, state) {
-                    if (state is StaffsFetchSuccess) {
-                      return _buildStaffList(state, context);
-                    }
+                // Staff List
+                Expanded(
+                  child: BlocBuilder<StaffsCubit, StaffsState>(
+                    builder: (context, state) {
+                      if (state is StaffsFetchSuccess) {
+                        return _buildStaffList(state, context);
+                      }
 
-                    if (state is StaffsFetchFailure) {
+                      if (state is StaffsFetchFailure) {
+                        return Center(
+                          child: ErrorContainer(
+                            errorMessage: state.errorMessage,
+                            onTapRetry: () {
+                              getStaffs();
+                            },
+                          ),
+                        );
+                      }
+
                       return Center(
-                        child: ErrorContainer(
-                          errorMessage: state.errorMessage,
-                          onTapRetry: () {
-                            getStaffs();
-                          },
+                        child: CustomCircularProgressIndicator(
+                          indicatorColor: maroonPrimary,
                         ),
                       );
-                    }
-
-                    return Center(
-                      child: CustomCircularProgressIndicator(
-                        indicatorColor: maroonPrimary,
-                      ),
-                    );
-                  },
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

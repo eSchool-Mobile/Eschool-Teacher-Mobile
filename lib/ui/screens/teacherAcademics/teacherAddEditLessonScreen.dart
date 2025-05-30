@@ -492,8 +492,6 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
       physics: BouncingScrollPhysics(),
       child: Column(
         children: [
-
-
           // Form Content
           BlocConsumer<ClassSectionsAndSubjectsCubit,
               ClassSectionsAndSubjectsState>(
@@ -767,15 +765,60 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
     VoidCallback? onTap,
     TextInputType? keyboardType,
   }) {
+    // For description field, we'll position the icon next to the label
+    if (label == 'Deskripsi') {
+      return TextFormField(
+        controller: controller,
+        maxLines: null, // null allows unlimited lines for description
+        readOnly: readOnly,
+        onTap: onTap,
+        keyboardType: TextInputType.multiline,
+        decoration: InputDecoration(
+          // Custom label with icon
+          label: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
+              SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+          alignLabelWithHint: true,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide.none,
+          ),
+          filled: true,
+          fillColor: Colors.grey.shade50,
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide:
+                BorderSide(color: Theme.of(context).colorScheme.secondary),
+          ),
+          contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+        ),
+        validator: (v) => v!.isEmpty ? 'Required' : null,
+        minLines: 3,
+      );
+    }
+
+    // For other fields, use the original implementation
     return TextFormField(
       controller: controller,
-      maxLines: label == 'Deskripsi'
-          ? null
-          : maxLines, // null allows unlimited lines for description
+      maxLines: maxLines,
       readOnly: readOnly,
       onTap: onTap,
-      keyboardType:
-          label == 'Deskripsi' ? TextInputType.multiline : keyboardType,
+      keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(
@@ -796,15 +839,10 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
           borderSide:
               BorderSide(color: Theme.of(context).colorScheme.secondary),
         ),
-        // Add alignment for multiline inputs
-        alignLabelWithHint: label == 'Deskripsi',
-        contentPadding: EdgeInsets.symmetric(
-            horizontal: 15, vertical: label == 'Deskripsi' ? 20 : 15),
+        contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
       ),
       validator: (v) => v!.isEmpty ? 'Required' : null,
-      minLines: label == 'Deskripsi'
-          ? 3
-          : 1, // Start with at least 3 lines for description
+      minLines: 1,
     );
   }
 

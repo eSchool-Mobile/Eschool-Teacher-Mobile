@@ -1,7 +1,6 @@
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/announcement/sendGeneralAnnouncementCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
-import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
@@ -18,6 +17,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter/services.dart';
+import 'dart:math';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
+import 'package:eschool_saas_staff/app/routes.dart';
 
 class AddAnnouncementScreen extends StatefulWidget {
   const AddAnnouncementScreen({super.key});
@@ -45,326 +50,382 @@ class AddAnnouncementScreen extends StatefulWidget {
   State<AddAnnouncementScreen> createState() => _AddAnnouncementScreenState();
 }
 
-class _AddAnnouncementScreenState extends State<AddAnnouncementScreen> {
+class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
+    with TickerProviderStateMixin {
+  final _formKey = GlobalKey<FormState>();
+
   List<ClassSection> _selectedClassSections = [];
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descController = TextEditingController();
+  final List<String> _pickedFiles = [];
 
-  late final TextEditingController _titleTextEditingController =
-      TextEditingController();
-  late final TextEditingController _descriptionTextEditingController =
-      TextEditingController();
-
-  final List<PlatformFile> _pickedFiles = [];
+  // Animation controllers for the UI elements
+  late AnimationController _animationController; // For the AppBar
+  late AnimationController _pulseController; // For pulsing effects
+  final Color _highlightColor = Color(0xFFB84D4D);
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () {
-      if (mounted) {
-        context.read<ClassesCubit>().getClasses();
-      }
-    });
+    context.read<ClassesCubit>().getClasses();
+    _animationController = AnimationController(
+      duration: Duration(milliseconds: 1000),
+      vsync: this,
+    );
+    _animationController.forward();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
   }
 
   @override
   void dispose() {
-    _titleTextEditingController.dispose();
-    _descriptionTextEditingController.dispose();
+    _animationController.dispose();
+    _pulseController.dispose();
+    _titleController.dispose();
+    _descController.dispose();
     super.dispose();
   }
 
-  Future<void> _pickFiles() async {
-    final result = await Utils.openFilePicker(context: context);
-    if (result != null) {
-      _pickedFiles.addAll(result.files);
-      setState(() {});
-    }
+  Widget _buildAnimatedTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    int maxLines = 1,
+    bool readOnly = false,
+    VoidCallback? onTap,
+    TextInputType? keyboardType,
+    Color? iconColor,
+    Color? labelColor,
+    List<TextInputFormatter>? inputFormatters,
+    Widget? suffixIcon,
+    String? Function(String?)? validator,
+    void Function(String)? onChanged,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      readOnly: readOnly,
+      onTap: onTap,
+      keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
+      validator: validator ?? (v) => v!.isEmpty ? 'Required' : null,
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(
+          color: labelColor ?? Theme.of(context).colorScheme.secondary,
+        ),
+        prefixIcon: Icon(
+          icon,
+          color: iconColor ?? Theme.of(context).colorScheme.primary,
+        ),
+        suffixIcon: suffixIcon,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide.none,
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide:
+              BorderSide(color: Theme.of(context).colorScheme.secondary),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildClassSectionDropdown() {
+    return BlocBuilder<ClassesCubit, ClassesState>(
+      builder: (context, state) {
+        List<ClassSection> classes = [];
+        if (state is ClassesFetchSuccess) {
+          classes = state.classes;
+        }
+        return DropdownButtonFormField<ClassSection>(
+          value: _selectedClassSections.isNotEmpty
+              ? _selectedClassSections.first
+              : null,
+          decoration: InputDecoration(
+            prefixIcon: Icon(Icons.school_rounded, color: Color(0xFF8B0000)),
+            labelText: 'Pilih Kelas',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Color(0xFF8B0000)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Color(0xFF8B0000)),
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade50,
+          ),
+          items: classes.map((ClassSection detail) {
+            return DropdownMenuItem<ClassSection>(
+              value: detail,
+              child: Text(
+                detail.fullName ?? '-',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[800],
+                ),
+              ),
+            );
+          }).toList(),
+          onChanged: (ClassSection? value) {
+            setState(() {
+              _selectedClassSections = value != null ? [value] : [];
+            });
+          },
+          isExpanded: true,
+          hint: Text(
+            'Pilih Kelas',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
+            ),
+          ),
+          validator: (value) => value == null ? 'Pilih kelas' : null,
+        );
+      },
+    );
+  }
+
+  Widget _buildBasicInfoSection() {
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 5,
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Informasi Pengumuman',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          ),
+          SizedBox(height: 20),
+          _buildClassSectionDropdown(),
+          SizedBox(height: 15),
+          _buildAnimatedTextField(
+            controller: _titleController,
+            label: 'Judul Pengumuman',
+            icon: Icons.title,
+          ),
+          SizedBox(height: 15),
+          _buildAnimatedTextField(
+            controller: _descController,
+            label: 'Deskripsi',
+            icon: Icons.description,
+            maxLines: 5,
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildSubmitButton() {
-    return BlocBuilder<ClassesCubit, ClassesState>(
-      builder: (context, state) {
-        if (state is! ClassesFetchSuccess) {
-          return const SizedBox();
-        }
-        return Align(
-            alignment: Alignment.bottomCenter,
-            child: BlocConsumer<SendGeneralAnnouncementCubit,
-                SendGeneralAnnouncementState>(
-              listener: (context, sendGeneralAnnouncementState) {
-                if (sendGeneralAnnouncementState
-                    is SendGeneralAnnouncementSuccess) {
-                    // Show auto-dismissing success snackbar
-                    ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Container(
-                      padding: EdgeInsets.symmetric(vertical: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                        Icon(Icons.check_circle, color: Colors.white),
-                        SizedBox(width: 12),
-                        Text(
-                          'Pengumuman dikirim!',
-                          style: TextStyle(
-                          color: Colors.white, 
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        ],
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: FadeInUp(
+        duration: Duration(milliseconds: 600),
+        child: Container(
+          height: 60,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).colorScheme.primary,
+                Theme.of(context).colorScheme.secondary,
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                spreadRadius: 1,
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: _submitForm,
+              borderRadius: BorderRadius.circular(15),
+              splashColor: Colors.white.withOpacity(0.2),
+              highlightColor: Colors.white.withOpacity(0.1),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Kirim Pengumuman',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
                       ),
-                      ),
-                      backgroundColor: Colors.green.shade400,
-                      duration: Duration(seconds: 2),
-                      behavior: SnackBarBehavior.floating,
-                      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      ),
-                      elevation: 4,
                     ),
-                    );
-                  _titleTextEditingController.clear();
-                  _descriptionTextEditingController.clear();
-                  _selectedClassSections.clear();
-                  _pickedFiles.clear();
-                  setState(() {});
-                } else if (sendGeneralAnnouncementState
-                    is SendGeneralAnnouncementFailure) {
-                  Utils.showSnackBar(
-                      message: sendGeneralAnnouncementState.errorMessage,
-                      context: context);
-                }
-              },
-              builder: (context, sendGeneralAnnouncementState) {
-                return PopScope(
-                  canPop: sendGeneralAnnouncementState
-                      is! SendGeneralAnnouncementInProgress,
-                  child: Container(
-                    padding: EdgeInsets.all(appContentHorizontalPadding),
-                    decoration: BoxDecoration(boxShadow: const [
-                      BoxShadow(
-                          color: Colors.black12, blurRadius: 1, spreadRadius: 1)
-                    ], color: Theme.of(context).colorScheme.surface),
-                    width: MediaQuery.of(context).size.width,
-                    height: 70,
-                    child: CustomRoundedButton(
-                      height: 40,
-                      widthPercentage: 1.0,
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      buttonTitle: submitKey,
-                      showBorder: false,
-                      child: sendGeneralAnnouncementState
-                              is SendGeneralAnnouncementInProgress
-                          ? const CustomCircularProgressIndicator()
-                          : null,
-                      onTap: () {
-                        if (sendGeneralAnnouncementState
-                            is SendGeneralAnnouncementInProgress) {
-                          return;
-                        }
+                    SizedBox(width: 8),
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      color: Colors.white,
+                      size: 22,
+                    ).animate(onPlay: (controller) {
+                      controller.repeat(reverse: true);
+                    }).slideX(
+                      begin: 0,
+                      end: 0.3,
+                      duration: Duration(milliseconds: 1000),
+                      curve: Curves.easeInOut,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-                        if (_titleTextEditingController.text.trim().isEmpty) {
-                          Utils.showSnackBar(
-                              message: pleaseEnterTitleKey, context: context);
-                          return;
-                        }
-
-                        if (_selectedClassSections.isEmpty) {
-                          Utils.showSnackBar(
-                              message: pleaseSelectAtLeastOneClassKey,
-                              context: context);
-                          return;
-                        }
-
-                        context
-                            .read<SendGeneralAnnouncementCubit>()
-                            .sendGeneralAnnouncement(
-                                description: _descriptionTextEditingController
-                                    .text
-                                    .trim(),
-                                filePaths: _pickedFiles
-                                    .map((e) => e.path ?? "")
-                                    .toList(),
-                                title: _titleTextEditingController.text.trim(),
-                                classSectionIds: _selectedClassSections
-                                    .map((e) => e.id ?? 0)
-                                    .toList());
-                      },
+  Future<void> _submitForm() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      if (_selectedClassSections.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Pilih kelas terlebih dahulu')),
+        );
+        return;
+      }
+      try {
+        context
+            .read<SendGeneralAnnouncementCubit>()
+            .sendGeneralAnnouncement(
+              title: _titleController.text,
+              description: _descController.text,
+              classSectionIds:
+                  _selectedClassSections.map((e) => e.id ?? 0).toList(),
+              filePaths: _pickedFiles,
+            );
+        Get.dialog(
+          Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Container(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.green,
+                    size: 60,
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Berhasil!',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                );
-              },
-            ));
-      },
-    );
+                  SizedBox(height: 10),
+                  Text(
+                    'Pengumuman berhasil dikirim',
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      Get.back();
+                      Get.offAllNamed(Routes
+                          .onlineExamScreen); // Or announcement list route
+                    },
+                    child: Text(
+                      'Lihat Daftar Pengumuman',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          barrierDismissible: false,
+        );
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal mengirim pengumuman: ${error.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Stack(
-      children: [
-        BlocBuilder<ClassesCubit, ClassesState>(
-          builder: (context, state) {
-            if (state is ClassesFetchSuccess) {
-              return Align(
-                alignment: Alignment.topCenter,
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(
-                      bottom: 100,
-                      left: appContentHorizontalPadding,
-                      right: appContentHorizontalPadding,
-                      top: Utils.appContentTopScrollPadding(context: context) +
-                          20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CustomTextFieldContainer(
-                          textEditingController: _titleTextEditingController,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.surface,
-                          hintTextKey: titleKey),
-                      CustomTextFieldContainer(
-                          textEditingController:
-                              _descriptionTextEditingController,
-                          maxLines: 5,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.surface,
-                          hintTextKey: descriptionKey),
-                      CustomSelectionDropdownSelectionButton(
-                          onTap: () {
-                            Utils.showBottomSheet(
-                                    child: MultiSelectionValueBottomsheet<
-                                            ClassSection>(
-                                        values: context
-                                            .read<ClassesCubit>()
-                                            .getAllClasses(),
-                                        selectedValues:
-                                            List.from(_selectedClassSections),
-                                        titleKey: titleKey),
-                                    context: context)
-                                .then((value) {
-                              if (value != null) {
-                                final classes =
-                                    List<ClassSection>.from(value as List);
-
-                                _selectedClassSections =
-                                    List<ClassSection>.from(classes);
-                                setState(() {});
-                              }
-                            });
-                          },
-                          titleKey: classSectionKey),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Wrap(
-                        alignment: WrapAlignment.start,
-                        direction: Axis.horizontal,
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: _selectedClassSections
-                            .map(
-                              (classSection) => Container(
-                                decoration: BoxDecoration(
-                                    color:
-                                        Theme.of(context).colorScheme.surface),
-                                padding: const EdgeInsets.all(10),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    CustomTextContainer(
-                                        textKey: classSection.fullName ?? "-"),
-                                    const SizedBox(
-                                      width: 7.5,
-                                    ),
-                                    InkWell(
-                                      onTap: () {
-                                        _selectedClassSections
-                                            .remove(classSection);
-                                        setState(() {});
-                                      },
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                color: Colors.transparent)),
-                                        child: const Icon(
-                                          Icons.close,
-                                          size: 17.50,
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                      const SizedBox(
-                        height: 25,
-                      ),
-                      UploadImageOrFileButton(
-                        uploadFile: true,
-                        includeImageFileOnlyAllowedNote: true,
-                        onTap: () {
-                          _pickFiles();
-                        },
-                      ),
-                      ...List.generate(_pickedFiles.length, (index) => index)
-                          .map(
-                        (index) => Padding(
-                          padding: const EdgeInsets.only(top: 15),
-                          child: CustomFileContainer(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.surface,
-                            onDelete: () {
-                              _pickedFiles.removeAt(index);
-                              setState(() {});
-                            },
-                            title: _pickedFiles[index].name,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
+      appBar: CustomModernAppBar(
+        title: 'Tambah Pengumuman',
+        icon: Icons.campaign,
+        fabAnimationController: _animationController,
+        primaryColor: Color(0xFF7A1E23),
+        lightColor: _highlightColor,
+        onBackPressed: () => Navigator.of(context).pop(),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 10),
+                FadeInDown(
+                  duration: Duration(milliseconds: 500),
+                  child: _buildBasicInfoSection(),
                 ),
-              );
-            }
-
-            if (state is ClassesFetchFailure) {
-              return Center(
-                child: ErrorContainer(
-                  errorMessage: state.errorMessage,
-                  onTapRetry: () {
-                    context.read<ClassesCubit>().getClasses();
-                  },
-                ),
-              );
-            }
-
-            return Center(
-              child: CustomCircularProgressIndicator(
-                indicatorColor: Theme.of(context).colorScheme.primary,
-              ),
-            );
-          },
+                SizedBox(height: 30),
+                _buildSubmitButton(),
+                SizedBox(height: 20),
+              ],
+            ),
+          ),
         ),
-        _buildSubmitButton(),
-        Align(
-            alignment: Alignment.topCenter,
-            child: CustomAppbar(
-              titleKey: addAnnouncementKey,
-              onBackButtonTap: () {
-                if (context.read<SendGeneralAnnouncementCubit>().state
-                    is SendGeneralAnnouncementInProgress) {
-                  return;
-                }
-
-                Get.back();
-              },
-            ))
-      ],
-    ));
+      ),
+    );
   }
 }

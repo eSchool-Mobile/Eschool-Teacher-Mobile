@@ -205,11 +205,9 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                   ),
                 );
               },
-            ),
-
-          // Main app bar content with frosted glass effect - TOP ROW
+            ), // Main app bar content with frosted glass effect - TOP ROW
           Positioned(
-            top: MediaQuery.of(context).padding.top + 10,
+            top: MediaQuery.of(context).padding.top + 5, // Moved up slightly
             left: 16,
             right: 16,
             child: ClipRRect(
@@ -394,15 +392,13 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                 ),
               ),
             ),
-          ),
-
-          // BOTTOM ROW - Filters with frosted glass effect (when filters are enabled)
+          ), // BOTTOM ROW - Filters with frosted glass effect (when filters are enabled)
           if (widget.showFiltersRow &&
               (widget.firstFilterItem != null ||
                   widget.secondFilterItem != null ||
                   widget.thirdFilterItem != null))
             Positioned(
-              bottom: 10,
+              bottom: 16, // Position closer to the bottom
               left: 16,
               right: 16,
               child: ClipRRect(
@@ -411,7 +407,9 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                   filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                   child: Container(
                     // Use taller container and column layout when there are three filters
-                    height: widget.thirdFilterItem != null ? 100 : 56,
+                    height: widget.thirdFilterItem != null
+                        ? 120
+                        : 70, // Increased height for better spacing
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(15),
@@ -622,8 +620,9 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                                 Container(
                                   height: 24,
                                   width: 1.5,
-                                  margin:
-                                      const EdgeInsets.symmetric(horizontal: 4),
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal:
+                                          12), // Increased horizontal margin for more spacing
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       begin: Alignment.topCenter,
@@ -694,22 +693,27 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
         highlightColor: Colors.white.withOpacity(0.1),
         splashColor: Colors.white.withOpacity(0.2),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(
+              horizontal: 18, vertical: 14), // Increased padding for more space
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 icon,
                 color: Colors.white,
-                size: 16,
+                size: 18, // Slightly larger icon
               ),
-              const SizedBox(width: 8),
+              const SizedBox(
+                  width: 10), // Increased spacing between icon and text
               Flexible(
                 child: Text(
                   title,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 14,
+                    letterSpacing:
+                        0.3, // Added letter spacing for better readability
+                    fontWeight: FontWeight.w500, // Slightly bolder text
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),

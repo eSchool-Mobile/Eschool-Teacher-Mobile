@@ -959,9 +959,9 @@ class _TeacherViewAttendanceScreenState
                                       },
                                       blendMode: BlendMode.srcIn,
                                       child: Text(
-                                        'Lihat Kehadiran',
+                                        'Lihat Kehadiran Khusus',
                                         style: GoogleFonts.poppins(
-                                          fontSize: 16,
+                                          fontSize: 15,
                                           fontWeight: FontWeight.bold,
                                           shadows: [
                                             Shadow(

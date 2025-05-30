@@ -481,8 +481,22 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
       builder: (context, state) {
         List<SubjectDetail> subjects = [];
         if (state is OnlineExamSuccess) {
-          subjects = state.subjectDetails
-              .map((e) => SubjectDetail.fromJson(e))
+          // subjectDetails dijamin non-null, tapi bisa jadi List kosong atau berisi null
+          subjects = (state.subjectDetails as List)
+              .where((e) =>
+                  e != null &&
+                  e is Map &&
+                  e['class_subject'] != null &&
+                  e['class_section'] != null)
+              .map((e) {
+                try {
+                  return SubjectDetail.fromJson(e);
+                } catch (err) {
+                  print('Error parsing SubjectDetail: $e, error: $err');
+                  return null;
+                }
+              })
+              .whereType<SubjectDetail>()
               .toList();
         }
 

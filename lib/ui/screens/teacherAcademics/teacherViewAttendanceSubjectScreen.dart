@@ -165,14 +165,18 @@ class _TeacherViewAttendanceSubjectScreenState
 
         // Add a listener to react to state changes
         context.read<ClassesCubit>().stream.listen((classState) {
-          if (mounted &&
-              classState is ClassesFetchSuccess &&
-              classState.primaryClasses.isNotEmpty) {
-            setState(() {
-              _selectedClassSection = classState.primaryClasses.first;
-            });
-            // Load attendance data for the automatically selected class
-            getAttendance();
+          if (mounted && classState is ClassesFetchSuccess) {
+            // Get all available classes
+            final allAvailableClasses = context.read<ClassesCubit>().getAllClasses();
+            
+            if (allAvailableClasses.isNotEmpty) {
+              setState(() {
+                // Use the first class from all available classes
+                _selectedClassSection = allAvailableClasses.first;
+              });
+              // Load attendance data for the automatically selected class
+              getAttendance();
+            }
           }
         });
       }
@@ -1274,7 +1278,7 @@ class _TeacherViewAttendanceSubjectScreenState
                                                                         ),
                                                                       ),
                                                                     ),
-
+                
                                                                     // View button
                                                                     Padding(
                                                                       padding: const EdgeInsets
@@ -1853,13 +1857,15 @@ class _TeacherViewAttendanceSubjectScreenState
                         // Class filter
                         Expanded(
                           child: BlocBuilder<ClassesCubit, ClassesState>(
-                            builder: (context, state) {
-                              if (state is ClassesFetchSuccess) {
+                            builder: (context, state) {                      if (state is ClassesFetchSuccess) {
+                                // Get all classes - both primary and others
+                                final allAvailableClasses = context.read<ClassesCubit>().getAllClasses();
+                                
                                 return Material(
                                   color: Colors.transparent,
                                   child: InkWell(
                                     onTap: () {
-                                      if (state.primaryClasses.isNotEmpty) {
+                                      if (allAvailableClasses.isNotEmpty) {
                                         Utils.showBottomSheet(
                                           child: FilterSelectionBottomsheet<
                                               ClassSection>(
@@ -1875,9 +1881,9 @@ class _TeacherViewAttendanceSubjectScreenState
                                             },
                                             selectedValue:
                                                 _selectedClassSection ??
-                                                    state.primaryClasses.first,
+                                                    allAvailableClasses.first,
                                             titleKey: classKey,
-                                            values: state.primaryClasses,
+                                            values: allAvailableClasses,
                                           ),
                                           context: context,
                                         );
@@ -2185,25 +2191,19 @@ class _TeacherViewAttendanceSubjectScreenState
             orElse: () => ClassSection())
         .fullName;
   }
-
   void getClasses() async {
     try {
       final classState = context.read<ClassesCubit>().state;
-      final timetableState = context.read<TeacherMyTimetableCubit>().state;
 
-      if (classState is ClassesFetchSuccess &&
-          timetableState is TeacherMyTimetableFetchSuccess) {
-        print(timetableState.timeTableSlots
-            .map((slot) => slot.classSection)
-            .whereType<ClassSection>()
-            .toList());
-
+      if (classState is ClassesFetchSuccess) {
+        // Get all available classes from the system
+        final allAvailableClasses = context.read<ClassesCubit>().getAllClasses();
+        
+        print("All available classes: ${allAvailableClasses.length} classes");
+        
         setState(() {
-          // Combine classes from timetable slots
-          allClasses = timetableState.timeTableSlots
-              .map((slot) => slot.classSection)
-              .whereType<ClassSection>()
-              .toList();
+          // Use all available classes from ClassesCubit instead of just timetable slots
+          allClasses = allAvailableClasses;
         });
       }
     } catch (e) {

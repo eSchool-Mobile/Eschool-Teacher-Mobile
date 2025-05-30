@@ -851,9 +851,9 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                                       },
                                       blendMode: BlendMode.srcIn,
                                       child: Text(
-                                        'Kehadiran Siswa',
+                                        'Kehadiran Khusus Siswa',
                                         style: GoogleFonts.poppins(
-                                          fontSize: 16,
+                                          fontSize: 15,
                                           fontWeight: FontWeight.bold,
                                           shadows: [
                                             Shadow(

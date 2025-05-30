@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/repositories/authRepository.dart';
@@ -288,35 +289,28 @@ class Api {
       // Get headers
       final requestHeaders = headers(useAuthToken: useAuthToken ?? true);
 
-      // Special logging for payroll slip download
-      if (url == downloadPayRollSlip) {
-        print("=== PAYROLL PDF API REQUEST DETAILS ===");
-        print("URL: $url");
-        print("Query Parameters: $queryParameters");
-        print("Headers: $requestHeaders");
-      }
+      // Set response type based on URL
+      final bool isPdfEndpoint = url.contains('pdf') ||
+          url == downloadPayRollSlip ||
+          url == downloadStudentFeeReceipt ||
+          url == downloadStudentResult;
 
       final response = await dio.get(
         url,
         queryParameters: queryParameters,
         options: Options(
-          headers: requestHeaders,
-          validateStatus: (status) => status! < 500,
-        ),
+            headers: requestHeaders,
+            validateStatus: (status) => status! < 500,
+            responseType:
+                isPdfEndpoint ? ResponseType.bytes : ResponseType.json),
       );
 
-      print(url);
-      print("Response Status Code: ${response.statusCode}");
-
-      // For payroll slip, don't log full response as it contains binary data
-      if (url == downloadPayRollSlip) {
-        print("Payroll PDF Response received - not showing full content");
-      } else {
-        print("Full Response Data: ${response.data}");
-      }
-
       if (response.statusCode == 200) {
-        if (response.data is Map) {
+        if (isPdfEndpoint && response.data is List<int>) {
+          // Handle PDF binary data
+          return {'pdf': base64Encode(response.data), 'error': false};
+        } else if (response.data is Map) {
+          // Handle regular JSON response
           if (response.data['error'] == true) {
             throw ApiException(
                 response.data['message'] ?? defaultErrorMessageKey);
@@ -327,12 +321,8 @@ class Api {
       } else {
         throw ApiException(response.data['message'] ?? defaultErrorMessageKey);
       }
-    } on DioException catch (e) {
-      print("Dio Error: ${e.message}");
-      print("Dio Error Response: ${e.response?.data}");
-      throw ApiException(e.message ?? defaultErrorMessageKey);
     } catch (e) {
-      print("General Error: $e");
+      print("API Error: $e");
       throw ApiException(e.toString());
     }
   }

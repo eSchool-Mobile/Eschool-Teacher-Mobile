@@ -544,7 +544,7 @@ class _AssignmentDetailMonitoringScreenState
                                       },
                                       blendMode: BlendMode.srcIn,
                                       child: Text(
-                                        widget.teacherName,
+                                        "Pengumpulan Tugas",
                                         style: GoogleFonts.poppins(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,

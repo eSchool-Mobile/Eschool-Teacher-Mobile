@@ -10,6 +10,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/services.dart';
 import 'dart:math' as math;
 
@@ -39,6 +40,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   @override
   void initState() {
     super.initState();
+    // Initialize date formatting for Indonesian locale
+    initializeDateFormatting('id_ID', null);
     _refreshExams();
 
     // Add listener for state changes
@@ -101,7 +104,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       backgroundColor: Colors.grey[50],
       extendBodyBehindAppBar: true,
       appBar: CustomModernAppBar(
-        title: 'Online Exam',
+        title: 'Ujian Online',
         icon: Icons.assignment_outlined,
         fabAnimationController: _appBarAnimationController,
         primaryColor: _primaryColor,
@@ -274,7 +277,10 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                       },
                       child: Text(
                         'Reset',
-                        style: TextStyle(color: Color(0xFF8B0000)),
+                        style: TextStyle(
+                          color: Color(0xFF800020), // Maroon color
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],
@@ -778,7 +784,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                         ),
                                         SizedBox(height: 4),
                                         Text(
-                                          DateFormat('dd MMM yyyy')
+                                          DateFormat('dd MMM yyyy', 'id_ID')
                                               .format(exam.startDate),
                                           style: TextStyle(
                                             fontSize: 15,
@@ -822,7 +828,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                         ),
                                         SizedBox(height: 4),
                                         Text(
-                                          DateFormat('dd MMM yyyy')
+                                          DateFormat('dd MMM yyyy', 'id_ID')
                                               .format(exam.endDate),
                                           style: TextStyle(
                                             fontSize: 15,

@@ -23,6 +23,7 @@ class CustomModernAppBar extends StatefulWidget implements PreferredSizeWidget {
   final bool
       showHelperButton; // New parameter to control helper button visibility
   final VoidCallback? onHelperPressed; // New parameter for helper button action
+  final Widget Function(BuildContext)? tabBuilder; // New parameter for custom tabs in AppBar
 
   const CustomModernAppBar({
     Key? key,
@@ -41,6 +42,7 @@ class CustomModernAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.onFilterPressed,
     this.showHelperButton = false, // Default to hidden
     this.onHelperPressed,
+    this.tabBuilder,
   }) : super(key: key);
 
   @override
@@ -135,81 +137,83 @@ class _CustomModernAppBarState extends State<CustomModernAppBar> {
                   ),
                 );
               },
-            ),
-
-            // Main app bar content with frosted glass effect
+            ),            // Main app bar content with frosted glass effect
             Positioned(
               bottom: 10,
               left: 16,
               right: 16,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        // Back button with ripple effect
-                        widget.onBackPressed != null
-                            ? Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(12),
-                                    highlightColor:
-                                        Colors.white.withOpacity(0.1),
-                                    splashColor: Colors.white.withOpacity(0.2),
-                                    onTap: widget.onBackPressed ??
-                                        () => Navigator.of(context).pop(),
-                                    child: Container(
-                                      padding: EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Main AppBar content
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                      child: Container(
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            // Back button with ripple effect
+                            widget.onBackPressed != null
+                                ? Padding(
+                                    padding:
+                                        const EdgeInsets.symmetric(horizontal: 8.0),
+                                    child: Material(
+                                      color: Colors.transparent,
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: InkWell(
                                         borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Icon(
-                                        Icons.arrow_back_ios_rounded,
-                                        color: Colors.white,
-                                        size: 22,
+                                        highlightColor:
+                                            Colors.white.withOpacity(0.1),
+                                        splashColor: Colors.white.withOpacity(0.2),
+                                        onTap: widget.onBackPressed ??
+                                            () => Navigator.of(context).pop(),
+                                        child: Container(
+                                          padding: EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Icon(
+                                            Icons.arrow_back_ios_rounded,
+                                            color: Colors.white,
+                                            size: 22,
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                              )
-                                .animate()
-                                .fadeIn(duration: 400.ms, curve: Curves.easeOut)
-                                .slideX(begin: -0.3, end: 0)
-                            : SizedBox(),
+                                  )
+                                    .animate()
+                                    .fadeIn(duration: 400.ms, curve: Curves.easeOut)
+                                    .slideX(begin: -0.3, end: 0)
+                                : SizedBox(),
 
-                        // Animated divider
-                        widget.onBackPressed != null
-                            ? Container(
-                                height: 24,
-                                width: 1.5,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Colors.white.withOpacity(0.0),
-                                      Colors.white.withOpacity(0.4),
-                                      Colors.white.withOpacity(0.0),
-                                    ],
-                                  ),
-                                ),
-                              )
-                            : SizedBox(),
+                            // Animated divider
+                            widget.onBackPressed != null
+                                ? Container(
+                                    height: 24,
+                                    width: 1.5,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          Colors.white.withOpacity(0.0),
+                                          Colors.white.withOpacity(0.4),
+                                          Colors.white.withOpacity(0.0),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                : SizedBox(),
 
                         // Title with animated badge
                         Expanded(
@@ -652,13 +656,41 @@ class _CustomModernAppBarState extends State<CustomModernAppBar> {
                           )
                               .animate()
                               .fadeIn(duration: 300.ms, curve: Curves.easeOut)
-                              .slideX(begin: 0.3, end: 0),
-                      ],
+                              .slideX(begin: 0.3, end: 0),                      ],
                     ),
                   ),
                 ),
-              ),
+                  ),
+                
+                // Tab content if provided
+                if (widget.tabBuilder != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                        child: Container(
+                          padding: EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.2),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: widget.tabBuilder!(context),
+                        ),
+                      ),
+                    ).animate().fadeIn(duration: 300.ms, curve: Curves.easeOut).scale(
+                          begin: Offset(0.95, 0.95),
+                          end: Offset(1.0, 1.0),
+                        ),
+                  ),
+              ],
             ),
+          ),
           ],
         ),
       ),

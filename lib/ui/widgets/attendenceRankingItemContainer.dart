@@ -22,18 +22,27 @@ class AttendanceRankingItemContainer extends StatefulWidget {
   State<AttendanceRankingItemContainer> createState() =>
       _AttendanceRankingItemContainerState();
 }
+
 class _AttendanceRankingItemContainerState
     extends State<AttendanceRankingItemContainer> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      margin: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         color: widget.index.isEven ? Colors.grey.shade50 : Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildRankIndicator(),
           SizedBox(width: 12),
@@ -42,35 +51,30 @@ class _AttendanceRankingItemContainerState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Tooltip(
-                  message: widget.topStudents.studentName ?? '',
-                  child: Text(
-                    widget.topStudents.studentName ?? '',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
+                Text(
+                  _formatStudentName(widget.topStudents.studentName ?? ''),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
                   ),
+                  softWrap: true,
+                  // Removed ellipsis and maxLines to show full name
                 ),
-                SizedBox(height: 2),
+                SizedBox(height: 6),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Icon(Icons.school, size: 12, color: Colors.grey),
                     SizedBox(width: 4),
                     Expanded(
-                      child: Tooltip(
-                        message: widget.topStudents.className ?? '',
-                        child: Text(
-                          widget.topStudents.className ?? '',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 12,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
+                      child: Text(
+                        widget.topStudents.className ?? '',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 12,
                         ),
+                        softWrap: true,
+                        // Removed ellipsis and maxLines to show full class name
                       ),
                     ),
                   ],
@@ -92,16 +96,16 @@ class _AttendanceRankingItemContainerState
 
     switch (rank) {
       case 1:
-        rankIcon = Icons.emoji_events_rounded;
+        rankIcon = Icons.warning_rounded;
         break;
       case 2:
-        rankIcon = Icons.workspace_premium_rounded;
+        rankIcon = Icons.priority_high_rounded;
         break;
       case 3:
-        rankIcon = Icons.military_tech_rounded;
+        rankIcon = Icons.error_outline_rounded;
         break;
       default:
-        rankIcon = Icons.stars_rounded;
+        rankIcon = Icons.dangerous;
     }
 
     return Container(
@@ -148,7 +152,7 @@ class _AttendanceRankingItemContainerState
     final colors = _getGradientColors(rank);
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: colors,
@@ -164,22 +168,42 @@ class _AttendanceRankingItemContainerState
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            rank <= 3 ? _getRankIcon(rank) : Icons.stars_rounded,
-            size: 16,
-            color: Colors.white,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                rank <= 3 ? _getRankIcon(rank) : Icons.dangerous,
+                size: 16,
+                color: Colors.white,
+              ),
+              SizedBox(width: 4),
+              Text(
+                '${widget.topStudents.point ?? 0}',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ],
           ),
-          SizedBox(width: 4),
-          Text(
-            '${widget.topStudents.point ?? 0}',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
+          SizedBox(height: 2),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Jumlah Alpha: ${widget.topStudents.alpha_count ?? 0}',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.9),
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -203,18 +227,18 @@ class _AttendanceRankingItemContainerState
     switch (rank) {
       case 1:
         return [
-          Color(0xFFFFD700), // Bright Gold
-          Color(0xFFDAA520), // Golden Rod
+          Colors.red.shade800, // Merah tua (peringatan)
+          Colors.red.shade600,
         ];
       case 2:
         return [
-          Color(0xFF90CDF4), // Light Sky Blue
-          Color(0xFF63B3ED), // Sky Blue
+          Colors.deepOrange.shade800, // Oranye tua (waspada)
+          Colors.deepOrange.shade600,
         ];
       case 3:
         return [
-          Color(0xFF9AE6B4), // Light Green
-          Color(0xFF68D391), // Medium Green
+          Colors.orange.shade800, // Oranye terang (waspada)
+          Colors.orange.shade600,
         ];
       default:
         return [
@@ -227,14 +251,22 @@ class _AttendanceRankingItemContainerState
   IconData _getRankIcon(int rank) {
     switch (rank) {
       case 1:
-        return Icons.emoji_events_rounded;
+        return Icons.warning_rounded; // Ikon peringatan
       case 2:
-        return Icons.workspace_premium_rounded;
+        return Icons.priority_high_rounded; // Ikon tanda seru
       case 3:
-        return Icons.military_tech_rounded;
+        return Icons.error_outline_rounded; // Ikon error outline
       default:
-        return Icons.stars_rounded;
+        return Icons.dangerous;
     }
+  }
+
+  // Memformat nama siswa dengan menghilangkan tanda "-" di akhir
+  String _formatStudentName(String name) {
+    if (name.endsWith('-')) {
+      return name.substring(0, name.length - 1).trim();
+    }
+    return name;
   }
 
   // Update _buildFilterButton()

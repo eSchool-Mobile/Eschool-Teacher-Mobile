@@ -30,6 +30,7 @@ import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
+import 'package:url_launcher/url_launcher.dart';
 
 class TeacherAddAttendanceSubjectScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -143,20 +144,28 @@ class _TeacherAddAttendanceScreenSubjectState
         getAttendance();
         getStudentList();
       }
-    });
-
-    // Listen to attendance cubit state changes
+    });    // Listen to attendance cubit state changes
     context.read<SubjectAttendanceCubit>().stream.listen((state) {
       if (state is SubjectAttendanceFetchSuccess) {
         setState(() {
           _materiController.text = state.materi ?? ''; // Set saved materi
           _selectedMateri = state.materi ?? '';
+          
+          // Display previously uploaded lampiran if available
+          if (state.lampiran != null && state.lampiran!.isNotEmpty) {
+            print("Loading previously uploaded attachment: ${state.lampiran}");
+            _selectedLampiran = state.lampiran;
+          }
         });
       }
     });
   }
-
   void getAttendance() {
+    print("Fetching attendance data for:");
+    print("- Date: ${_selectedDateTime}");
+    print("- Class Section ID: ${_selectedClassSection?.id}");
+    print("- Timetable ID: $_selectedTimeTableId");
+    
     context.read<SubjectAttendanceCubit>().fetchSubjectAttendance(
           date: _selectedDateTime,
           classSectionId: _selectedClassSection?.id ?? 0,
@@ -195,11 +204,16 @@ class _TeacherAddAttendanceScreenSubjectState
           .getTeacherMyTimetable(); // Perbarui jadwal pelajaran
     }
   }
-
   void resetForm() {
     setState(() {
       _selectedMateri = '';
-      _selectedLampiran = null;
+      
+      // Only clear lampiran if it's a local file, not a server URL
+      if (_selectedLampiran != null && !_selectedLampiran!.startsWith('http')) {
+        _selectedLampiran = null;
+        uploadedFiles.clear();
+      }
+      
       attendanceReport.clear();
     });
   }
@@ -556,8 +570,7 @@ class _TeacherAddAttendanceScreenSubjectState
                                     child: Column(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
-                                      children: [
-                                        if (_selectedLampiran == null) ...[
+                                      children: [                                        if (_selectedLampiran == null) ...[
                                           Icon(
                                             Icons.upload_file_rounded,
                                             size: 32,
@@ -592,7 +605,9 @@ class _TeacherAddAttendanceScreenSubjectState
                                                   shape: BoxShape.circle,
                                                 ),
                                                 child: Icon(
-                                                  Icons.check_rounded,
+                                                  _selectedLampiran!.startsWith('http')
+                                                      ? Icons.cloud_done_rounded
+                                                      : Icons.check_rounded,
                                                   color: _maroonPrimary,
                                                   size: 20,
                                                 ),
@@ -604,7 +619,9 @@ class _TeacherAddAttendanceScreenSubjectState
                                                       CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      'File berhasil diunggah',
+                                                      _selectedLampiran!.startsWith('http')
+                                                          ? 'Lampiran dari server'
+                                                          : 'File berhasil diunggah',
                                                       style:
                                                           GoogleFonts.poppins(
                                                         fontSize: 14,
@@ -615,9 +632,9 @@ class _TeacherAddAttendanceScreenSubjectState
                                                     ),
                                                     SizedBox(height: 2),
                                                     Text(
-                                                      _selectedLampiran!
-                                                          .split('/')
-                                                          .last,
+                                                      _selectedLampiran!.startsWith('http')
+                                                          ? _selectedLampiran!.split('/').last
+                                                          : _selectedLampiran!.split('/').last,
                                                       style:
                                                           GoogleFonts.poppins(
                                                         fontSize: 12,
@@ -632,14 +649,36 @@ class _TeacherAddAttendanceScreenSubjectState
                                               ),
                                               IconButton(
                                                 icon: Icon(
-                                                  Icons.delete_outline_rounded,
-                                                  color: Colors.redAccent,
-                                                ),
-                                                onPressed: () {
-                                                  setState(() {
-                                                    _selectedLampiran = null;
-                                                    uploadedFiles.clear();
-                                                  });
+                                                  _selectedLampiran!.startsWith('http')
+                                                      ? Icons.visibility_outlined
+                                                      : Icons.delete_outline_rounded,
+                                                  color: _selectedLampiran!.startsWith('http')
+                                                      ? _maroonPrimary
+                                                      : Colors.redAccent,
+                                                ),                                                onPressed: () async {
+                                                  if (_selectedLampiran!.startsWith('http')) {
+                                                    // Try to launch URL using Uri.parse
+                                                    try {
+                                                      final Uri url = Uri.parse(_selectedLampiran!);
+                                                      if (!await launchUrl(url)) {
+                                                        Utils.showSnackBar(
+                                                          message: "Tidak dapat membuka URL: $_selectedLampiran",
+                                                          context: context
+                                                        );
+                                                      }
+                                                    } catch (e) {
+                                                      Utils.showSnackBar(
+                                                        message: "Tidak dapat membuka URL: $_selectedLampiran",
+                                                        context: context
+                                                      );
+                                                    }
+                                                  } else {
+                                                    // Delete local file
+                                                    setState(() {
+                                                      _selectedLampiran = null;
+                                                      uploadedFiles.clear();
+                                                    });
+                                                  }
                                                 },
                                               ),
                                             ],
@@ -963,8 +1002,11 @@ class _TeacherAddAttendanceScreenSubjectState
                           print(
                               '   Student ID: ${attendance.studentId} - Status: $status');
                         }
-                        print('================================');
-
+                        print('================================');                        // Only send lampiran if it's a local file path, not a URL
+                        final String lampiranToSend = (_selectedLampiran != null && !_selectedLampiran!.startsWith('http'))
+                            ? _selectedLampiran!
+                            : ''; 
+                        
                         context
                             .read<SubmitAttendanceSubjectCubit>()
                             .submitSubjectAttendance(
@@ -976,7 +1018,7 @@ class _TeacherAddAttendanceScreenSubjectState
                               timetableId: _selectedTimeTableId,
                               jumlahJp: _selectedJumlahJp,
                               materi: _selectedMateri,
-                              lampiran: _selectedLampiran ?? '',
+                              lampiran: lampiranToSend,
                             );
                       },
                       child: Center(

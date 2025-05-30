@@ -279,7 +279,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                 // Remove existing overlay if any
                 overlayEntry?.remove();
                 overlayEntry = null;
-                
+
                 overlayEntry = OverlayEntry(
                   builder: (context) => Positioned(
                     bottom: 70,
@@ -292,14 +292,15 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                         borderRadius: BorderRadius.circular(12),
                         color: Colors.transparent,
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                Color(0xFF43A047),  // Green shade
-                                Color(0xFF388E3C),  // Slightly darker green
+                                Color(0xFF43A047), // Green shade
+                                Color(0xFF388E3C), // Slightly darker green
                               ],
                             ),
                             borderRadius: BorderRadius.circular(12),
@@ -337,7 +338,9 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                                 ),
                               ),
                               IconButton(
-                                icon: Icon(Icons.close, color: Colors.white.withOpacity(0.7), size: 18),
+                                icon: Icon(Icons.close,
+                                    color: Colors.white.withOpacity(0.7),
+                                    size: 18),
                                 onPressed: () {
                                   overlayEntry?.remove();
                                   overlayEntry = null;
@@ -353,7 +356,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
 
                 // Show the toast
                 Overlay.of(context).insert(overlayEntry!);
-                
+
                 // Auto-dismiss after 3 seconds
                 Future.delayed(Duration(seconds: 3), () {
                   overlayEntry?.remove();
@@ -870,8 +873,9 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                                       color: Colors.grey[800],
                                       letterSpacing: 0.2,
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                    // Show full name with no ellipsis
+                                    softWrap: true,
+                                    overflow: TextOverflow.visible,
                                   ),
                                 ),
                               ],
@@ -1004,86 +1008,89 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
             child: BlocConsumer<SubmitExamMarksCubit, SubmitExamMarksState>(
               listener: (context, state) {
                 if (state is SubmitExamMarksSubmitSuccess) {
-                    // Show custom success toast
-                    OverlayEntry? overlayEntry;
-                    
-                    // Remove existing overlay if any
-                    overlayEntry?.remove();
-                    overlayEntry = null;
-                    
-                    overlayEntry = OverlayEntry(
+                  // Show custom success toast
+                  OverlayEntry? overlayEntry;
+
+                  // Remove existing overlay if any
+                  overlayEntry?.remove();
+                  overlayEntry = null;
+
+                  overlayEntry = OverlayEntry(
                     builder: (context) => Positioned(
                       bottom: 70,
                       left: 20,
                       right: 20,
                       child: SlideInUp(
-                      duration: Duration(milliseconds: 300),
-                      child: Material(
-                        elevation: 10,
-                        borderRadius: BorderRadius.circular(12),
-                        color: Colors.transparent,
-                        child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color.fromARGB(255, 44, 187, 51),  // Green shade
-                            Color.fromARGB(255, 46, 193, 53),  // Slightly darker green
-                          ],
-                          ),
+                        duration: Duration(milliseconds: 300),
+                        child: Material(
+                          elevation: 10,
                           borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                          BoxShadow(
-                            color: Color(0xFF43A047).withOpacity(0.3),
-                            blurRadius: 12,
-                            offset: Offset(0, 4),
-                          ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                          Container(
-                            padding: EdgeInsets.all(8),
+                          color: Colors.transparent,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
                             decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            shape: BoxShape.circle,
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color.fromARGB(
+                                      255, 44, 187, 51), // Green shade
+                                  Color.fromARGB(255, 46, 193,
+                                      53), // Slightly darker green
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color(0xFF43A047).withOpacity(0.3),
+                                  blurRadius: 12,
+                                  offset: Offset(0, 4),
+                                ),
+                              ],
                             ),
-                            child: Icon(
-                            Icons.check_circle_outline,
-                            color: Colors.white,
-                            size: 20,
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.check_circle_outline,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    Utils.getTranslatedLabel(
+                                        resultAddedSuccessfullyKey),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                            Utils.getTranslatedLabel(resultAddedSuccessfullyKey),
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
-                            ),
-                          ),
-
-                          ],
                         ),
-                        ),
-                      ),
                       ),
                     ),
-                    );
+                  );
 
-                    // Show the toast
-                    Overlay.of(context).insert(overlayEntry!);
-                    
-                    // Auto-dismiss after 3 seconds
-                    Future.delayed(Duration(seconds: 3), () {
+                  // Show the toast
+                  Overlay.of(context).insert(overlayEntry!);
+
+                  // Auto-dismiss after 3 seconds
+                  Future.delayed(Duration(seconds: 3), () {
                     overlayEntry?.remove();
                     overlayEntry = null;
-                    });
+                  });
                 } else if (state is SubmitExamMarksSubmitFailure) {
                   Utils.showSnackBar(
                       message: state.errorMessage, context: context);

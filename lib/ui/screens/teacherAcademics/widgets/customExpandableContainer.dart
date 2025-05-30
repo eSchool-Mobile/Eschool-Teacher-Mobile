@@ -102,24 +102,25 @@ class _CustomExpandableContainerState extends State<CustomExpandableContainer>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     if (widget.customTitleWidget != null) ...[
-                      widget.customTitleWidget!,
+                      Expanded(child: widget.customTitleWidget!),
                       const SizedBox(
                         width: 5,
                       ),
-                    ],
-                    Expanded(
-                      child: CustomTextContainer(
-                        textKey: widget.titleText,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: Utils.getScaledValue(context, 16.5),
-                          fontWeight: FontWeight.w600,
+                    ] else
+                      Expanded(
+                        child: CustomTextContainer(
+                          textKey: widget.titleText,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: Utils.getScaledValue(context, 16.5),
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                    ),
                     if (widget.customActionContainer != null) ...[
                       const SizedBox(
                         width: 5,

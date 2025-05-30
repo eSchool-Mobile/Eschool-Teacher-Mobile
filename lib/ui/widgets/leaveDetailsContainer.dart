@@ -7,6 +7,8 @@ import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:ui';
+import 'package:intl/intl.dart' as intl;
+import 'package:intl/intl.dart';
 
 class LeaveDetailsContainer extends StatefulWidget {
   final LeaveDetails leaveDetails;
@@ -100,23 +102,131 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
     return leaveTranslations[type] ?? type;
   }
 
-  String formatDateToIndonesian(String dateStr) {
-    if (dateStr.isEmpty) return '';
+  String formatDateToIndonesian(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return '';
     
     try {
-      final DateTime date = DateTime.parse(dateStr);
+      // Debug the incoming date string format
+      print("Original date string: $dateString");
+
+      // Special handling for "23 - May" format (day - english month)
+      if (dateString.contains(' - ')) {
+        List<String> parts = dateString.split(' - ');
+        if (parts.length == 2) {
+          String day = parts[0].trim();
+          String englishMonth = parts[1].trim();
+          
+          // Map of English month names to Indonesian month names
+          final Map<String, String> monthTranslations = {
+            'January': 'Januari',
+            'February': 'Februari',
+            'March': 'Maret',
+            'April': 'April',
+            'May': 'Mei',
+            'June': 'Juni',
+            'July': 'Juli',
+            'August': 'Agustus',
+            'September': 'September',
+            'October': 'Oktober',
+            'November': 'November',
+            'December': 'Desember',
+            // Include short month names too
+            'Jan': 'Januari',
+            'Feb': 'Februari',
+            'Mar': 'Maret',
+            'Apr': 'April',
+            // May is already included above
+            'Jun': 'Juni',
+            'Jul': 'Juli',
+            'Aug': 'Agustus',
+            'Sep': 'September',
+            'Oct': 'Oktober',
+            'Nov': 'November',
+            'Dec': 'Desember'
+          };
+          
+          String indonesianMonth = monthTranslations[englishMonth] ?? englishMonth;
+          String currentYear = DateTime.now().year.toString();
+          
+          // Return in Indonesian format: day month year
+          return '$day $indonesianMonth $currentYear';
+        }
+      }
       
-      // List of month names in Indonesian
-      final List<String> monthNames = [
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+      DateTime? date;
+      
+      // First try to manually parse common formats
+      try {
+        // Try dd-MM-yyyy format
+        List<String> parts = dateString.split('-');
+        if (parts.length == 3) {
+          // Check if the first part could be a day (length 1-2, numeric)
+          if (parts[0].length <= 2 && int.tryParse(parts[0]) != null) {
+            date = DateTime(
+              int.parse(parts[2]), // year
+              int.parse(parts[1]), // month
+              int.parse(parts[0]), // day
+            );
+          }
+          // Try yyyy-MM-dd format which is common in APIs
+          else if (parts[0].length == 4 && int.tryParse(parts[0]) != null) {
+            date = DateTime(
+              int.parse(parts[0]), // year
+              int.parse(parts[1]), // month
+              int.parse(parts[2]), // day
+            );
+          }
+        }
+      } catch (e) {
+        print("Error parsing with split: $e");
+      }
+      
+      // If manual parsing failed, try standard datetime parsing
+      if (date == null) {
+        try {
+          date = DateTime.parse(dateString);
+          print("Parsed with DateTime.parse: $date");
+        } catch (e) {
+          print("Error parsing with DateTime.parse: $e");
+          
+          // Try to handle localized date format that might already be in Indonesian
+          List<String> indonesianMonths = [
+            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+          ];
+          
+          // Check if the date already contains Indonesian month names
+          bool alreadyIndonesian = indonesianMonths.any((month) => 
+            dateString.contains(month));
+            
+          if (alreadyIndonesian) {
+            print("Already in Indonesian format: $dateString");
+            return dateString;  // Already in the correct format
+          }
+          
+          // If all parsing attempts fail, return the original string
+          return dateString;
+        }
+      }
+      
+      // Define Indonesian month names
+      final List<String> indonesianMonths = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
         'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
       ];
       
-      // Format: day monthName year (e.g., 01 Januari 2023)
-      return '${date.day} ${monthNames[date.month - 1]} ${date.year}';
+      // Format the date in Indonesian
+      final String day = date.day.toString();
+      final String month = indonesianMonths[date.month - 1];
+      final String year = date.year.toString();
+      
+      String result = '$day $month $year';
+      print("Converted to Indonesian: $result");
+      return result;
     } catch (e) {
-      // Return original string if parsing fails
-      return dateStr;
+      // If any error occurs, return the original string
+      print("Error in formatDateToIndonesian: $e");
+      return dateString;
     }
   }
 
@@ -379,44 +489,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             // School branding indicator
-                            Flexible(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: 32,
-                                    height: 32,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: _maroonDark,
-                                    ),
-                                    child: const Center(
-                                      child: Text(
-                                        "S",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Flexible(
-                                    child: Text(
-                                      "eSchool",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: _maroonDark.withOpacity(0.8),
-                                        letterSpacing: 0.5,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                          
 
                             const SizedBox(width: 8),
 
@@ -457,15 +530,28 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                                     ),
                                     SizedBox(width: isSmallScreen ? 6 : 10),
                                     Flexible(
-                                      child: Text(
-                                        // Format the date to Indonesian format
-                                        formatDateToIndonesian(widget.leaveDetails.leaveDate ?? ''),
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: _maroonDark,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        child: RichText(
                                         overflow: TextOverflow.ellipsis,
+                                        text: TextSpan(
+                                          children: [
+                                          TextSpan(
+                                            text: "Tanggal: ",
+                                            style: TextStyle(
+                                            fontSize: 14,
+                                            color: _maroonDark,
+                                            fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: formatDateToIndonesian(widget.leaveDetails.leaveDate),
+                                            style: TextStyle(
+                                            fontSize: 14,
+                                            color: _maroonDark,
+                                            fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -572,7 +658,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
               ),
             ),
           ),
-        );
+          );
       },
     );
   }
@@ -668,7 +754,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
               ],
             ),
           ),
-        );
+          );
       },
     );
   }

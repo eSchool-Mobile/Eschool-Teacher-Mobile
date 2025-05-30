@@ -56,8 +56,27 @@ class ManagePayrollsScreen extends StatefulWidget {
 class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
     with TickerProviderStateMixin {
   int? _selectedYear;
-  late String _selectedMonthKey =
-      Utils.getMonthFullName(DateTime.now().month).toLowerCase();
+  
+  // Get the month key from month number (1-12)
+  String _getMonthKey(int month) {
+    switch(month) {
+      case 1: return januaryKey;
+      case 2: return februaryKey;
+      case 3: return marchKey;
+      case 4: return aprilKey;
+      case 5: return mayKey;
+      case 6: return juneKey;
+      case 7: return julyKey;
+      case 8: return augustKey;
+      case 9: return septemberKey;
+      case 10: return octoberKey;
+      case 11: return novemberKey;
+      case 12: return decemberKey;
+      default: return januaryKey;
+    }
+  }
+  
+  late String _selectedMonthKey = _getMonthKey(DateTime.now().month);
 
   // Color scheme for maroon theme
   final Color _maroonPrimary = const Color(0xFF800020);
@@ -122,7 +141,32 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
   }
 
   int getSelectedMonthNumber() {
-    return months.indexOf(_selectedMonthKey) + 1;
+    // Get month number based on selected month key
+    for (int i = 0; i < months.length; i++) {
+      if (months[i].toLowerCase() == _selectedMonthKey.toLowerCase()) {
+        return i + 1; // Month numbers are 1-based (January = 1)
+      }
+    }
+    
+    // If month key not found in the months list, try direct mapping
+    final Map<String, int> monthMap = {
+      // Direct mapping for common month keys
+      januaryKey: 1,
+      februaryKey: 2,
+      marchKey: 3,
+      aprilKey: 4,
+      mayKey: 5,
+      juneKey: 6,
+      julyKey: 7,
+      augustKey: 8,
+      septemberKey: 9,
+      octoberKey: 10,
+      novemberKey: 11,
+      decemberKey: 12,
+    };
+    
+    // Try to get from map, otherwise default to current month
+    return monthMap[_selectedMonthKey.toLowerCase()] ?? DateTime.now().month;
   }
 
   void getStaffsPayRoll() {
@@ -130,8 +174,12 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
       _selectedStaffs.clear();
       setState(() {});
     }
+    
+    final monthNumber = getSelectedMonthNumber();
+    print("Getting staff payroll for: Year: ${_selectedYear ?? 0}, Month: $monthNumber (${_selectedMonthKey})");
+    
     context.read<StaffsPayrollCubit>().getStaffsPayroll(
-        year: _selectedYear ?? 0, month: getSelectedMonthNumber());
+        year: _selectedYear ?? 0, month: monthNumber);
   }
 
   Widget _buildSubmitButton() {
@@ -244,11 +292,16 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                             });
                           }
 
+                          final monthNumber = getSelectedMonthNumber();
+                          final year = _selectedYear ?? 0;
+                          
+                          print("Submitting payrolls: Year: $year, Month: $monthNumber (${_selectedMonthKey})");
+                          
                           context
                               .read<SubmitStaffsPayRollCubit>()
                               .submitStaffsPayRoll(
-                                  month: getSelectedMonthNumber(),
-                                  year: _selectedYear ?? 0,
+                                  month: monthNumber,
+                                  year: year,
                                   allowedLeaves: context
                                       .read<StaffsPayrollCubit>()
                                       .allowedLeaves(),

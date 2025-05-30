@@ -62,13 +62,13 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
     const Color(0xFF8B1F41),
     const Color(0xFFAC3B5C),
   ];
-
   // Filter variables
   SessionYear? _selectedSessionYear;
   String _submissionStatus = '';
   DateTime? _startDate;
   DateTime? _endDate;
-  double _headerHeight = 220.0; // Initial height with expanded filters
+  double _headerHeight =
+      240.0; // Increased initial height with expanded filters
   final ScrollController _scrollController = ScrollController();
 
   // Pagination variables
@@ -93,25 +93,22 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
     );
 
     // Start animations
-    _animationController.forward();
-
-    // Set current date range to the last 30 days by default
-    _endDate = DateTime.now();
+    _animationController
+        .forward(); // Set current date range to the last 30 days by default    _endDate = DateTime.now();
     _startDate = _endDate?.subtract(const Duration(days: 30));
 
-    // Set default submission status as empty (show all)
-    _submissionStatus = '';
-
-    // Scroll listener for collapsing header effect
+    // Set default submission status to not_submitted
+    _submissionStatus =
+        'not_submitted'; // Scroll listener for collapsing header effect
     _scrollController.addListener(() {
-      if (_scrollController.offset > 50 && _headerHeight == 220.0) {
+      if (_scrollController.offset > 50 && _headerHeight == 240.0) {
         setState(() {
           _headerHeight =
-              140.0; // Collapsed height for header (still has room for 3 filters)
+              160.0; // Increased collapsed height for header (still has room for 3 filters)
         });
-      } else if (_scrollController.offset <= 50 && _headerHeight == 140.0) {
+      } else if (_scrollController.offset <= 50 && _headerHeight == 160.0) {
         setState(() {
-          _headerHeight = 220.0; // Expanded height for header
+          _headerHeight = 240.0; // Increased expanded height for header
         });
       }
     });
@@ -141,6 +138,14 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
     final String? formattedEndDate =
         _endDate != null ? DateFormat('yyyy-MM-dd').format(_endDate!) : null;
 
+    // Debugging info untuk filter yang digunakan
+    print('Fetching assignment monitoring with filters:');
+    print(
+        '- Submission Status: ${_submissionStatus.isEmpty ? "all" : _submissionStatus}');
+    print('- Start Date: $formattedStartDate');
+    print('- End Date: $formattedEndDate');
+    print('- Page: $_currentPage, Limit: $_limit');
+
     context.read<AssignmentMonitoringCubit>().getAssignmentMonitoring(
           submissionStatus:
               _submissionStatus.isEmpty ? null : _submissionStatus,
@@ -166,6 +171,10 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
       _submissionStatus = status;
       _currentPage = 1; // Reset pagination when changing filters
     });
+
+    // Print status yang dipilih untuk debugging
+    print('Selected submission status: $_submissionStatus');
+
     _fetchAssignmentMonitoring();
   }
 
@@ -290,9 +299,9 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
 
   void _showSubmissionStatusFilter(BuildContext context) {
     final List<Map<String, String>> statusOptions = [
-      {'value': '', 'label': 'Semua Status'},
-      {'value': 'submitted', 'label': 'Sudah Dikumpulkan'},
-      {'value': 'not_submitted', 'label': 'Belum Dikumpulkan'},
+      {'value': 'submitted', 'label': 'Sudah Mengumpulkan'},
+      {'value': 'not_submitted', 'label': 'Belum Mengumpulkan'},
+
     ];
 
     showModalBottomSheet(
@@ -332,6 +341,19 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                     fontWeight: FontWeight.w600,
                     color: textDarkColor,
                   ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  'Pilih status untuk menampilkan guru berdasarkan status pengumpulan tugas',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                    color: textMediumColor,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
               const Divider(),
@@ -437,12 +459,9 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
     final String dateRangeText = _startDate != null && _endDate != null
         ? '${DateFormat('dd MMM').format(_startDate!)} - ${DateFormat('dd MMM').format(_endDate!)}'
         : 'Pilih Tanggal';
-
-    final String statusText = _submissionStatus.isEmpty
-        ? 'Semua Status'
-        : _submissionStatus == 'submitted'
-            ? 'Sudah Dikumpulkan'
-            : 'Belum Dikumpulkan';
+    final String statusText = _submissionStatus == 'submitted'
+        ? 'Sudah Mengumpulkan'
+        : 'Belum Mengumpulkan';
 
     return CustomFilterModernAppBar(
       title: 'Monitoring Tugas Guru',
@@ -454,8 +473,7 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
       },
       animationController: _animationController,
       enableAnimations: true,
-      height:
-          _headerHeight, // Use dynamic header height that changes with scroll
+      height: _headerHeight + 20, // Increase height to add more spacing
       firstFilterItem: FilterItemConfig(
         title: dateRangeText,
         icon: Icons.date_range_rounded,
@@ -686,7 +704,11 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
             ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.3, end: 0),
             const SizedBox(height: 8),
             Text(
-              'Coba ubah filter untuk melihat data lainnya',
+              _submissionStatus == 'not_submitted'
+                  ? 'Tidak ada guru yang belum mengumpulkan tugas'
+                  : _submissionStatus == 'submitted'
+                      ? 'Tidak ada guru yang sudah mengumpulkan tugas'
+                      : 'Coba ubah filter untuk melihat data lainnya',
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                 fontSize: 14,
@@ -814,41 +836,41 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                       child: Row(
                         children: [
                           SizedBox(
-                          width: 40,
-                          child: Text(
-                            'No',
-                            style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                            letterSpacing: 0.5,
+                            width: 40,
+                            child: Text(
+                              'No',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                                letterSpacing: 0.5,
+                              ),
                             ),
-                          ),
                           ),
                           Expanded(
-                          flex: 3,
-                          child: Text(
-                            'Nama Guru',
-                            style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                            letterSpacing: 0.5,
+                            flex: 3,
+                            child: Text(
+                              'Nama Guru',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                                letterSpacing: 0.5,
+                              ),
                             ),
-                          ),
                           ),
                           Expanded(
-                          flex: 2,
-                          child: Text(
-                            'Total Tugas',
-                            style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                            letterSpacing: 0.5,
+                            flex: 2,
+                            child: Text(
+                              'Total Tugas',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                                letterSpacing: 0.5,
+                              ),
+                              textAlign: TextAlign.start,
                             ),
-                            textAlign: TextAlign.start,
-                          ),
                           ),
                         ],
                       ),

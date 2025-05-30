@@ -11,6 +11,7 @@ import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherAddEditTop
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/confirmDeleteDialog.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
+import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,17 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:ui';
+
+// Define our theme colors
+final Color maroonPrimary = Color(0xFF8B1F41);
+final Color maroonLight = Color(0xFFAC3B5C);
+final Color maroonDark = Color(0xFF6A0F2A);
+final Color accentColor = Color(0xFFF5EBE0);
+final Color bgColor = Color(0xFFFAF6F2);
+final Color cardColor = Colors.white;
+final Color textDarkColor = Color(0xFF2D2D2D);
+final Color textMediumColor = Color(0xFF717171);
+final Color borderColor = Color(0xFFE8E8E8);
 
 class TeacherManageTopicScreen extends StatefulWidget {
   final ClassSection? selectedClassSection;
@@ -71,19 +83,48 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
   ClassSection? _selectedClassSection;
   TeacherSubject? _selectedSubject;
   Lesson? _selectedLesson;
-  bool didCreateNewTopic = false; // Animation controller for app bar effects
+  bool didCreateNewTopic = false; // For tracking new topic creation
+
+  // Animation controllers
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+  late AnimationController _slideController;
+  late Animation<Offset> _slideAnimation;
   late AnimationController _fabAnimationController;
 
   // For header collapsing effect
   final ScrollController _scrollController = ScrollController();
-
-  // Define color constants for the app bar
-  final Color _maroonPrimary = const Color(0xFF8B1F41);
-  final Color _maroonLight = const Color(0xFFAC3B5C);
-  final Color _maroonDark = const Color(0xFF6A0F2A);
   @override
   void initState() {
     super.initState();
+
+    // Initialize animations
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 800),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _fadeController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _slideController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 700),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: Offset(0, 0.2),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _slideController,
+        curve: Curves.easeOutQuint,
+      ),
+    );
 
     // Initialize app bar animation controller
     _fabAnimationController = AnimationController(
@@ -91,7 +132,9 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
       duration: const Duration(milliseconds: 300),
     );
 
-    // Start animation
+    // Start animations
+    _fadeController.forward();
+    _slideController.forward();
     _fabAnimationController.forward();
 
     if (widget.selectedLesson == null) {
@@ -113,6 +156,8 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
   @override
   void dispose() {
     _scrollController.dispose();
+    _fadeController.dispose();
+    _slideController.dispose();
     _fabAnimationController.dispose();
     super.dispose();
   }
@@ -225,7 +270,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                       ],
                     ),
                   ),
-                  backgroundColor: Colors.red.shade600,
+                  backgroundColor: maroonPrimary,
                   duration: Duration(seconds: 3),
                   behavior: SnackBarBehavior.floating,
                   margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -238,74 +283,507 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
             }
           },
           builder: (context, state) {
-            return Container(
-              margin: EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
+            return TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0.0, end: 1.0),
+              duration: Duration(milliseconds: 600),
+              curve: Curves.easeOutCubic,
+              builder: (context, value, child) {
+                return Transform.translate(
+                  offset: Offset(0, 30 * (1 - value)),
+                  child: Opacity(
+                    opacity: value,
+                    child: child,
                   ),
-                ],
-              ),
-              child: ListTile(
-                title: Text(
-                  topic.name,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                subtitle: Text(
-                  topic.description,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                trailing: PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'edit') {
-                      Get.toNamed(
-                        Routes.teacherAddEditTopicScreen,
-                        arguments: TeacherAddEditTopicScreen.buildArguments(
-                          topic: topic,
-                          selectedClassSection: _selectedClassSection,
-                          selectedLesson: _selectedLesson,
-                          selectedSubject: _selectedSubject,
-                        ),
-                      )?.then((value) {
-                        if (value != null && value is bool && value) {
-                          getTopics();
-                        }
-                      });
-                    } else if (value == 'delete') {
-                      if (state is DeleteTopicInProgress) return;
-                      showDialog<bool>(
-                        context: context,
-                        builder: (_) => const ConfirmDeleteDialog(),
-                      ).then((value) {
-                        if (value != null && value) {
-                          if (context.mounted) {
-                            context
-                                .read<DeleteTopicCubit>()
-                                .deleteTopic(topicId: topic.id);
-                          }
-                        }
-                      });
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    PopupMenuItem<String>(
-                      value: 'edit',
-                      child: Text('Edit'),
+                );
+              },
+              child: Container(
+                margin: EdgeInsets.only(bottom: 30),
+                decoration: BoxDecoration(
+                  color: cardColor,
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: maroonPrimary.withOpacity(0.1),
+                      blurRadius: 25,
+                      offset: Offset(0, 12),
+                      spreadRadius: 0,
                     ),
-                    PopupMenuItem<String>(
-                      value: 'delete',
-                      child: Text('Delete'),
-                    ),
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: 8,
+                      offset: Offset(0, 4),
+                    )
                   ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(28),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Premium header with enhanced design
+                      Stack(
+                        children: [
+                          // Sophisticated background with animated gradient
+                          AnimatedContainer(
+                            duration: Duration(milliseconds: 300),
+                            height: 130,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Color(0xFFF9F0F5),
+                                  Color(0xFFFDF7FA),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
+                          ),
+
+                          // Dynamic decorative elements
+                          Positioned(
+                            top: -30,
+                            right: -30,
+                            child: Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    maroonPrimary.withOpacity(0.08),
+                                    maroonPrimary.withOpacity(0.03)
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: -25,
+                            left: -15,
+                            child: Container(
+                              width: 70,
+                              height: 70,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    maroonPrimary.withOpacity(0.06),
+                                    maroonPrimary.withOpacity(0.02)
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          // Elegant accent bar
+                          Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            child: Container(
+                              height: 6,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [maroonPrimary, maroonLight],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: maroonPrimary.withOpacity(0.2),
+                                    blurRadius: 10,
+                                    offset: Offset(0, 2),
+                                    spreadRadius: -2,
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Enhanced content layout
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(26, 24, 20, 0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Enhanced typography and layout for topic title
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        topic.name,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w700,
+                                          color: textDarkColor,
+                                          letterSpacing: -0.3,
+                                          height: 1.2,
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                    ],
+                                  ),
+                                ),
+
+                                // Refined action menu with visual feedback
+                                Material(
+                                  color: Colors.transparent,
+                                  child: PopupMenuButton<String>(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    elevation: 12,
+                                    offset: Offset(0, 50),
+                                    color: Colors.white,
+                                    onSelected: (value) {
+                                      if (value == 'edit') {
+                                        HapticFeedback.lightImpact();
+                                        Get.toNamed(
+                                          Routes.teacherAddEditTopicScreen,
+                                          arguments: TeacherAddEditTopicScreen
+                                              .buildArguments(
+                                            topic: topic,
+                                            selectedClassSection:
+                                                _selectedClassSection,
+                                            selectedLesson: _selectedLesson,
+                                            selectedSubject: _selectedSubject,
+                                          ),
+                                        )?.then((value) {
+                                          if (value != null &&
+                                              value is bool &&
+                                              value) {
+                                            getTopics();
+                                          }
+                                        });
+                                      } else if (value == 'delete') {
+                                        if (state is DeleteTopicInProgress)
+                                          return;
+                                        HapticFeedback.mediumImpact();
+                                        showDialog<bool>(
+                                          context: context,
+                                          builder: (_) =>
+                                              const ConfirmDeleteDialog(),
+                                        ).then((value) {
+                                          if (value != null && value) {
+                                            if (context.mounted) {
+                                              context
+                                                  .read<DeleteTopicCubit>()
+                                                  .deleteTopic(
+                                                      topicId: topic.id);
+                                            }
+                                          }
+                                        });
+                                      }
+                                    },
+                                    itemBuilder: (context) => [
+                                      // Enhanced Edit button
+                                      PopupMenuItem<String>(
+                                        value: 'edit',
+                                        height: 64,
+                                        child: TweenAnimationBuilder<double>(
+                                          tween: Tween<double>(
+                                              begin: 0.9, end: 1.0),
+                                          duration: Duration(milliseconds: 200),
+                                          builder: (context, value, child) {
+                                            return Transform.scale(
+                                              scale: value,
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 8, horizontal: 8),
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      Colors.blue.shade400,
+                                                      Colors.blue.shade600
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors
+                                                          .blue.shade500
+                                                          .withOpacity(0.3),
+                                                      blurRadius: 12,
+                                                      offset: Offset(0, 4),
+                                                      spreadRadius: -2,
+                                                    )
+                                                  ],
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Container(
+                                                      padding:
+                                                          EdgeInsets.all(6),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.25),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10),
+                                                      ),
+                                                      child: Icon(
+                                                        Icons.edit_rounded,
+                                                        color: Colors.white,
+                                                        size: 20,
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 12),
+                                                    Expanded(
+                                                      child: Text(
+                                                        'Edit',
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontSize: 15,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+
+                                      // Enhanced Delete button
+                                      PopupMenuItem<String>(
+                                        value: 'delete',
+                                        height: 64,
+                                        child: TweenAnimationBuilder<double>(
+                                          tween: Tween<double>(
+                                              begin: 0.9, end: 1.0),
+                                          duration: Duration(milliseconds: 300),
+                                          builder: (context, value, child) {
+                                            return Transform.scale(
+                                              scale: value,
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 8, horizontal: 8),
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      Colors.red.shade400,
+                                                      Colors.red.shade700
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.red.shade500
+                                                          .withOpacity(0.3),
+                                                      blurRadius: 12,
+                                                      offset: Offset(0, 4),
+                                                      spreadRadius: -2,
+                                                    )
+                                                  ],
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Container(
+                                                      padding:
+                                                          EdgeInsets.all(6),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.25),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10),
+                                                      ),
+                                                      child: Icon(
+                                                        Icons
+                                                            .delete_outline_rounded,
+                                                        color: Colors.white,
+                                                        size: 20,
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 12),
+                                                    Expanded(
+                                                      child: Text(
+                                                        'Delete',
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontSize: 15,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                    child: TweenAnimationBuilder<double>(
+                                      tween:
+                                          Tween<double>(begin: 0.8, end: 1.0),
+                                      duration: Duration(milliseconds: 300),
+                                      builder: (context, value, child) {
+                                        return Transform.scale(
+                                          scale: value,
+                                          child: Container(
+                                            width: 44,
+                                            height: 44,
+                                            decoration: BoxDecoration(
+                                              gradient: state
+                                                      is DeleteTopicInProgress
+                                                  ? LinearGradient(
+                                                      colors: [
+                                                        Colors.grey.shade300,
+                                                        Colors.grey.shade400
+                                                      ],
+                                                      begin: Alignment.topLeft,
+                                                      end:
+                                                          Alignment.bottomRight,
+                                                    )
+                                                  : LinearGradient(
+                                                      colors: [
+                                                        Colors.white,
+                                                        Colors.grey.shade100
+                                                      ],
+                                                      begin: Alignment.topLeft,
+                                                      end:
+                                                          Alignment.bottomRight,
+                                                    ),
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                              border: Border.all(
+                                                color: Colors.grey.shade300,
+                                                width: 1.5,
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: maroonPrimary
+                                                      .withOpacity(0.1),
+                                                  blurRadius: 10,
+                                                  offset: Offset(0, 4),
+                                                  spreadRadius: -2,
+                                                ),
+                                              ],
+                                            ),
+                                            child: state
+                                                    is DeleteTopicInProgress
+                                                ? Center(
+                                                    child: SizedBox(
+                                                      width: 20,
+                                                      height: 20,
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                        color: maroonPrimary,
+                                                        strokeWidth: 2,
+                                                      ),
+                                                    ),
+                                                  )
+                                                : Icon(
+                                                    Icons.more_vert_rounded,
+                                                    color: maroonPrimary,
+                                                    size: 22,
+                                                  ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // Enhanced description section with refined styling
+                      Container(
+                        padding: EdgeInsets.fromLTRB(26, 22, 26, 24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.grey.shade100,
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: maroonPrimary.withOpacity(0.08),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    Icons.description_outlined,
+                                    color: maroonPrimary,
+                                    size: 18,
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Text(
+                                  Utils.getTranslatedLabel(descriptionKey),
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: textDarkColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 16),
+
+                            // Elegant description container with enhanced readability
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 20),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade50,
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(
+                                  color: Colors.grey.shade200,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Text(
+                                topic.description,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14.5,
+                                  color: textMediumColor,
+                                  height: 1.6,
+                                  letterSpacing: 0.1,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -328,54 +806,54 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
         child: BlocBuilder<TopicsCubit, TopicsState>(
           builder: (context, state) {
             if (state is TopicsFetchSuccess) {
-                if (state.topics.isEmpty) {
+              if (state.topics.isEmpty) {
                 return Center(
                   child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 25),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      spreadRadius: 2,
-                      blurRadius: 10,
-                      offset: Offset(0, 3),
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 25),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          spreadRadius: 2,
+                          blurRadius: 10,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
                     ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                    Icon(
-                      Icons.topic_outlined,
-                      color: _maroonPrimary,
-                      size: 56,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.topic_outlined,
+                          color: maroonPrimary,
+                          size: 56,
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          Utils.getTranslatedLabel(noTopicKey),
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          "Silahkan tambahkan topik baru",
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 16),
-                    Text(
-                      Utils.getTranslatedLabel(noTopicKey),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      "Silahkan tambahkan topik baru",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black54,
-                      ),
-                    ),
-                    ],
-                  ),
                   ),
                 );
-                }
+              }
               return Column(
                 children: List.generate(
                   state.topics.length,
@@ -417,14 +895,14 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                       children: [
                         Icon(
                           Icons.info_outline,
-                          color: _maroonPrimary,
+                          color: maroonPrimary,
                           size: 40,
                         ),
                         SizedBox(height: 16),
                         Text(
                           "Silahkan pilih kelas, mata pelajaran, dan bab terlebih dahulu",
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: GoogleFonts.poppins(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
                             color: Colors.black87,
@@ -434,7 +912,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                         Text(
                           "Gunakan filter di atas untuk memilih",
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: GoogleFonts.poppins(
                             fontSize: 14,
                             color: Colors.black54,
                           ),
@@ -500,9 +978,9 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    _maroonPrimary,
+                    maroonPrimary,
                     Color(0xFF9A1E3C),
-                    _maroonLight,
+                    maroonLight,
                   ],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
@@ -510,7 +988,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: _maroonPrimary.withOpacity(0.3),
+                    color: maroonPrimary.withOpacity(0.3),
                     spreadRadius: 0,
                     blurRadius: 10,
                     offset: Offset(0, 4),
@@ -566,9 +1044,9 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                         end: Alignment.bottomRight,
                         colors: [
                           Color(0xFF690013),
-                          _maroonPrimary,
+                          maroonPrimary,
                           Color(0xFFA12948),
-                          _maroonLight,
+                          maroonLight,
                         ],
                         stops: [0.0, 0.3, 0.6, 1.0],
                         transform: GradientRotation(
@@ -582,8 +1060,8 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            _maroonPrimary,
-                            _maroonDark,
+                            maroonPrimary,
+                            maroonDark,
                           ],
                         ),
                         borderRadius: BorderRadius.only(
@@ -738,7 +1216,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                                             ),
                                             child: Icon(
                                               Icons.topic_rounded,
-                                              color: _maroonPrimary,
+                                              color: maroonPrimary,
                                               size: 20,
                                             ),
                                           ),
@@ -837,7 +1315,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                                                   content: Text(
                                                       "Tidak ada kelas yang tersedia"),
                                                   backgroundColor:
-                                                      _maroonPrimary,
+                                                      maroonPrimary,
                                                 ),
                                               );
                                               return;
@@ -946,7 +1424,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                                                   content: Text(
                                                       "Tidak ada mata pelajaran yang tersedia"),
                                                   backgroundColor:
-                                                      _maroonPrimary,
+                                                      maroonPrimary,
                                                 ),
                                               );
                                               return;
@@ -1057,7 +1535,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                                           SnackBar(
                                             content: Text(
                                                 "Tidak ada bab pelajaran yang tersedia"),
-                                            backgroundColor: _maroonPrimary,
+                                            backgroundColor: maroonPrimary,
                                           ),
                                         );
                                         return;

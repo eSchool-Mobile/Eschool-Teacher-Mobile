@@ -13,6 +13,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
+import 'dart:ui';
+import 'dart:ui';
+import 'package:intl/intl.dart';
 
 class LeavesScreen extends StatefulWidget {
   final bool showMyLeaves;
@@ -58,16 +61,30 @@ class _LeavesScreenState extends State<LeavesScreen>
   late final AnimationController _animationController;
   late final Animation<double> _fadeAnimation;
 
-  // Define theme colors
+  // Additional animations for enhanced visuals
+  late final AnimationController _cardAnimationController;
+  late final Animation<double> _scaleAnimation;
+  late final Animation<double> _slideAnimation;
+  late final Animation<Offset> _offsetAnimation;
+
+  // Define theme colors - modern palette
   final Color maroonPrimary = Color(0xFF8B1F41);
   final Color maroonLight = Color(0xFFAC3B5C);
   final Color maroonDark = Color(0xFF6A0F2A);
-  final Color accentColor = Color(0xFFF5EBE0);
-  final Color bgColor = Color(0xFFFAF6F2);
+  final Color accentColor = Color(0xFFFFE9EC);
+  final Color bgColor = Color(0xFFFCF6F7);
   final Color cardColor = Colors.white;
   final Color textDarkColor = Color(0xFF2D2D2D);
   final Color textMediumColor = Color(0xFF717171);
-  final Color borderColor = Color(0xFFE8E8E8);
+  final Color borderColor = Color(0xFFEFE2E5);
+
+  // Additional modern UI colors
+  final Color gradientStart = Color(0xFF8B1F41);
+  final Color gradientEnd = Color(0xFFAC3B5C);
+  final Color highlightColor = Color(0xFFFFF0F2);
+  final Color shadowColor = Color(0x29000000);
+  final Color cardShadowColor = Color(0x0F000000);
+  final Color surfaceColor = Color(0xFFFFFAFB);
 
   @override
   void initState() {
@@ -86,8 +103,37 @@ class _LeavesScreenState extends State<LeavesScreen>
       ),
     );
 
+    // Card animations controller for more dynamic UI elements
+    _cardAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 600),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _cardAnimationController,
+        curve: Curves.easeOutBack,
+      ),
+    );
+
+    _slideAnimation = Tween<double>(begin: 50, end: 0).animate(
+      CurvedAnimation(
+        parent: _cardAnimationController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+
+    _offsetAnimation = Tween<Offset>(
+      begin: Offset(0, 0.5),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _cardAnimationController,
+      curve: Curves.easeOutCubic,
+    ));
+
     // Start animations
     _animationController.forward();
+    _cardAnimationController.forward();
 
     // Scroll listener for collapsing header effect
     _scrollController.addListener(() {
@@ -120,6 +166,7 @@ class _LeavesScreenState extends State<LeavesScreen>
   @override
   void dispose() {
     _animationController.dispose();
+    _cardAnimationController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -139,10 +186,35 @@ class _LeavesScreenState extends State<LeavesScreen>
   }
 
   int getSelectedMonthNumber() {
-    return months.indexOf(_selectedMonthKey) + 1;
+    // Map lowercase Indonesian month names to their numeric values
+    final Map<String, int> monthMap = {
+      'januari': 1,
+      'februari': 2,
+      'maret': 3,
+      'april': 4,
+      'mei': 5,
+      'juni': 6,
+      'juli': 7,
+      'agustus': 8,
+      'september': 9,
+      'oktober': 10,
+      'november': 11,
+      'desember': 12,
+    };
+
+    return monthMap[_selectedMonthKey] ??
+        DateTime.now().month; // Return current month as fallback
   }
 
   void getLeaves() {
+    print("=== Fetching leaves data ===");
+    print("Month: ${_selectedMonthKey} (${getSelectedMonthNumber()})");
+    print(
+        "Session Year: ${_selectedSessionYear?.name ?? 'Not selected'} (ID: ${_selectedSessionYear?.id ?? 0})");
+    print(
+        "User ID: ${widget.showMyLeaves ? (context.read<AuthCubit>().getUserDetails().id ?? 0) : (widget.userDetails?.id ?? 0)}");
+    print("===============================");
+
     context.read<UserLeavesCubit>().getUserLeaves(
         monthNumber: getSelectedMonthNumber(),
         userId: widget.showMyLeaves
@@ -155,60 +227,107 @@ class _LeavesScreenState extends State<LeavesScreen>
       {required double width, required String title, required String value}) {
     return Container(
       width: width,
-      height: Utils().getResponsiveHeight(context, 100),
+      height: Utils().getResponsiveHeight(context, 120),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: title == allowedLeavesKey
+              ? maroonPrimary.withOpacity(0.1)
+              : maroonLight.withOpacity(0.1),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 15,
-            offset: Offset(0, 5),
-            spreadRadius: 0,
+            color: shadowColor.withOpacity(0.03),
+            blurRadius: 10,
+            offset: Offset(0, 4),
           )
         ],
       ),
-      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      padding: EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: title == allowedLeavesKey
+                  ? maroonPrimary.withOpacity(0.08)
+                  : maroonLight.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // No icon neede
+                SizedBox(width: 6),
+                Text(
+                  title.tr,
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 12,
+                    color: title == allowedLeavesKey
+                        ? maroonPrimary
+                        : maroonLight,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: maroonPrimary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  title == allowedLeavesKey
-                      ? Icons.event_available
-                      : Icons.event_busy,
-                  size: 18,
-                  color: maroonPrimary,
-                ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 32,
+                      height: 1,
+                      fontWeight: FontWeight.w700,
+                      color: title == allowedLeavesKey
+                          ? maroonPrimary
+                          : maroonLight,
+                    ),
+                  ),
+                  SizedBox(width: 4),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Text(
+                      "hari",
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 13,
+                        color: textMediumColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(width: 12),
-              Text(
-                title.tr,
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 14,
-                  color: textMediumColor,
-                  fontWeight: FontWeight.w500,
+              SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(2),
+                child: LinearProgressIndicator(
+                  value: 0.7,
+                  backgroundColor: (title == allowedLeavesKey
+                      ? maroonPrimary
+                      : maroonLight)
+                      .withOpacity(0.1),
+                  valueColor: AlwaysStoppedAnimation(
+                    title == allowedLeavesKey
+                        ? maroonPrimary
+                        : maroonLight,
+                  ),
+                  minHeight: 3,
                 ),
               ),
             ],
-          ),
-          Spacer(),
-          Text(
-            value,
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 24,
-              fontWeight: FontWeight.w600,
-              color: maroonPrimary,
-            ),
           ),
         ],
       ),
@@ -217,15 +336,22 @@ class _LeavesScreenState extends State<LeavesScreen>
 
   Widget _buildLeaveTableHeader() {
     return Container(
-      height: 50,
+      height: 56,
       decoration: BoxDecoration(
-        color: maroonPrimary.withOpacity(0.1),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            maroonPrimary.withOpacity(0.12),
+            maroonPrimary.withOpacity(0.08),
+          ],
+        ),
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
         ),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: [
           SizedBox(
@@ -249,6 +375,7 @@ class _LeavesScreenState extends State<LeavesScreen>
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: maroonPrimary,
+                letterSpacing: 0.2,
               ),
             ),
           ),
@@ -261,6 +388,7 @@ class _LeavesScreenState extends State<LeavesScreen>
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: maroonPrimary,
+                letterSpacing: 0.2,
               ),
               textAlign: TextAlign.center,
             ),
@@ -273,7 +401,6 @@ class _LeavesScreenState extends State<LeavesScreen>
   Widget _buildLeaveListContainer() {
     return BlocConsumer<UserLeavesCubit, UserLeavesState>(
       listener: (context, state) {
-        // If we have a session year but no leaves data yet, fetch it
         if (state is UserLeavesInitial && _selectedSessionYear != null) {
           getLeaves();
         }
@@ -283,9 +410,7 @@ class _LeavesScreenState extends State<LeavesScreen>
           if (state.leaves.isEmpty) {
             return Center(
               child: Padding(
-                padding: EdgeInsets.only(
-                  top: 100,
-                ),
+                padding: EdgeInsets.only(top: 100),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -311,52 +436,86 @@ class _LeavesScreenState extends State<LeavesScreen>
           }
 
           double remainingLeaves = (state.monthlyAllowedLeaves -
-              context
-                  .read<UserLeavesCubit>()
-                  .getTakenLeavesCount(monthNumber: getSelectedMonthNumber()));
+              context.read<UserLeavesCubit>().getTakenLeavesCount(monthNumber: getSelectedMonthNumber()));
           remainingLeaves = remainingLeaves < 0 ? 0 : remainingLeaves;
 
-          return FadeTransition(
-            opacity: _fadeAnimation,
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              padding: EdgeInsets.only(top: 20, bottom: 30),
-              physics: BouncingScrollPhysics(),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Ringkasan Cuti",
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: textDarkColor,
+          return SingleChildScrollView(
+            controller: _scrollController,
+            physics: BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                Container(
+                  margin: EdgeInsets.all(24),
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: borderColor,
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: shadowColor.withOpacity(0.05),
+                        blurRadius: 20,
+                        offset: Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: maroonPrimary.withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              Icons.event_note_rounded,
+                              color: maroonPrimary,
+                              size: 20,
+                            ),
                           ),
-                        ),
-                        Text(
-                          "Informasi jatah cuti bulan ini",
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 13,
-                            color: textMediumColor,
+                          SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Ringkasan Cuti",
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: textDarkColor,
+                                    letterSpacing: 0.1,
+                                  ),
+                                ),
+                                Text(
+                                  "Informasi jatah cuti bulan ini",
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 13,
+                                    color: textMediumColor,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 16),
-
-                        // Leave count summary
-                        LayoutBuilder(builder: (context, boxConstraints) {
+                        ],
+                      ),
+                      SizedBox(height: 24),
+                      LayoutBuilder(
+                        builder: (context, boxConstraints) {
                           return Row(
                             children: [
                               _buildLeaveCountContainer(
                                 width: boxConstraints.maxWidth * 0.48,
                                 title: allowedLeavesKey,
-                                value: state.monthlyAllowedLeaves
-                                    .toStringAsFixed(0),
+                                value: state.monthlyAllowedLeaves.toStringAsFixed(0),
                               ),
                               SizedBox(width: boxConstraints.maxWidth * 0.04),
                               _buildLeaveCountContainer(
@@ -366,25 +525,41 @@ class _LeavesScreenState extends State<LeavesScreen>
                               ),
                             ],
                           );
-                        }),
-                      ],
+                        }
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Leave History Section
+                Container(
+                  margin: EdgeInsets.fromLTRB(24, 0, 24, 24),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: shadowColor.withOpacity(0.05),
+                        blurRadius: 20,
+                        offset: Offset(0, 10),
+                        spreadRadius: 0,
+                      )
+                    ],
+                    border: Border.all(
+                      color: borderColor,
+                      width: 1,
                     ),
                   ),
-
-                  SizedBox(height: 24),
-
-                  // Leave applications section
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Row(
                           children: [
                             Container(
-                              padding: EdgeInsets.all(8),
+                              padding: EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: maroonPrimary.withOpacity(0.1),
+                                color: maroonPrimary.withOpacity(0.08),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(
@@ -393,40 +568,37 @@ class _LeavesScreenState extends State<LeavesScreen>
                                 size: 20,
                               ),
                             ),
-                            SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Riwayat Pengajuan",
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: textDarkColor,
+                            SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Riwayat Pengajuan",
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: textDarkColor,
+                                      letterSpacing: 0.1,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  "${state.leaves.length} pengajuan",
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontSize: 13,
-                                    color: textMediumColor,
+                                  Text(
+                                    "${state.leaves.length} pengajuan",
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: 13,
+                                      color: textMediumColor,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                            Spacer(),
                             Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color: maroonPrimary.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(30),
-                                border: Border.all(
-                                  color: maroonPrimary.withOpacity(0.3),
-                                  width: 1,
-                                ),
+                                color: maroonPrimary.withOpacity(0.08),
+                                borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
                                 "${state.leaves.length} Cuti",
@@ -440,107 +612,76 @@ class _LeavesScreenState extends State<LeavesScreen>
                             ),
                           ],
                         ),
-                        SizedBox(height: 16),
-
-                        // Leave applications list
-                        Container(
-                          decoration: BoxDecoration(
-                            color: cardColor,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 15,
-                                offset: Offset(0, 5),
-                                spreadRadius: 0,
-                              )
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              _buildLeaveTableHeader(),
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: cardColor,
-                                  borderRadius: BorderRadius.only(
-                                    bottomLeft: Radius.circular(16),
-                                    bottomRight: Radius.circular(16),
-                                  ),
-                                ),
-                                child: ListView.separated(
-                                  physics: NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  itemCount: state.leaves.length,
-                                  separatorBuilder: (context, index) => Divider(
-                                    color: borderColor,
-                                    height: 1,
-                                  ),
-                                  itemBuilder: (context, index) {
-                                    final leave = state.leaves[index];
-                                    return Container(
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: 12, horizontal: 16),
-                                      child: Row(
-                                        children: [
-                                          SizedBox(
-                                            width: 40,
-                                            child: Text(
-                                              "${index + 1}",
-                                              style: TextStyle(
-                                                fontFamily: 'Poppins',
-                                                fontWeight: FontWeight.w500,
-                                                fontSize: 14,
-                                                color: textDarkColor,
-                                              ),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 5,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  "${leave.fromDate != null ? Utils.formatDate(DateTime.parse(leave.fromDate!)) : ''}",
-                                                  style: TextStyle(
-                                                    fontFamily: 'Poppins',
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 14,
-                                                    color: textDarkColor,
-                                                  ),
-                                                ),
-                                                if (leave.fromDate !=
-                                                    leave.toDate)
-                                                  Text(
-                                                    "s/d ${leave.toDate != null ? Utils.formatDate(DateTime.parse(leave.toDate!)) : ''}",
-                                                    style: TextStyle(
-                                                      fontFamily: 'Poppins',
-                                                      fontSize: 12,
-                                                      color: textMediumColor,
-                                                    ),
-                                                  ),
-                                              ],
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 100,
-                                            child: _buildStatusBadge(
-                                                leave.status?.toString() ?? ''),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
+                      ),
+                      Divider(height: 1, color: borderColor),
+                      ListView.separated(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: state.leaves.length,
+                        separatorBuilder: (context, index) => Divider(
+                          height: 1,
+                          color: borderColor,
                         ),
-                      ],
-                    ),
+                        itemBuilder: (context, index) {
+                          final leave = state.leaves[index];
+                          return Container(
+                            padding: EdgeInsets.all(20),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 32,
+                                  height: 32,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: maroonPrimary.withOpacity(0.08),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    "${index + 1}",
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      color: maroonPrimary,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "${leave.fromDate != null ? Utils.formatDate(DateTime.parse(leave.fromDate!)) : ''}",
+                                        style: TextStyle(
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14,
+                                          color: textDarkColor,
+                                        ),
+                                      ),
+                                      if (leave.fromDate != leave.toDate)
+                                        Text(
+                                          "s/d ${leave.toDate != null ? Utils.formatDate(DateTime.parse(leave.toDate!)) : ''}",
+                                          style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            fontSize: 12,
+                                            color: textMediumColor,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                          
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         }
@@ -585,52 +726,7 @@ class _LeavesScreenState extends State<LeavesScreen>
     );
   }
 
-  Widget _buildStatusBadge(String status) {
-    Color bgColor;
-    Color textColor;
-    String label;
-
-    switch (status.toLowerCase()) {
-      case 'approved':
-        bgColor = Colors.green.shade50;
-        textColor = Colors.green.shade700;
-        label = "Disetujui";
-        break;
-      case 'pending':
-        bgColor = Colors.orange.shade50;
-        textColor = Colors.orange.shade700;
-        label = "Menunggu";
-        break;
-      case 'rejected':
-        bgColor = Colors.red.shade50;
-        textColor = Colors.red.shade700;
-        label = "Ditolak";
-        break;
-      default:
-        bgColor = Colors.grey.shade50;
-        textColor = Colors.grey.shade700;
-        label = status;
-    }
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: textColor,
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
-          fontFamily: 'Poppins',
-        ),
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
+ 
   PreferredSizeWidget _buildHeaderSection() {
     return CustomFilterModernAppBar(
       title: widget.showMyLeaves
@@ -804,6 +900,194 @@ class _LeavesScreenState extends State<LeavesScreen>
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildLeaveSummarySection(BuildContext context, UserLeavesFetchSuccess state) {
+    double remainingLeaves = (state.monthlyAllowedLeaves -
+        context.read<UserLeavesCubit>().getTakenLeavesCount(monthNumber: getSelectedMonthNumber()));
+    remainingLeaves = remainingLeaves < 0 ? 0 : remainingLeaves;
+
+    return Container(
+      margin: EdgeInsets.all(24),
+      padding: EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: shadowColor.withOpacity(0.05),
+            blurRadius: 20,
+            offset: Offset(0, 10),
+            spreadRadius: 0,
+          )
+        ],
+        border: Border.all(
+          color: borderColor,
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: maroonPrimary.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.event_note_rounded,
+                  color: maroonPrimary,
+                  size: 20,
+                ),
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Ringkasan Cuti",
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: textDarkColor,
+                        letterSpacing: 0.1,
+                      ),
+                    ),
+                    Text(
+                      "Informasi jatah cuti bulan ini",
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 13,
+                        color: textMediumColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: _buildLeaveCountCard(
+                  title: allowedLeavesKey,
+                  value: state.monthlyAllowedLeaves.toStringAsFixed(0),
+                  icon: Icons.event_available,
+                  color: maroonPrimary,
+                ),
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                child: _buildLeaveCountCard(
+                  title: remainingLeavesKey,
+                  value: remainingLeaves.toStringAsFixed(0),
+                  icon: Icons.event_busy,
+                  color: maroonLight,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLeaveCountCard({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.04),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: color.withOpacity(0.1),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 16,
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title.tr,
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 13,
+                    color: textMediumColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                value,
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 28,
+                  fontWeight: FontWeight.w700,
+                  color: color,
+                  height: 1,
+                ),
+              ),
+              SizedBox(width: 4),
+              Padding(
+                padding: EdgeInsets.only(bottom: 4),
+                child: Text(
+                  "hari",
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 13,
+                    color: textMediumColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(2),
+            child: LinearProgressIndicator(
+              value: 0.7,
+              backgroundColor: color.withOpacity(0.1),
+              valueColor: AlwaysStoppedAnimation(color),
+              minHeight: 3,
+            ),
+          ),
+        ],
       ),
     );
   }

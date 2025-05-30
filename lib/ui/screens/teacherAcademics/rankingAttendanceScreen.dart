@@ -342,7 +342,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                                       child: Text(
                                         "Peringkat Kehadiran",
                                         style: GoogleFonts.poppins(
-                                          fontSize: 16,
+                                          fontSize: 15,
                                           fontWeight: FontWeight.bold,
                                           shadows: [
                                             Shadow(
@@ -466,11 +466,13 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                               Utils.showBottomSheet(
                                 child: FilterSelectionBottomsheet(
                                   onSelection: (value) {
-                                    Get.back();
-                                    setState(() {
-                                      selectedClassLevel =
-                                          value == allKey ? null : value;
-                                    });
+                                    if (value != null) {
+                                      setState(() {
+                                        selectedClassLevel =
+                                            value == allKey ? null : value;
+                                      });
+                                      Get.back();
+                                    }
                                   },
                                   selectedValue: selectedClassLevel ?? allKey,
                                   titleKey: 'Pilih Kelas',
