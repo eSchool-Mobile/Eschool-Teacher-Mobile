@@ -229,7 +229,7 @@ class Api {
     Function(int, int)? onReceiveProgress,
   }) async {
     try {
-      if (kDebugMode) {
+      if (kDebugMode || true) {
         print(url);
         print(body);
       }

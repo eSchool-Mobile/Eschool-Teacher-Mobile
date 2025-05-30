@@ -49,9 +49,6 @@ class AssignmentSubmissionsRepository {
         "points": assignmentSubmissionPoints,
         "feedback": assignmentSubmissionFeedBack,
       };
-      if (assignmentSubmissionPoints == 0 || assignmentSubmissionPoints == -1) {
-        body.remove("points");
-      }
       if (assignmentSubmissionFeedBack.isEmpty) {
         body.remove("feedback");
       }

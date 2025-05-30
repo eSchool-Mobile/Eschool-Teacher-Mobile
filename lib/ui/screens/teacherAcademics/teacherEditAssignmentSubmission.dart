@@ -237,7 +237,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                       .read<EditAssignmentSubmissionCubit>()
                       .updateAssignmentSubmission(
                         assignmentSubmissionId: widget.assignmentSubmission.id,
-                        assignmentSubmissionStatus: isAccepting ? 1 : 2,
+                        assignmentSubmissionStatus: isAccepting ? 1 : 0,
                         assignmentSubmissionPoints:
                             widget.assignmentSubmission.assignment.points <=
                                         0 ||
