@@ -28,12 +28,30 @@ class GeneralLeavesCubit extends Cubit<GeneralLeavesState> {
 
   void getGeneralLeaves({required LeaveDayType leaveDayType}) async {
     try {
-      emit(GeneralLeavesFetchInProgress());
+      print('=== DEBUG: Fetching General Leaves ===');
+      print('LeaveDayType: $leaveDayType');
 
-      emit(GeneralLeavesFetchSuccess(
-          leaves:
-              await _leaveRepository.getLeaves(leaveDayType: leaveDayType)));
+      emit(GeneralLeavesFetchInProgress());
+      print('State: GeneralLeavesFetchInProgress');
+
+      final leaves =
+          await _leaveRepository.getLeaves(leaveDayType: leaveDayType);
+      print('Leaves fetched successfully');
+      print('Number of leaves: ${leaves.length}');
+      if (leaves.isEmpty) {
+        print('WARNING: No leaves found in response');
+      } else {
+        print('First leave details: ${leaves.first.toString()}');
+      }
+
+      emit(GeneralLeavesFetchSuccess(leaves: leaves));
+      print('State: GeneralLeavesFetchSuccess with ${leaves.length} leaves');
+      print('=== DEBUG: End Fetching General Leaves ===\n');
     } catch (e) {
+      print('=== DEBUG: Error Fetching General Leaves ===');
+      print('Error: $e');
+      print('Stack trace:\n${StackTrace.current}');
+      print('=== DEBUG: End Error ===\n');
       emit(GeneralLeavesFetchFailure(e.toString()));
     }
   }

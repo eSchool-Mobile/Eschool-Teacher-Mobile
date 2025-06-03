@@ -75,6 +75,17 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen>
   void initState() {
     super.initState();
 
+    // Show welcome message
+    Get.snackbar(
+      'Welcome',
+      'Welcome to Student Attendance Management',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: maroonPrimary.withOpacity(0.9),
+      colorText: Colors.white,
+      duration: const Duration(seconds: 3),
+      margin: const EdgeInsets.all(10),
+    );
+
     // Primary animation controller for fade effects
     _animationController = AnimationController(
       vsync: this,
@@ -149,8 +160,12 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen>
 
   void changeSelectedClassSection(ClassSection classSection) {
     _selectedClassSection = classSection;
-    print(
-        'Debug Log - Class Section Changed: ID=${classSection.id}, Name=${classSection.fullName}');
+    print('==================== CLASS SECTION CHANGE LOG ====================');
+    print('Debug Log - Class Section Changed:');
+    print('ID: ${classSection.id}');
+    print('Name: ${classSection.fullName}');
+    print('Timestamp: ${DateTime.now()}');
+    print('==============================================================');
     setState(() {});
     getStudentAttendance();
   }
@@ -166,10 +181,19 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen>
     final classSectionId = _selectedClassSection?.id ?? 0;
     final date = _selectedDateTime;
 
-    // Print class section ID and date to log
-    print('Debug Log - Class Section ID: $classSectionId');
-    print('Debug Log - Date: ${date.toString()}');
-    print('Debug Log - Formatted Date: ${Utils.formatDate(date)}');
+    print('\n==================== ATTENDANCE REQUEST LOG ====================');
+    print('Request Time: ${DateTime.now()}');
+    print('Class Section Details:');
+    print('- ID: $classSectionId');
+    print('- Name: ${_selectedClassSection?.fullName}');
+    print('\nDate Information:');
+    print('- Raw Date: ${date.toString()}');
+    print('- Formatted Date: ${Utils.formatDate(date)}');
+    print('- Day of Week: ${date.weekday}');
+    print('\nStatus Information:');
+    print('- Status Code: ${getStatus()}');
+    print('- Status Text: $_selectedAttendanceStatus');
+    print('==============================================================\n');
 
     context.read<StudentAttendanceForStaffCubit>().getStudentAttendance(
           classSectionId: classSectionId,
@@ -191,6 +215,28 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen>
         StudentAttendanceForStaffState>(
       builder: (context, state) {
         if (state is StudentAttendanceForStaffFetchSuccess) {
+          print(
+              '\n==================== ATTENDANCE RESPONSE LOG ====================');
+          print('Response Time: ${DateTime.now()}');
+          print('Data Summary:');
+          print('- Total Students: ${state.studentAttendances.length}');
+          print('- Class: ${_selectedClassSection?.fullName}');
+          print('- Date: ${Utils.formatDate(_selectedDateTime)}');
+          print('\nDetailed Student Records:');
+          print('----------------------------------------');
+          for (var student in state.studentAttendances) {
+            final studentName = student.studentDetails?.student?.fullName ??
+                student.studentDetails?.fullName ??
+                "No name";
+            final status = student.type;
+            print(
+                'Student ID: ${student.studentDetails?.student?.id ?? "N/A"}');
+            print('Name: $studentName');
+            print('Status: $status');
+            print('----------------------------------------');
+          }
+          print(
+              '==============================================================\n');
           return Align(
             alignment: Alignment.topCenter,
             child: SingleChildScrollView(
@@ -309,6 +355,15 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen>
         }
 
         if (state is StudentAttendanceForStaffFetchFailure) {
+          print('\n==================== ERROR LOG ====================');
+          print('Error Time: ${DateTime.now()}');
+          print('Error Type: Fetch Failure');
+          print('Error Message: ${state.errorMessage}');
+          print('Context:');
+          print('- Class: ${_selectedClassSection?.fullName}');
+          print('- Date: ${Utils.formatDate(_selectedDateTime)}');
+          print('- Status: $_selectedAttendanceStatus');
+          print('================================================\n');
           return Center(
             child: ErrorContainer(
               errorMessage: state.errorMessage,
@@ -427,7 +482,6 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen>
             builder: (context, state) {
               return Column(
                 children: [
-               
                   _buildHeaderSection(),
                   InkWell(
                     onTap: () async {

@@ -205,32 +205,32 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                     ],
                   ),
 
-                  // Attendance Section
-                  (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
-                              moduleId:
-                                  attendanceManagementModuleId.toString()) &&
-                          staffAllowedPermissionsAndModulesCubit
-                              .isPermissionGiven(
-                                  permission:
-                                      viewStudentAttendancePermissionKey))
-                      ? _buildMenuSection(
-                          context: context,
-                          title: "Kehadiran",
-                          icon: Icons.people,
-                          iconColor: Color(0xFF8B0000).withOpacity(0.9),
-                          index: 3,
-                          menus: [
-                            _buildMenuItem(
-                              context: context,
-                              icon: Icons.assignment_turned_in,
-                              title: "Kehadiran Siswa",
-                              index: 6,
-                              onTap: () =>
-                                  Get.toNamed(Routes.studentsAttendanceScreen),
-                            ),
-                          ],
-                        )
-                      : const SizedBox(),
+                  // // Attendance Section
+                  // (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
+                  //             moduleId:
+                  //                 attendanceManagementModuleId.toString()) &&
+                  //         staffAllowedPermissionsAndModulesCubit
+                  //             .isPermissionGiven(
+                  //                 permission:
+                  //                     viewStudentAttendancePermissionKey))
+                  //     ? _buildMenuSection(
+                  //         context: context,
+                  //         title: "Kehadiran",
+                  //         icon: Icons.people,
+                  //         iconColor: Color(0xFF8B0000).withOpacity(0.9),
+                  //         index: 3,
+                  //         menus: [
+                  //           _buildMenuItem(
+                  //             context: context,
+                  //             icon: Icons.assignment_turned_in,
+                  //             title: "Kehadiran Siswa",
+                  //             index: 6,
+                  //             onTap: () =>
+                  //                 Get.toNamed(Routes.studentsAttendanceScreen),
+                  //           ),
+                  //         ],
+                  //       )
+                  //     : const SizedBox(),
 
                   // Timetable Section
                   (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(

@@ -71,14 +71,32 @@ class StudentRepository {
           {required int classSectionId,
           int? page,
           int? sessionYearId,
-          String? search}) async {
+          String? search,
+          String? status}) async {
     try {
-      final result = await Api.get(url: Api.getStudents, queryParameters: {
+      ///[0 - view all, 1 - Active, 2 - Inactive]
+      int? studentViewStatus;
+      if (status != null) {
+        if (status == '1') {
+          studentViewStatus = 1; // Active
+        } else if (status == '0') {
+          studentViewStatus = 0; // Inactive
+        }
+      }
+
+      final Map<String, dynamic> queryParameters = {
         "class_section_id": classSectionId,
         "page": page ?? 1,
         "session_year_id": sessionYearId,
         "search": search,
-      });
+      };
+
+      if (studentViewStatus != null) {
+        queryParameters["status"] = studentViewStatus;
+      }
+
+      final result =
+          await Api.get(url: Api.getStudents, queryParameters: queryParameters);
 
       return (
         students: ((result['data']['data'] ?? []) as List)

@@ -77,8 +77,7 @@ class _EditOnlineExamState extends State<EditOnlineExam>
   final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
   final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
   final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
-  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
-  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
+
   @override
   void initState() {
     super.initState();
@@ -124,49 +123,32 @@ class _EditOnlineExamState extends State<EditOnlineExam>
       curve: Curves.easeInOut,
     );
 
-    // Use the various color fields in animations and widgets
-    // This keeps the compiler happy by indicating that the fields are used
-    // The colors are already being used in the CustomModernAppBar and other widgets
-    debugPrint(
-        "Colors initialized: $_primaryColor $_accentColor $_highlightColor $_energyColor $_glowColor");
-
     // Load subjects and set selected subject
     context.read<OnlineExamCubit>().getOnlineExams().then((_) {
       if (mounted) {
         final state = context.read<OnlineExamCubit>().state;
         if (state is OnlineExamSuccess) {
-          final subjects = state.subjectDetails
-              .map((e) => SubjectDetail.fromJson(e))
-              .toList();
+          try {
+            final List<dynamic> subjectList = state.subjectDetails;
+            final subjects = subjectList
+                .where((e) => e != null)
+                .map((e) => SubjectDetail.fromJson(e))
+                .toList();
 
-          // Cetak classSubjectId dan classSectionId
+            final match = subjects.firstWhere(
+              (subject) =>
+                  subject.class_subject_id == widget.exam.classSubjectId &&
+                  subject.classSection.id == widget.exam.classSectionId,
+              orElse: () =>
+                  subjects.first, // Fallback to first subject if no match
+            );
 
-          print(subjects.length);
-
-          print('classSectionId');
-
-// Menggunakan forEach agar kode langsung dieksekusi
-          subjects.forEach((subject) {
-            print("${subject.classSection.id} ${widget.exam.classSectionId}");
-          });
-
-          print('classSubjectId');
-
-          subjects.forEach((subject) {
-            print("${subject.class_subject_id} ${widget.exam.classSubjectId}");
-          });
-
-          final match = subjects.firstWhere(
-            (subject) =>
-                subject.class_subject_id == widget.exam.classSubjectId &&
-                subject.classSection.id == widget.exam.classSectionId,
-            orElse: () =>
-                subjects.first, // Fallback to first subject if no match
-          );
-
-          setState(() {
-            selectedSubject = match;
-          });
+            setState(() {
+              selectedSubject = match;
+            });
+          } catch (err) {
+            // Handle error parsing subjects
+          }
         }
       }
     });
@@ -314,8 +296,7 @@ class _EditOnlineExamState extends State<EditOnlineExam>
           barrierDismissible: false,
         );
       }).catchError((error) {
-        print("PESAN ERRORNYA");
-        print(error);
+        // Handle error silently
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Gagal memperbarui ujian: ${error.toString()}'),
@@ -651,20 +632,39 @@ class _EditOnlineExamState extends State<EditOnlineExam>
     return BlocBuilder<OnlineExamCubit, OnlineExamState>(
       builder: (context, state) {
         List<SubjectDetail> subjects = [];
-        if (state is OnlineExamSuccess) {
-          subjects = state.subjectDetails
-              .map((e) => SubjectDetail.fromJson(e))
-              .toList();
 
-          // // If selectedSubject is null and we have subjects, try to find a match
-          // if (selectedSubject == null && subjects.isNotEmpty) {
-          //   selectedSubject = subjects.firstWhere(
-          //     (subject) =>
-          //         subject.class_subject_id == widget.exam.classSubjectId &&
-          //         subject.classSection.id == widget.exam.classSectionId,
-          //     // orElse: () => subjects.first,
-          //   );
-          // }
+        if (state is OnlineExamSuccess) {
+          try {
+            subjects = state.subjectDetails
+                .whereType<Map<String, dynamic>>()
+                .map((e) {
+                  try {
+                    return SubjectDetail.fromJson(e);
+                  } catch (e) {
+                    // Handle error silently
+                    return null;
+                  }
+                })
+                .where((e) => e != null)
+                .cast<SubjectDetail>()
+                .toList();
+
+            // Try to find the matching subject if not already selected
+            if (selectedSubject == null && subjects.isNotEmpty) {
+              try {
+                selectedSubject = subjects.firstWhere(
+                  (subject) =>
+                      subject.class_subject_id == widget.exam.classSubjectId &&
+                      subject.classSection.id == widget.exam.classSectionId,
+                  orElse: () => subjects.first,
+                );
+              } catch (e) {
+                // Handle error silently
+              }
+            }
+          } catch (e) {
+            // Handle error silently
+          }
         }
 
         return DropdownButtonFormField<SubjectDetail>(
@@ -691,7 +691,7 @@ class _EditOnlineExamState extends State<EditOnlineExam>
             return DropdownMenuItem<SubjectDetail>(
               value: detail,
               child: Text(
-                '${detail.classSection.name} - ${detail.subject.name}', // Updated to use nested objects
+                '${detail.classSection.name} - ${detail.subject.name}',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[800],

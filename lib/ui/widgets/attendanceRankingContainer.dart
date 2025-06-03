@@ -51,34 +51,51 @@ class BackgroundPainter extends CustomPainter {
 
 class _AttendanceRankingContainerState
     extends State<AttendanceRankingContainer> {
+  bool _showWarning = true;
+  final ScrollController _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Background Pattern
-        Positioned.fill(
-          child: AnimatedOpacity(
-            duration: Duration(seconds: 1),
-            opacity: 0.1,
-            child: CustomPaint(
-              painter: BackgroundPainter(
-                color: AppColorPalette.primaryMaroon,
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+      ),
+      child: Stack(
+        children: [
+          // Background Pattern
+          Positioned.fill(
+            child: AnimatedOpacity(
+              duration: Duration(seconds: 1),
+              opacity: 0.1,
+              child: CustomPaint(
+                painter: BackgroundPainter(
+                  color: AppColorPalette.primaryMaroon,
+                ),
               ),
             ),
           ),
-        ),
 
-        // Main Content
-        Container(
-          margin: EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              _buildHeaderSection(),
-              _buildLeaderboard(),
-            ],
+          // Main Content
+          SingleChildScrollView(
+            controller: _scrollController,
+            physics: BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                Container(
+                  margin: EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      _buildHeaderSection(),
+                      SizedBox(height: 16),
+                      _buildLeaderboard(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -156,7 +173,6 @@ class _AttendanceRankingContainerState
                       ],
                     ),
                   ),
-               
                 ],
               ),
               SizedBox(height: 20),
@@ -199,21 +215,44 @@ class _AttendanceRankingContainerState
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 12.0),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.black54,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    "⚠️ Peringkat 1-3 adalah siswa dengan pelanggaran tertinggi!",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
+                child: _showWarning
+                    ? Stack(
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.black54,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              "⚠️ Peringkat 1-3 adalah siswa dengan pelanggaran tertinggi!",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: IconButton(
+                              icon: Icon(Icons.close,
+                                  color: Colors.white, size: 18),
+                              padding: EdgeInsets.all(0),
+                              constraints: BoxConstraints(),
+                              onPressed: () {
+                                setState(() {
+                                  _showWarning = false;
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      )
+                    : SizedBox.shrink(),
               ),
             ],
           ),
@@ -229,7 +268,6 @@ class _AttendanceRankingContainerState
         .firstOrNull;
   }
 
-  
   Widget _buildTopThreeSection() {
     final topThree = widget.showAllStudents
         ? widget.attendanceRankings.allStudents?.take(3).toList() ?? []
@@ -278,30 +316,20 @@ class _AttendanceRankingContainerState
                 ),
               ),
               child: Center(
-                child: Icon(_getPositionIcon(position),
-                    color: Colors.white, size: 22),
-              ),
-            ),
-            SizedBox(height: 6),
-            
-            // Rank number
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.white10,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                position == 1 ? " #$position" : "#$position",
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
+                child: Text(
+                  "#$position",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: position == 1 ? 20 : 18,
+                  ),
                 ),
               ),
             ),
             SizedBox(height: 6),
-            
+
+            // Rank number
+
             // Student name - improved layout
             Container(
               padding: EdgeInsets.symmetric(horizontal: 2),
@@ -310,7 +338,9 @@ class _AttendanceRankingContainerState
                 child: Text(
                   student?.studentName ?? '-',
                   style: TextStyle(
-                    color: position <= 3 ? Colors.orange : Colors.white,
+                    color: position <= 3
+                        ? const Color.fromARGB(255, 255, 255, 255)
+                        : Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: position == 1 ? 12 : 11,
                   ),
@@ -319,14 +349,14 @@ class _AttendanceRankingContainerState
               ),
             ),
             SizedBox(height: 4),
-            
+
             // Alpha count - improved layout
             Container(
               padding: EdgeInsets.symmetric(horizontal: 2),
               child: Text(
                 'Jumlah alpha: ${student?.alpha_count ?? 0}',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: const Color.fromARGB(255, 0, 0, 0),
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                 ),
@@ -392,17 +422,11 @@ class _AttendanceRankingContainerState
           ),
         ],
       ),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: 400), // Set a max height
-        child: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: widget.showAllStudents
-                ? _buildAllStudentsList()
-                : _buildTopStudentsList(),
-          ),
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: widget.showAllStudents
+            ? _buildAllStudentsList()
+            : _buildTopStudentsList(),
       ),
     );
   }

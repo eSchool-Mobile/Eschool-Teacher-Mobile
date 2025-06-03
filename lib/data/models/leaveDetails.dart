@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:eschool_saas_staff/data/models/role.dart';
 
 class LeaveDetails {
@@ -48,7 +49,20 @@ class LeaveDetails {
         leaveDate = json['leave_date'] as String?,
         leave = (json['leave'] as Map<String, dynamic>?) != null
             ? Leave.fromJson(json['leave'] as Map<String, dynamic>)
-            : null;
+            : null {
+    print('\n=== DEBUG: LeaveDetails.fromJson() ===');
+    print('Parsing JSON:');
+    print(JsonEncoder.withIndent('  ').convert(json));
+    print('Parsed data:');
+    print('id: $id');
+    print('leaveId: $leaveId');
+    print('date: $date');
+    print('type: $type');
+    print('schoolId: $schoolId');
+    print('leaveDate: $leaveDate');
+    print('leave: ${leave?.toJson()}');
+    print('=== DEBUG: End LeaveDetails.fromJson() ===\n');
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,

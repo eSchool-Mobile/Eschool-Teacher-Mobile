@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:flutter/services.dart';
 import 'package:eschool_saas_staff/cubits/settingCubit.dart';
@@ -138,6 +139,13 @@ class _ContactUsScreenState extends State<ContactUsScreen>
     });
   }
 
+  Future<void> _launchUrl(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    if (!await launchUrl(url)) {
+      throw Exception('Could not launch $urlString');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -188,41 +196,49 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                 child: CustomCircularProgressIndicator())
                             : Column(
                                 children: [
-                                  _buildContactCard(
-                                    Icons.email_rounded,
-                                    'Kirim Email',
-                                    'support@eschool.com',
-                                  ),
-                                  _buildContactCard(
-                                    Icons.phone_rounded,
-                                    'Hubungi Kami',
-                                    '+62 812-3430-6725',
-                                  ),
-                                  _buildContactCard(
-                                    Icons.location_on_rounded,
-                                    'Kunjungi Kami',
-                                    'UBIG ',
-                                  ),
                                   if (state is SettingsSuccess) ...[
-                                    const SizedBox(height: 24),
-                                    Container(
-                                      padding: const EdgeInsets.all(20),
-                                      decoration: BoxDecoration(
-                                        color: AppColorPalette.accentPink
-                                            .withOpacity(0.3),
-                                        borderRadius: BorderRadius.circular(24),
-                                        border: Border.all(
-                                          color: AppColorPalette.primaryMaroon
-                                              .withOpacity(0.1),
-                                        ),
-                                      ),
-                                      child: HtmlWidget(
-                                        parseCustomHtml(state.data),
-                                        textStyle: GoogleFonts.poppins(
-                                          color: AppColorPalette.primaryMaroon,
-                                        ),
-                                      ),
-                                    ),
+                                    // Parse the state data into sections
+                                    ...(() {
+                                      final data = parseCustomHtml(state.data);
+                                      RegExp emailRegex = RegExp(
+                                          r'([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})');
+                                      RegExp phoneRegex =
+                                          RegExp(r'(\+?[\d\s-]{10,})');
+                                      RegExp addressRegex = RegExp(
+                                          r'(?:alamat|lokasi|address)[:\s]*(.*?)(?=\n\n|\n(?:[a-z]+[:\s]|$)|$)',
+                                          caseSensitive: false,
+                                          multiLine: true);
+
+                                      String? email =
+                                          emailRegex.firstMatch(data)?.group(1);
+                                      String? phone =
+                                          phoneRegex.firstMatch(data)?.group(1);
+                                      String? address = addressRegex
+                                          .firstMatch(data)
+                                          ?.group(1)
+                                          ?.trim();
+
+                                      return [
+                                        if (email != null)
+                                          _buildContactCard(
+                                            Icons.email_rounded,
+                                            'Kirim Email',
+                                            email.trim(),
+                                          ),
+                                        if (phone != null)
+                                          _buildContactCard(
+                                            Icons.phone_rounded,
+                                            'Hubungi Kami',
+                                            phone.trim(),
+                                          ),
+                                        if (address != null)
+                                          _buildContactCard(
+                                            Icons.location_on_rounded,
+                                            'Kunjungi Kami',
+                                            address.trim(),
+                                          ),
+                                      ];
+                                    })(),
                                   ],
                                 ],
                               ),
@@ -540,6 +556,34 @@ class _ContactUsScreenState extends State<ContactUsScreen>
   }
 
   Widget _buildContactCard(IconData icon, String title, String content) {
+    void _handleTap() async {
+      HapticFeedback.lightImpact();
+      String urlString = '';
+      switch (icon) {
+        case Icons.email_rounded:
+          urlString = 'mailto:$content';
+          break;
+        case Icons.phone_rounded:
+          urlString = 'tel:$content';
+          break;
+        case Icons.location_on_rounded:
+          urlString =
+              'https://maps.google.com/?q=${Uri.encodeComponent(content)}';
+          break;
+      }
+      if (urlString.isNotEmpty) {
+        try {
+          await _launchUrl(urlString);
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Tidak dapat membuka $title')),
+            );
+          }
+        }
+      }
+    }
+
     return TweenAnimationBuilder(
       duration: const Duration(milliseconds: 300),
       tween: Tween<double>(begin: 0.95, end: 1.0),
@@ -562,7 +606,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                onTap: () => HapticFeedback.lightImpact(),
+                onTap: _handleTap,
                 borderRadius: BorderRadius.circular(24),
                 child: Padding(
                   padding: const EdgeInsets.all(20),
@@ -600,9 +644,16 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                 fontSize: 16,
                                 color: AppColorPalette.secondaryMaroon,
                               ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: AppColorPalette.primaryMaroon.withOpacity(0.5),
+                        size: 20,
                       ),
                     ],
                   ),

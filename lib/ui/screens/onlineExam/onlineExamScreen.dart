@@ -26,6 +26,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   late AnimationController _animationController;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+  String searchQuery = ""; // Tambahkan ini
 
   // Animation controller for CustomModernAppBar
   late AnimationController _appBarAnimationController;
@@ -92,6 +93,13 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Refresh exams when returning to this screen
+    _refreshExams();
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Set status bar to transparent with light icons for better visibility on dark app bar
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -132,7 +140,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
           // Add padding for the app bar
           SliverPadding(
             padding: EdgeInsets.only(
-                top: 100), // Adjust this value based on your app bar height
+                top:
+                    120), // Increased padding to create more space between appbar and search
             sliver: SliverToBoxAdapter(child: SizedBox()),
           ),
           _buildSearchAndFilter(),
@@ -175,7 +184,6 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       ),
     );
   }
-
   Widget _buildSearchBar() {
     return FadeInDown(
       duration: Duration(milliseconds: 600),
@@ -195,17 +203,24 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
         child: TextField(
           decoration: InputDecoration(
             hintText: 'Cari ujian...',
-            prefixIcon:
-                Icon(Icons.search, color: Theme.of(context).primaryColor),
+            prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
+            suffixIcon: searchQuery.isNotEmpty
+              ? IconButton(
+                  icon: Icon(Icons.clear, color: Theme.of(context).primaryColor),
+                  onPressed: () {
+                    setState(() {
+                      searchQuery = "";
+                    });
+                  },
+                )
+              : null,
             border: InputBorder.none,
             contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           ),
           onChanged: (value) {
-            context.read<OnlineExamCubit>().getOnlineExams(
-                  search: value,
-                  subjectId: selectedSubjectDetail?.subject.id,
-                  classSectionId: selectedSubjectDetail?.classSection.id,
-                );
+            setState(() {
+              searchQuery = value;
+            });
           },
         ),
       ),
@@ -224,7 +239,6 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                 try {
                   return SubjectDetail.fromJson(e);
                 } catch (error) {
-                  print("Error converting subject detail: $error");
                   return null;
                 }
               })
@@ -367,6 +381,17 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   }
 
   Widget _buildExamGrid(OnlineExamSuccess state) {
+    // Filter ujian berdasarkan kata kunci pencarian
+    final filteredExams = searchQuery.isEmpty
+        ? state.exams
+        : state.exams.where((exam) =>
+            exam.title.toLowerCase().contains(searchQuery.toLowerCase())).toList();
+
+    // Jika tidak ada ujian yang sesuai dengan pencarian, tampilkan pesan
+    if (filteredExams.isEmpty && searchQuery.isNotEmpty) {
+      return SliverFillRemaining(child: _buildEmptyState());
+    }
+
     return SliverPadding(
       padding: EdgeInsets.all(20),
       sliver: SliverList(
@@ -378,12 +403,12 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
               child: SlideAnimation(
                 verticalOffset: 50.0,
                 child: FadeInAnimation(
-                  child: _buildExamCard(context, state.exams[index]),
+                  child: _buildExamCard(context, filteredExams[index]),
                 ),
               ),
             );
           },
-          childCount: state.exams.length,
+          childCount: filteredExams.length,
         ),
       ),
     );
@@ -852,8 +877,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
             ),
           ),
         ),
-      ),
-    );
+        ),
+      );
   }
 
   Widget _buildModernActionButton({
@@ -963,8 +988,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
             ],
           ),
         ),
-      ),
-    );
+        ),
+      );
   }
 
   Widget _buildShimmerLoading() {
@@ -989,38 +1014,49 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       ),
     );
   }
-
   Widget _buildEmptyState() {
     return FadeIn(
       duration: Duration(milliseconds: 800),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.assignment_outlined,
-              size: 80,
-              color: Colors.grey[400],
+      child: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(height: MediaQuery.of(context).size.height * 0.15),
+                Icon(
+                  searchQuery.isEmpty ? Icons.assignment_outlined : Icons.search_off_rounded,
+                  size: 80,
+                  color: Colors.grey[400],
+                ),
+                SizedBox(height: 20),
+                Text(
+                  searchQuery.isEmpty 
+                    ? 'Belum ada ujian'
+                    : 'Tidak ada ujian yang sesuai',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[600],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 10),
+                Text(
+                  searchQuery.isEmpty
+                    ? 'Tambahkan ujian baru dengan menekan tombol +'
+                    : 'Coba gunakan kata kunci pencarian yang berbeda',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[500],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.15),
+              ],
             ),
-            SizedBox(height: 20),
-            Text(
-              'Belum ada ujian',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[600],
-              ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Tambahkan ujian baru dengan menekan tombol +',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[500],
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -1341,8 +1377,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
             ),
           ),
         ),
-      ),
-    );
+      ),  
+      );
   }
 
   Widget _buildAddButton() {

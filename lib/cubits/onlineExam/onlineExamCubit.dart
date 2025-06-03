@@ -146,7 +146,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
             activeExams.add(exam);
             // }
           } catch (e) {
-            print('Error parsing exam: $e');
+
           }
         }
       }
@@ -237,7 +237,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         subjectDetails: result['subjectDetails'] ?? [],
       ));
     } catch (e) {
-      print('Create Exam Error: $e');
+
       emit(CreateOnlineExamFailure(e.toString()));
     }
   }

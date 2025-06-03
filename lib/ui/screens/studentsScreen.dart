@@ -46,8 +46,10 @@ class _StudentsScreenState extends State<StudentsScreen>
     with TickerProviderStateMixin {
   ClassSection? _selectedClassSection;
   SessionYear? _selectedSessionYear;
-  // Set fixed header height
-  final double _headerHeight = 200.0;
+  String? _selectedStatus; // null = semua, '1' = aktif, '0' = non-aktif
+  // Static header height
+  static const double _headerHeight =
+      270.0; // Increased for better filter spacing
 
   late final ScrollController _scrollController = ScrollController();
 
@@ -132,6 +134,9 @@ class _StudentsScreenState extends State<StudentsScreen>
   @override
   void initState() {
     super.initState();
+
+    // Update header height to accommodate filters better
+    // _headerHeight = 240.0; // Increased from 200 to 240
 
     // Primary animation controller for fade effects
     _animationController = AnimationController(
@@ -226,22 +231,35 @@ class _StudentsScreenState extends State<StudentsScreen>
     setState(() {});
   }
 
+  void changeSelectedStatus(String? status) {
+    _selectedStatus = status;
+    setState(() {});
+    getStudents();
+  }
+
   void getStudents() {
+    if (_selectedClassSection == null || _selectedSessionYear == null) return;
+
+    print('Fetching students with status: ${_selectedStatus ?? "all"}');
     context.read<StudentsCubit>().getStudents(
         search: _textEditingController.text.trim().isEmpty
             ? null
             : _textEditingController.text.trim(),
         classSectionId: _selectedClassSection?.id ?? 0,
-        sessionYearId: _selectedSessionYear?.id);
+        sessionYearId: _selectedSessionYear?.id,
+        status: _selectedStatus);
   }
 
   void getMoreStudents() {
+    if (_selectedClassSection == null || _selectedSessionYear == null) return;
+
     context.read<StudentsCubit>().fetchMore(
         search: _textEditingController.text.trim().isEmpty
             ? null
             : _textEditingController.text.trim(),
         classSectionId: _selectedClassSection?.id ?? 0,
-        sessionYearId: _selectedSessionYear?.id);
+        sessionYearId: _selectedSessionYear?.id,
+        status: _selectedStatus);
   }
 
   ///[This will be in use to display rollNo,class section and session year]
@@ -314,7 +332,9 @@ class _StudentsScreenState extends State<StudentsScreen>
       },
       animationController: _animationController,
       enableAnimations: true,
-      height: _headerHeight,
+      height: 250.0, // Further increased height for more breathing room
+      // contentPadding:
+      //     EdgeInsets.fromLTRB(24, 20, 24, 24), // Increased outer padding
       firstFilterItem: FilterItemConfig(
         title: _selectedClassSection?.name ?? classKey.tr,
         icon: Icons.class_rounded,
@@ -341,6 +361,17 @@ class _StudentsScreenState extends State<StudentsScreen>
               _showSessionYearFilter(context, state.sessionYears);
             }
           }
+        },
+      ),
+      thirdFilterItem: FilterItemConfig(
+        title: _selectedStatus == '1'
+            ? "Siswa Aktif"
+            : _selectedStatus == '0'
+                ? "Siswa Non-Aktif"
+                : "Semua Status",
+        icon: Icons.filter_list_rounded,
+        onTap: () {
+          _showStatusFilter(context);
         },
       ),
     );
@@ -599,6 +630,154 @@ class _StudentsScreenState extends State<StudentsScreen>
     );
   }
 
+  void _showStatusFilter(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            Center(
+              child: Text(
+                "Filter Status Siswa",
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: textDarkColor,
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            _buildStatusFilterOption(
+              context: context,
+              title: "Semua Siswa",
+              subtitle: "Tampilkan semua status siswa",
+              icon: Icons.people_alt_rounded,
+              isSelected: _selectedStatus == null,
+              onTap: () {
+                HapticFeedback.lightImpact();
+                changeSelectedStatus(null);
+                Navigator.pop(context);
+              },
+            ),
+            SizedBox(height: 8),
+            _buildStatusFilterOption(
+              context: context,
+              title: "Siswa Aktif",
+              subtitle: "Hanya tampilkan siswa dengan status aktif",
+              icon: Icons.check_circle_outline_rounded,
+              isSelected: _selectedStatus == '1',
+              onTap: () {
+                HapticFeedback.lightImpact();
+                changeSelectedStatus('1');
+                Navigator.pop(context);
+              },
+            ),
+            SizedBox(height: 8),
+            _buildStatusFilterOption(
+              context: context,
+              title: "Siswa Non-Aktif",
+              subtitle: "Hanya tampilkan siswa dengan status non-aktif",
+              icon: Icons.cancel_outlined,
+              isSelected: _selectedStatus == '0',
+              onTap: () {
+                HapticFeedback.lightImpact();
+                changeSelectedStatus('0');
+                Navigator.pop(context);
+              },
+            ),
+            SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusFilterOption({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        decoration: BoxDecoration(
+          color: isSelected ? maroonPrimary.withOpacity(0.1) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? maroonPrimary : borderColor,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? maroonPrimary : textMediumColor,
+              size: 22,
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 16,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w400,
+                      color: isSelected ? maroonPrimary : textDarkColor,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 12,
+                      color: textMediumColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected)
+              Icon(
+                Icons.check_circle_rounded,
+                color: maroonPrimary,
+                size: 24,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildStudents() {
     return SingleChildScrollView(
       controller: _scrollController,
@@ -673,9 +852,9 @@ class _StudentsScreenState extends State<StudentsScreen>
             },
             builder: (context, state) {
               return BlocBuilder<StudentsCubit, StudentsState>(
-                builder: (context, state) {
-                  if (state is StudentsFetchSuccess) {
-                    return FadeTransition(
+                  builder: (context, state) {
+                if (state is StudentsFetchSuccess) {
+                  return FadeTransition(
                       opacity: _fadeAnimation,
                       child: Column(
                         children: [
@@ -849,114 +1028,38 @@ class _StudentsScreenState extends State<StudentsScreen>
                             )
                           ],
                         ],
+                      ));
+                }
+                if (state is StudentsFetchFailure) {
+                  return Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                          top: topPaddingOfErrorAndLoadingContainer),
+                      child: ErrorContainer(
+                        errorMessage: state.errorMessage,
+                        onTapRetry: () {
+                          getStudents();
+                        },
                       ),
-                    );
-                  }
-                  if (state is StudentsFetchFailure) {
-                    return Center(
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                            top: topPaddingOfErrorAndLoadingContainer),
-                        child: ErrorContainer(
-                          errorMessage: state.errorMessage,
-                          onTapRetry: () {
-                            getStudents();
-                          },
-                        ),
-                      ),
-                    );
-                  }
+                    ),
+                  );
+                }
 
-                  // Condition when one of the filters is selected but not both
-                  if (_selectedClassSection != null &&
-                      _selectedSessionYear == null) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.calendar_today_rounded,
-                            size: 60,
-                            color: maroonPrimary.withOpacity(0.3),
-                          ),
-                          SizedBox(height: 24),
-                          Text(
-                            "Kelas telah dipilih",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: textMediumColor,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            "Silakan pilih tahun ajaran untuk melanjutkan",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: textMediumColor.withOpacity(0.8),
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  if (_selectedClassSection == null &&
-                      _selectedSessionYear != null) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.class_rounded,
-                            size: 60,
-                            color: maroonPrimary.withOpacity(0.3),
-                          ),
-                          SizedBox(height: 24),
-                          Text(
-                            "Tahun ajaran telah dipilih",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: textMediumColor,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            "Silakan pilih kelas untuk melanjutkan",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: textMediumColor.withOpacity(0.8),
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  // Default loading state when no filters selected or waiting for initial data
+                // Condition when one of the filters is selected but not both
+                if (_selectedClassSection != null &&
+                    _selectedSessionYear == null) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          Icons.filter_list_rounded,
+                          Icons.calendar_today_rounded,
                           size: 60,
                           color: maroonPrimary.withOpacity(0.3),
                         ),
                         SizedBox(height: 24),
                         Text(
-                          "Pilih kelas dan tahun ajaran terlebih dahulu",
+                          "Kelas telah dipilih",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 16,
@@ -967,7 +1070,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                         ),
                         SizedBox(height: 8),
                         Text(
-                          "Untuk melihat daftar siswa, silakan pilih kelas dan tahun ajaran",
+                          "Silakan pilih tahun ajaran untuk melanjutkan",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14,
@@ -975,14 +1078,88 @@ class _StudentsScreenState extends State<StudentsScreen>
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w400,
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
                   );
-                },
-              );
+                }
+
+                if (_selectedClassSection == null &&
+                    _selectedSessionYear != null) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.class_rounded,
+                          size: 60,
+                          color: maroonPrimary.withOpacity(0.3),
+                        ),
+                        SizedBox(height: 24),
+                        Text(
+                          "Tahun ajaran telah dipilih",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: textMediumColor,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          "Silakan pilih kelas untuk melanjutkan",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: textMediumColor.withOpacity(0.8),
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                // Default loading state when no filters selected or waiting for initial data
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.filter_list_rounded,
+                        size: 60,
+                        color: maroonPrimary.withOpacity(0.3),
+                      ),
+                      SizedBox(height: 24),
+                      Text(
+                        "Pilih kelas dan tahun ajaran terlebih dahulu",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: textMediumColor,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        "Untuk melihat daftar siswa, silakan pilih kelas dan tahun ajaran",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: textMediumColor.withOpacity(0.8),
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w400,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                );
+              });
             },
           ),
           // Add some bottom padding

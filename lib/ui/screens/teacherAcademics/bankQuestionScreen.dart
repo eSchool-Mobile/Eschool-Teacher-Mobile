@@ -644,7 +644,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                   vertical: 8.0,
                 ),
                 child: Container(
-                  width: MediaQuery.of(context).size.width * 0.95, // Increased width to 95% of screen
+                  width: MediaQuery.of(context).size.width *
+                      0.95, // Increased width to 95% of screen
                   height: 52.0, // Slightly taller for better visibility
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -666,7 +667,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                         Icons.search,
                         color: _primaryColor,
                       ),
-                      suffixIcon: _searchController.text.isNotEmpty 
+                      suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
                               icon: Icon(Icons.clear, color: Colors.grey),
                               onPressed: () {
@@ -886,7 +887,6 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
           child: Container(
             constraints: BoxConstraints(
               maxHeight: MediaQuery.of(context).size.height * 0.8,
-        
             ),
             child: PageView.builder(
               controller: pageController,
@@ -1146,19 +1146,28 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                               ],
                             ),
                             Spacer(),
-                            // Arrow indicator
-                            Container(
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: _getTypeColor(version.type)
-                                    .withOpacity(0.1),
+                            // Arrow indicator with click functionality
+                            Material(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(16),
+                              child: InkWell(
                                 borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Icon(
-                                Icons.arrow_forward_ios_rounded,
-                                color: _getTypeColor(version.type),
-                                size: 14,
+                                onTap: () =>
+                                    _showDetailQuestionSheet(question, version),
+                                child: Container(
+                                  width: 32,
+                                  height: 32,
+                                  decoration: BoxDecoration(
+                                    color: _getTypeColor(version.type)
+                                        .withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    color: _getTypeColor(version.type),
+                                    size: 14,
+                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -1200,63 +1209,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                     // Show edit, delete, and detail buttons for latest version
                     if (versionIndex == 0)
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          // View Detail Button (tambahan baru)
-                          Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(16),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(16),
-                              onTap: () =>
-                                  _showDetailQuestionSheet(question, version),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 12),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      _getTypeColor(version.type)
-                                          .withOpacity(0.8),
-                                      Color.lerp(_getTypeColor(version.type),
-                                              Colors.black, 0.2)!
-                                          .withOpacity(0.8),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: _getTypeColor(version.type)
-                                          .withOpacity(0.3),
-                                      blurRadius: 12,
-                                      offset: Offset(0, 5),
-                                      spreadRadius: -2,
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.visibility_outlined,
-                                        size: 18, color: Colors.white),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Lihat Detail',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          SizedBox(width: 12),
-
                           // Edit Button
                           Material(
                             color: Colors.transparent,
@@ -1307,7 +1261,59 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                 ),
                               ),
                             ),
-                          ), // Tombol hapus sudah dipindahkan ke bagian atas kartu
+                          ),
+
+                          SizedBox(width: 12), // Space between buttons
+
+                          // Delete button
+                          Material(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(16),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(16),
+                              onTap: () =>
+                                  _showDeleteQuestionConfirmation(question),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.red.shade400,
+                                      Colors.red.shade700,
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.red.withOpacity(0.3),
+                                      blurRadius: 12,
+                                      offset: Offset(0, 5),
+                                      spreadRadius: -2,
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.delete_outline_rounded,
+                                        size: 18, color: Colors.white),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Hapus',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       )
                     else
@@ -1512,43 +1518,11 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                     ],
                   ),
                 ),
-              ), // Tombol hapus (hanya ditampilkan untuk versi terbaru/versionIndex == 0)
-              if (versionIndex == 0)
-                Positioned(
-                  top: 20,
-                  right: 20,
-                  child: Material(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(14),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(14),
-                      onTap: () => _showDeleteQuestionConfirmation(question),
-                      child: Container(
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9),
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Icon(
-                          Icons.delete_outline_rounded,
-                          size: 20,
-                          color: Colors.red.shade700,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+              ),
 
               // Badge poin
               Positioned(
-                top: 70,
+                top: 20,
                 right: 20,
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -1583,11 +1557,9 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                     ],
                   ),
                 ),
-              ),
-
-              // Badge versi
+              ), // Badge versi
               Positioned(
-                top: 120,
+                top: 60,
                 right: 20,
                 child: TweenAnimationBuilder(
                   tween: Tween<double>(begin: 0.0, end: 1.0),

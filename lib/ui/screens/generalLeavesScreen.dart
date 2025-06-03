@@ -64,6 +64,7 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
   }
 
   void getLeaves() {
+    print('\n=== DEBUG: GeneralLeavesScreen.getLeaves() ===');
     LeaveDayType leaveDayType = LeaveDayType.today;
 
     if (_selectedTabTitleKey == tomorrowKey) {
@@ -72,6 +73,9 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
       leaveDayType = LeaveDayType.upcoming;
     }
 
+    print('Selected tab: $_selectedTabTitleKey');
+    print('Leave day type: $leaveDayType');
+    
     context
         .read<GeneralLeavesCubit>()
         .getGeneralLeaves(leaveDayType: leaveDayType);
@@ -359,12 +363,12 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                     ),
                   ),
                 ),
-              ),
-            ).animate().fadeIn(duration: 500.ms, delay: 200.ms).slideY(
+              ).animate().fadeIn(duration: 500.ms, delay: 200.ms).slideY(
                   begin: 0.2,
                   end: 0,
                   curve: Curves.easeOutQuad,
                 ),
+            )
           ],
         ),
       ),
@@ -445,16 +449,23 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
         children: [
           BlocBuilder<GeneralLeavesCubit, GeneralLeavesState>(
             builder: (context, state) {
+              print('\n=== DEBUG: GeneralLeavesScreen BlocBuilder ===');
+              print('Current state: ${state.runtimeType}');
+              
               if (state is GeneralLeavesFetchSuccess) {
+                print('State: GeneralLeavesFetchSuccess');
+                print('Number of leaves: ${state.leaves.length}');
+                
                 if (state.leaves.isEmpty) {
+                  print('No leaves found - showing empty message');
                   // If empty, show "No teacher on leave" text
                   return Center(
                     child: CustomTextContainer(
-                      textKey:
-                          Utils.getTranslatedLabel('Tidak ada guru yang cuti'),
+                      textKey: Utils.getTranslatedLabel('Tidak ada guru yang cuti'),
                     ),
                   );
                 } else {
+                  print('Displaying ${state.leaves.length} leaves');
                   return SingleChildScrollView(
                     controller: _scrollController,
                     physics: const AlwaysScrollableScrollPhysics(),
