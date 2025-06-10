@@ -4,7 +4,6 @@ import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
 import 'package:eschool_saas_staff/data/models/subjectDetail.dart';
 import 'package:eschool_saas_staff/data/models/onlineExam.dart';
 import 'package:get/get.dart';
-import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:intl/intl.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -276,10 +275,9 @@ class _EditOnlineExamState extends State<EditOnlineExam>
                   ElevatedButton(
                     onPressed: () {
                       Get.back(); // Close dialog
-                      Get.offAllNamed(
-                          Routes.onlineExamScreen); // Navigate and clear stack
-                      // Refresh exam list
-                      context.read<OnlineExamCubit>().getOnlineExams();
+                      // Navigasi kembali ke halaman sebelumnya dengan membawa hasil
+                      Navigator.pop(
+                          context, true); // Return true to indicate success
                     },
                     child: Text('OK', style: TextStyle(color: Colors.white)),
                     style: ElevatedButton.styleFrom(

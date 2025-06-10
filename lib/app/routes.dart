@@ -579,17 +579,7 @@ class Routes {
     ),
     GetPage(
       name: onlineExamScreen,
-      page: () => MultiBlocProvider(
-        providers: [
-          BlocProvider<OnlineExamCubit>(
-            create: (context) => OnlineExamCubit(OnlineExamRepository()),
-          ),
-          BlocProvider<ClassSectionsAndSubjectsCubit>(
-            create: (context) => ClassSectionsAndSubjectsCubit(),
-          ),
-        ],
-        child: OnlineExamScreen(),
-      ),
+      page: () => OnlineExamScreen.getRouteInstance(),
     ),
 
     GetPage(

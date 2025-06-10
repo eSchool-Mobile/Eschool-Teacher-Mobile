@@ -9,6 +9,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import 'package:flutter/services.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
+import '../../../app/routes.dart';
 
 class QuestionOnlineExamScreen extends StatefulWidget {
   final int examId;
@@ -265,7 +266,9 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
         primaryColor: _primaryColor,
         lightColor: _accentColor,
         onBackPressed: () => Navigator.of(context).pop(),
-        showAddButton: false,
+        showAddButton: true,
+        onAddPressed: () => Get.toNamed(Routes.bankSoalSelection,
+            parameters: {'examId': widget.examId.toString()}),
         showArchiveButton: false,
         showFilterButton: false,
       ),

@@ -534,14 +534,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                                         overflow: TextOverflow.ellipsis,
                                         text: TextSpan(
                                           children: [
-                                          TextSpan(
-                                            text: "Tanggal: ",
-                                            style: TextStyle(
-                                            fontSize: 14,
-                                            color: _maroonDark,
-                                            fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
+                                       
                                           TextSpan(
                                             text: formatDateToIndonesian(widget.leaveDetails.leaveDate),
                                             style: TextStyle(

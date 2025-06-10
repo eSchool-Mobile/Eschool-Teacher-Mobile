@@ -4,12 +4,10 @@ import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/sendPasswordResetEmailCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/signInCubit.dart';
 import 'package:eschool_saas_staff/ui/screens/login/widgets/forgotPasswordBottomsheet.dart';
+import 'package:eschool_saas_staff/ui/screens/login/widgets/schoolListScreen.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/showHidePasswordButton.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -53,7 +51,6 @@ class _LoginScreenState extends State<LoginScreen>
   late final Animation<double> _formFadeAnimation;
 
   // Animations for individual form fields
-  late final Animation<Offset> _schoolCodeSlideAnimation;
   late final Animation<Offset> _emailSlideAnimation;
   late final Animation<Offset> _passwordSlideAnimation;
   late final Animation<Offset> _buttonSlideAnimation;
@@ -66,18 +63,14 @@ class _LoginScreenState extends State<LoginScreen>
 
   // State variables
   bool _hidePassword = true;
-  bool _isSchoolCodeFocused = false;
   bool _isEmailFocused = false;
   bool _isPasswordFocused = false;
 
   // Focus nodes
-  late final FocusNode _schoolCodeFocusNode = FocusNode();
   late final FocusNode _emailFocusNode = FocusNode();
   late final FocusNode _passwordFocusNode = FocusNode();
 
   // Text controllers
-  late final _schoolCodeController =
-      TextEditingController(text: defaultSchoolCode);
   late final TextEditingController _emailTextEditingController =
       TextEditingController(text: defaultEmail);
   late final TextEditingController _passwordTextEditingController =
@@ -177,16 +170,6 @@ class _LoginScreenState extends State<LoginScreen>
     );
 
     // Individual field animations with staggered timing
-    _schoolCodeSlideAnimation = Tween<Offset>(
-      begin: const Offset(0.5, 0),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _formAnimationController,
-        curve: const Interval(0.4, 0.7, curve: Curves.easeOutCubic),
-      ),
-    );
-
     _emailSlideAnimation = Tween<Offset>(
       begin: const Offset(0.5, 0),
       end: Offset.zero,
@@ -280,12 +263,6 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   void _setupFocusListeners() {
-    _schoolCodeFocusNode.addListener(() {
-      setState(() {
-        _isSchoolCodeFocused = _schoolCodeFocusNode.hasFocus;
-      });
-    });
-
     _emailFocusNode.addListener(() {
       setState(() {
         _isEmailFocused = _emailFocusNode.hasFocus;
@@ -305,10 +282,8 @@ class _LoginScreenState extends State<LoginScreen>
     _formAnimationController.dispose();
     _logoAnimationController.dispose();
     _floatingElementsController.dispose();
-    _schoolCodeController.dispose();
     _emailTextEditingController.dispose();
     _passwordTextEditingController.dispose();
-    _schoolCodeFocusNode.dispose();
     _emailFocusNode.dispose();
     _passwordFocusNode.dispose();
     super.dispose();
@@ -368,19 +343,20 @@ class _LoginScreenState extends State<LoginScreen>
         alignment: Alignment.center,
         child: Column(
           mainAxisSize: MainAxisSize.min,
-            children: [
+          children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4.0),
               child: Text(
-              Utils.getTranslatedLabel(bySignInYouAgreeToOurKey),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: Utils.getScaledValue(context, isSmallScreen ? 11 : 13),
-                color: Colors.black54,
-                height: 1.3,
-              ),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 2,
+                Utils.getTranslatedLabel(bySignInYouAgreeToOurKey),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize:
+                      Utils.getScaledValue(context, isSmallScreen ? 11 : 13),
+                  color: Colors.black54,
+                  height: 1.3,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
               ),
             ),
             SizedBox(height: isSmallScreen ? 4 : 6),
@@ -389,53 +365,53 @@ class _LoginScreenState extends State<LoginScreen>
               crossAxisAlignment: WrapCrossAlignment.center,
               spacing: isSmallScreen ? 2 : 4,
               children: [
-              CustomTextButton(
-                onTapButton: () {
-                if (context.read<SignInCubit>().state is SignInInProgress) {
-                  return;
-                }
-                Get.toNamed(Routes.termsAndConditionScreen);
-                },
-                buttonTextKey: termsAndConditionKey,
-                textStyle: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: primaryMaroon,
-                decoration: TextDecoration.underline,
-                decorationThickness: 1.5,
-                fontSize: Utils.getScaledValue(
-                  context, isSmallScreen ? 12 : 14),
+                CustomTextButton(
+                  onTapButton: () {
+                    if (context.read<SignInCubit>().state is SignInInProgress) {
+                      return;
+                    }
+                    Get.toNamed(Routes.termsAndConditionScreen);
+                  },
+                  buttonTextKey: termsAndConditionKey,
+                  textStyle: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: primaryMaroon,
+                    decoration: TextDecoration.underline,
+                    decorationThickness: 1.5,
+                    fontSize:
+                        Utils.getScaledValue(context, isSmallScreen ? 12 : 14),
+                  ),
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: isSmallScreen ? 3 : 5),
-                child: Text(
-                Utils.getTranslatedLabel(andKey),
-                style: TextStyle(
-                  fontSize: Utils.getScaledValue(
-                  context, isSmallScreen ? 11 : 13),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: isSmallScreen ? 3 : 5),
+                  child: Text(
+                    Utils.getTranslatedLabel(andKey),
+                    style: TextStyle(
+                      fontSize: Utils.getScaledValue(
+                          context, isSmallScreen ? 11 : 13),
+                    ),
+                  ),
                 ),
+                CustomTextButton(
+                  onTapButton: () {
+                    if (context.read<SignInCubit>().state is SignInInProgress) {
+                      return;
+                    }
+                    Get.toNamed(Routes.privacyPolicyScreen);
+                  },
+                  buttonTextKey: privacyPolicyKey,
+                  textStyle: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: primaryMaroon,
+                    decoration: TextDecoration.underline,
+                    decorationThickness: 1.5,
+                    fontSize:
+                        Utils.getScaledValue(context, isSmallScreen ? 12 : 14),
+                  ),
                 ),
-              ),
-              CustomTextButton(
-                onTapButton: () {
-                if (context.read<SignInCubit>().state is SignInInProgress) {
-                  return;
-                }
-                Get.toNamed(Routes.privacyPolicyScreen);
-                },
-                buttonTextKey: privacyPolicyKey,
-                textStyle: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: primaryMaroon,
-                decoration: TextDecoration.underline,
-                decorationThickness: 1.5,
-                fontSize: Utils.getScaledValue(
-                  context, isSmallScreen ? 12 : 14),
-                ),
-              ),
               ],
             ),
-          
           ],
         ),
       ),
@@ -650,12 +626,11 @@ class _LoginScreenState extends State<LoginScreen>
       child: BlocConsumer<SignInCubit, SignInState>(
         listener: (context, state) {
           if (state is SignInSuccess) {
-            context.read<AuthCubit>().authenticateUser(
-                  authToken: state.authToken,
-                  schoolCode: state.schoolCode,
-                  userDetails: state.userDetails,
-                );
-            Get.offNamed(Routes.homeScreen);
+            // context.read<AuthCubit>().authenticateUser(
+            //       authToken: state.authToken,
+            //       userDetails: state.userDetails,
+            //     );            // Navigate to SchoolListScreen after successful login
+            Get.offAll(() => SchoolListScreen(userData: state.responseJson));
             _saveTeacherId(state.userDetails.id!);
           } else if (state is SignInFailure) {
             Utils.showSnackBar(message: state.errorMessage, context: context);
@@ -692,11 +667,6 @@ class _LoginScreenState extends State<LoginScreen>
                 onTap: () {
                   if (state is SignInInProgress) return;
 
-                  if (_schoolCodeController.text.trim().isEmpty) {
-                    Utils.showSnackBar(
-                        message: pleaseEnterSchoolCodeKey, context: context);
-                    return;
-                  }
                   if (_emailTextEditingController.text.trim().isEmpty) {
                     Utils.showSnackBar(
                         message: pleaseEnterEmailKey, context: context);
@@ -711,7 +681,6 @@ class _LoginScreenState extends State<LoginScreen>
                   context.read<SignInCubit>().signInUser(
                         email: _emailTextEditingController.text.trim(),
                         password: _passwordTextEditingController.text.trim(),
-                        schoolCode: _schoolCodeController.text.trim(),
                       );
                 },
                 borderRadius: BorderRadius.circular(22),
@@ -803,16 +772,6 @@ class _LoginScreenState extends State<LoginScreen>
           ),
         ),
         SizedBox(height: isSmallScreen ? 20 : 32),
-        _buildElegantTextField(
-          controller: _schoolCodeController,
-          hintText: Utils.getTranslatedLabel(schoolCodeKey),
-          labelText: 'Kode Sekolah',
-          obscureText: false,
-          icon: Icons.domain_rounded,
-          slideAnimation: _schoolCodeSlideAnimation,
-          isFocused: _isSchoolCodeFocused,
-          focusNode: _schoolCodeFocusNode,
-        ),
         _buildElegantTextField(
           controller: _emailTextEditingController,
           hintText: Utils.getTranslatedLabel(emailKey),

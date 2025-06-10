@@ -11,12 +11,12 @@ class SignInInProgress extends SignInState {}
 class SignInSuccess extends SignInState {
   final String authToken;
   final UserDetails userDetails;
-  final String schoolCode;
+  final Map<String, dynamic> responseJson;
 
   SignInSuccess({
     required this.authToken,
     required this.userDetails,
-    required this.schoolCode,
+    required this.responseJson,
   });
 }
 
@@ -30,11 +30,9 @@ class SignInCubit extends Cubit<SignInState> {
   final AuthRepository _authRepository = AuthRepository();
 
   SignInCubit() : super(SignInInitial());
-
   Future<void> signInUser({
     required String email,
     required String password,
-    required String schoolCode,
   }) async {
     emit(SignInInProgress());
 
@@ -42,14 +40,12 @@ class SignInCubit extends Cubit<SignInState> {
       final result = await _authRepository.loginUser(
         email: email,
         password: password,
-        schoolCode: schoolCode,
       );
-
       emit(
         SignInSuccess(
           authToken: result.token,
           userDetails: result.userDetails,
-          schoolCode: schoolCode,
+          responseJson: result.responseJson,
         ),
       );
     } catch (e) {

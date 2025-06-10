@@ -627,13 +627,7 @@ class _TeacherViewAttendanceScreenState
                                         letterSpacing: 0.5,
                                       ),
                                     ),
-                                    Text(
-                                      '${state.attendance.length} siswa',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        color: Colors.white.withOpacity(0.8),
-                                      ),
-                                    ),
+                                
                                   ],
                                 ),
                               ),

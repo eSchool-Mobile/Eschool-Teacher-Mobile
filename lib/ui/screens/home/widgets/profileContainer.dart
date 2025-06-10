@@ -5,6 +5,7 @@ import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/menuTile.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/menusWithTitleContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/leaves/leavesScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/login/widgets/schoolListScreen.dart';
 import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/customMenuTile.dart';
@@ -242,6 +243,52 @@ class _ProfileContainerState extends State<ProfileContainer>
                             index: 9,
                             onTap: () =>
                                 Get.toNamed(Routes.termsAndConditionScreen),
+                          ),
+                        ],
+                      ),
+
+                      _buildMenuSection(
+                        context: context,
+                        title: "Sekolah",
+                        icon: Icons.school_outlined,
+                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
+                        index: 4,
+                        menus: [
+                          _buildMenuItem(
+                            context: context,
+                            icon: Icons.swap_horiz,
+                            title: "Pindah Sekolah",
+                            index: 10,
+                            onTap: () async {
+                              final authCubit = context.read<AuthCubit>();
+                              final userDetails = authCubit.getUserDetails();
+                              print('=== DEBUG PINDAH SEKOLAH ===');
+                              print('UserDetails: ${userDetails.toJson()}');
+
+                              final schoolsData =
+                                  await authCubit.getSchoolsData();
+                              print(
+                                  'Schools data from AuthCubit: $schoolsData');
+                              print(
+                                  'Schools data type: ${schoolsData.runtimeType}');
+                              print(
+                                  'Schools data length: ${schoolsData.length}');
+
+                              final userData = {
+                                'data': {
+                                  'first_name': userDetails.firstName,
+                                  'last_name': userDetails.lastName,
+                                  'email': userDetails.email,
+                                  'mobile': userDetails.mobile,
+                                  'image': userDetails.image,
+                                  'id': userDetails.id,
+                                  'schools': schoolsData,
+                                },
+                              };
+                              print('Final userData created: $userData');
+                              Get.to(
+                                  () => SchoolListScreen(userData: userData));
+                            },
                           ),
                         ],
                       ),

@@ -3,6 +3,7 @@ const String authBoxKey = "authBox";
 const String userDetailsKey = "userDetails";
 const String isLogInKey = "isLogIn";
 const String authTokenKey = "authToken";
+const String schoolsDataKey = "schoolsData";
 
 //SettingsBox keys
 const String settingsBoxKey = "settings";

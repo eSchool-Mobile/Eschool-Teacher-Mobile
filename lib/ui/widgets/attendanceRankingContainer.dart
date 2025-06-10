@@ -49,10 +49,33 @@ class BackgroundPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
 
-class _AttendanceRankingContainerState
-    extends State<AttendanceRankingContainer> {
+class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
+    with SingleTickerProviderStateMixin {
   bool _showWarning = true;
   final ScrollController _scrollController = ScrollController();
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 500),
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    );
+    // Memulai animasi segera setelah widget dibuat
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,29 +83,34 @@ class _AttendanceRankingContainerState
       decoration: BoxDecoration(
         color: Colors.white,
       ),
-      child: Stack(
-        children: [
-          // Background Pattern
-          Positioned.fill(
-            child: AnimatedOpacity(
-              duration: Duration(seconds: 1),
-              opacity: 0.1,
+      child: FadeTransition(
+        opacity: _fadeAnimation,
+        child: Stack(
+          children: [
+            // Background Pattern
+            Positioned.fill(
               child: CustomPaint(
                 painter: BackgroundPainter(
-                  color: AppColorPalette.primaryMaroon,
+                  color: const Color.fromARGB(255, 255, 255, 255),
                 ),
               ),
             ),
-          ),
-
-          // Main Content
-          SingleChildScrollView(
-            controller: _scrollController,
-            physics: BouncingScrollPhysics(),
-            child: Column(
-              children: [
-                Container(
-                  margin: EdgeInsets.all(16.0),
+            // Main Content
+            NotificationListener<ScrollNotification>(
+              onNotification: (scrollNotification) {
+                // Memastikan konten tetap terlihat saat di-scroll
+                if (scrollNotification is ScrollStartNotification) {
+                  if (!_animationController.isCompleted) {
+                    _animationController.forward();
+                  }
+                }
+                return true;
+              },
+              child: Container(
+                margin: EdgeInsets.all(16.0),
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  physics: BouncingScrollPhysics(),
                   child: Column(
                     children: [
                       _buildHeaderSection(),
@@ -91,10 +119,10 @@ class _AttendanceRankingContainerState
                     ],
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -356,7 +384,7 @@ class _AttendanceRankingContainerState
               child: Text(
                 'Jumlah alpha: ${student?.alpha_count ?? 0}',
                 style: TextStyle(
-                  color: const Color.fromARGB(255, 0, 0, 0),
+                  color: const Color.fromARGB(255, 228, 227, 227),
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                 ),

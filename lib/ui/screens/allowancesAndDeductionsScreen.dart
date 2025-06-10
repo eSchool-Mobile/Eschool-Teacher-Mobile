@@ -1,8 +1,8 @@
 import 'package:eschool_saas_staff/cubits/payRoll/allowancesAndDeductionsCubit.dart';
 import 'package:eschool_saas_staff/ui/widgets/allowancesAndDeductionsContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
+
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
@@ -67,32 +67,54 @@ class _AllowancesAndDeductionsScreenState
   Widget _buildHeader() {
     return Container(
       margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 80),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             Utils.getTranslatedLabel(allowancesAndDeductionsKey),
             style: GoogleFonts.poppins(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+              fontSize: 26,
+              fontWeight: FontWeight.w700,
               color: _maroonPrimary,
+              height: 1.2,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Informasi tunjangan dan potongan gaji',
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: Colors.grey[600],
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  size: 16,
+                  color: Colors.grey[600],
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Informasi tunjangan dan potongan gaji staff',
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
     )
         .animate()
-        .fadeIn(duration: 400.ms)
-        .slideY(begin: -0.1, end: 0, curve: Curves.easeOutQuad);
+        .fadeIn(duration: 500.ms)
+        .slideY(begin: -0.1, end: 0, curve: Curves.easeOutCubic);
   }
 
   Widget _buildAppBar() {
@@ -352,26 +374,28 @@ class _AllowancesAndDeductionsScreenState
             .fetchAllowancesAndDeductions();
       },
       color: _maroonPrimary,
+      backgroundColor: Colors.white,
+      strokeWidth: 2.5,
       child: SingleChildScrollView(
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.only(bottom: 100, top: 0),
+        padding: EdgeInsets.only(bottom: 120, top: 0),
         child: Column(
           children: [
             _buildHeader(),
 
-            // Allowances & Deductions Container with enhanced styling
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            // Enhanced container with better spacing
+            Container(
+              margin: const EdgeInsets.only(top: 8),
               child: AllowancesAndDeductionsContainer(
                 allowances: state.allowances,
                 deductions: state.deductions,
               ),
-            ).animate().fadeIn(duration: 500.ms).slideY(
-                  begin: 0.05,
+            ).animate().fadeIn(duration: 600.ms).slideY(
+                  begin: 0.03,
                   end: 0,
-                  curve: Curves.easeOutQuad,
-                  duration: 500.ms,
+                  curve: Curves.easeOutCubic,
+                  duration: 600.ms,
                 ),
           ],
         ),

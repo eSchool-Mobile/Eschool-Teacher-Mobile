@@ -773,30 +773,7 @@ class _TeacherAddAttendanceScreenSubjectState
                                         letterSpacing: 0.5,
                                       ),
                                     ),
-                                    FutureBuilder<int>(
-                                        future: Future.value(context
-                                                    .read<
-                                                        StudentsByClassSectionCubit>()
-                                                    .state
-                                                is StudentsByClassSectionFetchSuccess
-                                            ? (context
-                                                        .read<
-                                                            StudentsByClassSectionCubit>()
-                                                        .state
-                                                    as StudentsByClassSectionFetchSuccess)
-                                                .studentDetailsList
-                                                .length
-                                            : 0),
-                                        builder: (context, snapshot) {
-                                          return Text(
-                                            '${snapshot.data ?? 0} siswa',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 12,
-                                              color:
-                                                  Colors.white.withOpacity(0.8),
-                                            ),
-                                          );
-                                        }),
+
                                   ],
                                 ),
                               ),

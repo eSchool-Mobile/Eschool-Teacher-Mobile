@@ -52,23 +52,190 @@ class DownloadPayRollSlipCubit extends Cubit<DownloadPayRollSlipState> {
 
       print("Slip content received. Base64 data length: ${slipContent.length}");
 
-      try {
-        await file.create(recursive: true);
-        final bytes = base64Decode(slipContent);
-        print("Successfully decoded base64 data. Size: ${bytes.length} bytes");
-
-        await file.writeAsBytes(bytes);
-        print("File successfully written to: $filePath");
-
-        emit(DownloadPayRollSlipSuccess(downloadedFilePath: filePath));
-      } catch (fileError) {
-        print("Error writing file: $fileError");
-        throw fileError;
+      // Validate the content is not empty
+      if (slipContent.isEmpty) {
+        throw Exception("Received empty PDF content from server");
       }
+
+      try {
+        // Try standard approach first
+        await _downloadWithStandardApproach(file, slipContent);
+        print("Standard approach successful!");
+      } catch (standardError) {
+        print("Standard approach failed: $standardError");
+        print("Trying alternative strategies...");
+
+        try {
+          await _downloadWithAlternativeStrategies(
+              payRollId, payRollSlipTitle, filePath);
+          print("Alternative strategy successful!");
+        } catch (alternativeError) {
+          print("All strategies failed. Error: $alternativeError");
+          throw Exception("Gagal memproses file PDF. Format data tidak valid.");
+        }
+      }
+
+      // Verify file was written correctly
+      if (!await file.exists() || await file.length() == 0) {
+        throw Exception("File PDF gagal disimpan dengan benar");
+      }
+
+      print("File successfully written to: $filePath");
+      emit(DownloadPayRollSlipSuccess(downloadedFilePath: filePath));
     } catch (e) {
       print("=== DOWNLOAD PAYROLL ERROR ===");
       print("Error: ${e.toString()}");
-      emit(DownloadPayRollSlipFailure(defaultErrorMessageKey));
+
+      String errorMessage = "Gagal mengunduh slip gaji";
+      if (e.toString().contains("format") || e.toString().contains("decode")) {
+        errorMessage += ": Format file tidak valid";
+      } else if (e.toString().contains("network") ||
+          e.toString().contains("connection")) {
+        errorMessage += ": Masalah koneksi internet";
+      } else if (e.toString().contains("permission")) {
+        errorMessage += ": Tidak ada izin akses file";
+      } else {
+        errorMessage += ": ${e.toString()}";
+      }
+
+      emit(DownloadPayRollSlipFailure(errorMessage));
     }
+  }
+
+  // Standard approach method
+  Future<void> _downloadWithStandardApproach(
+      File file, String slipContent) async {
+    // Clean the base64 string - remove any potential headers or whitespace
+    String cleanedBase64 = slipContent.trim();
+
+    // Remove common base64 data URL prefixes if present
+    if (cleanedBase64.startsWith('data:application/pdf;base64,')) {
+      cleanedBase64 =
+          cleanedBase64.substring('data:application/pdf;base64,'.length);
+    } else if (cleanedBase64.startsWith('data:')) {
+      // Remove any other data URL prefix
+      final commaIndex = cleanedBase64.indexOf(',');
+      if (commaIndex != -1) {
+        cleanedBase64 = cleanedBase64.substring(commaIndex + 1);
+      }
+    }
+
+    // Remove any remaining whitespace or newlines
+    cleanedBase64 = cleanedBase64.replaceAll(RegExp(r'\s+'), '');
+
+    print("Cleaned base64 data length: ${cleanedBase64.length}");
+
+    // Validate base64 format
+    if (!_isValidBase64(cleanedBase64)) {
+      throw Exception("Invalid base64 format received from server");
+    }
+
+    await file.create(recursive: true);
+    final bytes = base64Decode(cleanedBase64);
+    print("Successfully decoded base64 data. Size: ${bytes.length} bytes");
+
+    // Validate PDF header
+    if (bytes.length < 5 || !_isPdfFile(bytes)) {
+      throw Exception("Decoded data is not a valid PDF file");
+    }
+
+    await file.writeAsBytes(bytes);
+  }
+
+  // Alternative download method with multiple decoding strategies
+  Future<void> _downloadWithAlternativeStrategies(
+      int payRollId, String payRollSlipTitle, String filePath) async {
+    final File file = File(filePath);
+    final slipContent =
+        await _payRollRepository.downloadPayRollSlip(payRollId: payRollId);
+
+    print("Trying alternative decoding strategies for PDF...");
+
+    // Strategy 1: Direct base64 decode (current approach)
+    try {
+      print("Strategy 1: Direct base64 decode");
+      final bytes = base64Decode(slipContent.trim());
+      if (_isPdfFile(bytes)) {
+        await file.create(recursive: true);
+        await file.writeAsBytes(bytes);
+        print("Strategy 1 successful!");
+        return;
+      }
+    } catch (e) {
+      print("Strategy 1 failed: $e");
+    }
+
+    // Strategy 2: Decode with padding fix
+    try {
+      print("Strategy 2: Base64 decode with padding fix");
+      String paddedContent = slipContent.trim();
+      while (paddedContent.length % 4 != 0) {
+        paddedContent += '=';
+      }
+      final bytes = base64Decode(paddedContent);
+      if (_isPdfFile(bytes)) {
+        await file.create(recursive: true);
+        await file.writeAsBytes(bytes);
+        print("Strategy 2 successful!");
+        return;
+      }
+    } catch (e) {
+      print("Strategy 2 failed: $e");
+    }
+
+    // Strategy 3: URL decode then base64 decode
+    try {
+      print("Strategy 3: URL decode then base64 decode");
+      final urlDecoded = Uri.decodeComponent(slipContent);
+      final bytes = base64Decode(urlDecoded.trim());
+      if (_isPdfFile(bytes)) {
+        await file.create(recursive: true);
+        await file.writeAsBytes(bytes);
+        print("Strategy 3 successful!");
+        return;
+      }
+    } catch (e) {
+      print("Strategy 3 failed: $e");
+    }
+
+    // Strategy 4: Assume raw bytes (not base64 encoded)
+    try {
+      print("Strategy 4: Treat as raw bytes");
+      final bytes = slipContent.codeUnits;
+      if (_isPdfFile(bytes)) {
+        await file.create(recursive: true);
+        await file.writeAsBytes(bytes);
+        print("Strategy 4 successful!");
+        return;
+      }
+    } catch (e) {
+      print("Strategy 4 failed: $e");
+    }
+
+    throw Exception(
+        "All decoding strategies failed. The PDF data format is not recognized.");
+  }
+
+  // Helper method to validate base64 format
+  bool _isValidBase64(String str) {
+    try {
+      // Base64 string length should be divisible by 4
+      if (str.length % 4 != 0) return false;
+
+      // Base64 regex pattern
+      final base64Pattern = RegExp(r'^[A-Za-z0-9+/]*={0,2}$');
+      return base64Pattern.hasMatch(str);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Helper method to check if bytes represent a PDF file
+  bool _isPdfFile(List<int> bytes) {
+    if (bytes.length < 5) return false;
+
+    // Check for PDF header (%PDF-)
+    final header = String.fromCharCodes(bytes.take(5));
+    return header == '%PDF-';
   }
 }

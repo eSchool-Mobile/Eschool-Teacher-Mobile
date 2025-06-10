@@ -175,12 +175,12 @@ class _AttendanceRankingItemContainerState
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                rank <= 3 ? _getRankIcon(rank) : Icons.dangerous,
-                size: 16,
-                color: Colors.white,
-              ),
-              SizedBox(width: 4),
+              // Icon(
+              //   rank <= 3 ? _getRankIcon(rank) : Icons.dangerous,
+              //   size: 16,
+              //   color: Colors.white,
+              // ),
+              // SizedBox(width: 4),
               Text(
                 '${widget.topStudents.point ?? 0}',
                 style: TextStyle(
@@ -248,18 +248,18 @@ class _AttendanceRankingItemContainerState
     }
   }
 
-  IconData _getRankIcon(int rank) {
-    switch (rank) {
-      case 1:
-        return Icons.warning_rounded; // Ikon peringatan
-      case 2:
-        return Icons.priority_high_rounded; // Ikon tanda seru
-      case 3:
-        return Icons.error_outline_rounded; // Ikon error outline
-      default:
-        return Icons.dangerous;
-    }
-  }
+  // IconData _getRankIcon(int rank) {
+  //   switch (rank) {
+  //     case 1:
+  //       return Icons.warning_rounded; // Ikon peringatan
+  //     case 2:
+  //       return Icons.priority_high_rounded; // Ikon tanda seru
+  //     case 3:
+  //       return Icons.error_outline_rounded; // Ikon error outline
+  //     default:
+  //       return Icons.dangerous;
+  //   }
+  // }
 
   // Memformat nama siswa dengan menghilangkan tanda "-" di akhir
   String _formatStudentName(String name) {

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:eschool_saas_staff/data/models/payRoll.dart';
 import 'package:eschool_saas_staff/data/models/staffPayRoll.dart';
 import 'package:eschool_saas_staff/data/models/staffSalary.dart';
@@ -33,10 +35,53 @@ class PayRollRepository {
 
       // Print response info (not the full PDF content as it would be too large)
       print("=== DOWNLOAD PAYROLL PDF RESPONSE ===");
-      print(
-          "Response received with PDF data length: ${(result['pdf'] ?? "").toString().length}");
+      print("Response keys: ${result.keys.toList()}");
 
-      return (result['pdf'] ?? "").toString();
+      final pdfContent = (result['pdf'] ?? "").toString();
+      print("PDF content length: ${pdfContent.length}");
+
+      // Log first and last few characters to help debug format issues
+      if (pdfContent.isNotEmpty) {
+        final previewLength = 50;
+        print(
+            "PDF content start: ${pdfContent.substring(0, pdfContent.length < previewLength ? pdfContent.length : previewLength)}");
+        if (pdfContent.length > previewLength * 2) {
+          print(
+              "PDF content end: ${pdfContent.substring(pdfContent.length - previewLength)}");
+        }
+      }
+
+      // Validate that we actually received PDF content
+      if (pdfContent.isEmpty) {
+        throw ApiException("Server returned empty PDF content");
+      }
+
+      // The PDF content appears to be base64 encoded JSON, let's decode it
+      try {
+        print("Attempting to decode nested JSON structure...");
+        final decodedJson = base64Decode(pdfContent);
+        final jsonString = utf8.decode(decodedJson);
+        print(
+            "Decoded JSON: ${jsonString.substring(0, jsonString.length > 100 ? 100 : jsonString.length)}...");
+
+        final nestedResponse = json.decode(jsonString);
+        if (nestedResponse is Map && nestedResponse.containsKey('pdf')) {
+          final actualPdfContent = nestedResponse['pdf'].toString();
+          print("Found nested PDF content, length: ${actualPdfContent.length}");
+
+          if (actualPdfContent.isEmpty) {
+            throw ApiException("Nested PDF content is empty");
+          }
+
+          return actualPdfContent;
+        } else {
+          throw ApiException("Invalid nested JSON structure");
+        }
+      } catch (e) {
+        print("Failed to decode nested JSON: $e");
+        print("Falling back to original content...");
+        return pdfContent;
+      }
     } catch (e) {
       print("=== DOWNLOAD PAYROLL PDF ERROR ===");
       print("Error: ${e.toString()}");

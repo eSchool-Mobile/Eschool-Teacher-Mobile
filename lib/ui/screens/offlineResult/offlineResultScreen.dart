@@ -159,7 +159,59 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
       builder: (context, state) {
         if (state is OfflineExamStudentResultsFetchSuccess) {
           if (state.studentResults.isEmpty) {
-            return const SizedBox();
+            return Align(
+              alignment: Alignment.topCenter,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(
+                    top: Utils.appContentTopScrollPadding(context: context) +
+                        100),
+                child: Container(
+                  margin: EdgeInsets.all(appContentHorizontalPadding),
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: 1,
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        size: 64,
+                        color: maroonPrimary.withOpacity(0.7),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Tidak Ada Data',
+                        style: GoogleFonts.poppins(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: textDarkColor,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Tidak ada data siswa untuk ujian ini.\nSilakan pilih ujian yang berbeda atau periksa kembali pengaturan filter.',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: textMediumColor,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
           }
           return Align(
             alignment: Alignment.topCenter,
@@ -448,7 +500,56 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                       .read<OfflineExamsWithClassesAndSessionYearsCubit>()
                       .getAllClasses()
                       .isEmpty) {
-                return const SizedBox();
+                return Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                    margin: EdgeInsets.all(appContentHorizontalPadding),
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.1),
+                          spreadRadius: 1,
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.assignment_outlined,
+                          size: 64,
+                          color: maroonPrimary.withOpacity(0.7),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Tidak Ada Ujian',
+                          style: GoogleFonts.poppins(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: textDarkColor,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          state.offlineExams.isEmpty
+                              ? 'Tidak ada ujian offline tersedia untuk tahun ajaran yang dipilih.'
+                              : 'Tidak ada kelas tersedia untuk ujian ini.',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: textMediumColor,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
               }
               return _buildStudentResults();
             }

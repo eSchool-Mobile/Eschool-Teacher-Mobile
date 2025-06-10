@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
+import 'package:eschool_saas_staff/data/repositories/onlineExamRepository.dart';
+import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/data/models/onlineExam.dart' as exam;
 import 'package:eschool_saas_staff/data/models/subjectDetail.dart';
@@ -15,6 +17,24 @@ import 'package:flutter/services.dart';
 import 'dart:math' as math;
 
 class OnlineExamScreen extends StatefulWidget {
+  static Widget getRouteInstance() {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<OnlineExamCubit>(
+          create: (context) => OnlineExamCubit(OnlineExamRepository()),
+        ),
+        BlocProvider<ClassSectionsAndSubjectsCubit>(
+          create: (context) => ClassSectionsAndSubjectsCubit(),
+        ),
+      ],
+      child: OnlineExamScreen(),
+    );
+  }
+
+  static Map<String, dynamic> buildArguments() {
+    return {};
+  }
+
   @override
   State<OnlineExamScreen> createState() => _OnlineExamScreenState();
 }
@@ -80,16 +100,25 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
 
   @override
   void dispose() {
+    // Make sure to stop animations before disposing
+    _animationController.stop();
+    _pulseController.stop();
+    _appBarAnimationController.stop();
+
+    // Dispose all controllers
     _animationController.dispose();
     _pulseController.dispose();
     _scrollController.dispose();
-    _appBarAnimationController
-        .dispose(); // Dispose the app bar animation controller
+    _appBarAnimationController.dispose();
+
     super.dispose();
   }
 
   void _refreshExams() {
-    context.read<OnlineExamCubit>().getOnlineExams();
+    // Cancel any existing subscriptions
+    if (mounted) {
+      context.read<OnlineExamCubit>().getOnlineExams();
+    }
   }
 
   @override
@@ -108,25 +137,48 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       statusBarBrightness: Brightness.dark,
     ));
 
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      extendBodyBehindAppBar: true,
-      appBar: CustomModernAppBar(
-        title: 'Ujian Online',
-        icon: Icons.assignment_outlined,
-        fabAnimationController: _appBarAnimationController,
-        primaryColor: _primaryColor,
-        lightColor: _highlightColor,
-        showAddButton: true,
-        onAddPressed: () => Get.toNamed(Routes.createOnlineExam),
-        showArchiveButton: true,
-        onArchivePressed: () {
-          // Navigate to archived exams page
-          Get.toNamed(Routes.archiveOnlineExam);
-        },
-        onBackPressed: () => Navigator.of(context).pop(),
+    return WillPopScope(
+      onWillPop: () async {
+        // Make sure to stop animations before popping
+        _animationController.stop();
+        _pulseController.stop();
+        _appBarAnimationController.stop();
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.grey[50],
+        extendBodyBehindAppBar: true,
+        appBar: CustomModernAppBar(
+          title: 'Ujian Online',
+          icon: Icons.assignment_outlined,
+          fabAnimationController: _appBarAnimationController,
+          primaryColor: _primaryColor,
+          lightColor: _highlightColor,
+          showAddButton: true,
+          onAddPressed: () async {
+            // Navigate ke create exam screen dan tunggu hasil
+            final result =
+                await Navigator.pushNamed(context, Routes.createOnlineExam);
+            // Jika kembali dengan result true, refresh data
+            if (result == true) {
+              _refreshExams();
+            }
+          },
+          showArchiveButton: true,
+          onArchivePressed: () {
+            // Navigate to archived exams page
+            Navigator.pushNamed(context, Routes.archiveOnlineExam);
+          },
+          onBackPressed: () {
+            // Make sure to stop animations before popping
+            _animationController.stop();
+            _pulseController.stop();
+            _appBarAnimationController.stop();
+            Navigator.of(context).pop();
+          },
+        ),
+        body: _buildAnimatedBody(),
       ),
-      body: _buildAnimatedBody(),
     );
   }
 
@@ -184,6 +236,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       ),
     );
   }
+
   Widget _buildSearchBar() {
     return FadeInDown(
       duration: Duration(milliseconds: 600),
@@ -203,17 +256,19 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
         child: TextField(
           decoration: InputDecoration(
             hintText: 'Cari ujian...',
-            prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
+            prefixIcon:
+                Icon(Icons.search, color: Theme.of(context).primaryColor),
             suffixIcon: searchQuery.isNotEmpty
-              ? IconButton(
-                  icon: Icon(Icons.clear, color: Theme.of(context).primaryColor),
-                  onPressed: () {
-                    setState(() {
-                      searchQuery = "";
-                    });
-                  },
-                )
-              : null,
+                ? IconButton(
+                    icon: Icon(Icons.clear,
+                        color: Theme.of(context).primaryColor),
+                    onPressed: () {
+                      setState(() {
+                        searchQuery = "";
+                      });
+                    },
+                  )
+                : null,
             border: InputBorder.none,
             contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           ),
@@ -384,8 +439,10 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     // Filter ujian berdasarkan kata kunci pencarian
     final filteredExams = searchQuery.isEmpty
         ? state.exams
-        : state.exams.where((exam) =>
-            exam.title.toLowerCase().contains(searchQuery.toLowerCase())).toList();
+        : state.exams
+            .where((exam) =>
+                exam.title.toLowerCase().contains(searchQuery.toLowerCase()))
+            .toList();
 
     // Jika tidak ada ujian yang sesuai dengan pencarian, tampilkan pesan
     if (filteredExams.isEmpty && searchQuery.isNotEmpty) {
@@ -612,10 +669,17 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                 // Edit Button - Modern Design
                                 Expanded(
                                   child: _buildModernActionButton(
-                                    onTap: () => Get.toNamed(
-                                      Routes.editOnlineExam,
-                                      arguments: exam,
-                                    ),
+                                    onTap: () async {
+                                      // Navigate ke edit exam screen dan tunggu hasil
+                                      final result = await Get.toNamed(
+                                        Routes.editOnlineExam,
+                                        arguments: exam,
+                                      );
+                                      // Jika kembali dengan result true, refresh data
+                                      if (result == true) {
+                                        _refreshExams();
+                                      }
+                                    },
                                     icon: Icons.edit_outlined,
                                     label: 'Edit',
                                     gradient: LinearGradient(
@@ -877,8 +941,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
             ),
           ),
         ),
-        ),
-      );
+      ),
+    );
   }
 
   Widget _buildModernActionButton({
@@ -988,8 +1052,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
             ],
           ),
         ),
-        ),
-      );
+      ),
+    );
   }
 
   Widget _buildShimmerLoading() {
@@ -1014,6 +1078,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       ),
     );
   }
+
   Widget _buildEmptyState() {
     return FadeIn(
       duration: Duration(milliseconds: 800),
@@ -1026,15 +1091,17 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
               children: [
                 SizedBox(height: MediaQuery.of(context).size.height * 0.15),
                 Icon(
-                  searchQuery.isEmpty ? Icons.assignment_outlined : Icons.search_off_rounded,
+                  searchQuery.isEmpty
+                      ? Icons.assignment_outlined
+                      : Icons.search_off_rounded,
                   size: 80,
                   color: Colors.grey[400],
                 ),
                 SizedBox(height: 20),
                 Text(
-                  searchQuery.isEmpty 
-                    ? 'Belum ada ujian'
-                    : 'Tidak ada ujian yang sesuai',
+                  searchQuery.isEmpty
+                      ? 'Belum ada ujian'
+                      : 'Tidak ada ujian yang sesuai',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
@@ -1045,8 +1112,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                 SizedBox(height: 10),
                 Text(
                   searchQuery.isEmpty
-                    ? 'Tambahkan ujian baru dengan menekan tombol +'
-                    : 'Coba gunakan kata kunci pencarian yang berbeda',
+                      ? 'Tambahkan ujian baru dengan menekan tombol +'
+                      : 'Coba gunakan kata kunci pencarian yang berbeda',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey[500],
@@ -1377,8 +1444,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
             ),
           ),
         ),
-      ),  
-      );
+      ),
+    );
   }
 
   Widget _buildAddButton() {

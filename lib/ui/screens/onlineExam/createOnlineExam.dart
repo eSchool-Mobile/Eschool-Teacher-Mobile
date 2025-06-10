@@ -107,6 +107,10 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
 
   @override
   void dispose() {
+    // Stop animations before disposing
+    _animationController.stop();
+    _pulseController.stop();
+
     // Dispose animation controllers
     _animationController.dispose();
     _pulseController.dispose();
@@ -567,6 +571,57 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
         return;
       }
 
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            child: Center(
+              child: Container(
+                padding: EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 50,
+                      height: 50,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Color(0xFF7A1E23),
+                        ),
+                        strokeWidth: 4,
+                      ),
+                    ),
+                    SizedBox(height: 24),
+                    Text(
+                      'Membuat Ujian...',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      );
+
       context
           .read<OnlineExamCubit>()
           .createOnlineExam(
@@ -584,64 +639,145 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
             ),
           )
           .then((_) {
-        // Show success dialog
-        Get.dialog(
-          Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Container(
-              padding: EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.check_circle_outline,
-                    color: Colors.green,
-                    size: 60,
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    'Berhasil!',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+        // Close loading dialog
+        Navigator.pop(context);
+
+        // Show success dialog with proper navigation
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Container(
+                padding: EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Stack(
+                      clipBehavior: Clip.none,
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: Color(0xFF4CAF50).withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.check_circle_outline,
+                            color: Color(0xFF4CAF50),
+                            size: 45,
+                          ),
+                        ),
+                        Positioned(
+                          top: -8,
+                          right: -8,
+                          child: Container(
+                            padding: EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Color(0xFF4CAF50),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 2,
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Ujian online berhasil dibuat',
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      Get.back(); // Close dialog
-                      Get.offAllNamed(
-                          Routes.onlineExamScreen); // Navigate to exam list
-                    },
-                    child: Text(
-                      'Lihat Daftar Ujian',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                    SizedBox(height: 24),
+                    Text(
+                      'Berhasil!',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2E7D32),
                       ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Ujian berhasil dibuat dan siap digunakan',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF2E7D32),
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () {
+                          // Hentikan animasi sebelum navigasi
+                          _animationController.stop();
+                          _pulseController.stop();
+
+                          // Pop dialog first
+                          Navigator.pop(context);
+                          // Pop create exam screen and refresh exam list
+                          Navigator.pop(context, true);
+                        },
+                        child: Text(
+                          'Lihat Daftar Ujian',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      }).catchError((error) {
+        // Close loading dialog
+        Navigator.pop(context);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Container(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                children: [
+                  Icon(Icons.error_outline, color: Colors.white),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Gagal membuat ujian: ${error.toString()}',
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          barrierDismissible: false,
-        );
-      }).catchError((error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Gagal membuat ujian: ${error.toString()}'),
-            backgroundColor: Colors.red,
+            backgroundColor: Colors.red[700],
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            duration: Duration(seconds: 4),
           ),
         );
       });
