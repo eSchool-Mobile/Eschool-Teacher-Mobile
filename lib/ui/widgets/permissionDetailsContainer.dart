@@ -1,5 +1,4 @@
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
-import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/permissionDetails.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
@@ -73,15 +72,29 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
   String getClassSectionName(int? classSectionId) {
     if (classSectionId == null) return '-';
 
-    final classesCubit = context.read<ClassesCubit>();
-    final allClasses = classesCubit.getAllClasses();
+    try {
+      final classesCubit = context.read<ClassesCubit>();
+      final allClasses = classesCubit.getAllClasses();
 
-    final classSection = allClasses.firstWhere(
-      (classSection) => classSection.id == classSectionId,
-      orElse: () => ClassSection(name: '-'),
-    );
+      // Check if allClasses is empty
+      if (allClasses.isEmpty) {
+        return '-';
+      }
 
-    return classSection.name ?? 'Unknown Class';
+      // Use where().isNotEmpty to safely check if element exists
+      final matchingClasses = allClasses.where(
+        (classSection) => classSection.id == classSectionId,
+      );
+
+      if (matchingClasses.isNotEmpty) {
+        return matchingClasses.first.name ?? 'Unknown Class';
+      } else {
+        return '-';
+      }
+    } catch (e) {
+      print('Error in getClassSectionName: $e');
+      return '-';
+    }
   }
 
   String translateRole(String role) {
@@ -153,7 +166,13 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
   }
 
   void _showAttachments(BuildContext context) {
-    final files = widget.permissionDetails.leaves.last.file;
+    final lastLeave = safeLastLeave;
+    if (lastLeave == null) {
+      Utils.showSnackBar(message: noAttachmentKey, context: context);
+      return;
+    }
+
+    final files = lastLeave.file;
     if (files == null || files.isEmpty) {
       Utils.showSnackBar(message: noAttachmentKey, context: context);
       return;
@@ -544,16 +563,29 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
     return BlocBuilder<ClassesCubit, ClassesState>(
       builder: (context, state) {
         if (state is ClassesFetchSuccess) {
+          // Start animation once data is loaded
+          if (!_animationController.isCompleted) {
+            _animationController.forward();
+          }
           return AnimatedBuilder(
             animation: _animationController,
             builder: (context, child) {
-              return FadeTransition(
-                opacity: _fadeAnimation,
-                child: ScaleTransition(
-                  scale: _scaleAnimation,
-                  child: _buildSuccessUI(),
-                ),
-              );
+              try {
+                return FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: _buildSuccessUI(),
+                  ),
+                );
+              } catch (e, stackTrace) {
+                print('Error in AnimatedBuilder: $e');
+                print('Stack trace: $stackTrace');
+                print(
+                    'Permission details: ${widget.permissionDetails.toJson()}');
+                // Fallback to simple UI without animation
+                return _buildSimpleUI();
+              }
             },
           );
         } else if (state is ClassesFetchFailure) {
@@ -651,11 +683,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildLeaveTypeChip(
-                          widget.permissionDetails.leaves.last.leaveDetail?.last
-                                  .type ??
-                              '',
-                        ),
+                        _buildLeaveTypeChip(getSafeLeaveType()),
                         Material(
                           color: Colors.transparent,
                           child: InkWell(
@@ -895,9 +923,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                               ),
                             ),
                             child: Text(
-                              translateRole(
-                                  widget.permissionDetails.leaves.last.reason ??
-                                      ''),
+                              translateRole(safeLastLeave?.reason ?? ''),
                               style: const TextStyle(
                                 fontSize: 15,
                                 height: 1.6,
@@ -908,10 +934,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                           ),
                         ],
                       ),
-                    ),
-
-                    // Footer with date in a more elegant style
-                    if (widget.permissionDetails.leaves.last.fromDate != null)
+                    ), // Footer with date in a more elegant style
+                    if (safeLastLeave?.fromDate != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 24),
                         child: Row(
@@ -960,9 +984,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                     SizedBox(width: isSmallScreen ? 6 : 10),
                                     Flexible(
                                       child: Text(
-                                        widget.permissionDetails.leaves.last
-                                                .fromDate ??
-                                            '',
+                                        safeLastLeave?.fromDate ?? '',
                                         style: TextStyle(
                                           fontSize: 14,
                                           color: _maroonDark,
@@ -997,84 +1019,83 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
         return Opacity(
           opacity: value,
           child: Transform.translate(
-            offset: Offset(0, 20 * (1 - value)),
-            child: Center(
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                margin: EdgeInsets.symmetric(
-                    horizontal: appContentHorizontalPadding),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.red.shade50,
-                      Colors.red.shade100,
+              offset: Offset(0, 20 * (1 - value)),
+              child: Center(
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  margin: EdgeInsets.symmetric(
+                      horizontal: appContentHorizontalPadding),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.red.shade50,
+                        Colors.red.shade100,
+                      ],
+                    ),
+                    border: Border.all(color: Colors.red.shade300),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.red.shade100.withOpacity(0.5),
+                        blurRadius: 12,
+                        offset: const Offset(0, 5),
+                      ),
                     ],
                   ),
-                  border: Border.all(color: Colors.red.shade300),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.red.shade100.withOpacity(0.5),
-                      blurRadius: 12,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.red.shade300.withOpacity(0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.error_outline_rounded,
-                        color: Colors.red.shade700,
-                        size: 26,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Gagal memuat data',
-                            style: TextStyle(
-                              color: Colors.red.shade800,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.red.shade300.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Silakan coba lagi dalam beberapa saat',
-                            style: TextStyle(
-                              color: Colors.red.shade700,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.error_outline_rounded,
+                          color: Colors.red.shade700,
+                          size: 26,
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 16),
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Gagal memuat data',
+                              style: TextStyle(
+                                color: Colors.red.shade800,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Silakan coba lagi dalam beberapa saat',
+                              style: TextStyle(
+                                color: Colors.red.shade700,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
-          ),
+              )),
         );
       },
     );
@@ -1174,5 +1195,129 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
         );
       },
     );
+  }
+
+  Widget _buildSimpleUI() {
+    // Simple fallback UI without animations
+
+    return Container(
+      margin: EdgeInsets.symmetric(
+        horizontal: appContentHorizontalPadding,
+        vertical: 12,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: _maroonLight.withOpacity(0.15),
+          width: 1.5,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Leave type chip
+              _buildLeaveTypeChip(getSafeLeaveType()),
+              SizedBox(height: 16),
+
+              // Student name
+              Text(
+                widget.permissionDetails.user?.fullName ?? "",
+                style: TextStyle(
+                  fontSize: 18.5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 8),
+
+              // Class and roll number
+              Text(
+                'Kelas: ${getClassSectionName(widget.permissionDetails.classSectionId)}',
+                style: TextStyle(fontSize: 16),
+              ),
+              Text(
+                'Absen: ${widget.permissionDetails.rollNumber}',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 12),
+
+              Divider(thickness: 1),
+              SizedBox(height: 8),
+
+              // Reason
+              Text(
+                "Keterangan:",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                translateRole(safeLastLeave?.reason ?? ''),
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Helper method to safely get the last leave
+  dynamic get safeLastLeave {
+    try {
+      if (widget.permissionDetails.leaves.isEmpty) {
+        print('Debug: leaves list is empty');
+        return null;
+      }
+      final lastLeave = widget.permissionDetails.leaves.last;
+      print(
+          'Debug: found last leave with ${lastLeave.leaveDetail?.length ?? 0} leave details');
+      return lastLeave;
+    } catch (e) {
+      print('Error in safeLastLeave: $e');
+      return null;
+    }
+  }
+
+  // Helper method to safely get leave type
+  String getSafeLeaveType() {
+    try {
+      final lastLeave = safeLastLeave;
+      if (lastLeave == null) {
+        print('Debug: lastLeave is null');
+        return '';
+      }
+
+      final leaveDetail = lastLeave.leaveDetail;
+      if (leaveDetail == null) {
+        print('Debug: leaveDetail is null');
+        return '';
+      }
+
+      if (leaveDetail.isEmpty) {
+        print('Debug: leaveDetail is empty');
+        return '';
+      }
+
+      final type = leaveDetail.last?.type;
+      print('Debug: leave type is $type');
+      return type ?? '';
+    } catch (e) {
+      print('Error in getSafeLeaveType: $e');
+      return '';
+    }
   }
 }

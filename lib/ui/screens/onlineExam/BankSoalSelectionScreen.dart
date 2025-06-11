@@ -64,32 +64,42 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
   final TextEditingController _searchController = TextEditingController();
   List<BankSoalQuestion> _filteredBanks = [];
   bool _showSearch = false;
-  int _hoveredCardIndex = -1;
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+  int _hoveredCardIndex = -1;  @override
+  Widget build(BuildContext context) {    return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CustomModernAppBar(
-        title: 'Bank Soal',
-        icon: Icons.auto_stories_rounded,
-        fabAnimationController: _breathingController,
-        primaryColor: _primaryColor,
-        lightColor: _accentColor,
-        onBackPressed: () => Navigator.of(context).pop(),
-        showFilterButton: false,
-      ),
-      body: BlocBuilder<QuestionOnlineExamCubit, QuestionOnlineExamState>(
-        builder: (context, state) {
-          return Column(
-            children: [
-              if (state is QuestionBanksLoaded && _showSearch)
-                _buildSearchBar(state.banks),
-              Expanded(
-                child: _buildContentArea(state),
-              ),
-            ],
-          );
-        },
+      extendBodyBehindAppBar: true,
+      resizeToAvoidBottomInset: false,
+      bottomNavigationBar: SizedBox.shrink(),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(MediaQuery.of(context).padding.top + 80),
+        child: CustomModernAppBar(
+          title: 'Bank Soal',
+          icon: Icons.auto_stories_rounded,
+          fabAnimationController: _breathingController,
+          primaryColor: _primaryColor,
+          lightColor: _accentColor,
+          onBackPressed: () => Navigator.of(context).pop(),
+          showFilterButton: false,
+          height: 80,
+        ),
+      ),      body: SafeArea(
+        bottom: true,
+        child: BlocBuilder<QuestionOnlineExamCubit, QuestionOnlineExamState>(
+          builder: (context, state) {
+            return Column(
+              children: [
+                SizedBox(
+                    height: MediaQuery.of(context).padding.top +
+                        10), // Further reduced padding for AppBar
+                if (state is QuestionBanksLoaded && _showSearch)
+                  _buildSearchBar(state.banks),
+                Expanded(
+                  child: _buildContentArea(state),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -150,20 +160,19 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
     _tabTransitionController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 400));
     _searchExpandController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
-
-    _pulseAnimation =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 300));    _pulseAnimation =
         CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut);
-
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    
+    // Fix untuk menghilangkan warna maroon di bagian bawah layar
+    // Set system navigation bar menjadi putih, bukan maroon
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Colors.white,
+      statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: _primaryColor,
-      systemNavigationBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: Colors.white,
+      systemNavigationBarIconBrightness: Brightness.dark,
     ));
   }
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -177,6 +186,15 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
     _loadingController.dispose();
     _tabTransitionController.dispose();
     _searchExpandController.dispose();
+      // Reset system UI overlay style to default untuk mencegah warna maroon
+    // mengikuti ke halaman lain
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.white,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
+    
     super.dispose();
   }
 
@@ -349,10 +367,9 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
         "Coba gunakan kata kunci lain untuk pencarian.",
       );
     }
-
     return Stack(children: [
       ListView.builder(
-        padding: EdgeInsets.fromLTRB(20, 25, 20, 100),
+        padding: EdgeInsets.fromLTRB(20, 10, 20, 100),
         physics: BouncingScrollPhysics(),
         itemCount: banks.length,
         itemBuilder: (context, index) {

@@ -324,7 +324,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                                 Icon(Icons.check_circle, color: Colors.white),
                                 SizedBox(width: 12),
                                 Text(
-                                  'Pelajaran berhasil diperbarui!',
+                                  'Pelajaran diperbarui!',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
@@ -382,7 +382,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                                 Icon(Icons.check_circle, color: Colors.white),
                                 SizedBox(width: 12),
                                 Text(
-                                  'Pelajaran berhasil ditambahkan!',
+                                  'Pelajaran ditambahkan!',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,

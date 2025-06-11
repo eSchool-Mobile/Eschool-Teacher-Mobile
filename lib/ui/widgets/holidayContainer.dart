@@ -165,7 +165,7 @@ class _HolidayContainerState extends State<HolidayContainer> {
                               Padding(
                                 padding: const EdgeInsets.only(top: 3.0),
                                 child: Icon(
-                                  FontAwesomeIcons.circleInfo,
+                                  FontAwesomeIcons.tag,
                                   size: 14,
                                   color: Colors.grey.shade600,
                                 ),
@@ -173,11 +173,12 @@ class _HolidayContainerState extends State<HolidayContainer> {
                               SizedBox(width: 8),
                               Flexible(
                                 child: CustomTextContainer(
-                                  textKey: widget.holiday.description ?? "",
+                                  textKey: widget.holiday.title ?? "",
                                   style: TextStyle(
                                     height: 1.2,
-                                    fontSize: Utils.getScaledValue(context, 14),
-                                    color: Colors.grey.shade700,
+                                    fontSize: Utils.getScaledValue(context, 16),
+                                    color: Colors.grey.shade800,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
@@ -185,7 +186,7 @@ class _HolidayContainerState extends State<HolidayContainer> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 4),
+                          SizedBox(height: 8),
                           if (widget.holiday.end_date != null)
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,

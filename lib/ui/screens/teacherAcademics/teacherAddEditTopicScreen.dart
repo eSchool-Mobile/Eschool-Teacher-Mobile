@@ -11,16 +11,10 @@ import 'package:eschool_saas_staff/data/models/topic.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/addStudyMaterialBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/addedStudyMaterialFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/uploadImageOrFileButton.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +22,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
-import 'package:animate_do/animate_do.dart';
 
 class TeacherAddEditTopicScreen extends StatefulWidget {
   final Topic? topic;
@@ -91,9 +84,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
   late ClassSection? _selectedClassSection = widget.selectedClassSection;
   late TeacherSubject? _selectedSubject = widget.selectedSubject;
   late Lesson? _selectedLesson = widget.selectedLesson;
-
   late AnimationController _animationController;
-  late Animation<double> _animation;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
   late AnimationController
@@ -103,8 +94,6 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
   final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
   final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
   final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
-  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
-  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
 
   //This will determine if need to refresh the previous page
   //topics data. If teacher remove the the any study material
@@ -123,10 +112,24 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
   List<PickedStudyMaterial> _addedStudyMaterials = [];
 
   late List<StudyMaterial> studyMaterials = widget.topic?.studyMaterials ?? [];
-
   @override
   void initState() {
     super.initState();
+    // Debug: Check study materials
+    print("=== Topic Study Materials Debug ===");
+    print("Topic is null: ${widget.topic == null}");
+    print("Study materials count: ${studyMaterials.length}");
+    if (widget.topic != null) {
+      print("Topic name: ${widget.topic!.name}");
+      print(
+          "Topic studyMaterials count: ${widget.topic!.studyMaterials.length}");
+      widget.topic!.studyMaterials.forEach((material) {
+        print(
+            "Study Material: ${material.fileName} - Type: ${material.studyMaterialType}");
+      });
+    }
+    print("================================");
+
     Future.delayed(Duration.zero, () {
       if (mounted) {
         context
@@ -134,16 +137,10 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
             .getClassSectionsAndSubjects(
                 classSectionId: _selectedClassSection?.id);
       }
-    });
-
-    // Add animation controllers initialization
+    }); // Add animation controllers initialization
     _animationController = AnimationController(
       duration: Duration(milliseconds: 1000),
       vsync: this,
-    );
-    _animation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
     );
     _animationController.forward();
 
@@ -299,6 +296,46 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
     context.read<LessonsCubit>().fetchLessons(
         classSubjectId: _selectedSubject?.classSubjectId ?? 0,
         classSectionId: _selectedClassSection?.id ?? 0);
+  }
+
+  // Helper methods for attachment type styling
+  Color _getAttachmentTypeColor(StudyMaterialType type) {
+    switch (type) {
+      case StudyMaterialType.youtubeVideo:
+        return Colors.red.shade600;
+      case StudyMaterialType.uploadedVideoUrl:
+        return Colors.purple.shade600;
+      case StudyMaterialType.file:
+        return Colors.blue.shade600;
+      default:
+        return Colors.grey.shade600;
+    }
+  }
+
+  IconData _getAttachmentIcon(StudyMaterialType type) {
+    switch (type) {
+      case StudyMaterialType.youtubeVideo:
+        return Icons.play_circle_fill;
+      case StudyMaterialType.uploadedVideoUrl:
+        return Icons.video_file;
+      case StudyMaterialType.file:
+        return Icons.attach_file;
+      default:
+        return Icons.attachment;
+    }
+  }
+
+  String _getAttachmentTypeLabel(StudyMaterialType type) {
+    switch (type) {
+      case StudyMaterialType.youtubeVideo:
+        return 'Video YouTube';
+      case StudyMaterialType.uploadedVideoUrl:
+        return 'Video Upload';
+      case StudyMaterialType.file:
+        return 'File/Dokumen';
+      default:
+        return 'Lampiran';
+    }
   }
 
   Widget _buildButtonContent({
@@ -774,58 +811,232 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                     ),
                     SizedBox(height: 20),
 
-                    // Existing study materials
-                    if (widget.topic != null) ...[
+                    // Existing study materials/attachments - Show when editing topic
+                    if (studyMaterials.isNotEmpty) ...[
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.attachment_outlined,
+                            color: Theme.of(context).colorScheme.secondary,
+                            size: 20,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Lampiran yang Sudah Ada',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              '${studyMaterials.length}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 15),
+
+                      // Display existing attachments in enhanced card format
                       ...studyMaterials.map(
-                        (studyMaterial) => Padding(
-                          padding: const EdgeInsets.only(bottom: 15),
-                          child: StudyMaterialContainer(
-                            onDeleteStudyMaterial: deleteStudyMaterial,
-                            onEditStudyMaterial: updateStudyMaterials,
-                            showEditAndDeleteButton: true,
-                            studyMaterial: studyMaterial,
+                        (studyMaterial) => Container(
+                          margin: const EdgeInsets.only(bottom: 15),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.08),
+                                spreadRadius: 1,
+                                blurRadius: 8,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                            border: Border.all(
+                              color: _getAttachmentTypeColor(
+                                      studyMaterial.studyMaterialType)
+                                  .withOpacity(0.3),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              // Attachment type indicator
+                              Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: _getAttachmentTypeColor(
+                                          studyMaterial.studyMaterialType)
+                                      .withOpacity(0.1),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(12),
+                                    topRight: Radius.circular(12),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      _getAttachmentIcon(
+                                          studyMaterial.studyMaterialType),
+                                      color: _getAttachmentTypeColor(
+                                          studyMaterial.studyMaterialType),
+                                      size: 16,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      _getAttachmentTypeLabel(
+                                          studyMaterial.studyMaterialType),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: _getAttachmentTypeColor(
+                                            studyMaterial.studyMaterialType),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Study material content
+                              StudyMaterialContainer(
+                                onDeleteStudyMaterial: deleteStudyMaterial,
+                                onEditStudyMaterial: updateStudyMaterials,
+                                showEditAndDeleteButton: true,
+                                studyMaterial: studyMaterial,
+                              ),
+                            ],
                           ),
                         ),
                       ),
+
+                      SizedBox(height: 20),
                     ],
 
-                    // Added study materials
-                    ..._addedStudyMaterials.asMap().entries.map(
-                          (entry) => Padding(
-                            padding: const EdgeInsets.only(top: 15),
-                            child: AddedStudyMaterialContainer(
-                              backgroundColor:
-                                  Theme.of(context).scaffoldBackgroundColor,
-                              onDelete: (index) {
-                                _addedStudyMaterials.removeAt(index);
-                                setState(() {});
-                              },
-                              onEdit: (index, file) {
-                                _addedStudyMaterials[index] = file;
-                                setState(() {});
-                              },
-                              file: entry.value,
-                              fileIndex: entry.key,
+                    // Added study materials (new ones being added)
+                    if (_addedStudyMaterials.isNotEmpty) ...[
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.add_circle_outline,
+                            color: Colors.blue.shade600,
+                            size: 20,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Lampiran Baru',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.blue.shade600,
                             ),
                           ),
-                        ),
-
-                    SizedBox(height: 15),
+                          SizedBox(width: 8),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              '${_addedStudyMaterials.length}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.blue.shade600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 15),
+                      ..._addedStudyMaterials.asMap().entries.map(
+                            (entry) => Container(
+                              margin: const EdgeInsets.only(bottom: 15),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.shade50,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.blue.withOpacity(0.3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: AddedStudyMaterialContainer(
+                                backgroundColor: Colors.blue.shade50,
+                                onDelete: (index) {
+                                  _addedStudyMaterials.removeAt(index);
+                                  setState(() {});
+                                },
+                                onEdit: (index, file) {
+                                  _addedStudyMaterials[index] = file;
+                                  setState(() {});
+                                },
+                                file: entry.value,
+                                fileIndex: entry.key,
+                              ),
+                            ),
+                          ),
+                      SizedBox(height: 15),
+                    ],
 
                     // Add study material button
-                    UploadImageOrFileButton(
-                      uploadFile: true,
-                      customTitleKey: addStudyMaterialKey,
-                      onTap: () {
-                        FocusScope.of(context).unfocus();
-                        Utils.showBottomSheet(
-                          child: AddStudyMaterialBottomsheet(
-                            editFileDetails: false,
-                            onTapSubmit: _addStudyMaterial,
-                          ),
-                          context: context,
-                        );
-                      },
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withOpacity(0.1),
+                            Theme.of(context)
+                                .colorScheme
+                                .secondary
+                                .withOpacity(0.05),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.3),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: UploadImageOrFileButton(
+                        uploadFile: true,
+                        customTitleKey: addStudyMaterialKey,
+                        onTap: () {
+                          FocusScope.of(context).unfocus();
+                          Utils.showBottomSheet(
+                            child: AddStudyMaterialBottomsheet(
+                              editFileDetails: false,
+                              onTapSubmit: _addStudyMaterial,
+                            ),
+                            context: context,
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),

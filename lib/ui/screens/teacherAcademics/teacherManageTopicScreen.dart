@@ -297,7 +297,11 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                 );
               },
               child: Container(
-                margin: EdgeInsets.only(bottom: 30),
+                margin: EdgeInsets.only(
+                  bottom: 30,
+                  left: 16,
+                  right: 16,
+                ),
                 decoration: BoxDecoration(
                   color: cardColor,
                   borderRadius: BorderRadius.circular(28),
@@ -800,6 +804,8 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
         controller: _scrollController,
         padding: EdgeInsets.only(
           bottom: 80,
+          left: 8,
+          right: 8,
           // Increased top padding to accommodate the new larger app bar with three filters
           top: MediaQuery.of(context).padding.top + 200,
         ),
