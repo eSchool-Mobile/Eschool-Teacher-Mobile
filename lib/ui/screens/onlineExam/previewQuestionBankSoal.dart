@@ -323,7 +323,6 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   fontWeight: FontWeight.bold,
                 ),
               ),
-          
               Text(
                 'Ketuk soal untuk memilihnya. Soal yang sudah dipilih akan ditandai dengan centang.',
                 textAlign: TextAlign.center,
@@ -775,8 +774,8 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
               borderRadius: BorderRadius.circular(28),
               child: Container(
                 constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height * 0.4,
-                  maxHeight: MediaQuery.of(context).size.height * 0.63,
+                  minHeight: MediaQuery.of(context).size.height * 0.30,
+                  maxHeight: MediaQuery.of(context).size.height * 0.60,
                 ),
                 child: PageView.builder(
                   controller: pageController,
@@ -1129,7 +1128,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
 
                   // Badge versi
                   Positioned(
-                    top: 70,
+                    top: 58,
                     right: 20,
                     child: Container(
                       padding:
@@ -1217,11 +1216,9 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
               ),
             ),
           ),
-        ),
-
-        // Content section with improved layout
+        ), // Content section with improved layout
         Container(
-          padding: EdgeInsets.fromLTRB(24, 26, 24, 20),
+          padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1261,13 +1258,11 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                     ),
                   ),
                 ],
-              ),
-
-              // Question content
-              SizedBox(height: 18),
+              ), // Question content
+              SizedBox(height: 14),
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.all(16),
+                padding: EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade50,
                   borderRadius: BorderRadius.circular(18),
@@ -1292,12 +1287,10 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ),
-
-              // Options section
-              SizedBox(height: 24),
+              ), // Options section
+              SizedBox(height: 18),
               Container(
-                padding: EdgeInsets.all(18),
+                padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -1409,13 +1402,11 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                     ),
                   ],
                 ),
-              ),
-
-              // Version indicators - moved from Positioned widget to here
+              ), // Version indicators - moved from Positioned widget to here
               if (totalVersions > 1)
                 Container(
-                  margin: EdgeInsets.only(top: 24),
-                  padding: EdgeInsets.symmetric(vertical: 8),
+                  margin: EdgeInsets.only(top: 16),
+                  padding: EdgeInsets.symmetric(vertical: 6),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(totalVersions, (index) {
@@ -1443,10 +1434,8 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                       );
                     }),
                   ),
-                ),
-
-              // Small spacer at the end
-              SizedBox(height: 20),
+                ), // Small spacer at the end
+              SizedBox(height: 12),
             ],
           ),
         ),

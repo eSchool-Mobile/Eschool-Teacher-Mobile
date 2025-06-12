@@ -1,6 +1,5 @@
 import 'package:eschool_saas_staff/cubits/authentication/sendPasswordResetEmailCubit.dart';
 import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -20,10 +19,7 @@ class ForgotPasswordBottomsheet extends StatefulWidget {
 class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
     with SingleTickerProviderStateMixin {
   final TextEditingController _emailEditingController = TextEditingController();
-  final TextEditingController _schoolCodeEditingController =
-      TextEditingController();
   final FocusNode _emailFocusNode = FocusNode();
-  final FocusNode _schoolCodeFocusNode = FocusNode();
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -31,7 +27,6 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
   late Animation<double> _rotateAnimation;
 
   bool _isEmailValid = true;
-  bool _isSchoolCodeValid = true;
 
   // Skema warna maroon
   final Color _primaryMaroon = const Color(0xFF800020);
@@ -67,9 +62,7 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
       parent: _animationController,
       curve: const Interval(0.0, 0.7, curve: Curves.easeInOut),
     ));
-
     _emailFocusNode.addListener(() => setState(() {}));
-    _schoolCodeFocusNode.addListener(() => setState(() {}));
 
     _animationController.forward();
   }
@@ -77,9 +70,7 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
   @override
   void dispose() {
     _emailEditingController.dispose();
-    _schoolCodeEditingController.dispose();
     _emailFocusNode.dispose();
-    _schoolCodeFocusNode.dispose();
     _animationController.dispose();
     super.dispose();
   }
@@ -178,7 +169,7 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
                       ),
                     ),
                     child: Text(
-                      'Masukkan kode sekolah dan email Anda untuk menerima tautan reset password',
+                      'Masukkan email Anda untuk menerima tautan reset password',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.grey[800],
@@ -188,24 +179,6 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
                       ),
                     ),
                   ),
-
-                  // Field kode sekolah
-                  _buildInputField(
-                    controller: _schoolCodeEditingController,
-                    focusNode: _schoolCodeFocusNode,
-                    hint: 'Kode Sekolah',
-                    icon: Icons.school_outlined,
-                    isValid: _isSchoolCodeValid,
-                    errorText: 'Kode sekolah harus diisi',
-                    onChanged: (value) {
-                      setState(() {
-                        _isSchoolCodeValid = value.isNotEmpty;
-                      });
-                    },
-                    index: 0,
-                  ),
-
-                  const SizedBox(height: 20),
 
                   // Field email
                   _buildInputField(
@@ -221,7 +194,7 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
                         _isEmailValid = value.isEmpty || _validateEmail(value);
                       });
                     },
-                    index: 1,
+                    index: 0,
                   ),
 
                   const SizedBox(height: 30),
@@ -480,14 +453,12 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
               }
 
               final email = _emailEditingController.text.trim();
-              final schoolCode = _schoolCodeEditingController.text.trim();
 
               setState(() {
                 _isEmailValid = email.isNotEmpty && _validateEmail(email);
-                _isSchoolCodeValid = schoolCode.isNotEmpty;
               });
 
-              if (!_isEmailValid || !_isSchoolCodeValid) {
+              if (!_isEmailValid) {
                 return;
               }
 
@@ -495,7 +466,6 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
                   .read<SendPasswordResetEmailCubit>()
                   .sendPasswordResetEmail(
                     email: email,
-                    schoolCode: schoolCode,
                   );
             },
             child: Center(
