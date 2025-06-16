@@ -8,7 +8,7 @@ import 'package:eschool_saas_staff/data/models/sessionYear.dart';
 import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
@@ -1414,9 +1414,10 @@ class _ExamsScreenState extends State<ExamsScreen>
                 } else if (state is OfflineExamsFetchInProgress) {
                   return _buildLoadingShimmer();
                 } else {
-                  return ErrorContainer(
-                    onTapRetry: getExams,
-                    errorMessage: "Gagal memuat data ujian",
+                  return CustomErrorWidget(
+                    onRetry: getExams,
+                    message: "Gagal memuat data ujian",
+                    primaryColor: primaryColor,
                   );
                 }
               },

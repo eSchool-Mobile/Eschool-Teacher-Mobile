@@ -13,7 +13,7 @@ import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.da
 import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
@@ -1319,12 +1319,12 @@ class _TeacherManageAnnouncementScreenState
                 child: Padding(
                   padding: EdgeInsets.only(
                       top: topPaddingOfErrorAndLoadingContainer),
-                  child: ErrorContainer(
-                    errorMessage:
-                        "Gagal mendapatkan pengumuman, mohon coba lagi",
-                    onTapRetry: () {
+                  child: CustomErrorWidget(
+                    message: "Gagal mendapatkan pengumuman, mohon coba lagi",
+                    onRetry: () {
                       getAnnouncements();
                     },
+                    primaryColor: maroonPrimary,
                   ),
                 ),
               );
@@ -1715,14 +1715,15 @@ class _TeacherManageAnnouncementScreenState
                 }
                 if (state is ClassSectionsAndSubjectsFetchFailure) {
                   return Center(
-                      child: ErrorContainer(
-                    errorMessage:
+                      child: CustomErrorWidget(
+                    message:
                         "Gagal mendapatkan data kelas dan mata pelajaran, mohon coba lagi",
-                    onTapRetry: () {
+                    onRetry: () {
                       context
                           .read<ClassSectionsAndSubjectsCubit>()
                           .getClassSectionsAndSubjects();
                     },
+                    primaryColor: maroonPrimary,
                   ));
                 }
                 return Center(

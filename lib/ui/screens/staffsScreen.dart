@@ -13,7 +13,7 @@ import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.da
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBarWithTabs.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/searchContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/tabBackgroundContainer.dart';
@@ -585,11 +585,12 @@ class _StaffsScreenState extends State<StaffsScreen>
 
                       if (state is StaffsFetchFailure) {
                         return Center(
-                          child: ErrorContainer(
-                            errorMessage: state.errorMessage,
-                            onTapRetry: () {
+                          child: CustomErrorWidget(
+                            message: state.errorMessage,
+                            onRetry: () {
                               getStaffs();
                             },
+                            primaryColor: maroonPrimary,
                           ),
                         );
                       }

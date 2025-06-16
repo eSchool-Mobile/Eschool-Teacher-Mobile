@@ -12,7 +12,7 @@ import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/searchContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
@@ -84,7 +84,8 @@ class _TeachersScreenState extends State<TeachersScreen>
   late Animation<double> _pulseAnimation;
   late AnimationController _rotationController;
   late Animation<double> _rotationAnimation;
-  late AnimationController _fabAnimationController; // Added for CustomModernAppBar
+  late AnimationController
+      _fabAnimationController; // Added for CustomModernAppBar
 
   // Untuk efek hover pada item staff
   int _hoveredTeacherIndex = -1;
@@ -149,7 +150,7 @@ class _TeachersScreenState extends State<TeachersScreen>
       begin: 0,
       end: 2 * math.pi,
     ).animate(_rotationController);
-    
+
     // Initialize fabAnimationController for CustomModernAppBar
     _fabAnimationController = AnimationController(
       vsync: this,
@@ -189,7 +190,8 @@ class _TeachersScreenState extends State<TeachersScreen>
     _slideController.dispose();
     _pulseController.dispose();
     _rotationController.dispose();
-    _fabAnimationController.dispose(); // Add this line to dispose the new controller
+    _fabAnimationController
+        .dispose(); // Add this line to dispose the new controller
     _scrollController.dispose();
     super.dispose();
   }
@@ -252,13 +254,15 @@ class _TeachersScreenState extends State<TeachersScreen>
   Widget _buildTeacherList(TeachersFetchSuccess state, BuildContext context) {
     // Menerapkan filter berdasarkan status guru
     var filteredTeachers = state.teachers;
-    
+
     if (_currentStatusFilter == TeacherStatusFilter.active) {
-      filteredTeachers = state.teachers.where((teacher) => teacher.isActive()).toList();
+      filteredTeachers =
+          state.teachers.where((teacher) => teacher.isActive()).toList();
     } else if (_currentStatusFilter == TeacherStatusFilter.inactive) {
-      filteredTeachers = state.teachers.where((teacher) => !teacher.isActive()).toList();
+      filteredTeachers =
+          state.teachers.where((teacher) => !teacher.isActive()).toList();
     }
-    
+
     if (filteredTeachers.isEmpty) {
       return Center(
         child: Column(
@@ -520,10 +524,9 @@ class _TeachersScreenState extends State<TeachersScreen>
                 ),
               ),
             ),
-              );
-          },
-        ),
-      
+          );
+        },
+      ),
     );
   }
 
@@ -538,7 +541,8 @@ class _TeachersScreenState extends State<TeachersScreen>
     String titleKey = "Daftar Guru";
     if (widget.teacherNavigationType == TeacherNavigationType.leave) {
       titleKey = "Guru - Cuti";
-    } else if (widget.teacherNavigationType == TeacherNavigationType.timetable) {
+    } else if (widget.teacherNavigationType ==
+        TeacherNavigationType.timetable) {
       titleKey = "Guru - Jadwal";
     } else {
       titleKey = "Daftar Guru";
@@ -601,7 +605,7 @@ class _TeachersScreenState extends State<TeachersScreen>
               ),
             ),
           ),
-          
+
           // Filter Indicator
           if (_currentStatusFilter != TeacherStatusFilter.all)
             Padding(
@@ -662,8 +666,8 @@ class _TeachersScreenState extends State<TeachersScreen>
                 child: Row(
                   children: [
                     Icon(
-                      _currentStatusFilter == TeacherStatusFilter.active 
-                          ? Icons.check_circle_outline 
+                      _currentStatusFilter == TeacherStatusFilter.active
+                          ? Icons.check_circle_outline
                           : Icons.remove_circle_outline,
                       color: maroonPrimary,
                       size: 18,
@@ -711,11 +715,12 @@ class _TeachersScreenState extends State<TeachersScreen>
 
                 if (state is TeachersFetchFailure) {
                   return Center(
-                    child: ErrorContainer(
-                      errorMessage: state.errorMessage,
-                      onTapRetry: () {
+                    child: CustomErrorWidget(
+                      message: state.errorMessage,
+                      onRetry: () {
                         getTeachers();
                       },
+                      primaryColor: maroonPrimary,
                     ),
                   );
                 }
@@ -731,7 +736,6 @@ class _TeachersScreenState extends State<TeachersScreen>
         ],
       ),
     );
-
   }
 
   void showFilterOptions() {
@@ -783,25 +787,26 @@ class _TeachersScreenState extends State<TeachersScreen>
                       title: Text(
                         "Semua Guru",
                         style: GoogleFonts.poppins(
-                          fontWeight: _currentStatusFilter == TeacherStatusFilter.all 
-                              ? FontWeight.w500 
-                              : FontWeight.normal,
-                          color: _currentStatusFilter == TeacherStatusFilter.all 
-                              ? maroonPrimary 
+                          fontWeight:
+                              _currentStatusFilter == TeacherStatusFilter.all
+                                  ? FontWeight.w500
+                                  : FontWeight.normal,
+                          color: _currentStatusFilter == TeacherStatusFilter.all
+                              ? maroonPrimary
                               : Colors.black87,
                         ),
                       ),
                       leading: Icon(
                         Icons.people_alt_rounded,
-                        color: _currentStatusFilter == TeacherStatusFilter.all 
-                            ? maroonPrimary 
+                        color: _currentStatusFilter == TeacherStatusFilter.all
+                            ? maroonPrimary
                             : Colors.grey.shade600,
                       ),
-                      trailing: _currentStatusFilter == TeacherStatusFilter.all 
-                          ? Icon(Icons.check_circle, color: maroonPrimary) 
+                      trailing: _currentStatusFilter == TeacherStatusFilter.all
+                          ? Icon(Icons.check_circle, color: maroonPrimary)
                           : null,
-                      tileColor: _currentStatusFilter == TeacherStatusFilter.all 
-                          ? maroonPrimary.withOpacity(0.05) 
+                      tileColor: _currentStatusFilter == TeacherStatusFilter.all
+                          ? maroonPrimary.withOpacity(0.05)
                           : Colors.transparent,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -818,26 +823,31 @@ class _TeachersScreenState extends State<TeachersScreen>
                       title: Text(
                         "Guru Aktif",
                         style: GoogleFonts.poppins(
-                          fontWeight: _currentStatusFilter == TeacherStatusFilter.active 
-                              ? FontWeight.w500 
-                              : FontWeight.normal,
-                          color: _currentStatusFilter == TeacherStatusFilter.active 
-                              ? maroonPrimary 
-                              : Colors.black87,
+                          fontWeight:
+                              _currentStatusFilter == TeacherStatusFilter.active
+                                  ? FontWeight.w500
+                                  : FontWeight.normal,
+                          color:
+                              _currentStatusFilter == TeacherStatusFilter.active
+                                  ? maroonPrimary
+                                  : Colors.black87,
                         ),
                       ),
                       leading: Icon(
                         Icons.check_circle_outline,
-                        color: _currentStatusFilter == TeacherStatusFilter.active 
-                            ? maroonPrimary 
-                            : Colors.grey.shade600,
+                        color:
+                            _currentStatusFilter == TeacherStatusFilter.active
+                                ? maroonPrimary
+                                : Colors.grey.shade600,
                       ),
-                      trailing: _currentStatusFilter == TeacherStatusFilter.active 
-                          ? Icon(Icons.check_circle, color: maroonPrimary) 
-                          : null,
-                      tileColor: _currentStatusFilter == TeacherStatusFilter.active 
-                          ? maroonPrimary.withOpacity(0.05) 
-                          : Colors.transparent,
+                      trailing:
+                          _currentStatusFilter == TeacherStatusFilter.active
+                              ? Icon(Icons.check_circle, color: maroonPrimary)
+                              : null,
+                      tileColor:
+                          _currentStatusFilter == TeacherStatusFilter.active
+                              ? maroonPrimary.withOpacity(0.05)
+                              : Colors.transparent,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -853,26 +863,31 @@ class _TeachersScreenState extends State<TeachersScreen>
                       title: Text(
                         "Guru Non-Aktif",
                         style: GoogleFonts.poppins(
-                          fontWeight: _currentStatusFilter == TeacherStatusFilter.inactive 
-                              ? FontWeight.w500 
+                          fontWeight: _currentStatusFilter ==
+                                  TeacherStatusFilter.inactive
+                              ? FontWeight.w500
                               : FontWeight.normal,
-                          color: _currentStatusFilter == TeacherStatusFilter.inactive 
-                              ? maroonPrimary 
+                          color: _currentStatusFilter ==
+                                  TeacherStatusFilter.inactive
+                              ? maroonPrimary
                               : Colors.black87,
                         ),
                       ),
                       leading: Icon(
                         Icons.remove_circle_outline,
-                        color: _currentStatusFilter == TeacherStatusFilter.inactive 
-                            ? maroonPrimary 
-                            : Colors.grey.shade600,
+                        color:
+                            _currentStatusFilter == TeacherStatusFilter.inactive
+                                ? maroonPrimary
+                                : Colors.grey.shade600,
                       ),
-                      trailing: _currentStatusFilter == TeacherStatusFilter.inactive 
-                          ? Icon(Icons.check_circle, color: maroonPrimary) 
-                          : null,
-                      tileColor: _currentStatusFilter == TeacherStatusFilter.inactive 
-                          ? maroonPrimary.withOpacity(0.05) 
-                          : Colors.transparent,
+                      trailing:
+                          _currentStatusFilter == TeacherStatusFilter.inactive
+                              ? Icon(Icons.check_circle, color: maroonPrimary)
+                              : null,
+                      tileColor:
+                          _currentStatusFilter == TeacherStatusFilter.inactive
+                              ? maroonPrimary.withOpacity(0.05)
+                              : Colors.transparent,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),

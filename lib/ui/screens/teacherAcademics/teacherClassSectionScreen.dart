@@ -1156,9 +1156,9 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
     return CustomErrorWidget(
       message: state.errorMessage,
       onRetry: () => getClassSectionDetails(),
-      retryButtonText: "Try Again",
+      retryButtonText: "Coba Lagi",
       primaryColor: AppColorPalette.primaryMaroon,
-      title: "Oops! Something went wrong",
+      title: "Tidak dapat terhubung ke server, mohon periksa koneksi internet Anda dan coba lagi.",
     );
   }
 

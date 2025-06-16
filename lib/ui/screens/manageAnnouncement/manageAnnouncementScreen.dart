@@ -8,6 +8,7 @@ import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/systemModulesAndPermissions.dart';
@@ -990,11 +991,12 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
 
                     if (state is AnnouncementsFetchFailure) {
                       return Center(
-                        child: ErrorContainer(
-                          errorMessage: state.errorMessage,
-                          onTapRetry: () {
+                        child: CustomErrorWidget(
+                          message: state.errorMessage,
+                          onRetry: () {
                             getAnnouncements();
                           },
+                          primaryColor: _maroonPrimary,
                         ),
                       );
                     }
@@ -1027,11 +1029,12 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
 
               if (classState is ClassesFetchFailure) {
                 return Center(
-                  child: ErrorContainer(
-                    errorMessage: classState.errorMessage,
-                    onTapRetry: () {
+                  child: CustomErrorWidget(
+                    message: classState.errorMessage,
+                    onRetry: () {
                       context.read<ClassesCubit>().getClasses();
                     },
+                    primaryColor: _maroonPrimary,
                   ),
                 );
               }
@@ -1161,7 +1164,6 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                               // Modified date info (removed createdBy reference)
                               Row(
                                 children: [
-                              
                                   const SizedBox(width: 12),
                                   Icon(
                                     Icons.label_outline,
@@ -1248,7 +1250,6 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                       child: Row(
                         children: [
                           // Generic status indicator (doesn't rely on model properties)
-                       
 
                           const Spacer(),
 

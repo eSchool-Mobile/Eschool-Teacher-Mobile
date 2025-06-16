@@ -7,7 +7,7 @@ import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.da
 import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/studentAttendanceContainer.dart';
@@ -104,8 +104,6 @@ class _TeacherViewAttendanceScreenState
   // Animation controllers
   late AnimationController _fabAnimationController;
   final ScrollController _scrollController = ScrollController();
-
-
 
   @override
   void initState() {
@@ -419,7 +417,6 @@ class _TeacherViewAttendanceScreenState
                           ),
                         ),
                         const SizedBox(height: 8),
-
                       ],
                     ),
                   )
@@ -627,7 +624,6 @@ class _TeacherViewAttendanceScreenState
                                         letterSpacing: 0.5,
                                       ),
                                     ),
-                                
                                   ],
                                 ),
                               ),
@@ -704,11 +700,12 @@ class _TeacherViewAttendanceScreenState
                 child: Padding(
                   padding: EdgeInsets.only(
                       top: MediaQuery.of(context).size.height * 0.2),
-                  child: ErrorContainer(
-                    errorMessage: state.errorMessage,
-                    onTapRetry: () {
+                  child: CustomErrorWidget(
+                    message: state.errorMessage,
+                    onRetry: () {
                       getAttendance();
                     },
+                    primaryColor: _maroonPrimary,
                   ),
                 ),
               );
@@ -990,8 +987,6 @@ class _TeacherViewAttendanceScreenState
                             ),
                           ),
                         ),
-
-                  
                       ],
                     ),
                   ),
@@ -1310,9 +1305,6 @@ class _TeacherViewAttendanceScreenState
     );
   }
 
- 
-  
-
   Widget _buildStatusFilterButton({
     required IconData icon,
     required String label,
@@ -1378,11 +1370,12 @@ class _TeacherViewAttendanceScreenState
               }
               if (state is ClassesFetchFailure) {
                 return Center(
-                    child: ErrorContainer(
-                  errorMessage: state.errorMessage,
-                  onTapRetry: () {
+                    child: CustomErrorWidget(
+                  message: state.errorMessage,
+                  onRetry: () {
                     context.read<ClassesCubit>().getClasses();
                   },
+                  primaryColor: _maroonPrimary,
                 ));
               }
               return Center(
@@ -1393,7 +1386,6 @@ class _TeacherViewAttendanceScreenState
             },
           ),
           _buildAppbarAndFilters(),
-
         ],
       ),
     );

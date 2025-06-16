@@ -4,7 +4,7 @@ import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAnd
 import 'package:eschool_saas_staff/ui/screens/home/widgets/academicsContainer/widgets/staffAcademicsContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/academicsContainer/widgets/teacherAcademicsContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -56,13 +56,14 @@ class AcademicsContainer extends StatelessWidget {
               } else if (state
                   is StaffAllowedPermissionsAndModulesFetchFailure) {
                 return Center(
-                  child: ErrorContainer(
-                    errorMessage: state.errorMessage,
-                    onTapRetry: () {
+                  child: CustomErrorWidget(
+                    message: state.errorMessage,
+                    onRetry: () {
                       context
                           .read<StaffAllowedPermissionsAndModulesCubit>()
                           .getPermissionAndAllowedModules();
                     },
+                    primaryColor: maroonPrimary,
                   ),
                 );
               } else {

@@ -4,19 +4,15 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:flutter/services.dart';
 import 'package:eschool_saas_staff/cubits/settingCubit.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/colorPalette.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/route_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:lottie/lottie.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
@@ -42,32 +38,20 @@ class ContactUsScreen extends StatefulWidget {
 
 class _ContactUsScreenState extends State<ContactUsScreen>
     with TickerProviderStateMixin {
-  // Changed from SingleTickerProviderStateMixin to TickerProviderStateMixin
-  late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
+  // Changed from SingleTickerProviderStateMixin to TickerProviderStateMixin  late AnimationController _controller;
   late AnimationController _fabAnimationController;
   final ScrollController _scrollController = ScrollController();
   final Color _maroonPrimary = AppColorPalette.primaryMaroon;
   final Color _maroonLight = AppColorPalette.secondaryMaroon;
   String? cachedData;
-
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1000),
-      vsync: this,
-    );
-
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
 
     _scrollController.addListener(_scrollListener);
     _fabAnimationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 300));
 
-    _controller.forward();
     context.read<SettingsCubit>().getSettings("contact_us");
     _loadCachedData();
   }
@@ -82,7 +66,6 @@ class _ContactUsScreenState extends State<ContactUsScreen>
 
   @override
   void dispose() {
-    _controller.dispose();
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
     _fabAnimationController.dispose();
@@ -152,12 +135,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColorPalette.warmBeige,
-      body: BlocConsumer<SettingsCubit, SettingsState>(
-        listener: (context, state) {
-          if (state is SettingsFailure) {
-            Utils.showSnackBar(message: state.errorMessage, context: context);
-          }
-        },
+      body: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, state) {
           return Stack(
             children: [

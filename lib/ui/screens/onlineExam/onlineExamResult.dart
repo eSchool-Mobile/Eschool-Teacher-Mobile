@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
 import 'package:eschool_saas_staff/data/models/exam.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -393,12 +393,13 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
         }
         if (state is OnlineExamFailure) {
           return Center(
-            child: ErrorContainer(
-              errorMessage:
+            child: CustomErrorWidget(
+              message:
                   "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
-              onTapRetry: () {
+              onRetry: () {
                 context.read<OnlineExamCubit>().getOnlineExams();
               },
+              primaryColor: const Color(0xFF800020),
             ),
           );
         }

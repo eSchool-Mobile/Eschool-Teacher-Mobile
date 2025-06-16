@@ -10,7 +10,7 @@ import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.da
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
@@ -568,11 +568,12 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
               }
               if (state is LeaveRequestsFetchFailure) {
                 return Center(
-                  child: ErrorContainer(
-                    errorMessage: state.errorMessage,
-                    onTapRetry: () {
+                  child: CustomErrorWidget(
+                    message: state.errorMessage,
+                    onRetry: () {
                       context.read<LeaveRequestsCubit>().getLeaveRequests();
                     },
+                    primaryColor: maroonPrimary,
                   ),
                 ).animate().fadeIn(duration: const Duration(milliseconds: 400));
               }

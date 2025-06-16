@@ -7,7 +7,7 @@ import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/widgets
 import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/widgets/teachersTimeTableContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/widgets/homeContainerAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/systemModulesAndPermissions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -94,17 +94,17 @@ class HomeContainerState extends State<HomeContainer> {
                     ),
                   );
                 }
-
                 if (homeScreenDataState is HomeScreenDataFetchFailure) {
                   return Center(
                     child: Padding(
                       padding: EdgeInsets.only(
                           top: MediaQuery.of(context).size.height * (0.175)),
-                      child: ErrorContainer(
-                        errorMessage: homeScreenDataState.errorMessage,
-                        onTapRetry: () {
+                      child: CustomErrorWidget(
+                        message: homeScreenDataState.errorMessage,
+                        onRetry: () {
                           getHomeScreenData();
                         },
+                        primaryColor: const Color(0xFF7B2C3E),
                       ),
                     ),
                   );
@@ -121,16 +121,16 @@ class HomeContainerState extends State<HomeContainer> {
                 );
               });
             }
-
             if (state is StaffAllowedPermissionsAndModulesFetchFailure) {
               return Center(
-                child: ErrorContainer(
-                  errorMessage: state.errorMessage,
-                  onTapRetry: () {
+                child: CustomErrorWidget(
+                  message: state.errorMessage,
+                  onRetry: () {
                     context
                         .read<StaffAllowedPermissionsAndModulesCubit>()
                         .getPermissionAndAllowedModules();
                   },
+                  primaryColor: const Color(0xFF7B2C3E),
                 ),
               );
             }

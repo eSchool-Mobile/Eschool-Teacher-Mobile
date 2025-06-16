@@ -6,7 +6,7 @@ import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -1180,73 +1180,10 @@ class _ClassesScreenState extends State<ClassesScreen>
 
   Widget _buildErrorState(
       BuildContext context, ClassesWithTeacherDetailsFetchFailure state) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Error illustration or icon
-          Container(
-            width: 150,
-            height: 150,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColorPalette.primaryMaroon.withOpacity(0.1),
-            ),
-            child: Center(
-              child: Icon(
-                Icons.error_outline_rounded,
-                size: 70,
-                color: AppColorPalette.primaryMaroon.withOpacity(0.7),
-              ),
-            ),
-          ),
-          SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
-            child: Text(
-              'Oops! Something went wrong',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.poppins(
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-                color: AppColorPalette.primaryMaroon,
-              ),
-            ),
-          ),
-          SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
-            child: Text(
-              state.errorMessage,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: AppColorPalette.secondaryMaroon.withOpacity(0.8),
-              ),
-            ),
-          ),
-          SizedBox(height: 32),
-          ElevatedButton.icon(
-            onPressed: () => getClassesWithTeacherDetails(),
-            icon: Icon(Icons.refresh_rounded),
-            label: Text(
-              "Try Again",
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColorPalette.primaryMaroon,
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 4,
-            ),
-          ),
-        ],
-      ),
+    return CustomErrorWidget(
+      message: state.errorMessage,
+      onRetry: () => getClassesWithTeacherDetails(),
+      primaryColor: AppColorPalette.primaryMaroon,
     );
   }
 

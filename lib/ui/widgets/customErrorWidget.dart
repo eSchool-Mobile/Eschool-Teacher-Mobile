@@ -18,49 +18,55 @@ class CustomErrorWidget extends StatelessWidget {
     this.primaryColor,
     this.title,
   });
-
   @override
   Widget build(BuildContext context) {
     final Color effectivePrimaryColor = primaryColor ?? const Color(0xFF800020);
-    
+
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(32.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Error SVG illustration with animation
             FadeInDown(
               duration: const Duration(milliseconds: 800),
               child: Container(
-                width: 200,
-                height: 200,
+                width: MediaQuery.of(context).size.width * 0.4,
+                height: MediaQuery.of(context).size.width * 0.4,
+                constraints: const BoxConstraints(
+                  maxWidth: 180,
+                  maxHeight: 180,
+                  minWidth: 120,
+                  minHeight: 120,
+                ),
                 child: SvgPicture.asset(
                   'assets/images/error.svg',
                   fit: BoxFit.contain,
                 ),
               ),
             ),
-            
-            const SizedBox(height: 24),
-            
+            const SizedBox(height: 16),
+
             // Error title
             SlideInUp(
               duration: const Duration(milliseconds: 600),
               delay: const Duration(milliseconds: 200),
               child: Text(
-                title ?? 'Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi',
+                title ??
+                    'Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
                   color: effectivePrimaryColor,
                 ),
               ),
             ),
-            
-            const SizedBox(height: 16),
-            
+
+            const SizedBox(height: 12),
+
             // Retry button
             if (onRetry != null)
               SlideInUp(
@@ -87,15 +93,15 @@ class CustomErrorWidget extends StatelessWidget {
                       retryButtonText ?? 'Coba Lagi',
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w600,
-                        fontSize: 16,
+                        fontSize: 14,
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: effectivePrimaryColor,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 14,
+                        horizontal: 20,
+                        vertical: 12,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),

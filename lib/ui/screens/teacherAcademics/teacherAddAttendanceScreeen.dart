@@ -9,7 +9,7 @@ import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.da
 import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/studentAttendanceContainer.dart';
@@ -200,11 +200,12 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
             child: Padding(
               padding:
                   EdgeInsets.only(top: topPaddingOfErrorAndLoadingContainer),
-              child: ErrorContainer(
-                errorMessage: state.errorMessage,
-                onTapRetry: () {
+              child: CustomErrorWidget(
+                message: state.errorMessage,
+                onRetry: () {
                   getStudentList();
                 },
+                primaryColor: _maroonPrimary,
               ),
             ),
           );
@@ -341,7 +342,6 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                                         letterSpacing: 0.5,
                                       ),
                                     ),
-
                                   ],
                                 ),
                               ),
@@ -368,11 +368,12 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                 child: Padding(
                   padding: EdgeInsets.only(
                       top: MediaQuery.of(context).size.height * 0.2),
-                  child: ErrorContainer(
-                    errorMessage: state.errorMessage,
-                    onTapRetry: () {
+                  child: CustomErrorWidget(
+                    message: state.errorMessage,
+                    onRetry: () {
                       getAttendance();
                     },
+                    primaryColor: _maroonPrimary,
                   ),
                 ),
               );
@@ -1051,11 +1052,12 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
               }
               if (state is ClassesFetchFailure) {
                 return Center(
-                    child: ErrorContainer(
-                  errorMessage: state.errorMessage,
-                  onTapRetry: () {
+                    child: CustomErrorWidget(
+                  message: state.errorMessage,
+                  onRetry: () {
                     context.read<ClassesCubit>().getClasses();
                   },
+                  primaryColor: _maroonPrimary,
                 ));
               }
               return Center(

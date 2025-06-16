@@ -551,7 +551,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
       },
       retryButtonText: "Coba Lagi",
       primaryColor: _accentColor,
-      title: "Oops! Terjadi Kesalahan",
+      title: "Tidak dapat terhubung ke server, mohon periksa koneksi internet Anda dan coba lagi.",
     );
   }
 

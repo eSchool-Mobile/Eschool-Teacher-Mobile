@@ -2,7 +2,7 @@ import 'package:eschool_saas_staff/cubits/assignment/teacherAssignmentDetailCubi
 import 'package:eschool_saas_staff/data/models/teacherAssignmentDetail.dart';
 import 'package:eschool_saas_staff/data/repositories/assignmentMonitoringRepository.dart';
 import 'package:eschool_saas_staff/ui/screens/assignmentMonitoring/simpleAssignmentCard.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -942,9 +942,10 @@ class _AssignmentDetailMonitoringScreenState
                       ),
                     );
                   } else if (state is TeacherAssignmentDetailFailure) {
-                    return ErrorContainer(
-                      errorMessage: state.errorMessage,
-                      onTapRetry: () => _fetchTeacherAssignmentDetails(),
+                    return CustomErrorWidget(
+                      message: state.errorMessage,
+                      onRetry: () => _fetchTeacherAssignmentDetails(),
+                      primaryColor: maroonPrimary,
                     );
                   } else if (state is TeacherAssignmentDetailSuccess) {
                     // Filter assignments based on selected class and subject (if API doesn't support)

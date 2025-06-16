@@ -18,7 +18,7 @@ import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.da
 import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
@@ -853,13 +853,15 @@ class _TeacherManageAssignmentScreenState
                                   color: Colors.grey.shade200,
                                   width: 1,
                                 ),
-                              ),                              child: Column(
+                              ),
+                              child: Column(
                                 children: [
                                   // Points row in a nice card format
                                   Container(
                                     width: double.infinity,
                                     margin: EdgeInsets.only(bottom: 10),
-                                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 10),
                                     decoration: BoxDecoration(
                                       color: Colors.amber.withOpacity(0.08),
                                       borderRadius: BorderRadius.circular(12),
@@ -873,11 +875,14 @@ class _TeacherManageAssignmentScreenState
                                         Container(
                                           padding: EdgeInsets.all(8),
                                           decoration: BoxDecoration(
-                                            color: Colors.amber.withOpacity(0.2),
-                                            borderRadius: BorderRadius.circular(8),
+                                            color:
+                                                Colors.amber.withOpacity(0.2),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.amber.withOpacity(0.1),
+                                                color: Colors.amber
+                                                    .withOpacity(0.1),
                                                 blurRadius: 4,
                                                 offset: Offset(0, 2),
                                               ),
@@ -914,7 +919,8 @@ class _TeacherManageAssignmentScreenState
                                   if (assignment.extraDaysForResubmission != 0)
                                     Container(
                                       width: double.infinity,
-                                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 10),
                                       decoration: BoxDecoration(
                                         color: Colors.green.withOpacity(0.08),
                                         borderRadius: BorderRadius.circular(12),
@@ -928,11 +934,14 @@ class _TeacherManageAssignmentScreenState
                                           Container(
                                             padding: EdgeInsets.all(8),
                                             decoration: BoxDecoration(
-                                              color: Colors.green.withOpacity(0.2),
-                                              borderRadius: BorderRadius.circular(8),
+                                              color:
+                                                  Colors.green.withOpacity(0.2),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: Colors.green.withOpacity(0.1),
+                                                  color: Colors.green
+                                                      .withOpacity(0.1),
                                                   blurRadius: 4,
                                                   offset: Offset(0, 2),
                                                 ),
@@ -964,7 +973,6 @@ class _TeacherManageAssignmentScreenState
                                         ],
                                       ),
                                     ),
-                                  
                                 ],
                               ),
                             ),
@@ -1388,11 +1396,12 @@ class _TeacherManageAssignmentScreenState
                 child: Padding(
                   padding: EdgeInsets.only(
                       top: topPaddingOfErrorAndLoadingContainer),
-                  child: ErrorContainer(
-                    errorMessage: "Gagal mendapatkan tugas, mohon coba lagi",
-                    onTapRetry: () {
+                  child: CustomErrorWidget(
+                    message: "Gagal mendapatkan tugas, mohon coba lagi",
+                    onRetry: () {
                       getAssignments();
                     },
+                    primaryColor: maroonPrimary,
                   ),
                 ),
               );
@@ -1804,14 +1813,15 @@ class _TeacherManageAssignmentScreenState
                 }
                 if (state is ClassSectionsAndSubjectsFetchFailure) {
                   return Center(
-                      child: ErrorContainer(
-                    errorMessage:
+                      child: CustomErrorWidget(
+                    message:
                         "Gagal mendapatkan data kelas dan mata pelajaran, mohon coba lagi",
-                    onTapRetry: () {
+                    onRetry: () {
                       context
                           .read<ClassSectionsAndSubjectsCubit>()
                           .getClassSectionsAndSubjects();
                     },
+                    primaryColor: maroonPrimary,
                   ));
                 }
                 return Center(

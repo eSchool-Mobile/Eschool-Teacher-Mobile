@@ -3,7 +3,7 @@ import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCub
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/timetableSlotContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
@@ -235,76 +235,80 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
                               Center(
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
-                                    children: [
+                                  children: [
                                     // Animated icon
-                                    Spacer(flex: 2), // Add spacer to push content toward center
+                                    Spacer(
+                                        flex:
+                                            2), // Add spacer to push content toward center
                                     AnimatedBuilder(
                                       animation: _fabAnimationController,
                                       builder: (context, child) {
-                                      return Transform.rotate(
-                                        angle: _fabAnimationController.value *
-                                          0.05,
-                                        child: Container(
-                                        padding: EdgeInsets.all(6),
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          gradient: LinearGradient(
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                          colors: [
-                                            Colors.white.withOpacity(0.9),
-                                            Colors.white.withOpacity(0.4),
-                                          ],
+                                        return Transform.rotate(
+                                          angle: _fabAnimationController.value *
+                                              0.05,
+                                          child: Container(
+                                            padding: EdgeInsets.all(6),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              gradient: LinearGradient(
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                                colors: [
+                                                  Colors.white.withOpacity(0.9),
+                                                  Colors.white.withOpacity(0.4),
+                                                ],
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withOpacity(0.2),
+                                                  blurRadius: 4,
+                                                  offset: Offset(0, 2),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Icon(
+                                              Icons.schedule_rounded,
+                                              color: _maroonPrimary,
+                                              size: 20,
+                                            ),
                                           ),
-                                          boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black
-                                              .withOpacity(0.2),
-                                            blurRadius: 4,
-                                            offset: Offset(0, 2),
-                                          ),
-                                          ],
-                                        ),
-                                        child: Icon(
-                                          Icons.schedule_rounded,
-                                          color: _maroonPrimary,
-                                          size: 20,
-                                        ),
-                                        ),
-                                      );
+                                        );
                                       },
                                     ),
                                     SizedBox(width: 12),
                                     // Title text with gradient
                                     ShaderMask(
                                       shaderCallback: (Rect bounds) {
-                                      return LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        colors: [
-                                        Colors.white,
-                                        Colors.white.withOpacity(0.9),
-                                        ],
-                                      ).createShader(bounds);
+                                        return LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: [
+                                            Colors.white,
+                                            Colors.white.withOpacity(0.9),
+                                          ],
+                                        ).createShader(bounds);
                                       },
                                       blendMode: BlendMode.srcIn,
                                       child: Text(
-                                      Utils.getTranslatedLabel(
-                                        myTimetableKey),
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        shadows: [
-                                        Shadow(
-                                          color: Colors.black26,
-                                          offset: Offset(0, 1),
-                                          blurRadius: 3,
+                                        Utils.getTranslatedLabel(
+                                            myTimetableKey),
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.black26,
+                                              offset: Offset(0, 1),
+                                              blurRadius: 3,
+                                            ),
+                                          ],
                                         ),
-                                        ],
-                                      ),
                                       ),
                                     ),
-                                    Spacer(flex: 2), // Add spacer to push content toward center
+                                    Spacer(
+                                        flex:
+                                            2), // Add spacer to push content toward center
                                   ],
                                 ),
                               ),
@@ -550,16 +554,16 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
                   ),
                 );
               }
-
               if (state is TeacherMyTimetableFetchFailure) {
                 return Center(
-                  child: ErrorContainer(
-                    errorMessage: state.errorMessage,
-                    onTapRetry: () {
+                  child: CustomErrorWidget(
+                    message: state.errorMessage,
+                    onRetry: () {
                       context
                           .read<TeacherMyTimetableCubit>()
                           .getTeacherMyTimetable();
                     },
+                    primaryColor: _maroonPrimary,
                   ),
                 );
               }

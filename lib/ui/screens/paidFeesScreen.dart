@@ -12,7 +12,7 @@ import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
@@ -1237,11 +1237,12 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
 
         if (state is StudentsFeeStatusFetchFailure) {
           return Center(
-            child: ErrorContainer(
-              errorMessage: state.errorMessage,
-              onTapRetry: () {
+            child: CustomErrorWidget(
+              message: state.errorMessage,
+              onRetry: () {
                 getStudentFees();
               },
+              primaryColor: _maroonPrimary,
             ),
           );
         }
@@ -1316,13 +1317,14 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
               }
               if (state is SessionYearAndFeesFetchFailure) {
                 return Center(
-                  child: ErrorContainer(
-                    errorMessage: state.errorMessage,
-                    onTapRetry: () {
+                  child: CustomErrorWidget(
+                    message: state.errorMessage,
+                    onRetry: () {
                       context
                           .read<SessionYearAndFeesCubit>()
                           .getSessionYearsAndFees();
                     },
+                    primaryColor: _maroonPrimary,
                   ),
                 );
               }

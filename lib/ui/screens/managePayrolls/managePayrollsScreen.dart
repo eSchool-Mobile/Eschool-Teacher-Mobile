@@ -10,7 +10,7 @@ import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
@@ -56,26 +56,39 @@ class ManagePayrollsScreen extends StatefulWidget {
 class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
     with TickerProviderStateMixin {
   int? _selectedYear;
-  
+
   // Get the month key from month number (1-12)
   String _getMonthKey(int month) {
-    switch(month) {
-      case 1: return januaryKey;
-      case 2: return februaryKey;
-      case 3: return marchKey;
-      case 4: return aprilKey;
-      case 5: return mayKey;
-      case 6: return juneKey;
-      case 7: return julyKey;
-      case 8: return augustKey;
-      case 9: return septemberKey;
-      case 10: return octoberKey;
-      case 11: return novemberKey;
-      case 12: return decemberKey;
-      default: return januaryKey;
+    switch (month) {
+      case 1:
+        return januaryKey;
+      case 2:
+        return februaryKey;
+      case 3:
+        return marchKey;
+      case 4:
+        return aprilKey;
+      case 5:
+        return mayKey;
+      case 6:
+        return juneKey;
+      case 7:
+        return julyKey;
+      case 8:
+        return augustKey;
+      case 9:
+        return septemberKey;
+      case 10:
+        return octoberKey;
+      case 11:
+        return novemberKey;
+      case 12:
+        return decemberKey;
+      default:
+        return januaryKey;
     }
   }
-  
+
   late String _selectedMonthKey = _getMonthKey(DateTime.now().month);
 
   // Color scheme for maroon theme
@@ -147,7 +160,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
         return i + 1; // Month numbers are 1-based (January = 1)
       }
     }
-    
+
     // If month key not found in the months list, try direct mapping
     final Map<String, int> monthMap = {
       // Direct mapping for common month keys
@@ -164,7 +177,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
       novemberKey: 11,
       decemberKey: 12,
     };
-    
+
     // Try to get from map, otherwise default to current month
     return monthMap[_selectedMonthKey.toLowerCase()] ?? DateTime.now().month;
   }
@@ -174,12 +187,14 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
       _selectedStaffs.clear();
       setState(() {});
     }
-    
+
     final monthNumber = getSelectedMonthNumber();
-    print("Getting staff payroll for: Year: ${_selectedYear ?? 0}, Month: $monthNumber (${_selectedMonthKey})");
-    
-    context.read<StaffsPayrollCubit>().getStaffsPayroll(
-        year: _selectedYear ?? 0, month: monthNumber);
+    print(
+        "Getting staff payroll for: Year: ${_selectedYear ?? 0}, Month: $monthNumber (${_selectedMonthKey})");
+
+    context
+        .read<StaffsPayrollCubit>()
+        .getStaffsPayroll(year: _selectedYear ?? 0, month: monthNumber);
   }
 
   Widget _buildSubmitButton() {
@@ -294,9 +309,10 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
 
                           final monthNumber = getSelectedMonthNumber();
                           final year = _selectedYear ?? 0;
-                          
-                          print("Submitting payrolls: Year: $year, Month: $monthNumber (${_selectedMonthKey})");
-                          
+
+                          print(
+                              "Submitting payrolls: Year: $year, Month: $monthNumber (${_selectedMonthKey})");
+
                           context
                               .read<SubmitStaffsPayRollCubit>()
                               .submitStaffsPayRoll(
@@ -778,11 +794,12 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
 
         if (state is StaffsPayrollFetchFailure) {
           return Center(
-            child: ErrorContainer(
-              errorMessage: state.errorMessage,
-              onTapRetry: () {
+            child: CustomErrorWidget(
+              message: state.errorMessage,
+              onRetry: () {
                 getStaffsPayRoll();
               },
+              primaryColor: _maroonPrimary,
             ),
           );
         }
@@ -1448,11 +1465,12 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
 
             if (state is PayRollYearsFetchFailure) {
               return Center(
-                child: ErrorContainer(
-                  errorMessage: state.errorMessage,
-                  onTapRetry: () {
+                child: CustomErrorWidget(
+                  message: state.errorMessage,
+                  onRetry: () {
                     context.read<PayRollYearsCubit>().getPayRollYears();
                   },
+                  primaryColor: _maroonPrimary,
                 ),
               );
             }

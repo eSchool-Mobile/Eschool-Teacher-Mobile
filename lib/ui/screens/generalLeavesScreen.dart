@@ -3,7 +3,7 @@ import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTabContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/leaveDetailsContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/tabBackgroundContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
@@ -500,9 +500,10 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
               }
               if (state is GeneralLeavesFetchFailure) {
                 return Center(
-                  child: ErrorContainer(
-                    errorMessage: state.errorMessage,
-                    onTapRetry: getLeaves,
+                  child: CustomErrorWidget(
+                    message: state.errorMessage,
+                    onRetry: getLeaves,
+                    primaryColor: _maroonPrimary,
                   ),
                 );
               }

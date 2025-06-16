@@ -7,7 +7,7 @@ import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.da
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/textWithFadedBackgroundContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/uploadImageOrFileButton.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
@@ -1678,13 +1678,14 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
 
                 if (state is LeaveSettingsAndSessionYearsFetchFailure) {
                   return Center(
-                    child: ErrorContainer(
-                      errorMessage: state.errorMessage,
-                      onTapRetry: () {
+                    child: CustomErrorWidget(
+                      message: state.errorMessage,
+                      onRetry: () {
                         context
                             .read<LeaveSettingsAndSessionYearsCubit>()
                             .getLeaveSettingsAndSessionYears();
                       },
+                      primaryColor: maroonPrimary,
                     ),
                   );
                 }

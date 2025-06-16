@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 import 'dart:ui';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
@@ -64,8 +64,10 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
   final TextEditingController _searchController = TextEditingController();
   List<BankSoalQuestion> _filteredBanks = [];
   bool _showSearch = false;
-  int _hoveredCardIndex = -1;  @override
-  Widget build(BuildContext context) {    return Scaffold(
+  int _hoveredCardIndex = -1;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
       backgroundColor: Colors.white,
       extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: false,
@@ -82,7 +84,8 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
           showFilterButton: false,
           height: 80,
         ),
-      ),      body: SafeArea(
+      ),
+      body: SafeArea(
         bottom: true,
         child: BlocBuilder<QuestionOnlineExamCubit, QuestionOnlineExamState>(
           builder: (context, state) {
@@ -160,10 +163,11 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
     _tabTransitionController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 400));
     _searchExpandController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 300));    _pulseAnimation =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+    _pulseAnimation =
         CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut);
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    
+
     // Fix untuk menghilangkan warna maroon di bagian bawah layar
     // Set system navigation bar menjadi putih, bukan maroon
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -173,6 +177,7 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
       systemNavigationBarIconBrightness: Brightness.dark,
     ));
   }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -186,7 +191,7 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
     _loadingController.dispose();
     _tabTransitionController.dispose();
     _searchExpandController.dispose();
-      // Reset system UI overlay style to default untuk mencegah warna maroon
+    // Reset system UI overlay style to default untuk mencegah warna maroon
     // mengikuti ke halaman lain
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -194,7 +199,7 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
       systemNavigationBarColor: Colors.white,
       systemNavigationBarIconBrightness: Brightness.dark,
     ));
-    
+
     super.dispose();
   }
 
@@ -268,11 +273,12 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
     }
     if (state is QuestionOnlineExamFailure) {
       return Center(
-        child: ErrorContainer(
-          errorMessage: "Tidak dapat memuat bank soal. Silakan coba lagi.",
-          onTapRetry: () => context
+        child: CustomErrorWidget(
+          message: "Tidak dapat memuat bank soal. Silakan coba lagi.",
+          onRetry: () => context
               .read<QuestionOnlineExamCubit>()
               .getBankSoal(widget.examId),
+          primaryColor: _primaryColor,
         ),
       );
     }

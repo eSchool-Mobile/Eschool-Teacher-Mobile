@@ -1,10 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:eschool_saas_staff/cubits/settingCubit.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:eschool_saas_staff/utils/colorPalette.dart';
 import 'package:flutter/material.dart';
@@ -156,17 +153,9 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
                   ),
                 ),
               ),
-            ),
-
-            // Main Content
+            ), // Main Content
             SafeArea(
-              child: BlocConsumer<SettingsCubit, SettingsState>(
-                listener: (context, state) {
-                  if (state is SettingsFailure) {
-                    Utils.showSnackBar(
-                        message: state.errorMessage, context: context);
-                  }
-                },
+              child: BlocBuilder<SettingsCubit, SettingsState>(
                 builder: (context, state) {
                   return SingleChildScrollView(
                     controller: _scrollController,

@@ -191,107 +191,117 @@ class StudentListCard extends StatelessWidget {
                             children: [
                               Row(
                                 children: [
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 3),
-                                    decoration: BoxDecoration(
-                                      color: studentDetails.isActive()
-                                          ? Colors.green.withOpacity(0.1)
-                                          : Colors.grey.withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(
+                                  Flexible(
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(
                                         color: studentDetails.isActive()
-                                            ? Colors.green.withOpacity(0.6)
-                                            : Colors.grey.withOpacity(0.6),
-                                        width: 1,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          studentDetails.isActive()
-                                              ? Icons.check_circle_outline
-                                              : Icons.cancel_outlined,
+                                            ? Colors.green.withOpacity(0.1)
+                                            : Colors.grey.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
                                           color: studentDetails.isActive()
-                                              ? Colors.green
-                                              : Colors.grey,
-                                          size: 12,
+                                              ? Colors.green.withOpacity(0.6)
+                                              : Colors.grey.withOpacity(0.6),
+                                          width: 1,
                                         ),
-                                        SizedBox(width: 4),
-                                        Text(
-                                          studentDetails.isActive()
-                                              ? activeKey.tr
-                                              : inactiveKey.tr,
-                                          style: TextStyle(
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            studentDetails.isActive()
+                                                ? Icons.check_circle_outline
+                                                : Icons.cancel_outlined,
                                             color: studentDetails.isActive()
                                                 ? Colors.green
                                                 : Colors.grey,
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w600,
+                                            size: 12,
                                           ),
-                                        ),
-                                      ],
+                                          SizedBox(width: 4),
+                                          Flexible(
+                                            child: Text(
+                                              studentDetails.isActive()
+                                                  ? activeKey.tr
+                                                  : inactiveKey.tr,
+                                              style: TextStyle(
+                                                color: studentDetails.isActive()
+                                                    ? Colors.green
+                                                    : Colors.grey,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                   SizedBox(width: 8),
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 3),
-                                    decoration: BoxDecoration(
-                                      color: studentDetails.gender
-                                                  ?.toLowerCase() ==
-                                              "male"
-                                          ? Color(
-                                              0xFFDCEAFF) // Light blue background
-                                          : Color(
-                                              0xFFFFE0F0), // Light pink background
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(
+                                  Flexible(
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(
                                         color: studentDetails.gender
                                                     ?.toLowerCase() ==
                                                 "male"
                                             ? Color(
-                                                0xFF0D47A1) // Darker blue border
+                                                0xFFDCEAFF) // Light blue background
                                             : Color(
-                                                0xFFD81B60), // Darker pink border
-                                        width: 1,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          studentDetails.gender
-                                                      ?.toLowerCase() ==
-                                                  "male"
-                                              ? Icons.male_outlined
-                                              : Icons.female_outlined,
+                                                0xFFFFE0F0), // Light pink background
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
                                           color: studentDetails.gender
                                                       ?.toLowerCase() ==
                                                   "male"
                                               ? Color(
-                                                  0xFF1976D2) // Strong blue for icon
+                                                  0xFF0D47A1) // Darker blue border
                                               : Color(
-                                                  0xFFE91E63), // Strong pink for icon
-                                          size: 12,
+                                                  0xFFD81B60), // Darker pink border
+                                          width: 1,
                                         ),
-                                        SizedBox(width: 4),
-                                        Text(
-                                          studentDetails.getGender().tr,
-                                          style: TextStyle(
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            studentDetails.gender
+                                                        ?.toLowerCase() ==
+                                                    "male"
+                                                ? Icons.male_outlined
+                                                : Icons.female_outlined,
                                             color: studentDetails.gender
                                                         ?.toLowerCase() ==
                                                     "male"
                                                 ? Color(
-                                                    0xFF1976D2) // Strong blue for text
+                                                    0xFF1976D2) // Strong blue for icon
                                                 : Color(
-                                                    0xFFE91E63), // Strong pink for text
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w600,
+                                                    0xFFE91E63), // Strong pink for icon
+                                            size: 12,
                                           ),
-                                        ),
-                                      ],
+                                          SizedBox(width: 4),
+                                          Flexible(
+                                            child: Text(
+                                              studentDetails.getGender().tr,
+                                              style: TextStyle(
+                                                color: studentDetails.gender
+                                                            ?.toLowerCase() ==
+                                                        "male"
+                                                    ? Color(
+                                                        0xFF1976D2) // Strong blue for text
+                                                    : Color(
+                                                        0xFFE91E63), // Strong pink for text
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ],

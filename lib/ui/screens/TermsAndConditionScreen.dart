@@ -1,19 +1,15 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:eschool_saas_staff/cubits/settingCubit.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import 'package:get/route_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lottie/lottie.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
@@ -40,7 +36,6 @@ class _TermsAndConditionScreenState extends State<TermsAndConditionScreen>
     with TickerProviderStateMixin {
   String? cachedData;
   late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
   late AnimationController _fabAnimationController;
   final ScrollController _scrollController = ScrollController();
   final Color _maroonPrimary = AppColorPalette.primaryMaroon;
@@ -55,14 +50,9 @@ class _TermsAndConditionScreenState extends State<TermsAndConditionScreen>
     _scrollController.addListener(_scrollListener);
     _fabAnimationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 300));
-
     _controller = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
-    );
-
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
     _controller.forward();
@@ -150,12 +140,7 @@ class _TermsAndConditionScreenState extends State<TermsAndConditionScreen>
       ),
       child: Scaffold(
         backgroundColor: AppColorPalette.warmBeige,
-        body: BlocConsumer<SettingsCubit, SettingsState>(
-          listener: (context, state) {
-            if (state is SettingsFailure) {
-              Utils.showSnackBar(message: state.errorMessage, context: context);
-            }
-          },
+        body: BlocBuilder<SettingsCubit, SettingsState>(
           builder: (context, state) {
             return Stack(
               children: [

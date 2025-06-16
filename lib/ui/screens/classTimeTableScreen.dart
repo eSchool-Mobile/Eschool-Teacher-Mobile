@@ -2,7 +2,7 @@ import 'package:eschool_saas_staff/cubits/academics/classTimetableCubit.dart';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/timetableSlotContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart' as constants;
@@ -550,11 +550,12 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
         }
         if (state is ClassTimetableFetchFailure) {
           return Center(
-            child: ErrorContainer(
-              errorMessage: state.errorMessage,
-              onTapRetry: () {
+            child: CustomErrorWidget(
+              message: state.errorMessage,
+              onRetry: () {
                 getClassTimetable();
               },
+              primaryColor: _maroonPrimary,
             ),
           );
         }
@@ -587,14 +588,14 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
                 }
                 return _buildClassTimetable();
               }
-
               if (state is ClassesFetchFailure) {
                 return Center(
-                  child: ErrorContainer(
-                    errorMessage: state.errorMessage,
-                    onTapRetry: () {
+                  child: CustomErrorWidget(
+                    message: state.errorMessage,
+                    onRetry: () {
                       context.read<ClassesCubit>().getClasses();
                     },
+                    primaryColor: _maroonPrimary,
                   ),
                 );
               }

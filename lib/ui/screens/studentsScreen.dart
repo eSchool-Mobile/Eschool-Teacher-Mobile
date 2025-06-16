@@ -7,7 +7,7 @@ import 'package:eschool_saas_staff/data/models/sessionYear.dart';
 import 'package:eschool_saas_staff/ui/screens/studentProfileScreen.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/searchContainer.dart';
@@ -364,9 +364,9 @@ class _StudentsScreenState extends State<StudentsScreen>
         },
       ),
       thirdFilterItem: FilterItemConfig(
-        title: _selectedStatus == '1'
+        title: _selectedStatus == '0'
             ? "Siswa Aktif"
-            : _selectedStatus == '0'
+            : _selectedStatus == '1'
                 ? "Siswa Non-Aktif"
                 : "Semua Status",
         icon: Icons.filter_list_rounded,
@@ -686,10 +686,10 @@ class _StudentsScreenState extends State<StudentsScreen>
               title: "Siswa Aktif",
               subtitle: "Hanya tampilkan siswa dengan status aktif",
               icon: Icons.check_circle_outline_rounded,
-              isSelected: _selectedStatus == '1',
+              isSelected: _selectedStatus == '0',
               onTap: () {
                 HapticFeedback.lightImpact();
-                changeSelectedStatus('1');
+                changeSelectedStatus('0');
                 Navigator.pop(context);
               },
             ),
@@ -699,10 +699,10 @@ class _StudentsScreenState extends State<StudentsScreen>
               title: "Siswa Non-Aktif",
               subtitle: "Hanya tampilkan siswa dengan status non-aktif",
               icon: Icons.cancel_outlined,
-              isSelected: _selectedStatus == '0',
+              isSelected: _selectedStatus == '1',
               onTap: () {
                 HapticFeedback.lightImpact();
-                changeSelectedStatus('0');
+                changeSelectedStatus('1');
                 Navigator.pop(context);
               },
             ),
@@ -1035,11 +1035,12 @@ class _StudentsScreenState extends State<StudentsScreen>
                     child: Padding(
                       padding: EdgeInsets.only(
                           top: topPaddingOfErrorAndLoadingContainer),
-                      child: ErrorContainer(
-                        errorMessage: state.errorMessage,
-                        onTapRetry: () {
+                      child: CustomErrorWidget(
+                        message: state.errorMessage,
+                        onRetry: () {
                           getStudents();
                         },
+                        primaryColor: const Color(0xFF8B1F41),
                       ),
                     ),
                   );
@@ -1205,13 +1206,14 @@ class _StudentsScreenState extends State<StudentsScreen>
 
             if (state is ClassesAndSessionYearsFetchFailure) {
               return Center(
-                  child: ErrorContainer(
-                errorMessage: state.errorMessage,
-                onTapRetry: () {
+                  child: CustomErrorWidget(
+                message: state.errorMessage,
+                onRetry: () {
                   context
                       .read<ClassesAndSessionYearsCubit>()
                       .getClassesAndSessionYears();
                 },
+                primaryColor: const Color(0xFF8B1F41),
               ));
             }
 

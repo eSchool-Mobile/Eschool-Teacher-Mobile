@@ -10,7 +10,7 @@ import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -1597,9 +1597,9 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
             );
           } else if (state is StudentsByClassSectionFetchFailure) {
             return Center(
-              child: ErrorContainer(
-                errorMessage: state.errorMessage,
-                onTapRetry: () {
+              child: CustomErrorWidget(
+                message: state.errorMessage,
+                onRetry: () {
                   if (state.errorMessage.contains("Ujian belum selesai")) {
                     Utils.showSnackBar(
                         message:
@@ -1609,6 +1609,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                     getStudents();
                   }
                 },
+                primaryColor: _primaryColor,
               ),
             );
           } else {
@@ -1726,11 +1727,12 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                     }
                     if (state is ClassesFetchFailure) {
                       return Center(
-                        child: ErrorContainer(
-                          errorMessage: state.errorMessage,
-                          onTapRetry: () {
+                        child: CustomErrorWidget(
+                          message: state.errorMessage,
+                          onRetry: () {
                             context.read<ClassesCubit>().getClasses();
                           },
+                          primaryColor: _primaryColor,
                         ),
                       );
                     }

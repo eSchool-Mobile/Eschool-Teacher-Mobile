@@ -14,7 +14,7 @@ import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.da
 import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
@@ -1241,12 +1241,12 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                 child: Padding(
                   padding: EdgeInsets.only(
                       top: topPaddingOfErrorAndLoadingContainer),
-                  child: ErrorContainer(
-                    errorMessage:
-                        "Gagal mendapatkan bab pelajaran, mohon coba lagi",
-                    onTapRetry: () {
+                  child: CustomErrorWidget(
+                    message: "Gagal mendapatkan bab pelajaran, mohon coba lagi",
+                    onRetry: () {
                       getLessons();
                     },
+                    primaryColor: maroonPrimary,
                   ),
                 ),
               );
@@ -1654,14 +1654,15 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                 }
                 if (state is ClassSectionsAndSubjectsFetchFailure) {
                   return Center(
-                      child: ErrorContainer(
-                    errorMessage:
+                      child: CustomErrorWidget(
+                    message:
                         "Gagal mendapatkan data kelas dan mata pelajaran, mohon coba lagi",
-                    onTapRetry: () {
+                    onRetry: () {
                       context
                           .read<ClassSectionsAndSubjectsCubit>()
                           .getClassSectionsAndSubjects();
                     },
+                    primaryColor: maroonPrimary,
                   ));
                 }
                 return Center(

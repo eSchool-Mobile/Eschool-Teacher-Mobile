@@ -5,7 +5,7 @@ import 'package:eschool_saas_staff/cubits/assignment/assignmentMonitoringCubit.d
 import 'package:eschool_saas_staff/data/models/sessionYear.dart';
 import 'package:eschool_saas_staff/data/repositories/assignmentMonitoringRepository.dart';
 import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -301,7 +301,6 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
     final List<Map<String, String>> statusOptions = [
       {'value': 'submitted', 'label': 'Sudah Mengumpulkan'},
       {'value': 'not_submitted', 'label': 'Belum Mengumpulkan'},
-
     ];
 
     showModalBottomSheet(
@@ -771,11 +770,12 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
             child: CircularProgressIndicator(),
           );
         } else if (state is AssignmentMonitoringFailure) {
-          return ErrorContainer(
-            errorMessage: state.errorMessage,
-            onTapRetry: () {
+          return CustomErrorWidget(
+            message: state.errorMessage,
+            onRetry: () {
               _fetchAssignmentMonitoring();
             },
+            primaryColor: maroonPrimary,
           );
         } else if (state is AssignmentMonitoringSuccess) {
           final data = state.monitoringData;
@@ -1235,13 +1235,13 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
             if (state is SessionYearsFetchInProgress) {
               return const Center(child: CircularProgressIndicator());
             }
-
             if (state is SessionYearsFetchFailure) {
-              return ErrorContainer(
-                errorMessage: state.errorMessage,
-                onTapRetry: () {
+              return CustomErrorWidget(
+                message: state.errorMessage,
+                onRetry: () {
                   context.read<SessionYearsCubit>().getSessionYears();
                 },
+                primaryColor: maroonPrimary,
               );
             }
 
