@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:eschool_saas_staff/data/models/studentExamStatus.dart';
 import 'package:eschool_saas_staff/data/repositories/examStatusRepository.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 class ExamStatusCubit extends Cubit<ExamStatusState> {
   final ExamStatusRepository _examStatusRepository;
@@ -16,15 +17,20 @@ class ExamStatusCubit extends Cubit<ExamStatusState> {
 
       final studentExamStatusResponse =
           await _examStatusRepository.getStudentExamStatus(examId);
-
       emit(ExamStatusSuccess(
         studentExamStatuses: studentExamStatusResponse.data,
         message: studentExamStatusResponse.message,
       ));
     } catch (e) {
+      // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(ExamStatusFailure(
-        errorMessage: e.toString(),
+        errorMessage: userFriendlyMessage,
       ));
+
+      // Log technical error untuk debugging (hanya untuk development)
+      print(
+          'Technical error in getStudentExamStatus: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 
@@ -41,12 +47,17 @@ class ExamStatusCubit extends Cubit<ExamStatusState> {
         await getStudentExamStatus(examId);
         return true;
       }
-
       return false;
     } catch (e) {
+      // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(ExamStatusFailure(
-        errorMessage: e.toString(),
+        errorMessage: userFriendlyMessage,
       ));
+
+      // Log technical error untuk debugging (hanya untuk development)
+      print(
+          'Technical error in deleteStudentExamStatus: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
       return false;
     }
   }

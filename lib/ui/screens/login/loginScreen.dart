@@ -3,6 +3,8 @@ import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/sendPasswordResetEmailCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/signInCubit.dart';
+import 'package:eschool_saas_staff/data/repositories/authRepository.dart';
+import 'package:eschool_saas_staff/data/models/userDetails.dart';
 import 'package:eschool_saas_staff/ui/screens/login/widgets/forgotPasswordBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/screens/login/widgets/schoolListScreen.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
@@ -293,6 +295,96 @@ class _LoginScreenState extends State<LoginScreen>
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('teacher Id', id);
     print("Saved teacher Id: $id");
+  }
+
+  Future<void> _autoSelectSingleSchool(Map<String, dynamic> userData) async {
+    try {
+      final schools = userData['data']?['schools'] as List<dynamic>?;
+      if (schools == null || schools.isEmpty) {
+        throw Exception('No schools found');
+      }
+
+      final school = schools.first as Map<String, dynamic>;
+
+      print('Auto-selecting single school: ${school['school_name']}');
+
+      final prefs = await SharedPreferences.getInstance();
+      final authRepository = AuthRepository();
+
+      // Get the school token and verify it exists
+      final String schoolToken = school['token'] ?? '';
+      if (schoolToken.isEmpty) {
+        throw Exception('School token is missing');
+      }
+
+      // First update the auth token in repository
+      await authRepository.setAuthToken(schoolToken);
+
+      // Save all necessary data in SharedPreferences
+      await Future.wait([
+        prefs.setString('school_token', schoolToken),
+        prefs.setString('selected_school_code', school['school_code']),
+        prefs.setString('selected_school_name', school['school_name']),
+        prefs.setString('selected_school_db', school['database_name']),
+        // Save bearer token with 'Bearer ' prefix
+        prefs.setString('auth_token', 'Bearer $schoolToken'),
+      ]);
+
+      // Get the school data from the user object
+      final schoolData = school['user']['school'];
+      final userDataFromResponse = userData['data'];
+
+      // Create a complete user details map with all necessary data
+      final Map<String, dynamic> completeUserDetails = {
+        ...userDataFromResponse,
+        'school': schoolData,
+        'school_id': schoolData['id'],
+        'token': schoolToken, // Include token in user details
+        'schools': userDataFromResponse['schools'], // Preserve schools list
+      };
+
+      // Set login state before creating user details
+      await authRepository.setIsLogIn(true);
+
+      // Create and save UserDetails instance with complete data
+      final userDetailsInstance = UserDetails.fromJson(completeUserDetails);
+      await authRepository.setUserDetails(userDetailsInstance);
+
+      // Save teacher ID if available
+      if (school['user']['teacher'] != null) {
+        await prefs.setInt('teacher_id', school['user']['teacher']['id']);
+      }
+
+      // Update Auth state in BLoC with proper token format
+      if (!context.mounted) return;
+
+      final schoolsToStore = List<Map<String, dynamic>>.from(
+          userDataFromResponse['schools'] ?? []);
+
+      await context.read<AuthCubit>().authenticateUser(
+            authToken: 'Bearer $schoolToken', // Add Bearer prefix
+            userDetails: userDetailsInstance,
+            schoolCode: school['school_code'] ?? '',
+            schools: schoolsToStore,
+          );
+
+      print('DEBUG AUTO SCHOOL SELECTION: Authentication completed');
+      print('Full auth token set: Bearer $schoolToken');
+      print('School selected: ${school['school_name']}');
+      print('School ID: ${schoolData['id']}');
+
+      // Add small delay to ensure auth state is properly set
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // Navigate directly to main application
+      Get.offAllNamed(Routes.homeScreen);
+    } catch (e) {
+      print('Error during auto school selection: $e');
+      if (!context.mounted) return;
+      Utils.showSnackBar(
+          message: 'Failed to select school automatically: ${e.toString()}',
+          context: context);
+    }
   }
 
   Widget _buildForgotPasswordButton() {
@@ -626,11 +718,29 @@ class _LoginScreenState extends State<LoginScreen>
       child: BlocConsumer<SignInCubit, SignInState>(
         listener: (context, state) {
           if (state is SignInSuccess) {
-            // context.read<AuthCubit>().authenticateUser(
-            //       authToken: state.authToken,
-            //       userDetails: state.userDetails,
-            //     );            // Navigate to SchoolListScreen after successful login
-            Get.offAll(() => SchoolListScreen(userData: state.responseJson));
+            // Check number of schools
+            final schools =
+                state.responseJson['data']?['schools'] as List<dynamic>?;
+            final schoolCount = schools?.length ?? 0;
+
+            print('Login successful. Number of schools: $schoolCount');
+
+            if (schoolCount == 1) {
+              // Auto-select single school and navigate directly to home
+              print('Single school detected, auto-selecting...');
+              _autoSelectSingleSchool(state.responseJson);
+            } else if (schoolCount > 1) {
+              // Multiple schools, show selection screen
+              print('Multiple schools detected, showing selection screen...');
+              Get.offAll(() => SchoolListScreen(userData: state.responseJson));
+            } else {
+              // No schools found
+              print('No schools found for user');
+              Utils.showSnackBar(
+                  message: 'Tidak ada sekolah yang tersedia untuk akun ini',
+                  context: context);
+            }
+
             _saveTeacherId(state.userDetails.id!);
           } else if (state is SignInFailure) {
             Utils.showSnackBar(message: state.errorMessage, context: context);

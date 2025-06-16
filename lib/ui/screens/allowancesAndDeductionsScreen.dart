@@ -69,47 +69,45 @@ class _AllowancesAndDeductionsScreenState
       margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 80),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            Utils.getTranslatedLabel(allowancesAndDeductionsKey),
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+        Utils.getTranslatedLabel(allowancesAndDeductionsKey),
+        style: GoogleFonts.poppins(
+          fontSize: 24,
+          fontWeight: FontWeight.w700,
+          color: _maroonPrimary,
+          height: 1.2,
+        ),
+        textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 10),
+        Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF3F4F6),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+        ),
+        child: Row(
+          children: [
+
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+            'Informasi tunjangan dan potongan gaji staff',
             style: GoogleFonts.poppins(
-              fontSize: 26,
-              fontWeight: FontWeight.w700,
-              color: _maroonPrimary,
-              height: 1.2,
+              fontSize: 13,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
             ),
           ),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF3F4F6),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.info_outline_rounded,
-                  size: 16,
-                  color: Colors.grey[600],
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Informasi tunjangan dan potongan gaji staff',
-                    style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
+        ),
+      ],
       ),
     )
         .animate()
@@ -390,6 +388,8 @@ class _AllowancesAndDeductionsScreenState
               child: AllowancesAndDeductionsContainer(
                 allowances: state.allowances,
                 deductions: state.deductions,
+                baseSalary:
+                    5000000.0, // Default base salary for calculation, you can get this from user context
               ),
             ).animate().fadeIn(duration: 600.ms).slideY(
                   begin: 0.03,

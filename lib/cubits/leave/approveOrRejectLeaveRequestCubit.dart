@@ -1,4 +1,5 @@
 import 'package:eschool_saas_staff/data/repositories/leaveRepository.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class ApproveOrRejectLeaveRequestState {}
@@ -35,7 +36,10 @@ class ApproveOrRejectLeaveRequestCubit
       //// 0 -> Pending, 1 -> Approved, 2 -> Rejected
       emit(ApproveOrRejectLeaveRequestSuccess());
     } catch (e) {
-      emit(ApproveOrRejectLeaveRequestFailure(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(ApproveOrRejectLeaveRequestFailure(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 }

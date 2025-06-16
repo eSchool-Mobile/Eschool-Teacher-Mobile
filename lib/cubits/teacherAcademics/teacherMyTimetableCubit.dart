@@ -1,5 +1,6 @@
 import 'package:eschool_saas_staff/data/models/timeTableSlot.dart';
 import 'package:eschool_saas_staff/data/repositories/teacherAcademicRepository.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:convert';
 
@@ -50,7 +51,10 @@ class TeacherMyTimetableCubit extends Cubit<TeacherMyTimetableState> {
       emit(TeacherMyTimetableFetchSuccess(timeTableSlots: slots));
     } catch (e) {
       print("Error fetching timetable slots: $e");
-      emit(TeacherMyTimetableFetchFailure(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(TeacherMyTimetableFetchFailure(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 
@@ -78,7 +82,10 @@ class TeacherMyTimetableCubit extends Cubit<TeacherMyTimetableState> {
       emit(TeacherMyTimetableFetchSuccess(timeTableSlots: slots));
     } catch (e) {
       print("Error fetching timetable: $e");
-      emit(TeacherMyTimetableFetchFailure(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(TeacherMyTimetableFetchFailure(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 }

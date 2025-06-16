@@ -1,5 +1,6 @@
 import 'package:eschool_saas_staff/data/repositories/leaveRepository.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class ApplyLeaveState {}
@@ -42,7 +43,13 @@ class ApplyLeaveCubit extends Cubit<ApplyLeaveState> {
       );
       emit(ApplyLeaveSuccess());
     } catch (e) {
-      emit(ApplyLeaveFailure(e.toString()));
+      // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(ApplyLeaveFailure(userFriendlyMessage));
+
+      // Log technical error untuk debugging (hanya untuk development)
+      print(
+          'Technical error in applyLeave: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:eschool_saas_staff/data/models/leaveRequest.dart';
 import 'package:eschool_saas_staff/data/repositories/leaveRepository.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class LeaveRequestsState {}
@@ -33,7 +34,10 @@ class LeaveRequestsCubit extends Cubit<LeaveRequestsState> {
 
       emit(LeaveRequestsFetchSuccess(leaveRequests: leaveRequests));
     } catch (e) {
-      emit(LeaveRequestsFetchFailure(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(LeaveRequestsFetchFailure(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 }

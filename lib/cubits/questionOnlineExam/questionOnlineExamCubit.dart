@@ -4,6 +4,7 @@ import 'package:eschool_saas_staff/data/models/questionOnlineExam.dart';
 import 'package:eschool_saas_staff/data/repositories/onlineExamRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 // import 'package:eschool_saas_staff/data/models/BankSoal.dart';
 
 abstract class QuestionOnlineExamState {}
@@ -45,10 +46,15 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
         print(
             'Question ID: ${q.id}, Version: ${q.version}, Type: ${q.version.runtimeType}');
       }
-
       emit(QuestionOnlineExamSuccess(questions));
     } catch (e) {
-      emit(QuestionOnlineExamFailure(e.toString()));
+      // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(QuestionOnlineExamFailure(userFriendlyMessage));
+
+      // Log technical error untuk debugging (hanya untuk development)
+      print(
+          'Technical error in getQuestions: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 
@@ -62,7 +68,13 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
       emit(QuestionOnlineExamSuccess(questions));
     } catch (e) {
       print("ELOL 1");
-      emit(QuestionOnlineExamFailure(e.toString()));
+      // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(QuestionOnlineExamFailure(userFriendlyMessage));
+
+      // Log technical error untuk debugging (hanya untuk development)
+      print(
+          'Technical error in loadQuestionsFromBank: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 
@@ -78,7 +90,13 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
       emit(QuestionOnlineExamSuccess(questions));
     } catch (e) {
       print("ELOL 2");
-      emit(QuestionOnlineExamFailure(e.toString()));
+      // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(QuestionOnlineExamFailure(userFriendlyMessage));
+
+      // Log technical error untuk debugging (hanya untuk development)
+      print(
+          'Technical error in getOnlineExamResultQuestions: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 
@@ -89,7 +107,13 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
       emit(QuestionBanksLoaded(banks));
     } catch (e) {
       print("ELOL 3");
-      emit(QuestionOnlineExamFailure(e.toString()));
+      // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(QuestionOnlineExamFailure(userFriendlyMessage));
+
+      // Log technical error untuk debugging (hanya untuk development)
+      print(
+          'Technical error in getBankSoal: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 
@@ -119,7 +143,13 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
       print('=== CUBIT DELETE ERROR ===');
       print('Error Type: ${e.runtimeType}');
       print('Error Message: $e');
-      emit(QuestionOnlineExamFailure(e.toString()));
+      // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(QuestionOnlineExamFailure(userFriendlyMessage));
+
+      // Log technical error untuk debugging (hanya untuk development)
+      print(
+          'Technical error in deleteQuestions: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
       rethrow;
     }
   }

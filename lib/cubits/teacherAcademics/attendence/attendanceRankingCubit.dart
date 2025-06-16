@@ -1,5 +1,6 @@
 import 'package:eschool_saas_staff/data/models/attendanceRanking.dart';
 import 'package:eschool_saas_staff/data/repositories/attendanceRankingRepository.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class AttendanceRankingState {}
@@ -37,7 +38,11 @@ class AttendanceRankingCubit extends Cubit<AttendanceRankingState> {
         await Future.delayed(const Duration(seconds: 2));
         getAttendanceRanking(retryCount: retryCount - 1);
       } else {
-        emit(AttendanceRankingFetchFailure(e.toString()));
+        final userFriendlyMessage =
+            ErrorMessageUtils.getReadableErrorMessage(e);
+        emit(AttendanceRankingFetchFailure(userFriendlyMessage));
+        print(
+            'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
       }
     }
   }

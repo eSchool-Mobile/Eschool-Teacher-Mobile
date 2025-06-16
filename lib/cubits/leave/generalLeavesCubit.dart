@@ -1,6 +1,7 @@
 import 'package:eschool_saas_staff/data/models/leaveDetails.dart';
 import 'package:eschool_saas_staff/data/repositories/leaveRepository.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class GeneralLeavesState {}
@@ -52,7 +53,10 @@ class GeneralLeavesCubit extends Cubit<GeneralLeavesState> {
       print('Error: $e');
       print('Stack trace:\n${StackTrace.current}');
       print('=== DEBUG: End Error ===\n');
-      emit(GeneralLeavesFetchFailure(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(GeneralLeavesFetchFailure(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 }

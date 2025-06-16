@@ -1,6 +1,7 @@
 // ignore: depend_on_referenced_packages
 import 'package:bloc/bloc.dart';
 import 'package:eschool_saas_staff/data/repositories/studentRepository.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 abstract class SubmitExamMarksState {}
 
@@ -43,7 +44,13 @@ class SubmitExamMarksCubit extends Cubit<SubmitExamMarksState> {
       );
       emit(SubmitExamMarksSubmitSuccess());
     } catch (e) {
-      emit(SubmitExamMarksSubmitFailure(errorMessage: e.toString()));
+      // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(SubmitExamMarksSubmitFailure(errorMessage: userFriendlyMessage));
+
+      // Log technical error untuk debugging (hanya untuk development)
+      print(
+          'Technical error in submitOfflineExamMarks: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 }

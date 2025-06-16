@@ -881,6 +881,7 @@ class StaffPayrollDetailsContainerState
                                       widget.staffPayRoll.getAllowances(),
                                   deductions:
                                       widget.staffPayRoll.getDeductions(),
+                                  baseSalary: widget.staffPayRoll.salary,
                                 ),
                                 context: context,
                               );

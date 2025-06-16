@@ -1,5 +1,6 @@
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/repositories/academicRepository.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class ClassesState {}
@@ -38,7 +39,10 @@ class ClassesCubit extends Cubit<ClassesState> {
           classes: result.classes, primaryClasses: result.primaryClasses));
     } catch (e) {
       print("Error fetching classes: $e"); // Debug log
-      emit(ClassesFetchFailure(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(ClassesFetchFailure(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 

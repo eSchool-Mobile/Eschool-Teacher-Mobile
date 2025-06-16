@@ -5,6 +5,7 @@ import 'package:eschool_saas_staff/data/models/question.dart';
 import 'package:eschool_saas_staff/data/models/questionBank.dart';
 import 'package:eschool_saas_staff/data/models/subjectQuestion.dart';
 import 'package:eschool_saas_staff/data/repositories/questionBankRepository.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 // Tambahkan import File
 import 'dart:io';
 
@@ -67,7 +68,10 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
       emit(SubjectsFetchSuccess(subjects));
     } catch (e) {
       print("Error in QuestionBankCubit: $e");
-      emit(QuestionBankError(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(QuestionBankError(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 
@@ -86,8 +90,11 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
       );
 
       emit(BankQuestionsFetchSuccess(questions));
-    } catch (e, stackTrace) {
-      emit(QuestionBankError(e.toString()));
+    } catch (e) {
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(QuestionBankError(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 
@@ -97,7 +104,10 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
       final bankSoal = await _repository.getBankSoal(subjectId);
       emit(BankSoalFetchSuccess(bankSoal));
     } catch (e) {
-      emit(QuestionBankError(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(QuestionBankError(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 
@@ -117,7 +127,8 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
       final bankSoal = await _repository.getBankSoal(subjectId);
       emit(BankSoalFetchSuccess(bankSoal));
     } catch (e) {
-      emit(QuestionBankError(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(QuestionBankError(userFriendlyMessage));
       throw e; // Re-throw to handle in UI
     }
   }
@@ -139,7 +150,8 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
       final bankSoal = await _repository.getBankSoal(subjectId);
       emit(BankSoalFetchSuccess(bankSoal));
     } catch (e) {
-      emit(QuestionBankError(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(QuestionBankError(userFriendlyMessage));
       throw e;
     }
   }
@@ -203,7 +215,10 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
       print('\n=== ERROR IN CUBIT ===');
       print('Error Type: ${e.runtimeType}');
       print('Error Message: $e');
-      emit(QuestionBankError(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(QuestionBankError(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
       throw e;
     }
   }
@@ -263,7 +278,10 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
         return;
       }
 
-      emit(QuestionBankError(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(QuestionBankError(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
       throw e;
     }
   }
@@ -291,7 +309,10 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
       print('✅ Delete process completed successfully');
     } catch (e) {
       print('❌ Delete Error in Cubit: $e');
-      emit(QuestionBankError(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(QuestionBankError(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
       throw e;
     }
   }
@@ -325,7 +346,11 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
       if (e.toString().contains('validation.exists')) {
         emit(QuestionBankError('Soal tidak ditemukan atau sudah dihapus'));
       } else {
-        emit(QuestionBankError(e.toString()));
+        final userFriendlyMessage =
+            ErrorMessageUtils.getReadableErrorMessage(e);
+        emit(QuestionBankError(userFriendlyMessage));
+        print(
+            'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
       }
       throw e;
     }

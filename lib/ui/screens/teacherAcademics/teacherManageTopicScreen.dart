@@ -11,7 +11,6 @@ import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherAddEditTop
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/confirmDeleteDialog.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -84,46 +83,24 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
   TeacherSubject? _selectedSubject;
   Lesson? _selectedLesson;
   bool didCreateNewTopic = false; // For tracking new topic creation
-
   // Animation controllers
   late AnimationController _fadeController;
-  late Animation<double> _fadeAnimation;
   late AnimationController _slideController;
-  late Animation<Offset> _slideAnimation;
   late AnimationController _fabAnimationController;
 
   // For header collapsing effect
   final ScrollController _scrollController = ScrollController();
   @override
   void initState() {
-    super.initState();
-
-    // Initialize animations
+    super.initState();    // Initialize animations
     _fadeController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 800),
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _fadeController,
-        curve: Curves.easeInOut,
-      ),
-    );
-
     _slideController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 700),
-    );
-
-    _slideAnimation = Tween<Offset>(
-      begin: Offset(0, 0.2),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _slideController,
-        curve: Curves.easeOutQuint,
-      ),
     );
 
     // Initialize app bar animation controller
@@ -201,9 +178,72 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
         classSubjectId: _selectedSubject?.classSubjectId ?? 0,
         classSectionId: _selectedClassSection?.id ?? 0);
   }
-
   void getTopics() {
     context.read<TopicsCubit>().fetchTopics(lessonId: _selectedLesson?.id ?? 0);
+  }
+
+  IconData _getFileTypeIcon(String fileName) {
+    final extension = fileName.split('.').last.toLowerCase();
+
+    switch (extension) {
+      case 'pdf':
+        return Icons.picture_as_pdf_outlined;
+      case 'doc':
+      case 'docx':
+        return Icons.description_outlined;
+      case 'xls':
+      case 'xlsx':
+        return Icons.table_chart_outlined;
+      case 'ppt':
+      case 'pptx':
+        return Icons.slideshow_outlined;
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+        return Icons.image_outlined;
+      case 'mp4':
+      case 'avi':
+      case 'mov':
+        return Icons.video_file_outlined;
+      case 'mp3':
+      case 'wav':
+        return Icons.audio_file_outlined;
+      default:
+        return Icons.insert_drive_file_outlined;
+    }
+  }
+
+  String _getFileType(String fileName) {
+    final extension = fileName.split('.').last.toLowerCase();
+
+    switch (extension) {
+      case 'pdf':
+        return 'PDF Document';
+      case 'doc':
+      case 'docx':
+        return 'Word Document';
+      case 'xls':
+      case 'xlsx':
+        return 'Excel Spreadsheet';
+      case 'ppt':
+      case 'pptx':
+        return 'PowerPoint Presentation';
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+        return 'Image File';
+      case 'mp4':
+      case 'avi':
+      case 'mov':
+        return 'Video File';
+      case 'mp3':
+      case 'wav':
+        return 'Audio File';
+      default:
+        return extension.toUpperCase() + ' File';
+    }
   }
 
   Widget _buildTopicItem({required Topic topic}) {
@@ -772,8 +812,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                                   color: Colors.grey.shade200,
                                   width: 1,
                                 ),
-                              ),
-                              child: Text(
+                              ),                              child: Text(
                                 topic.description,
                                 style: GoogleFonts.poppins(
                                   fontSize: 14.5,
@@ -786,11 +825,262 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                           ],
                         ),
                       ),
+
+                      // Study materials section with enhanced styling - similar to lesson screen
+                      if (topic.studyMaterials.isNotEmpty)
+                        Container(
+                          padding: EdgeInsets.all(26),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border(
+                              bottom: BorderSide(
+                                color: Colors.grey.shade100,
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: maroonPrimary.withOpacity(0.08),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      Icons.attach_file_rounded,
+                                      color: maroonPrimary,
+                                      size: 18,
+                                    ),
+                                  ),
+                                  SizedBox(width: 12),
+                                  Text(
+                                    "Materi Topik",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: textDarkColor,
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+
+                                  // Animated counter badge
+                                  TweenAnimationBuilder<double>(
+                                    tween: Tween<double>(begin: 0.8, end: 1.0),
+                                    duration: Duration(milliseconds: 300),
+                                    builder: (context, value, child) {
+                                      return Transform.scale(
+                                        scale: value,
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 3),
+                                          decoration: BoxDecoration(
+                                            color:
+                                                maroonPrimary.withOpacity(0.1),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            border: Border.all(
+                                              color: maroonPrimary
+                                                  .withOpacity(0.2),
+                                              width: 1,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            "${topic.studyMaterials.length}",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              color: maroonPrimary,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 16),
+
+                              // Enhanced file list container
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade50,
+                                  borderRadius: BorderRadius.circular(18),
+                                  border: Border.all(
+                                    color: Colors.grey.shade200,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(18),
+                                  child: Column(
+                                    children: topic.studyMaterials
+                                        .asMap()
+                                        .entries
+                                        .map((entry) {
+                                      final index = entry.key;
+                                      final material = entry.value;
+
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey.shade50,
+                                          border: index > 0
+                                              ? Border(
+                                                  top: BorderSide(
+                                                    color: Colors.grey.shade200,
+                                                    width: 1,
+                                                  ),
+                                                )
+                                              : null,
+                                        ),
+                                        padding: EdgeInsets.all(18),
+                                        child: Row(
+                                          children: [
+                                            // Enhanced file icon
+                                            Container(
+                                              width: 48,
+                                              height: 48,
+                                              padding: EdgeInsets.all(12),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(14),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withOpacity(0.05),
+                                                    blurRadius: 10,
+                                                    offset: Offset(0, 3),
+                                                    spreadRadius: -2,
+                                                  ),
+                                                ],
+                                                border: Border.all(
+                                                  color: Colors.grey.shade100,
+                                                  width: 1,
+                                                ),
+                                              ),                                              child: Icon(
+                                                _getFileTypeIcon(
+                                                    material.fileName),
+                                                color: maroonPrimary,
+                                                size: 20,
+                                              ),
+                                            ),
+                                            SizedBox(width: 16),
+
+                                            // Enhanced file info
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [                                                  Text(
+                                                    material.fileName,
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 14.5,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: textDarkColor,
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                  SizedBox(height: 4),
+                                                  Container(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 8,
+                                                            vertical: 3),
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          Colors.grey.shade200,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              6),
+                                                    ),
+                                                    child: Text(                                                      _getFileType(
+                                                          material.fileName),
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                        fontSize: 11,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color: textMediumColor,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+
+                                            // Enhanced download button with animation
+                                            Material(
+                                              color: Colors.transparent,
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  HapticFeedback.lightImpact();
+                                                  Utils.viewOrDownloadStudyMaterial(
+                                                    context: context,
+                                                    storeInExternalStorage: true,
+                                                    studyMaterial: material,
+                                                  );
+                                                },
+                                                borderRadius:
+                                                    BorderRadius.circular(14),
+                                                child: Container(
+                                                  width: 44,
+                                                  height: 44,
+                                                  decoration: BoxDecoration(
+                                                    gradient: LinearGradient(
+                                                      colors: [
+                                                        Colors.blue.shade500,
+                                                        Colors.blue.shade700
+                                                      ],
+                                                      begin: Alignment.topLeft,
+                                                      end:
+                                                          Alignment.bottomRight,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            14),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors
+                                                            .blue.shade700
+                                                            .withOpacity(0.25),
+                                                        blurRadius: 12,
+                                                        offset: Offset(0, 4),
+                                                        spreadRadius: -3,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.download_rounded,
+                                                    color: Colors.white,
+                                                    size: 22,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                 ),
               ),
-            );
+              );
           },
         );
       }),
@@ -1616,7 +1906,6 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
       ),
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

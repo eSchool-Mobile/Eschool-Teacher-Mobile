@@ -4,6 +4,16 @@ const String signInScreenSubTitleKey = "signInScreenSubTitle";
 const String defaultErrorMessageKey = "defaultErrorMessage";
 const String retryKey = "retry";
 const String noInternetKey = "noInternet";
+
+// Error message keys untuk pesan yang lebih ramah
+const String connectionErrorKey = "connectionError";
+const String serverNotReachableKey = "serverNotReachable";
+const String timeoutErrorKey = "timeoutError";
+const String unknownErrorKey = "connectionError";
+const String pleaseCheckConnectionKey = "pleaseCheckConnection";
+const String serverMaintenanceKey = "serverMaintenance";
+const String requestFailedKey = "requestFailed";
+
 const String emailKey = "email";
 const String passwordKey = "password";
 
@@ -464,7 +474,6 @@ const String noAttendanceRankingKey = "noAttendanceRanking";
 const String recapAttendanceSubjectKey = "recapAttendanceSubject";
 
 // Add these new keys
-// ...existing code...
 
 // Exam screen labels
 const String viewTimetableKey = "View Timetable";
@@ -474,5 +483,3 @@ const String noExamsFoundKey = "No Exams Found";
 const String tryDifferentFiltersKey = "Try different filters or refresh";
 const String refreshKey = "Refresh";
 const String loadingExamsKey = "Loading Exams...";
-
-// ...existing code...

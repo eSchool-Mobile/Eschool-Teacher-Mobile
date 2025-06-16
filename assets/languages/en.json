@@ -4,6 +4,7 @@
   "defaultErrorMessage": "Something went wrong. Please try again later",
   "retry": "Retry",
   "noInternet": "No internet",
+  "connectionError": "There is a server problem or no internet connection. Please check your connection",
   "email": "Email",
   "password": "Password",
   "pleaseEnterEmail": "Please enter email",

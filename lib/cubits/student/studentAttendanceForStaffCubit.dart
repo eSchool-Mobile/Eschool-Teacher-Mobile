@@ -1,5 +1,6 @@
 import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
 import 'package:eschool_saas_staff/data/repositories/studentRepository.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class StudentAttendanceForStaffState {}
@@ -70,7 +71,10 @@ class StudentAttendanceForStaffCubit
           fetchMoreInProgress: false,
           totalPage: result.totalPage));
     } catch (e) {
-      emit(StudentAttendanceForStaffFetchFailure(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(StudentAttendanceForStaffFetchFailure(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 

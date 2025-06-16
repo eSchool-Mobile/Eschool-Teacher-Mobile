@@ -5,6 +5,7 @@
   "defaultErrorMessage": "Terjadi kesalahan. Silakan coba lagi nanti",
   "retry": "Coba lagi",
   "noInternet": "Tidak ada internet",
+  "connectionError": "Sedang ada masalah server atau tidak ada koneksi internet. Cek kembali koneksi Anda",
   "email": "Email",
   "password": "Kata sandi",
   "pleaseEnterEmail": "Silakan masukkan email",

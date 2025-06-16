@@ -1,6 +1,7 @@
 import 'package:eschool_saas_staff/data/models/attendanceStudent.dart';
 import 'package:eschool_saas_staff/data/models/holiday.dart';
 import 'package:eschool_saas_staff/data/repositories/subjectAttendanceRepository.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class SubjectAttendanceState {}
@@ -73,7 +74,10 @@ class SubjectAttendanceCubit extends Cubit<SubjectAttendanceState> {
     } catch (e, stackTrace) {
       print("Error fetching attendance: $e");
       print("Stack trace: $stackTrace");
-      emit(SubjectAttendanceFetchFailure(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(SubjectAttendanceFetchFailure(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 }
