@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/userDetails.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
@@ -100,6 +102,9 @@ class AuthRepository {
         "password": password,
         "fcm_id": await getFcmToken(),
       }, url: Api.login, useAuthToken: false);
+
+      print("ANGZAIII");
+      JsonEncoder.withIndent('  ').convert(result).split('\n').forEach(print);
 
       return (
         token: (result['token'] ?? "").toString(),

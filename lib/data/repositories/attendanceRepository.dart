@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:eschool_saas_staff/data/models/holiday.dart';
 import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
@@ -29,6 +31,9 @@ class AttendanceRepository {
       if (result['data'] == null || result['is_holiday'] == null) {
         throw ApiException("Invalid response from API");
       }
+
+      JsonEncoder.withIndent('  ').convert(result).split('\n').forEach(print);
+      print("KUCING MESIR");
 
       return (
         attendance: (result['data'] as List)

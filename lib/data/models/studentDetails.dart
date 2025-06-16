@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:eschool_saas_staff/data/models/offlineExamSubjectResult.dart';
 import 'package:eschool_saas_staff/data/models/paidFeeDetails.dart';
 import 'package:eschool_saas_staff/data/models/payment.dart';
@@ -133,6 +135,18 @@ class StudentDetails {
   }
 
   factory StudentDetails.fromJson(Map<String, dynamic> json) {
+    // Debug status parsing
+    print("Raw status from API: ${json['status']} (type: ${json['status'].runtimeType})");
+    JsonEncoder.withIndent('  ').convert(json).split('\n').forEach(print);
+    
+    int? parsedStatus;
+    if (json['status'] is int) {
+      parsedStatus = json['status'] as int;
+    } else {
+      parsedStatus = int.tryParse(json['status']?.toString() ?? '');
+    }
+    print("Parsed status: $parsedStatus");
+
     // Handle new API format with class_section and payment_status
     ClassSection? classSection;
     if (json.containsKey('class_section')) {
@@ -292,7 +306,20 @@ class StudentDetails {
   }
 
   bool isActive() {
-    return (status == 1);
+    print("Student status check:");
+    print("Status value: $status");
+    print("Status type: ${status.runtimeType}");
+    
+    // Jika status null, kemungkinan ada masalah dengan API atau parsing
+    if (status == null) {
+      print("WARNING: Student status is null - check API response");
+      return false; // Default ke non-aktif jika tidak ada data status
+    }
+    
+    // Status 1 = aktif, 0 = non-aktif
+    bool isActiveStatus = (status == 1);
+    print("Is student active: $isActiveStatus");
+    return isActiveStatus;
   }
 }
 
