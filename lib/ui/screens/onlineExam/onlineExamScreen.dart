@@ -15,6 +15,8 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/services.dart';
 import 'dart:math' as math;
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 class OnlineExamScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -211,7 +213,12 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
               }
               if (state is OnlineExamFailure) {
                 return SliverFillRemaining(
-                  child: _buildError(state.message),
+                  child: CustomErrorWidget(
+                    message: ErrorMessageUtils.getReadableErrorMessage(
+                        state.message),
+                    onRetry: _refreshExams,
+                    primaryColor: _primaryColor,
+                  ),
                 );
               }
               return SliverToBoxAdapter(child: SizedBox());
@@ -1124,58 +1131,6 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildError(String message) {
-    return FadeIn(
-      duration: Duration(milliseconds: 800),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 80,
-              color: Colors.red[400],
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Terjadi Kesalahan',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[800],
-              ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              message,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: _refreshExams,
-              icon: Icon(Icons.refresh, color: Colors.white),
-              label: Text(
-                'Coba Lagi',
-                style: TextStyle(color: Colors.white),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _primaryColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              ),
-            ),
-          ],
         ),
       ),
     );

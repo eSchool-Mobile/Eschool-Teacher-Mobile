@@ -14,6 +14,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 class TermsAndConditionScreen extends StatefulWidget {
   const TermsAndConditionScreen({super.key});
@@ -277,9 +279,21 @@ class _TermsAndConditionScreenState extends State<TermsAndConditionScreen>
                                   },
                                 ),
                               )
-                            : const Center(
-                                child: CustomCircularProgressIndicator(),
-                              ),
+                            : state is SettingsFailure
+                                ? CustomErrorWidget(
+                                    message: ErrorMessageUtils
+                                        .getReadableErrorMessage(
+                                            state.errorMessage),
+                                    onRetry: () {
+                                      context
+                                          .read<SettingsCubit>()
+                                          .getSettings("terms_condition");
+                                    },
+                                    primaryColor: _maroonPrimary,
+                                  )
+                                : const Center(
+                                    child: CustomCircularProgressIndicator(),
+                                  ),
                       ),
                     ],
                   ),

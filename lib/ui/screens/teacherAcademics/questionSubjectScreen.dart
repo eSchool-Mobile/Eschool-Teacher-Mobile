@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 import 'dart:ui';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,10 +8,8 @@ import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:eschool_saas_staff/app/routes.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lottie/lottie.dart';
 import '../../../cubits/teacherAcademics/assignment/questionBankCubit.dart';
-import '../../../data/models/question.dart';
 import '../../../data/models/subjectQuestion.dart';
 import '../../../ui/widgets/customModernAppBar.dart';
 
@@ -543,72 +541,17 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
   }
 
   Widget _buildErrorView(String message) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.white,
-            Color(0xFFFFF0F0), // Very light maroon tint
-          ],
-        ),
-      ),
-      child: Center(
-        child: Padding(
-          padding: EdgeInsets.all(30),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Error image animation
-              SlideInDown(
-                duration: Duration(milliseconds: 800),
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Color(0xFFFFF0F0), // Very light maroon tint
-                    boxShadow: [
-                      BoxShadow(
-                        color: _highlightColor
-                            .withOpacity(0.3), // Using maroon instead of red
-                        blurRadius: 20,
-                        spreadRadius: 5,
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Icon(
-                      Icons.warning_amber_rounded,
-                      size: 70,
-                      color: _energyColor, // Using maroon instead of red accent
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-              Text(
-                'Oops! Terjadi Kesalahan',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: _accentColor, // Using maroon instead of purple
-                ),
-              ),
-              SizedBox(height: 10),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Color(0xFF5D0000), // Dark maroon instead of grey
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return CustomErrorWidget(
+      message: message,
+      onRetry: () {
+        Get.delete<QuestionSubjectController>();
+        context
+            .read<QuestionBankCubit>()
+            .fetchTeacherSubjects(isStaffView: widget.isStaffView);
+      },
+      retryButtonText: "Coba Lagi",
+      primaryColor: _accentColor,
+      title: "Oops! Terjadi Kesalahan",
     );
   }
 

@@ -16,6 +16,8 @@ import 'dart:ui';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 class RecapAttendanceSubjectScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -565,13 +567,17 @@ class _RecapAttendanceSubjectScreenState
                 }
               }
               if (state is ClassesFetchFailure) {
-                return Center(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      top: topPaddingOfErrorAndLoadingContainer,
-                    ),
-                    child: Text(
-                        'Failed to fetch classes data: ${state.errorMessage}'),
+                return Padding(
+                  padding: EdgeInsets.only(
+                    top: topPaddingOfErrorAndLoadingContainer,
+                  ),
+                  child: CustomErrorWidget(
+                    message: ErrorMessageUtils.getReadableErrorMessage(
+                        state.errorMessage),
+                    onRetry: () {
+                      context.read<ClassesCubit>().getClasses();
+                    },
+                    primaryColor: _maroonPrimary,
                   ),
                 );
               }

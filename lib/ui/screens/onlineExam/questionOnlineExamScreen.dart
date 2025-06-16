@@ -10,6 +10,8 @@ import 'package:glassmorphism/glassmorphism.dart';
 import 'package:flutter/services.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import '../../../app/routes.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 class UltraModernPatternPainter extends CustomPainter {
   final Color primaryColor;
@@ -323,7 +325,14 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                 }
 
                 if (state is QuestionOnlineExamFailure) {
-                  return _buildErrorState(state.message);
+                  return CustomErrorWidget(
+                    message: ErrorMessageUtils.getReadableErrorMessage(
+                        state.message),
+                    onRetry: () => context
+                        .read<QuestionOnlineExamCubit>()
+                        .getQuestions(widget.examId),
+                    primaryColor: _primaryColor,
+                  );
                 }
 
                 if (state is QuestionOnlineExamSuccess) {
@@ -468,43 +477,6 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
             style: TextStyle(
               color: Theme.of(context).colorScheme.secondary,
               fontSize: 16,
-            ),
-          ),
-        ],
-      ),
-    ).animate().fadeIn(duration: 600.ms);
-  }
-
-  Widget _buildErrorState(String message) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.red[300],
-          ).animate().shake(),
-          SizedBox(height: 16),
-          Text(
-            message,
-            style: TextStyle(fontSize: 16, color: Colors.grey[700]),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 16),
-          ElevatedButton.icon(
-            onPressed: () => context
-                .read<QuestionOnlineExamCubit>()
-                .getQuestions(widget.examId),
-            icon: Icon(Icons.refresh),
-            label: Text('Coba Lagi'),
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
             ),
           ),
         ],

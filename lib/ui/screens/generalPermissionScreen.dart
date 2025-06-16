@@ -3,7 +3,7 @@ import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.da
 import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/permissionDetailsContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
@@ -14,6 +14,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:ui';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 class GeneralPermissionScreen extends StatefulWidget {
   const GeneralPermissionScreen({super.key});
@@ -478,9 +479,11 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                         }
                       } else if (state is GeneralPermissionFetchFailure) {
                         return Center(
-                          child: ErrorContainer(
-                            errorMessage: state.errorMessage,
-                            onTapRetry: getLeaves,
+                          child: CustomErrorWidget(
+                            message: ErrorMessageUtils.getReadableErrorMessage(
+                                state.errorMessage),
+                            onRetry: getLeaves,
+                            primaryColor: _maroonPrimary,
                           ),
                         );
                       } else {

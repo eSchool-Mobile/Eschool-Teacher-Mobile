@@ -12,6 +12,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 class AllowancesAndDeductionsScreen extends StatefulWidget {
   const AllowancesAndDeductionsScreen({super.key});
@@ -69,45 +71,44 @@ class _AllowancesAndDeductionsScreenState
       margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 80),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       child: Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-        Utils.getTranslatedLabel(allowancesAndDeductionsKey),
-        style: GoogleFonts.poppins(
-          fontSize: 24,
-          fontWeight: FontWeight.w700,
-          color: _maroonPrimary,
-          height: 1.2,
-        ),
-        textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 10),
-        Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF3F4F6),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
-        ),
-        child: Row(
-          children: [
-
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-            'Informasi tunjangan dan potongan gaji staff',
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            Utils.getTranslatedLabel(allowancesAndDeductionsKey),
             style: GoogleFonts.poppins(
-              fontSize: 13,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              color: _maroonPrimary,
+              height: 1.2,
             ),
             textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+            ),
+            child: Row(
+              children: [
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Informasi tunjangan dan potongan gaji staff',
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
             ),
           ),
-          ],
-        ),
-        ),
-      ],
+        ],
       ),
     )
         .animate()
@@ -420,13 +421,15 @@ class _AllowancesAndDeductionsScreenState
               }
               if (state is AllowancesAndDeductionsFetchFailure) {
                 return Center(
-                  child: ErrorContainer(
-                    errorMessage: state.errorMessage,
-                    onTapRetry: () {
+                  child: CustomErrorWidget(
+                    message: ErrorMessageUtils.getReadableErrorMessage(
+                        state.errorMessage),
+                    onRetry: () {
                       context
                           .read<AllowancesAndDeductionsCubit>()
                           .fetchAllowancesAndDeductions();
                     },
+                    primaryColor: _maroonPrimary,
                   ),
                 );
               }
@@ -495,79 +498,5 @@ class AppBarDecorationPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return false;
-  }
-}
-
-// Enhanced error container with more attractive styling
-class ErrorContainer extends StatelessWidget {
-  final String errorMessage;
-  final VoidCallback onTapRetry;
-
-  const ErrorContainer({
-    required this.errorMessage,
-    required this.onTapRetry,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final Color maroonPrimary = const Color(0xFF800020);
-
-    return Container(
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.error_outline_rounded,
-            size: 60,
-            color: maroonPrimary,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Terjadi Kesalahan',
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[800],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            errorMessage,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 20),
-          CustomRoundedButton(
-            onTap: onTapRetry,
-            widthPercentage: 0.7,
-            backgroundColor: maroonPrimary,
-            buttonTitle: 'Coba Lagi',
-            showBorder: false,
-            titleColor: Colors.white,
-            height: 45,
-          ),
-        ],
-      ),
-    ).animate().fadeIn(duration: 400.ms).scale(
-          begin: const Offset(0.9, 0.9),
-          end: const Offset(1.0, 1.0),
-        );
   }
 }

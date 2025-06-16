@@ -14,7 +14,7 @@ import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/downloadPayRollSlipDialog.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/textWithFadedBackgroundContainer.dart';
@@ -27,6 +27,7 @@ import 'package:get/route_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 class MyPayrollScreen extends StatefulWidget {
   const MyPayrollScreen({super.key});
@@ -705,45 +706,44 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
                                 Container(
                                   padding: const EdgeInsets.all(4),
                                   decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(22),
-                                  boxShadow: [
-                                    BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 4,
-                                    offset: Offset(0, 2),
-                                    ),
-                                  ],
-                                  ),
-                                  child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
-                                  ),
-                                 
-                                  child: Row(
-                                    children: [
-                                    Icon(
-                                      Icons.check_circle,
-                                      size: 16,
-                                      color: Color(0xFF28A745),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      "Dibayar",
-                                      style: GoogleFonts.poppins(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color(0xFF28A745),
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(22),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.05),
+                                        blurRadius: 4,
+                                        offset: Offset(0, 2),
                                       ),
-                                    ),
                                     ],
                                   ),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.check_circle,
+                                          size: 16,
+                                          color: Color(0xFF28A745),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          "Dibayar",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color(0xFF28A745),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                                ],
-                              ),
-                              ),
+                              ],
+                            ),
+                          ),
 
                           // Payroll items list
                           Column(
@@ -768,16 +768,17 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
               ),
             ),
           );
-            
         }
 
         if (state is MyPayRollFetchFailure) {
           return Center(
-            child: ErrorContainer(
-              errorMessage: state.errorMessage,
-              onTapRetry: () {
+            child: CustomErrorWidget(
+              message:
+                  ErrorMessageUtils.getReadableErrorMessage(state.errorMessage),
+              onRetry: () {
                 getPayRoll();
               },
+              primaryColor: _maroonPrimary,
             ),
           );
         }
@@ -820,11 +821,13 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
 
               if (state is SessionYearsFetchFailure) {
                 return Center(
-                  child: ErrorContainer(
-                    errorMessage: state.errorMessage,
-                    onTapRetry: () {
+                  child: CustomErrorWidget(
+                    message: ErrorMessageUtils.getReadableErrorMessage(
+                        state.errorMessage),
+                    onRetry: () {
                       context.read<SessionYearsCubit>().getSessionYears();
                     },
+                    primaryColor: _maroonPrimary,
                   ),
                 );
               }
@@ -1193,7 +1196,6 @@ class _MyPayrollDetailsContainerState extends State<MyPayrollDetailsContainer>
                             // Right side with status and expand button
                             Row(
                               children: [
-                              
                                 const SizedBox(width: 8),
                                 Transform.rotate(
                                   angle:

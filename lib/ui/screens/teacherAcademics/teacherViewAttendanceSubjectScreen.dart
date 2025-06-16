@@ -11,7 +11,7 @@ import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.da
 import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/studentSubjectAttendanceContainer.dart';
@@ -28,6 +28,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
 import 'package:flutter/services.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 // Custom painter for decorative elements
 class AppBarDecorationPainter extends CustomPainter {
@@ -124,8 +125,6 @@ class _TeacherViewAttendanceSubjectScreenState
   // Animation controllers
   late AnimationController _fabAnimationController;
 
-
-
   List<ClassSection> allClasses = [];
 
   @override
@@ -167,8 +166,9 @@ class _TeacherViewAttendanceSubjectScreenState
         context.read<ClassesCubit>().stream.listen((classState) {
           if (mounted && classState is ClassesFetchSuccess) {
             // Get all available classes
-            final allAvailableClasses = context.read<ClassesCubit>().getAllClasses();
-            
+            final allAvailableClasses =
+                context.read<ClassesCubit>().getAllClasses();
+
             if (allAvailableClasses.isNotEmpty) {
               setState(() {
                 // Use the first class from all available classes
@@ -222,10 +222,10 @@ class _TeacherViewAttendanceSubjectScreenState
     // if (time == null) return '';
     return time.substring(0, 5).replaceAll(':', '.');
   }
-  
+
   String? _getDayInIndonesian(String? day) {
     if (day == null) return null;
-    
+
     // Map of English day names to Indonesian day names
     final Map<String, String> dayMapping = {
       'Monday': 'Senin',
@@ -236,8 +236,9 @@ class _TeacherViewAttendanceSubjectScreenState
       'Saturday': 'Sabtu',
       'Sunday': 'Minggu',
     };
-    
-    return dayMapping[day] ?? day; // Return the Indonesian name or the original if not found
+
+    return dayMapping[day] ??
+        day; // Return the Indonesian name or the original if not found
   }
 
   void getAttendance({StudentAttendanceStatus? selectedStatus}) {
@@ -670,7 +671,6 @@ class _TeacherViewAttendanceSubjectScreenState
                           ),
                         ),
                         const SizedBox(height: 8),
-
                       ],
                     ),
                   )
@@ -977,18 +977,21 @@ class _TeacherViewAttendanceSubjectScreenState
                                                       SizedBox(height: 2),
                                                       Row(
                                                         children: [
-                                                            Text(
-                                                            _getDayInIndonesian(selectedSlot.day) ?? '-',
+                                                          Text(
+                                                            _getDayInIndonesian(
+                                                                    selectedSlot
+                                                                        .day) ??
+                                                                '-',
                                                             style: GoogleFonts
-                                                              .poppins(
+                                                                .poppins(
                                                               fontSize: 16,
                                                               fontWeight:
-                                                                FontWeight
-                                                                  .bold,
+                                                                  FontWeight
+                                                                      .bold,
                                                               color:
-                                                                _maroonPrimary,
+                                                                  _maroonPrimary,
                                                             ),
-                                                            ),
+                                                          ),
                                                           Text(
                                                             ', ',
                                                             style: GoogleFonts
@@ -1017,9 +1020,6 @@ class _TeacherViewAttendanceSubjectScreenState
                                                 ),
                                               ],
                                             ),
-
-                                      
-                                      
                                           ],
                                         ),
                                       )
@@ -1054,20 +1054,29 @@ class _TeacherViewAttendanceSubjectScreenState
                                                   Row(
                                                     children: [
                                                       Container(
-                                                        padding: EdgeInsets.all(10),
-                                                        decoration: BoxDecoration(
-                                                          color: _maroonLight.withOpacity(0.15),
-                                                          shape: BoxShape.circle,
+                                                        padding:
+                                                            EdgeInsets.all(10),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: _maroonLight
+                                                              .withOpacity(
+                                                                  0.15),
+                                                          shape:
+                                                              BoxShape.circle,
                                                           boxShadow: [
                                                             BoxShadow(
-                                                              color: _maroonPrimary.withOpacity(0.1),
+                                                              color: _maroonPrimary
+                                                                  .withOpacity(
+                                                                      0.1),
                                                               blurRadius: 4,
-                                                              offset: Offset(0, 2),
+                                                              offset:
+                                                                  Offset(0, 2),
                                                             ),
                                                           ],
                                                         ),
                                                         child: Icon(
-                                                          Icons.auto_stories_rounded,
+                                                          Icons
+                                                              .auto_stories_rounded,
                                                           color: _maroonPrimary,
                                                           size: 20,
                                                         ),
@@ -1278,7 +1287,7 @@ class _TeacherViewAttendanceSubjectScreenState
                                                                         ),
                                                                       ),
                                                                     ),
-                
+
                                                                     // View button
                                                                     Padding(
                                                                       padding: const EdgeInsets
@@ -1421,7 +1430,6 @@ class _TeacherViewAttendanceSubjectScreenState
                                         letterSpacing: 0.5,
                                       ),
                                     ),
-
                                   ],
                                 ),
                               ),
@@ -1496,11 +1504,13 @@ class _TeacherViewAttendanceSubjectScreenState
                 child: Padding(
                   padding: EdgeInsets.only(
                       top: MediaQuery.of(context).size.height * 0.2),
-                  child: ErrorContainer(
-                    errorMessage: state.errorMessage,
-                    onTapRetry: () {
+                  child: CustomErrorWidget(
+                    message: ErrorMessageUtils.getReadableErrorMessage(
+                        state.errorMessage),
+                    onRetry: () {
                       getAttendance();
                     },
+                    primaryColor: _maroonPrimary,
                   ),
                 ),
               );
@@ -1818,8 +1828,6 @@ class _TeacherViewAttendanceSubjectScreenState
                             ),
                           ),
                         ),
-
-
                       ],
                     ),
                   ),
@@ -1851,10 +1859,13 @@ class _TeacherViewAttendanceSubjectScreenState
                         // Class filter
                         Expanded(
                           child: BlocBuilder<ClassesCubit, ClassesState>(
-                            builder: (context, state) {                      if (state is ClassesFetchSuccess) {
+                            builder: (context, state) {
+                              if (state is ClassesFetchSuccess) {
                                 // Get all classes - both primary and others
-                                final allAvailableClasses = context.read<ClassesCubit>().getAllClasses();
-                                
+                                final allAvailableClasses = context
+                                    .read<ClassesCubit>()
+                                    .getAllClasses();
+
                                 return Material(
                                   color: Colors.transparent,
                                   child: InkWell(
@@ -2140,8 +2151,6 @@ class _TeacherViewAttendanceSubjectScreenState
     );
   }
 
- 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -2171,7 +2180,6 @@ class _TeacherViewAttendanceSubjectScreenState
             },
           ),
           _buildAppbarAndFilters(),
-
         ],
       ),
     );
@@ -2185,16 +2193,18 @@ class _TeacherViewAttendanceSubjectScreenState
             orElse: () => ClassSection())
         .fullName;
   }
+
   void getClasses() async {
     try {
       final classState = context.read<ClassesCubit>().state;
 
       if (classState is ClassesFetchSuccess) {
         // Get all available classes from the system
-        final allAvailableClasses = context.read<ClassesCubit>().getAllClasses();
-        
+        final allAvailableClasses =
+            context.read<ClassesCubit>().getAllClasses();
+
         print("All available classes: ${allAvailableClasses.length} classes");
-        
+
         setState(() {
           // Use all available classes from ClassesCubit instead of just timetable slots
           allClasses = allAvailableClasses;

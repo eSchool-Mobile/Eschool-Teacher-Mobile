@@ -18,6 +18,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:lottie/lottie.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 class ContactUsScreen extends StatefulWidget {
   const ContactUsScreen({super.key});
@@ -194,54 +196,69 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                         child: state is SettingsProgress
                             ? const Center(
                                 child: CustomCircularProgressIndicator())
-                            : Column(
-                                children: [
-                                  if (state is SettingsSuccess) ...[
-                                    // Parse the state data into sections
-                                    ...(() {
-                                      final data = parseCustomHtml(state.data);
-                                      RegExp emailRegex = RegExp(
-                                          r'([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})');
-                                      RegExp phoneRegex =
-                                          RegExp(r'(\+?[\d\s-]{10,})');
-                                      RegExp addressRegex = RegExp(
-                                          r'(?:alamat|lokasi|address)[:\s]*(.*?)(?=\n\n|\n(?:[a-z]+[:\s]|$)|$)',
-                                          caseSensitive: false,
-                                          multiLine: true);
+                            : state is SettingsFailure
+                                ? CustomErrorWidget(
+                                    message: ErrorMessageUtils
+                                        .getReadableErrorMessage(
+                                            state.errorMessage),
+                                    onRetry: () {
+                                      context
+                                          .read<SettingsCubit>()
+                                          .getSettings("contact_us");
+                                    },
+                                    primaryColor: _maroonPrimary,
+                                  )
+                                : Column(
+                                    children: [
+                                      if (state is SettingsSuccess) ...[
+                                        // Parse the state data into sections
+                                        ...(() {
+                                          final data =
+                                              parseCustomHtml(state.data);
+                                          RegExp emailRegex = RegExp(
+                                              r'([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})');
+                                          RegExp phoneRegex =
+                                              RegExp(r'(\+?[\d\s-]{10,})');
+                                          RegExp addressRegex = RegExp(
+                                              r'(?:alamat|lokasi|address)[:\s]*(.*?)(?=\n\n|\n(?:[a-z]+[:\s]|$)|$)',
+                                              caseSensitive: false,
+                                              multiLine: true);
 
-                                      String? email =
-                                          emailRegex.firstMatch(data)?.group(1);
-                                      String? phone =
-                                          phoneRegex.firstMatch(data)?.group(1);
-                                      String? address = addressRegex
-                                          .firstMatch(data)
-                                          ?.group(1)
-                                          ?.trim();
+                                          String? email = emailRegex
+                                              .firstMatch(data)
+                                              ?.group(1);
+                                          String? phone = phoneRegex
+                                              .firstMatch(data)
+                                              ?.group(1);
+                                          String? address = addressRegex
+                                              .firstMatch(data)
+                                              ?.group(1)
+                                              ?.trim();
 
-                                      return [
-                                        if (email != null)
-                                          _buildContactCard(
-                                            Icons.email_rounded,
-                                            'Kirim Email',
-                                            email.trim(),
-                                          ),
-                                        if (phone != null)
-                                          _buildContactCard(
-                                            Icons.phone_rounded,
-                                            'Hubungi Kami',
-                                            phone.trim(),
-                                          ),
-                                        if (address != null)
-                                          _buildContactCard(
-                                            Icons.location_on_rounded,
-                                            'Kunjungi Kami',
-                                            address.trim(),
-                                          ),
-                                      ];
-                                    })(),
-                                  ],
-                                ],
-                              ),
+                                          return [
+                                            if (email != null)
+                                              _buildContactCard(
+                                                Icons.email_rounded,
+                                                'Kirim Email',
+                                                email.trim(),
+                                              ),
+                                            if (phone != null)
+                                              _buildContactCard(
+                                                Icons.phone_rounded,
+                                                'Hubungi Kami',
+                                                phone.trim(),
+                                              ),
+                                            if (address != null)
+                                              _buildContactCard(
+                                                Icons.location_on_rounded,
+                                                'Kunjungi Kami',
+                                                address.trim(),
+                                              ),
+                                          ];
+                                        })(),
+                                      ],
+                                    ],
+                                  ),
                       ),
                     ],
                   ),

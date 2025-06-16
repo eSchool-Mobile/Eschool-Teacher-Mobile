@@ -15,6 +15,8 @@ import 'package:glassmorphism/glassmorphism.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 class ExamStatusScreen extends StatefulWidget {
   const ExamStatusScreen({Key? key}) : super(key: key);
@@ -1274,11 +1276,11 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                         if (statusState is ExamStatusLoading) {
                           return _buildShimmerLoading();
                         }
-
                         if (statusState is ExamStatusFailure) {
-                          return _ErrorContainer(
-                            errorMessage: statusState.errorMessage,
-                            onTapRetry: _refreshExamStatus,
+                          return CustomErrorWidget(
+                            message: ErrorMessageUtils.getReadableErrorMessage(
+                                statusState.errorMessage),
+                            onRetry: _refreshExamStatus,
                             primaryColor: _primaryColor,
                           );
                         }
@@ -1296,11 +1298,11 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                 ],
               );
             }
-
             if (state is OnlineExamFailure) {
-              return _ErrorContainer(
-                errorMessage: state.message,
-                onTapRetry: () {
+              return CustomErrorWidget(
+                message:
+                    ErrorMessageUtils.getReadableErrorMessage(state.message),
+                onRetry: () {
                   context.read<OnlineExamCubit>().getOnlineExams();
                 },
                 primaryColor: _primaryColor,
@@ -1309,109 +1311,6 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
 
             return _buildShimmerLoading();
           },
-        ),
-      ),
-    );
-  }
-}
-
-// Internal custom widgets implementations
-
-class _ErrorContainer extends StatelessWidget {
-  final String errorMessage;
-  final VoidCallback onTapRetry;
-  final Color primaryColor;
-
-  const _ErrorContainer({
-    Key? key,
-    required this.errorMessage,
-    required this.onTapRetry,
-    required this.primaryColor,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return FadeIn(
-      duration: Duration(milliseconds: 800),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 80,
-              color: Colors.red[400],
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Terjadi Kesalahan',
-              style: GoogleFonts.poppins(
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[800],
-              ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              errorMessage,
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 20),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    primaryColor,
-                    Color(0xFF9D3C3C),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: primaryColor.withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                    spreadRadius: -5,
-                  ),
-                ],
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () {
-                    HapticFeedback.mediumImpact();
-                    onTapRetry();
-                  },
-                  splashColor: Colors.white.withOpacity(0.1),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.refresh, color: Colors.white),
-                        SizedBox(width: 8),
-                        Text(
-                          'Coba Lagi',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );

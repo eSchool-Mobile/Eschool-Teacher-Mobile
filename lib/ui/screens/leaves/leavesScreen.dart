@@ -4,7 +4,7 @@ import 'package:eschool_saas_staff/cubits/leave/userLeavesCubit.dart';
 import 'package:eschool_saas_staff/data/models/sessionYear.dart';
 import 'package:eschool_saas_staff/data/models/userDetails.dart';
 import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -16,6 +16,7 @@ import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'dart:ui';
 import 'package:intl/intl.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 class LeavesScreen extends StatefulWidget {
   final bool showMyLeaves;
@@ -268,9 +269,8 @@ class _LeavesScreenState extends State<LeavesScreen>
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 12,
-                    color: title == allowedLeavesKey
-                        ? maroonPrimary
-                        : maroonLight,
+                    color:
+                        title == allowedLeavesKey ? maroonPrimary : maroonLight,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -315,14 +315,11 @@ class _LeavesScreenState extends State<LeavesScreen>
                 borderRadius: BorderRadius.circular(2),
                 child: LinearProgressIndicator(
                   value: 0.7,
-                  backgroundColor: (title == allowedLeavesKey
-                      ? maroonPrimary
-                      : maroonLight)
-                      .withOpacity(0.1),
+                  backgroundColor:
+                      (title == allowedLeavesKey ? maroonPrimary : maroonLight)
+                          .withOpacity(0.1),
                   valueColor: AlwaysStoppedAnimation(
-                    title == allowedLeavesKey
-                        ? maroonPrimary
-                        : maroonLight,
+                    title == allowedLeavesKey ? maroonPrimary : maroonLight,
                   ),
                   minHeight: 3,
                 ),
@@ -436,7 +433,9 @@ class _LeavesScreenState extends State<LeavesScreen>
           }
 
           double remainingLeaves = (state.monthlyAllowedLeaves -
-              context.read<UserLeavesCubit>().getTakenLeavesCount(monthNumber: getSelectedMonthNumber()));
+              context
+                  .read<UserLeavesCubit>()
+                  .getTakenLeavesCount(monthNumber: getSelectedMonthNumber()));
           remainingLeaves = remainingLeaves < 0 ? 0 : remainingLeaves;
 
           return SingleChildScrollView(
@@ -508,25 +507,24 @@ class _LeavesScreenState extends State<LeavesScreen>
                         ],
                       ),
                       SizedBox(height: 24),
-                      LayoutBuilder(
-                        builder: (context, boxConstraints) {
-                          return Row(
-                            children: [
-                              _buildLeaveCountContainer(
-                                width: boxConstraints.maxWidth * 0.48,
-                                title: allowedLeavesKey,
-                                value: state.monthlyAllowedLeaves.toStringAsFixed(0),
-                              ),
-                              SizedBox(width: boxConstraints.maxWidth * 0.04),
-                              _buildLeaveCountContainer(
-                                width: boxConstraints.maxWidth * 0.48,
-                                title: remainingLeavesKey,
-                                value: remainingLeaves.toStringAsFixed(0),
-                              ),
-                            ],
-                          );
-                        }
-                      ),
+                      LayoutBuilder(builder: (context, boxConstraints) {
+                        return Row(
+                          children: [
+                            _buildLeaveCountContainer(
+                              width: boxConstraints.maxWidth * 0.48,
+                              title: allowedLeavesKey,
+                              value:
+                                  state.monthlyAllowedLeaves.toStringAsFixed(0),
+                            ),
+                            SizedBox(width: boxConstraints.maxWidth * 0.04),
+                            _buildLeaveCountContainer(
+                              width: boxConstraints.maxWidth * 0.48,
+                              title: remainingLeavesKey,
+                              value: remainingLeaves.toStringAsFixed(0),
+                            ),
+                          ],
+                        );
+                      }),
                     ],
                   ),
                 ),
@@ -595,7 +593,8 @@ class _LeavesScreenState extends State<LeavesScreen>
                               ),
                             ),
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
                                 color: maroonPrimary.withOpacity(0.08),
                                 borderRadius: BorderRadius.circular(20),
@@ -649,7 +648,8 @@ class _LeavesScreenState extends State<LeavesScreen>
                                 SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         "${leave.fromDate != null ? Utils.formatDate(DateTime.parse(leave.fromDate!)) : ''}",
@@ -672,7 +672,6 @@ class _LeavesScreenState extends State<LeavesScreen>
                                     ],
                                   ),
                                 ),
-                          
                               ],
                             ),
                           );
@@ -688,11 +687,13 @@ class _LeavesScreenState extends State<LeavesScreen>
 
         if (state is UserLeavesFetchFailure) {
           return Center(
-            child: ErrorContainer(
-              errorMessage: state.errorMessage,
-              onTapRetry: () {
+            child: CustomErrorWidget(
+              message:
+                  ErrorMessageUtils.getReadableErrorMessage(state.errorMessage),
+              onRetry: () {
                 getLeaves();
               },
+              primaryColor: maroonPrimary,
             ),
           );
         }
@@ -726,7 +727,6 @@ class _LeavesScreenState extends State<LeavesScreen>
     );
   }
 
- 
   PreferredSizeWidget _buildHeaderSection() {
     return CustomFilterModernAppBar(
       title: widget.showMyLeaves
@@ -904,9 +904,12 @@ class _LeavesScreenState extends State<LeavesScreen>
     );
   }
 
-  Widget _buildLeaveSummarySection(BuildContext context, UserLeavesFetchSuccess state) {
+  Widget _buildLeaveSummarySection(
+      BuildContext context, UserLeavesFetchSuccess state) {
     double remainingLeaves = (state.monthlyAllowedLeaves -
-        context.read<UserLeavesCubit>().getTakenLeavesCount(monthNumber: getSelectedMonthNumber()));
+        context
+            .read<UserLeavesCubit>()
+            .getTakenLeavesCount(monthNumber: getSelectedMonthNumber()));
     remainingLeaves = remainingLeaves < 0 ? 0 : remainingLeaves;
 
     return Container(
@@ -1132,11 +1135,13 @@ class _LeavesScreenState extends State<LeavesScreen>
 
             if (state is SessionYearsFetchFailure) {
               return Center(
-                child: ErrorContainer(
-                  errorMessage: state.errorMessage,
-                  onTapRetry: () {
+                child: CustomErrorWidget(
+                  message: ErrorMessageUtils.getReadableErrorMessage(
+                      state.errorMessage),
+                  onRetry: () {
                     context.read<SessionYearsCubit>().getSessionYears();
                   },
+                  primaryColor: maroonPrimary,
                 ),
               );
             }

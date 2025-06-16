@@ -16,6 +16,8 @@ import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.da
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 class AboutUsScreen extends StatefulWidget {
   const AboutUsScreen({super.key});
@@ -412,12 +414,15 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                         )
                       else if (state is SettingsFailure)
                         Center(
-                          child: Text(
-                            'Error: ${state.errorMessage}',
-                            style: GoogleFonts.poppins(
-                              color: Colors.red,
-                              fontSize: 16,
-                            ),
+                          child: CustomErrorWidget(
+                            message: ErrorMessageUtils.getReadableErrorMessage(
+                                state.errorMessage),
+                            onRetry: () {
+                              context
+                                  .read<SettingsCubit>()
+                                  .getSettings("about_us");
+                            },
+                            primaryColor: _maroonPrimary,
                           ),
                         )
                       else

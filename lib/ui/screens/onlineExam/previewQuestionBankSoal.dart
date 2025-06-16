@@ -17,6 +17,8 @@ import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
 import 'package:eschool_saas_staff/data/repositories/onlineExamRepository.dart';
 import '../../../cubits/teacherAcademics/assignment/questionBankCubit.dart';
 import '../../widgets/customModernAppBar.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 class PreviewQuestionBankSoal extends StatefulWidget {
   final BankSoalQuestion bank;
@@ -492,9 +494,12 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                     return Center(child: CircularProgressIndicator());
                   } else if (state is QuestionBankError &&
                       _allQuestions.isEmpty) {
-                    return Center(
-                        child: Text('Gagal memuat soal: ${state.message}',
-                            style: TextStyle(color: Colors.red)));
+                    return CustomErrorWidget(
+                      message: ErrorMessageUtils.getReadableErrorMessage(
+                          state.message),
+                      onRetry: _fetchQuestions,
+                      primaryColor: _primaryColor,
+                    );
                   }
                   return RefreshIndicator(
                       onRefresh: _fetchQuestions, child: _buildContent());

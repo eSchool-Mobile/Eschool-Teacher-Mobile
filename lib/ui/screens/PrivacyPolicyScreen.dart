@@ -14,6 +14,8 @@ import 'package:get/route_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 class PrivacyPolicyScreen extends StatefulWidget {
   const PrivacyPolicyScreen({super.key});
@@ -205,14 +207,23 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
                               ),
                             ],
                           ),
-                        ),
-
-                        // Main Content
+                        ), // Main Content
                         if (state is SettingsSuccess)
                           FadeInUp(
                             duration: const Duration(milliseconds: 800),
                             child: _buildContentSection(
                                 parseCustomHtml(state.data)),
+                          )
+                        else if (state is SettingsFailure)
+                          CustomErrorWidget(
+                            message: ErrorMessageUtils.getReadableErrorMessage(
+                                state.errorMessage),
+                            onRetry: () {
+                              context
+                                  .read<SettingsCubit>()
+                                  .getSettings("privacy_policy");
+                            },
+                            primaryColor: _maroonPrimary,
                           )
                         else if (state is SettingsProgress)
                           const Center(

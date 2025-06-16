@@ -1,13 +1,9 @@
 import 'package:eschool_saas_staff/cubits/teacherAcademics/attendence/attendanceRankingCubit.dart';
 import 'package:eschool_saas_staff/data/models/attendanceRanking.dart';
-import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/attendanceRankingContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +12,6 @@ import 'package:get/get.dart';
 import 'dart:ui';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:math';
 
 class RankingAttendanceScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -597,25 +592,16 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                       if (state is AttendanceRankingInProgress) {
                         return const Center(child: CircularProgressIndicator());
                       } else if (state is AttendanceRankingFetchFailure) {
-                        return Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const CustomTextContainer(
-                                textKey:
-                                    "Failed to fetch attendance ranking data",
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  context
-                                      .read<AttendanceRankingCubit>()
-                                      .getAttendanceRanking();
-                                },
-                                child:
-                                    const CustomTextContainer(textKey: "Retry"),
-                              ),
-                            ],
-                          ),
+                        return CustomErrorWidget(
+                          message: state.errorMessage,
+                          onRetry: () {
+                            context
+                                .read<AttendanceRankingCubit>()
+                                .getAttendanceRanking();
+                          },
+                          retryButtonText: "Coba Lagi",
+                          primaryColor: _maroonPrimary,
+                          title: "Gagal Memuat Data Ranking",
                         );
                       } else if (state is AttendanceRankingFetchSuccess) {
                         return SingleChildScrollView(

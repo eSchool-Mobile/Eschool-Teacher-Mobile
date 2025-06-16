@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +11,7 @@ import 'package:html/parser.dart' show parse;
 import 'package:eschool_saas_staff/cubits/questionOnlineExam/questionOnlineExamCubit.dart';
 import 'package:eschool_saas_staff/data/models/questionOnlineExam.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 class OnlineExamResultQuestionsScreen extends StatefulWidget {
   final int examId;
@@ -187,6 +188,20 @@ class _OnlineExamResultQuestionsScreenState
           }
           if (state is QuestionOnlineExamSuccess) {
             return _buildContent(state.questions);
+          }
+          if (state is QuestionOnlineExamFailure) {
+            return CustomErrorWidget(
+              message: ErrorMessageUtils.getReadableErrorMessage(state.message),
+              onRetry: () {
+                context
+                    .read<QuestionOnlineExamCubit>()
+                    .getOnlineExamResultQuestions(
+                      examId: widget.examId,
+                      search: _searchController.text,
+                    );
+              },
+              primaryColor: _primaryColor,
+            );
           }
 
           return const Center(child: CircularProgressIndicator());
