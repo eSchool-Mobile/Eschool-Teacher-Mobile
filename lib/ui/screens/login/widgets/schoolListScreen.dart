@@ -118,8 +118,6 @@ class _SchoolListScreenState extends State<SchoolListScreen>
 
   Future<void> _selectSchool(Map<String, dynamic> school) async {
     try {
-      print(JsonEncoder.withIndent('  ').convert(school));
-      print("ADUH ABANG FAREL GANTENGNYH");
       final prefs = await SharedPreferences.getInstance();
       final authRepository = AuthRepository();
 

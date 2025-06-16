@@ -16,7 +16,7 @@ import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/Get.dart';
+import 'package:get/get.dart';
 import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
