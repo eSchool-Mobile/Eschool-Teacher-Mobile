@@ -21,6 +21,11 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Utils {
+  static String formatNumber(int number) {
+    final formatter = intl.NumberFormat('#,###', 'id_ID');
+    return formatter.format(number).replaceAll(',', '.');
+  }
+
   String cleanClassName(String? className) {
     if (className == null) return "-";
 

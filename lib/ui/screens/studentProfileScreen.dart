@@ -244,24 +244,65 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                 isHighlighted: true,
                 icon: FontAwesomeIcons.envelope,
               ),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildStudentDetailsTitleAndValueContainer(
-                      titleKey: mobileKey,
-                      valueKey: guardian?.mobile ?? "-",
-                      icon: FontAwesomeIcons.phone,
-                    ),
-                  ),
-                  _buildCallButton(guardian?.mobile ?? ""),
-                ],
-              ),
               _buildStudentDetailsTitleAndValueContainer(
                 titleKey: genderKey,
                 valueKey: guardian?.getGender() ?? "-",
                 icon: (guardian?.getGender() ?? "").toLowerCase() == "female"
                     ? FontAwesomeIcons.venus
                     : FontAwesomeIcons.mars,
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 20),
+        _buildInfoCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: maroonPrimary.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      FontAwesomeIcons.phoneVolume,
+                      size: 20,
+                      color: maroonPrimary,
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                            "Kontak Wali",
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: textMediumColor,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                        Text(
+                          guardian?.mobile ?? "-",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: textDarkColor,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  _buildCallButton(guardian?.mobile ?? "-"),
+                ],
               ),
             ],
           ),

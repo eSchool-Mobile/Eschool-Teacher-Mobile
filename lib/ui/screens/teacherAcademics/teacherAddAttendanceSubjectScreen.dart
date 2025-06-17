@@ -7,17 +7,10 @@ import 'package:eschool_saas_staff/data/models/attendanceStudent.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
 import 'package:eschool_saas_staff/data/models/timeTableSlot.dart';
-import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/holidayAttendanceContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/studentAttendanceContainer.dart'
-    hide HapticFeedback;
-import 'package:eschool_saas_staff/ui/widgets/uploadImageOrFileLimitButton.dart';
+import 'package:eschool_saas_staff/ui/widgets/studentAttendanceContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -53,15 +46,13 @@ class TeacherAddAttendanceSubjectScreen extends StatefulWidget {
     );
   }
 
-  static Map<String, dynamic> buildArguments(
-      {required ClassSection? classSection,
-      required TimeTableSlot? timeTableSlot,
-      required bool isWithinTeachingHours // Tambahkan parameter ini
-      }) {
+  static Map<String, dynamic> buildArguments({
+    required ClassSection? classSection,
+    required TimeTableSlot? timeTableSlot,
+  }) {
     return {
       "classSection": classSection,
       "timeTableSlot": timeTableSlot,
-      "isWithinTeachingHours": isWithinTeachingHours
     };
   }
 
@@ -84,7 +75,6 @@ class _TeacherAddAttendanceScreenSubjectState
   int _selectedJumlahJp = 0;
   String _selectedMateri = '';
   String? _selectedLampiran;
-  bool _isWithinTeachingHours = false;
 
   // Color scheme for maroon theme
   final Color _maroonPrimary = const Color(0xFF800020);
@@ -135,7 +125,6 @@ class _TeacherAddAttendanceScreenSubjectState
         if (timeTableSlot != null) {
           _selectedTimeTableId = timeTableSlot.id!;
         }
-        _isWithinTeachingHours = arguments['isWithinTeachingHours'] as bool;
       }
 
       context.read<ClassesCubit>().getClasses();
@@ -144,13 +133,13 @@ class _TeacherAddAttendanceScreenSubjectState
         getAttendance();
         getStudentList();
       }
-    });    // Listen to attendance cubit state changes
+    }); // Listen to attendance cubit state changes
     context.read<SubjectAttendanceCubit>().stream.listen((state) {
       if (state is SubjectAttendanceFetchSuccess) {
         setState(() {
           _materiController.text = state.materi ?? ''; // Set saved materi
           _selectedMateri = state.materi ?? '';
-          
+
           // Display previously uploaded lampiran if available
           if (state.lampiran != null && state.lampiran!.isNotEmpty) {
             print("Loading previously uploaded attachment: ${state.lampiran}");
@@ -160,12 +149,13 @@ class _TeacherAddAttendanceScreenSubjectState
       }
     });
   }
+
   void getAttendance() {
     print("Fetching attendance data for:");
     print("- Date: ${_selectedDateTime}");
     print("- Class Section ID: ${_selectedClassSection?.id}");
     print("- Timetable ID: $_selectedTimeTableId");
-    
+
     context.read<SubjectAttendanceCubit>().fetchSubjectAttendance(
           date: _selectedDateTime,
           classSectionId: _selectedClassSection?.id ?? 0,
@@ -204,16 +194,17 @@ class _TeacherAddAttendanceScreenSubjectState
           .getTeacherMyTimetable(); // Perbarui jadwal pelajaran
     }
   }
+
   void resetForm() {
     setState(() {
       _selectedMateri = '';
-      
+
       // Only clear lampiran if it's a local file, not a server URL
       if (_selectedLampiran != null && !_selectedLampiran!.startsWith('http')) {
         _selectedLampiran = null;
         uploadedFiles.clear();
       }
-      
+
       attendanceReport.clear();
     });
   }
@@ -260,7 +251,6 @@ class _TeacherAddAttendanceScreenSubjectState
           }
 
           final allStudents = state.studentDetailsList;
-
           return StudentAttendanceContainer(
             studentAttendances: allStudents.map((e) {
               // Find matching attendance from previous submission
@@ -274,7 +264,7 @@ class _TeacherAddAttendanceScreenSubjectState
               );
             }).toList(),
             isForAddAttendance: true,
-            isReadOnly: !_isWithinTeachingHours,
+            isReadOnly: false, // Always allow editing
             onStatusChanged:
                 (List<({StudentAttendanceStatus status, int studentId})>
                     attendanceStatuses) {
@@ -347,356 +337,365 @@ class _TeacherAddAttendanceScreenSubjectState
                         const SizedBox(height: 8),
                       ],
                     ),
-                  )
-                      .animate()
-                      .fadeIn(duration: 400.ms)
-                      .slideY(begin: -0.1, end: 0, curve: Curves.easeOutQuad),
-
-                  // Form area with material input
-                  if (_isWithinTeachingHours)
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          // Form header
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 16),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  _maroonPrimary.withOpacity(0.9),
-                                  _maroonPrimary,
-                                  _maroonLight,
-                                ],
+                  ).animate().fadeIn(duration: 400.ms).slideY(
+                      begin: -0.1,
+                      end: 0,
+                      curve: Curves
+                          .easeOutQuad), // Form area with material input - Always show the form
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        // Form header
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 16),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                _maroonPrimary.withOpacity(0.9),
+                                _maroonPrimary,
+                                _maroonLight,
+                              ],
+                            ),
+                            borderRadius:
+                                BorderRadius.vertical(top: Radius.circular(16)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: _maroonPrimary.withOpacity(0.3),
+                                blurRadius: 10,
+                                offset: Offset(0, 3),
                               ),
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(16)),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: _maroonPrimary.withOpacity(0.3),
-                                  blurRadius: 10,
-                                  offset: Offset(0, 3),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                // Icon
-                                Container(
-                                  padding: EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.edit_note_rounded,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                )
-                                    .animate()
-                                    .fadeIn(duration: 300.ms)
-                                    .slideX(begin: -0.2, end: 0),
-                                const SizedBox(width: 16),
-                                // Title text
-                                Expanded(
-                                  child: Text(
-                                    'Detail Pembelajaran',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      color: Colors.white,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                            ],
                           ),
-
-                          // Materi input field
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Label for Materi field with icon
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.all(6),
-                                      decoration: BoxDecoration(
-                                        color: _maroonPrimary.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Icon(
-                                        Icons.menu_book_rounded,
-                                        size: 18,
-                                        color: _maroonPrimary,
-                                      ),
-                                    ),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Materi Pembelajaran',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.grey[700],
-                                      ),
-                                    ),
-                                  ],
+                          child: Row(
+                            children: [
+                              // Icon
+                              Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  shape: BoxShape.circle,
                                 ),
-                                SizedBox(height: 8),
-                                // Modern text field with shadow
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[50],
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.03),
-                                        blurRadius: 4,
-                                        offset: Offset(0, 2),
-                                      ),
-                                    ],
+                                child: Icon(
+                                  Icons.edit_note_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              )
+                                  .animate()
+                                  .fadeIn(duration: 300.ms)
+                                  .slideX(begin: -0.2, end: 0),
+                              const SizedBox(width: 16),
+                              // Title text
+                              Expanded(
+                                child: Text(
+                                  'Detail Pembelajaran',
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                    letterSpacing: 0.5,
                                   ),
-                                  child: TextFormField(
-                                    controller: _materiController,
-                                    minLines: 3,
-                                    maxLines: 5,
-                                    decoration: InputDecoration(
-                                      hintText:
-                                          'Tuliskan materi pembelajaran di sini...',
-                                      hintStyle: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        color: Colors.grey[400],
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide: BorderSide(
-                                          color: Colors.grey[300]!,
-                                          width: 1,
-                                        ),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide: BorderSide(
-                                          color: Colors.grey[300]!,
-                                          width: 1,
-                                        ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide: BorderSide(
-                                          color: _maroonPrimary,
-                                          width: 1.5,
-                                        ),
-                                      ),
-                                      contentPadding: EdgeInsets.all(16),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Materi input field
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Label for Materi field with icon
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: _maroonPrimary.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedMateri = value;
-                                      });
-                                    },
+                                    child: Icon(
+                                      Icons.menu_book_rounded,
+                                      size: 18,
+                                      color: _maroonPrimary,
+                                    ),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Materi Pembelajaran',
                                     style: GoogleFonts.poppins(
                                       fontSize: 14,
-                                      color: Colors.grey[800],
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[700],
                                     ),
                                   ),
-                                ),
-
-                                // File upload section
-                                SizedBox(height: 24),
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.all(6),
-                                      decoration: BoxDecoration(
-                                        color: _maroonPrimary.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Icon(
-                                        Icons.attachment_rounded,
-                                        size: 18,
-                                        color: _maroonPrimary,
-                                      ),
-                                    ),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Lampiran (Opsional)',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.grey[700],
-                                      ),
+                                ],
+                              ),
+                              SizedBox(height: 8),
+                              // Modern text field with shadow
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[50],
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.03),
+                                      blurRadius: 4,
+                                      offset: Offset(0, 2),
                                     ),
                                   ],
                                 ),
-                                SizedBox(height: 8),
-
-                                // Upload button
-                                InkWell(
-                                  onTap: () => pickFile(),
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Container(
-                                    width: double.infinity,
-                                    padding: EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: _maroonLight.withOpacity(0.3),
-                                        width: 1,
-                                        style: BorderStyle.solid,
-                                      ),
+                                child: TextFormField(
+                                  controller: _materiController,
+                                  minLines: 3,
+                                  maxLines: 5,
+                                  decoration: InputDecoration(
+                                    hintText:
+                                        'Tuliskan materi pembelajaran di sini...',
+                                    hintStyle: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      color: Colors.grey[400],
+                                    ),
+                                    border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      color: _selectedLampiran != null
-                                          ? _maroonPrimary.withOpacity(0.03)
-                                          : Colors.white,
+                                      borderSide: BorderSide(
+                                        color: Colors.grey[300]!,
+                                        width: 1,
+                                      ),
                                     ),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [                                        if (_selectedLampiran == null) ...[
-                                          Icon(
-                                            Icons.upload_file_rounded,
-                                            size: 32,
-                                            color: _maroonLight,
-                                          ),
-                                          SizedBox(height: 8),
-                                          Text(
-                                            'Klik untuk mengunggah lampiran',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 14,
-                                              color: _maroonLight,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          SizedBox(height: 4),
-                                          Text(
-                                            'Maksimal 2.5 MB',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 12,
-                                              color: Colors.grey[400],
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ] else ...[
-                                          Row(
-                                            children: [
-                                              Container(
-                                                padding: EdgeInsets.all(10),
-                                                decoration: BoxDecoration(
-                                                  color: _maroonPrimary
-                                                      .withOpacity(0.1),
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: Icon(
-                                                  _selectedLampiran!.startsWith('http')
-                                                      ? Icons.cloud_done_rounded
-                                                      : Icons.check_rounded,
-                                                  color: _maroonPrimary,
-                                                  size: 20,
-                                                ),
-                                              ),
-                                              SizedBox(width: 16),
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      _selectedLampiran!.startsWith('http')
-                                                          ? 'Lampiran dari server'
-                                                          : 'File berhasil diunggah',
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        color: _maroonPrimary,
-                                                      ),
-                                                    ),
-                                                    SizedBox(height: 2),
-                                                    Text(
-                                                      _selectedLampiran!.startsWith('http')
-                                                          ? _selectedLampiran!.split('/').last
-                                                          : _selectedLampiran!.split('/').last,
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                        fontSize: 12,
-                                                        color: Colors.grey[600],
-                                                      ),
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              IconButton(
-                                                icon: Icon(
-                                                  _selectedLampiran!.startsWith('http')
-                                                      ? Icons.visibility_outlined
-                                                      : Icons.delete_outline_rounded,
-                                                  color: _selectedLampiran!.startsWith('http')
-                                                      ? _maroonPrimary
-                                                      : Colors.redAccent,
-                                                ),                                                onPressed: () async {
-                                                  if (_selectedLampiran!.startsWith('http')) {
-                                                    // Try to launch URL using Uri.parse
-                                                    try {
-                                                      final Uri url = Uri.parse(_selectedLampiran!);
-                                                      if (!await launchUrl(url)) {
-                                                        Utils.showSnackBar(
-                                                          message: "Tidak dapat membuka URL: $_selectedLampiran",
-                                                          context: context
-                                                        );
-                                                      }
-                                                    } catch (e) {
-                                                      Utils.showSnackBar(
-                                                        message: "Tidak dapat membuka URL: $_selectedLampiran",
-                                                        context: context
-                                                      );
-                                                    }
-                                                  } else {
-                                                    // Delete local file
-                                                    setState(() {
-                                                      _selectedLampiran = null;
-                                                      uploadedFiles.clear();
-                                                    });
-                                                  }
-                                                },
-                                              ),
-                                            ],
-                                          )
-                                        ],
-                                      ],
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(
+                                        color: Colors.grey[300]!,
+                                        width: 1,
+                                      ),
                                     ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(
+                                        color: _maroonPrimary,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    contentPadding: EdgeInsets.all(16),
+                                  ),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _selectedMateri = value;
+                                    });
+                                  },
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    color: Colors.grey[800],
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+
+                              // File upload section
+                              SizedBox(height: 24),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: _maroonPrimary.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Icon(
+                                      Icons.attachment_rounded,
+                                      size: 18,
+                                      color: _maroonPrimary,
+                                    ),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Lampiran (Opsional)',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8),
+
+                              // Upload button
+                              InkWell(
+                                onTap: () => pickFile(),
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: _maroonLight.withOpacity(0.3),
+                                      width: 1,
+                                      style: BorderStyle.solid,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: _selectedLampiran != null
+                                        ? _maroonPrimary.withOpacity(0.03)
+                                        : Colors.white,
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      if (_selectedLampiran == null) ...[
+                                        Icon(
+                                          Icons.upload_file_rounded,
+                                          size: 32,
+                                          color: _maroonLight,
+                                        ),
+                                        SizedBox(height: 8),
+                                        Text(
+                                          'Klik untuk mengunggah lampiran',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            color: _maroonLight,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          'Maksimal 2.5 MB',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 12,
+                                            color: Colors.grey[400],
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ] else ...[
+                                        Row(
+                                          children: [
+                                            Container(
+                                              padding: EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                color: _maroonPrimary
+                                                    .withOpacity(0.1),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Icon(
+                                                _selectedLampiran!
+                                                        .startsWith('http')
+                                                    ? Icons.cloud_done_rounded
+                                                    : Icons.check_rounded,
+                                                color: _maroonPrimary,
+                                                size: 20,
+                                              ),
+                                            ),
+                                            SizedBox(width: 16),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    _selectedLampiran!
+                                                            .startsWith('http')
+                                                        ? 'Lampiran'
+                                                        : 'File berhasil diunggah',
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: _maroonPrimary,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 2),
+                                                  Text(
+                                                    _selectedLampiran!
+                                                            .startsWith('http')
+                                                        ? _selectedLampiran!
+                                                            .split('/')
+                                                            .last
+                                                        : _selectedLampiran!
+                                                            .split('/')
+                                                            .last,
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 12,
+                                                      color: Colors.grey[600],
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            IconButton(
+                                              icon: Icon(
+                                                _selectedLampiran!
+                                                        .startsWith('http')
+                                                    ? Icons.visibility_outlined
+                                                    : Icons
+                                                        .delete_outline_rounded,
+                                                color: _selectedLampiran!
+                                                        .startsWith('http')
+                                                    ? _maroonPrimary
+                                                    : Colors.redAccent,
+                                              ),
+                                              onPressed: () async {
+                                                if (_selectedLampiran!
+                                                    .startsWith('http')) {
+                                                  // Try to launch URL using Uri.parse
+                                                  try {
+                                                    final Uri url = Uri.parse(
+                                                        _selectedLampiran!);
+                                                    if (!await launchUrl(url)) {
+                                                      Utils.showSnackBar(
+                                                          message:
+                                                              "Tidak dapat membuka URL: $_selectedLampiran",
+                                                          context: context);
+                                                    }
+                                                  } catch (e) {
+                                                    Utils.showSnackBar(
+                                                        message:
+                                                            "Tidak dapat membuka URL: $_selectedLampiran",
+                                                        context: context);
+                                                  }
+                                                } else {
+                                                  // Delete local file
+                                                  setState(() {
+                                                    _selectedLampiran = null;
+                                                    uploadedFiles.clear();
+                                                  });
+                                                }
+                                              },
+                                            ),
+                                          ],
+                                        )
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    )
-                        .animate()
-                        .fadeIn(duration: 500.ms, delay: 100.ms)
-                        .slideY(begin: 0.05, end: 0, curve: Curves.easeOutQuad),
+                        ),
+                      ],
+                    ),
+                  )
+                      .animate()
+                      .fadeIn(duration: 500.ms, delay: 100.ms)
+                      .slideY(begin: 0.05, end: 0, curve: Curves.easeOutQuad),
 
                   // Students attendance list
                   Container(
@@ -773,31 +772,22 @@ class _TeacherAddAttendanceScreenSubjectState
                                         letterSpacing: 0.5,
                                       ),
                                     ),
-
                                   ],
                                 ),
-                              ),
-
-                              // Status badge
+                              ), // Status badge - Always show as active
                               Container(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: _isWithinTeachingHours
-                                      ? Colors.green.withOpacity(0.3)
-                                      : Colors.orange.withOpacity(0.3),
+                                  color: Colors.green.withOpacity(0.3),
                                   borderRadius: BorderRadius.circular(20),
                                   border: Border.all(
-                                    color: _isWithinTeachingHours
-                                        ? Colors.green.withOpacity(0.6)
-                                        : Colors.orange.withOpacity(0.6),
+                                    color: Colors.green.withOpacity(0.6),
                                     width: 1,
                                   ),
                                 ),
                                 child: Text(
-                                  _isWithinTeachingHours
-                                      ? 'Aktif'
-                                      : 'Hanya Lihat',
+                                  'Aktif',
                                   style: GoogleFonts.poppins(
                                     fontSize: 12,
                                     color: Colors.white,
@@ -867,8 +857,8 @@ class _TeacherAddAttendanceScreenSubjectState
     return BlocBuilder<SubjectAttendanceCubit, SubjectAttendanceState>(
       builder: (context, state) {
         if (state is SubjectAttendanceFetchSuccess) {
-          if (state.isHoliday || !_isWithinTeachingHours) {
-            // Hide button completely
+          if (state.isHoliday) {
+            // Hide button only for holidays, not for teaching hours
             return const SizedBox();
           }
           return BlocConsumer<SubmitAttendanceSubjectCubit,
@@ -979,11 +969,14 @@ class _TeacherAddAttendanceScreenSubjectState
                           print(
                               '   Student ID: ${attendance.studentId} - Status: $status');
                         }
-                        print('================================');                        // Only send lampiran if it's a local file path, not a URL
-                        final String lampiranToSend = (_selectedLampiran != null && !_selectedLampiran!.startsWith('http'))
-                            ? _selectedLampiran!
-                            : ''; 
-                        
+                        print(
+                            '================================'); // Only send lampiran if it's a local file path, not a URL
+                        final String lampiranToSend =
+                            (_selectedLampiran != null &&
+                                    !_selectedLampiran!.startsWith('http'))
+                                ? _selectedLampiran!
+                                : '';
+
                         context
                             .read<SubmitAttendanceSubjectCubit>()
                             .submitSubjectAttendance(

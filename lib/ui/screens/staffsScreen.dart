@@ -196,7 +196,8 @@ class _StaffsScreenState extends State<StaffsScreen>
       child: GestureDetector(
         onTap: () => changeTab(key),
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 8),
+          padding: EdgeInsets.symmetric(
+              vertical: 12), // Memperbesar padding vertikal untuk tab
           decoration: BoxDecoration(
             color: isSelected ? maroonPrimary : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
@@ -207,6 +208,7 @@ class _StaffsScreenState extends State<StaffsScreen>
               style: TextStyle(
                 color: isSelected ? Colors.white : maroonPrimary,
                 fontWeight: FontWeight.bold,
+                fontSize: 15, // Memperbesar ukuran font tab
               ),
             ),
           ),
@@ -483,7 +485,8 @@ class _StaffsScreenState extends State<StaffsScreen>
       appBar: CustomModernAppBar(
         title: "Staff",
         icon: Icons.people,
-        height: 120, // Memperbesar tinggi AppBar untuk mengakomodasi filter
+        height:
+            160, // Memperbesar tinggi AppBar untuk mengakomodasi filter dengan lebih baik
         fabAnimationController: _fabAnimationController,
         primaryColor: maroonPrimary,
         lightColor: maroonSecondary,
@@ -532,7 +535,7 @@ class _StaffsScreenState extends State<StaffsScreen>
           // Content area with proper padding for the AppBar
           Padding(
             padding:
-                EdgeInsets.only(top: 120 + MediaQuery.of(context).padding.top),
+                EdgeInsets.only(top: 160 + MediaQuery.of(context).padding.top),
             child: Column(
               children: [
                 // Search Bar

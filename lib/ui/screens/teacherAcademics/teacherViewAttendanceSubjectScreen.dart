@@ -6,13 +6,9 @@ import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCub
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/timeTableSlot.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/holidayAttendanceContainer.dart';
-import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
-import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/studentSubjectAttendanceContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
@@ -22,13 +18,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // Custom painter for decorative elements
 class AppBarDecorationPainter extends CustomPainter {
@@ -115,8 +111,6 @@ class _TeacherViewAttendanceSubjectScreenState
 
   final TextEditingController _materiController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  bool _isLoading = true;
-  bool _isStudentDataLoading = true;
 
   // Color scheme for maroon theme
   final Color _maroonPrimary = const Color(0xFF800020);
@@ -1215,45 +1209,7 @@ class _TeacherViewAttendanceSubjectScreenState
                                                                 child: Row(
                                                                   children: [
                                                                     // Thumbnail preview
-                                                                    SizedBox(
-                                                                      width: 80,
-                                                                      height:
-                                                                          80,
-                                                                      child:
-                                                                          CachedNetworkImage(
-                                                                        imageUrl:
-                                                                            state.lampiran!,
-                                                                        fit: BoxFit
-                                                                            .cover,
-                                                                        placeholder:
-                                                                            (context, url) =>
-                                                                                Center(
-                                                                          child:
-                                                                              SizedBox(
-                                                                            width:
-                                                                                24,
-                                                                            height:
-                                                                                24,
-                                                                            child:
-                                                                                CircularProgressIndicator(
-                                                                              strokeWidth: 2.0,
-                                                                              valueColor: AlwaysStoppedAnimation<Color>(_maroonLight),
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                        errorWidget: (context,
-                                                                                url,
-                                                                                error) =>
-                                                                            Container(
-                                                                          color: Colors
-                                                                              .grey
-                                                                              .shade100,
-                                                                          child: Icon(
-                                                                              Icons.error_outline,
-                                                                              color: Colors.red.shade300),
-                                                                        ),
-                                                                      ),
-                                                                    ),
+                                                                
 
                                                                     // File information
                                                                     Expanded(
@@ -2240,22 +2196,59 @@ class _TeacherViewAttendanceSubjectScreenState
           child: CachedNetworkImage(
             imageUrl: imageUrl,
             fit: BoxFit.cover,
+            memCacheWidth: 200,
+            memCacheHeight: 200,
+            maxWidthDiskCache: 400,
+            maxHeightDiskCache: 400,
+            filterQuality: FilterQuality.medium,
+            fadeInDuration: Duration(milliseconds: 300),
+            fadeOutDuration: Duration(milliseconds: 100),
             placeholder: (context, url) => Container(
               color: Colors.grey.shade100,
               child: Center(
                 child: SizedBox(
                   width: 20,
                   height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2.0),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.0,
+                    valueColor: AlwaysStoppedAnimation<Color>(_maroonPrimary),
+                  ),
                 ),
               ),
             ),
-            errorWidget: (context, url, error) => Container(
-              color: Colors.grey.shade100,
-              child: Center(
-                child: Icon(Icons.error_outline, color: Colors.red.shade300),
-              ),
-            ),
+            errorWidget: (context, url, error) {
+              print('Error loading thumbnail image: $error');
+              return GestureDetector(
+                onTap: () => _openImageExternally(imageUrl),
+                child: Container(
+                  color: Colors.grey.shade100,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.open_in_new_rounded,
+                        color: _maroonPrimary,
+                        size: 24,
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Buka di\nApp Lain',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 8,
+                          color: _maroonPrimary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+            httpHeaders: {
+              'User-Agent': 'Mozilla/5.0 (compatible; eSchool App)',
+              'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
+            },
           ),
         ),
       ),
@@ -2265,58 +2258,223 @@ class _TeacherViewAttendanceSubjectScreenState
   void _showAttachmentDialog(BuildContext context, String imageUrl) {
     showDialog(
       context: context,
+      barrierDismissible: true,
       builder: (BuildContext dialogContext) {
         return Dialog(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Stack(
-                children: [
-                  InteractiveViewer(
-                    panEnabled: true,
-                    boundaryMargin: EdgeInsets.all(20),
-                    minScale: 0.5,
-                    maxScale: 4,
-                    child: CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      fit: BoxFit.contain,
-                      placeholder: (context, url) => Container(
-                        width: double.infinity,
-                        height: 300,
+          backgroundColor: Colors.black87,
+          insetPadding: EdgeInsets.all(20),
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
+              maxWidth: MediaQuery.of(context).size.width * 0.9,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header with close button
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      topRight: Radius.circular(12),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Lampiran',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          // Download button (if needed)
+                          IconButton(
+                            icon: Icon(Icons.download_rounded,
+                                color: Colors.white),
+                            onPressed: () {
+                              // Add download functionality if needed
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content:
+                                      Text('Fitur download belum tersedia'),
+                                  backgroundColor: _maroonPrimary,
+                                ),
+                              );
+                            },
+                          ),
+                          IconButton(
+                            icon:
+                                Icon(Icons.close_rounded, color: Colors.white),
+                            onPressed: () => Navigator.of(dialogContext).pop(),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Image container with error handling
+                Flexible(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(12),
+                        bottomRight: Radius.circular(12),
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(12),
+                        bottomRight: Radius.circular(12),
+                      ),
+                      child: InteractiveViewer(
+                        panEnabled: true,
+                        boundaryMargin: EdgeInsets.all(20),
+                        minScale: 0.5,
+                        maxScale: 4.0,
                         child: Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        width: double.infinity,
-                        height: 200,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.error_outline,
-                                color: Colors.red, size: 40),
-                            SizedBox(height: 10),
-                            Text('Gagal memuat gambar'),
-                          ],
+                          child: CachedNetworkImage(
+                            imageUrl: imageUrl,
+                            fit: BoxFit.contain,
+                            width: double.infinity,
+                            filterQuality: FilterQuality.high,
+                            fadeInDuration: Duration(milliseconds: 300),
+                            fadeOutDuration: Duration(milliseconds: 100),
+                            placeholder: (context, url) => Container(
+                              height: 300,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        _maroonPrimary,
+                                      ),
+                                    ),
+                                    SizedBox(height: 16),
+                                    Text(
+                                      'Memuat gambar...',
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) {
+                              print('Error loading full image: $error');
+                              // Automatically try to open in external app without showing error dialog
+                              Future.microtask(() {
+                                Navigator.of(dialogContext).pop();
+                                _openImageExternally(imageUrl);
+                              });
+
+                              // Show a brief loading message while redirecting
+                              return Container(
+                                height: 300,
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                          _maroonPrimary,
+                                        ),
+                                      ),
+                                      SizedBox(height: 16),
+                                      Text(
+                                        'Membuka di aplikasi lain...',
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                            httpHeaders: {
+                              'User-Agent':
+                                  'Mozilla/5.0 (compatible; eSchool App)',
+                              'Accept':
+                                  'image/webp,image/apng,image/*,*/*;q=0.8',
+                              'Cache-Control': 'no-cache',
+                            },
+                          ),
                         ),
                       ),
                     ),
                   ),
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: IconButton(
-                      icon: Icon(Icons.close, color: Colors.black),
-                      onPressed: () => Navigator.of(dialogContext).pop(),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         );
       },
     );
+  }
+
+  // Helper method to open image in external app
+  void _openImageExternally(String imageUrl) async {
+    try {
+      // Try to launch URL directly
+      final Uri url = Uri.parse(imageUrl);
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Membuka gambar di aplikasi eksternal...'),
+            backgroundColor: _maroonPrimary,
+          ),
+        );
+      } else {
+        // Fallback: copy URL to clipboard
+        await Clipboard.setData(ClipboardData(text: imageUrl));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('URL gambar disalin ke clipboard'),
+            backgroundColor: _maroonPrimary,
+            action: SnackBarAction(
+              label: 'OK',
+              textColor: Colors.white,
+              onPressed: () {},
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error opening image externally: $e');
+      // Fallback: copy URL to clipboard
+      try {
+        await Clipboard.setData(ClipboardData(text: imageUrl));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('URL gambar disalin ke clipboard'),
+            backgroundColor: _maroonPrimary,
+          ),
+        );
+      } catch (e2) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Tidak dapat membuka gambar'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildStatusFilterButton({

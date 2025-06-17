@@ -294,31 +294,7 @@ class _TeacherTodaysTimetableContainerState
                                 timeTableSlot.endTime ?? "",
                               );
 
-                              switch (status) {
-                                case TimeSlotStatus.before:
-                                  Utils.showSnackBar(
-                                    message: "Anda belum memasuki jam pelajaran.",
-                                    context: context,
-                                  );
-                                  break;
-                                case TimeSlotStatus.after:
-                                  Utils.showSnackBar(
-                                    message: "Jam mengajar sudah lewat, hanya bisa melihat jadwal.",
-                                    context: context,
-                                  );
-                                  break;
-                                case TimeSlotStatus.during:
-                                  // Lanjutkan ke halaman pengisian
-                                  Get.toNamed(
-                                    Routes.teacherAddAttendanceSubjectScreen,
-                                    arguments: TeacherAddAttendanceSubjectScreen.buildArguments(
-                                      classSection: classSection,
-                                      timeTableSlot: timeTableSlot,
-                                      isWithinTeachingHours: true,
-                                    ),
-                                  );
-                                  return;
-                              }
+                            
 
                               // Navigasi ke mode view-only untuk status before dan after
                               Get.toNamed(
@@ -326,7 +302,7 @@ class _TeacherTodaysTimetableContainerState
                                 arguments: TeacherAddAttendanceSubjectScreen.buildArguments(
                                   classSection: classSection,
                                   timeTableSlot: timeTableSlot,
-                                  isWithinTeachingHours: false,
+                               
                                 ),
                               );
                             }
@@ -416,7 +392,7 @@ class _TeacherTodaysTimetableContainerState
                                             arguments: TeacherAddAttendanceSubjectScreen.buildArguments(
                                               classSection: classSection,
                                               timeTableSlot: timeTableSlot,
-                                              isWithinTeachingHours: true,
+                                          
                                             ),
                                           );
                                           return;
@@ -428,7 +404,7 @@ class _TeacherTodaysTimetableContainerState
                                         arguments: TeacherAddAttendanceSubjectScreen.buildArguments(
                                           classSection: classSection,
                                           timeTableSlot: timeTableSlot,
-                                          isWithinTeachingHours: false,
+                                 
                                         ),
                                       );
                                     }
