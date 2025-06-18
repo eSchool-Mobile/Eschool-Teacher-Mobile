@@ -380,10 +380,7 @@ class _TeacherTodaysTimetableContainerState
                                           );
                                           break;
                                         case TimeSlotStatus.after:
-                                          Utils.showSnackBar(
-                                            message: "Jam mengajar sudah lewat, hanya bisa melihat jadwal.",
-                                            context: context,
-                                          );
+                                        
                                           break;
                                         case TimeSlotStatus.during:
                                           // Lanjutkan ke halaman pengisian

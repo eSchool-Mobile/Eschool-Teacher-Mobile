@@ -710,8 +710,7 @@ class _TeacherManageAnnouncementScreenState
                                         });
                                       }
                                     },
-                                    itemBuilder: (context) => [
-                                      // Enhanced Edit button
+                                    itemBuilder: (context) => [                                      // Enhanced Edit button
                                       PopupMenuItem<String>(
                                         value: 'edit',
                                         height: 64,
@@ -725,35 +724,60 @@ class _TeacherManageAnnouncementScreenState
                                               child: Container(
                                                 padding: EdgeInsets.symmetric(
                                                     vertical: 8, horizontal: 8),
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      Colors.blue.shade400,
+                                                      Colors.blue.shade600
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors
+                                                          .blue.shade500
+                                                          .withOpacity(0.3),
+                                                      blurRadius: 12,
+                                                      offset: Offset(0, 4),
+                                                      spreadRadius: -2,
+                                                    )
+                                                  ],
+                                                ),
                                                 child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
                                                   children: [
                                                     Container(
                                                       padding:
-                                                          EdgeInsets.all(8),
+                                                          EdgeInsets.all(6),
                                                       decoration: BoxDecoration(
-                                                        color: Colors.blue
-                                                            .withOpacity(0.1),
+                                                        color: Colors.white
+                                                            .withOpacity(0.25),
                                                         borderRadius:
                                                             BorderRadius
-                                                                .circular(12),
+                                                                .circular(10),
                                                       ),
                                                       child: Icon(
-                                                        Icons.edit_outlined,
+                                                        Icons.edit_rounded,
+                                                        color: Colors.white,
                                                         size: 20,
-                                                        color: Colors
-                                                            .blue.shade600,
                                                       ),
                                                     ),
                                                     SizedBox(width: 12),
-                                                    Text(
-                                                      Utils.getTranslatedLabel(
-                                                          'edit'),
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                        fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        color: textDarkColor,
+                                                    Expanded(
+                                                      child: Text(
+                                                        Utils.getTranslatedLabel(
+                                                            'edit'),
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontSize: 15,
+                                                          color: Colors.white,
+                                                        ),
                                                       ),
                                                     ),
                                                   ],
@@ -778,36 +802,60 @@ class _TeacherManageAnnouncementScreenState
                                               child: Container(
                                                 padding: EdgeInsets.symmetric(
                                                     vertical: 8, horizontal: 8),
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      Colors.red.shade400,
+                                                      Colors.red.shade700
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.red.shade500
+                                                          .withOpacity(0.3),
+                                                      blurRadius: 12,
+                                                      offset: Offset(0, 4),
+                                                      spreadRadius: -2,
+                                                    )
+                                                  ],
+                                                ),
                                                 child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
                                                   children: [
                                                     Container(
                                                       padding:
-                                                          EdgeInsets.all(8),
+                                                          EdgeInsets.all(6),
                                                       decoration: BoxDecoration(
-                                                        color: Colors.red
-                                                            .withOpacity(0.1),
+                                                        color: Colors.white
+                                                            .withOpacity(0.25),
                                                         borderRadius:
                                                             BorderRadius
-                                                                .circular(12),
+                                                                .circular(10),
                                                       ),
                                                       child: Icon(
                                                         Icons
                                                             .delete_outline_rounded,
+                                                        color: Colors.white,
                                                         size: 20,
-                                                        color:
-                                                            Colors.red.shade600,
                                                       ),
                                                     ),
                                                     SizedBox(width: 12),
-                                                    Text(
-                                                      Utils.getTranslatedLabel(
-                                                          'delete'),
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                        fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        color: textDarkColor,
+                                                    Expanded(
+                                                      child: Text(
+                                                        Utils.getTranslatedLabel(
+                                                            'delete'),
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontSize: 15,
+                                                          color: Colors.white,
+                                                        ),
                                                       ),
                                                     ),
                                                   ],
@@ -817,8 +865,7 @@ class _TeacherManageAnnouncementScreenState
                                           },
                                         ),
                                       ),
-                                    ],
-                                    child: TweenAnimationBuilder<double>(
+                                    ],                                    child: TweenAnimationBuilder<double>(
                                       tween:
                                           Tween<double>(begin: 0.8, end: 1.0),
                                       duration: Duration(milliseconds: 300),
@@ -834,7 +881,7 @@ class _TeacherManageAnnouncementScreenState
                                                   ? LinearGradient(
                                                       colors: [
                                                         Colors.grey.shade300,
-                                                        Colors.grey.shade200,
+                                                        Colors.grey.shade400
                                                       ],
                                                       begin: Alignment.topLeft,
                                                       end:
@@ -843,7 +890,7 @@ class _TeacherManageAnnouncementScreenState
                                                   : LinearGradient(
                                                       colors: [
                                                         Colors.white,
-                                                        Colors.grey.shade50,
+                                                        Colors.grey.shade100
                                                       ],
                                                       begin: Alignment.topLeft,
                                                       end:
@@ -852,18 +899,16 @@ class _TeacherManageAnnouncementScreenState
                                               borderRadius:
                                                   BorderRadius.circular(15),
                                               border: Border.all(
+                                                color: Colors.grey.shade300,
                                                 width: 1.5,
-                                                color: state
-                                                        is TeacherDeleteAnnouncementInProgress
-                                                    ? Colors.grey.shade300
-                                                    : Colors.grey.shade200,
                                               ),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.07),
-                                                  blurRadius: 8,
+                                                  color: maroonPrimary
+                                                      .withOpacity(0.1),
+                                                  blurRadius: 10,
                                                   offset: Offset(0, 4),
+                                                  spreadRadius: -2,
                                                 ),
                                               ],
                                             ),
@@ -875,17 +920,15 @@ class _TeacherManageAnnouncementScreenState
                                                       height: 20,
                                                       child:
                                                           CircularProgressIndicator(
-                                                        strokeWidth: 2.5,
-                                                        valueColor:
-                                                            AlwaysStoppedAnimation<
-                                                                    Color>(
-                                                                maroonPrimary),
+                                                        color: maroonPrimary,
+                                                        strokeWidth: 2,
                                                       ),
                                                     ),
                                                   )
                                                 : Icon(
                                                     Icons.more_vert_rounded,
-                                                    color: textMediumColor,
+                                                    color: maroonPrimary,
+                                                    size: 22,
                                                   ),
                                           ),
                                         );
@@ -1646,14 +1689,10 @@ class _TeacherManageAnnouncementScreenState
             return;
           }
 
-          HapticFeedback.lightImpact();
-          Utils.showBottomSheet(
+          HapticFeedback.lightImpact();          Utils.showBottomSheet(
               child: FilterSelectionBottomsheet<TeacherSubject>(
                 titleKey: subjectKey,
-                selectedValue: _selectedSubject ??
-                    (state.subjects.isNotEmpty
-                        ? state.subjects.first
-                        : null as TeacherSubject),
+                selectedValue: _selectedSubject ?? state.subjects.first,
                 values: state.subjects,
                 onSelection: (value) {
                   if (value != null) {

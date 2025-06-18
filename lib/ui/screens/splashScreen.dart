@@ -3,7 +3,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/appConfigurationCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -102,9 +102,9 @@ class _SplashScreenState extends State<SplashScreen>
         builder: (context, state) {
           if (state is AppConfigurationFetchFailure) {
             return Center(
-              child: ErrorContainer(
-                errorMessage: state.errorMessage,
-                onTapRetry: () {
+              child: CustomErrorWidget(
+                message: state.errorMessage,
+                onRetry: () {
                   context.read<AppConfigurationCubit>().fetchAppConfiguration();
                 },
               ),
@@ -135,7 +135,10 @@ class _SplashScreenState extends State<SplashScreen>
                         color: Colors.white,
                         boxShadow: [
                           BoxShadow(
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withOpacity(0.3),
                             blurRadius: 15,
                             spreadRadius: 5,
                           ),

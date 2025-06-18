@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -180,20 +181,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
   late AnimationController _searchExpandController;
 
   // Animations
-  late Animation<double> _backgroundAnimation;
-  late Animation<double> _waveAnimation;
-  late Animation<double> _breathingAnimation;
-  late Animation<double> _rotationAnimation;
   late Animation<double> _pulseAnimation;
-  late Animation<double> _searchWidthAnimation;
-
-  // Particles
-  // final List<ParticleModel> _particles = [];
-
-  // Track hover and drag states
-  int _hoveredCardIndex = -1;
-  double _dragPosition = 0;
-  bool _isFirstLoad = true;
 
   // Tambahkan variabel untuk menyimpan data gambar
   Map<int, dynamic> _questionImages = {};
@@ -280,50 +268,16 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
       vsync: this,
       duration: Duration(milliseconds: 400),
     );
-
     _searchExpandController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 300),
     );
 
     // Setup animations
-    _backgroundAnimation = CurvedAnimation(
-      parent: _backgroundAnimationController,
-      curve: Curves.linear,
-    );
-
-    _waveAnimation = CurvedAnimation(
-      parent: _waveAnimationController,
-      curve: Curves.easeInOut,
-    );
-
-    _breathingAnimation = CurvedAnimation(
-      parent: _breathingController,
-      curve: Curves.easeInOut,
-    );
-
-    _rotationAnimation = CurvedAnimation(
-      parent: _rotationController,
-      curve: Curves.linear,
-    );
-
     _pulseAnimation = CurvedAnimation(
       parent: _pulseController,
       curve: Curves.easeInOut,
     );
-
-    _searchWidthAnimation = Tween<double>(
-      begin: 0.7,
-      end: 0.9,
-    ).animate(
-      CurvedAnimation(
-        parent: _searchExpandController,
-        curve: Curves.easeOutCubic,
-      ),
-    );
-
-    // Initialize particles with enhanced properties
-    // _initializeParticles();
 
     // Set system UI style for immersive experience
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -332,15 +286,6 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
       systemNavigationBarColor: _primaryColor,
       systemNavigationBarIconBrightness: Brightness.light,
     ));
-
-    // Delay to ensure animations look good on first load
-    Future.delayed(Duration(milliseconds: 100), () {
-      if (mounted) {
-        setState(() {
-          _isFirstLoad = false;
-        });
-      }
-    });
 
     // Tambahkan ini di initState()
     _pageControllers.forEach((questionId, controller) {
@@ -518,7 +463,12 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
             // When we receive a BankQuestionsFetchSuccess state, we update the filtered questions
             if (state is BankQuestionsFetchSuccess) {
               setState(() {
-                _filteredQuestions = state.questions;
+                // Reset filtered questions to show all questions when new data arrives
+                _filteredQuestions = List.from(state.questions);
+                // Clear search if there was one
+                if (_searchController.text.isNotEmpty) {
+                  _filterQuestions(_searchController.text, state.questions);
+                }
               });
             }
           },
@@ -540,11 +490,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
               // Content with parallax scroll effect
               NotificationListener<ScrollNotification>(
                 onNotification: (notification) {
-                  if (notification is ScrollUpdateNotification) {
-                    setState(() {
-                      _dragPosition = notification.metrics.pixels / 10;
-                    });
-                  }
+                  // Parallax effect removed since _dragPosition is no longer used
                   return false;
                 },
                 child: Column(
@@ -595,38 +541,57 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
     );
   }
 
-  // The rest of your methods remain unchanged...
-
   void _filterQuestions(String query, List<q.Question> questions) {
+    print(
+        '_filterQuestions called with query: "$query", total questions: ${questions.length}');
     setState(() {
       if (query.isEmpty) {
-        _filteredQuestions = questions;
+        _filteredQuestions = List.from(questions);
+        print(
+            'Query empty, showing all ${_filteredQuestions.length} questions');
       } else {
-        _filteredQuestions = questions
-            .where((question) =>
-                question.versions.last.name
-                    .toLowerCase()
-                    .contains(query.toLowerCase()) ||
-                question.versions.last.question
-                    .toLowerCase()
-                    .contains(query.toLowerCase()))
-            .toList();
+        _filteredQuestions = questions.where((question) {
+          final nameMatch = question.versions.last.name
+              .toLowerCase()
+              .contains(query.toLowerCase());
+          final questionMatch = question.versions.last.question
+              .toLowerCase()
+              .contains(query.toLowerCase());
+
+          final isMatch = nameMatch || questionMatch;
+
+          return isMatch;
+        }).toList();
+
+        // Debug: Print hasil filter
+        print(
+            'Search query: "$query", Found: ${_filteredQuestions.length} results from ${questions.length} total questions');
       }
     });
   }
 
   // Modifikasi _buildContent untuk menampilkan panduan swipe saat pertama kali
   Widget _buildContent(List<q.Question> questions) {
+    print(
+        '_buildContent called with ${questions.length} questions, current searchText: "${_searchController.text}", current filteredQuestions: ${_filteredQuestions.length}');
+
     if (questions.isEmpty) {
       return _buildEmptyState();
     }
 
-    _showSearch = questions.length > 5;
+    _showSearch = questions.length >=
+        1; // Always show search if there are questions (for testing)
 
-    // Update filtered questions only if it's empty or search is not active
-    if (_filteredQuestions.isEmpty || _searchController.text.isEmpty) {
+    // Update filtered questions only if search is not active
+    // Hanya update jika tidak ada teks pencarian
+    if (_searchController.text.isEmpty) {
+      print('Search is empty, showing all ${questions.length} questions');
       _filteredQuestions = List.from(questions);
+    } else {
+      print(
+          'Search active: "${_searchController.text}", keeping current filtered results: ${_filteredQuestions.length}');
     }
+    // Jangan panggil _filterQuestions lagi di sini karena sudah dipanggil di onChanged
 
     // Show swipe guide tooltip if multiple versions and not shown before
     bool hasMultipleVersions = questions.any((q) => q.versions.length > 1);
@@ -650,9 +615,14 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(24.0),
+                    border: _searchController.text.isNotEmpty
+                        ? Border.all(
+                            color: _primaryColor.withOpacity(0.3), width: 1.5)
+                        : null,
                     boxShadow: [
                       BoxShadow(
-                        color: _primaryColor.withOpacity(0.1),
+                        color: _primaryColor.withOpacity(
+                            _searchController.text.isNotEmpty ? 0.15 : 0.1),
                         blurRadius: 8.0,
                         offset: Offset(0, 2),
                       ),
@@ -660,7 +630,15 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                   ),
                   child: TextField(
                     controller: _searchController,
-                    onChanged: (value) => _filterQuestions(value, questions),
+                    onChanged: (value) {
+                      // Get current state questions untuk filter
+                      final currentState =
+                          context.read<QuestionBankCubit>().state;
+                      if (currentState is BankQuestionsFetchSuccess) {
+                        _filterQuestions(value, currentState.questions);
+                      }
+                      setState(() {}); // Force rebuild to update suffixIcon
+                    },
                     decoration: InputDecoration(
                       hintText: 'Cari soal...',
                       prefixIcon: Icon(
@@ -672,7 +650,12 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                               icon: Icon(Icons.clear, color: Colors.grey),
                               onPressed: () {
                                 _searchController.clear();
-                                _filterQuestions('', questions);
+                                // Get current state questions untuk reset filter
+                                final currentState =
+                                    context.read<QuestionBankCubit>().state;
+                                if (currentState is BankQuestionsFetchSuccess) {
+                                  _filterQuestions('', currentState.questions);
+                                }
                               },
                             )
                           : null,
@@ -686,22 +669,42 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                 ),
               );
             },
-          ),
-
-        // Questions list
+          ), // Questions list
         Expanded(
           child: Stack(
             children: [
-              ListView.builder(
-                physics: BouncingScrollPhysics(),
-                padding: EdgeInsets.only(top: 8.0, bottom: 100.0),
-                itemCount: _filteredQuestions.length,
-                itemBuilder: (context, index) {
-                  final question = _filteredQuestions[index];
-                  final latestVersionIndex = question.versions.length - 1;
-                  final latestVersion = question.versions[latestVersionIndex];
+              // Debug: Print kondisi untuk debugging
+              Builder(
+                builder: (context) {
+                  final hasSearchText = _searchController.text.isNotEmpty;
+                  final hasNoResults = _filteredQuestions.isEmpty;
 
-                  return _buildQuestionCard(question, latestVersion);
+                  // Debug output
+                  print(
+                      'Debug - hasSearchText: $hasSearchText, hasNoResults: $hasNoResults, filteredCount: ${_filteredQuestions.length}');
+
+                  // Tampilkan pesan "no search results" jika sedang search tapi tidak ada hasil
+                  if (hasSearchText && hasNoResults) {
+                    print('Showing no search results screen');
+                    return _buildNoSearchResults();
+                  }
+
+                  // Tampilkan daftar soal jika ada hasil
+                  print(
+                      'Showing question list with ${_filteredQuestions.length} items');
+                  return ListView.builder(
+                    physics: BouncingScrollPhysics(),
+                    padding: EdgeInsets.only(top: 8.0, bottom: 100.0),
+                    itemCount: _filteredQuestions.length,
+                    itemBuilder: (context, index) {
+                      final question = _filteredQuestions[index];
+                      final latestVersionIndex = question.versions.length - 1;
+                      final latestVersion =
+                          question.versions[latestVersionIndex];
+
+                      return _buildQuestionCard(question, latestVersion);
+                    },
+                  );
                 },
               ),
 
@@ -860,12 +863,33 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
     );
   }
 
+  Widget _buildNoSearchResults() {
+    return NoSearchResultsWidget(
+      searchQuery: _searchController.text,
+      onClearSearch: () {
+        setState(() {
+          _searchController.clear();
+          // Get current questions from state and restore full list
+          final currentState = context.read<QuestionBankCubit>().state;
+          if (currentState is BankQuestionsFetchSuccess) {
+            _filteredQuestions = List.from(currentState.questions);
+          }
+        });
+      },
+      primaryColor: _primaryColor,
+      accentColor: _accentColor,
+      title: 'Tidak Ada Hasil',
+      description:
+          'Tidak ditemukan soal yang sesuai dengan pencarian Anda. Coba gunakan kata kunci yang berbeda.',
+      clearButtonText: 'Hapus Pencarian',
+      icon: Icons.search_off_rounded,
+    );
+  }
+
   Widget _buildQuestionCard(q.Question question, dynamic latestVersion) {
     final int questionVersionsCount = question.versions.length;
+    // Get the page controller for this question
     final PageController pageController = _getPageController(question.id);
-    // Get active version index for this question
-    _getActiveVersionIndex(
-        question.id); // Using but not storing the value directly
 
     return FadeInUp(
       duration: Duration(milliseconds: 500),

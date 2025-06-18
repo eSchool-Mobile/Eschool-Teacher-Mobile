@@ -17,6 +17,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
+import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 
 class ExamStatusScreen extends StatefulWidget {
   const ExamStatusScreen({Key? key}) : super(key: key);
@@ -731,61 +732,49 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
       return isAscending ? compareResult : -compareResult;
     });
 
-    if (filteredStatuses.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.search_off,
-              size: 60,
-              color: Colors.grey[400],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              "Tidak ditemukan",
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[700],
-              ),
-            ),
-            Text(
-              "Tidak ada siswa yang sesuai dengan pencarian",
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: Colors.grey[500],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
     return Column(
       children: [
+        // Search dan Filter tetap ditampilkan
         _buildSearchAndFilters(statuses),
         _buildStatisticsPanel(statuses),
+
+        // Konten berdasarkan hasil filter
         Expanded(
-          child: AnimationLimiter(
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              physics: const BouncingScrollPhysics(),
-              itemCount: filteredStatuses.length,
-              itemBuilder: (context, index) {
-                return AnimationConfiguration.staggeredList(
-                  position: index,
-                  duration: const Duration(milliseconds: 600),
-                  child: SlideAnimation(
-                    verticalOffset: 50.0,
-                    child: FadeInAnimation(
-                      child: _buildStudentCard(filteredStatuses[index]),
-                    ),
+          child: filteredStatuses.isEmpty
+              ? NoSearchResultsWidget(
+                  searchQuery: searchQuery,
+                  onClearSearch: () {
+                    setState(() {
+                      searchQuery = "";
+                    });
+                  },
+                  primaryColor: _primaryColor,
+                  accentColor: _accentColor,
+                  title: 'Tidak Ada Siswa',
+                  description:
+                      'Tidak ditemukan siswa yang sesuai dengan pencarian Anda. Coba gunakan kata kunci yang berbeda.',
+                  clearButtonText: 'Hapus Pencarian',
+                  icon: Icons.people_alt_outlined,
+                )
+              : AnimationLimiter(
+                  child: ListView.builder(
+                    padding: EdgeInsets.zero,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: filteredStatuses.length,
+                    itemBuilder: (context, index) {
+                      return AnimationConfiguration.staggeredList(
+                        position: index,
+                        duration: const Duration(milliseconds: 600),
+                        child: SlideAnimation(
+                          verticalOffset: 50.0,
+                          child: FadeInAnimation(
+                            child: _buildStudentCard(filteredStatuses[index]),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
-          ),
+                ),
         ),
       ],
     );

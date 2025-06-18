@@ -11,6 +11,7 @@ import 'package:glassmorphism/glassmorphism.dart';
 import 'package:flutter/services.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:intl/intl.dart';
+import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 
 class OnlineExamResultScreen extends StatefulWidget {
   @override
@@ -421,8 +422,33 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
             return false;
           }).toList()
             ..sort((a, b) => b.startDate.compareTo(a.startDate));
-
           if (filteredExams.isEmpty) {
+            // Jika sedang searching, gunakan NoSearchResultsWidget
+            if (_isSearching) {
+              return Expanded(
+                child: NoSearchResultsWidget(
+                  searchQuery: _searchController.text,
+                  onClearSearch: () {
+                    setState(() {
+                      _searchController.clear();
+                      _isSearching = false;
+                    });
+                    context.read<OnlineExamCubit>().getOnlineExams(
+                          startDate: _startDate,
+                          endDate: _endDate,
+                        );
+                  },
+                  primaryColor: _primaryColor,
+                  accentColor: _accentColor,
+                  title: 'Tidak Ada Hasil Ujian',
+                  description:
+                      'Tidak ditemukan hasil ujian yang sesuai dengan pencarian Anda. Coba gunakan kata kunci yang berbeda.',
+                  clearButtonText: 'Hapus Pencarian',
+                  icon: Icons.assignment_outlined,
+                ),
+              );
+            }
+            // Jika tidak sedang searching, tampilkan pesan filter
             return Expanded(
               child: Container(
                 decoration: BoxDecoration(
@@ -436,12 +462,11 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.search_off, size: 80, color: Colors.grey[400]),
+                      Icon(Icons.filter_list_off,
+                          size: 80, color: Colors.grey[400]),
                       const SizedBox(height: 16),
                       Text(
-                        _isSearching
-                            ? 'Tidak ada ujian yang cocok'
-                            : 'Tidak ada ujian tersedia untuk filter ini',
+                        'Tidak ada ujian tersedia untuk filter ini',
                         style: TextStyle(
                           fontSize: 18,
                           color: Colors.grey[600],

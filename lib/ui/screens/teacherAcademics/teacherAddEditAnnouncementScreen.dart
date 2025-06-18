@@ -10,21 +10,14 @@ import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFil
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
-import 'package:eschool_saas_staff/ui/widgets/uploadImageOrFileButton.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 class TeacherAddEditAnnouncementScreen extends StatefulWidget {
   final TeacherAnnouncement? announcement;
@@ -484,82 +477,229 @@ class _TeacherAddEditAnnouncementScreenState
             ],
           ),
         ),
-
         SizedBox(height: 20),
 
-        // Attachments Section
+        // Attachments Section - Clean & Minimalist Design
         Container(
-          padding: EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 5,
-                blurRadius: 10,
-                offset: Offset(0, 3),
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 12,
+                offset: Offset(0, 4),
               ),
             ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Lampiran',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.secondary,
+              // Clean Header
+              Padding(
+                padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        Icons.attach_file_rounded,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 20,
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Text(
+                      'Lampiran Pengumuman',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                  ],
                 ),
               ),
+
+              // Minimalist Info Card
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: 16,
+                          color: Colors.grey.shade600,
+                        ),
+                        SizedBox(width: 6),
+                        Text(
+                          'Format yang didukung',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        _buildFormatChip('PDF'),
+                        _buildFormatChip('JPEG'),
+                        _buildFormatChip('PNG'),
+                        _buildFormatChip('CSV'),
+                        _buildFormatChip('MS Word'),
+                        _buildFormatChip('MP4'),
+                        _buildFormatChip('AVI'),
+                        _buildFormatChip('YouTube'),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Batasan ukuran file adalah 2 MB',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
               SizedBox(height: 20),
 
-              // Existing attachments
-              if (widget.announcement != null) ...[
-                ...announcementAttachments.map(
-                  (attachment) => Padding(
-                    padding: const EdgeInsets.only(bottom: 15),
-                    child: StudyMaterialContainer(
-                      onDeleteStudyMaterial: (fileId) {
-                        announcementAttachments
-                            .removeWhere((element) => element.id == fileId);
-                        refreshAnnouncementsInPreviousPage = true;
-                        setState(() {});
+              // Content Area
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Existing attachments
+                    if (widget.announcement != null &&
+                        announcementAttachments.isNotEmpty) ...[
+                      Text(
+                        'Lampiran Saat Ini',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      ...announcementAttachments.map(
+                        (attachment) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: StudyMaterialContainer(
+                            onDeleteStudyMaterial: (fileId) {
+                              announcementAttachments.removeWhere(
+                                  (element) => element.id == fileId);
+                              refreshAnnouncementsInPreviousPage = true;
+                              setState(() {});
+                            },
+                            showOnlyStudyMaterialTitles: true,
+                            showEditAndDeleteButton: true,
+                            studyMaterial: attachment,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                    ],
+
+                    // New attachments
+                    if (uploadedFiles.isNotEmpty) ...[
+                      Text(
+                        'Lampiran Baru',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      ...List.generate(uploadedFiles.length, (index) => index)
+                          .map(
+                        (index) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: CustomFileContainer(
+                            backgroundColor:
+                                Theme.of(context).scaffoldBackgroundColor,
+                            onDelete: () {
+                              uploadedFiles.removeAt(index);
+                              setState(() {});
+                            },
+                            title: uploadedFiles[index].name,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                    ],
+
+                    // Clean Add Button
+                    InkWell(
+                      onTap: () {
+                        FocusScope.of(context).unfocus();
+                        _addFiles();
                       },
-                      showOnlyStudyMaterialTitles: true,
-                      showEditAndDeleteButton: true,
-                      studyMaterial: attachment,
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withOpacity(0.3),
+                            width: 1.5,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.add_circle_outline,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 20,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Tambah Lampiran',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ],
-
-              // New attachments
-              ...List.generate(uploadedFiles.length, (index) => index).map(
-                (index) => Padding(
-                  padding: const EdgeInsets.only(top: 15),
-                  child: CustomFileContainer(
-                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                    onDelete: () {
-                      uploadedFiles.removeAt(index);
-                      setState(() {});
-                    },
-                    title: uploadedFiles[index].name,
-                  ),
+                  ],
                 ),
               ),
 
-              SizedBox(height: 15),
-
-              // Add attachment button
-              UploadImageOrFileButton(
-                uploadFile: true,
-                includeImageFileOnlyAllowedNote: true,
-                onTap: () {
-                  _addFiles();
-                },
-              ),
+              SizedBox(height: 20),
             ],
           ),
         ),
@@ -826,6 +966,25 @@ class _TeacherAddEditAnnouncementScreenState
         counterText: "",
       ),
       validator: (v) => v!.isEmpty ? 'Required' : null,
+    );
+  }
+
+  Widget _buildFormatChip(String label) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          color: Colors.grey.shade700,
+        ),
+      ),
     );
   }
 }

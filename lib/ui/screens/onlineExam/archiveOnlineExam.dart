@@ -601,7 +601,13 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                   Expanded(
                     child: TextButton(
                       onPressed: () => Get.back(),
-                      child: Text('Batal'),
+                        child: Text(
+                        'Batal',
+                        style: TextStyle(
+                          color: Colors.grey[800],
+                          fontWeight: FontWeight.bold,
+                        ),
+                        ),
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
@@ -613,34 +619,58 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                   ),
                   SizedBox(width: 16),
                   Expanded(
-                    child: ElevatedButton(
-                      onPressed: () async {
+                    child: ElevatedButton(                      onPressed: () async {
                         Get.back();
-                        try {
-                          // Show loading
+                        try {                          // Show loading
                           Get.dialog(
-                            Dialog(
-                              backgroundColor: Colors.transparent,
-                              elevation: 0,
+                            Center(
                               child: Container(
-                                padding: EdgeInsets.all(24),
+                                padding: EdgeInsets.all(32),
+                                margin: EdgeInsets.symmetric(horizontal: 40),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(24),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 20,
+                                      spreadRadius: 4,
+                                      offset: Offset(0, 8),
+                                    ),
+                                  ],
                                 ),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    CircularProgressIndicator(
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.blue),
+                                    Container(
+                                      padding: EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue[50],
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: CircularProgressIndicator(
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                            Colors.blue[600]!),
+                                        strokeWidth: 3,
+                                      ),
                                     ),
-                                    SizedBox(height: 20),
+                                    SizedBox(height: 24),
                                     Text(
-                                      'Memulihkan ujian...',
+                                      'Memulihkan Ujian',
                                       style: TextStyle(
                                         color: Colors.grey[800],
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
                                       ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'Sedang memproses pemulihan data ujian...',
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 14,
+                                      ),
+                                      textAlign: TextAlign.center,
                                     ),
                                   ],
                                 ),
@@ -791,15 +821,62 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                   ),
                   SizedBox(width: 16),
                   Expanded(
-                    child: ElevatedButton(
-                      onPressed: () async {
+                    child: ElevatedButton(                      onPressed: () async {
                         try {
-                          Get.back(); // Tutup dialog konfirmasi
-
-                          // Tampilkan loading
+                          Get.back(); // Tutup dialog konfirmasi                          // Tampilkan loading
                           Get.dialog(
                             Center(
-                              child: CircularProgressIndicator(),
+                              child: Container(
+                                padding: EdgeInsets.all(32),
+                                margin: EdgeInsets.symmetric(horizontal: 40),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(24),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 20,
+                                      spreadRadius: 4,
+                                      offset: Offset(0, 8),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red[50],
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: CircularProgressIndicator(
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                            Colors.red[600]!),
+                                        strokeWidth: 3,
+                                      ),
+                                    ),
+                                    SizedBox(height: 24),
+                                    Text(
+                                      'Menghapus Ujian',
+                                      style: TextStyle(
+                                        color: Colors.grey[800],
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'Sedang menghapus data ujian secara permanen...',
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 14,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                             barrierDismissible: false,
                           );

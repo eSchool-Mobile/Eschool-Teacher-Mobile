@@ -14,7 +14,6 @@ import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMate
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
-import 'package:eschool_saas_staff/ui/widgets/uploadImageOrFileButton.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -296,6 +295,25 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
     context.read<LessonsCubit>().fetchLessons(
         classSubjectId: _selectedSubject?.classSubjectId ?? 0,
         classSectionId: _selectedClassSection?.id ?? 0);
+  }
+
+  Widget _buildFormatChip(String label) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          color: Colors.grey.shade700,
+        ),
+      ),
+    );
   }
 
   // Helper methods for attachment type styling
@@ -781,263 +799,287 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                 ),
               ),
 
-              SizedBox(height: 20),
-
-              // Study Materials Section
+              SizedBox(height: 20),              // Study Materials Section - Clean & Minimalist Design
               Container(
-                padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 5,
-                      blurRadius: 10,
-                      offset: Offset(0, 3),
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
                     ),
                   ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Materi Pembelajaran',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                    ),
-                    SizedBox(height: 20),
-
-                    // Existing study materials/attachments - Show when editing topic
-                    if (studyMaterials.isNotEmpty) ...[
-                      Row(
+                    // Clean Header
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+                      child: Row(
                         children: [
-                          Icon(
-                            Icons.attachment_outlined,
-                            color: Theme.of(context).colorScheme.secondary,
-                            size: 20,
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            'Lampiran yang Sudah Ada',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                          ),
-                          SizedBox(width: 8),
                           Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
+                            width: 40,
+                            height: 40,
                             decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primary
-                                  .withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
+                              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Text(
-                              '${studyMaterials.length}',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
+                            child: Icon(
+                              Icons.folder_copy_outlined,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 20,
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Text(
+                            'Materi Pembelajaran',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey.shade800,
                             ),
                           ),
                         ],
                       ),
-                      SizedBox(height: 15),
+                    ),
 
-                      // Display existing attachments in enhanced card format
-                      ...studyMaterials.map(
-                        (studyMaterial) => Container(
-                          margin: const EdgeInsets.only(bottom: 15),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.08),
-                                spreadRadius: 1,
-                                blurRadius: 8,
-                                offset: Offset(0, 2),
+                    // Minimalist Info Card
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 20),
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                size: 16,
+                                color: Colors.grey.shade600,
+                              ),
+                              SizedBox(width: 6),
+                              Text(
+                                'Format yang didukung',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey.shade700,
+                                ),
                               ),
                             ],
-                            border: Border.all(
-                              color: _getAttachmentTypeColor(
-                                      studyMaterial.studyMaterialType)
-                                  .withOpacity(0.3),
-                              width: 1.5,
+                          ),
+                          SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 4,
+                            children: [
+                              _buildFormatChip('PDF'),
+                              _buildFormatChip('JPEG'),
+                              _buildFormatChip('PNG'),
+                              _buildFormatChip('CSV'),
+                              _buildFormatChip('MS Word'),
+                              _buildFormatChip('MP4'),
+                              _buildFormatChip('AVI'),
+                              _buildFormatChip('YouTube'),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                         'Batasan ukuran file adalah 2 MB',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                              fontStyle: FontStyle.italic,
                             ),
                           ),
-                          child: Column(
-                            children: [
-                              // Attachment type indicator
-                              Container(
-                                width: double.infinity,
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 8),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 20),
+
+                    // Content Area
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Existing study materials/attachments - Show when editing topic
+                          if (studyMaterials.isNotEmpty) ...[
+                            Text(
+                              'Materi Saat Ini (${studyMaterials.length})',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+
+                            // Display existing attachments in clean format
+                            ...studyMaterials.map(
+                              (studyMaterial) => Container(
+                                margin: const EdgeInsets.only(bottom: 8),
                                 decoration: BoxDecoration(
-                                  color: _getAttachmentTypeColor(
-                                          studyMaterial.studyMaterialType)
-                                      .withOpacity(0.1),
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(12),
-                                    topRight: Radius.circular(12),
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: _getAttachmentTypeColor(
+                                            studyMaterial.studyMaterialType)
+                                        .withOpacity(0.2),
+                                    width: 1,
                                   ),
                                 ),
-                                child: Row(
+                                child: Column(
                                   children: [
-                                    Icon(
-                                      _getAttachmentIcon(
-                                          studyMaterial.studyMaterialType),
-                                      color: _getAttachmentTypeColor(
-                                          studyMaterial.studyMaterialType),
-                                      size: 16,
-                                    ),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      _getAttachmentTypeLabel(
-                                          studyMaterial.studyMaterialType),
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
+                                    // Clean attachment type indicator
+                                    Container(
+                                      width: double.infinity,
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
                                         color: _getAttachmentTypeColor(
-                                            studyMaterial.studyMaterialType),
+                                                studyMaterial.studyMaterialType)
+                                            .withOpacity(0.08),
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(8),
+                                          topRight: Radius.circular(8),
+                                        ),
                                       ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            _getAttachmentIcon(
+                                                studyMaterial.studyMaterialType),
+                                            color: _getAttachmentTypeColor(
+                                                studyMaterial.studyMaterialType),
+                                            size: 14,
+                                          ),
+                                          SizedBox(width: 6),
+                                          Text(
+                                            _getAttachmentTypeLabel(
+                                                studyMaterial.studyMaterialType),
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w500,
+                                              color: _getAttachmentTypeColor(
+                                                  studyMaterial.studyMaterialType),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    // Study material content
+                                    StudyMaterialContainer(
+                                      onDeleteStudyMaterial: deleteStudyMaterial,
+                                      onEditStudyMaterial: updateStudyMaterials,
+                                      showEditAndDeleteButton: true,
+                                      studyMaterial: studyMaterial,
                                     ),
                                   ],
                                 ),
                               ),
-                              // Study material content
-                              StudyMaterialContainer(
-                                onDeleteStudyMaterial: deleteStudyMaterial,
-                                onEditStudyMaterial: updateStudyMaterials,
-                                showEditAndDeleteButton: true,
-                                studyMaterial: studyMaterial,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: 20),
-                    ],
-
-                    // Added study materials (new ones being added)
-                    if (_addedStudyMaterials.isNotEmpty) ...[
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.add_circle_outline,
-                            color: Colors.blue.shade600,
-                            size: 20,
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            'Lampiran Baru',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.blue.shade600,
                             ),
-                          ),
-                          SizedBox(width: 8),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              '${_addedStudyMaterials.length}',
+
+                            SizedBox(height: 16),
+                          ],
+
+                          // Added study materials (new ones being added)
+                          if (_addedStudyMaterials.isNotEmpty) ...[
+                            Text(
+                              'Materi Baru (${_addedStudyMaterials.length})',
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.blue.shade600,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            ..._addedStudyMaterials.asMap().entries.map(
+                              (entry) => Container(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.blue.withOpacity(0.2),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: AddedStudyMaterialContainer(
+                                  backgroundColor: Colors.blue.shade50,
+                                  onDelete: (index) {
+                                    _addedStudyMaterials.removeAt(index);
+                                    setState(() {});
+                                  },
+                                  onEdit: (index, file) {
+                                    _addedStudyMaterials[index] = file;
+                                    setState(() {});
+                                  },
+                                  file: entry.value,
+                                  fileIndex: entry.key,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                          ],
+
+                          // Clean Add Button
+                          InkWell(
+                            onTap: () {
+                              FocusScope.of(context).unfocus();
+                              Utils.showBottomSheet(
+                                child: AddStudyMaterialBottomsheet(
+                                  editFileDetails: false,
+                                  onTapSubmit: _addStudyMaterial,
+                                ),
+                                context: context,
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              height: 48,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                                  width: 1.5,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.add_circle_outline,
+                                    color: Theme.of(context).colorScheme.primary,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Tambah Materi',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
                         ],
                       ),
-                      SizedBox(height: 15),
-                      ..._addedStudyMaterials.asMap().entries.map(
-                            (entry) => Container(
-                              margin: const EdgeInsets.only(bottom: 15),
-                              decoration: BoxDecoration(
-                                color: Colors.blue.shade50,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Colors.blue.withOpacity(0.3),
-                                  width: 1,
-                                ),
-                              ),
-                              child: AddedStudyMaterialContainer(
-                                backgroundColor: Colors.blue.shade50,
-                                onDelete: (index) {
-                                  _addedStudyMaterials.removeAt(index);
-                                  setState(() {});
-                                },
-                                onEdit: (index, file) {
-                                  _addedStudyMaterials[index] = file;
-                                  setState(() {});
-                                },
-                                file: entry.value,
-                                fileIndex: entry.key,
-                              ),
-                            ),
-                          ),
-                      SizedBox(height: 15),
-                    ],
-
-                    // Add study material button
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withOpacity(0.1),
-                            Theme.of(context)
-                                .colorScheme
-                                .secondary
-                                .withOpacity(0.05),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .primary
-                              .withOpacity(0.3),
-                          width: 1.5,
-                        ),
-                      ),
-                      child: UploadImageOrFileButton(
-                        uploadFile: true,
-                        customTitleKey: addStudyMaterialKey,
-                        onTap: () {
-                          FocusScope.of(context).unfocus();
-                          Utils.showBottomSheet(
-                            child: AddStudyMaterialBottomsheet(
-                              editFileDetails: false,
-                              onTapSubmit: _addStudyMaterial,
-                            ),
-                            context: context,
-                          );
-                        },
-                      ),
                     ),
+
+                    SizedBox(height: 20),
                   ],
                 ),
               ),

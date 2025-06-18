@@ -15,7 +15,6 @@ import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart
 import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
-import 'package:eschool_saas_staff/ui/widgets/uploadImageOrFileButton.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:file_picker/file_picker.dart';
@@ -420,42 +419,66 @@ class _TeacherAddEditAssignmentScreenState
       {required BuildContext context, required String message}) {
     OverlayEntry overlayEntry;
 
+    // Determine the message text based on the message key
+    String displayMessage;
+    if (message == assignmentEditedSuccessfullyKey) {
+      displayMessage = "Tugas diperbarui";
+    } else {
+      displayMessage = "Tugas Ditambahkan";
+    }
+
     overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
-        top: MediaQuery.of(context).size.height * 0.1,
+        bottom: MediaQuery.of(context).size.height * 0.1,
         width: MediaQuery.of(context).size.width,
         child: Material(
           color: Colors.transparent,
           child: Center(
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 20),
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.green.shade400,
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10,
-                    offset: Offset(0, 5),
-                  )
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.check_circle, color: Colors.white),
-                  SizedBox(width: 12),
-                  Text(
-                    "Tugas Ditambahkan",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+            child: TweenAnimationBuilder<double>(
+              duration: Duration(milliseconds: 300),
+              tween: Tween<double>(begin: 0.0, end: 1.0),
+              builder: (context, value, child) {
+                return Transform.translate(
+                  offset: Offset(0, 50 * (1 - value)),
+                  child: Opacity(
+                    opacity: value,
+                    child: Container(
+                      margin: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade600,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 15,
+                            offset: Offset(0, 8),
+                            spreadRadius: -2,
+                          )
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.check_circle_rounded,
+                              color: Colors.white, size: 24),
+                          SizedBox(width: 16),
+                          Text(
+                            displayMessage,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ),
@@ -464,7 +487,7 @@ class _TeacherAddEditAssignmentScreenState
 
     Overlay.of(context).insert(overlayEntry);
 
-    Future.delayed(Duration(seconds: 2), () {
+    Future.delayed(Duration(seconds: 3), () {
       overlayEntry.remove();
     });
   }
@@ -725,88 +748,47 @@ class _TeacherAddEditAssignmentScreenState
                   )
                 : BlocConsumer<CreateAssignmentCubit, CreateAssignmentState>(
                     listener: (context, state) {
-                      // if (state is CreateAssignmentSuccess) {
-                      //   // Utils.showSnackBar(
-                      //   //   context: context,
-                      //   //   message: assignmentAddedSuccessfullyKey,
-                      //   // );
                       if (state is CreateAssignmentSuccess) {
-                        // Show custom success overlay
+                        // Show custom success overlay from bottom
                         _showOverlayMessage(
                           context: context,
                           message: assignmentAddedSuccessfullyKey,
                         );
 
-                        // Add this function somewhere in the class:
-                        void showOverlayMessage(
-                            {required BuildContext context,
-                            required String message}) {
-                          OverlayEntry overlayEntry;
-
-                          overlayEntry = OverlayEntry(
-                            builder: (context) => Positioned(
-                              top: MediaQuery.of(context).size.height * 0.1,
-                              width: MediaQuery.of(context).size.width,
-                              child: Material(
-                                color: Colors.transparent,
-                                child: Center(
-                                  child: Container(
-                                    margin:
-                                        EdgeInsets.symmetric(horizontal: 20),
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 24, vertical: 12),
-                                    decoration: BoxDecoration(
-                                      color: Colors.green.shade400,
-                                      borderRadius: BorderRadius.circular(30),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black26,
-                                          blurRadius: 10,
-                                          offset: Offset(0, 5),
-                                        )
-                                      ],
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(Icons.check_circle,
-                                            color: Colors.white),
-                                        SizedBox(width: 12),
-                                        Text(
-                                          message,
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-
-                          Overlay.of(context).insert(overlayEntry);
-
-                          Future.delayed(Duration(seconds: 2), () {
-                            overlayEntry.remove();
-                          });
-                        }
-
+                        // Reset form fields
                         _assignmentNameTextEditingController.text = "";
                         _assignmentDescriptionTextEditingController.text = "";
                         _assignmentPointsTextEditingController.text = "";
                         _extraResubmissionDaysTextEditingController.text = "";
-                        // Reset resubmission status
+                        _minPointsTextEditingController.text = "";
+                        _maxFileSizeTextEditingController.text = "";
+
+                        // Reset dates and time
                         dueDate = null;
                         dueTime = null;
+                        start_date = null;
+                        end_date = null;
+
+                        // Reset answer types
+                        _isTextAnswerAllowed = false;
+                        _isFileAnswerAllowed = false;
+
+                        // Reset file selections
+                        for (var type in fileTypes) {
+                          type.isSelected = false;
+                        }
+
+                        // Reset uploaded files
                         uploadedFiles = [];
                         assignmentAttachments = [];
                         refreshAssignmentsInPreviousPage = true;
+
                         setState(() {});
-                        Navigator.pop(context, true);
+
+                        // Navigate back after showing the message
+                        Future.delayed(Duration(milliseconds: 500), () {
+                          Navigator.pop(context, true);
+                        });
                       } else if (state is CreateAssignmentFailure) {
                         Utils.showSnackBar(
                           context: context,
@@ -1620,96 +1602,250 @@ class _TeacherAddEditAssignmentScreenState
             ],
           ),
         ),
-
         SizedBox(height: 20),
 
-        // Attachment Section
+        // Attachments Section - Clean & Minimalist Design
         Container(
-          padding: EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 5,
-                blurRadius: 10,
-                offset: Offset(0, 3),
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 12,
+                offset: Offset(0, 4),
               ),
             ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Lampiran',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              SizedBox(height: 20),
-
-              // Existing files if editing
-              if (widget.assignment != null) ...[
-                ...assignmentAttachments.map(
-                  (attachment) => Padding(
-                    padding: EdgeInsets.only(bottom: 10),
-                    child: StudyMaterialContainer(
-                      onDeleteStudyMaterial: (fileId) {
-                        assignmentAttachments
-                            .removeWhere((element) => element.id == fileId);
-                        refreshAssignmentsInPreviousPage = true;
-                        setState(() {});
-                      },
-                      showOnlyStudyMaterialTitles: true,
-                      showEditAndDeleteButton: true,
-                      studyMaterial: attachment,
-                    ),
-                  ),
-                ),
-                if (assignmentAttachments.isNotEmpty) SizedBox(height: 15),
-              ],
-
-              // Newly uploaded files
-              ...uploadedFiles.asMap().entries.map(
-                    (entry) => Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: CustomFileContainer(
-                        backgroundColor: Colors.grey.shade50,
-                        onDelete: () {
-                          uploadedFiles.removeAt(entry.key);
-                          setState(() {});
-                        },
-                        title: entry.value.name,
+              // Clean Header
+              Padding(
+                padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        Icons.attach_file_rounded,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 20,
                       ),
                     ),
-                  ),
-              SizedBox(height: 15),
-
-              // Upload button
-              // Added label for attachment upload
-              Text(
-                'Tambahkan Lampiran (Opsional)',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.secondary,
+                    SizedBox(width: 12),
+                    Text(
+                      'Lampiran Tugas',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: 8),
-              UploadImageOrFileButton(
-                uploadFile: true,
-                includeImageFileOnlyAllowedNote: true,
-                onTap: () {
-                  _addFiles();
-                },
+
+              // Minimalist Info Card
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: 16,
+                          color: Colors.grey.shade600,
+                        ),
+                        SizedBox(width: 6),
+                        Text(
+                          'Format yang didukung',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        _buildFormatChip('PDF'),
+                        _buildFormatChip('JPEG'),
+                        _buildFormatChip('PNG'),
+                        _buildFormatChip('CSV'),
+                        _buildFormatChip('MS Word'),
+                        _buildFormatChip('MP4'),
+                        _buildFormatChip('AVI'),
+                        _buildFormatChip('YouTube'),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Batasan ukuran file adalah 2 MB',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+
+              SizedBox(height: 20),
+
+              // Content Area
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Existing attachments
+                    if (widget.assignment != null &&
+                        assignmentAttachments.isNotEmpty) ...[
+                      Text(
+                        'Lampiran Saat Ini',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      ...assignmentAttachments.map(
+                        (attachment) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: StudyMaterialContainer(
+                            onDeleteStudyMaterial: (fileId) {
+                              assignmentAttachments.removeWhere(
+                                  (element) => element.id == fileId);
+                              refreshAssignmentsInPreviousPage = true;
+                              setState(() {});
+                            },
+                            showOnlyStudyMaterialTitles: true,
+                            showEditAndDeleteButton: true,
+                            studyMaterial: attachment,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                    ],
+
+                    // New attachments
+                    if (uploadedFiles.isNotEmpty) ...[
+                      Text(
+                        'Lampiran Baru',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      ...uploadedFiles.asMap().entries.map(
+                            (entry) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: CustomFileContainer(
+                                backgroundColor: Colors.grey.shade50,
+                                onDelete: () {
+                                  uploadedFiles.removeAt(entry.key);
+                                  setState(() {});
+                                },
+                                title: entry.value.name,
+                              ),
+                            ),
+                          ),
+                      SizedBox(height: 16),
+                    ],
+
+                    // Clean Add Button
+                    InkWell(
+                      onTap: () {
+                        FocusScope.of(context).unfocus();
+                        _addFiles();
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withOpacity(0.3),
+                            width: 1.5,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.add_circle_outline,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 20,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Tambah Lampiran',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: 20),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildFormatChip(String label) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          color: Colors.grey.shade700,
+        ),
+      ),
     );
   }
 }

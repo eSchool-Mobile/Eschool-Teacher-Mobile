@@ -111,6 +111,11 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
       );
     }
 
+    // Check if search query is active and no results found
+    if (_searchQuery.isNotEmpty && _hasNoSearchResults(filteredData)) {
+      return _buildNoSearchResults();
+    }
+
     return AttendanceRankingContainer(
       attendanceRankings: filteredData,
       showAllStudents: selectedClassLevel == null,
@@ -617,6 +622,172 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
           ),
           _buildAppBar(),
         ],
+      ),
+    );
+  }
+
+  bool _hasNoSearchResults(AttendanceRanking filteredData) {
+    // Check if showing all students
+    if (selectedClassLevel == null) {
+      // Filter all students by search query
+      final filteredStudents = (filteredData.allStudents ?? [])
+          .where((student) => (student.studentName?.toLowerCase() ?? '')
+              .contains(_searchQuery.toLowerCase()))
+          .toList();
+      return filteredStudents.isEmpty;
+    } else {
+      // Filter grouped students by search query
+      final filteredStudents = (filteredData.groupedByClassLevel ?? [])
+          .expand((classLevel) => (classLevel.topStudents ?? []))
+          .where((student) => student.studentName
+              .toLowerCase()
+              .contains(_searchQuery.toLowerCase()))
+          .toList();
+      return filteredStudents.isEmpty;
+    }
+  }
+
+  Widget _buildNoSearchResults() {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 32, vertical: 60),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Animated search icon with modern styling
+            Container(
+              padding: EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    _maroonPrimary.withOpacity(0.1),
+                    _maroonLight.withOpacity(0.05),
+                  ],
+                ),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: _maroonPrimary.withOpacity(0.2),
+                  width: 2,
+                ),
+              ),
+              child: Icon(
+                Icons.search_off_rounded,
+                size: 64,
+                color: _maroonPrimary.withOpacity(0.7),
+              ),
+            ),
+            SizedBox(height: 32),
+
+            // Main message
+            Text(
+              'Tidak Ada Hasil',
+              style: GoogleFonts.poppins(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: _maroonPrimary,
+              ),
+            ),
+            SizedBox(height: 12),
+
+            // Search query display
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                color: _maroonPrimary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(25),
+                border: Border.all(
+                  color: _maroonPrimary.withOpacity(0.2),
+                  width: 1.5,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.search,
+                    size: 18,
+                    color: _maroonPrimary.withOpacity(0.7),
+                  ),
+                  SizedBox(width: 10),
+                  Text(
+                    '"$_searchQuery"',
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: _maroonPrimary,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 20),
+
+            // Description
+            Text(
+              'Tidak ditemukan siswa yang sesuai dengan pencarian Anda.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                color: Colors.grey[600],
+                height: 1.5,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Coba gunakan nama yang berbeda atau periksa ejaan.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.grey[500],
+                height: 1.4,
+              ),
+            ),
+            SizedBox(height: 32),
+
+            // Clear search button with modern design
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: _maroonPrimary.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _searchController.clear();
+                    _searchQuery = "";
+                    _isSearchActive = false;
+                  });
+                },
+                icon: Icon(Icons.clear_rounded, size: 20),
+                label: Text(
+                  'Hapus Pencarian',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _maroonPrimary,
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  elevation: 0,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

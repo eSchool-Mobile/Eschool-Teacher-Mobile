@@ -2,13 +2,10 @@ import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/leaveDetails.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:ui';
-import 'package:intl/intl.dart' as intl;
-import 'package:intl/intl.dart';
 
 class LeaveDetailsContainer extends StatefulWidget {
   final LeaveDetails leaveDetails;
@@ -30,6 +27,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
   bool _isHovering = false;
+  OverlayEntry? _overlayEntry;
 
   // Refined maroon color palette with added accent colors
   final Color _maroonPrimary = const Color(0xFF7D2027);
@@ -68,6 +66,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
   @override
   void dispose() {
     _animationController.dispose();
+    _overlayEntry?.remove();
     super.dispose();
   }
 
@@ -104,7 +103,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
 
   String formatDateToIndonesian(String? dateString) {
     if (dateString == null || dateString.isEmpty) return '';
-    
+
     try {
       // Debug the incoming date string format
       print("Original date string: $dateString");
@@ -115,7 +114,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
         if (parts.length == 2) {
           String day = parts[0].trim();
           String englishMonth = parts[1].trim();
-          
+
           // Map of English month names to Indonesian month names
           final Map<String, String> monthTranslations = {
             'January': 'Januari',
@@ -144,17 +143,18 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
             'Nov': 'November',
             'Dec': 'Desember'
           };
-          
-          String indonesianMonth = monthTranslations[englishMonth] ?? englishMonth;
+
+          String indonesianMonth =
+              monthTranslations[englishMonth] ?? englishMonth;
           String currentYear = DateTime.now().year.toString();
-          
+
           // Return in Indonesian format: day month year
           return '$day $indonesianMonth $currentYear';
         }
       }
-      
+
       DateTime? date;
-      
+
       // First try to manually parse common formats
       try {
         // Try dd-MM-yyyy format
@@ -180,7 +180,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
       } catch (e) {
         print("Error parsing with split: $e");
       }
-      
+
       // If manual parsing failed, try standard datetime parsing
       if (date == null) {
         try {
@@ -188,38 +188,58 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
           print("Parsed with DateTime.parse: $date");
         } catch (e) {
           print("Error parsing with DateTime.parse: $e");
-          
+
           // Try to handle localized date format that might already be in Indonesian
           List<String> indonesianMonths = [
-            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            'Januari',
+            'Februari',
+            'Maret',
+            'April',
+            'Mei',
+            'Juni',
+            'Juli',
+            'Agustus',
+            'September',
+            'Oktober',
+            'November',
+            'Desember'
           ];
-          
+
           // Check if the date already contains Indonesian month names
-          bool alreadyIndonesian = indonesianMonths.any((month) => 
-            dateString.contains(month));
-            
+          bool alreadyIndonesian =
+              indonesianMonths.any((month) => dateString.contains(month));
+
           if (alreadyIndonesian) {
             print("Already in Indonesian format: $dateString");
-            return dateString;  // Already in the correct format
+            return dateString; // Already in the correct format
           }
-          
+
           // If all parsing attempts fail, return the original string
           return dateString;
         }
       }
-      
+
       // Define Indonesian month names
       final List<String> indonesianMonths = [
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        'Januari',
+        'Februari',
+        'Maret',
+        'April',
+        'Mei',
+        'Juni',
+        'Juli',
+        'Agustus',
+        'September',
+        'Oktober',
+        'November',
+        'Desember'
       ];
-      
+
       // Format the date in Indonesian
       final String day = date.day.toString();
       final String month = indonesianMonths[date.month - 1];
       final String year = date.year.toString();
-      
+
       String result = '$day $month $year';
       print("Converted to Indonesian: $result");
       return result;
@@ -288,6 +308,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ClassesCubit, ClassesState>(
@@ -397,7 +418,6 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Header with leave type and attachment button
-                 
 
                     // Student info header section with enhanced styling
                     Row(
@@ -450,9 +470,19 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                                 maxLines: 2,
                               ),
                               const SizedBox(height: 8),
-                            
+
+                              // Leave type and status chips
+                              Row(
+                                children: [
+                                  if (widget.leaveDetails.type != null)
+                                    _buildLeaveTypeChip(
+                                        widget.leaveDetails.type!),
+                                  const SizedBox(width: 8),
+                                  // Status chip code removed
+                                ],
+                              ),
+
                               const SizedBox(height: 8),
-                        
                             ],
                           ),
                         ),
@@ -478,82 +508,133 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                     ),
 
                     // Reason section with enhanced styling
-                 
+                    if (widget.leaveDetails.leave?.reason != null &&
+                        widget.leaveDetails.leave!.reason!.isNotEmpty)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Alasan Cuti',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: _maroonDark,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: _maroonAccent.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: _maroonLight.withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: Text(
+                              widget.leaveDetails.leave!.reason!,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: _maroonDark,
+                                height: 1.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
 
-                    // Footer with date in a more elegant style
-                    if (widget.leaveDetails.leaveDate != null)
+                    // Date range section if available
+                    if (widget.leaveDetails.leave?.fromDate != null ||
+                        widget.leaveDetails.leave?.toDate != null)
                       Padding(
-                        padding: const EdgeInsets.only(top: 24),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                        padding: const EdgeInsets.only(top: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // School branding indicator
-                          
-
-                            const SizedBox(width: 8),
-
-                            // Date container
-                            Flexible(
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: isSmallScreen ? 12 : 16,
-                                    vertical: 10),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      _maroonLight.withOpacity(0.2),
-                                      _goldAccent.withOpacity(0.15),
-                                    ],
-                                  ),
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.03),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 3),
-                                    ),
+                            Text(
+                              'Periode Cuti',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: _maroonDark,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: isSmallScreen ? 16 : 20,
+                                  vertical: 14),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    _maroonLight.withOpacity(0.2),
+                                    _goldAccent.withOpacity(0.15),
                                   ],
-                                  border: Border.all(
-                                    color: _maroonLight.withOpacity(0.2),
-                                  ),
                                 ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.calendar_today_rounded,
-                                      size: 16,
-                                      color: _maroonDark,
-                                    ),
-                                    SizedBox(width: isSmallScreen ? 6 : 10),
-                                    Flexible(
-                                        child: RichText(
-                                        overflow: TextOverflow.ellipsis,
-                                        text: TextSpan(
-                                          children: [
-                                       
-                                          TextSpan(
-                                            text: formatDateToIndonesian(widget.leaveDetails.leaveDate),
-                                            style: TextStyle(
-                                            fontSize: 14,
-                                            color: _maroonDark,
-                                            fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          ],
-                                        ),
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.03),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                                border: Border.all(
+                                  color: _maroonLight.withOpacity(0.2),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.calendar_today_rounded,
+                                    size: 20,
+                                    color: _maroonDark,
+                                  ),
+                                  SizedBox(width: isSmallScreen ? 10 : 14),
+                                  Expanded(
+                                    child: Text(
+                                      '${formatDateToIndonesian(widget.leaveDetails.leave?.fromDate)} - ${formatDateToIndonesian(widget.leaveDetails.leave?.toDate)}',
+                                      style: TextStyle(
+                                        fontSize: isSmallScreen ? 12 : 14,
+                                        color: _maroonDark,
+                                        fontWeight: FontWeight.bold,
                                       ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
                       ),
+
+                    // File attachments - removed to use icon instead
+
+                    // Footer with date in a more elegant style
+                    Padding(
+                      padding: const EdgeInsets.only(top: 27),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Attachment button at bottom left
+
+                          if (widget.leaveDetails.leaveDate != null) ...[
+                            const SizedBox(width: 8),
+                            // Date container
+                            _buildAttachmentIcon(),
+                          ] else
+                            const Spacer(),
+                        ],
+                      ),
+                    ),
+                    // Status chip
                   ],
                 ),
               ),
@@ -561,6 +642,933 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
           ),
         ),
       ),
+    );
+  }
+
+  Color getStatusColor(int? status) {
+    switch (status) {
+      case 0:
+        return Colors.orange;
+      case 1:
+        return Colors.green;
+      case 2:
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Widget _buildAttachmentIcon() {
+    final files = widget.leaveDetails.leave?.file;
+    if (files == null || files.isEmpty) return const SizedBox.shrink();
+
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 600),
+      tween: Tween<double>(begin: 0.0, end: 1.0),
+      curve: Curves.elasticOut,
+      builder: (context, value, child) {
+        return Transform.scale(
+          scale: 0.8 + (0.2 * value),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  _maroonPrimary.withOpacity(0.15),
+                  _maroonLight.withOpacity(0.1),
+                ],
+              ),
+              border: Border.all(
+                color: _maroonPrimary.withOpacity(0.25),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: _maroonPrimary.withOpacity(0.15),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                  spreadRadius: 0,
+                ),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(16),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: () => _showAttachmentsModal(files),
+                splashColor: _maroonPrimary.withOpacity(0.2),
+                highlightColor: _maroonPrimary.withOpacity(0.1),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          // Main attachment icon
+                          Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: _maroonPrimary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.attach_file_rounded,
+                              color: _maroonPrimary,
+                              size: 16,
+                            ),
+                          ),
+                          // File count badge
+                          if (files.length > 1)
+                            Positioned(
+                              top: -6,
+                              right: -6,
+                              child: Container(
+                                padding: const EdgeInsets.all(3),
+                                decoration: BoxDecoration(
+                                  color: _maroonPrimary,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 1.5,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.2),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 1),
+                                    ),
+                                  ],
+                                ),
+                                constraints: const BoxConstraints(
+                                  minWidth: 16,
+                                  minHeight: 16,
+                                ),
+                                child: Text(
+                                  '${files.length}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(width: 8),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Lampiran',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: _maroonDark,
+                              height: 1.0,
+                            ),
+                          ),
+                          Text(
+                            '${files.length} file${files.length > 1 ? 's' : ''}',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: _maroonPrimary.withOpacity(0.8),
+                              height: 1.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAttachmentsModal(List<LeaveFile> files) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.75,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(28),
+              topRight: Radius.circular(28),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 20,
+                offset: const Offset(0, -5),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle bar
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 50,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
+
+              // Header
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      _maroonPrimary.withOpacity(0.05),
+                      _maroonLight.withOpacity(0.03),
+                    ],
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: _maroonPrimary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: _maroonPrimary.withOpacity(0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.attach_file_rounded,
+                        color: _maroonPrimary,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Lampiran Dokumen',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: _maroonDark,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${files.length} file${files.length > 1 ? 's' : ''} tersedia',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: _maroonPrimary.withOpacity(0.8),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: Icon(
+                          Icons.close_rounded,
+                          color: _maroonDark,
+                        ),
+                        splashRadius: 20,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Files list
+              Flexible(
+                child: ListView.separated(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  itemCount: files.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final file = files[index];
+                    return _buildAttachmentListItem(file, index);
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAttachmentListItem(LeaveFile file, int index) {
+    return TweenAnimationBuilder<double>(
+      duration: Duration(milliseconds: 400 + (index * 100)),
+      tween: Tween<double>(begin: 0.0, end: 1.0),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        return Transform.translate(
+          offset: Offset(40 * (1 - value), 0),
+          child: Opacity(
+            opacity: value,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: _maroonLight.withOpacity(0.2),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                    spreadRadius: 0,
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(20),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _openFile(file);
+                  },
+                  splashColor: _maroonPrimary.withOpacity(0.1),
+                  highlightColor: _maroonPrimary.withOpacity(0.05),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Row(
+                      children: [
+                        _buildFileIcon(file),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                file.fileName ?? 'File tidak diketahui',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: _maroonDark,
+                                  height: 1.3,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: _maroonPrimary.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: _maroonPrimary.withOpacity(0.2),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      file.fileExtension?.toUpperCase() ??
+                                          'FILE',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: _maroonPrimary,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ),
+                                  if (file.isImage) ...[
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 3,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.green.shade50,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: Colors.green.shade200,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.image_rounded,
+                                            size: 12,
+                                            color: Colors.green.shade700,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            'Gambar',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.green.shade700,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: _maroonPrimary.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 16,
+                            color: _maroonPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFileIcon(LeaveFile file) {
+    IconData iconData;
+    Color iconColor;
+    Color backgroundColor;
+
+    if (file.isImage) {
+      iconData = Icons.image_rounded;
+      iconColor = Colors.green.shade600;
+      backgroundColor = Colors.green.shade50;
+    } else {
+      switch (file.fileExtension?.toLowerCase()) {
+        case 'pdf':
+          iconData = Icons.picture_as_pdf_rounded;
+          iconColor = Colors.red.shade600;
+          backgroundColor = Colors.red.shade50;
+          break;
+        case 'doc':
+        case 'docx':
+          iconData = Icons.description_rounded;
+          iconColor = Colors.blue.shade600;
+          backgroundColor = Colors.blue.shade50;
+          break;
+        case 'xls':
+        case 'xlsx':
+          iconData = Icons.table_chart_rounded;
+          iconColor = Colors.green.shade600;
+          backgroundColor = Colors.green.shade50;
+          break;
+        case 'txt':
+          iconData = Icons.text_snippet_rounded;
+          iconColor = Colors.orange.shade600;
+          backgroundColor = Colors.orange.shade50;
+          break;
+        case 'zip':
+        case 'rar':
+          iconData = Icons.folder_zip_rounded;
+          iconColor = Colors.purple.shade600;
+          backgroundColor = Colors.purple.shade50;
+          break;
+        default:
+          iconData = Icons.insert_drive_file_rounded;
+          iconColor = _maroonPrimary;
+          backgroundColor = _maroonPrimary.withOpacity(0.1);
+      }
+    }
+
+    return Container(
+      width: 56,
+      height: 56,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: iconColor.withOpacity(0.2),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: iconColor.withOpacity(0.15),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Icon(
+            iconData,
+            color: iconColor,
+            size: 28,
+          ),
+          // Add a subtle shine effect
+          Positioned(
+            top: 8,
+            left: 8,
+            child: Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.4),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFileAttachments() {
+    final files = widget.leaveDetails.leave?.file;
+    if (files == null || files.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Icon(
+              Icons.attach_file,
+              color: _maroonDark,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Lampiran (${files.length})',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: _maroonDark,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: files.asMap().entries.map((entry) {
+            final index = entry.key;
+            final file = entry.value;
+            return TweenAnimationBuilder<double>(
+              duration: Duration(milliseconds: 300 + (index * 100)),
+              tween: Tween<double>(begin: 0.0, end: 1.0),
+              curve: Curves.easeOutQuart,
+              builder: (context, value, child) {
+                return Transform.scale(
+                  scale: value,
+                  child: Opacity(
+                    opacity: value.clamp(0.0, 1.0),
+                    child: _buildFileCard(file),
+                  ),
+                );
+              },
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFileCard(LeaveFile file) {
+    final isImage = file.isImage;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      width: isImage ? 120 : 220,
+      height: isImage ? 120 : 70,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: _maroonLight.withOpacity(0.3),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => _openFile(file),
+          splashColor: _maroonPrimary.withOpacity(0.1),
+          highlightColor: _maroonPrimary.withOpacity(0.05),
+          child: isImage ? _buildImagePreview(file) : _buildFilePreview(file),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImagePreview(LeaveFile file) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: Stack(
+        children: [
+          Image.network(
+            file.fileUrl ?? '',
+            width: double.infinity,
+            height: double.infinity,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                color: Colors.grey[200],
+                child: Icon(
+                  Icons.broken_image,
+                  color: Colors.grey[400],
+                  size: 30,
+                ),
+              );
+            },
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Container(
+                color: Colors.grey[200],
+                child: Center(
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                        : null,
+                    color: _maroonPrimary,
+                    strokeWidth: 2,
+                  ),
+                ),
+              );
+            },
+          ),
+          Positioned(
+            bottom: 6,
+            right: 6,
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.7),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.zoom_in,
+                color: Colors.white,
+                size: 16,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilePreview(LeaveFile file) {
+    IconData iconData;
+    Color iconColor;
+
+    switch (file.fileExtension?.toLowerCase()) {
+      case 'pdf':
+        iconData = Icons.picture_as_pdf;
+        iconColor = Colors.red;
+        break;
+      case 'doc':
+      case 'docx':
+        iconData = Icons.description;
+        iconColor = Colors.blue;
+        break;
+      case 'xls':
+      case 'xlsx':
+        iconData = Icons.table_chart;
+        iconColor = Colors.green;
+        break;
+      default:
+        iconData = Icons.attach_file;
+        iconColor = _maroonPrimary;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: iconColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              iconData,
+              color: iconColor,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  file.fileName ?? 'File tidak diketahui',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: _maroonDark,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  file.fileExtension?.toUpperCase() ?? '',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openFile(LeaveFile file) async {
+    if (file.isImage) {
+      // Show image in dialog for images
+      _showImageDialog(file);
+    } else {
+      // Open other file types with external app
+      if (file.fileUrl != null && file.fileUrl!.isNotEmpty) {
+        try {
+          final Uri url = Uri.parse(file.fileUrl!);
+          if (await canLaunchUrl(url)) {
+            await launchUrl(url, mode: LaunchMode.externalApplication);
+          } else {
+            print('Could not launch ${file.fileUrl}');
+          }
+        } catch (e) {
+          print('Error opening file: $e');
+        }
+      }
+    }
+  }
+
+  void _showImageDialog(LeaveFile file) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.8,
+                maxWidth: MediaQuery.of(context).size.width * 0.9,
+              ),
+              child: Stack(
+                children: [
+                  // Background blur
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: Container(
+                          color: Colors.black.withOpacity(0.3),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Image content
+                  Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.network(
+                        file.fileUrl ?? '',
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            padding: const EdgeInsets.all(40),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.broken_image,
+                                  size: 60,
+                                  color: Colors.grey[400],
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Gambar tidak dapat dimuat',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            padding: const EdgeInsets.all(40),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircularProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes !=
+                                          null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                      : null,
+                                  color: _maroonPrimary,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Memuat gambar...',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+
+                  // Close button
+                  Positioned(
+                    top: 20,
+                    right: 20,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.6),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // File name at bottom
+                  if (file.fileName != null)
+                    Positioned(
+                      bottom: 20,
+                      left: 20,
+                      right: 20,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.6),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          file.fileName!,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -651,7 +1659,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
               ),
             ),
           ),
-          );
+        );
       },
     );
   }
@@ -747,7 +1755,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
               ],
             ),
           ),
-          );
+        );
       },
     );
   }

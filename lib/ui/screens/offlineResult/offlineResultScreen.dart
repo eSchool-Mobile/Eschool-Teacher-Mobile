@@ -5,10 +5,10 @@ import 'package:eschool_saas_staff/data/models/offlineExam.dart';
 import 'package:eschool_saas_staff/data/models/sessionYear.dart';
 import 'package:eschool_saas_staff/ui/screens/offlineResult/widgets/studentOfflineResultContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
@@ -16,10 +16,8 @@ import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/route_manager.dart';
-import 'package:intl/intl.dart';
 
 class OfflineResultScreen extends StatefulWidget {
   const OfflineResultScreen({super.key});
@@ -55,7 +53,6 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
 
   // Animation controller for the app bar
   late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
 
   // Define colors
   final Color maroonPrimary = const Color(0xFF8B1F41);
@@ -85,13 +82,6 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
-    );
-
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
     );
 
     // Start animations
@@ -315,9 +305,9 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
 
         if (state is OfflineExamStudentResultsFetchFailure) {
           return Center(
-            child: ErrorContainer(
-              errorMessage: state.errorMessage,
-              onTapRetry: () {
+            child: CustomErrorWidget(
+              message: state.errorMessage,
+              onRetry: () {
                 getStudentResults();
               },
             ),
@@ -556,9 +546,9 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
 
             if (state is OfflineExamsWithClassesAndSessionYearsFetchFailure) {
               return Center(
-                child: ErrorContainer(
-                  errorMessage: state.errorMessage,
-                  onTapRetry: () {
+                child: CustomErrorWidget(
+                  message: state.errorMessage,
+                  onRetry: () {
                     context
                         .read<OfflineExamsWithClassesAndSessionYearsCubit>()
                         .getOfflineExamsWithSessionYearsAndClasses(

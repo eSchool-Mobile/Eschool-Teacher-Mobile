@@ -663,7 +663,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                                                     SizedBox(width: 12),
                                                     Expanded(
                                                       child: Text(
-                                                        'Delete',
+                                                        'Hapus',
                                                         style:
                                                             GoogleFonts.poppins(
                                                           fontWeight:

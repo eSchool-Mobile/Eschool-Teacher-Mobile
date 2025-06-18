@@ -954,52 +954,135 @@ class _ExamsScreenState extends State<ExamsScreen>
   }
 
   Widget _buildEmptyState() {
+    String emptyMessage;
+    IconData emptyIcon;
+
+    // Determine the appropriate message and icon based on filters
+    if (_filterStatus == "Semua" && _startDate == null && _endDate == null) {
+      emptyMessage = "Belum ada jadwal ujian tersedia";
+      emptyIcon = Icons.event_note_outlined;
+    } else {
+      // Generate specific messages based on active filters
+      if (_filterStatus == "Akan Datang") {
+        emptyMessage = "Tidak ada ujian yang akan datang";
+        emptyIcon = Icons.schedule_outlined;
+      } else if (_filterStatus == "Sedang Berlangsung") {
+        emptyMessage = "Tidak ada ujian yang sedang berlangsung";
+        emptyIcon = Icons.play_circle_outline;
+      } else if (_filterStatus == "Selesai") {
+        emptyMessage = "Tidak ada ujian yang telah selesai";
+        emptyIcon = Icons.check_circle_outline;
+      } else if (_startDate != null || _endDate != null) {
+        emptyMessage = "Tidak ada ujian pada rentang tanggal yang dipilih";
+        emptyIcon = Icons.date_range_outlined;
+      } else {
+        emptyMessage = "Tidak ditemukan hasil pencarian";
+        emptyIcon = Icons.search_off_outlined;
+      }
+    }
+
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Icon with subtle animation
+          Container(
+            padding: EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: primaryColor.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              emptyIcon,
+              size: 64,
+              color: primaryColor.withOpacity(0.7),
+            ),
+          ),
           SizedBox(height: 20),
           Text(
-            _filterStatus == "Semua"
-                ? "Belum ada jadwal ujian tersedia"
-                : "Tidak ditemukan hasil pencarian",
+            emptyMessage,
             style: GoogleFonts.poppins(
               fontSize: 18,
               color: primaryColor,
               fontWeight: FontWeight.w500,
             ),
+            textAlign: TextAlign.center,
           ),
-          SizedBox(height: 16),
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [primaryColor, primaryColor.withOpacity(0.8)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: primaryColor.withOpacity(0.3),
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
-                ),
-              ],
+          SizedBox(height: 8),
+          Text(
+            "Coba ubah filter atau refresh halaman",
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.normal,
             ),
-            child: ElevatedButton.icon(
-              onPressed: getExams,
-              icon: Icon(Icons.refresh_rounded),
-              label: Text("Refresh"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                foregroundColor: Colors.white,
-                shadowColor: Colors.transparent,
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Reset filter button (if filters are active)
+              if (_filterStatus != "Semua" ||
+                  _startDate != null ||
+                  _endDate != null)
+                Container(
+                  margin: EdgeInsets.only(right: 8),
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _filterStatus = "Semua";
+                        _startDate = null;
+                        _endDate = null;
+                      });
+                      getExams();
+                    },
+                    icon: Icon(Icons.clear_all, size: 18),
+                    label: Text("Reset Filter"),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: primaryColor,
+                      side: BorderSide(color: primaryColor.withOpacity(0.5)),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ),
+                ),
+              // Refresh button
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [primaryColor, primaryColor.withOpacity(0.8)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                   borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: primaryColor.withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton.icon(
+                  onPressed: getExams,
+                  icon: Icon(Icons.refresh_rounded, size: 18),
+                  label: Text("Refresh"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.white,
+                    shadowColor: Colors.transparent,
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         ],
       ),
@@ -1032,223 +1115,222 @@ class _ExamsScreenState extends State<ExamsScreen>
 
   Widget _buildHeader() {
     return SlideInDown(
-        duration: Duration(milliseconds: 800),
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(15, 15, 15, 10),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    // Back button with advanced ripple and glow effects
+      duration: Duration(milliseconds: 800),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(15, 15, 15, 10),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  // Title with modern styling
+                  Expanded(
+                    child: Text(
+                      "Jadwal Ujian",
+                      style: GoogleFonts.poppins(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: primaryColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
 
-                    // Title with modern styling
-
-                    // Filter button instead of search
-
-                    // Filter indicator chips - show applied filters
-                    if (_isFiltering)
-                      Container(
-                        margin: EdgeInsets.only(top: 16),
-                        height: 40,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              if (_filterStatus != "Semua")
-                                _buildFilterChip(
-                                  label: _filterStatus,
-                                  color: _getFilterStatusColor(_filterStatus),
-                                ),
-                              if (_startDate != null && _endDate != null)
-                                _buildFilterChip(
-                                  label:
-                                      "${DateFormat('dd/MM/yyyy').format(_startDate!)} - ${DateFormat('dd/MM/yyyy').format(_endDate!)}",
-                                  color: primaryColor,
-                                )
-                              else if (_startDate != null)
-                                _buildFilterChip(
-                                  label:
-                                      "Dari ${DateFormat('dd/MM/yyyy').format(_startDate!)}",
-                                  color: primaryColor,
-                                )
-                              else if (_endDate != null)
-                                _buildFilterChip(
-                                  label:
-                                      "Sampai ${DateFormat('dd/MM/yyyy').format(_endDate!)}",
-                                  color: primaryColor,
-                                ),
-                              if (_isFiltering)
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _filterStatus = "Semua";
-                                      _startDate = null;
-                                      _endDate = null;
-                                      _isFiltering = false;
-                                    });
-                                    getExams();
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 8),
-                                    decoration: BoxDecoration(
-                                      color: primaryColor.withOpacity(
-                                          0.1), // Changed to maroon with opacity
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(
-                                        color: primaryColor.withOpacity(
-                                            0.5), // Changed to maroon with opacity
-                                        width: 1,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.close,
-                                            color: primaryColor,
-                                            size:
-                                                16), // Changed to maroon color
-                                        SizedBox(width: 4),
-                                        Text(
-                                          "Reset Filter",
-                                          style: TextStyle(
-                                            color:
-                                                primaryColor, // Changed to maroon color
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                            ],
+              // Filter indicator chips - show applied filters
+              if (_isFiltering)
+                Container(
+                  margin: EdgeInsets.only(top: 16),
+                  height: 40,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        if (_filterStatus != "Semua")
+                          _buildFilterChip(
+                            label: _filterStatus,
+                            color: _getFilterStatusColor(_filterStatus),
                           ),
-                        ),
-                      ).animate().fadeIn(duration: 300.ms).slideY(
-                          begin: -0.2,
-                          end: 0,
-                          duration: 300.ms,
-                          curve: Curves.easeOut),
-
-                    // Show filters row - Session Years and Medium filters remain
-                    if (_showFilters)
-                      Container(
-                        margin: EdgeInsets.only(top: 16, bottom: 8),
-                        height: 50,
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          children: [
-                            _buildFilterOptionChip(
-                              label:
-                                  _selectedSessionYear?.name ?? "Tahun Ajaran",
-                              icon: Icons.calendar_today_outlined,
-                              onTap: () {
-                                if (context
-                                        .read<SessionYearsAndMediumsCubit>()
-                                        .state
-                                    is SessionYearsAndMediumsFetchSuccess) {
-                                  final state = context
-                                          .read<SessionYearsAndMediumsCubit>()
-                                          .state
-                                      as SessionYearsAndMediumsFetchSuccess;
-
-                                  Utils.showBottomSheet(
-                                    context: context,
-                                    child: FilterSelectionBottomsheet(
-                                      titleKey: "Pilih Tahun Ajaran",
-                                      values: state.sessionYears
-                                          .map((e) => {
-                                                "id": e.id,
-                                                "title": e.name,
-                                              })
-                                          .toList(),
-                                      selectedValue: _selectedSessionYear?.id,
-                                      onSelection: (selectedItem) {
-                                        final sessionYear =
-                                            state.sessionYears.firstWhere(
-                                          (element) =>
-                                              element.id ==
-                                              (selectedItem as Map<String,
-                                                  dynamic>)['id'],
-                                        );
-                                        changeSelectedSessionYear(sessionYear);
-                                        getExams();
-                                      },
-                                    ),
-                                  );
-                                }
-                              },
-                            ),
-                            SizedBox(width: 10),
-                            _buildFilterOptionChip(
-                              label: _selectedMedium?.name ?? "Bahasa",
-                              icon: Icons.language_rounded,
-                              onTap: () {
-                                if (context
-                                        .read<SessionYearsAndMediumsCubit>()
-                                        .state
-                                    is SessionYearsAndMediumsFetchSuccess) {
-                                  final state = context
-                                          .read<SessionYearsAndMediumsCubit>()
-                                          .state
-                                      as SessionYearsAndMediumsFetchSuccess;
-
-                                  Utils.showBottomSheet(
-                                    context: context,
-                                    child: FilterSelectionBottomsheet(
-                                      titleKey: "Pilih Bahasa",
-                                      values: state.mediums
-                                          .map((e) => {
-                                                "id": e.id,
-                                                "title": e.name,
-                                              })
-                                          .toList(),
-                                      selectedValue: _selectedMedium?.id,
-                                      onSelection: (selectedItem) {
-                                        final medium = state.mediums.firstWhere(
-                                          (element) =>
-                                              element.id ==
-                                              (selectedItem as Map<String,
-                                                  dynamic>)['id'],
-                                        );
-                                        changeSelectedMedium(medium);
-                                        getExams();
-                                      },
-                                    ),
-                                  );
-                                }
-                              },
-                            ),
-                            if (_selectedSessionYear != null ||
-                                _selectedMedium != null)
-                              Padding(
-                                padding: const EdgeInsets.only(left: 10),
-                                child: _buildFilterOptionChip(
-                                  label: "Reset Filter",
-                                  icon: Icons.refresh_rounded,
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedSessionYear = null;
-                                      _selectedMedium = null;
-                                    });
-                                    getExams();
-                                  },
+                        if (_startDate != null && _endDate != null)
+                          _buildFilterChip(
+                            label:
+                                "${DateFormat('dd/MM/yyyy').format(_startDate!)} - ${DateFormat('dd/MM/yyyy').format(_endDate!)}",
+                            color: primaryColor,
+                          )
+                        else if (_startDate != null)
+                          _buildFilterChip(
+                            label:
+                                "Dari ${DateFormat('dd/MM/yyyy').format(_startDate!)}",
+                            color: primaryColor,
+                          )
+                        else if (_endDate != null)
+                          _buildFilterChip(
+                            label:
+                                "Sampai ${DateFormat('dd/MM/yyyy').format(_endDate!)}",
+                            color: primaryColor,
+                          ),
+                        if (_isFiltering)
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _filterStatus = "Semua";
+                                _startDate = null;
+                                _endDate = null;
+                                _isFiltering = false;
+                              });
+                              getExams();
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: primaryColor.withOpacity(
+                                    0.1), // Changed to maroon with opacity
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: primaryColor.withOpacity(
+                                      0.5), // Changed to maroon with opacity
+                                  width: 1,
                                 ),
                               ),
-                          ],
+                              child: Row(
+                                children: [
+                                  Icon(Icons.close,
+                                      color: primaryColor,
+                                      size: 16), // Changed to maroon color
+                                  SizedBox(width: 4),
+                                  Text(
+                                    "Reset",
+                                    style: TextStyle(
+                                      color:
+                                          primaryColor, // Changed to maroon color
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ).animate().fadeIn(duration: 300.ms).slideY(
+                    begin: -0.2,
+                    end: 0,
+                    duration: 300.ms,
+                    curve: Curves.easeOut),
+
+              // Show filters row - Session Years and Medium filters remain
+              if (_showFilters)
+                Container(
+                  margin: EdgeInsets.only(top: 16, bottom: 8),
+                  height: 50,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      _buildFilterOptionChip(
+                        label: _selectedSessionYear?.name ?? "Tahun Ajaran",
+                        icon: Icons.calendar_today_outlined,
+                        onTap: () {
+                          if (context.read<SessionYearsAndMediumsCubit>().state
+                              is SessionYearsAndMediumsFetchSuccess) {
+                            final state = context
+                                .read<SessionYearsAndMediumsCubit>()
+                                .state as SessionYearsAndMediumsFetchSuccess;
+
+                            Utils.showBottomSheet(
+                              context: context,
+                              child: FilterSelectionBottomsheet(
+                                titleKey: "Pilih Tahun Ajaran",
+                                values: state.sessionYears
+                                    .map((e) => {
+                                          "id": e.id,
+                                          "title": e.name,
+                                        })
+                                    .toList(),
+                                selectedValue: _selectedSessionYear?.id,
+                                onSelection: (selectedItem) {
+                                  final sessionYear =
+                                      state.sessionYears.firstWhere(
+                                    (element) =>
+                                        element.id ==
+                                        (selectedItem
+                                            as Map<String, dynamic>)['id'],
+                                  );
+                                  changeSelectedSessionYear(sessionYear);
+                                  getExams();
+                                },
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                      SizedBox(width: 10),
+                      _buildFilterOptionChip(
+                        label: _selectedMedium?.name ?? "Bahasa",
+                        icon: Icons.language_rounded,
+                        onTap: () {
+                          if (context.read<SessionYearsAndMediumsCubit>().state
+                              is SessionYearsAndMediumsFetchSuccess) {
+                            final state = context
+                                .read<SessionYearsAndMediumsCubit>()
+                                .state as SessionYearsAndMediumsFetchSuccess;
+
+                            Utils.showBottomSheet(
+                              context: context,
+                              child: FilterSelectionBottomsheet(
+                                titleKey: "Pilih Bahasa",
+                                values: state.mediums
+                                    .map((e) => {
+                                          "id": e.id,
+                                          "title": e.name,
+                                        })
+                                    .toList(),
+                                selectedValue: _selectedMedium?.id,
+                                onSelection: (selectedItem) {
+                                  final medium = state.mediums.firstWhere(
+                                    (element) =>
+                                        element.id ==
+                                        (selectedItem
+                                            as Map<String, dynamic>)['id'],
+                                  );
+                                  changeSelectedMedium(medium);
+                                  getExams();
+                                },
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                      if (_selectedSessionYear != null ||
+                          _selectedMedium != null)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: _buildFilterOptionChip(
+                            label: "Reset Filter",
+                            icon: Icons.refresh_rounded,
+                            onTap: () {
+                              setState(() {
+                                _selectedSessionYear = null;
+                                _selectedMedium = null;
+                              });
+                              getExams();
+                            },
+                          ),
                         ),
-                      ).animate().fadeIn(duration: 300.ms).slideY(
-                          begin: -0.2,
-                          end: 0,
-                          duration: 300.ms,
-                          curve: Curves.easeOut),
-                  ],
-                ),
-              ],
-            ),
+                    ],
+                  ),
+                ).animate().fadeIn(duration: 300.ms).slideY(
+                    begin: -0.2,
+                    end: 0,
+                    duration: 300.ms,
+                    curve: Curves.easeOut),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   Color _getFilterStatusColor(String status) {
@@ -1294,7 +1376,7 @@ class _ExamsScreenState extends State<ExamsScreen>
     required IconData icon,
     required VoidCallback onTap,
   }) {
-    final bool isResetFilter = label == "Reset Filter";
+    final bool isResetFilter = label == "Reset";
 
     return Material(
       color: Colors.transparent,

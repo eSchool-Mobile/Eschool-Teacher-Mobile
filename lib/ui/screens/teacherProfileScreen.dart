@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/route_manager.dart';
+import 'package:intl/intl.dart';
 
 class TeacherProfileScreen extends StatefulWidget {
   final UserDetails teacher;
@@ -69,6 +70,20 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen>
     }
 
     return _translations[key] ?? titleKey;
+  }
+
+  // Fungsi untuk memformat gaji dengan titik pemisah ribuan dan mata uang rupiah
+  String _formatSalary(double? salary) {
+    if (salary == null) return "-";
+
+    // Menggunakan NumberFormat untuk format Indonesia dengan titik sebagai pemisah ribuan
+    final formatter = NumberFormat("#,##0", "id_ID");
+    String formattedNumber = formatter.format(salary.toInt());
+
+    // Mengganti koma dengan titik untuk format Indonesia
+    formattedNumber = formattedNumber.replaceAll(',', '.');
+
+    return 'Rp $formattedNumber';
   }
 
   @override
@@ -700,9 +715,8 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen>
                               ),
                               _buildTeacherDetailCard(
                                 titleKey: salaryKey,
-                                valueKey: widget.teacher.staff?.salary
-                                        ?.toStringAsFixed(2) ??
-                                    "-",
+                                valueKey:
+                                    _formatSalary(widget.teacher.staff?.salary),
                                 icon: _detailIcons[salaryKey],
                               ),
                             ],

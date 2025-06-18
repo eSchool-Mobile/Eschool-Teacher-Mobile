@@ -506,9 +506,7 @@ class _TeacherAddAttendanceScreenSubjectState
                                     color: Colors.grey[800],
                                   ),
                                 ),
-                              ),
-
-                              // File upload section
+                              ),                              // File upload section
                               SizedBox(height: 24),
                               Row(
                                 children: [
@@ -534,6 +532,16 @@ class _TeacherAddAttendanceScreenSubjectState
                                     ),
                                   ),
                                 ],
+                              ),
+                              SizedBox(height: 4),
+                              // File format description
+                              Text(
+                                'Format yang didukung: JPEG, PNG, JPG, GIF, SVG, DOC, DOCX, PDF',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  color: Colors.grey[500],
+                                  fontStyle: FontStyle.italic,
+                                ),
                               ),
                               SizedBox(height: 8),
 

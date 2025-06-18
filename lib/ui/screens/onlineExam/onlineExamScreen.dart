@@ -17,6 +17,7 @@ import 'package:flutter/services.dart';
 import 'dart:math' as math;
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
+import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 
 class OnlineExamScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -451,9 +452,25 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                 exam.title.toLowerCase().contains(searchQuery.toLowerCase()))
             .toList();
 
-    // Jika tidak ada ujian yang sesuai dengan pencarian, tampilkan pesan
+    // Jika tidak ada ujian yang sesuai dengan pencarian, tampilkan NoSearchResultsWidget
     if (filteredExams.isEmpty && searchQuery.isNotEmpty) {
-      return SliverFillRemaining(child: _buildEmptyState());
+      return SliverFillRemaining(
+        child: NoSearchResultsWidget(
+          searchQuery: searchQuery,
+          onClearSearch: () {
+            setState(() {
+              searchQuery = "";
+            });
+          },
+          primaryColor: _primaryColor,
+          accentColor: _highlightColor,
+          title: 'Tidak Ada Ujian',
+          description:
+              'Tidak ditemukan ujian yang sesuai dengan pencarian Anda. Coba gunakan kata kunci yang berbeda.',
+          clearButtonText: 'Hapus Pencarian',
+          icon: Icons.assignment_outlined,
+        ),
+      );
     }
 
     return SliverPadding(
@@ -1098,17 +1115,13 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
               children: [
                 SizedBox(height: MediaQuery.of(context).size.height * 0.15),
                 Icon(
-                  searchQuery.isEmpty
-                      ? Icons.assignment_outlined
-                      : Icons.search_off_rounded,
+                  Icons.assignment_outlined,
                   size: 80,
                   color: Colors.grey[400],
                 ),
                 SizedBox(height: 20),
                 Text(
-                  searchQuery.isEmpty
-                      ? 'Belum ada ujian'
-                      : 'Tidak ada ujian yang sesuai',
+                  'Belum ada ujian',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
@@ -1118,9 +1131,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                 ),
                 SizedBox(height: 10),
                 Text(
-                  searchQuery.isEmpty
-                      ? 'Tambahkan ujian baru dengan menekan tombol +'
-                      : 'Coba gunakan kata kunci pencarian yang berbeda',
+                  'Tambahkan ujian baru dengan menekan tombol +',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey[500],

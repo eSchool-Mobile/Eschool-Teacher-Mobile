@@ -214,10 +214,9 @@ class _TeacherManageAssignmentScreenState
                       children: [
                         Icon(Icons.check_circle_rounded,
                             color: Colors.white, size: 24),
-                        SizedBox(width: 16),
-                        Expanded(
+                        SizedBox(width: 16),                        Expanded(
                           child: Text(
-                            "${Utils.getTranslatedLabel('assignmentDeletedSuccessfully')} ${assignment.name}",
+                            "Tugas berhasil dihapus",
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 15,
@@ -649,7 +648,7 @@ class _TeacherManageAssignmentScreenState
                                                     SizedBox(width: 12),
                                                     Expanded(
                                                       child: Text(
-                                                        'Delete',
+                                                        'Hapus',
                                                         style:
                                                             GoogleFonts.poppins(
                                                           fontWeight:
