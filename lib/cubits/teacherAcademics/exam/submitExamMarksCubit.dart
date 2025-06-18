@@ -45,12 +45,16 @@ class SubmitExamMarksCubit extends Cubit<SubmitExamMarksState> {
       emit(SubmitExamMarksSubmitSuccess());
     } catch (e) {
       // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
-      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
-      emit(SubmitExamMarksSubmitFailure(errorMessage: userFriendlyMessage));
-
-      // Log technical error untuk debugging (hanya untuk development)
-      print(
-          'Technical error in submitOfflineExamMarks: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
+      // Check if error is numeric (integer or string number)
+      final errorString = e.toString();
+      final isNumericError = int.tryParse(errorString) != null;
+      
+      if (isNumericError) {
+        final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+        emit(SubmitExamMarksSubmitFailure(errorMessage: userFriendlyMessage));
+      } else {
+        emit(SubmitExamMarksSubmitFailure(errorMessage: errorString));
+      }
     }
   }
 }

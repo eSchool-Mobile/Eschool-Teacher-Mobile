@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:eschool_saas_staff/data/models/exam.dart';
 import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
 import 'package:eschool_saas_staff/data/models/studentDetails.dart';
@@ -36,8 +38,8 @@ class StudentRepository {
         url: Api.getStudents,
         useAuthToken: true,
         queryParameters: {
-          "paginate": 0,
-          "status": studentViewStatus,
+          // "paginate": 0,
+          // "status": studentViewStatus,
           "class_section_id": classSectionId,
           if (search != null) "search": search,
           if (classSubjectId != null) "class_subject_id": classSubjectId,
@@ -45,18 +47,7 @@ class StudentRepository {
         },
       );
 
-      print("ACELI");
-      print({
-        "paginate": 0,
-        "status": studentViewStatus,
-        "class_section_id": classSectionId,
-        if (search != null) "search": search,
-        if (classSubjectId != null) "class_subject_id": classSubjectId,
-        if (examId != null) "exam_id": examId
-      });
-      print(result);
-
-      return (result['data'] as List).map((e) {
+      return (result['data']['data'] as List).map((e) {
         return StudentDetails.fromJson(Map.from(e));
       }).toList();
     } catch (e) {
