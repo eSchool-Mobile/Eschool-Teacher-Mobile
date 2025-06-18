@@ -136,8 +136,6 @@ class StudentDetails {
 
   factory StudentDetails.fromJson(Map<String, dynamic> json) {
     // Debug status parsing
-    print("Raw status from API: ${json['status']} (type: ${json['status'].runtimeType})");
-    JsonEncoder.withIndent('  ').convert(json).split('\n').forEach(print);
     
     int? parsedStatus;
     if (json['status'] is int) {
@@ -315,6 +313,9 @@ class StudentDetails {
       print("WARNING: Student status is null - check API response");
       return false; // Default ke non-aktif jika tidak ada data status
     }
+
+    // print(">///<");
+    // print(status);
     
     // Status 1 = aktif, 0 = non-aktif
     bool isActiveStatus = (status == 1);

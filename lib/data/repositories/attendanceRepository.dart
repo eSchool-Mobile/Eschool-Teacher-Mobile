@@ -32,8 +32,8 @@ class AttendanceRepository {
         throw ApiException("Invalid response from API");
       }
 
-      JsonEncoder.withIndent('  ').convert(result).split('\n').forEach(print);
-      print("KUCING MESIR");
+      // JsonEncoder.withIndent('  ').convert(result).split('\n').forEach(print);
+      // print("KUCING MESIR");
 
       return (
         attendance: (result['data'] as List)
