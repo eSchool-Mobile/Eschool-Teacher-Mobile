@@ -146,23 +146,64 @@ class _SchoolListScreenState extends State<SchoolListScreen>
 
       // Create a complete user details map with all necessary data
       final Map<String, dynamic> completeUserDetails = {
+        // Start with userData sebagai base
         ...userData,
+        // Override dengan data specific dari sekolah yang dipilih
         'school': schoolData,
         'school_id': schoolData['id'],
         'token': schoolToken, // Include token in user details
         'schools': userData['schools'], // Preserve schools list
+        // IMPORTANT: Preserve teacher data from selected school's user object
+        // Teacher dan staff data HARUS dari sekolah yang dipilih, bukan userData global
+        'teacher': school['user']['teacher'], // Include complete teacher data
+        'staff': school['user']['staff'], // Include complete staff data if exists
+        // Also preserve other user data from the selected school
+        'roles': school['user']['roles'] ?? userData['roles'],
+        // Preserve user-level data from the selected school user
+        'first_name': school['user']['first_name'] ?? userData['first_name'],
+        'last_name': school['user']['last_name'] ?? userData['last_name'],
+        'full_name': school['user']['full_name'] ?? userData['full_name'],
+        'email': school['user']['email'] ?? userData['email'],
+        'mobile': school['user']['mobile'] ?? userData['mobile'],
+        'image': school['user']['image'] ?? userData['image'],
+        'gender': school['user']['gender'] ?? userData['gender'],
+        'status': school['user']['status'] ?? userData['status'],
+        // Preserve other attributes...
+        'dob': school['user']['dob'] ?? userData['dob'],
+        'current_address': school['user']['current_address'] ?? userData['current_address'],
+        'permanent_address': school['user']['permanent_address'] ?? userData['permanent_address'],
       };
 
       // Set login state before creating user details
       await authRepository.setIsLogIn(true);
 
+      // Debug logging untuk memastikan data teacher tidak hilang
+      print('=== DEBUG TEACHER DATA PRESERVATION ===');
+      print('Original userData teacher: ${userData['teacher']}');
+      print('Selected school user teacher: ${school['user']['teacher']}');
+      print('Complete user details teacher: ${completeUserDetails['teacher']}');
+      print('Complete user details staff: ${completeUserDetails['staff']}');
+      print('========================================');
+
       // Create and save UserDetails instance with complete data
       final userDetailsInstance = UserDetails.fromJson(completeUserDetails);
       await authRepository.setUserDetails(userDetailsInstance);
 
-      // Save teacher ID if available
+      // Additional debug untuk UserDetails instance
+      print('=== DEBUG USERDETAILS INSTANCE ===');
+      print('UserDetails teacher ID: ${userDetailsInstance.teacher?.id}');
+      print('UserDetails staff ID: ${userDetailsInstance.staff?.id}');
+      print('UserDetails school ID: ${userDetailsInstance.schoolId}');
+      print('==================================');
+
+      // Save teacher ID if available (dari sekolah yang dipilih, bukan global)
       if (school['user']['teacher'] != null) {
         await prefs.setInt('teacher_id', school['user']['teacher']['id']);
+        print('Saved teacher ID from selected school: ${school['user']['teacher']['id']}');
+      } else if (userData['teacher'] != null) {
+        // Fallback ke teacher global jika tidak ada teacher untuk sekolah ini
+        await prefs.setInt('teacher_id', userData['teacher']['id']);
+        print('Saved teacher ID from global data: ${userData['teacher']['id']}');
       } // Update Auth state in BLoC with proper token format
       if (!context.mounted) return;
 
@@ -179,6 +220,11 @@ class _SchoolListScreenState extends State<SchoolListScreen>
           );
 
       print('DEBUG SCHOOL SELECTION: Authentication completed');
+      print('Final UserDetails verification:');
+      print('- Teacher ID: ${userDetailsInstance.teacher?.id}');
+      print('- Staff ID: ${userDetailsInstance.staff?.id}');
+      print('- School ID: ${userDetailsInstance.schoolId}');
+      print('- School Name: ${userDetailsInstance.school?.name}');
 
       // Debug logging
       print('Full auth token set: Bearer $schoolToken');
