@@ -1,4 +1,4 @@
-package id.ac.eschool.teacherstaff.android
+package id.ac.eschool.GuruStaff.android
 
 import io.flutter.embedding.android.FlutterActivity
 

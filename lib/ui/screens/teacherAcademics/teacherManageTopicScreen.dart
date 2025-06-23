@@ -1852,7 +1852,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                                           selectedValue: _selectedLesson ??
                                               state.lessons.first,
                                           values: state.lessons,
-                                          titleKey: lessonKey,
+                                          titleKey: "Bab",
                                         ),
                                         context: context,
                                       );

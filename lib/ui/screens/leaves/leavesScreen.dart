@@ -14,8 +14,6 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
-import 'dart:ui';
-import 'package:intl/intl.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 class LeavesScreen extends StatefulWidget {
@@ -55,18 +53,13 @@ class _LeavesScreenState extends State<LeavesScreen>
   SessionYear? _selectedSessionYear;
   late String _selectedMonthKey =
       Utils.getMonthFullName(DateTime.now().month).toLowerCase();
-  double _headerHeight = 200.0;
   final ScrollController _scrollController = ScrollController();
 
   // Animation controllers
   late final AnimationController _animationController;
-  late final Animation<double> _fadeAnimation;
 
   // Additional animations for enhanced visuals
   late final AnimationController _cardAnimationController;
-  late final Animation<double> _scaleAnimation;
-  late final Animation<double> _slideAnimation;
-  late final Animation<Offset> _offsetAnimation;
 
   // Define theme colors - modern palette
   final Color maroonPrimary = Color(0xFF8B1F41);
@@ -97,57 +90,15 @@ class _LeavesScreenState extends State<LeavesScreen>
       duration: Duration(milliseconds: 800),
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
-
     // Card animations controller for more dynamic UI elements
     _cardAnimationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 600),
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _cardAnimationController,
-        curve: Curves.easeOutBack,
-      ),
-    );
-
-    _slideAnimation = Tween<double>(begin: 50, end: 0).animate(
-      CurvedAnimation(
-        parent: _cardAnimationController,
-        curve: Curves.easeOutCubic,
-      ),
-    );
-
-    _offsetAnimation = Tween<Offset>(
-      begin: Offset(0, 0.5),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _cardAnimationController,
-      curve: Curves.easeOutCubic,
-    ));
-
     // Start animations
     _animationController.forward();
     _cardAnimationController.forward();
-
-    // Scroll listener for collapsing header effect
-    _scrollController.addListener(() {
-      if (_scrollController.offset > 50 && _headerHeight == 200.0) {
-        setState(() {
-          _headerHeight = 120.0;
-        });
-      } else if (_scrollController.offset <= 50 && _headerHeight == 120.0) {
-        setState(() {
-          _headerHeight = 200.0;
-        });
-      }
-    });
 
     // Set default month to current month
     _selectedMonthKey =
@@ -740,7 +691,7 @@ class _LeavesScreenState extends State<LeavesScreen>
       },
       animationController: _animationController,
       enableAnimations: true,
-      height: _headerHeight,
+      height: 190.0, // Increased height for better spacing
       firstFilterItem: FilterItemConfig(
         title: _selectedSessionYear?.name ?? "Tahun Ajaran",
         icon: Icons.calendar_today_rounded,

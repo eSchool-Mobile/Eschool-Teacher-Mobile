@@ -722,8 +722,8 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                       builder: (context, lessonState) {
                         return _buildAnimatedTextField(
                           controller: TextEditingController(
-                              text: _selectedLesson?.name ?? 'Pilih Pelajaran'),
-                          label: 'Pelajaran',
+                              text: _selectedLesson?.name ?? 'Pilih Bab'),
+                          label: 'Bab',
                           icon: Icons.book_outlined,
                           readOnly: true,
                           onTap: () {

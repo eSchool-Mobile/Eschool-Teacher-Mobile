@@ -260,24 +260,23 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
         const SizedBox(height: 6),
         Container(
           height: 6,
+          width: double.infinity,
           decoration: BoxDecoration(
             color: Colors.grey.shade300,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Row(
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                width: MediaQuery.of(context).size.width *
-                    0.7 *
-                    (_passwordStrength / 4),
-                decoration: BoxDecoration(
-                  color: _getStrengthColor(),
-                  borderRadius: BorderRadius.circular(10),
-                ),
+          child: FractionallySizedBox(
+            alignment: Alignment.centerLeft,
+            widthFactor: _passwordStrength / 4,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              height: 6,
+              decoration: BoxDecoration(
+                color: _getStrengthColor(),
+                borderRadius: BorderRadius.circular(10),
               ),
-            ],
+            ),
           ),
         ),
       ],

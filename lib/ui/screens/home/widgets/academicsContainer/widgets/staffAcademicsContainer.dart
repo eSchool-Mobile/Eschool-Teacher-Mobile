@@ -270,50 +270,7 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                         )
                       : const SizedBox(),
 
-                  // Offline Exam Section
-                  (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
-                              moduleId: examManagementModuleId.toString())) &&
-                          (staffAllowedPermissionsAndModulesCubit
-                                  .isPermissionGiven(
-                                      permission: viewExamsPermissionKey) ||
-                              staffAllowedPermissionsAndModulesCubit
-                                  .isPermissionGiven(
-                                      permission: viewExamResultPermissionKey))
-                      ? _buildMenuSection(
-                          context: context,
-                          title: "Ujian Offline",
-                          icon: Icons.school,
-                          iconColor: Color(0xFF8B0000).withOpacity(0.9),
-                          index: 5,
-                          menus: [
-                            staffAllowedPermissionsAndModulesCubit
-                                    .isPermissionGiven(
-                                        permission: viewExamsPermissionKey)
-                                ? _buildMenuItem(
-                                    context: context,
-                                    icon: Icons.edit_document,
-                                    title: "Jadwal Ujian Offline",
-                                    index: 9,
-                                    onTap: () =>
-                                        Get.toNamed(Routes.examsScreen),
-                                  )
-                                : const SizedBox(),
-                            staffAllowedPermissionsAndModulesCubit
-                                    .isPermissionGiven(
-                                        permission: viewExamResultPermissionKey)
-                                ? _buildMenuItem(
-                                    context: context,
-                                    icon: Icons.analytics,
-                                    title: "Hasil Ujian Offline",
-                                    index: 10,
-                                    onTap: () =>
-                                        Get.toNamed(Routes.offlineResultScreen),
-                                  )
-                                : const SizedBox(),
-                          ],
-                        )
-                      : const SizedBox(),
-
+                
                   // Question Bank Section
                   _buildMenuSection(
                     context: context,
@@ -362,6 +319,51 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                         )
                       : const SizedBox(),
 
+                        // Offline Exam Section
+                  (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
+                              moduleId: examManagementModuleId.toString())) &&
+                          (staffAllowedPermissionsAndModulesCubit
+                                  .isPermissionGiven(
+                                      permission: viewExamsPermissionKey) ||
+                              staffAllowedPermissionsAndModulesCubit
+                                  .isPermissionGiven(
+                                      permission: viewExamResultPermissionKey))
+                      ? _buildMenuSection(
+                          context: context,
+                          title: "Ujian Offline",
+                          icon: Icons.school,
+                          iconColor: Color(0xFF8B0000).withOpacity(0.9),
+                          index: 5,
+                          menus: [
+                            staffAllowedPermissionsAndModulesCubit
+                                    .isPermissionGiven(
+                                        permission: viewExamsPermissionKey)
+                                ? _buildMenuItem(
+                                    context: context,
+                                    icon: Icons.edit_document,
+                                    title: "Jadwal Ujian Offline",
+                                    index: 9,
+                                    onTap: () =>
+                                        Get.toNamed(Routes.examsScreen),
+                                  )
+                                : const SizedBox(),
+                            staffAllowedPermissionsAndModulesCubit
+                                    .isPermissionGiven(
+                                        permission: viewExamResultPermissionKey)
+                                ? _buildMenuItem(
+                                    context: context,
+                                    icon: Icons.analytics,
+                                    title: "Hasil Ujian Offline",
+                                    index: 10,
+                                    onTap: () =>
+                                        Get.toNamed(Routes.offlineResultScreen),
+                                  )
+                                : const SizedBox(),
+                          ],
+                        )
+                      : const SizedBox(),
+
+
                   // Online Exam Section
                   _buildMenuSection(
                     context: context,
@@ -389,6 +391,13 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                           onTap: () =>
                               Get.toNamed(Routes.onlineExamResultScreen),
                         ),
+                                                  _buildMenuItem(
+                            context: context,
+                            icon: Icons.visibility,
+                            title: "Status Siswa Ujian",
+                            index: 16,
+                            onTap: () => Get.toNamed(Routes.examStatusScreen),
+                          ),
                     ],
                   ),
 
