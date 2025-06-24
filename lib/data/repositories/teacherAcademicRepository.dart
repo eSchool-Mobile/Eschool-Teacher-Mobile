@@ -91,7 +91,10 @@ class TeacherAcademicsRepository {
     try {
       final result = await Api.post(
         url: Api.getClassDetails,
-        body: {if (classId != null) "class_id": classId},
+        body: {
+          if (classId != null) "class_id": classId,
+          "mode": "all",
+        },
       );
       return ((result['data'] ?? []) as List)
           .map((classDetails) =>

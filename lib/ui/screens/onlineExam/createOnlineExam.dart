@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
+import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
 import 'package:eschool_saas_staff/data/models/subjectDetail.dart';
 import 'package:get/get.dart';
 import 'package:eschool_saas_staff/app/routes.dart';
@@ -78,11 +79,19 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
   final TextEditingController _examKeyController = TextEditingController();
   final TextEditingController _durationController = TextEditingController();
   final TextEditingController _startDateController = TextEditingController();
-  final TextEditingController _startTimeController = TextEditingController();
-  @override
+  final TextEditingController _startTimeController = TextEditingController();  @override
   void initState() {
     super.initState();
     context.read<OnlineExamCubit>().getOnlineExams();
+
+    // Initialize class sections data untuk filter
+    Future.delayed(Duration.zero, () {
+      if (mounted) {
+        context
+            .read<ClassSectionsAndSubjectsCubit>()
+            .getClassSectionsAndSubjects();
+      }
+    });
 
     // Initialize animation controller for the CustomModernAppBar
     _animationController = AnimationController(

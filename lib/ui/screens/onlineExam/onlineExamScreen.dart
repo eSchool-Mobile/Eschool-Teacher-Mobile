@@ -60,13 +60,21 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
 
   // Theme colors - Softer Maroon palette
   final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
-  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
-  @override
+  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon  @override
   void initState() {
     super.initState();
     // Initialize date formatting for Indonesian locale
     initializeDateFormatting('id_ID', null);
     _refreshExams();
+
+    // Initialize class sections data untuk filter
+    Future.delayed(Duration.zero, () {
+      if (mounted) {
+        context
+            .read<ClassSectionsAndSubjectsCubit>()
+            .getClassSectionsAndSubjects();
+      }
+    });
 
     // Add listener for state changes
     context.read<OnlineExamCubit>().stream.listen((state) {

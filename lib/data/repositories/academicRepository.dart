@@ -10,8 +10,12 @@ class AcademicRepository {
   Future<({List<ClassSection> classes, List<ClassSection> primaryClasses})>
       getClasses() async {
     try {
-      final result = await Api.get(url: Api.getClasses);
-      print("Raw API response");
+      print("AcademicRepository: Fetching classes with mode=all parameter");
+      final result = await Api.get(
+        url: Api.getClasses,
+        queryParameters: {"mode": "all"},
+      );
+      print("AcademicRepository: Raw API response received");
 
       // Mapping untuk other classes (tetap dipertahankan)
       final otherClasses = ((result['other'] ?? []) as List)
@@ -50,6 +54,8 @@ class AcademicRepository {
       print(
           "Primary Classes (Wali Kelas): ${primaryClasses.map((e) => e.name)}");
       print("Other Classes: ${otherClasses.map((e) => e.name)}");
+      print(
+          "AcademicRepository: Total classes loaded - Primary: ${primaryClasses.length}, Other: ${otherClasses.length}");
 
       return (classes: otherClasses, primaryClasses: primaryClasses);
     } catch (e) {
@@ -59,8 +65,10 @@ class AcademicRepository {
 
   Future<List<ClassSection>> getClassesWithTeacherDetails() async {
     try {
-      final result =
-          await Api.post(url: Api.getClassesWithTeacherDetails, body: {});
+      final result = await Api.post(
+        url: Api.getClassesWithTeacherDetails,
+        body: {"mode": "all"},
+      );
       print("resultnya");
       print(result);
       return ((result['data'] ?? []) as List)

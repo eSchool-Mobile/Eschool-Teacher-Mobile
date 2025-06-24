@@ -22,8 +22,7 @@ class OnlineExamRepository {
     try {
       final response = await Api.get(
         url: Api.getOnlineExamList,
-        useAuthToken: true,
-        queryParameters: {
+        useAuthToken: true,        queryParameters: {
           'offset': offset.toString(),
           'limit': limit.toString(),
           'sort': 'id',
@@ -37,6 +36,7 @@ class OnlineExamRepository {
           if (sessionYearId != null)
             'session_year_id': sessionYearId.toString(),
           'type': 'all',
+          'mode': 'all', // Tambahkan parameter mode=all untuk menampilkan semua kelas
           if (archive != null) 'archive': archive,
         },
       );

@@ -601,13 +601,13 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                   Expanded(
                     child: TextButton(
                       onPressed: () => Get.back(),
-                        child: Text(
+                      child: Text(
                         'Batal',
                         style: TextStyle(
                           color: Colors.grey[800],
                           fontWeight: FontWeight.bold,
                         ),
-                        ),
+                      ),
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
@@ -619,60 +619,173 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                   ),
                   SizedBox(width: 16),
                   Expanded(
-                    child: ElevatedButton(                      onPressed: () async {
+                    child: ElevatedButton(
+                      onPressed: () async {
                         Get.back();
-                        try {                          // Show loading
+                        try {
+                          // Show modern loading dialog
                           Get.dialog(
-                            Center(
-                              child: Container(
-                                padding: EdgeInsets.all(32),
-                                margin: EdgeInsets.symmetric(horizontal: 40),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(24),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
-                                      blurRadius: 20,
-                                      spreadRadius: 4,
-                                      offset: Offset(0, 8),
+                            Material(
+                              color: Colors.black.withOpacity(0.5),
+                              child: Center(
+                                child: Container(
+                                  width: 320,
+                                  padding: EdgeInsets.all(40),
+                                  margin: EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.white,
+                                        Colors.blue[50]!,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
                                     ),
-                                  ],
-                                ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.all(16),
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue[50],
-                                        shape: BoxShape.circle,
+                                    borderRadius: BorderRadius.circular(32),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.blue.withOpacity(0.3),
+                                        blurRadius: 30,
+                                        spreadRadius: 0,
+                                        offset: Offset(0, 15),
                                       ),
-                                      child: CircularProgressIndicator(
-                                        valueColor: AlwaysStoppedAnimation<Color>(
-                                            Colors.blue[600]!),
-                                        strokeWidth: 3,
+                                      BoxShadow(
+                                        color: Colors.white.withOpacity(0.8),
+                                        blurRadius: 10,
+                                        spreadRadius: -5,
+                                        offset: Offset(0, -5),
                                       ),
-                                    ),
-                                    SizedBox(height: 24),
-                                    Text(
-                                      'Memulihkan Ujian',
-                                      style: TextStyle(
-                                        color: Colors.grey[800],
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
+                                    ],
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      // Animated Icon Container
+                                      Container(
+                                        width: 100,
+                                        height: 100,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.blue[400]!,
+                                              Colors.blue[600]!,
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.blue.withOpacity(0.4),
+                                              blurRadius: 20,
+                                              spreadRadius: 0,
+                                              offset: Offset(0, 8),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            // Rotating outer ring
+                                            SizedBox(
+                                              width: 80,
+                                              height: 80,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 3,
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                        Color>(
+                                                  Colors.white.withOpacity(0.8),
+                                                ),
+                                              ),
+                                            ),
+                                            // Static icon
+                                            Icon(
+                                              Icons.restore_rounded,
+                                              color: Colors.white,
+                                              size: 36,
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(height: 8),
-                                    Text(
-                                      'Sedang memproses pemulihan data ujian...',
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 14,
+                                      SizedBox(height: 32),
+
+                                      // Title with gradient text effect
+                                      ShaderMask(
+                                        shaderCallback: (bounds) =>
+                                            LinearGradient(
+                                          colors: [
+                                            Colors.blue[700]!,
+                                            Colors.blue[500]!
+                                          ],
+                                        ).createShader(bounds),
+                                        child: Text(
+                                          'Memulihkan Ujian',
+                                          style: TextStyle(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
                                       ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
+                                      SizedBox(height: 16),
+
+                                      // Subtitle with better styling
+                                      Text(
+                                        'Sedang memproses pemulihan data ujian',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        'Mohon tunggu sebentar...',
+                                        style: TextStyle(
+                                          color: Colors.grey[500],
+                                          fontSize: 14,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      SizedBox(height: 24),
+
+                                      // Progress dots animation
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: List.generate(
+                                          3,
+                                          (index) => Container(
+                                            margin: EdgeInsets.symmetric(
+                                                horizontal: 4),
+                                            child: AnimatedBuilder(
+                                              animation: _pulseAnimation,
+                                              builder: (context, child) {
+                                                return Container(
+                                                  width: 8,
+                                                  height: 8,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.blue[400]!
+                                                        .withOpacity(0.3 +
+                                                            0.7 *
+                                                                (((_pulseAnimation
+                                                                            .value +
+                                                                        (index *
+                                                                            0.3)) %
+                                                                    1.0))),
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -821,60 +934,172 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                   ),
                   SizedBox(width: 16),
                   Expanded(
-                    child: ElevatedButton(                      onPressed: () async {
+                    child: ElevatedButton(
+                      onPressed: () async {
                         try {
-                          Get.back(); // Tutup dialog konfirmasi                          // Tampilkan loading
+                          Get.back(); // Tutup dialog konfirmasi                          // Show modern delete loading dialog
                           Get.dialog(
-                            Center(
-                              child: Container(
-                                padding: EdgeInsets.all(32),
-                                margin: EdgeInsets.symmetric(horizontal: 40),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(24),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
-                                      blurRadius: 20,
-                                      spreadRadius: 4,
-                                      offset: Offset(0, 8),
+                            Material(
+                              color: Colors.black.withOpacity(0.5),
+                              child: Center(
+                                child: Container(
+                                  width: 320,
+                                  padding: EdgeInsets.all(40),
+                                  margin: EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.white,
+                                        Colors.red[50]!,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
                                     ),
-                                  ],
-                                ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.all(16),
-                                      decoration: BoxDecoration(
-                                        color: Colors.red[50],
-                                        shape: BoxShape.circle,
+                                    borderRadius: BorderRadius.circular(32),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.red.withOpacity(0.3),
+                                        blurRadius: 30,
+                                        spreadRadius: 0,
+                                        offset: Offset(0, 15),
                                       ),
-                                      child: CircularProgressIndicator(
-                                        valueColor: AlwaysStoppedAnimation<Color>(
-                                            Colors.red[600]!),
-                                        strokeWidth: 3,
+                                      BoxShadow(
+                                        color: Colors.white.withOpacity(0.8),
+                                        blurRadius: 10,
+                                        spreadRadius: -5,
+                                        offset: Offset(0, -5),
                                       ),
-                                    ),
-                                    SizedBox(height: 24),
-                                    Text(
-                                      'Menghapus Ujian',
-                                      style: TextStyle(
-                                        color: Colors.grey[800],
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
+                                    ],
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      // Animated Icon Container
+                                      Container(
+                                        width: 100,
+                                        height: 100,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.red[400]!,
+                                              Colors.red[600]!,
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.red.withOpacity(0.4),
+                                              blurRadius: 20,
+                                              spreadRadius: 0,
+                                              offset: Offset(0, 8),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            // Rotating outer ring
+                                            SizedBox(
+                                              width: 80,
+                                              height: 80,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 3,
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                        Color>(
+                                                  Colors.white.withOpacity(0.8),
+                                                ),
+                                              ),
+                                            ),
+                                            // Static icon
+                                            Icon(
+                                              Icons.delete_forever_rounded,
+                                              color: Colors.white,
+                                              size: 36,
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(height: 8),
-                                    Text(
-                                      'Sedang menghapus data ujian secara permanen...',
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 14,
+                                      SizedBox(height: 32),
+
+                                      // Title with gradient text effect
+                                      ShaderMask(
+                                        shaderCallback: (bounds) =>
+                                            LinearGradient(
+                                          colors: [
+                                            Colors.red[700]!,
+                                            Colors.red[500]!
+                                          ],
+                                        ).createShader(bounds),
+                                        child: Text(
+                                          'Menghapus Ujian',
+                                          style: TextStyle(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
                                       ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
+                                      SizedBox(height: 16),
+
+                                      // Subtitle with better styling
+                                      Text(
+                                        'Sedang menghapus data ujian secara permanen',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        'Mohon tunggu sebentar...',
+                                        style: TextStyle(
+                                          color: Colors.grey[500],
+                                          fontSize: 14,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      SizedBox(height: 24),
+
+                                      // Progress dots animation
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: List.generate(
+                                          3,
+                                          (index) => Container(
+                                            margin: EdgeInsets.symmetric(
+                                                horizontal: 4),
+                                            child: AnimatedBuilder(
+                                              animation: _pulseAnimation,
+                                              builder: (context, child) {
+                                                return Container(
+                                                  width: 8,
+                                                  height: 8,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.red[400]!
+                                                        .withOpacity(0.3 +
+                                                            0.7 *
+                                                                (((_pulseAnimation
+                                                                            .value +
+                                                                        (index *
+                                                                            0.3)) %
+                                                                    1.0))),
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),

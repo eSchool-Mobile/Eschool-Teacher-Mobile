@@ -10,7 +10,6 @@ class ExamStatusCubit extends Cubit<ExamStatusState> {
   ExamStatusCubit({required ExamStatusRepository examStatusRepository})
       : _examStatusRepository = examStatusRepository,
         super(ExamStatusInitial());
-
   Future<void> getStudentExamStatus(int examId) async {
     try {
       emit(ExamStatusLoading());
@@ -22,15 +21,14 @@ class ExamStatusCubit extends Cubit<ExamStatusState> {
         message: studentExamStatusResponse.message,
       ));
     } catch (e) {
+      // Log technical error untuk debugging (hanya untuk development)
+      print('Technical error in getStudentExamStatus: $e');
+
       // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(ExamStatusFailure(
         errorMessage: userFriendlyMessage,
       ));
-
-      // Log technical error untuk debugging (hanya untuk development)
-      print(
-          'Technical error in getStudentExamStatus: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 

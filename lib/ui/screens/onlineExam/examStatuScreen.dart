@@ -860,6 +860,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Expanded(
                                 child: Text(
@@ -869,10 +870,9 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                                     fontWeight: FontWeight.w600,
                                     color: Colors.black87,
                                   ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
+                              SizedBox(width: 8),
                               _buildEnhancedStatusBadge(status.status),
                             ],
                           ),
@@ -885,12 +885,17 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                                 color: currentColor.withOpacity(0.8),
                               ),
                               SizedBox(width: 6),
-                              Text(
-                                status.className,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black54,
+                              Expanded(
+                                child: Text(
+                                  status.sectionName != null
+                                      ? '${status.className} - ${status.sectionName}'
+                                      : status.className,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black54,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
@@ -1120,7 +1125,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
-      child: Padding(
+      child: SingleChildScrollView(
         padding: EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -131,7 +131,7 @@ class _AnimatedBottomNavigationState extends State<AnimatedBottomNavigation>
                               (2 * horizontalMargin) -
                               (2 * horizontalPadding)) /
                           noOfIcons,
-                      padding: const EdgeInsets.only(top: 17.5, bottom: 22.5),
+                      padding: const EdgeInsets.only(top: 14.0, bottom: 22.5),
                       alignment: isSelected
                           ? Alignment.topCenter
                           : Alignment.bottomCenter,

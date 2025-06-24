@@ -210,89 +210,89 @@ class HomeContainerAppbar extends StatelessWidget {
                       ),
                     ),
                     // Notifications button with gradient matching the maroon palette
-                    BlocBuilder<StaffAllowedPermissionsAndModulesCubit,
-                        StaffAllowedPermissionsAndModulesState>(
-                      builder: (context, state) {
-                        if (state
-                            is StaffAllowedPermissionsAndModulesFetchSuccess) {
-                          return Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(15),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(15),
-                              onTap: () {
-                                Get.toNamed(Routes.notificationsScreen);
-                              },
-                              child: Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [maroonPrimary, maroonDark],
-                                  ),
-                                  borderRadius: BorderRadius.circular(15),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: maroonPrimary.withOpacity(0.25),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.notifications_active_rounded,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                              ),
-                            ),
-                          );
-                        }
+                  //   BlocBuilder<StaffAllowedPermissionsAndModulesCubit,
+                  //       StaffAllowedPermissionsAndModulesState>(
+                  //     builder: (context, state) {
+                  //       if (state
+                  //           is StaffAllowedPermissionsAndModulesFetchSuccess) {
+                  //         return Material(
+                  //           color: Colors.transparent,
+                  //           borderRadius: BorderRadius.circular(15),
+                  //           child: InkWell(
+                  //             borderRadius: BorderRadius.circular(15),
+                  //             onTap: () {
+                  //               Get.toNamed(Routes.notificationsScreen);
+                  //             },
+                  //             child: Container(
+                  //               width: 48,
+                  //               height: 48,
+                  //               decoration: BoxDecoration(
+                  //                 gradient: LinearGradient(
+                  //                   begin: Alignment.topLeft,
+                  //                   end: Alignment.bottomRight,
+                  //                   colors: [maroonPrimary, maroonDark],
+                  //                 ),
+                  //                 borderRadius: BorderRadius.circular(15),
+                  //                 boxShadow: [
+                  //                   BoxShadow(
+                  //                     color: maroonPrimary.withOpacity(0.25),
+                  //                     blurRadius: 10,
+                  //                     offset: const Offset(0, 4),
+                  //                   ),
+                  //                 ],
+                  //               ),
+                  //               child: const Icon(
+                  //                 Icons.notifications_active_rounded,
+                  //                 color: Colors.white,
+                  //                 size: 24,
+                  //               ),
+                  //             ),
+                  //           ),
+                  //         );
+                  //       }
 
-                        if (state
-                            is StaffAllowedPermissionsAndModulesFetchFailure) {
-                          return Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(15),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(15),
-                              onTap: () {
-                                context.read<AuthCubit>().signOut();
-                                Get.offNamed(Routes.loginScreen);
-                              },
-                              child: Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [maroonPrimary, maroonDark],
-                                  ),
-                                  borderRadius: BorderRadius.circular(15),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: maroonPrimary.withOpacity(0.25),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.login_outlined,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                              ),
-                            ),
-                          );
-                        }
+                  //       if (state
+                  //           is StaffAllowedPermissionsAndModulesFetchFailure) {
+                  //         return Material(
+                  //           color: Colors.transparent,
+                  //           borderRadius: BorderRadius.circular(15),
+                  //           child: InkWell(
+                  //             borderRadius: BorderRadius.circular(15),
+                  //             onTap: () {
+                  //               context.read<AuthCubit>().signOut();
+                  //               Get.offNamed(Routes.loginScreen);
+                  //             },
+                  //             child: Container(
+                  //               width: 48,
+                  //               height: 48,
+                  //               decoration: BoxDecoration(
+                  //                 gradient: LinearGradient(
+                  //                   begin: Alignment.topLeft,
+                  //                   end: Alignment.bottomRight,
+                  //                   colors: [maroonPrimary, maroonDark],
+                  //                 ),
+                  //                 borderRadius: BorderRadius.circular(15),
+                  //                 boxShadow: [
+                  //                   BoxShadow(
+                  //                     color: maroonPrimary.withOpacity(0.25),
+                  //                     blurRadius: 10,
+                  //                     offset: const Offset(0, 4),
+                  //                   ),
+                  //                 ],
+                  //               ),
+                  //               child: const Icon(
+                  //                 Icons.login_outlined,
+                  //                 color: Colors.white,
+                  //                 size: 24,
+                  //               ),
+                  //             ),
+                  //           ),
+                  //         );
+                  //       }
 
-                        return const SizedBox();
-                      },
-                    ),
+                  //       return const SizedBox();
+                  //     },
+                  //   ),
                   ],
                 ),
               ),

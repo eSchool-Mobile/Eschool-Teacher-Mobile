@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'dart:ui';
 
 // Custom painter for decorative elements in the app bar
@@ -99,10 +100,12 @@ class _AssignmentDetailMonitoringScreenState
   String _selectedSubject = '';
   DateTime? _startDate;
   DateTime? _endDate;
-
   @override
   void initState() {
     super.initState();
+
+    // Initialize localization for Indonesian dates
+    initializeDateFormatting('id_ID', null);
 
     // Initialize animation controller
     _animationController = AnimationController(
@@ -766,7 +769,7 @@ class _AssignmentDetailMonitoringScreenState
                                   ),
                                   Text(
                                     _startDate != null && _endDate != null
-                                        ? '${DateFormat('dd MMM yyyy').format(_startDate!)} - ${DateFormat('dd MMM yyyy').format(_endDate!)}'
+                                        ? '${DateFormat('dd MMM yyyy', 'id_ID').format(_startDate!)} - ${DateFormat('dd MMM yyyy', 'id_ID').format(_endDate!)}'
                                         : 'Pilih Rentang Tanggal',
                                     style: GoogleFonts.poppins(
                                       color: Colors.white,

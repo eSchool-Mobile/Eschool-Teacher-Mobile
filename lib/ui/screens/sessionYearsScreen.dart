@@ -1080,43 +1080,44 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
             tween: Tween<double>(begin: 0.0, end: 1.0),
             builder: (context, value, child) {
               return Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppColorPalette.primaryMaroon.withOpacity(0.2),
-                        width: 4,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: CircularProgressIndicator(
-                      value: null,
-                      strokeWidth: 4,
-                      backgroundColor: Colors.transparent,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        AppColorPalette.primaryMaroon,
-                      ),
-                    ),
-                  ),
-                  Icon(
-                    Icons.calendar_today_rounded,
-                    color: AppColorPalette.primaryMaroon,
-                    size: 40,
-                  ),
-                ],
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+            color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+            width: 4,
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 100,
+              height: 100,
+              child: CircularProgressIndicator(
+                value: null,
+                strokeWidth: 4,
+                backgroundColor: Colors.transparent,
+                valueColor: AlwaysStoppedAnimation<Color>(
+            AppColorPalette.primaryMaroon,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.calendar_today_rounded,
+              color: AppColorPalette.primaryMaroon,
+              size: 40,
+            ),
+          ],
               );
             },
           ),
           SizedBox(height: 32),
           Text(
             "Memuat Tahun Ajaran...",
+            textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
               fontSize: 18,
               fontWeight: FontWeight.w500,
@@ -1126,6 +1127,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
           SizedBox(height: 8),
           Text(
             "Mohon tunggu selagi kami memuat data tahun ajaran",
+            textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
               fontSize: 14,
               color: AppColorPalette.secondaryMaroon.withOpacity(0.7),

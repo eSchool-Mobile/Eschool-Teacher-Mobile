@@ -35,9 +35,13 @@ class ClassSectionsAndSubjectsCubit
 
   void getClassSectionsAndSubjects({int? classSectionId}) async {
     try {
+      print(
+          "ClassSectionsAndSubjectsCubit: Starting to fetch class sections and subjects");
       emit(ClassSectionsAndSubjectsFetchInProgress());
 
       final classesResult = await _academicRepository.getClasses();
+      print(
+          "ClassSectionsAndSubjectsCubit: Received classes - Primary: ${classesResult.primaryClasses.length}, Other: ${classesResult.classes.length}");
 
       //
       List<ClassSection> classSections =
@@ -45,11 +49,15 @@ class ClassSectionsAndSubjectsCubit
       classSections
           .addAll(List<ClassSection>.from(classesResult.primaryClasses));
 
+      print(
+          "ClassSectionsAndSubjectsCubit: Combined total classes: ${classSections.length}");
+
       emit(ClassSectionsAndSubjectsFetchSuccess(
           classSections: classSections,
           subjects: await _academicRepository.getClassSectionSubjects(
               classSectionId: classSectionId ?? classSections.first.id ?? 0)));
     } catch (e) {
+      print("ClassSectionsAndSubjectsCubit: Error occurred - $e");
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(ClassSectionsAndSubjectsFetchFailure(userFriendlyMessage));
       print(

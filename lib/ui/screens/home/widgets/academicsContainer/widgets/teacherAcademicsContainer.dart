@@ -220,7 +220,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                       _buildMenuSection(
                         context: context,
                         title: "Bank Soal",
-                        icon: Icons.quiz,
+                        icon: Icons.library_books,
                         iconColor: Color(0xFF8B0000).withOpacity(0.9),
                         index: 3,
                         menus: [
@@ -311,7 +311,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         menus: [
                           _buildMenuItem(
                             context: context,
-                            icon: Icons.quiz,
+                            icon: Icons.laptop_chromebook,
                             title: "Ujian Online",
                             index: 14,
                             onTap: () => Get.toNamed(Routes.onlineExamScreen),
