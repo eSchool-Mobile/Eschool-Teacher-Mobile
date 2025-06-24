@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
 import 'package:eschool_saas_staff/data/repositories/academicRepository.dart';
@@ -39,7 +41,8 @@ class ClassSectionsAndSubjectsCubit
           "ClassSectionsAndSubjectsCubit: Starting to fetch class sections and subjects");
       emit(ClassSectionsAndSubjectsFetchInProgress());
 
-      final classesResult = await _academicRepository.getClasses();
+      final classesResult = await _academicRepository.getClasses(modeAll: true);
+
       print(
           "ClassSectionsAndSubjectsCubit: Received classes - Primary: ${classesResult.primaryClasses.length}, Other: ${classesResult.classes.length}");
 

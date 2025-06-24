@@ -87,13 +87,13 @@ class TeacherAcademicsRepository {
     }
   }
 
-  Future<List<ClassSection>> getClassSectionDetails({int? classId}) async {
+  Future<List<ClassSection>> getClassSectionDetails({int? classId, bool? modeAll}) async {
     try {
       final result = await Api.post(
         url: Api.getClassDetails,
         body: {
           if (classId != null) "class_id": classId,
-          "mode": "all",
+          if (modeAll == true) "mode": "all",
         },
       );
       return ((result['data'] ?? []) as List)
