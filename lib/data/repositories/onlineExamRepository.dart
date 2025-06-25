@@ -18,6 +18,7 @@ class OnlineExamRepository {
     DateTime? endDate,
     int offset = 0,
     int limit = 10,
+    bool? modeAll = false
   }) async {
     try {
       final response = await Api.get(
@@ -37,6 +38,7 @@ class OnlineExamRepository {
           if (sessionYearId != null)
             'session_year_id': sessionYearId.toString(),
           'type': 'all',
+          if (modeAll == true) 'mode': 'all', // Tambahkan parameter mode=all untuk menampilkan semua kelas
           if (archive != null) 'archive': archive,
         },
       );
