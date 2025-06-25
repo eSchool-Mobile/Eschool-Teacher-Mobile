@@ -126,7 +126,7 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                           permission: viewSessionYearsPermissionKey)
                       ? _buildMenuSection(
                           context: context,
-                          title: "tahun Ajaran",
+                          title: "Tahun Ajaran",
                           icon: Icons.calendar_today,
                           iconColor: Color(0xFF8B0000).withOpacity(0.9),
                           index: 1,

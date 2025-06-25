@@ -7,6 +7,7 @@ import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
+import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -693,25 +694,21 @@ class _ClassesScreenState extends State<ClassesScreen>
                 right: appContentHorizontalPadding,
               ),
               child: classes.isEmpty && _searchQuery.isNotEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.search_off,
-                            size: 64,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Kelas tidak ditemukan',
-                            style: GoogleFonts.poppins(
-                              color: Colors.grey[600],
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
+                  ? NoSearchResultsWidget(
+                      searchQuery: _searchQuery,
+                      onClearSearch: () {
+                        setState(() {
+                          _searchQuery = "";
+                          _searchController.clear();
+                          _isSearchActive = false;
+                        });
+                      },
+                      primaryColor: AppColorPalette.primaryMaroon,
+                      accentColor: AppColorPalette.secondaryMaroon,
+                      title: 'Kelas Tidak Ditemukan',
+                      description:
+                          'Tidak ditemukan kelas yang sesuai dengan pencarian Anda. Coba gunakan kata kunci yang berbeda.',
+                      icon: Icons.school_outlined,
                     ).animate().fadeIn(delay: 300.ms)
                   : _buildEnhancedHeaderCard(context),
             ),

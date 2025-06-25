@@ -9,6 +9,7 @@ import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.da
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
+import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/systemModulesAndPermissions.dart';
@@ -688,25 +689,21 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                               Expanded(
                                 child: announcements.isEmpty &&
                                         _searchQuery.isNotEmpty
-                                    ? Center(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(
-                                              Icons.search_off,
-                                              size: 64,
-                                              color: Colors.grey[400],
-                                            ),
-                                            const SizedBox(height: 16),
-                                            Text(
-                                              'Pengumuman tidak ditemukan',
-                                              style: GoogleFonts.poppins(
-                                                color: Colors.grey[600],
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                    ? NoSearchResultsWidget(
+                                        searchQuery: _searchQuery,
+                                        onClearSearch: () {
+                                          setState(() {
+                                            _searchQuery = "";
+                                            _searchController.clear();
+                                            _isSearchActive = false;
+                                          });
+                                        },
+                                        primaryColor: _maroonPrimary,
+                                        accentColor: _maroonLight,
+                                        title: 'Pengumuman Tidak Ditemukan',
+                                        description:
+                                            'Tidak ditemukan pengumuman yang sesuai dengan pencarian Anda. Coba gunakan kata kunci yang berbeda.',
+                                        icon: Icons.campaign_outlined,
                                       ).animate().fadeIn(delay: 300.ms)
                                     : ListView(
                                         controller: _scrollController,

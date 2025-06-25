@@ -22,7 +22,8 @@ class OnlineExamRepository {
     try {
       final response = await Api.get(
         url: Api.getOnlineExamList,
-        useAuthToken: true,        queryParameters: {
+        useAuthToken: true,
+        queryParameters: {
           'offset': offset.toString(),
           'limit': limit.toString(),
           'sort': 'id',
@@ -36,7 +37,6 @@ class OnlineExamRepository {
           if (sessionYearId != null)
             'session_year_id': sessionYearId.toString(),
           'type': 'all',
-          'mode': 'all', // Tambahkan parameter mode=all untuk menampilkan semua kelas
           if (archive != null) 'archive': archive,
         },
       );
@@ -299,7 +299,7 @@ class OnlineExamRepository {
             version: question['version']?.toString() ??
                 '1', // PERBAIKAN DISINI - ambil dari API
             type: question["type"] ?? "multiple_choice",
-            onlineExamId: examId ?? 0,
+            onlineExamId: examId,
           );
         }).toList();
       } else {

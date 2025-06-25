@@ -18,6 +18,7 @@ import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/searchContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/tabBackgroundContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTabContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -219,36 +220,53 @@ class _StaffsScreenState extends State<StaffsScreen>
 
   Widget _buildStaffList(StaffsFetchSuccess state, BuildContext context) {
     if (state.saffs.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Animasi ikon
-            AnimatedBuilder(
-              animation: _pulseAnimation,
-              builder: (context, child) {
-                return Transform.scale(
-                  scale: _pulseAnimation.value,
-                  child: Icon(
-                    Icons.people_outline,
-                    size: 80,
-                    color: maroonPrimary.withOpacity(0.6),
-                  ),
-                );
-              },
-            ),
-            SizedBox(height: 16),
-            Text(
-              "Tidak ada data staff ditemukan",
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey.shade700,
+      // Check if this is due to search or no data at all
+      if (_textEditingController.text.trim().isNotEmpty) {
+        return NoSearchResultsWidget(
+          searchQuery: _textEditingController.text.trim(),
+          onClearSearch: () {
+            _textEditingController.clear();
+            getStaffs();
+          },
+          primaryColor: maroonPrimary,
+          accentColor: maroonSecondary,
+          title: 'Staff Tidak Ditemukan',
+          description:
+              'Tidak ditemukan staff yang sesuai dengan pencarian Anda. Coba gunakan kata kunci yang berbeda.',
+          icon: Icons.people_outline,
+        );
+      } else {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Animasi ikon
+              AnimatedBuilder(
+                animation: _pulseAnimation,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: _pulseAnimation.value,
+                    child: Icon(
+                      Icons.people_outline,
+                      size: 80,
+                      color: maroonPrimary.withOpacity(0.6),
+                    ),
+                  );
+                },
               ),
-            ),
-          ],
-        ),
-      );
+              SizedBox(height: 16),
+              Text(
+                "Tidak ada data staff ditemukan",
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey.shade700,
+                ),
+              ),
+            ],
+          ),
+        );
+      }
     }
 
     return AnimationLimiter(
