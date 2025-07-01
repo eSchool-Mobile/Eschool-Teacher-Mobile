@@ -1439,15 +1439,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen>
                   color: _primaryColor,
                 ),
               ),
-              if (isOptional)
-                Text(
-                  ' (Opsional)',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey.shade600,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
+              
             ],
           ),
         ),

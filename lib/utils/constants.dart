@@ -47,9 +47,9 @@ String defaultPassword = "smkn8*()";
 // String defaultEmail = "adminsmk9malang@gmail.com";
 // String defaultPassword = "0341479148";
 
-// String defaultSchoolCode = "SCH20247";
-// String defaultEmail = "adminsmk8malang@gmail.com";
-// String defaultPassword = "hacked";
+// // String defaultSchoolCode = "SCH20247";
+// String defaultEmail = "sadenylet@mailinator.com";
+// String defaultPassword = "08123456789";
 
 //R String defaultSchoolCode = "";
 // String defaultEmail = "";

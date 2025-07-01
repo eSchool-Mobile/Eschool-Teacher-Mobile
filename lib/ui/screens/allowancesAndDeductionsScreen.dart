@@ -1,5 +1,4 @@
 import 'package:eschool_saas_staff/cubits/payRoll/allowancesAndDeductionsCubit.dart';
-import 'package:eschool_saas_staff/ui/widgets/allowancesAndDeductionsContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 
@@ -7,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 class AllowancesAndDeductionsScreen extends StatefulWidget {
@@ -32,9 +30,19 @@ class AllowancesAndDeductionsScreen extends StatefulWidget {
 class _AllowancesAndDeductionsScreenState
     extends State<AllowancesAndDeductionsScreen> with TickerProviderStateMixin {
   late AnimationController _fabAnimationController;
+  late AnimationController _slideAnimationController;
+  late AnimationController _pulseAnimationController;
   final ScrollController _scrollController = ScrollController();
-  final Color _maroonPrimary = const Color(0xFF800020);
-  final Color _maroonLight = const Color(0xFFAA6976);
+  final PageController _pageController = PageController();
+  int _currentPageIndex = 0;
+
+  // Fresh Soft Maroon Palette - Complete redesign
+  final Color _maroonPrimary = const Color(0xFF8B4A5B);
+  final Color _maroonLight = const Color(0xFFA6677A);
+  final Color _maroonSoft = const Color(0xFFE8D5DA);
+  final Color _maroonDeep = const Color(0xFF6B3A47);
+  final Color _neutralBg = const Color(0xFFFBFAFA);
+  final Color _cardBg = const Color(0xFFFFFFFF);
 
   @override
   void initState() {
@@ -42,11 +50,25 @@ class _AllowancesAndDeductionsScreenState
     _scrollController.addListener(_scrollListener);
     _fabAnimationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 300));
+    _slideAnimationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 1200));
+    _pulseAnimationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 2000));
+
     context.read<AllowancesAndDeductionsCubit>().fetchAllowancesAndDeductions();
+
+    // Start animations
+    _slideAnimationController.forward();
+    _pulseAnimationController.repeat();
   }
 
   void _scrollListener() {
-    if (_scrollController.offset > 50) {
+    // Calculate the height needed to scroll past the net salary card
+    // This includes: summary cards height (~160) + margin (16) + net salary card height (~200)
+    // Total approximate height: ~240 pixels (scroll starts from net salary card)
+    const double netSalaryCardPosition = 240.0;
+
+    if (_scrollController.offset > netSalaryCardPosition) {
       _fabAnimationController.forward();
     } else {
       _fabAnimationController.reverse();
@@ -58,46 +80,623 @@ class _AllowancesAndDeductionsScreenState
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
     _fabAnimationController.dispose();
+    _slideAnimationController.dispose();
+    _pulseAnimationController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
-  Widget _buildHeader() {
-    return Container(
-      margin: EdgeInsets.only(top: 20),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  Widget _buildFloatingTabBar() {
+    return AnimatedBuilder(
+      animation: _slideAnimationController,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(
+              0,
+              Tween<double>(
+                begin: -50.0,
+                end: 0.0,
+              )
+                  .animate(CurvedAnimation(
+                    parent: _slideAnimationController,
+                    curve: Curves.elasticOut,
+                  ))
+                  .value),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: const Color(0xFFF3F4F6),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+              color: _cardBg,
+              borderRadius: BorderRadius.circular(25),
+              boxShadow: [
+                BoxShadow(
+                  color: _maroonPrimary.withOpacity(0.15),
+                  blurRadius: 25,
+                  offset: const Offset(0, 10),
+                  spreadRadius: 0,
+                ),
+              ],
             ),
             child: Row(
               children: [
-                const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    'Informasi tunjangan dan potongan gaji staff',
-                    style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w500,
-                    ),
-                    textAlign: TextAlign.center,
+                  child: _buildTabButton(
+                    title: 'Tunjangan',
+                    icon: Icons.trending_up_rounded,
+                    isSelected: _currentPageIndex == 0,
+                    onTap: () => _switchTab(0),
+                  ),
+                ),
+                Expanded(
+                  child: _buildTabButton(
+                    title: 'Potongan',
+                    icon: Icons.trending_down_rounded,
+                    isSelected: _currentPageIndex == 1,
+                    onTap: () => _switchTab(1),
                   ),
                 ),
               ],
             ),
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTabButton({
+    required String title,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? _maroonPrimary : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? Colors.white : _maroonPrimary,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.white : _maroonPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _switchTab(int index) {
+    setState(() {
+      _currentPageIndex = index;
+    });
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  Widget _buildSummaryCard({
+    required String title,
+    required double amount,
+    required IconData icon,
+    required Color color,
+    required bool isPositive,
+  }) {
+    final baseSalary = 5000000.0;
+    final percentage = (amount / baseSalary * 100);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: _cardBg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withOpacity(0.2), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.08),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
         ],
       ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 24,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${percentage.toStringAsFixed(1)}%',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: color,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Rp ${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(
+                isPositive ? Icons.arrow_upward : Icons.arrow_downward,
+                color: color,
+                size: 14,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                'dari gaji pokok',
+                style: GoogleFonts.poppins(
+                  fontSize: 10,
+                  color: Colors.grey[500],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNetSalaryCard(double allowances, double deductions) {
+    final baseSalary = 5000000.0;
+    final netSalary = baseSalary + allowances - deductions;
+    final salaryIncrease = allowances - deductions;
+    final increasePercentage = (salaryIncrease / baseSalary * 100);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            _maroonPrimary,
+            _maroonLight,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: _maroonPrimary.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  Icons.account_balance_wallet_outlined,
+                  color: Colors.white,
+                  size: 28,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'GAJI BERSIH',
+                  style: GoogleFonts.poppins(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                    letterSpacing: 1,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Text(
+                'Total Gaji Diterima',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.white.withOpacity(0.9),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: salaryIncrease >= 0
+                      ? Colors.green.withOpacity(0.2)
+                      : Colors.red.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      salaryIncrease >= 0
+                          ? Icons.trending_up_rounded
+                          : Icons.trending_down_rounded,
+                      color: Colors.white,
+                      size: 14,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${salaryIncrease >= 0 ? '+' : ''}${increasePercentage.toStringAsFixed(1)}%',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Rp ${netSalary.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+            style: GoogleFonts.poppins(
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    'Gaji Pokok: Rp ${baseSalary.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Colors.white.withOpacity(0.8),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  'Selisih: ${salaryIncrease >= 0 ? '+' : ''}Rp ${salaryIncrease.abs().toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.white.withOpacity(0.8),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModernItemCard({
+    required String title,
+    required double amount,
+    required String description,
+    required bool isAllowance,
+    required int index,
+  }) {
+    final baseSalary = 5000000.0;
+    final percentage = (amount / baseSalary * 100);
+
+    return Container(
+      margin: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        bottom: 16,
+        top: index == 0 ? 8 : 0,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: () {
+            // Could add detail view here
+          },
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: _cardBg,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: isAllowance
+                    ? _maroonLight.withOpacity(0.2)
+                    : _maroonDeep.withOpacity(0.2),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: (isAllowance ? _maroonLight : _maroonDeep)
+                      .withOpacity(0.06),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                  spreadRadius: 0,
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                // Icon Container
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: (isAllowance ? _maroonLight : _maroonDeep)
+                        .withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(
+                    isAllowance
+                        ? Icons.add_circle_outline_rounded
+                        : Icons.remove_circle_outline_rounded,
+                    color: isAllowance ? _maroonLight : _maroonDeep,
+                    size: 26,
+                  ),
+                ),
+                const SizedBox(width: 16),
+
+                // Content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              title,
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: _maroonDeep,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: (isAllowance ? _maroonLight : _maroonDeep)
+                                  .withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              '${percentage.toStringAsFixed(1)}%',
+                              style: GoogleFonts.poppins(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: isAllowance ? _maroonLight : _maroonDeep,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      if (description.isNotEmpty)
+                        Text(
+                          description,
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w400,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                // Amount
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '${isAllowance ? '+' : '-'}Rp ${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: isAllowance ? _maroonLight : _maroonDeep,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: (isAllowance ? _maroonLight : _maroonDeep)
+                            .withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        isAllowance ? 'BONUS' : 'POTONGAN',
+                        style: GoogleFonts.poppins(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w600,
+                          color: isAllowance ? _maroonLight : _maroonDeep,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     )
-        .animate()
+        .animate(delay: Duration(milliseconds: 100 * index))
         .fadeIn(duration: 500.ms)
-        .slideY(begin: -0.1, end: 0, curve: Curves.easeOutCubic);
+        .slideX(begin: 0.2, end: 0, curve: Curves.easeOutCubic);
+  }
+
+  Widget _buildPageContent(List<dynamic> items, bool isAllowance) {
+    if (items.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: _maroonSoft,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(
+                isAllowance ? Icons.savings_outlined : Icons.money_off_outlined,
+                color: _maroonPrimary,
+                size: 40,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              isAllowance ? 'Belum Ada Tunjangan' : 'Belum Ada Potongan',
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: _maroonDeep,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              isAllowance
+                  ? 'Tunjangan akan muncul di sini'
+                  : 'Potongan akan muncul di sini',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w400,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      children: items.asMap().entries.map((entry) {
+        final index = entry.key;
+        final item = entry.value;
+        return _buildModernItemCard(
+          title: item.payRollSetting?.name ?? 'Unnamed',
+          amount: calculateActualAmount(item),
+          description: item.payRollSetting?.type == 'allowance'
+              ? 'Tunjangan tambahan untuk staff'
+              : 'Potongan dari gaji pokok',
+          isAllowance: isAllowance,
+          index: index,
+        );
+      }).toList(),
+    );
+  }
+
+  // Helper function to calculate actual amount from StaffSalary
+  double calculateActualAmount(dynamic item) {
+    final baseSalary = 5000000.0;
+
+    if (item.allowanceOrDeductionInPercentage()) {
+      // If it's percentage-based, calculate from base salary
+      final percentage = item.percentage ?? 0.0;
+      return baseSalary * percentage / 100;
+    } else {
+      // If it's amount-based, use the amount directly
+      return item.amount ?? 0.0;
+    }
   }
 
   Widget _buildContent(AllowancesAndDeductionsFetchSuccess state) {
@@ -108,31 +707,101 @@ class _AllowancesAndDeductionsScreenState
             .fetchAllowancesAndDeductions();
       },
       color: _maroonPrimary,
-      backgroundColor: Colors.white,
-      strokeWidth: 2.5,
-      child: SingleChildScrollView(
-        controller: _scrollController,
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.only(bottom: 120, top: 0),
-        child: Column(
-          children: [
-            _buildHeader(),
-
-            // Enhanced container with better spacing
-            Container(
-              margin: const EdgeInsets.only(top: 8),
-              child: AllowancesAndDeductionsContainer(
-                allowances: state.allowances,
-                deductions: state.deductions,
-                baseSalary:
-                    5000000.0, // Default base salary for calculation, you can get this from user context
-              ),
-            ).animate().fadeIn(duration: 600.ms).slideY(
-                  begin: 0.03,
-                  end: 0,
-                  curve: Curves.easeOutCubic,
-                  duration: 600.ms,
+      backgroundColor: _cardBg,
+      strokeWidth: 3,
+      child: Container(
+        color: _neutralBg,
+        child: CustomScrollView(
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            // Fixed Stats Header (Summary Cards only)
+            SliverToBoxAdapter(
+              child: Container(
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildSummaryCard(
+                        title: 'Total Tunjangan',
+                        amount: state.allowances.fold<double>(
+                          0,
+                          (sum, item) => sum + calculateActualAmount(item),
+                        ),
+                        icon: Icons.add_circle_outline,
+                        color: _maroonLight,
+                        isPositive: true,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildSummaryCard(
+                        title: 'Total Potongan',
+                        amount: state.deductions.fold<double>(
+                          0,
+                          (sum, item) => sum + calculateActualAmount(item),
+                        ),
+                        icon: Icons.remove_circle_outline,
+                        color: _maroonDeep,
+                        isPositive: false,
+                      ),
+                    ),
+                  ],
                 ),
+              )
+                  .animate()
+                  .fadeIn(duration: 800.ms, delay: 200.ms)
+                  .slideY(begin: 0.1, end: 0),
+            ),
+
+            // Scrollable content starting from Net Salary Card
+            SliverToBoxAdapter(
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                child: _buildNetSalaryCard(
+                  state.allowances.fold<double>(
+                      0, (sum, item) => sum + calculateActualAmount(item)),
+                  state.deductions.fold<double>(
+                      0, (sum, item) => sum + calculateActualAmount(item)),
+                ),
+              ),
+            ),
+
+            // Floating Tab Bar
+            SliverToBoxAdapter(
+              child: _buildFloatingTabBar(),
+            ),
+
+            // Page Content
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height *
+                    0.6, // Constrain height
+                child: PageView(
+                  controller: _pageController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentPageIndex = index;
+                    });
+                  },
+                  children: [
+                    // Allowances Page
+                    SingleChildScrollView(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: _buildPageContent(state.allowances, true),
+                    ),
+
+                    // Deductions Page
+                    SingleChildScrollView(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: _buildPageContent(state.deductions, false),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -142,10 +811,11 @@ class _AllowancesAndDeductionsScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: _neutralBg,
+      extendBodyBehindAppBar: false,
       appBar: CustomModernAppBar(
         title: 'Tunjangan & Potongan',
-        icon: Icons.account_balance_wallet,
+        icon: Icons.assessment_outlined,
         fabAnimationController: _fabAnimationController,
         primaryColor: _maroonPrimary,
         lightColor: _maroonLight,
@@ -158,37 +828,151 @@ class _AllowancesAndDeductionsScreenState
             return _buildContent(state);
           }
           if (state is AllowancesAndDeductionsFetchFailure) {
-            return Center(
-              child: CustomErrorWidget(
-                message: ErrorMessageUtils.getReadableErrorMessage(
-                    state.errorMessage),
-                onRetry: () {
-                  context
-                      .read<AllowancesAndDeductionsCubit>()
-                      .fetchAllowancesAndDeductions();
-                },
-                primaryColor: _maroonPrimary,
+            return Container(
+              color: _neutralBg,
+              child: Center(
+                child: Container(
+                  margin: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(28),
+                  decoration: BoxDecoration(
+                    color: _cardBg,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _maroonPrimary.withOpacity(0.08),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: _maroonSoft,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Icon(
+                          Icons.error_outline_rounded,
+                          color: _maroonPrimary,
+                          size: 40,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Oops! Terjadi Kesalahan',
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: _maroonDeep,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        ErrorMessageUtils.getReadableErrorMessage(
+                            state.errorMessage),
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w400,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () {
+                          context
+                              .read<AllowancesAndDeductionsCubit>()
+                              .fetchAllowancesAndDeductions();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _maroonPrimary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          'Coba Lagi',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             );
           }
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CustomCircularProgressIndicator(
-                  indicatorColor: _maroonPrimary,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Memuat data tunjangan & potongan...',
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: Colors.grey[600],
+          return Container(
+            color: _neutralBg,
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Modern Loading Animation
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: _maroonSoft,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      AnimatedBuilder(
+                        animation: _pulseAnimationController,
+                        builder: (context, child) {
+                          return Transform.scale(
+                            scale:
+                                1.0 + (_pulseAnimationController.value * 0.1),
+                            child: CustomCircularProgressIndicator(
+                              indicatorColor: _maroonPrimary,
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 24),
+                  Text(
+                    'Memuat Data Gaji...',
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: _maroonDeep,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Mengambil informasi tunjangan & potongan',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w400,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
-          ).animate().fadeIn(duration: 300.ms);
+          ).animate().fadeIn(duration: 500.ms).scaleXY(
+                begin: 0.95,
+                end: 1.0,
+                curve: Curves.easeOutCubic,
+              );
         },
       ),
     );
