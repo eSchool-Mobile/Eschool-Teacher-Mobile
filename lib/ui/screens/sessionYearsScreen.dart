@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'dart:math';
 import 'package:eschool_saas_staff/cubits/academics/sessionYearsCubit.dart';
 import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
@@ -97,6 +98,25 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
       ),
       child: Scaffold(
         backgroundColor: Colors.white,
+        appBar: CustomModernAppBar(
+          title: 'Tahun Ajaran',
+          icon: Icons.calendar_today_rounded,
+          fabAnimationController: _controller,
+          primaryColor: AppColorPalette.primaryMaroon,
+          lightColor: AppColorPalette.secondaryMaroon,
+          onBackPressed: () => Navigator.of(context).pop(),
+          height: 80,
+          showFilterButton: true,
+          onFilterPressed: () {
+            setState(() {
+              _isSearchActive = !_isSearchActive;
+              if (!_isSearchActive) {
+                _searchController.clear();
+                _searchQuery = "";
+              }
+            });
+          },
+        ),
         body: Stack(
           children: [
             AnimatedPositioned(
@@ -168,7 +188,6 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
               ),
             ),
             _buildSearchBar(),
-            _buildAppBar(),
           ],
         ),
       ),
@@ -177,12 +196,12 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
 
   Widget _buildSearchBar() {
     return Positioned(
-      top: MediaQuery.of(context).padding.top + 80,
+      top: MediaQuery.of(context).padding.top + 0,
       left: 0,
       right: 0,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        height: _isSearchActive ? 56 : 0,
+        height: _isSearchActive ? 70 : 0,
         curve: Curves.easeInOut,
         child: _isSearchActive
             ? Container(
@@ -226,317 +245,6 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                 ),
               )
             : SizedBox.shrink(),
-      ),
-    );
-  }
-
-  Widget _buildAppBar() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: Container(
-        height: MediaQuery.of(context).padding.top + 80,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: AnimatedBuilder(
-                animation: _controller,
-                builder: (context, _) {
-                  return ShaderMask(
-                    shaderCallback: (Rect bounds) {
-                      return LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF690013),
-                          AppColorPalette.primaryMaroon,
-                          Color(0xFFA12948),
-                          AppColorPalette.secondaryMaroon,
-                        ],
-                        stops: [0.0, 0.3, 0.6, 1.0],
-                        transform: GradientRotation(_controller.value * 0.02),
-                      ).createShader(bounds);
-                    },
-                    blendMode: BlendMode.srcATop,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF800020),
-                            Color(0xFF9A1E3C),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(30),
-                          bottomRight: Radius.circular(30),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            Positioned.fill(
-              child: CustomPaint(
-                painter: AppBarDecorationPainter(
-                  color: Colors.white.withOpacity(0.07),
-                ),
-              ),
-            ),
-            AnimatedBuilder(
-              animation: _controller,
-              builder: (context, _) {
-                return Positioned(
-                  top: -100 + (_controller.value * 20),
-                  right: -60 + (_controller.value * 10),
-                  child: Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          Colors.white.withOpacity(0.2),
-                          Colors.white.withOpacity(0.1),
-                          Colors.white.withOpacity(0.0),
-                        ],
-                        stops: [0.0, 0.5, 1.0],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-            Positioned(
-              bottom: 10,
-              left: 16,
-              right: 16,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
-                              onTap: () => Navigator.of(context).pop(),
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  Icons.arrow_back_ios_rounded,
-                                  color: Colors.white,
-                                  size: 22,
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                            .animate()
-                            .fadeIn(duration: 400.ms, curve: Curves.easeOut)
-                            .slideX(begin: -0.3, end: 0),
-                        Container(
-                          height: 24,
-                          width: 1.5,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Center(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    AnimatedBuilder(
-                                      animation: _controller,
-                                      builder: (context, child) {
-                                        return Transform.rotate(
-                                          angle: _controller.value * 0.05,
-                                          child: Container(
-                                            padding: EdgeInsets.all(6),
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              gradient: LinearGradient(
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                                colors: [
-                                                  Colors.white.withOpacity(0.9),
-                                                  Colors.white.withOpacity(0.4),
-                                                ],
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.2),
-                                                  blurRadius: 4,
-                                                  offset: Offset(0, 2),
-                                                ),
-                                              ],
-                                            ),
-                                            child: Icon(
-                                              Icons.calendar_today_rounded,
-                                              color:
-                                                  AppColorPalette.primaryMaroon,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    SizedBox(width: 12),
-                                    ShaderMask(
-                                      shaderCallback: (Rect bounds) {
-                                        return LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [
-                                            Colors.white,
-                                            Colors.white.withOpacity(0.9),
-                                          ],
-                                        ).createShader(bounds);
-                                      },
-                                      blendMode: BlendMode.srcIn,
-                                      child: Text(
-                                        'Tahun Ajaran',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          shadows: [
-                                            Shadow(
-                                              color: Colors.black26,
-                                              offset: Offset(0, 1),
-                                              blurRadius: 3,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          height: 24,
-                          width: 1.5,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
-                              onTap: () {
-                                setState(() {
-                                  _isSearchActive = !_isSearchActive;
-                                  if (!_isSearchActive) {
-                                    _searchController.clear();
-                                    _searchQuery = "";
-                                  }
-                                });
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: _isSearchActive
-                                      ? Border.all(
-                                          color: Colors.white.withOpacity(0.4),
-                                          width: 1.5,
-                                        )
-                                      : null,
-                                ),
-                                child: AnimatedSwitcher(
-                                  duration: Duration(milliseconds: 400),
-                                  transitionBuilder: (Widget child,
-                                      Animation<double> animation) {
-                                    return RotationTransition(
-                                      turns: Tween<double>(begin: 0.5, end: 1.0)
-                                          .animate(animation),
-                                      child: ScaleTransition(
-                                        scale: animation,
-                                        child: FadeTransition(
-                                          opacity: animation,
-                                          child: child,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: _isSearchActive
-                                      ? Icon(
-                                          Icons.close_rounded,
-                                          key: ValueKey<bool>(true),
-                                          color: Colors.white,
-                                          size: 22,
-                                        )
-                                      : Icon(
-                                          Icons.search_rounded,
-                                          key: ValueKey<bool>(false),
-                                          color: Colors.white,
-                                          size: 22,
-                                        ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                            .animate()
-                            .fadeIn(duration: 400.ms, curve: Curves.easeOut)
-                            .slideX(begin: 0.3, end: 0),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -1200,40 +908,4 @@ class AppColorPalette {
   static const Color accentPink = Color(0xFFF4D0D9);
   static const Color warmBeige = Color(0xFFF5E6E8);
   static const Color shadowColor = Color(0x298B1F41);
-}
-
-class AppBarDecorationPainter extends CustomPainter {
-  final Color color;
-
-  AppBarDecorationPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    final path = Path()
-      ..moveTo(0, size.height * 0.5)
-      ..quadraticBezierTo(
-        size.width * 0.25,
-        size.height * 0.4,
-        size.width * 0.5,
-        size.height * 0.5,
-      )
-      ..quadraticBezierTo(
-        size.width * 0.75,
-        size.height * 0.6,
-        size.width,
-        size.height * 0.5,
-      )
-      ..lineTo(size.width, 0)
-      ..lineTo(0, 0)
-      ..close();
-
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

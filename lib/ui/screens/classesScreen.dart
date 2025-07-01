@@ -2,9 +2,8 @@ import 'dart:ui';
 import 'dart:math';
 import 'package:eschool_saas_staff/cubits/academics/classesWithTeacherDetailsCubit.dart';
 import 'package:eschool_saas_staff/data/models/subjectTeacher.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
@@ -40,6 +39,7 @@ class _ClassesScreenState extends State<ClassesScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   final ScrollController _scrollController = ScrollController();
+  final FocusNode _searchFocusNode = FocusNode();
   bool _isScrolled = false;
   bool _isSearchActive = false;
   TextEditingController _searchController = TextEditingController();
@@ -78,6 +78,7 @@ class _ClassesScreenState extends State<ClassesScreen>
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
     _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -100,6 +101,41 @@ class _ClassesScreenState extends State<ClassesScreen>
       ),
       child: Scaffold(
         backgroundColor: Colors.white,
+        appBar: CustomModernAppBar(
+          title: 'Daftar Kelas',
+          icon: Icons.school,
+          fabAnimationController: _controller,
+          primaryColor: AppColorPalette.primaryMaroon,
+          lightColor: AppColorPalette.secondaryMaroon,
+          onBackPressed: () => Navigator.of(context).pop(),
+          showHelperButton: true,
+          helperIcon: _isSearchActive ? Icons.close : Icons.search,
+          onHelperPressed: () {
+            setState(() {
+              _isSearchActive = !_isSearchActive;
+              if (!_isSearchActive) {
+                _searchController.clear();
+                _searchQuery = "";
+              }
+            });
+
+            // Add haptic feedback
+            HapticFeedback.lightImpact();
+
+            // Auto focus when search becomes active
+            if (_isSearchActive) {
+              // Use a shorter delay and ensure focus is requested properly
+              Future.delayed(const Duration(milliseconds: 100), () {
+                if (mounted) {
+                  _searchFocusNode.requestFocus();
+                }
+              });
+            } else {
+              // Unfocus when search is deactivated
+              _searchFocusNode.unfocus();
+            }
+          },
+        ),
         body: Stack(
           children: [
             // Enhanced Animated Background Pattern
@@ -144,43 +180,38 @@ class _ClassesScreenState extends State<ClassesScreen>
               ),
             ),
 
-            // Main Content with Enhanced Animation
-            SafeArea(
-              child: AnimatedBuilder(
-                animation: _controller,
-                builder: (context, child) {
-                  return Transform.translate(
-                    offset: Offset(0, (1 - _controller.value) * 30),
-                    child: Opacity(
-                      opacity: _controller.value,
-                      child: BlocBuilder<ClassesWithTeacherDetailsCubit,
-                          ClassesWithTeacherDetailsState>(
-                        builder: (context, state) {
-                          if (state is ClassesWithTeacherDetailsFetchSuccess) {
-                            if (state.classes.isEmpty) {
-                              return _buildEmptyState(context);
-                            }
-                            return _buildSuccessState(context, state);
-                          }
-
-                          if (state is ClassesWithTeacherDetailsFetchFailure) {
-                            return _buildErrorState(context, state);
-                          }
-
-                          return _buildLoadingState(context);
-                        },
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
             // Enhanced Search Bar
             _buildSearchBar(),
 
-            // New Enhanced AppBar
-            _buildAppBar(),
+            // Main Content with Enhanced Animation
+            AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                return Transform.translate(
+                  offset: Offset(0, (1 - _controller.value) * 30),
+                  child: Opacity(
+                    opacity: _controller.value,
+                    child: BlocBuilder<ClassesWithTeacherDetailsCubit,
+                        ClassesWithTeacherDetailsState>(
+                      builder: (context, state) {
+                        if (state is ClassesWithTeacherDetailsFetchSuccess) {
+                          if (state.classes.isEmpty) {
+                            return _buildEmptyState(context);
+                          }
+                          return _buildSuccessState(context, state);
+                        }
+
+                        if (state is ClassesWithTeacherDetailsFetchFailure) {
+                          return _buildErrorState(context, state);
+                        }
+
+                        return _buildLoadingState(context);
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -189,386 +220,108 @@ class _ClassesScreenState extends State<ClassesScreen>
 
   Widget _buildSearchBar() {
     return Positioned(
-      top: MediaQuery.of(context).padding.top + 80,
+      top: 0,
       left: 0,
       right: 0,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        height: _isSearchActive ? 56 : 0,
+        height:
+            _isSearchActive ? 70 : 0, // Increased height for better touch area
         curve: Curves.easeInOut,
-        child: _isSearchActive
-            ? Container(
-                margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Cari kelas...',
-                    prefixIcon: Icon(Icons.search,
-                        color: AppColorPalette.secondaryMaroon),
-                    suffixIcon: IconButton(
-                      icon: Icon(Icons.close,
-                          color: AppColorPalette.secondaryMaroon),
-                      onPressed: () {
-                        setState(() {
-                          _searchController.clear();
-                          _searchQuery = "";
-                          _isSearchActive = false;
-                        });
-                      },
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _searchQuery = value;
-                    });
-                  },
-                ),
-              )
-            : SizedBox.shrink(),
-      ),
-    );
-  }
-
-  Widget _buildAppBar() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: Container(
-        height: MediaQuery.of(context).padding.top + 80,
-        child: Stack(
-          children: [
-            // Fancy gradient background with animated particles
-            Positioned.fill(
-              child: AnimatedBuilder(
-                animation: _controller,
-                builder: (context, _) {
-                  return ShaderMask(
-                    shaderCallback: (Rect bounds) {
-                      return LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF690013),
-                          AppColorPalette.primaryMaroon,
-                          Color(0xFFA12948),
-                          AppColorPalette.secondaryMaroon,
-                        ],
-                        stops: [0.0, 0.3, 0.6, 1.0],
-                        transform: GradientRotation(_controller.value * 0.02),
-                      ).createShader(bounds);
-                    },
-                    blendMode: BlendMode.srcATop,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF800020),
-                            Color(0xFF9A1E3C),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(30),
-                          bottomRight: Radius.circular(30),
-                        ),
+        child: ClipRect(
+          child: _isSearchActive
+              ? Container(
+                  margin:
+                      const EdgeInsets.fromLTRB(16, 8, 16, 8), // Better margins
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColorPalette.primaryMaroon.withOpacity(0.15),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                        spreadRadius: 1,
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // Decorative design elements
-            Positioned.fill(
-              child: CustomPaint(
-                painter: AppBarDecorationPainter(
-                  color: Colors.white.withOpacity(0.07),
-                ),
-              ),
-            ),
-
-            // Animated glowing effect
-            AnimatedBuilder(
-              animation: _controller,
-              builder: (context, _) {
-                return Positioned(
-                  top: -100 + (_controller.value * 20),
-                  right: -60 + (_controller.value * 10),
-                  child: Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          Colors.white.withOpacity(0.2),
-                          Colors.white.withOpacity(0.1),
-                          Colors.white.withOpacity(0.0),
-                        ],
-                        stops: [0.0, 0.5, 1.0],
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
                       ),
+                    ],
+                    border: Border.all(
+                      color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+                      width: 1.5,
                     ),
                   ),
-                );
-              },
-            ),
-
-            // Main app bar content with frosted glass effect
-            Positioned(
-              bottom: 10,
-              left: 16,
-              right: 16,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 1.5,
-                      ),
+                  child: TextField(
+                    controller: _searchController,
+                    focusNode: _searchFocusNode,
+                    autofocus: true,
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.search,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      color: AppColorPalette.primaryMaroon,
+                      fontWeight: FontWeight.w500,
                     ),
-                    child: Row(
-                      children: [
-                        // Back button with ripple effect
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
-                              onTap: () => Navigator.of(context).pop(),
-                              child: Container(
-                                padding: EdgeInsets.all(8),
+                    decoration: InputDecoration(
+                      hintText: 'Cari kelas berdasarkan nama...',
+                      hintStyle: GoogleFonts.poppins(
+                        color: AppColorPalette.secondaryMaroon.withOpacity(0.6),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      prefixIcon: Container(
+                        padding: const EdgeInsets.all(12),
+                        child: Icon(
+                          Icons.search_rounded,
+                          color: AppColorPalette.primaryMaroon,
+                          size: 22,
+                        ),
+                      ),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: Container(
+                                padding: const EdgeInsets.all(6),
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
+                                  color: AppColorPalette.primaryMaroon
+                                      .withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Icon(
-                                  Icons.arrow_back_ios_rounded,
-                                  color: Colors.white,
-                                  size: 22,
+                                  Icons.close_rounded,
+                                  color: AppColorPalette.primaryMaroon,
+                                  size: 16,
                                 ),
                               ),
-                            ),
-                          ),
-                        )
-                            .animate()
-                            .fadeIn(duration: 400.ms, curve: Curves.easeOut)
-                            .slideX(begin: -0.3, end: 0),
-
-                        // Animated divider
-                        Container(
-                          height: 24,
-                          width: 1.5,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Title with animated badge
-                        Expanded(
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // Main title
-                              Center(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    // Animated icon
-                                    AnimatedBuilder(
-                                      animation: _controller,
-                                      builder: (context, child) {
-                                        return Transform.rotate(
-                                          angle: _controller.value * 0.05,
-                                          child: Container(
-                                            padding: EdgeInsets.all(6),
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              gradient: LinearGradient(
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                                colors: [
-                                                  Colors.white.withOpacity(0.9),
-                                                  Colors.white.withOpacity(0.4),
-                                                ],
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.2),
-                                                  blurRadius: 4,
-                                                  offset: Offset(0, 2),
-                                                ),
-                                              ],
-                                            ),
-                                            child: Icon(
-                                              Icons.school,
-                                              color:
-                                                  AppColorPalette.primaryMaroon,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-
-                                    SizedBox(width: 12),
-
-                                    // Title text with glowing effect
-                                    ShaderMask(
-                                      shaderCallback: (Rect bounds) {
-                                        return LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [
-                                            Colors.white,
-                                            Colors.white.withOpacity(0.9),
-                                          ],
-                                        ).createShader(bounds);
-                                      },
-                                      blendMode: BlendMode.srcIn,
-                                      child: Text(
-                                        'Daftar Kelas',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          shadows: [
-                                            Shadow(
-                                              color: Colors.black26,
-                                              offset: Offset(0, 1),
-                                              blurRadius: 3,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Animated divider
-                        Container(
-                          height: 24,
-                          width: 1.5,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Search button with interactive animation
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
-                              onTap: () {
+                              onPressed: () {
                                 setState(() {
-                                  _isSearchActive = !_isSearchActive;
-                                  if (!_isSearchActive) {
-                                    _searchController.clear();
-                                    _searchQuery = "";
-                                  }
+                                  _searchController.clear();
+                                  _searchQuery = "";
                                 });
                               },
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: _isSearchActive
-                                      ? Border.all(
-                                          color: Colors.white.withOpacity(0.4),
-                                          width: 1.5,
-                                        )
-                                      : null,
-                                ),
-                                child: AnimatedSwitcher(
-                                  duration: Duration(milliseconds: 400),
-                                  transitionBuilder: (Widget child,
-                                      Animation<double> animation) {
-                                    return RotationTransition(
-                                      turns: Tween<double>(begin: 0.5, end: 1.0)
-                                          .animate(animation),
-                                      child: ScaleTransition(
-                                        scale: animation,
-                                        child: FadeTransition(
-                                          opacity: animation,
-                                          child: child,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: _isSearchActive
-                                      ? Icon(
-                                          Icons.close_rounded,
-                                          key: ValueKey<bool>(true),
-                                          color: Colors.white,
-                                          size: 22,
-                                        )
-                                      : Icon(
-                                          Icons.search_rounded,
-                                          key: ValueKey<bool>(false),
-                                          color: Colors.white,
-                                          size: 22,
-                                        ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                            .animate()
-                            .fadeIn(duration: 400.ms, curve: Curves.easeOut)
-                            .slideX(begin: 0.3, end: 0),
-                      ],
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 20,
+                      ),
                     ),
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value.trim();
+                      });
+                    },
+                    onSubmitted: (value) {
+                      setState(() {
+                        _searchQuery = value.trim();
+                      });
+                    },
                   ),
-                ),
-              ),
-            ),
-          ],
+                ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.5, end: 0)
+              : const SizedBox.shrink(),
         ),
       ),
     );
@@ -670,14 +423,35 @@ class _ClassesScreenState extends State<ClassesScreen>
 
   Widget _buildSuccessState(
       BuildContext context, ClassesWithTeacherDetailsFetchSuccess state) {
-    // Filter classes based on search query if active
+    // Enhanced filter classes based on search query
     final classes = _searchQuery.isEmpty
         ? state.classes
-        : state.classes
-            .where((classSection) => (classSection.fullName ?? "")
-                .toLowerCase()
-                .contains(_searchQuery.toLowerCase()))
-            .toList();
+        : state.classes.where((classSection) {
+            final fullName = (classSection.fullName ?? "").toLowerCase();
+            final searchLower = _searchQuery.toLowerCase();
+
+            // Search in full name
+            if (fullName.contains(searchLower)) return true;
+
+            // Search in individual words for better matching
+            final nameWords = fullName.split(' ');
+            final searchWords = searchLower.split(' ');
+
+            for (String searchWord in searchWords) {
+              if (searchWord.trim().isNotEmpty) {
+                bool found = false;
+                for (String nameWord in nameWords) {
+                  if (nameWord.contains(searchWord.trim())) {
+                    found = true;
+                    break;
+                  }
+                }
+                if (!found) return false;
+              }
+            }
+
+            return true;
+          }).toList();
 
     return AnimationLimiter(
       child: CustomScrollView(
@@ -687,30 +461,105 @@ class _ClassesScreenState extends State<ClassesScreen>
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.only(
-                top: Utils.appContentTopScrollPadding(context: context) +
-                    60, // Increased from 25 to 60
+                top: _isSearchActive
+                    ? 85 // Increased to accommodate new search bar height
+                    : 16,
                 bottom: 16,
                 left: appContentHorizontalPadding,
                 right: appContentHorizontalPadding,
               ),
               child: classes.isEmpty && _searchQuery.isNotEmpty
-                  ? NoSearchResultsWidget(
-                      searchQuery: _searchQuery,
-                      onClearSearch: () {
-                        setState(() {
-                          _searchQuery = "";
-                          _searchController.clear();
-                          _isSearchActive = false;
-                        });
-                      },
-                      primaryColor: AppColorPalette.primaryMaroon,
-                      accentColor: AppColorPalette.secondaryMaroon,
-                      title: 'Kelas Tidak Ditemukan',
-                      description:
-                          'Tidak ditemukan kelas yang sesuai dengan pencarian Anda. Coba gunakan kata kunci yang berbeda.',
-                      icon: Icons.school_outlined,
-                    ).animate().fadeIn(delay: 300.ms)
-                  : _buildEnhancedHeaderCard(context),
+                  ? Center(
+                      child: NoSearchResultsWidget(
+                        searchQuery: _searchQuery,
+                        onClearSearch: () {
+                          setState(() {
+                            _searchQuery = "";
+                            _searchController.clear();
+                            _isSearchActive = false;
+                          });
+                        },
+                        primaryColor: AppColorPalette.primaryMaroon,
+                        accentColor: AppColorPalette.secondaryMaroon,
+                        title: 'Kelas Tidak Ditemukan',
+                        description:
+                            'Tidak ditemukan kelas yang sesuai dengan pencarian "${_searchQuery}". Coba gunakan kata kunci yang berbeda.',
+                        icon: Icons.search_off_rounded,
+                      ).animate().fadeIn(delay: 300.ms),
+                    )
+                  : Column(
+                      children: [
+                        // Search results indicator
+                        if (_searchQuery.isNotEmpty && classes.isNotEmpty)
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColorPalette.primaryMaroon
+                                  .withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: AppColorPalette.primaryMaroon
+                                    .withOpacity(0.2),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.search_rounded,
+                                  color: AppColorPalette.primaryMaroon,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Ditemukan ${classes.length} kelas untuk "${_searchQuery}"',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColorPalette.primaryMaroon,
+                                    ),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _searchQuery = "";
+                                      _searchController.clear();
+                                      _isSearchActive = false;
+                                    });
+                                  },
+                                  style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    minimumSize: Size.zero,
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  child: Text(
+                                    'Hapus',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColorPalette.secondaryMaroon,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ).animate().fadeIn(delay: 200.ms),
+
+                        // Header card (hidden when searching)
+                        if (_searchQuery.isEmpty)
+                          _buildEnhancedHeaderCard(context),
+                      ],
+                    ),
             ),
           ),
           SliverPadding(
@@ -1576,40 +1425,4 @@ class AppColorPalette {
   static const Color accentPink = Color(0xFFF4D0D9);
   static const Color warmBeige = Color(0xFFF5E6E8);
   static const Color shadowColor = Color(0x298B1F41);
-}
-
-class AppBarDecorationPainter extends CustomPainter {
-  final Color color;
-
-  AppBarDecorationPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    final path = Path()
-      ..moveTo(0, size.height * 0.5)
-      ..quadraticBezierTo(
-        size.width * 0.25,
-        size.height * 0.4,
-        size.width * 0.5,
-        size.height * 0.5,
-      )
-      ..quadraticBezierTo(
-        size.width * 0.75,
-        size.height * 0.6,
-        size.width,
-        size.height * 0.5,
-      )
-      ..lineTo(size.width, 0)
-      ..lineTo(0, 0)
-      ..close();
-
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

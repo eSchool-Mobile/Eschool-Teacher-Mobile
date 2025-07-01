@@ -7,13 +7,9 @@ import 'package:eschool_saas_staff/data/models/fee.dart';
 import 'package:eschool_saas_staff/data/models/payment.dart';
 import 'package:eschool_saas_staff/data/models/sessionYear.dart';
 import 'package:eschool_saas_staff/data/models/studentDetails.dart';
-import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
+import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
@@ -248,607 +244,144 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
   }
 
   Widget _buildAppBar() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: Container(
-        height: MediaQuery.of(context).padding.top +
-            150, // Height for app bar with filters
-        child: Stack(
-          children: [
-            // Fancy gradient background with animated particles
-            Positioned.fill(
-              child: AnimatedBuilder(
-                animation: _fabAnimationController,
-                builder: (context, _) {
-                  return ShaderMask(
-                    shaderCallback: (Rect bounds) {
-                      return LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF690013),
-                          _maroonPrimary,
-                          Color(0xFFA12948),
-                          _maroonLight,
-                        ],
-                        stops: [0.0, 0.3, 0.6, 1.0],
-                        transform: GradientRotation(
-                            _fabAnimationController.value * 0.02),
-                      ).createShader(bounds);
-                    },
-                    blendMode: BlendMode.srcATop,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF800020),
-                            Color(0xFF9A1E3C),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(30),
-                          bottomRight: Radius.circular(30),
-                        ),
-                      ),
+    return BlocConsumer<SessionYearAndFeesCubit, SessionYearAndFeesState>(
+      listener: (context, state) {
+        if (state is SessionYearAndFeesFetchSuccess) {
+          if (state.fees.isNotEmpty && state.sessionYears.isNotEmpty) {
+            changeSelectedFee(state.fees.first);
+            changeSelectedSessionYear(state.sessionYears
+                .where((element) => element.isThisDefault())
+                .toList()
+                .first);
+            changeSelectedFeeStatus(paidKey);
+            getStudentFees();
+          }
+        }
+      },
+      builder: (context, state) {
+        if (state is SessionYearAndFeesFetchSuccess) {
+          return CustomFilterModernAppBar(
+            title: 'Biaya yang Dibayar',
+            titleIcon: Icons.payments_rounded,
+            primaryColor: _maroonPrimary,
+            secondaryColor: _maroonLight,
+            onBackPressed: () => Navigator.of(context).pop(),
+            animationController: _fabAnimationController,
+            enableAnimations: true,
+            height: MediaQuery.of(context).padding.top + 200,
+            showFiltersRow: true,
+            showSearchButton: true,
+            isSearchActive: _isSearchActive,
+            onSearchPressed: () {
+              setState(() {
+                _isSearchActive = !_isSearchActive;
+                if (!_isSearchActive) {
+                  _searchController.clear();
+                  _searchQuery = "";
+                  getStudentFees(); // Reload data when search is cleared
+                }
+              });
+              print(
+                  'Search toggled: ${_isSearchActive ? "activated" : "deactivated"}');
+            },
+
+            // First filter - Session Year
+            firstFilterItem: FilterItemConfig(
+              title: _selectedSessionYear?.name ?? 'Tahun Ajaran',
+              icon: Icons.calendar_today_rounded,
+              onTap: () {
+                if (state.sessionYears.isNotEmpty) {
+                  Utils.showBottomSheet(
+                    child: FilterSelectionBottomsheet<SessionYear>(
+                      onSelection: (value) {
+                        changeSelectedSessionYear(value!);
+                        getStudentFees();
+                        Get.back();
+                      },
+                      selectedValue: _selectedSessionYear!,
+                      titleKey: sessionYearKey,
+                      values: state.sessionYears,
                     ),
+                    context: context,
                   );
-                },
-              ),
+                }
+              },
             ),
 
-            // Decorative design elements
-            Positioned.fill(
-              child: CustomPaint(
-                painter: AppBarDecorationPainter(
-                  color: Colors.white.withOpacity(0.07),
-                ),
-              ),
-            ),
-
-            // Animated glowing effect
-            AnimatedBuilder(
-              animation: _fabAnimationController,
-              builder: (context, _) {
-                return Positioned(
-                  top: -100 + (_fabAnimationController.value * 20),
-                  right: -60 + (_fabAnimationController.value * 10),
-                  child: Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          Colors.white.withOpacity(0.2),
-                          Colors.white.withOpacity(0.1),
-                          Colors.white.withOpacity(0.0),
-                        ],
-                        stops: [0.0, 0.5, 1.0],
-                      ),
-                    ),
+            // Second filter - Status
+            secondFilterItem: FilterItemConfig(
+              title: _selectedFeeStatus.isEmpty
+                  ? 'Status'
+                  : Utils.getTranslatedLabel(_selectedFeeStatus),
+              icon: Icons.payment_rounded,
+              onTap: () {
+                Utils.showBottomSheet(
+                  child: FilterSelectionBottomsheet<String>(
+                    onSelection: (value) {
+                      changeSelectedFeeStatus(value!);
+                      getStudentFees();
+                      Get.back();
+                    },
+                    selectedValue: _selectedFeeStatus,
+                    titleKey: statusKey,
+                    values: const [paidKey, unpaidKey],
                   ),
+                  context: context,
                 );
               },
             ),
 
-            // Main app bar content with frosted glass effect - TOP ROW
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 10,
-              left: 16,
-              right: 16,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 1.5,
-                      ),
+            // Third filter - Fee
+            thirdFilterItem: FilterItemConfig(
+              title: _selectedFee?.name ?? 'Biaya',
+              icon: Icons.monetization_on_rounded,
+              onTap: () {
+                if (state.fees.isNotEmpty) {
+                  Utils.showBottomSheet(
+                    child: FilterSelectionBottomsheet<Fee>(
+                      onSelection: (value) {
+                        changeSelectedFee(value!);
+                        getStudentFees();
+                        Get.back();
+                      },
+                      selectedValue: _selectedFee!,
+                      titleKey: feeKey,
+                      values: state.fees,
                     ),
-                    child: Row(
-                      children: [
-                        // Back button with ripple effect
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
-                              onTap: () => Navigator.of(context).pop(),
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  Icons.arrow_back_ios_rounded,
-                                  color: Colors.white,
-                                  size: 22,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Animated divider
-                        Container(
-                          height: 24,
-                          width: 1.5,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Title with animated badge
-                        Expanded(
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // Main title
-                              Center(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    // Animated icon
-                                    AnimatedBuilder(
-                                      animation: _fabAnimationController,
-                                      builder: (context, child) {
-                                        return Transform.rotate(
-                                          angle: _fabAnimationController.value *
-                                              0.05,
-                                          child: Container(
-                                            padding: EdgeInsets.all(6),
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              gradient: LinearGradient(
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                                colors: [
-                                                  Colors.white.withOpacity(0.9),
-                                                  Colors.white.withOpacity(0.4),
-                                                ],
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.2),
-                                                  blurRadius: 4,
-                                                  offset: Offset(0, 2),
-                                                ),
-                                              ],
-                                            ),
-                                            child: Icon(
-                                              Icons.payments_rounded,
-                                              color: _maroonPrimary,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-
-                                    SizedBox(width: 12),
-
-                                    // Title text with glowing effect
-                                    ShaderMask(
-                                      shaderCallback: (Rect bounds) {
-                                        return LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [
-                                            Colors.white,
-                                            Colors.white.withOpacity(0.9),
-                                          ],
-                                        ).createShader(bounds);
-                                      },
-                                      blendMode: BlendMode.srcIn,
-                                      child: Text(
-                                        'Biaya yang Dibayar',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          shadows: [
-                                            Shadow(
-                                              color: Colors.black26,
-                                              offset: Offset(0, 1),
-                                              blurRadius: 3,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Animated divider
-                        Container(
-                          height: 24,
-                          width: 1.5,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Search button with interactive animation
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
-                              onTap: () {
-                                setState(() {
-                                  _isSearchActive = !_isSearchActive;
-                                  if (!_isSearchActive) {
-                                    _searchController.clear();
-                                    _searchQuery = "";
-                                  }
-                                });
-                                print(
-                                    'Search toggled: ${_isSearchActive ? "activated" : "deactivated"}');
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: _isSearchActive
-                                      ? Border.all(
-                                          color: Colors.white.withOpacity(0.4),
-                                          width: 1.5,
-                                        )
-                                      : null,
-                                ),
-                                child: AnimatedSwitcher(
-                                  duration: Duration(milliseconds: 400),
-                                  transitionBuilder: (Widget child,
-                                      Animation<double> animation) {
-                                    return RotationTransition(
-                                      turns: Tween<double>(begin: 0.5, end: 1.0)
-                                          .animate(animation),
-                                      child: ScaleTransition(
-                                        scale: animation,
-                                        child: FadeTransition(
-                                          opacity: animation,
-                                          child: child,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: _isSearchActive
-                                      ? Icon(
-                                          Icons.close_rounded,
-                                          key: ValueKey<bool>(true),
-                                          color: Colors.white,
-                                          size: 22,
-                                        )
-                                      : Icon(
-                                          Icons.search_rounded,
-                                          key: ValueKey<bool>(false),
-                                          color: Colors.white,
-                                          size: 22,
-                                        ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+                    context: context,
+                  );
+                }
+              },
             ),
+          );
+        }
 
-            // BOTTOM ROW - Filter selector
-            Positioned(
-              bottom: 10,
-              left: 16,
-              right: 16,
-              child: BlocConsumer<SessionYearAndFeesCubit,
-                  SessionYearAndFeesState>(
-                listener: (context, state) {
-                  if (state is SessionYearAndFeesFetchSuccess) {
-                    if (state.fees.isNotEmpty &&
-                        state.sessionYears.isNotEmpty) {
-                      changeSelectedFee(state.fees.first);
-                      changeSelectedSessionYear(state.sessionYears
-                          .where((element) => element.isThisDefault())
-                          .toList()
-                          .first);
-                      changeSelectedFeeStatus(paidKey);
-                      getStudentFees();
-                    }
-                  }
-                },
-                builder: (context, state) {
-                  if (state is SessionYearAndFeesFetchSuccess) {
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                        child: Container(
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.2),
-                              width: 1.5,
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              // Session year filter
-                              Expanded(
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    onTap: () {
-                                      if (state.sessionYears.isNotEmpty) {
-                                        Utils.showBottomSheet(
-                                          child: FilterSelectionBottomsheet<
-                                              SessionYear>(
-                                            onSelection: (value) {
-                                              changeSelectedSessionYear(value!);
-                                              getStudentFees();
-                                              Get.back();
-                                            },
-                                            selectedValue:
-                                                _selectedSessionYear!,
-                                            titleKey: sessionYearKey,
-                                            values: state.sessionYears,
-                                          ),
-                                          context: context,
-                                        );
-                                      }
-                                    },
-                                    highlightColor:
-                                        Colors.white.withOpacity(0.1),
-                                    splashColor: Colors.white.withOpacity(0.2),
-                                    child: Container(
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 12),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            Icons.calendar_today_rounded,
-                                            color: Colors.white,
-                                            size: 16,
-                                          ),
-                                          SizedBox(width: 8),
-                                          Flexible(
-                                            child: Text(
-                                              _selectedSessionYear?.name ??
-                                                  'Tahun Ajaran',
-                                              style: GoogleFonts.poppins(
-                                                color: Colors.white,
-                                                fontSize: 14,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                          Icon(
-                                            Icons.arrow_drop_down,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              // Vertical divider
-                              Container(
-                                height: 24,
-                                width: 1.5,
-                                margin: EdgeInsets.symmetric(horizontal: 4),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Colors.white.withOpacity(0.0),
-                                      Colors.white.withOpacity(0.4),
-                                      Colors.white.withOpacity(0.0),
-                                    ],
-                                  ),
-                                ),
-                              ),
-
-                              // Status filter
-                              Expanded(
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    onTap: () {
-                                      Utils.showBottomSheet(
-                                        child:
-                                            FilterSelectionBottomsheet<String>(
-                                          onSelection: (value) {
-                                            changeSelectedFeeStatus(value!);
-                                            getStudentFees();
-                                            Get.back();
-                                          },
-                                          selectedValue: _selectedFeeStatus,
-                                          titleKey: statusKey,
-                                          values: const [paidKey, unpaidKey],
-                                        ),
-                                        context: context,
-                                      );
-                                    },
-                                    highlightColor:
-                                        Colors.white.withOpacity(0.1),
-                                    splashColor: Colors.white.withOpacity(0.2),
-                                    child: Container(
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 12),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            Icons.payment_rounded,
-                                            color: Colors.white,
-                                            size: 16,
-                                          ),
-                                          SizedBox(width: 8),
-                                          Flexible(
-                                            child: Text(
-                                              _selectedFeeStatus.isEmpty
-                                                  ? 'Status'
-                                                  : Utils.getTranslatedLabel(
-                                                      _selectedFeeStatus),
-                                              style: GoogleFonts.poppins(
-                                                color: Colors.white,
-                                                fontSize: 14,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                          Icon(
-                                            Icons.arrow_drop_down,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              // Another vertical divider
-                              Container(
-                                height: 24,
-                                width: 1.5,
-                                margin: EdgeInsets.symmetric(horizontal: 4),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Colors.white.withOpacity(0.0),
-                                      Colors.white.withOpacity(0.4),
-                                      Colors.white.withOpacity(0.0),
-                                    ],
-                                  ),
-                                ),
-                              ),
-
-                              // Fee filter
-                              Expanded(
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    onTap: () {
-                                      if (state.fees.isNotEmpty) {
-                                        Utils.showBottomSheet(
-                                          child:
-                                              FilterSelectionBottomsheet<Fee>(
-                                            onSelection: (value) {
-                                              changeSelectedFee(value!);
-                                              getStudentFees();
-                                              Get.back();
-                                            },
-                                            selectedValue: _selectedFee!,
-                                            titleKey: feeKey,
-                                            values: state.fees,
-                                          ),
-                                          context: context,
-                                        );
-                                      }
-                                    },
-                                    highlightColor:
-                                        Colors.white.withOpacity(0.1),
-                                    splashColor: Colors.white.withOpacity(0.2),
-                                    child: Container(
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 12),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            Icons.monetization_on_rounded,
-                                            color: Colors.white,
-                                            size: 16,
-                                          ),
-                                          SizedBox(width: 8),
-                                          Flexible(
-                                            child: Text(
-                                              _selectedFee?.name ?? 'Biaya',
-                                              style: GoogleFonts.poppins(
-                                                color: Colors.white,
-                                                fontSize: 14,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                          Icon(
-                                            Icons.arrow_drop_down,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                        .animate()
-                        .fadeIn(duration: 500.ms, delay: 200.ms)
-                        .slideY(begin: -0.2, end: 0, curve: Curves.easeOutQuad);
-                  }
-
-                  return SizedBox();
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+        // Return a simple modern AppBar when data is loading
+        return CustomFilterModernAppBar(
+          title: 'Biaya yang Dibayar',
+          titleIcon: Icons.payments_rounded,
+          primaryColor: _maroonPrimary,
+          secondaryColor: _maroonLight,
+          onBackPressed: () => Navigator.of(context).pop(),
+          animationController: _fabAnimationController,
+          enableAnimations: true,
+          height: MediaQuery.of(context).padding.top + 200,
+          showFiltersRow: false,
+          showSearchButton: true,
+          isSearchActive: _isSearchActive,
+          onSearchPressed: () {
+            setState(() {
+              _isSearchActive = !_isSearchActive;
+              if (!_isSearchActive) {
+                _searchController.clear();
+                _searchQuery = "";
+              }
+            });
+            print(
+                'Search toggled: ${_isSearchActive ? "activated" : "deactivated"}');
+          },
+        );
+      },
     );
   }
 
@@ -906,7 +439,7 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
             return Padding(
               padding: EdgeInsets.only(
                 top: MediaQuery.of(context).padding.top +
-                    120, // Added top padding to avoid app bar
+                    170, // Added top padding to avoid app bar
                 left: 16,
                 right: 16,
                 bottom: 16,
@@ -974,7 +507,7 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
                 padding: EdgeInsets.only(
                   bottom: 100,
                   // Increasing top padding to ensure title appears below app bar
-                  top: MediaQuery.of(context).padding.top + 160,
+                  top: MediaQuery.of(context).padding.top + 210,
                 ),
                 child: Column(
                   children: [
@@ -988,7 +521,7 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
                           Text(
                             'Biaya yang Dibayar',
                             style: GoogleFonts.poppins(
-                              fontSize: 24,
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: _maroonPrimary,
                             ),
@@ -1353,47 +886,6 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
         ],
       ),
     );
-  }
-}
-
-// Custom painter for decorative elements
-class AppBarDecorationPainter extends CustomPainter {
-  final Color color;
-
-  AppBarDecorationPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    // Draw decorative circles
-    canvas.drawCircle(Offset(size.width * 0.9, size.height * 0.2), 30, paint);
-    canvas.drawCircle(Offset(size.width * 0.1, size.height * 0.8), 20, paint);
-    canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.15), 15, paint);
-    canvas.drawCircle(Offset(size.width * 0.7, size.height * 0.7), 10, paint);
-    canvas.drawCircle(Offset(size.width * 0.2, size.height * 0.4), 8, paint);
-
-    // Draw arc
-    final arcPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    final arcRect = Rect.fromLTRB(size.width * 0.1, size.height * 0.2,
-        size.width * 0.6, size.height * 0.6);
-    canvas.drawArc(arcRect, 0.2, 1.5, false, arcPaint);
-
-    // Draw another arc
-    final arcRect2 = Rect.fromLTRB(size.width * 0.5, size.height * 0.4,
-        size.width * 0.9, size.height * 0.8);
-    canvas.drawArc(arcRect2, 3, 1.5, false, arcPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
   }
 }
 

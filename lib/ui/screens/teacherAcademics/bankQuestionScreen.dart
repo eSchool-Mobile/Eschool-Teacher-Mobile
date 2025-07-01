@@ -890,11 +890,10 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
     final int questionVersionsCount = question.versions.length;
     // Get the page controller for this question
     final PageController pageController = _getPageController(question.id);
-
     return FadeInUp(
       duration: Duration(milliseconds: 500),
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(28),
@@ -910,7 +909,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
           borderRadius: BorderRadius.circular(28),
           child: Container(
             constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.8,
+              maxHeight: MediaQuery.of(context).size.height * 0.6,
             ),
             child: PageView.builder(
               controller: pageController,
@@ -978,8 +977,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
 
   Widget _buildVersionCardWithActionsImproved(q.QuestionVersion version,
       q.Question question, int versionIndex, int totalVersions) {
-    // Calculate the header height based on aspect ratio
-    final double headerHeight = MediaQuery.of(context).size.width / 2;
+    // Calculate the header height based on aspect ratio - balanced size
+    final double headerHeight = MediaQuery.of(context).size.width / 2.8;
 
     return Stack(
       children: [
@@ -997,7 +996,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
               // Main content area - Now uses Expanded + SingleChildScrollView to handle overflow
               Expanded(
                 child: Container(
-                  padding: EdgeInsets.fromLTRB(24, 26, 24, 24),
+                  padding: EdgeInsets.fromLTRB(22, 40, 22, 18),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -1041,11 +1040,10 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                       ),
                       // Ganti bagian Container pertanyaan dalam _buildVersionCardWithActionsImproved
 
-                      SizedBox(height: 18),
+                      SizedBox(height: 16),
                       Container(
-                        // Hapus constraints fixed height, biarkan container menyesuaikan dengan kontennya
-                        width: double.infinity, // Pastikan lebar penuh
-                        padding: EdgeInsets.all(16),
+                        // Hapus constraints fixed height, biarkan container menyesuaikan dengan kontennya                        width: double.infinity, // Pastikan lebar penuh
+                        padding: EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: Colors.grey.shade50,
                           borderRadius: BorderRadius.circular(18),
@@ -1067,19 +1065,19 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                             letterSpacing: 0.2,
                             fontWeight: FontWeight.w500,
                           ),
-                          maxLines: 2,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      SizedBox(height: 2),
+                      SizedBox(height: 0),
 
                       // Pilihan Jawaban section
                       Container(),
-                      SizedBox(height: 24),
+                      SizedBox(height: 18),
 
                       // Pilihan Jawaban section
                       Container(
-                        padding: EdgeInsets.all(18),
+                        padding: EdgeInsets.all(15),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
@@ -1110,8 +1108,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                               alignment: Alignment.center,
                               children: [
                                 Container(
-                                  width: 48,
-                                  height: 48,
+                                  width: 44,
+                                  height: 44,
                                   decoration: BoxDecoration(
                                     color: _getTypeColor(version.type)
                                         .withOpacity(0.08),
@@ -1119,8 +1117,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                   ),
                                 ),
                                 Container(
-                                  width: 42,
-                                  height: 42,
+                                  width: 38,
+                                  height: 38,
                                   decoration: BoxDecoration(
                                     color: _getTypeColor(version.type)
                                         .withOpacity(0.12),
@@ -1128,8 +1126,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                   ),
                                 ),
                                 Container(
-                                  width: 36,
-                                  height: 36,
+                                  width: 32,
+                                  height: 32,
                                   decoration: BoxDecoration(
                                     color: _getTypeColor(version.type)
                                         .withOpacity(0.15),
@@ -1142,7 +1140,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                   child: Icon(
                                     Icons.check_circle_outline_rounded,
                                     color: _getTypeColor(version.type),
-                                    size: 22,
+                                    size: 20,
                                   ),
                                 ),
                               ],
@@ -1196,10 +1194,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                             ),
                           ],
                         ),
-                      ),
-
-                      // Add space for pagination indicators
-                      SizedBox(height: totalVersions > 1 ? 40 : 0),
+                      ), // Add space for pagination indicators
+                      SizedBox(height: totalVersions > 1 ? 25 : 0),
                     ],
                   ),
                 ),
@@ -1226,7 +1222,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                     bottomRight: Radius.circular(28),
                   ),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -1245,7 +1241,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                   _navigateToEditQuestion(question, version),
                               child: Container(
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 12),
+                                    horizontal: 14, vertical: 10),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(16),
                                   gradient: LinearGradient(
@@ -1286,8 +1282,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                               ),
                             ),
                           ),
-
-                          SizedBox(width: 12), // Space between buttons
+                          SizedBox(width: 10), // Space between buttons
 
                           // Delete button
                           Material(
@@ -1299,7 +1294,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                   _showDeleteQuestionConfirmation(question),
                               child: Container(
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 12),
+                                    horizontal: 14, vertical: 10),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(16),
                                   gradient: LinearGradient(
@@ -1340,8 +1335,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                           ),
                         ],
                       )
-                    else
-                      // Detail Button for older versions
+                    else // Detail Button for older versions
                       Material(
                         color: Colors.transparent,
                         borderRadius: BorderRadius.circular(16),
@@ -1351,7 +1345,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                               _showDetailQuestionSheet(question, version),
                           child: Container(
                             padding: EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
+                                horizontal: 14, vertical: 10),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(16),
                               gradient: LinearGradient(
@@ -1549,7 +1543,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                 top: 20,
                 right: 20,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(14),
@@ -2172,14 +2166,47 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                             ),
                           ],
                         ),
-                        child: Text(
-                          parseHtmlString(version.question),
-                          style: TextStyle(
-                            fontSize: 16,
-                            height: 1.5,
-                            color: Colors.grey.shade800,
-                          ),
-                        ),
+                        child: version.question.trim().isEmpty
+                            ? Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.symmetric(vertical: 20),
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                      Icons.help_outline,
+                                      size: 40,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                    SizedBox(height: 12),
+                                    Text(
+                                      "Pertanyaan belum diisi",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      "Isi pertanyaan untuk memberikan soal yang jelas kepada siswa",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade500,
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : Text(
+                                parseHtmlString(version.question),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  height: 1.5,
+                                  color: Colors.grey.shade800,
+                                ),
+                              ),
                       ),
                     ),
 
@@ -2222,195 +2249,301 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                           SizedBox(height: 24),
 
                           // Options list
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: version.options.length,
-                            itemBuilder: (context, index) {
-                              final option = version.options[index];
-                              final isCorrect = option.percentage == 100;
-
-                              return Container(
-                                margin: EdgeInsets.only(bottom: 16),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: isCorrect
-                                        ? Colors.green.shade200
-                                        : Colors.grey.shade200,
-                                    width: 1.5,
-                                  ),
-                                  color: isCorrect
-                                      ? Colors.green.shade50
-                                      : Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: isCorrect
-                                          ? Colors.green.withOpacity(0.1)
-                                          : Colors.black.withOpacity(0.03),
-                                      blurRadius: 10,
-                                      offset: Offset(0, 4),
+                          version.options.isEmpty
+                              ? Container(
+                                  width: double.infinity,
+                                  padding: EdgeInsets.symmetric(vertical: 30),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade50,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: Colors.grey.shade200,
+                                      width: 1.5,
                                     ),
-                                  ],
-                                ),
-                                child: Column(
-                                  children: [
-                                    // Option content
-                                    Padding(
-                                      padding: EdgeInsets.all(16),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          // Option indicator (letter or number)
-                                          Container(
-                                            width: 36,
-                                            height: 36,
-                                            margin: EdgeInsets.only(
-                                                top: 2, right: 16),
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: isCorrect
-                                                  ? Colors.green
-                                                      .withOpacity(0.2)
-                                                  : _getTypeColor(version.type)
-                                                      .withOpacity(0.1),
-                                              border: Border.all(
-                                                color: isCorrect
-                                                    ? Colors.green
-                                                    : _getTypeColor(
-                                                        version.type),
-                                                width: 1.5,
-                                              ),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                String.fromCharCode(65 +
-                                                    index), // A, B, C, etc.
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: isCorrect
-                                                      ? Colors.green
-                                                      : _getTypeColor(
-                                                          version.type),
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                            ),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Icon(
+                                        Icons.check_circle_outline,
+                                        size: 40,
+                                        color: Colors.grey.shade400,
+                                      ),
+                                      SizedBox(height: 12),
+                                      Text(
+                                        "Belum ada opsi jawaban",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        "Tambahkan minimal 2 opsi jawaban untuk soal pilihan ganda",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey.shade500,
+                                          height: 1.4,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  itemCount: version.options.length,
+                                  itemBuilder: (context, index) {
+                                    final option = version.options[index];
+                                    final isCorrect = option.percentage == 100;
+
+                                    return Container(
+                                      margin: EdgeInsets.only(bottom: 16),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: isCorrect
+                                              ? Colors.green.shade200
+                                              : Colors.grey.shade200,
+                                          width: 1.5,
+                                        ),
+                                        color: isCorrect
+                                            ? Colors.green.shade50
+                                            : Colors.white,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: isCorrect
+                                                ? Colors.green.withOpacity(0.1)
+                                                : Colors.black
+                                                    .withOpacity(0.03),
+                                            blurRadius: 10,
+                                            offset: Offset(0, 4),
                                           ),
-
-                                          // Option text
-                                          Expanded(
-                                            child: Text(
-                                              parseHtmlString(option.text),
-                                              style: TextStyle(
-                                                fontSize: 15,
-                                                color: Colors.grey.shade800,
-                                                height: 1.4,
-                                              ),
-                                            ),
-                                          ),
-
-                                          // Correct indicator
-                                          if (isCorrect)
-                                            Container(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 10,
-                                                vertical: 6,
-                                              ),
-                                              margin: EdgeInsets.only(left: 10),
-                                              decoration: BoxDecoration(
-                                                color: Colors.green,
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                              ),
-                                              child: Text(
-                                                "BENAR",
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ),
-
-                                          // Percentage badge (if not 100% or 0%)
-                                          if (!isCorrect &&
-                                              option.percentage > 0)
-                                            Container(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 10,
-                                                vertical: 6,
-                                              ),
-                                              margin: EdgeInsets.only(left: 10),
-                                              decoration: BoxDecoration(
-                                                color: Colors.orange,
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                              ),
-                                              child: Text(
-                                                "${option.percentage}%",
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ),
                                         ],
                                       ),
-                                    ),
+                                      child: Column(
+                                        children: [
+                                          // Option content
+                                          Padding(
+                                            padding: EdgeInsets.all(16),
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                // Option indicator (letter or number)
+                                                Container(
+                                                  width: 36,
+                                                  height: 36,
+                                                  margin: EdgeInsets.only(
+                                                      top: 2, right: 16),
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: isCorrect
+                                                        ? Colors.green
+                                                            .withOpacity(0.2)
+                                                        : _getTypeColor(
+                                                                version.type)
+                                                            .withOpacity(0.1),
+                                                    border: Border.all(
+                                                      color: isCorrect
+                                                          ? Colors.green
+                                                          : _getTypeColor(
+                                                              version.type),
+                                                      width: 1.5,
+                                                    ),
+                                                  ),
+                                                  child: Center(
+                                                    child: Text(
+                                                      String.fromCharCode(65 +
+                                                          index), // A, B, C, etc.
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: isCorrect
+                                                            ? Colors.green
+                                                            : _getTypeColor(
+                                                                version.type),
+                                                        fontSize: 16,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
 
-                                    // Feedback section (if any)
-                                    if (option.feedback.isNotEmpty)
-                                      Container(
-                                        width: double.infinity,
-                                        padding: EdgeInsets.all(16),
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey.shade50,
-                                          borderRadius: BorderRadius.only(
-                                            bottomLeft: Radius.circular(15),
-                                            bottomRight: Radius.circular(15),
+                                                // Option text
+                                                Expanded(
+                                                  child: option.text
+                                                          .trim()
+                                                          .isEmpty
+                                                      ? Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              "Opsi ${String.fromCharCode(65 + index)} belum diisi",
+                                                              style: TextStyle(
+                                                                fontSize: 15,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                                color: Colors
+                                                                    .grey
+                                                                    .shade600,
+                                                                fontStyle:
+                                                                    FontStyle
+                                                                        .italic,
+                                                              ),
+                                                            ),
+                                                            SizedBox(height: 4),
+                                                            Text(
+                                                              "Isi teks untuk opsi jawaban ini",
+                                                              style: TextStyle(
+                                                                fontSize: 13,
+                                                                color: Colors
+                                                                    .grey
+                                                                    .shade500,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        )
+                                                      : Text(
+                                                          parseHtmlString(
+                                                              option.text),
+                                                          style: TextStyle(
+                                                            fontSize: 15,
+                                                            color: Colors
+                                                                .grey.shade800,
+                                                            height: 1.4,
+                                                          ),
+                                                        ),
+                                                ),
+
+                                                // Correct indicator
+                                                if (isCorrect)
+                                                  Container(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 6,
+                                                    ),
+                                                    margin: EdgeInsets.only(
+                                                        left: 10),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.green,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                    ),
+                                                    child: Text(
+                                                      "BENAR",
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ),
+
+                                                // Percentage badge (if not 100% or 0%)
+                                                if (!isCorrect &&
+                                                    option.percentage > 0)
+                                                  Container(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 6,
+                                                    ),
+                                                    margin: EdgeInsets.only(
+                                                        left: 10),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.orange,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                    ),
+                                                    child: Text(
+                                                      "${option.percentage}%",
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
                                           ),
-                                          border: Border(
-                                            top: BorderSide(
-                                                color: Colors.grey.shade200),
-                                          ),
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "Feedback:",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 13,
-                                                color: Colors.grey.shade600,
+
+                                          // Feedback section (always show, with placeholder if empty)
+                                          Container(
+                                            width: double.infinity,
+                                            padding: EdgeInsets.all(16),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  option.feedback.trim().isEmpty
+                                                      ? Colors.grey.shade50
+                                                      : Colors.grey.shade50,
+                                              borderRadius: BorderRadius.only(
+                                                bottomLeft: Radius.circular(15),
+                                                bottomRight:
+                                                    Radius.circular(15),
+                                              ),
+                                              border: Border(
+                                                top: BorderSide(
+                                                    color:
+                                                        Colors.grey.shade200),
                                               ),
                                             ),
-                                            SizedBox(height: 8),
-                                            Text(
-                                              option.feedback,
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.grey.shade700,
-                                                height: 1.4,
-                                              ),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Feedback:",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 13,
+                                                    color: Colors.grey.shade600,
+                                                  ),
+                                                ),
+                                                SizedBox(height: 8),
+                                                option.feedback.trim().isEmpty
+                                                    ? Text(
+                                                        "Belum ada feedback untuk opsi ini. Tambahkan penjelasan mengapa jawaban ini benar/salah.",
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: Colors
+                                                              .grey.shade500,
+                                                          fontStyle:
+                                                              FontStyle.italic,
+                                                          height: 1.4,
+                                                        ),
+                                                      )
+                                                    : Text(
+                                                        option.feedback,
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: Colors
+                                                              .grey.shade700,
+                                                          height: 1.4,
+                                                        ),
+                                                      ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
-                                  ],
+                                    );
+                                  },
                                 ),
-                              );
-                            },
-                          ),
                         ],
                       ),
                     ),
 
-                    // Note section (if available)                    if (version.note != null && version.note!.isNotEmpty)
+                    // Note section (always show, with placeholder if empty)
                     Container(
                       padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
                       color: Colors.white, // Pastikan background tetap putih
@@ -2452,21 +2585,57 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                             width: double.infinity,
                             padding: EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: Colors.blue.shade50,
+                              color: (version.note == null ||
+                                      version.note!.trim().isEmpty)
+                                  ? Colors.grey.shade50
+                                  : Colors.blue.shade50,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: Colors.blue.shade100,
+                                color: (version.note == null ||
+                                        version.note!.trim().isEmpty)
+                                    ? Colors.grey.shade200
+                                    : Colors.blue.shade100,
                                 width: 1,
                               ),
                             ),
-                            child: Text(
-                              version.note,
-                              style: TextStyle(
-                                fontSize: 15,
-                                height: 1.5,
-                                color: Colors.grey.shade800,
-                              ),
-                            ),
+                            child: (version.note == null ||
+                                    version.note!.trim().isEmpty)
+                                ? Column(
+                                    children: [
+                                      Icon(
+                                        Icons.note_add_outlined,
+                                        size: 30,
+                                        color: Colors.grey.shade400,
+                                      ),
+                                      SizedBox(height: 12),
+                                      Text(
+                                        "Belum ada catatan",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        "Tambahkan catatan untuk memberikan informasi tambahan tentang soal ini",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.grey.shade500,
+                                          height: 1.4,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : Text(
+                                    version.note!,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      height: 1.5,
+                                      color: Colors.grey.shade800,
+                                    ),
+                                  ),
                           ),
                         ],
                       ),

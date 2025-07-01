@@ -5,12 +5,9 @@ import 'package:eschool_saas_staff/cubits/teacherAcademics/attendence/submitAtte
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/holidayAttendanceContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/studentAttendanceContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
@@ -22,7 +19,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
 
 class TeacherAddAttendanceScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -229,8 +225,7 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
         controller: _scrollController,
-        padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top + 160, bottom: 90),
+        padding: EdgeInsets.only(top: 20, bottom: 90),
         child: BlocBuilder<AttendanceCubit, AttendanceState>(
           builder: (context, state) {
             if (state is AttendanceFetchSuccess) {
@@ -432,9 +427,6 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
               );
             }
           }, builder: (context, submitAttendanceState) {
-            // Always enable the submit button (removing the disabled state)
-            final bool isSubmitActive = true;
-
             return Align(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -485,10 +477,6 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                       highlightColor: Colors.white.withOpacity(0.1),
                       splashColor: Colors.white.withOpacity(0.2),
                       onTap: () {
-                        if (!isSubmitActive) {
-                          return;
-                        }
-
                         // Log detailed submission data
                         print('=== ATTENDANCE SUBMISSION DATA ===');
                         print(
@@ -615,255 +603,63 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
     );
   }
 
-  Widget _buildAppBar() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: Container(
-        height: MediaQuery.of(context).padding.top +
-            150, // Increased height to accommodate filters
-        child: Stack(
+  PreferredSizeWidget _buildAppBar() {
+    return CustomModernAppBar(
+      title: 'Kehadiran Siswa',
+      icon: Icons.edit_calendar_rounded,
+      fabAnimationController: _fabAnimationController,
+      primaryColor: _maroonPrimary,
+      lightColor: _maroonLight,
+      height: 150, // Increased height to accommodate filters
+      onBackPressed: () => Navigator.of(context).pop(),
+      tabBuilder: (context) {
+        // Custom tab content for filters
+        return Row(
           children: [
-            // Fancy gradient background with animated particles
-            Positioned.fill(
-              child: AnimatedBuilder(
-                animation: _fabAnimationController,
-                builder: (context, _) {
-                  return ShaderMask(
-                    shaderCallback: (Rect bounds) {
-                      return LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF690013),
-                          _maroonPrimary,
-                          Color(0xFFA12948),
-                          _maroonLight,
-                        ],
-                        stops: [0.0, 0.3, 0.6, 1.0],
-                        transform: GradientRotation(
-                            _fabAnimationController.value * 0.02),
-                      ).createShader(bounds);
-                    },
-                    blendMode: BlendMode.srcATop,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF800020),
-                            Color(0xFF9A1E3C),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(30),
-                          bottomRight: Radius.circular(30),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
+            // Date filter
+            Expanded(
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () async {
+                    final selectedDate = await Utils.openDatePicker(
+                      context: context,
+                      inititalDate: _selectedDateTime,
+                      lastDate: DateTime.now(),
+                      firstDate:
+                          DateTime.now().subtract(const Duration(days: 30)),
+                    );
 
-            // Decorative design elements
-            Positioned.fill(
-              child: CustomPaint(
-                painter: AppBarDecorationPainter(
-                  color: Colors.white.withOpacity(0.07),
-                ),
-              ),
-            ),
-
-            // Animated glowing effect
-            AnimatedBuilder(
-              animation: _fabAnimationController,
-              builder: (context, _) {
-                return Positioned(
-                  top: -100 + (_fabAnimationController.value * 20),
-                  right: -60 + (_fabAnimationController.value * 10),
+                    if (selectedDate != null) {
+                      _selectedDateTime = selectedDate;
+                      setState(() {});
+                      getAttendance();
+                    }
+                  },
+                  highlightColor: Colors.white.withOpacity(0.1),
+                  splashColor: Colors.white.withOpacity(0.2),
                   child: Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          Colors.white.withOpacity(0.2),
-                          Colors.white.withOpacity(0.1),
-                          Colors.white.withOpacity(0.0),
-                        ],
-                        stops: [0.0, 0.5, 1.0],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-
-            // Main app bar content with frosted glass effect - TOP ROW
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 10,
-              left: 16,
-              right: 16,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 1.5,
-                      ),
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Back button with ripple effect
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
-                              onTap: () => Navigator.of(context).pop(),
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  Icons.arrow_back_ios_rounded,
-                                  color: Colors.white,
-                                  size: 22,
-                                ),
-                              ),
-                            ),
-                          ),
+                        Icon(
+                          Icons.calendar_today_rounded,
+                          color: Colors.white,
+                          size: 16,
                         ),
-
-                        // Animated divider
-                        Container(
-                          height: 24,
-                          width: 1.5,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
-                              ],
+                        SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            Utils.formatDate(_selectedDateTime),
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
                             ),
-                          ),
-                        ),
-
-                        // Title with animated badge
-                        Expanded(
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // Main title
-                              Center(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    // Animated icon
-                                    AnimatedBuilder(
-                                      animation: _fabAnimationController,
-                                      builder: (context, child) {
-                                        return Transform.rotate(
-                                          angle: _fabAnimationController.value *
-                                              0.05,
-                                          child: Container(
-                                            padding: EdgeInsets.all(6),
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              gradient: LinearGradient(
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                                colors: [
-                                                  Colors.white.withOpacity(0.9),
-                                                  Colors.white.withOpacity(0.4),
-                                                ],
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.2),
-                                                  blurRadius: 4,
-                                                  offset: Offset(0, 2),
-                                                ),
-                                              ],
-                                            ),
-                                            child: Icon(
-                                              Icons.edit_calendar_rounded,
-                                              color: _maroonPrimary,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-
-                                    SizedBox(width: 12),
-
-                                    // Title text with glowing effect
-                                    ShaderMask(
-                                      shaderCallback: (Rect bounds) {
-                                        return LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [
-                                            Colors.white,
-                                            Colors.white.withOpacity(0.9),
-                                          ],
-                                        ).createShader(bounds);
-                                      },
-                                      blendMode: BlendMode.srcIn,
-                                      child: Text(
-                                        'Kehadiran Khusus Siswa',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.bold,
-                                          shadows: [
-                                            Shadow(
-                                              color: Colors.black26,
-                                              offset: Offset(0, 1),
-                                              blurRadius: 3,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Animated divider
-                        Container(
-                          height: 24,
-                          width: 1.5,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
-                              ],
-                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -873,245 +669,120 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
               ),
             ),
 
-            // BOTTOM ROW - Filters with frosted glass effect
-            Positioned(
-              bottom: 10,
-              left: 16,
-              right: 16,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+            // Vertical divider
+            Container(
+              height: 24,
+              width: 1.5,
+              margin: EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.white.withOpacity(0.0),
+                    Colors.white.withOpacity(0.4),
+                    Colors.white.withOpacity(0.0),
+                  ],
+                ),
+              ),
+            ),
+
+            // Class selection filter
+            Expanded(
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () {
+                    final state = context.read<ClassesCubit>().state;
+                    if (state is ClassesFetchSuccess) {
+                      if (state.primaryClasses.isNotEmpty) {
+                        Utils.showBottomSheet(
+                          child: FilterSelectionBottomsheet<ClassSection>(
+                            onSelection: (value) {
+                              changeClassSectionSelection(value);
+                              Get.back();
+                            },
+                            selectedValue: _selectedClassSection ??
+                                state.primaryClasses.first,
+                            titleKey: classKey,
+                            values: state.primaryClasses,
+                          ),
+                          context: context,
+                        );
+                      }
+                    }
+                  },
+                  highlightColor: Colors.white.withOpacity(0.1),
+                  splashColor: Colors.white.withOpacity(0.2),
                   child: Container(
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 1.5,
-                      ),
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Date filter
-                        Expanded(
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () async {
-                                final selectedDate = await Utils.openDatePicker(
-                                  context: context,
-                                  inititalDate: _selectedDateTime,
-                                  lastDate: DateTime.now(),
-                                  firstDate: DateTime.now()
-                                      .subtract(const Duration(days: 30)),
-                                );
-
-                                if (selectedDate != null) {
-                                  _selectedDateTime = selectedDate;
-                                  setState(() {});
-                                  getAttendance();
-                                }
-                              },
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 12),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.calendar_today_rounded,
-                                      color: Colors.white,
-                                      size: 16,
-                                    ),
-                                    SizedBox(width: 8),
-                                    Flexible(
-                                      child: Text(
-                                        Utils.formatDate(_selectedDateTime),
-                                        style: GoogleFonts.poppins(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+                        Icon(
+                          Icons.class_rounded,
+                          color: Colors.white,
+                          size: 16,
                         ),
-
-                        // Vertical divider
-                        Container(
-                          height: 24,
-                          width: 1.5,
-                          margin: EdgeInsets.symmetric(horizontal: 8),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
-                              ],
+                        SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            _selectedClassSection?.fullName ?? 'Pilih Kelas',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
                             ),
-                          ),
-                        ),
-
-                        // Class selection filter
-                        Expanded(
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () {
-                                final state =
-                                    context.read<ClassesCubit>().state;
-                                if (state is ClassesFetchSuccess) {
-                                  if (state.primaryClasses.isNotEmpty) {
-                                    Utils.showBottomSheet(
-                                      child: FilterSelectionBottomsheet<
-                                          ClassSection>(
-                                        onSelection: (value) {
-                                          changeClassSectionSelection(value);
-                                          Get.back();
-                                        },
-                                        selectedValue: _selectedClassSection ??
-                                            state.primaryClasses.first,
-                                        titleKey: classKey,
-                                        values: state.primaryClasses,
-                                      ),
-                                      context: context,
-                                    );
-                                  }
-                                }
-                              },
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 12),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.class_rounded,
-                                      color: Colors.white,
-                                      size: 16,
-                                    ),
-                                    SizedBox(width: 8),
-                                    Flexible(
-                                      child: Text(
-                                        _selectedClassSection?.fullName ??
-                                            'Pilih Kelas',
-                                        style: GoogleFonts.poppins(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-              )
-                  .animate()
-                  .fadeIn(duration: 500.ms, delay: 200.ms)
-                  .slideY(begin: -0.2, end: 0, curve: Curves.easeOutQuad),
+              ),
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          BlocBuilder<ClassesCubit, ClassesState>(
-            builder: (context, state) {
-              if (state is ClassesFetchSuccess) {
-                if (state.primaryClasses.isEmpty) {
-                  return const SizedBox.shrink();
-                }
-                return Stack(children: [
-                  _buildStudentsContainer(),
-                  _buildSubmitButton(),
-                ]);
-              }
-              if (state is ClassesFetchFailure) {
-                return Center(
-                    child: CustomErrorWidget(
-                  message: state.errorMessage,
-                  onRetry: () {
-                    context.read<ClassesCubit>().getClasses();
-                  },
-                  primaryColor: _maroonPrimary,
-                ));
-              }
-              return Center(
-                child: CustomCircularProgressIndicator(
-                  indicatorColor: Theme.of(context).colorScheme.primary,
-                ),
-              );
-            },
-          ),
-          _buildAppBar(),
-        ],
+      appBar: _buildAppBar(),
+      body: BlocBuilder<ClassesCubit, ClassesState>(
+        builder: (context, state) {
+          if (state is ClassesFetchSuccess) {
+            if (state.primaryClasses.isEmpty) {
+              return const SizedBox.shrink();
+            }
+            return Stack(children: [
+              _buildStudentsContainer(),
+              _buildSubmitButton(),
+            ]);
+          }
+          if (state is ClassesFetchFailure) {
+            return Center(
+                child: CustomErrorWidget(
+              message: state.errorMessage,
+              onRetry: () {
+                context.read<ClassesCubit>().getClasses();
+              },
+              primaryColor: _maroonPrimary,
+            ));
+          }
+          return Center(
+            child: CustomCircularProgressIndicator(
+              indicatorColor: Theme.of(context).colorScheme.primary,
+            ),
+          );
+        },
       ),
     );
-  }
-}
-
-// Custom painter for decorative elements
-class AppBarDecorationPainter extends CustomPainter {
-  final Color color;
-
-  AppBarDecorationPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    // Draw decorative circles
-    canvas.drawCircle(Offset(size.width * 0.9, size.height * 0.2), 30, paint);
-    canvas.drawCircle(Offset(size.width * 0.1, size.height * 0.8), 20, paint);
-    canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.15), 15, paint);
-    canvas.drawCircle(Offset(size.width * 0.7, size.height * 0.7), 10, paint);
-    canvas.drawCircle(Offset(size.width * 0.2, size.height * 0.4), 8, paint);
-
-    // Draw arc
-    final arcPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    final arcRect = Rect.fromLTRB(size.width * 0.1, size.height * 0.2,
-        size.width * 0.6, size.height * 0.6);
-    canvas.drawArc(arcRect, 0.2, 1.5, false, arcPaint);
-
-    // Draw another arc
-    final arcRect2 = Rect.fromLTRB(size.width * 0.5, size.height * 0.4,
-        size.width * 0.9, size.height * 0.8);
-    canvas.drawArc(arcRect2, 3, 1.5, false, arcPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
   }
 }
 

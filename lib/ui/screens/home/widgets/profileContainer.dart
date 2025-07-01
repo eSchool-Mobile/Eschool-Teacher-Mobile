@@ -2,18 +2,10 @@ import 'dart:math';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/appLocalizationCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
-import 'package:eschool_saas_staff/ui/screens/home/widgets/menuTile.dart';
-import 'package:eschool_saas_staff/ui/screens/home/widgets/menusWithTitleContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/leaves/leavesScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/login/widgets/schoolListScreen.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
-import 'package:eschool_saas_staff/ui/widgets/customMenuTile.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionTile.dart';
-import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
 import 'package:eschool_saas_staff/utils/appLanguages.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
@@ -23,7 +15,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:eschool_saas_staff/utils/colorPalette.dart';
 import 'dart:ui';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -46,10 +37,18 @@ class ProfileContainer extends StatefulWidget {
 }
 
 class _ProfileContainerState extends State<ProfileContainer>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   int _hoveredMenuIndex = -1;
   late AnimationController _animationController;
   late Animation<double> _animation;
+
+  // Animation controllers from homeContainerAppbar
+  late AnimationController _glowAnimationController;
+  late AnimationController _pulseAnimationController;
+  late AnimationController _rotationAnimationController;
+  late Animation<double> _glowAnimation;
+  late Animation<double> _pulseAnimation;
+  late Animation<double> _rotationAnimation;
 
   // Maroon color palette for app bar
   final Color maroonPrimary = const Color(0xFF800020); // Deep maroon
@@ -60,6 +59,10 @@ class _ProfileContainerState extends State<ProfileContainer>
   @override
   void initState() {
     super.initState();
+
+    // Add lifecycle observer
+    WidgetsBinding.instance.addObserver(this);
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 30),
@@ -67,6 +70,51 @@ class _ProfileContainerState extends State<ProfileContainer>
 
     _animation =
         Tween<double>(begin: 0, end: 2 * pi).animate(_animationController);
+
+    // Refined glow animation - more subtle and elegant
+    _glowAnimationController = AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    );
+    _glowAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _glowAnimationController,
+        curve: Curves.easeInOutSine, // Smoother curve
+      ),
+    );
+
+    // Gentle pulse animation - less aggressive
+    _pulseAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    );
+    _pulseAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
+      CurvedAnimation(
+        parent: _pulseAnimationController,
+        curve: Curves.easeInOutCubic, // More elegant curve
+      ),
+    );
+
+    // Slower, more graceful rotation
+    _rotationAnimationController = AnimationController(
+      duration: const Duration(seconds: 30),
+      vsync: this,
+    );
+    _rotationAnimation = Tween<double>(begin: 0.0, end: 2 * pi).animate(
+      CurvedAnimation(
+        parent: _rotationAnimationController,
+        curve: Curves.linear,
+      ),
+    );
+
+    // Start animations with delays for more natural feel
+    _glowAnimationController.repeat(reverse: true);
+    Future.delayed(Duration(milliseconds: 500), () {
+      _pulseAnimationController.repeat(reverse: true);
+    });
+    Future.delayed(Duration(milliseconds: 1000), () {
+      _rotationAnimationController.repeat();
+    });
 
     // Set system UI overlay style for status bar
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -76,8 +124,49 @@ class _ProfileContainerState extends State<ProfileContainer>
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.paused:
+        _glowAnimationController.stop();
+        _pulseAnimationController.stop();
+        _rotationAnimationController.stop();
+        break;
+      case AppLifecycleState.resumed:
+        if (!_glowAnimationController.isAnimating) {
+          _glowAnimationController.repeat(reverse: true);
+        }
+        if (!_pulseAnimationController.isAnimating) {
+          _pulseAnimationController.repeat(reverse: true);
+        }
+        if (!_rotationAnimationController.isAnimating) {
+          _rotationAnimationController.repeat();
+        }
+        break;
+      case AppLifecycleState.inactive:
+        _glowAnimationController.stop();
+        _pulseAnimationController.stop();
+        _rotationAnimationController.stop();
+        break;
+      case AppLifecycleState.detached:
+        _glowAnimationController.stop();
+        _pulseAnimationController.stop();
+        _rotationAnimationController.stop();
+        break;
+      case AppLifecycleState.hidden:
+        _glowAnimationController.stop();
+        _pulseAnimationController.stop();
+        _rotationAnimationController.stop();
+        break;
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _animationController.dispose();
+    _glowAnimationController.dispose();
+    _pulseAnimationController.dispose();
+    _rotationAnimationController.dispose();
     super.dispose();
   }
 
@@ -677,42 +766,128 @@ class _ProfileContainerState extends State<ProfileContainer>
               ),
             ),
 
-            // Static decorative elements
-            Positioned(
-              top: -40,
-              right: -20,
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.07),
-                ),
+            // Decorative design elements with enhanced animations
+            Positioned.fill(
+              child: AnimatedBuilder(
+                animation: Listenable.merge([
+                  _glowAnimationController,
+                  _pulseAnimationController,
+                  _rotationAnimationController,
+                ]),
+                builder: (context, _) {
+                  return CustomPaint(
+                    painter: AnimatedAppBarDecorationPainter(
+                      color: Colors.white
+                          .withOpacity(0.07 + (_glowAnimation.value * 0.05)),
+                      glowValue: _glowAnimation.value,
+                      pulseValue: _pulseAnimation.value,
+                      rotationValue: _rotationAnimation.value,
+                    ),
+                  );
+                },
               ),
             ),
-            Positioned(
-              bottom: 30,
-              left: -30,
-              child: Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.07),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 35,
-              left: MediaQuery.of(context).size.width * 0.65,
-              child: Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.07),
-                ),
-              ),
+
+            // Refined animated glowing effect - more subtle and elegant
+            AnimatedBuilder(
+              animation: Listenable.merge([
+                _glowAnimationController,
+                _pulseAnimationController,
+              ]),
+              builder: (context, _) {
+                return Stack(
+                  children: [
+                    // Primary glow circle - softer movement
+                    Positioned(
+                      top: MediaQuery.of(context).padding.top -
+                          100 +
+                          (sin(_glowAnimation.value * 2 * pi) * 5),
+                      right: -60 + (cos(_glowAnimation.value * 2 * pi) * 3),
+                      child: Transform.scale(
+                        scale: 0.95 + (_pulseAnimation.value * 0.1),
+                        child: Container(
+                          width: 180,
+                          height: 180,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: RadialGradient(
+                              colors: [
+                                Colors.white.withOpacity(
+                                    0.15 + (_glowAnimation.value * 0.05)),
+                                Colors.white.withOpacity(
+                                    0.08 + (_glowAnimation.value * 0.03)),
+                                Colors.white.withOpacity(0.0),
+                              ],
+                              stops: [0.0, 0.6, 1.0],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Secondary glow circle - gentle floating
+                    Positioned(
+                      top: MediaQuery.of(context).padding.top -
+                          70 +
+                          (sin(_glowAnimation.value * 2 * pi + 1.5) * 4),
+                      left:
+                          -30 + (cos(_glowAnimation.value * 2 * pi + 1.5) * 2),
+                      child: Transform.scale(
+                        scale: 1.0 + (sin(_pulseAnimation.value * pi) * 0.05),
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: RadialGradient(
+                              colors: [
+                                Colors.white.withOpacity(
+                                    0.12 + (_glowAnimation.value * 0.04)),
+                                Colors.white.withOpacity(
+                                    0.06 + (_glowAnimation.value * 0.02)),
+                                Colors.white.withOpacity(0.0),
+                              ],
+                              stops: [0.0, 0.7, 1.0],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Tertiary glow circle - micro floating animation
+                    Positioned(
+                      top: MediaQuery.of(context).padding.top +
+                          25 +
+                          (sin(_glowAnimation.value * 2 * pi + 3) * 3),
+                      right: -15 + (cos(_glowAnimation.value * 2 * pi + 3) * 2),
+                      child: Transform.rotate(
+                        angle: _rotationAnimation.value * 0.3,
+                        child: Transform.scale(
+                          scale: 0.9 +
+                              (sin(_pulseAnimation.value * pi + 2) * 0.08),
+                          child: Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: RadialGradient(
+                                colors: [
+                                  Colors.white.withOpacity(
+                                      0.08 + (_glowAnimation.value * 0.03)),
+                                  Colors.white.withOpacity(
+                                      0.04 + (_glowAnimation.value * 0.015)),
+                                  Colors.white.withOpacity(0.0),
+                                ],
+                                stops: [0.0, 0.8, 1.0],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
 
             // Enhanced static wave pattern
@@ -1036,20 +1211,16 @@ class LogoutConfirmationDialog extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Illustration
-              Container(
+                Container(
                 width: 100,
                 height: 100,
                 margin: const EdgeInsets.only(bottom: 20),
-                child: Lottie.network(
-                  'https://assets3.lottiefiles.com/packages/lf20_ryltkdmr.json',
-                  // Fallback if network fails
-                  errorBuilder: (context, error, stackTrace) => Icon(
-                    Icons.logout_rounded,
-                    size: 60,
-                    color: AppColorPalette.primaryMaroon,
-                  ),
+                child: Icon(
+                  Icons.logout_rounded,
+                  size: 60,
+                  color: AppColorPalette.primaryMaroon,
                 ),
-              ),
+                ),
 
               // Title
               Text(
@@ -1274,4 +1445,150 @@ class EnhancedWavePatternPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// Enhanced custom painter for animated decorative elements in the app bar
+class AnimatedAppBarDecorationPainter extends CustomPainter {
+  final Color color;
+  final double glowValue;
+  final double pulseValue;
+  final double rotationValue;
+
+  AnimatedAppBarDecorationPainter({
+    required this.color,
+    required this.glowValue,
+    required this.pulseValue,
+    required this.rotationValue,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final glowPaint = Paint()
+      ..color = color.withOpacity(color.opacity * (0.3 + glowValue * 0.3))
+      ..style = PaintingStyle.fill
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, 1 + glowValue * 2);
+
+    // Refined animated decorative circles - more subtle movement
+    final circles = [
+      {
+        'center': Offset(size.width * (0.88 + sin(glowValue * 2 * pi) * 0.01),
+            size.height * (0.22 + cos(glowValue * 2 * pi) * 0.008)),
+        'radius': 25 * (0.9 + sin(pulseValue * pi) * 0.15),
+        'hasGlow': true,
+      },
+      {
+        'center': Offset(
+            size.width * (0.12 + cos(glowValue * 2 * pi + 1.5) * 0.008),
+            size.height * (0.78 + sin(glowValue * 2 * pi + 1.5) * 0.01)),
+        'radius': 18 * (0.95 + sin(pulseValue * pi + 0.5) * 0.1),
+        'hasGlow': false,
+      },
+      {
+        'center': Offset(
+            size.width * (0.52 + sin(glowValue * 2 * pi + 3) * 0.012),
+            size.height * (0.18 + cos(glowValue * 2 * pi + 3) * 0.006)),
+        'radius': 12 * (1.0 + sin(pulseValue * pi + 1) * 0.2),
+        'hasGlow': true,
+      },
+      {
+        'center': Offset(
+            size.width * (0.72 + cos(glowValue * 2 * pi + 4.5) * 0.008),
+            size.height * (0.68 + sin(glowValue * 2 * pi + 4.5) * 0.01)),
+        'radius': 8 * (0.8 + sin(pulseValue * pi + 1.5) * 0.3),
+        'hasGlow': false,
+      },
+      {
+        'center': Offset(
+            size.width * (0.25 + sin(glowValue * 2 * pi + 6) * 0.01),
+            size.height * (0.42 + cos(glowValue * 2 * pi + 6) * 0.008)),
+        'radius': 6 * (1.0 + sin(pulseValue * pi + 2) * 0.15),
+        'hasGlow': true,
+      },
+    ];
+
+    // Draw refined animated circles
+    for (var circle in circles) {
+      final center = circle['center'] as Offset;
+      final radius = circle['radius'] as double;
+      final hasGlow = circle['hasGlow'] as bool;
+
+      if (hasGlow) {
+        // Draw subtle glow effect
+        canvas.drawCircle(center, radius * 1.3, glowPaint);
+      }
+      // Draw main circle
+      canvas.drawCircle(center, radius, paint);
+    }
+
+    // Refined animated arcs - smoother movement
+    final arcPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5 + glowValue * 0.5;
+
+    final glowArcPaint = Paint()
+      ..color = color.withOpacity(color.opacity * (0.2 + glowValue * 0.3))
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3 + glowValue * 1
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, 0.5 + glowValue * 1.5);
+
+    // First refined animated arc
+    final arcRect = Rect.fromLTRB(
+        size.width * (0.12 + sin(glowValue * 2 * pi) * 0.02),
+        size.height * (0.25 + cos(glowValue * 2 * pi) * 0.015),
+        size.width * (0.58 + sin(glowValue * 2 * pi + 1) * 0.025),
+        size.height * (0.58 + cos(glowValue * 2 * pi + 1) * 0.02));
+
+    final arcSweep = 1.2 + sin(glowValue * 2 * pi) * 0.2;
+    final arcStart = 0.3 + rotationValue * 0.05;
+
+    // Draw subtle glow arc
+    canvas.drawArc(arcRect, arcStart, arcSweep, false, glowArcPaint);
+    // Draw main arc
+    canvas.drawArc(arcRect, arcStart, arcSweep, false, arcPaint);
+
+    // Second refined animated arc
+    final arcRect2 = Rect.fromLTRB(
+        size.width * (0.48 + cos(glowValue * 2 * pi + 2) * 0.015),
+        size.height * (0.42 + sin(glowValue * 2 * pi + 2) * 0.01),
+        size.width * (0.88 + cos(glowValue * 2 * pi + 3) * 0.02),
+        size.height * (0.78 + sin(glowValue * 2 * pi + 3) * 0.015));
+
+    final arcSweep2 = 1.3 + sin(glowValue * 2 * pi + 1) * 0.15;
+    final arcStart2 = 2.8 - rotationValue * 0.08;
+
+    // Draw subtle glow arc
+    canvas.drawArc(arcRect2, arcStart2, arcSweep2, false, glowArcPaint);
+    // Draw main arc
+    canvas.drawArc(arcRect2, arcStart2, arcSweep2, false, arcPaint);
+
+    // Refined floating particles - gentler movement
+    for (int i = 0; i < 6; i++) {
+      final angle = (i * 1.047) + rotationValue * 0.3; // 1.047 = 2π/6
+      final baseDistance = 25 + sin(glowValue * 2 * pi + i) * 8;
+      final particleSize = 1.5 + sin(glowValue * 2 * pi + i * 1.5) * 0.8;
+
+      final particleCenter = Offset(
+        size.width * 0.5 + (baseDistance * cos(angle)),
+        size.height * 0.5 + (baseDistance * sin(angle)),
+      );
+
+      final particlePaint = Paint()
+        ..color = color.withOpacity(0.4 + sin(glowValue * 2 * pi + i * 2) * 0.3)
+        ..style = PaintingStyle.fill;
+
+      canvas.drawCircle(particleCenter, particleSize, particlePaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant AnimatedAppBarDecorationPainter oldDelegate) {
+    return oldDelegate.glowValue != glowValue ||
+        oldDelegate.pulseValue != pulseValue ||
+        oldDelegate.rotationValue != rotationValue;
+  }
 }

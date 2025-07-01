@@ -4,16 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import 'package:get/route_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:lottie/lottie.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:eschool_saas_staff/cubits/settingCubit.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
@@ -41,11 +37,9 @@ class _AboutUsScreenState extends State<AboutUsScreen>
     with TickerProviderStateMixin {
   String? cachedData;
   late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
   late AnimationController _fabAnimationController;
   final ScrollController _scrollController = ScrollController();
   final Color _maroonPrimary = AppColorPalette.primaryMaroon;
-  final Color _maroonLight = AppColorPalette.secondaryMaroon;
 
   @override
   void initState() {
@@ -60,10 +54,6 @@ class _AboutUsScreenState extends State<AboutUsScreen>
     _controller = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
-    );
-
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
     _controller.forward();
@@ -153,6 +143,14 @@ class _AboutUsScreenState extends State<AboutUsScreen>
       ),
       child: Scaffold(
         backgroundColor: AppColorPalette.warmBeige,
+        appBar: CustomModernAppBar(
+          title: Utils.getTranslatedLabel(aboutUsKey),
+          icon: Icons.info_outline,
+          fabAnimationController: _fabAnimationController,
+          primaryColor: AppColorPalette.primaryMaroon,
+          lightColor: AppColorPalette.secondaryMaroon,
+          onBackPressed: () => Navigator.of(context).pop(),
+        ),
         body: BlocBuilder<SettingsCubit, SettingsState>(
           builder: (context, state) {
             return Stack(
@@ -178,9 +176,7 @@ class _AboutUsScreenState extends State<AboutUsScreen>
 
                 SingleChildScrollView(
                   controller: _scrollController,
-                  padding: EdgeInsets.only(
-                    top: Utils.appContentTopScrollPadding(context: context),
-                  ),
+                  padding: EdgeInsets.all(16),
                   child: Column(
                     children: [
                       // Hero Section with glassmorphism
@@ -232,61 +228,120 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                               Center(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
+                                    children: [
                                     SlideInDown(
                                       child: Container(
-                                        padding: const EdgeInsets.all(20),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: AppColorPalette
-                                                  .primaryMaroon
-                                                  .withOpacity(0.3),
-                                              blurRadius: 15,
-                                              offset: const Offset(0, 8),
-                                            ),
-                                          ],
+                                      padding: const EdgeInsets.all(20),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                        colors: [
+                                          Colors.white,
+                                          Colors.white.withOpacity(0.9),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
                                         ),
-                                        child: Icon(
-                                          Icons.school,
-                                          size: 60,
-                                          color: AppColorPalette.primaryMaroon,
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                        BoxShadow(
+                                          color: AppColorPalette.primaryMaroon.withOpacity(0.3),
+                                          blurRadius: 20,
+                                          spreadRadius: 2,
+                                          offset: const Offset(0, 8),
+                                        ),
+                                        ],
+                                      ),
+                                      child: ShaderMask(
+                                        blendMode: BlendMode.srcIn,
+                                        shaderCallback: (bounds) => LinearGradient(
+                                        colors: [
+                                          AppColorPalette.primaryMaroon,
+                                          AppColorPalette.secondaryMaroon,
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        ).createShader(bounds),
+                                        child: const Icon(
+                                        Icons.school,
+                                        size: 65,
                                         ),
                                       ),
+                                      ),
                                     ),
-                                    const SizedBox(height: 20),
+                                    const SizedBox(height: 24),
                                     FadeIn(
+                                      duration: const Duration(milliseconds: 800),
                                       child: Text(
-                                        'eSchool SaaS',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 32,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
+                                      'eSchool SaaS',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 36,
+                                        fontWeight: FontWeight.bold,
+                                        foreground: Paint()
+                                        ..shader = LinearGradient(
+                                          colors: [
+                                          Colors.white,
+                                          Colors.white.withOpacity(0.85),
+                                          ],
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                        ).createShader(const Rect.fromLTWH(0, 0, 200, 70)),
+                                        shadows: [
+                                        Shadow(
+                                          blurRadius: 10,
+                                          color: Colors.black.withOpacity(0.3),
+                                          offset: const Offset(0, 5),
                                         ),
+                                        ],
+                                      ),
                                       ),
                                     ),
-                                    const SizedBox(height: 10),
+                                    const SizedBox(height: 16),
                                     FadeIn(
-                                      delay: const Duration(milliseconds: 300),
+                                      delay: const Duration(milliseconds: 400),
                                       child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 8,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 20,
+                                        vertical: 10,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                        colors: [
+                                          Colors.white.withOpacity(0.25),
+                                          Colors.white.withOpacity(0.15),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
                                         ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
-                                          borderRadius:
-                                              BorderRadius.circular(20),
+                                        borderRadius: BorderRadius.circular(25),
+                                        boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.1),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 3),
                                         ),
-                                        child: Text(
-                                          'Transformasi Pendidikan Melalui Teknologi',
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 16,
-                                            color: Colors.white,
+                                        ],
+                                        border: Border.all(
+                                        color: Colors.white.withOpacity(0.3),
+                                        width: 1,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Transformasi Pendidikan Melalui Teknologi',
+                                        textAlign: TextAlign.center,
+                                        style: GoogleFonts.poppins(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white,
+                                        letterSpacing: 0.5,
+                                        shadows: [
+                                          Shadow(
+                                          blurRadius: 3,
+                                          color: Colors.black.withOpacity(0.3),
+                                          offset: const Offset(0, 1),
                                           ),
+                                        ],
                                         ),
+                                      ),
                                       ),
                                     ),
                                   ],
@@ -432,257 +487,9 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                     ],
                   ),
                 ),
-
-                // Glassmorphic AppBar
-                _buildAppBar(),
               ],
             );
           },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAppBar() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: Container(
-        height: MediaQuery.of(context).padding.top + 80,
-        child: Stack(
-          children: [
-            // Fancy gradient background with animated particles
-            Positioned.fill(
-              child: AnimatedBuilder(
-                animation: _fabAnimationController,
-                builder: (context, _) {
-                  return ShaderMask(
-                    shaderCallback: (Rect bounds) {
-                      return LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF690013),
-                          _maroonPrimary,
-                          Color(0xFFA12948),
-                          _maroonLight,
-                        ],
-                        stops: [0.0, 0.3, 0.6, 1.0],
-                        transform: GradientRotation(
-                            _fabAnimationController.value * 0.02),
-                      ).createShader(bounds);
-                    },
-                    blendMode: BlendMode.srcATop,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            AppColorPalette.primaryMaroon,
-                            AppColorPalette.secondaryMaroon,
-                          ],
-                        ),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(30),
-                          bottomRight: Radius.circular(30),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // Decorative design elements
-            Positioned.fill(
-              child: CustomPaint(
-                painter: AppBarDecorationPainter(
-                  color: Colors.white.withOpacity(0.07),
-                ),
-              ),
-            ),
-
-            // Animated glowing effect
-            AnimatedBuilder(
-              animation: _fabAnimationController,
-              builder: (context, _) {
-                return Positioned(
-                  top: -100 + (_fabAnimationController.value * 20),
-                  right: -60 + (_fabAnimationController.value * 10),
-                  child: Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          Colors.white.withOpacity(0.2),
-                          Colors.white.withOpacity(0.1),
-                          Colors.white.withOpacity(0.0),
-                        ],
-                        stops: [0.0, 0.5, 1.0],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-
-            // Main app bar content with frosted glass effect
-            Positioned(
-              bottom: 10,
-              left: 16,
-              right: 16,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        // Back button with ripple effect
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
-                              onTap: () => Navigator.of(context).pop(),
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  Icons.arrow_back_ios_rounded,
-                                  color: Colors.white,
-                                  size: 22,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Animated divider
-                        Container(
-                          height: 24,
-                          width: 1.5,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Title with animated badge
-                        Expanded(
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // Main title
-                              Center(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    // Animated icon
-                                    AnimatedBuilder(
-                                      animation: _fabAnimationController,
-                                      builder: (context, child) {
-                                        return Transform.rotate(
-                                          angle: _fabAnimationController.value *
-                                              0.05,
-                                          child: Container(
-                                            padding: EdgeInsets.all(6),
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              gradient: LinearGradient(
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                                colors: [
-                                                  Colors.white.withOpacity(0.9),
-                                                  Colors.white.withOpacity(0.4),
-                                                ],
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.2),
-                                                  blurRadius: 4,
-                                                  offset: Offset(0, 2),
-                                                ),
-                                              ],
-                                            ),
-                                            child: Icon(
-                                              Icons.info_outline,
-                                              color: _maroonPrimary,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-
-                                    SizedBox(width: 12),
-
-                                    // Title text with glowing effect
-                                    ShaderMask(
-                                      shaderCallback: (Rect bounds) {
-                                        return LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [
-                                            Colors.white,
-                                            Colors.white.withOpacity(0.9),
-                                          ],
-                                        ).createShader(bounds);
-                                      },
-                                      blendMode: BlendMode.srcIn,
-                                      child: Text(
-                                        Utils.getTranslatedLabel(aboutUsKey),
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          shadows: [
-                                            Shadow(
-                                              color: Colors.black26,
-                                              offset: Offset(0, 1),
-                                              blurRadius: 3,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );

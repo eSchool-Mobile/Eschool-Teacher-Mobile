@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
+import 'dart:math' as math;
 
 /// A modern, animated AppBar with customizable filters
 /// Provides a premium look with frosted glass effects, animations, and custom gradients
@@ -46,6 +47,15 @@ class CustomFilterModernAppBar extends StatefulWidget
 
   /// Whether to show filters row or not
   final bool showFiltersRow;
+
+  /// Whether to show search button
+  final bool showSearchButton;
+
+  /// Search button callback
+  final VoidCallback? onSearchPressed;
+
+  /// Whether search is currently active
+  final bool isSearchActive;
   const CustomFilterModernAppBar({
     Key? key,
     required this.title,
@@ -61,6 +71,9 @@ class CustomFilterModernAppBar extends StatefulWidget
     this.gradientColors,
     this.height,
     this.showFiltersRow = true,
+    this.showSearchButton = false,
+    this.onSearchPressed,
+    this.isSearchActive = false,
   }) : super(key: key);
 
   @override
@@ -72,8 +85,14 @@ class CustomFilterModernAppBar extends StatefulWidget
 }
 
 class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _animationController;
+  late AnimationController _glowAnimationController;
+  late AnimationController _pulseAnimationController;
+  late AnimationController _rotationAnimationController;
+  late Animation<double> _glowAnimation;
+  late Animation<double> _pulseAnimation;
+  late Animation<double> _rotationAnimation;
 
   @override
   void initState() {
@@ -88,6 +107,51 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
     if (widget.animationController == null && widget.enableAnimations) {
       _animationController.forward();
     }
+
+    // Refined glow animation - more subtle and elegant
+    _glowAnimationController = AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    );
+    _glowAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _glowAnimationController,
+        curve: Curves.easeInOutSine, // Smoother curve
+      ),
+    );
+
+    // Gentle pulse animation - less aggressive
+    _pulseAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    );
+    _pulseAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
+      CurvedAnimation(
+        parent: _pulseAnimationController,
+        curve: Curves.easeInOutCubic, // More elegant curve
+      ),
+    );
+
+    // Slower, more graceful rotation
+    _rotationAnimationController = AnimationController(
+      duration: const Duration(seconds: 30),
+      vsync: this,
+    );
+    _rotationAnimation = Tween<double>(begin: 0.0, end: 2 * math.pi).animate(
+      CurvedAnimation(
+        parent: _rotationAnimationController,
+        curve: Curves.linear,
+      ),
+    );
+
+    // Start animations with delays for more natural feel
+    _glowAnimationController.repeat(reverse: true);
+    Future.delayed(Duration(milliseconds: 500), () {
+      _pulseAnimationController.repeat(reverse: true);
+    });
+    Future.delayed(Duration(milliseconds: 1000), () {
+      _rotationAnimationController.repeat();
+    });
   }
 
   @override
@@ -96,6 +160,9 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
     if (widget.animationController == null) {
       _animationController.dispose();
     }
+    _glowAnimationController.dispose();
+    _pulseAnimationController.dispose();
+    _rotationAnimationController.dispose();
     super.dispose();
   }
 
@@ -172,40 +239,139 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
             ),
           ),
 
-          // Decorative design elements
+          // Decorative design elements with enhanced animations
           Positioned.fill(
-            child: CustomPaint(
-              painter: AppBarDecorationPainter(
-                color: Colors.white.withOpacity(0.07),
-              ),
-            ),
-          ),
-          // Animated glowing effect
-          if (widget.enableAnimations)
-            AnimatedBuilder(
-              animation: _animationController,
+            child: AnimatedBuilder(
+              animation: Listenable.merge([
+                _glowAnimationController,
+                _pulseAnimationController,
+                _rotationAnimationController,
+              ]),
               builder: (context, _) {
-                return Positioned(
-                  top: -100 + (_animationController.value * 20),
-                  right: -60 + (_animationController.value * 10),
-                  child: Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          Colors.white.withOpacity(0.2),
-                          Colors.white.withOpacity(0.1),
-                          Colors.white.withOpacity(0.0),
-                        ],
-                        stops: const [0.0, 0.5, 1.0],
-                      ),
-                    ),
+                return CustomPaint(
+                  painter: AnimatedAppBarDecorationPainter(
+                    color: Colors.white
+                        .withOpacity(0.07 + (_glowAnimation.value * 0.05)),
+                    glowValue: _glowAnimation.value,
+                    pulseValue: _pulseAnimation.value,
+                    rotationValue: _rotationAnimation.value,
                   ),
                 );
               },
-            ), // Main app bar content with frosted glass effect - TOP ROW
+            ),
+          ),
+          // Refined animated glowing effect - more subtle and elegant
+          AnimatedBuilder(
+            animation: Listenable.merge([
+              _animationController,
+              _glowAnimationController,
+              _pulseAnimationController,
+            ]),
+            builder: (context, _) {
+              return Stack(
+                children: [
+                  // Primary glow circle - softer movement
+                  Positioned(
+                    top: MediaQuery.of(context).padding.top -
+                        100 +
+                        (_animationController.value * 15) +
+                        (math.sin(_glowAnimation.value * 2 * math.pi) * 5),
+                    right: -60 +
+                        (_animationController.value * 8) +
+                        (math.cos(_glowAnimation.value * 2 * math.pi) * 3),
+                    child: Transform.scale(
+                      scale: 0.95 + (_pulseAnimation.value * 0.1),
+                      child: Container(
+                        width: 180,
+                        height: 180,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              Colors.white.withOpacity(
+                                  0.15 + (_glowAnimation.value * 0.05)),
+                              Colors.white.withOpacity(
+                                  0.08 + (_glowAnimation.value * 0.03)),
+                              Colors.white.withOpacity(0.0),
+                            ],
+                            stops: [0.0, 0.6, 1.0],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Secondary glow circle - gentle floating
+                  Positioned(
+                    top: MediaQuery.of(context).padding.top -
+                        70 +
+                        (_animationController.value * 10) +
+                        (math.sin(_glowAnimation.value * 2 * math.pi + 1.5) *
+                            4),
+                    left: -30 +
+                        (_animationController.value * 5) +
+                        (math.cos(_glowAnimation.value * 2 * math.pi + 1.5) *
+                            2),
+                    child: Transform.scale(
+                      scale: 1.0 +
+                          (math.sin(_pulseAnimation.value * math.pi) * 0.05),
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              Colors.white.withOpacity(
+                                  0.12 + (_glowAnimation.value * 0.04)),
+                              Colors.white.withOpacity(
+                                  0.06 + (_glowAnimation.value * 0.02)),
+                              Colors.white.withOpacity(0.0),
+                            ],
+                            stops: [0.0, 0.7, 1.0],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Tertiary glow circle - micro floating animation
+                  Positioned(
+                    top: MediaQuery.of(context).padding.top +
+                        25 +
+                        (math.sin(_glowAnimation.value * 2 * math.pi + 3) * 3),
+                    right: -15 +
+                        (math.cos(_glowAnimation.value * 2 * math.pi + 3) * 2),
+                    child: Transform.rotate(
+                      angle: _rotationAnimation.value * 0.3,
+                      child: Transform.scale(
+                        scale: 0.9 +
+                            (math.sin(_pulseAnimation.value * math.pi + 2) *
+                                0.08),
+                        child: Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: RadialGradient(
+                              colors: [
+                                Colors.white.withOpacity(
+                                    0.08 + (_glowAnimation.value * 0.03)),
+                                Colors.white.withOpacity(
+                                    0.04 + (_glowAnimation.value * 0.015)),
+                                Colors.white.withOpacity(0.0),
+                              ],
+                              stops: [0.0, 0.8, 1.0],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ), // Main app bar content with frosted glass effect - TOP ROW
           Positioned(
             top: MediaQuery.of(context).padding.top + 5, // Moved up slightly
             left: 16,
@@ -366,7 +532,7 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                                     child: Text(
                                       widget.title,
                                       style: GoogleFonts.poppins(
-                                        fontSize: 16,
+                                        fontSize: 14,
                                         fontWeight: FontWeight.bold,
                                         shadows: [
                                           Shadow(
@@ -384,6 +550,65 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                           ],
                         ),
                       ),
+
+                      // Search button (if enabled)
+                      if (widget.showSearchButton &&
+                          widget.onSearchPressed != null)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Material(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(12),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              highlightColor: Colors.white.withOpacity(0.1),
+                              splashColor: Colors.white.withOpacity(0.2),
+                              onTap: widget.onSearchPressed,
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: widget.isSearchActive
+                                      ? Border.all(
+                                          color: Colors.white.withOpacity(0.4),
+                                          width: 1.5,
+                                        )
+                                      : null,
+                                ),
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 400),
+                                  transitionBuilder: (Widget child,
+                                      Animation<double> animation) {
+                                    return RotationTransition(
+                                      turns: Tween<double>(begin: 0.5, end: 1.0)
+                                          .animate(animation),
+                                      child: ScaleTransition(
+                                        scale: animation,
+                                        child: FadeTransition(
+                                          opacity: animation,
+                                          child: child,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: widget.isSearchActive
+                                      ? const Icon(
+                                          Icons.close_rounded,
+                                          key: ValueKey<bool>(true),
+                                          color: Colors.white,
+                                          size: 22,
+                                        )
+                                      : const Icon(
+                                          Icons.search_rounded,
+                                          key: ValueKey<bool>(false),
+                                          color: Colors.white,
+                                          size: 22,
+                                        ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
 
                       // Optional space for action buttons
                       const SizedBox(width: 8),
@@ -777,5 +1002,160 @@ class AppBarDecorationPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return false;
+  }
+}
+
+// Enhanced custom painter for animated decorative elements in the app bar
+class AnimatedAppBarDecorationPainter extends CustomPainter {
+  final Color color;
+  final double glowValue;
+  final double pulseValue;
+  final double rotationValue;
+
+  AnimatedAppBarDecorationPainter({
+    required this.color,
+    required this.glowValue,
+    required this.pulseValue,
+    required this.rotationValue,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final glowPaint = Paint()
+      ..color = color.withOpacity(color.opacity * (0.3 + glowValue * 0.3))
+      ..style = PaintingStyle.fill
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, 1 + glowValue * 2);
+
+    // Refined animated decorative circles - more subtle movement
+    final circles = [
+      {
+        'center': Offset(
+            size.width * (0.88 + math.sin(glowValue * 2 * math.pi) * 0.01),
+            size.height * (0.22 + math.cos(glowValue * 2 * math.pi) * 0.008)),
+        'radius': 25 * (0.9 + math.sin(pulseValue * math.pi) * 0.15),
+        'hasGlow': true,
+      },
+      {
+        'center': Offset(
+            size.width *
+                (0.12 + math.cos(glowValue * 2 * math.pi + 1.5) * 0.008),
+            size.height *
+                (0.78 + math.sin(glowValue * 2 * math.pi + 1.5) * 0.01)),
+        'radius': 18 * (0.95 + math.sin(pulseValue * math.pi + 0.5) * 0.1),
+        'hasGlow': false,
+      },
+      {
+        'center': Offset(
+            size.width * (0.52 + math.sin(glowValue * 2 * math.pi + 3) * 0.012),
+            size.height *
+                (0.18 + math.cos(glowValue * 2 * math.pi + 3) * 0.006)),
+        'radius': 12 * (1.0 + math.sin(pulseValue * math.pi + 1) * 0.2),
+        'hasGlow': true,
+      },
+      {
+        'center': Offset(
+            size.width *
+                (0.72 + math.cos(glowValue * 2 * math.pi + 4.5) * 0.008),
+            size.height *
+                (0.68 + math.sin(glowValue * 2 * math.pi + 4.5) * 0.01)),
+        'radius': 8 * (0.8 + math.sin(pulseValue * math.pi + 1.5) * 0.3),
+        'hasGlow': false,
+      },
+      {
+        'center': Offset(
+            size.width * (0.25 + math.sin(glowValue * 2 * math.pi + 6) * 0.01),
+            size.height *
+                (0.42 + math.cos(glowValue * 2 * math.pi + 6) * 0.008)),
+        'radius': 6 * (1.0 + math.sin(pulseValue * math.pi + 2) * 0.15),
+        'hasGlow': true,
+      },
+    ];
+
+    // Draw refined animated circles
+    for (var circle in circles) {
+      final center = circle['center'] as Offset;
+      final radius = circle['radius'] as double;
+      final hasGlow = circle['hasGlow'] as bool;
+
+      if (hasGlow) {
+        // Draw subtle glow effect
+        canvas.drawCircle(center, radius * 1.3, glowPaint);
+      }
+      // Draw main circle
+      canvas.drawCircle(center, radius, paint);
+    }
+
+    // Refined animated arcs - smoother movement
+    final arcPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5 + glowValue * 0.5;
+
+    final glowArcPaint = Paint()
+      ..color = color.withOpacity(color.opacity * (0.2 + glowValue * 0.3))
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3 + glowValue * 1
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, 0.5 + glowValue * 1.5);
+
+    // First refined animated arc
+    final arcRect = Rect.fromLTRB(
+        size.width * (0.12 + math.sin(glowValue * 2 * math.pi) * 0.02),
+        size.height * (0.25 + math.cos(glowValue * 2 * math.pi) * 0.015),
+        size.width * (0.58 + math.sin(glowValue * 2 * math.pi + 1) * 0.025),
+        size.height * (0.58 + math.cos(glowValue * 2 * math.pi + 1) * 0.02));
+
+    final arcSweep = 1.2 + math.sin(glowValue * 2 * math.pi) * 0.2;
+    final arcStart = 0.3 + rotationValue * 0.05;
+
+    // Draw subtle glow arc
+    canvas.drawArc(arcRect, arcStart, arcSweep, false, glowArcPaint);
+    // Draw main arc
+    canvas.drawArc(arcRect, arcStart, arcSweep, false, arcPaint);
+
+    // Second refined animated arc
+    final arcRect2 = Rect.fromLTRB(
+        size.width * (0.48 + math.cos(glowValue * 2 * math.pi + 2) * 0.015),
+        size.height * (0.42 + math.sin(glowValue * 2 * math.pi + 2) * 0.01),
+        size.width * (0.88 + math.cos(glowValue * 2 * math.pi + 3) * 0.02),
+        size.height * (0.78 + math.sin(glowValue * 2 * math.pi + 3) * 0.015));
+
+    final arcSweep2 = 1.3 + math.sin(glowValue * 2 * math.pi + 1) * 0.15;
+    final arcStart2 = 2.8 - rotationValue * 0.08;
+
+    // Draw subtle glow arc
+    canvas.drawArc(arcRect2, arcStart2, arcSweep2, false, glowArcPaint);
+    // Draw main arc
+    canvas.drawArc(arcRect2, arcStart2, arcSweep2, false, arcPaint);
+
+    // Refined floating particles - gentler movement
+    for (int i = 0; i < 6; i++) {
+      final angle = (i * 1.047) + rotationValue * 0.3; // 1.047 = 2π/6
+      final baseDistance = 25 + math.sin(glowValue * 2 * math.pi + i) * 8;
+      final particleSize =
+          1.5 + math.sin(glowValue * 2 * math.pi + i * 1.5) * 0.8;
+
+      final particleCenter = Offset(
+        size.width * 0.5 + (baseDistance * math.cos(angle)),
+        size.height * 0.5 + (baseDistance * math.sin(angle)),
+      );
+
+      final particlePaint = Paint()
+        ..color = color
+            .withOpacity(0.4 + math.sin(glowValue * 2 * math.pi + i * 2) * 0.3)
+        ..style = PaintingStyle.fill;
+
+      canvas.drawCircle(particleCenter, particleSize, particlePaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant AnimatedAppBarDecorationPainter oldDelegate) {
+    return oldDelegate.glowValue != glowValue ||
+        oldDelegate.pulseValue != pulseValue ||
+        oldDelegate.rotationValue != rotationValue;
   }
 }

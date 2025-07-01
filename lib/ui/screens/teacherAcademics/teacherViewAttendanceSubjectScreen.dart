@@ -11,6 +11,7 @@ import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/studentSubjectAttendanceContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -25,47 +26,6 @@ import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-// Custom painter for decorative elements
-class AppBarDecorationPainter extends CustomPainter {
-  final Color color;
-
-  AppBarDecorationPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    // Draw decorative circles
-    canvas.drawCircle(Offset(size.width * 0.9, size.height * 0.2), 30, paint);
-    canvas.drawCircle(Offset(size.width * 0.1, size.height * 0.8), 20, paint);
-    canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.15), 15, paint);
-    canvas.drawCircle(Offset(size.width * 0.7, size.height * 0.7), 10, paint);
-    canvas.drawCircle(Offset(size.width * 0.2, size.height * 0.4), 8, paint);
-
-    // Draw arc
-    final arcPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    final arcRect = Rect.fromLTRB(size.width * 0.1, size.height * 0.2,
-        size.width * 0.6, size.height * 0.6);
-    canvas.drawArc(arcRect, 0.2, 1.5, false, arcPaint);
-
-    // Draw another arc
-    final arcRect2 = Rect.fromLTRB(size.width * 0.5, size.height * 0.4,
-        size.width * 0.9, size.height * 0.8);
-    canvas.drawArc(arcRect2, 3, 1.5, false, arcPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
-  }
-}
 
 class TeacherViewAttendanceSubjectScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -1209,7 +1169,6 @@ class _TeacherViewAttendanceSubjectScreenState
                                                                 child: Row(
                                                                   children: [
                                                                     // Thumbnail preview
-                                                                
 
                                                                     // File information
                                                                     Expanded(
@@ -1533,610 +1492,307 @@ class _TeacherViewAttendanceSubjectScreenState
     );
   }
 
-  Widget _buildAppbarAndFilters() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: Container(
-        height: MediaQuery.of(context).padding.top +
-            210, // Increased height to accommodate filters
-        child: Stack(
-          children: [
-            // Fancy gradient background with animated particles
-            Positioned.fill(
-              child: AnimatedBuilder(
-                animation: _fabAnimationController,
-                builder: (context, _) {
-                  return ShaderMask(
-                    shaderCallback: (Rect bounds) {
-                      return LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF690013),
-                          _maroonPrimary,
-                          Color(0xFFA12948),
-                          _maroonLight,
-                        ],
-                        stops: [0.0, 0.3, 0.6, 1.0],
-                        transform: GradientRotation(
-                            _fabAnimationController.value * 0.02),
-                      ).createShader(bounds);
-                    },
-                    blendMode: BlendMode.srcATop,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF800020),
-                            Color(0xFF9A1E3C),
-                          ],
+  PreferredSizeWidget _buildAppbarAndFilters() {
+    return CustomModernAppBar(
+      title: 'Lihat Kehadiran Mapel',
+      icon: Icons.menu_book_rounded,
+      fabAnimationController: _fabAnimationController,
+      primaryColor: _maroonPrimary,
+      lightColor: _maroonLight,
+      height: 200, // Increased height to accommodate filter tabs
+      tabBuilder: (context) => _buildFilterTabs(),
+    );
+  }
+
+  Widget _buildFilterTabs() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Main Filters Row (Class and Date)
+        Container(
+          height: 50,
+          child: Row(
+            children: [
+              // Class filter
+              Expanded(
+                child: BlocBuilder<ClassesCubit, ClassesState>(
+                  builder: (context, state) {
+                    if (state is ClassesFetchSuccess) {
+                      final allAvailableClasses =
+                          context.read<ClassesCubit>().getAllClasses();
+
+                      return Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            if (allAvailableClasses.isNotEmpty) {
+                              Utils.showBottomSheet(
+                                child: FilterSelectionBottomsheet<ClassSection>(
+                                  onSelection: (value) {
+                                    Get.back();
+                                    if (_selectedClassSection != value) {
+                                      setState(() {
+                                        _selectedClassSection = value;
+                                      });
+                                      getAttendance();
+                                    }
+                                  },
+                                  selectedValue: _selectedClassSection ??
+                                      allAvailableClasses.first,
+                                  titleKey: classKey,
+                                  values: allAvailableClasses,
+                                ),
+                                context: context,
+                              );
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.class_rounded,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                                SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    _selectedClassSection?.fullName ??
+                                        'Pilih Kelas',
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(30),
-                          bottomRight: Radius.circular(30),
+                      );
+                    }
+                    return Center(
+                      child: Text(
+                        'Loading...',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 12,
                         ),
                       ),
+                    );
+                  },
+                ),
+              ),
+
+              SizedBox(width: 8),
+
+              // Date filter
+              Expanded(
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () async {
+                      final selectedDate = await Utils.openDatePicker(
+                        context: context,
+                        lastDate: DateTime.now(),
+                        firstDate:
+                            DateTime.now().subtract(const Duration(days: 30)),
+                      );
+
+                      if (selectedDate != null) {
+                        _selectedDateTime = selectedDate;
+                        setState(() {});
+                        getAttendance();
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.calendar_today_rounded,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                          SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              Utils.formatDate(_selectedDateTime),
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  );
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        SizedBox(height: 8),
+
+        // Status Filters Row
+        Container(
+          height: 50,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: [
+              // Semua filter
+              _buildCompactStatusFilterButton(
+                icon: Icons.all_inclusive_rounded,
+                label: "Semua",
+                isSelected:
+                    isPresentStatusOnly == null && selectedStatus == null,
+                onTap: () {
+                  setState(() {
+                    isPresentStatusOnly = null;
+                    selectedStatus = null;
+                  });
+                  getAttendance();
                 },
               ),
-            ),
 
-            // Decorative design elements
-            Positioned.fill(
-              child: CustomPaint(
-                painter: AppBarDecorationPainter(
-                  color: Colors.white.withOpacity(0.07),
-                ),
+              // Hadir filter
+              _buildCompactStatusFilterButton(
+                icon: Icons.check_circle_rounded,
+                label: "Hadir",
+                isSelected: isPresentStatusOnly == true,
+                color: Colors.green,
+                onTap: () {
+                  setState(() {
+                    isPresentStatusOnly = true;
+                    selectedStatus = null;
+                  });
+                  getAttendance();
+                },
               ),
-            ),
 
-            // Animated glowing effect
-            AnimatedBuilder(
-              animation: _fabAnimationController,
-              builder: (context, _) {
-                return Positioned(
-                  top: -100 + (_fabAnimationController.value * 20),
-                  right: -60 + (_fabAnimationController.value * 10),
-                  child: Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          Colors.white.withOpacity(0.2),
-                          Colors.white.withOpacity(0.1),
-                          Colors.white.withOpacity(0.0),
-                        ],
-                        stops: [0.0, 0.5, 1.0],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-
-            // Main app bar content with frosted glass effect - TOP ROW
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 10,
-              left: 16,
-              right: 16,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        // Back button with ripple effect
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
-                              onTap: () => Navigator.of(context).pop(),
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  Icons.arrow_back_ios_rounded,
-                                  color: Colors.white,
-                                  size: 22,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Animated divider
-                        Container(
-                          height: 24,
-                          width: 1.5,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Title with animated badge
-                        Expanded(
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // Main title
-                              Center(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    // Animated icon
-                                    AnimatedBuilder(
-                                      animation: _fabAnimationController,
-                                      builder: (context, child) {
-                                        return Transform.rotate(
-                                          angle: _fabAnimationController.value *
-                                              0.05,
-                                          child: Container(
-                                            padding: EdgeInsets.all(6),
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              gradient: LinearGradient(
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                                colors: [
-                                                  Colors.white.withOpacity(0.9),
-                                                  Colors.white.withOpacity(0.4),
-                                                ],
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.2),
-                                                  blurRadius: 4,
-                                                  offset: Offset(0, 2),
-                                                ),
-                                              ],
-                                            ),
-                                            child: Icon(
-                                              Icons.menu_book_rounded,
-                                              color: _maroonPrimary,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-
-                                    SizedBox(width: 12),
-
-                                    // Title text with glowing effect
-                                    ShaderMask(
-                                      shaderCallback: (Rect bounds) {
-                                        return LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [
-                                            Colors.white,
-                                            Colors.white.withOpacity(0.9),
-                                          ],
-                                        ).createShader(bounds);
-                                      },
-                                      blendMode: BlendMode.srcIn,
-                                      child: Text(
-                                        'Lihat Kehadiran Mapel',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          shadows: [
-                                            Shadow(
-                                              color: Colors.black26,
-                                              offset: Offset(0, 1),
-                                              blurRadius: 3,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Animated divider
-                        Container(
-                          height: 24,
-                          width: 1.5,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+              // Tidak Hadir filter
+              _buildCompactStatusFilterButton(
+                icon: Icons.remove_circle_rounded,
+                label: "Tidak Hadir",
+                isSelected: isPresentStatusOnly == false,
+                color: Colors.red,
+                onTap: () {
+                  setState(() {
+                    isPresentStatusOnly = false;
+                    selectedStatus = null;
+                  });
+                  getAttendance();
+                },
               ),
-            ),
 
-            // MIDDLE ROW - Filters with frosted glass effect
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 75,
-              left: 16,
-              right: 16,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        // Class filter
-                        Expanded(
-                          child: BlocBuilder<ClassesCubit, ClassesState>(
-                            builder: (context, state) {
-                              if (state is ClassesFetchSuccess) {
-                                // Get all classes - both primary and others
-                                final allAvailableClasses = context
-                                    .read<ClassesCubit>()
-                                    .getAllClasses();
+              // Sakit filter
+              _buildCompactStatusFilterButton(
+                icon: Icons.healing_rounded,
+                label: "Sakit",
+                isSelected: selectedStatus == StudentAttendanceStatus.sick,
+                color: Colors.orange,
+                onTap: () {
+                  setState(() {
+                    selectedStatus = StudentAttendanceStatus.sick;
+                    isPresentStatusOnly = null;
+                  });
+                  getAttendance(selectedStatus: StudentAttendanceStatus.sick);
+                },
+              ),
 
-                                return Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    onTap: () {
-                                      if (allAvailableClasses.isNotEmpty) {
-                                        Utils.showBottomSheet(
-                                          child: FilterSelectionBottomsheet<
-                                              ClassSection>(
-                                            onSelection: (value) {
-                                              Get.back();
-                                              if (_selectedClassSection !=
-                                                  value) {
-                                                setState(() {
-                                                  _selectedClassSection = value;
-                                                });
-                                                getAttendance();
-                                              }
-                                            },
-                                            selectedValue:
-                                                _selectedClassSection ??
-                                                    allAvailableClasses.first,
-                                            titleKey: classKey,
-                                            values: allAvailableClasses,
-                                          ),
-                                          context: context,
-                                        );
-                                      }
-                                    },
-                                    highlightColor:
-                                        Colors.white.withOpacity(0.1),
-                                    splashColor: Colors.white.withOpacity(0.2),
-                                    child: Container(
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 12),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            Icons.class_rounded,
-                                            color: Colors.white,
-                                            size: 16,
-                                          ),
-                                          SizedBox(width: 8),
-                                          Flexible(
-                                            child: Text(
-                                              _selectedClassSection?.fullName ??
-                                                  'Pilih Kelas',
-                                              style: GoogleFonts.poppins(
-                                                color: Colors.white,
-                                                fontSize: 14,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }
-                              return Center(
-                                child: Text(
-                                  'Loading...',
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
+              // Izin filter
+              _buildCompactStatusFilterButton(
+                icon: Icons.sticky_note_2_rounded,
+                label: "Izin",
+                isSelected:
+                    selectedStatus == StudentAttendanceStatus.permission,
+                color: Colors.blue,
+                onTap: () {
+                  setState(() {
+                    selectedStatus = StudentAttendanceStatus.permission;
+                    isPresentStatusOnly = null;
+                  });
+                  getAttendance(
+                      selectedStatus: StudentAttendanceStatus.permission);
+                },
+              ),
 
-                        // Vertical divider
-                        Container(
-                          height: 24,
-                          width: 1.5,
-                          margin: EdgeInsets.symmetric(horizontal: 8),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Date filter
-                        Expanded(
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () async {
-                                final selectedDate = await Utils.openDatePicker(
-                                  context: context,
-                                  lastDate: DateTime.now(),
-                                  firstDate: DateTime.now()
-                                      .subtract(const Duration(days: 30)),
-                                );
-
-                                if (selectedDate != null) {
-                                  _selectedDateTime = selectedDate;
-                                  setState(() {});
-                                  getAttendance();
-                                }
-                              },
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 12),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.calendar_today_rounded,
-                                      color: Colors.white,
-                                      size: 16,
-                                    ),
-                                    SizedBox(width: 8),
-                                    Flexible(
-                                      child: Text(
-                                        Utils.formatDate(_selectedDateTime),
-                                        style: GoogleFonts.poppins(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              )
-                  .animate()
-                  .fadeIn(duration: 500.ms, delay: 150.ms)
-                  .slideY(begin: -0.2, end: 0, curve: Curves.easeOutQuad),
-            ),
-
-            // BOTTOM ROW - Status Filters with frosted glass effect
-            Positioned(
-              bottom: 10,
-              left: 16,
-              right: 16,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      children: [
-                        // Semua filter
-                        _buildStatusFilterButton(
-                          icon: Icons.all_inclusive_rounded,
-                          label: "Semua",
-                          isSelected: isPresentStatusOnly == null &&
-                              selectedStatus == null,
-                          onTap: () {
-                            setState(() {
-                              isPresentStatusOnly = null;
-                              selectedStatus = null;
-                            });
-                            getAttendance();
-                          },
-                        ),
-
-                        // Hadir filter
-                        _buildStatusFilterButton(
-                          icon: Icons.check_circle_rounded,
-                          label: "Hadir",
-                          isSelected: isPresentStatusOnly == true,
-                          color: Colors.green,
-                          onTap: () {
-                            setState(() {
-                              isPresentStatusOnly = true;
-                              selectedStatus = null;
-                            });
-                            getAttendance();
-                          },
-                        ),
-
-                        // Tidak Hadir filter
-                        _buildStatusFilterButton(
-                          icon: Icons.remove_circle_rounded,
-                          label: "Tidak Hadir",
-                          isSelected: isPresentStatusOnly == false,
-                          color: Colors.red,
-                          onTap: () {
-                            setState(() {
-                              isPresentStatusOnly = false;
-                              selectedStatus = null;
-                            });
-                            getAttendance();
-                          },
-                        ),
-
-                        // Sakit filter
-                        _buildStatusFilterButton(
-                          icon: Icons.healing_rounded,
-                          label: "Sakit",
-                          isSelected:
-                              selectedStatus == StudentAttendanceStatus.sick,
-                          color: Colors.orange,
-                          onTap: () {
-                            setState(() {
-                              selectedStatus = StudentAttendanceStatus.sick;
-                              isPresentStatusOnly = null;
-                            });
-                            getAttendance(
-                                selectedStatus: StudentAttendanceStatus.sick);
-                          },
-                        ),
-
-                        // Izin filter
-                        _buildStatusFilterButton(
-                          icon: Icons.sticky_note_2_rounded,
-                          label: "Izin",
-                          isSelected: selectedStatus ==
-                              StudentAttendanceStatus.permission,
-                          color: Colors.blue,
-                          onTap: () {
-                            setState(() {
-                              selectedStatus =
-                                  StudentAttendanceStatus.permission;
-                              isPresentStatusOnly = null;
-                            });
-                            getAttendance(
-                                selectedStatus:
-                                    StudentAttendanceStatus.permission);
-                          },
-                        ),
-
-                        // Alpha filter
-                        _buildStatusFilterButton(
-                          icon: Icons.not_interested_rounded,
-                          label: "Alpa",
-                          isSelected:
-                              selectedStatus == StudentAttendanceStatus.alpa,
-                          color: Colors.deepPurple,
-                          onTap: () {
-                            setState(() {
-                              selectedStatus = StudentAttendanceStatus.alpa;
-                              isPresentStatusOnly = null;
-                            });
-                            getAttendance(
-                                selectedStatus: StudentAttendanceStatus.alpa);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              )
-                  .animate()
-                  .fadeIn(duration: 500.ms, delay: 200.ms)
-                  .slideY(begin: -0.2, end: 0, curve: Curves.easeOutQuad),
-            ),
-          ],
+              // Alpha filter
+              _buildCompactStatusFilterButton(
+                icon: Icons.not_interested_rounded,
+                label: "Alpa",
+                isSelected: selectedStatus == StudentAttendanceStatus.alpa,
+                color: Colors.deepPurple,
+                onTap: () {
+                  setState(() {
+                    selectedStatus = StudentAttendanceStatus.alpa;
+                    isPresentStatusOnly = null;
+                  });
+                  getAttendance(selectedStatus: StudentAttendanceStatus.alpa);
+                },
+              ),
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          BlocBuilder<ClassesCubit, ClassesState>(
-            builder: (context, state) {
-              if (state is ClassesFetchSuccess) {
-                print("ClassesFetchSuccess: ${state.primaryClasses}");
-                return _buildStudentsContainer();
-              }
-              if (state is ClassesFetchFailure) {
-                print("ClassesFetchFailure: ${state.errorMessage}");
-                // return Center(
-                //     child: ErrorContainer(
-                //   errorMessage: state.errorMessage,
-                //   onTapRetry: () {
-                //     context.read<ClassesCubit>().getClasses();
-                //   },
-                // ));
-              }
-              return Center(
-                child: CustomCircularProgressIndicator(
-                  indicatorColor: Theme.of(context).colorScheme.primary,
-                ),
-              );
-            },
-          ),
-          _buildAppbarAndFilters(),
-        ],
+      appBar: _buildAppbarAndFilters(),
+      body: BlocBuilder<ClassesCubit, ClassesState>(
+        builder: (context, state) {
+          if (state is ClassesFetchSuccess) {
+            print("ClassesFetchSuccess: ${state.primaryClasses}");
+            return _buildStudentsContainer();
+          }
+          if (state is ClassesFetchFailure) {
+            print("ClassesFetchFailure: ${state.errorMessage}");
+            // return Center(
+            //     child: ErrorContainer(
+            //   errorMessage: state.errorMessage,
+            //   onTapRetry: () {
+            //     context.read<ClassesCubit>().getClasses();
+            //   },
+            // ));
+          }
+          return Center(
+            child: CustomCircularProgressIndicator(
+              indicatorColor: Theme.of(context).colorScheme.primary,
+            ),
+          );
+        },
       ),
     );
   }
@@ -2477,7 +2133,7 @@ class _TeacherViewAttendanceSubjectScreenState
     }
   }
 
-  Widget _buildStatusFilterButton({
+  Widget _buildCompactStatusFilterButton({
     required IconData icon,
     required String label,
     required bool isSelected,
@@ -2485,23 +2141,21 @@ class _TeacherViewAttendanceSubjectScreenState
     Color color = Colors.white,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      padding: const EdgeInsets.only(right: 8, top: 4, bottom: 4),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10),
           onTap: onTap,
-          highlightColor: Colors.white.withOpacity(0.1),
-          splashColor: Colors.white.withOpacity(0.2),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: isSelected
                     ? color.withOpacity(0.7)
                     : Colors.white.withOpacity(0.3),
-                width: 1.5,
+                width: 1,
               ),
               color: isSelected ? color.withOpacity(0.2) : Colors.transparent,
             ),
@@ -2511,13 +2165,13 @@ class _TeacherViewAttendanceSubjectScreenState
                 Icon(
                   icon,
                   color: isSelected ? color : Colors.white,
-                  size: 18,
+                  size: 16,
                 ),
-                SizedBox(width: 6),
+                SizedBox(width: 4),
                 Text(
                   label,
                   style: GoogleFonts.poppins(
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                     color: isSelected ? color : Colors.white,
                   ),

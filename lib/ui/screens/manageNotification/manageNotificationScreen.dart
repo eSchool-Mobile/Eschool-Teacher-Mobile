@@ -1,14 +1,11 @@
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/announcement/notificationsCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
-// import 'package:eschool_saas_staff/data/models/notification.dart';
 import 'package:eschool_saas_staff/data/models/notificationDetails.dart';
 import 'package:eschool_saas_staff/ui/screens/manageNotification/widgets/adminNotificationDetailsContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
@@ -57,12 +54,20 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
   bool _isSearchActive = false;
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
+  bool _hasSearchText = false;
 
   @override
   void initState() {
     super.initState();
     _fabAnimationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 300));
+
+    // Add listener to search controller for better state management
+    _searchController.addListener(() {
+      setState(() {
+        _hasSearchText = _searchController.text.isNotEmpty;
+      });
+    });
 
     Future.delayed(Duration.zero, () {
       getNotifications();
@@ -205,55 +210,206 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
 
   Widget _buildSearchBar() {
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      height: _isSearchActive ? 56 : 0,
-      curve: Curves.easeInOut,
+      duration: const Duration(milliseconds: 400),
+      height: _isSearchActive ? 80 : 0,
+      curve: Curves.easeInOutCubic,
       child: _isSearchActive
           ? Container(
-              margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              margin: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.white,
+                    Colors.grey[50]!,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: _maroonPrimary.withOpacity(0.15),
+                  width: 1.2,
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: _maroonPrimary.withOpacity(0.12),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                    spreadRadius: -2,
+                  ),
+                  BoxShadow(
+                    color: Colors.white.withOpacity(0.8),
                     blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    offset: const Offset(0, -2),
+                    spreadRadius: -4,
                   ),
                 ],
               ),
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: 'Cari notifikasi...',
-                  prefixIcon: Icon(Icons.search, color: _maroonLight),
-                  suffixIcon: IconButton(
-                    icon: Icon(Icons.close, color: _maroonLight),
-                    onPressed: () {
-                      setState(() {
-                        _searchController.clear();
-                        _searchQuery = "";
-                        _isSearchActive = false;
-                      });
-                    },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: _hasSearchText
+                        ? _maroonPrimary.withOpacity(0.3)
+                        : Colors.grey.withOpacity(0.2),
+                    width: 1,
                   ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value;
-                  });
-                },
+                child: Row(
+                  children: [
+                    // Search Icon with animated background
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      margin: const EdgeInsets.only(left: 12, right: 8),
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: _hasSearchText
+                            ? _maroonPrimary.withOpacity(0.1)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.search_rounded,
+                        color: _hasSearchText ? _maroonPrimary : _maroonLight,
+                        size: 20,
+                      ),
+                    ),
+                    // Text Field
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        autofocus: true,
+                        style: GoogleFonts.poppins(
+                          fontSize: 15,
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.2,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'Cari berdasarkan judul',
+                          hintStyle: GoogleFonts.poppins(
+                            color: Colors.grey[450],
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: 0.1,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.only(
+                            top: -10,
+                            bottom: 16,
+                            left: 0,
+                            right: 0,
+                          ),
+                          alignLabelWithHint: true,
+                          isCollapsed: false,
+                        ),
+                        textAlignVertical: TextAlignVertical.center,
+                        onChanged: (value) {
+                          setState(() {
+                            _searchQuery = value;
+                          });
+                        },
+                      ),
+                    ),
+                    // Clear Button with animation
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: _hasSearchText
+                          ? Container(
+                              key: ValueKey('clear_button'),
+                              margin: const EdgeInsets.only(right: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(8),
+                                  onTap: () {
+                                    setState(() {
+                                      _searchController.clear();
+                                      _searchQuery = "";
+                                    });
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8),
+                                    child: Icon(
+                                      Icons.clear_rounded,
+                                      color: Colors.grey[600],
+                                      size: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          : SizedBox(key: ValueKey('empty'), width: 0),
+                    ),
+                    // Close Button with premium design
+                    //   Container(
+                    //     margin: const EdgeInsets.only(right: 8),
+                    //     decoration: BoxDecoration(
+                    //       gradient: LinearGradient(
+                    //         colors: [
+                    //           _maroonPrimary,
+                    //           _maroonLight,
+                    //         ],
+                    //         begin: Alignment.topLeft,
+                    //         end: Alignment.bottomRight,
+                    //       ),
+                    //       borderRadius: BorderRadius.circular(10),
+                    //       boxShadow: [
+                    //         BoxShadow(
+                    //           color: _maroonPrimary.withOpacity(0.3),
+                    //           blurRadius: 8,
+                    //           offset: const Offset(0, 2),
+                    //           spreadRadius: -2,
+                    //         ),
+                    //       ],
+                    //     ),
+                    //     child: Material(
+                    //       color: Colors.transparent,
+                    //       child: InkWell(
+                    //         borderRadius: BorderRadius.circular(10),
+                    //         onTap: () {
+                    //           setState(() {
+                    //             _searchController.clear();
+                    //             _searchQuery = "";
+                    //             _isSearchActive = false;
+                    //             _hasSearchText = false;
+                    //           });
+                    //         },
+                    //         child: Padding(
+                    //           padding: const EdgeInsets.all(10),
+                    //           child: Icon(
+                    //             Icons.close_rounded,
+                    //             color: Colors.white,
+                    //             size: 18,
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                  ],
+                ),
               ),
             )
-          : SizedBox.shrink(),
+              .animate()
+              .fadeIn(duration: 300.ms)
+              .slideY(begin: -0.5, end: 0, curve: Curves.easeOutQuart)
+              .scale(
+                  begin: const Offset(0.95, 0.95),
+                  end: const Offset(1.0, 1.0),
+                  curve: Curves.easeOutQuart)
+          : const SizedBox.shrink(),
     );
   }
 
   Widget _buildHeader() {
     return Container(
-      margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 80),
+      margin: EdgeInsets.only(top: 16),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,519 +438,219 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
         .slideY(begin: -0.1, end: 0, curve: Curves.easeOutQuad);
   }
 
-  Widget _buildAppBar() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: Container(
-        height: MediaQuery.of(context).padding.top + 80,
-        child: Stack(
-          children: [
-            // Fancy gradient background with animated particles
-            Positioned.fill(
-              child: AnimatedBuilder(
-                animation: _fabAnimationController,
-                builder: (context, _) {
-                  return ShaderMask(
-                    shaderCallback: (Rect bounds) {
-                      return LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF690013),
-                          _maroonPrimary,
-                          Color(0xFFA12948),
-                          _maroonLight,
-                        ],
-                        stops: [0.0, 0.3, 0.6, 1.0],
-                        transform: GradientRotation(
-                            _fabAnimationController.value * 0.02),
-                      ).createShader(bounds);
-                    },
-                    blendMode: BlendMode.srcATop,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF800020),
-                            Color(0xFF9A1E3C),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(30),
-                          bottomRight: Radius.circular(30),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // Decorative design elements
-            Positioned.fill(
-              child: CustomPaint(
-                painter: AppBarDecorationPainter(
-                  color: Colors.white.withOpacity(0.07),
-                ),
-              ),
-            ),
-
-            // Animated glowing effect
-            AnimatedBuilder(
-              animation: _fabAnimationController,
-              builder: (context, _) {
-                return Positioned(
-                  top: -100 + (_fabAnimationController.value * 20),
-                  right: -60 + (_fabAnimationController.value * 10),
-                  child: Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          Colors.white.withOpacity(0.2),
-                          Colors.white.withOpacity(0.1),
-                          Colors.white.withOpacity(0.0),
-                        ],
-                        stops: [0.0, 0.5, 1.0],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-
-            // Main app bar content with frosted glass effect
-            Positioned(
-              bottom: 10,
-              left: 16,
-              right: 16,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        // Back button with ripple effect
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
-                              onTap: () => Navigator.of(context).pop(),
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  Icons.arrow_back_ios_rounded,
-                                  color: Colors.white,
-                                  size: 22,
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                            .animate()
-                            .fadeIn(duration: 400.ms, curve: Curves.easeOut)
-                            .slideX(begin: -0.3, end: 0),
-
-                        // Animated divider
-                        Container(
-                          height: 24,
-                          width: 1.5,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Title with animated badge
-                        Expanded(
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // Main title
-                              Center(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    // Animated icon
-                                    AnimatedBuilder(
-                                      animation: _fabAnimationController,
-                                      builder: (context, child) {
-                                        return Transform.rotate(
-                                          angle: _fabAnimationController.value *
-                                              0.05,
-                                          child: Container(
-                                            padding: EdgeInsets.all(6),
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              gradient: LinearGradient(
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                                colors: [
-                                                  Colors.white.withOpacity(0.9),
-                                                  Colors.white.withOpacity(0.4),
-                                                ],
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.2),
-                                                  blurRadius: 4,
-                                                  offset: Offset(0, 2),
-                                                ),
-                                              ],
-                                            ),
-                                            child: Icon(
-                                              Icons.notifications_active,
-                                              color: _maroonPrimary,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-
-                                    SizedBox(width: 12),
-
-                                    // Title text with glowing effect
-                                    ShaderMask(
-                                      shaderCallback: (Rect bounds) {
-                                        return LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [
-                                            Colors.white,
-                                            Colors.white.withOpacity(0.9),
-                                          ],
-                                        ).createShader(bounds);
-                                      },
-                                      blendMode: BlendMode.srcIn,
-                                      child: Text(
-                                        'Kelola Notifikasi',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          shadows: [
-                                            Shadow(
-                                              color: Colors.black26,
-                                              offset: Offset(0, 1),
-                                              blurRadius: 3,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Animated divider
-                        Container(
-                          height: 24,
-                          width: 1.5,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Search button with interactive animation
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
-                              onTap: () {
-                                setState(() {
-                                  _isSearchActive = !_isSearchActive;
-                                  if (!_isSearchActive) {
-                                    _searchController.clear();
-                                    _searchQuery = "";
-                                  }
-                                });
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: _isSearchActive
-                                      ? Border.all(
-                                          color: Colors.white.withOpacity(0.4),
-                                          width: 1.5,
-                                        )
-                                      : null,
-                                ),
-                                child: AnimatedSwitcher(
-                                  duration: Duration(milliseconds: 400),
-                                  transitionBuilder: (Widget child,
-                                      Animation<double> animation) {
-                                    return RotationTransition(
-                                      turns: Tween<double>(begin: 0.5, end: 1.0)
-                                          .animate(animation),
-                                      child: ScaleTransition(
-                                        scale: animation,
-                                        child: FadeTransition(
-                                          opacity: animation,
-                                          child: child,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: _isSearchActive
-                                      ? Icon(
-                                          Icons.close_rounded,
-                                          key: ValueKey<bool>(true),
-                                          color: Colors.white,
-                                          size: 22,
-                                        )
-                                      : Icon(
-                                          Icons.search_rounded,
-                                          key: ValueKey<bool>(false),
-                                          color: Colors.white,
-                                          size: 22,
-                                        ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                            .animate()
-                            .fadeIn(duration: 400.ms, curve: Curves.easeOut)
-                            .slideX(begin: 0.3, end: 0),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: Stack(
+      appBar: CustomModernAppBar(
+        title: 'Kelola Notifikasi',
+        icon: Icons.notifications_active,
+        fabAnimationController: _fabAnimationController,
+        primaryColor: _maroonPrimary,
+        lightColor: _maroonLight,
+        onBackPressed: () => Navigator.of(context).pop(),
+        showSearchButton: true,
+        onSearchPressed: () {
+          setState(() {
+            _isSearchActive = !_isSearchActive;
+            if (!_isSearchActive) {
+              _searchController.clear();
+              _searchQuery = "";
+              _hasSearchText = false;
+            }
+          });
+        },
+      ),
+      body: Column(
         children: [
-          BlocBuilder<NotificationsCubit, NotificationsState>(
-            builder: (context, state) {
-              if (state is NotificationsFetchSuccess) {
-                // Filter notifications based on search query if active
-                final notifications = _searchQuery.isEmpty
-                    ? state.notifications
-                    : state.notifications
-                        .where((notification) =>
-                            (notification.title ?? "")
-                                .toLowerCase()
-                                .contains(_searchQuery.toLowerCase()) ||
-                            (notification.message ?? "")
-                                .toLowerCase()
-                                .contains(_searchQuery.toLowerCase()))
-                        .toList();
+          _buildSearchBar(),
+          Expanded(
+            child: Stack(
+              children: [
+                BlocBuilder<NotificationsCubit, NotificationsState>(
+                  builder: (context, state) {
+                    if (state is NotificationsFetchSuccess) {
+                      // Filter notifications based on search query if active
+                      final notifications = _searchQuery.isEmpty
+                          ? state.notifications
+                          : state.notifications
+                              .where((notification) =>
+                                  (notification.title ?? "")
+                                      .toLowerCase()
+                                      .contains(_searchQuery.toLowerCase()) ||
+                                  (notification.message ?? "")
+                                      .toLowerCase()
+                                      .contains(_searchQuery.toLowerCase()))
+                              .toList();
 
-                return Align(
-                  alignment: Alignment.topCenter,
-                  child: RefreshIndicator(
-                    onRefresh: () async {
-                      getNotifications();
-                    },
-                    color: _maroonPrimary,
-                    displacement:
-                        Utils.appContentTopScrollPadding(context: context) + 25,
-                    child: Column(
-                      children: [
-                        _buildHeader(),
-                        _buildSearchBar(),
-                        Expanded(
-                          child: notifications.isEmpty &&
-                                  _searchQuery.isNotEmpty
-                              ? NoSearchResultsWidget(
-                                  searchQuery: _searchQuery,
-                                  onClearSearch: () {
-                                    setState(() {
-                                      _searchQuery = "";
-                                      _searchController.clear();
-                                      _isSearchActive = false;
-                                    });
-                                  },
-                                  primaryColor: _maroonPrimary,
-                                  accentColor: _maroonLight,
-                                  title: 'Notifikasi Tidak Ditemukan',
-                                  description:
-                                      'Tidak ditemukan notifikasi yang sesuai dengan pencarian Anda. Coba gunakan kata kunci yang berbeda.',
-                                  icon: Icons.notifications_outlined,
-                                ).animate().fadeIn(delay: 300.ms)
-                              : ListView(
-                                  controller: _scrollController,
-                                  padding: EdgeInsets.only(
-                                    bottom: 100,
-                                    top: 0,
-                                  ),
-                                  children: [
-                                    Container(
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal: 16),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(16),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.05),
-                                            blurRadius: 10,
-                                            spreadRadius: 0,
-                                          ),
-                                        ],
+                      return RefreshIndicator(
+                        onRefresh: () async {
+                          getNotifications();
+                        },
+                        color: _maroonPrimary,
+                        displacement: 25,
+                        child: Column(
+                          children: [
+                            _buildHeader(),
+                            Expanded(
+                              child: notifications.isEmpty &&
+                                      _searchQuery.isNotEmpty
+                                  ? NoSearchResultsWidget(
+                                      searchQuery: _searchQuery,
+                                      onClearSearch: () {
+                                        setState(() {
+                                          _searchQuery = "";
+                                          _searchController.clear();
+                                          _isSearchActive = false;
+                                          _hasSearchText = false;
+                                        });
+                                      },
+                                      primaryColor: _maroonPrimary,
+                                      accentColor: _maroonLight,
+                                      title: 'Notifikasi Tidak Ditemukan',
+                                      description:
+                                          'Tidak ditemukan notifikasi yang sesuai dengan pencarian Anda. Coba gunakan kata kunci yang berbeda.',
+                                      icon: Icons.notifications_outlined,
+                                    ).animate().fadeIn(delay: 300.ms)
+                                  : ListView(
+                                      controller: _scrollController,
+                                      padding: EdgeInsets.only(
+                                        bottom: 100,
+                                        top: 0,
                                       ),
-                                      child: Column(
-                                        children: [
-                                          // Header Row
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 16, vertical: 12),
-                                            decoration: BoxDecoration(
-                                              color: _maroonPrimary
-                                                  .withOpacity(0.08),
-                                              borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(16),
-                                                topRight: Radius.circular(16),
+                                      children: [
+                                        Container(
+                                          margin: const EdgeInsets.symmetric(
+                                              horizontal: 16),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(0.05),
+                                                blurRadius: 10,
+                                                spreadRadius: 0,
                                               ),
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                SizedBox(
-                                                  width: 40,
-                                                  child: Text(
-                                                    "#",
-                                                    style: GoogleFonts.poppins(
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      fontSize: 14,
-                                                      color: _maroonPrimary,
-                                                    ),
+                                            ],
+                                          ),
+                                          child: Column(
+                                            children: [
+                                              // Header Row
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 16,
+                                                        vertical: 12),
+                                                decoration: BoxDecoration(
+                                                  color: _maroonPrimary
+                                                      .withOpacity(0.08),
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                    topLeft:
+                                                        Radius.circular(16),
+                                                    topRight:
+                                                        Radius.circular(16),
                                                   ),
                                                 ),
-                                                Expanded(
-                                                  child: Text(
-                                                    Utils.getTranslatedLabel(
-                                                        nameKey),
-                                                    style: GoogleFonts.poppins(
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      fontSize: 14,
-                                                      color: _maroonPrimary,
+                                                child: Row(
+                                                  children: [
+                                                    SizedBox(
+                                                      width: 40,
+                                                      child: Text(
+                                                        "#",
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontSize: 14,
+                                                          color: _maroonPrimary,
+                                                        ),
+                                                      ),
                                                     ),
-                                                  ),
+                                                    Expanded(
+                                                      child: Text(
+                                                        Utils
+                                                            .getTranslatedLabel(
+                                                                nameKey),
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontSize: 14,
+                                                          color: _maroonPrimary,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ],
-                                            ),
-                                          ),
-
-                                          // Notification Items
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.only(
-                                                bottomLeft: Radius.circular(16),
-                                                bottomRight:
-                                                    Radius.circular(16),
                                               ),
-                                              color: Colors.white,
-                                            ),
-                                            child: Column(
-                                              children: _buildNotificationItems(
-                                                  notifications, state),
-                                            ),
+
+                                              // Notification Items
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                    bottomLeft:
+                                                        Radius.circular(16),
+                                                    bottomRight:
+                                                        Radius.circular(16),
+                                                  ),
+                                                  color: Colors.white,
+                                                ),
+                                                child: Column(
+                                                  children:
+                                                      _buildNotificationItems(
+                                                          notifications, state),
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                );
-              }
-              if (state is NotificationsFetchFailure) {
-                return Center(
-                  child: CustomErrorWidget(
-                    message: state.errorMessage,
-                    onRetry: () {
-                      getNotifications();
-                    },
-                    primaryColor: _maroonPrimary,
-                  ),
-                );
-              }
+                      );
+                    }
+                    if (state is NotificationsFetchFailure) {
+                      return Center(
+                        child: CustomErrorWidget(
+                          message: state.errorMessage,
+                          onRetry: () {
+                            getNotifications();
+                          },
+                          primaryColor: _maroonPrimary,
+                        ),
+                      );
+                    }
 
-              return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CustomCircularProgressIndicator(
-                      indicatorColor: _maroonPrimary,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Memuat notifikasi...',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.grey[600],
+                    return Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CustomCircularProgressIndicator(
+                            indicatorColor: _maroonPrimary,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Memuat notifikasi...',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                    ).animate().fadeIn(duration: 300.ms);
+                  },
                 ),
-              ).animate().fadeIn(duration: 300.ms);
-            },
+                _buildAddNotificationButton(),
+              ],
+            ),
           ),
-          _buildAddNotificationButton(),
-          _buildAppBar(),
         ],
       ),
     );
@@ -867,46 +723,5 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
     }
 
     return items;
-  }
-}
-
-// Custom painter for decorative elements
-class AppBarDecorationPainter extends CustomPainter {
-  final Color color;
-
-  AppBarDecorationPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    // Draw decorative circles
-    canvas.drawCircle(Offset(size.width * 0.9, size.height * 0.2), 30, paint);
-    canvas.drawCircle(Offset(size.width * 0.1, size.height * 0.8), 20, paint);
-    canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.15), 15, paint);
-    canvas.drawCircle(Offset(size.width * 0.7, size.height * 0.7), 10, paint);
-    canvas.drawCircle(Offset(size.width * 0.2, size.height * 0.4), 8, paint);
-
-    // Draw arc
-    final arcPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    final arcRect = Rect.fromLTRB(size.width * 0.1, size.height * 0.2,
-        size.width * 0.6, size.height * 0.6);
-    canvas.drawArc(arcRect, 0.2, 1.5, false, arcPaint);
-
-    // Draw another arc
-    final arcRect2 = Rect.fromLTRB(size.width * 0.5, size.height * 0.4,
-        size.width * 0.9, size.height * 0.8);
-    canvas.drawArc(arcRect2, 3, 1.5, false, arcPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
   }
 }

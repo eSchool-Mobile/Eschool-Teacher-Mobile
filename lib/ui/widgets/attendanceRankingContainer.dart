@@ -79,6 +79,15 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
 
   @override
   Widget build(BuildContext context) {
+    // Debug: Print received data
+    print("AttendanceRankingContainer DEBUG:");
+    print("  - showAllStudents: ${widget.showAllStudents}");
+    print(
+        "  - allStudents count: ${widget.attendanceRankings.allStudents?.length ?? 0}");
+    print(
+        "  - groupedByClassLevel count: ${widget.attendanceRankings.groupedByClassLevel?.length ?? 0}");
+    print("  - searchQuery: '${widget.searchQuery}'");
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,

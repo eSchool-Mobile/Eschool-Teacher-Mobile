@@ -3,15 +3,10 @@ import 'package:eschool_saas_staff/cubits/payRoll/staffsPayrollCubit.dart';
 import 'package:eschool_saas_staff/cubits/payRoll/submitStaffsPayRollCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
 import 'package:eschool_saas_staff/data/models/staffPayRoll.dart';
-import 'package:eschool_saas_staff/ui/screens/managePayrolls/widgets/staffPayrollDetailsContainer.dart'
-    hide TextEditingController;
-import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
+import 'package:eschool_saas_staff/ui/screens/managePayrolls/widgets/staffPayrollDetailsContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
@@ -23,7 +18,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
 
 class ManagePayrollsScreen extends StatefulWidget {
   const ManagePayrollsScreen({super.key});
@@ -434,8 +428,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
           if (staffList.isEmpty && _searchQuery.isNotEmpty) {
             return Padding(
               padding: EdgeInsets.only(
-                top: MediaQuery.of(context).padding.top +
-                    160, // Added top padding to avoid app bar
+                top: 20, // Reduced padding since AppBar handles the top spacing
                 left: 16,
                 right: 16,
                 bottom: 16,
@@ -473,8 +466,8 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                   controller: _scrollController,
                   padding: EdgeInsets.only(
                     bottom: 100,
-                    // Increasing top padding to ensure title appears below app bar
-                    top: MediaQuery.of(context).padding.top + 160,
+                    // Reduced top padding since AppBar handles spacing
+                    top: 20,
                   ),
                   child: Column(
                     children: [
@@ -824,321 +817,61 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
     );
   }
 
-  Widget _buildAppBar() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: Container(
-        height: MediaQuery.of(context).padding.top +
-            150, // Increased height to accommodate filters
-        child: Stack(
+  Widget _buildFilterTabs() {
+    return BlocBuilder<PayRollYearsCubit, PayRollYearsState>(
+      builder: (context, state) {
+        return Row(
           children: [
-            // Fancy gradient background with animated particles
-            Positioned.fill(
-              child: AnimatedBuilder(
-                animation: _fabAnimationController,
-                builder: (context, _) {
-                  return ShaderMask(
-                    shaderCallback: (Rect bounds) {
-                      return LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF690013),
-                          _maroonPrimary,
-                          Color(0xFFA12948),
-                          _maroonLight,
-                        ],
-                        stops: [0.0, 0.3, 0.6, 1.0],
-                        transform: GradientRotation(
-                            _fabAnimationController.value * 0.02),
-                      ).createShader(bounds);
-                    },
-                    blendMode: BlendMode.srcATop,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF800020),
-                            Color(0xFF9A1E3C),
-                          ],
+            // Year filter
+            Expanded(
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    if (state is PayRollYearsFetchSuccess &&
+                        state.years.isNotEmpty) {
+                      Utils.showBottomSheet(
+                        child: FilterSelectionBottomsheet<int>(
+                          onSelection: (value) {
+                            changeSelectedYear(value!);
+                            Get.back();
+                          },
+                          selectedValue: _selectedYear ?? 0,
+                          titleKey: titleKey,
+                          values: state.years,
                         ),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(30),
-                          bottomRight: Radius.circular(30),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // Decorative design elements
-            Positioned.fill(
-              child: CustomPaint(
-                painter: AppBarDecorationPainter(
-                  color: Colors.white.withOpacity(0.07),
-                ),
-              ),
-            ),
-
-            // Animated glowing effect
-            AnimatedBuilder(
-              animation: _fabAnimationController,
-              builder: (context, _) {
-                return Positioned(
-                  top: -100 + (_fabAnimationController.value * 20),
-                  right: -60 + (_fabAnimationController.value * 10),
+                        context: context,
+                      );
+                    }
+                  },
+                  highlightColor: Colors.white.withOpacity(0.1),
+                  splashColor: Colors.white.withOpacity(0.2),
                   child: Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          Colors.white.withOpacity(0.2),
-                          Colors.white.withOpacity(0.1),
-                          Colors.white.withOpacity(0.0),
-                        ],
-                        stops: [0.0, 0.5, 1.0],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-
-            // Main app bar content with frosted glass effect - TOP ROW
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 10,
-              left: 16,
-              right: 16,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 1.5,
-                      ),
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    height: 48,
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Back button with ripple effect
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
-                              onTap: () => Navigator.of(context).pop(),
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  Icons.arrow_back_ios_rounded,
-                                  color: Colors.white,
-                                  size: 22,
-                                ),
-                              ),
+                        Icon(
+                          Icons.calendar_today_rounded,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                        SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            (_selectedYear?.toString()) ?? 'Tahun',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 14,
                             ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-
-                        // Animated divider
-                        Container(
-                          height: 24,
-                          width: 1.5,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Title with animated badge
-                        Expanded(
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // Main title
-                              Center(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    // Animated icon
-                                    AnimatedBuilder(
-                                      animation: _fabAnimationController,
-                                      builder: (context, child) {
-                                        return Transform.rotate(
-                                          angle: _fabAnimationController.value *
-                                              0.05,
-                                          child: Container(
-                                            padding: EdgeInsets.all(6),
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              gradient: LinearGradient(
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                                colors: [
-                                                  Colors.white.withOpacity(0.9),
-                                                  Colors.white.withOpacity(0.4),
-                                                ],
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.2),
-                                                  blurRadius: 4,
-                                                  offset: Offset(0, 2),
-                                                ),
-                                              ],
-                                            ),
-                                            child: Icon(
-                                              Icons.account_balance_wallet,
-                                              color: _maroonPrimary,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-
-                                    SizedBox(width: 12),
-
-                                    // Title text with glowing effect
-                                    ShaderMask(
-                                      shaderCallback: (Rect bounds) {
-                                        return LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [
-                                            Colors.white,
-                                            Colors.white.withOpacity(0.9),
-                                          ],
-                                        ).createShader(bounds);
-                                      },
-                                      blendMode: BlendMode.srcIn,
-                                      child: Text(
-                                        'Kelola Gaji',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          shadows: [
-                                            Shadow(
-                                              color: Colors.black26,
-                                              offset: Offset(0, 1),
-                                              blurRadius: 3,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Animated divider
-                        Container(
-                          height: 24,
-                          width: 1.5,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Search button with interactive animation
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
-                              onTap: () {
-                                setState(() {
-                                  _isSearchActive = !_isSearchActive;
-                                  if (!_isSearchActive) {
-                                    _searchController.clear();
-                                    _searchQuery = "";
-                                  }
-                                });
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: _isSearchActive
-                                      ? Border.all(
-                                          color: Colors.white.withOpacity(0.4),
-                                          width: 1.5,
-                                        )
-                                      : null,
-                                ),
-                                child: AnimatedSwitcher(
-                                  duration: Duration(milliseconds: 400),
-                                  transitionBuilder: (Widget child,
-                                      Animation<double> animation) {
-                                    return RotationTransition(
-                                      turns: Tween<double>(begin: 0.5, end: 1.0)
-                                          .animate(animation),
-                                      child: ScaleTransition(
-                                        scale: animation,
-                                        child: FadeTransition(
-                                          opacity: animation,
-                                          child: child,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: _isSearchActive
-                                      ? Icon(
-                                          Icons.close_rounded,
-                                          key: ValueKey<bool>(true),
-                                          color: Colors.white,
-                                          size: 22,
-                                        )
-                                      : Icon(
-                                          Icons.search_rounded,
-                                          key: ValueKey<bool>(false),
-                                          color: Colors.white,
-                                          size: 22,
-                                        ),
-                                ),
-                              ),
-                            ),
-                          ),
+                        Icon(
+                          Icons.arrow_drop_down,
+                          color: Colors.white,
+                          size: 20,
                         ),
                       ],
                     ),
@@ -1147,182 +880,85 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
               ),
             ),
 
-            // BOTTOM ROW - Filter Year and Month
-            Positioned(
-              bottom: 10,
-              left: 16,
-              right: 16,
-              child: BlocBuilder<PayRollYearsCubit, PayRollYearsState>(
-                builder: (context, state) {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                      child: Container(
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.2),
-                            width: 1.5,
+            // Vertical divider
+            Container(
+              height: 24,
+              width: 1.5,
+              margin: EdgeInsets.symmetric(horizontal: 4),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.white.withOpacity(0.0),
+                    Colors.white.withOpacity(0.4),
+                    Colors.white.withOpacity(0.0),
+                  ],
+                ),
+              ),
+            ),
+
+            // Month filter
+            Expanded(
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    if (state is PayRollYearsFetchSuccess) {
+                      Utils.showBottomSheet(
+                        child: FilterSelectionBottomsheet<String>(
+                          selectedValue: _selectedMonthKey,
+                          titleKey: monthKey,
+                          values: months,
+                          displayFunction: (value) =>
+                              Utils.getTranslatedLabel(value),
+                          onSelection: (value) {
+                            changeSelectedMonth(value!);
+                            Get.back();
+                          },
+                        ),
+                        context: context,
+                      );
+                    }
+                  },
+                  highlightColor: Colors.white.withOpacity(0.1),
+                  splashColor: Colors.white.withOpacity(0.2),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    height: 48,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.event_rounded,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                        SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            Utils.getTranslatedLabel(_selectedMonthKey),
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        child: Row(
-                          children: [
-                            // Year filter
-                            Expanded(
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: () {
-                                    if (state is PayRollYearsFetchSuccess &&
-                                        state.years.isNotEmpty) {
-                                      Utils.showBottomSheet(
-                                        child: FilterSelectionBottomsheet<int>(
-                                          onSelection: (value) {
-                                            changeSelectedYear(value!);
-                                            Get.back();
-                                          },
-                                          selectedValue: _selectedYear ?? 0,
-                                          titleKey: titleKey,
-                                          values: state.years,
-                                        ),
-                                        context: context,
-                                      );
-                                    }
-                                  },
-                                  highlightColor: Colors.white.withOpacity(0.1),
-                                  splashColor: Colors.white.withOpacity(0.2),
-                                  child: Container(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 12),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.calendar_today_rounded,
-                                          color: Colors.white,
-                                          size: 16,
-                                        ),
-                                        SizedBox(width: 8),
-                                        Flexible(
-                                          child: Text(
-                                            (_selectedYear?.toString()) ??
-                                                'Tahun',
-                                            style: GoogleFonts.poppins(
-                                              color: Colors.white,
-                                              fontSize: 14,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        Icon(
-                                          Icons.arrow_drop_down,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            // Vertical divider
-                            Container(
-                              height: 24,
-                              width: 1.5,
-                              margin: EdgeInsets.symmetric(horizontal: 4),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Colors.white.withOpacity(0.0),
-                                    Colors.white.withOpacity(0.4),
-                                    Colors.white.withOpacity(0.0),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            // Month filter
-                            Expanded(
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: () {
-                                    if (state is PayRollYearsFetchSuccess) {
-                                      Utils.showBottomSheet(
-                                        child:
-                                            FilterSelectionBottomsheet<String>(
-                                          selectedValue: _selectedMonthKey,
-                                          titleKey: monthKey,
-                                          values: months,
-                                          displayFunction: (value) =>
-                                              Utils.getTranslatedLabel(value),
-                                          onSelection: (value) {
-                                            changeSelectedMonth(value!);
-                                            Get.back();
-                                          },
-                                        ),
-                                        context: context,
-                                      );
-                                    }
-                                  },
-                                  highlightColor: Colors.white.withOpacity(0.1),
-                                  splashColor: Colors.white.withOpacity(0.2),
-                                  child: Container(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 12),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.event_rounded,
-                                          color: Colors.white,
-                                          size: 16,
-                                        ),
-                                        SizedBox(width: 8),
-                                        Flexible(
-                                          child: Text(
-                                            Utils.getTranslatedLabel(
-                                                _selectedMonthKey),
-                                            style: GoogleFonts.poppins(
-                                              color: Colors.white,
-                                              fontSize: 14,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        Icon(
-                                          Icons.arrow_drop_down,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                        Icon(
+                          Icons.arrow_drop_down,
+                          color: Colors.white,
+                          size: 20,
                         ),
-                      ),
+                      ],
                     ),
-                  )
-                      .animate()
-                      .fadeIn(duration: 500.ms, delay: 200.ms)
-                      .slideY(begin: -0.2, end: 0, curve: Curves.easeOutQuad);
-                },
+                  ),
+                ),
               ),
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -1446,88 +1082,64 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Stack(
-      children: [
-        // Main content area with staff list
-        BlocConsumer<PayRollYearsCubit, PayRollYearsState>(
-          listener: (context, state) {
-            if (state is PayRollYearsFetchSuccess) {
-              context.read<StaffsPayrollCubit>().getStaffsPayroll(
-                  year: _selectedYear ?? 0, month: getSelectedMonthNumber());
-            }
+        appBar: CustomModernAppBar(
+          title: 'Kelola Gaji',
+          icon: Icons.account_balance_wallet,
+          fabAnimationController: _fabAnimationController,
+          primaryColor: _maroonPrimary,
+          lightColor: _maroonLight,
+          height: 160, // Increased height to accommodate all content properly
+          showSearchButton: true,
+          onSearchPressed: () {
+            setState(() {
+              _isSearchActive = !_isSearchActive;
+              if (!_isSearchActive) {
+                _searchController.clear();
+                _searchQuery = "";
+              }
+            });
           },
-          builder: (context, state) {
-            if (state is PayRollYearsFetchSuccess) {
-              return _buildStaffs();
-            }
-
-            if (state is PayRollYearsFetchFailure) {
-              return Center(
-                child: CustomErrorWidget(
-                  message: state.errorMessage,
-                  onRetry: () {
-                    context.read<PayRollYearsCubit>().getPayRollYears();
-                  },
-                  primaryColor: _maroonPrimary,
-                ),
-              );
-            }
-
-            return Center(
-              child: CustomCircularProgressIndicator(
-                indicatorColor: Theme.of(context).colorScheme.primary,
-              ),
-            );
-          },
+          tabBuilder: (context) => _buildFilterTabs(),
         ),
+        body: Stack(
+          children: [
+            // Main content area with staff list
+            BlocConsumer<PayRollYearsCubit, PayRollYearsState>(
+              listener: (context, state) {
+                if (state is PayRollYearsFetchSuccess) {
+                  context.read<StaffsPayrollCubit>().getStaffsPayroll(
+                      year: _selectedYear ?? 0,
+                      month: getSelectedMonthNumber());
+                }
+              },
+              builder: (context, state) {
+                if (state is PayRollYearsFetchSuccess) {
+                  return _buildStaffs();
+                }
 
-        // Bottom submit button
-        _buildSubmitButton(),
+                if (state is PayRollYearsFetchFailure) {
+                  return Center(
+                    child: CustomErrorWidget(
+                      message: state.errorMessage,
+                      onRetry: () {
+                        context.read<PayRollYearsCubit>().getPayRollYears();
+                      },
+                      primaryColor: _maroonPrimary,
+                    ),
+                  );
+                }
 
-        // App bar with modern design
-        _buildAppBar(),
-      ],
-    ));
-  }
-}
+                return Center(
+                  child: CustomCircularProgressIndicator(
+                    indicatorColor: Theme.of(context).colorScheme.primary,
+                  ),
+                );
+              },
+            ),
 
-// Custom painter for decorative elements
-class AppBarDecorationPainter extends CustomPainter {
-  final Color color;
-
-  AppBarDecorationPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    // Draw decorative circles
-    canvas.drawCircle(Offset(size.width * 0.9, size.height * 0.2), 30, paint);
-    canvas.drawCircle(Offset(size.width * 0.1, size.height * 0.8), 20, paint);
-    canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.15), 15, paint);
-    canvas.drawCircle(Offset(size.width * 0.7, size.height * 0.7), 10, paint);
-    canvas.drawCircle(Offset(size.width * 0.2, size.height * 0.4), 8, paint);
-
-    // Draw arc
-    final arcPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    final arcRect = Rect.fromLTRB(size.width * 0.1, size.height * 0.2,
-        size.width * 0.6, size.height * 0.6);
-    canvas.drawArc(arcRect, 0.2, 1.5, false, arcPaint);
-
-    // Draw another arc
-    final arcRect2 = Rect.fromLTRB(size.width * 0.5, size.height * 0.4,
-        size.width * 0.9, size.height * 0.8);
-    canvas.drawArc(arcRect2, 3, 1.5, false, arcPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
+            // Bottom submit button
+            _buildSubmitButton(),
+          ],
+        ));
   }
 }

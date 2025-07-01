@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:eschool_saas_staff/data/models/exam.dart';
 import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
 import 'package:eschool_saas_staff/data/models/studentDetails.dart';
@@ -25,21 +23,12 @@ class StudentRepository {
           studentViewStatus = 2;
         }
       }
-      print({
-        "paginate": 0,
-        "status": studentViewStatus,
-        "class_section_id": classSectionId,
-        if (search != null) "search": search,
-        if (classSubjectId != null) "class_subject_id": classSubjectId,
-        if (examId != null) "exam_id": examId
-      });
-      print("OK HERE");
       final result = await Api.get(
         url: Api.getStudents,
         useAuthToken: true,
         queryParameters: {
-          // "paginate": 0,
-          // "status": studentViewStatus,
+          "paginate": 0,
+          "status": studentViewStatus,
           "class_section_id": classSectionId,
           if (search != null) "search": search,
           if (classSubjectId != null) "class_subject_id": classSubjectId,
@@ -47,12 +36,22 @@ class StudentRepository {
         },
       );
 
-      return (result['data']['data'] as List).map((e) {
-        return StudentDetails.fromJson(Map.from(e));
+      // Handle different response structures
+      List<dynamic> studentsData;
+      if (result['data'] is Map && result['data']['data'] != null) {
+        // Paginated response structure
+        studentsData = result['data']['data'] as List;
+      } else if (result['data'] is List) {
+        // Non-paginated response structure
+        studentsData = result['data'] as List;
+      } else {
+        studentsData = [];
+      }
+
+      return studentsData.map((e) {
+        return StudentDetails.fromJson(Map.from(e ?? {}));
       }).toList();
     } catch (e) {
-      print("ELOL");
-      print(e);
       throw ApiException(e.toString());
     }
   }
@@ -63,7 +62,8 @@ class StudentRepository {
           int? page,
           int? sessionYearId,
           String? search,
-          String? status}) async {
+          String? status,
+          bool getAllData = false}) async {
     try {
       ///[0 - view all, 1 - Active, 2 - Inactive]
       int? studentViewStatus;
@@ -74,28 +74,56 @@ class StudentRepository {
           studentViewStatus = 0; // Inactive
         }
       }
-
       final Map<String, dynamic> queryParameters = {
         "class_section_id": classSectionId,
-        "page": page ?? 1,
         "session_year_id": sessionYearId,
         "search": search,
       };
 
+      // Add pagination parameters only if not getting all data
+      if (!getAllData) {
+        queryParameters["page"] = page ?? 1;
+      } else {
+        queryParameters["paginate"] = 0; // Get all data without pagination
+      }
+
       if (studentViewStatus != null) {
         queryParameters["status"] = studentViewStatus;
       }
-
       final result =
           await Api.get(url: Api.getStudents, queryParameters: queryParameters);
 
+      // Handle different response structures based on pagination
+      List<dynamic> studentsData;
+      int currentPage = 1;
+      int totalPage = 1;
+
+      if (getAllData) {
+        // When paginate=0, response structure is different
+        if (result['data'] is List) {
+          studentsData = result['data'] as List;
+        } else if (result['data'] is Map && result['data']['data'] != null) {
+          studentsData = result['data']['data'] as List;
+        } else {
+          studentsData = [];
+        }
+        // For non-paginated data, set page info
+        currentPage = 1;
+        totalPage = 1;
+      } else {
+        // Normal paginated response
+        studentsData = (result['data']['data'] ?? []) as List;
+        currentPage = (result['data']['current_page'] as int);
+        totalPage = (result['data']['last_page'] as int);
+      }
+
       return (
-        students: ((result['data']['data'] ?? []) as List)
+        students: studentsData
             .map((studentDetails) =>
                 StudentDetails.fromJson(Map.from(studentDetails ?? {})))
             .toList(),
-        currentPage: (result['data']['current_page'] as int),
-        totalPage: (result['data']['last_page'] as int),
+        currentPage: currentPage,
+        totalPage: totalPage,
       );
     } catch (e, stk) {
       if (kDebugMode) {
@@ -190,6 +218,61 @@ class StudentRepository {
         queryParameters: queryParameters,
       );
     } catch (e) {
+      throw ApiException(e.toString());
+    }
+  }
+
+  Future<List<StudentDetails>> getAllStudents({
+    required int classSectionId,
+    int? sessionYearId,
+    String? search,
+    String? status,
+  }) async {
+    try {
+      ///[0 - view all, 1 - Active, 2 - Inactive]
+      int? studentViewStatus;
+      if (status != null) {
+        if (status == '1') {
+          studentViewStatus = 1; // Active
+        } else if (status == '0') {
+          studentViewStatus = 0; // Inactive
+        }
+      }
+
+      final Map<String, dynamic> queryParameters = {
+        "class_section_id": classSectionId,
+        "paginate": 0, // This will return all data without pagination
+        "session_year_id": sessionYearId,
+        "search": search,
+      };
+
+      if (studentViewStatus != null) {
+        queryParameters["status"] = studentViewStatus;
+      }
+
+      final result = await Api.get(
+          url: Api.getStudents,
+          useAuthToken: true,
+          queryParameters: queryParameters);
+
+      // Handle both paginated and non-paginated response structure
+      List<dynamic> studentsData;
+      if (result['data'] is Map && result['data']['data'] != null) {
+        studentsData = result['data']['data'] as List;
+      } else if (result['data'] is List) {
+        studentsData = result['data'] as List;
+      } else {
+        studentsData = [];
+      }
+
+      return studentsData
+          .map((studentDetails) =>
+              StudentDetails.fromJson(Map.from(studentDetails ?? {})))
+          .toList();
+    } catch (e, stk) {
+      if (kDebugMode) {
+        print(stk.toString());
+      }
       throw ApiException(e.toString());
     }
   }

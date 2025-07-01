@@ -956,7 +956,7 @@ class _TeacherManageAssignmentScreenState
                                           Text(
                                             "${Utils.getTranslatedLabel(extraDaysForResubmissionKey)}: ",
                                             style: GoogleFonts.poppins(
-                                              fontSize: 13,
+                                              fontSize: 12,
                                               fontWeight: FontWeight.w600,
                                               color: textDarkColor,
                                             ),

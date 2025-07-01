@@ -397,4 +397,58 @@ class Api {
       throw ApiException(e.toString());
     }
   }
+  static Future<Map<String, dynamic>> put({
+    required Map<String, dynamic> body,
+    required String url,
+    bool? useAuthToken,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    Function(int, int)? onSendProgress,
+    Function(int, int)? onReceiveProgress,
+  }) async {
+    try {
+      if (kDebugMode || true) {
+        print(url);
+        print(body);
+      }
+      final Dio dio = Dio();
+      
+      // For PUT requests, send JSON data instead of FormData
+      final response = await dio.put(url,
+          data: body, // Send as JSON instead of FormData
+          queryParameters: queryParameters,
+          cancelToken: cancelToken,
+          onReceiveProgress: onReceiveProgress,
+          onSendProgress: onSendProgress,
+          options: Options(
+            headers: {
+              ...headers(useAuthToken: useAuthToken ?? true),
+              'Content-Type': 'application/json', // Explicitly set content type to JSON
+            },
+          ));
+
+      print(">> RESPONSE <<");
+      print(response);
+
+      if (response.data.containsKey('error') &&
+          response.data['error'] == true) {
+        throw ApiException(response.data['message'].toString());
+      }
+
+      return Map.from(response.data);
+    } on DioException catch (e) {
+      if (kDebugMode) {
+        print(e.response?.data);
+      }
+      throw ApiException(
+          e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
+    } on ApiException catch (e) {
+      throw ApiException(e.errorMessage);
+    } catch (e) {
+      if (kDebugMode) {
+        print(e.toString());
+      }
+      throw ApiException(defaultErrorMessageKey);
+    }
+  }
 }

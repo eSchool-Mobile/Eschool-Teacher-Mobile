@@ -7,19 +7,18 @@ import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 
 class OnlineExamRepository {
-  Future<Map<String, dynamic>> getOnlineExams({
-    String? search,
-    int? subjectId,
-    dynamic? archive = null,
-    int? classSectionId,
-    int? sessionYearId,
-    String status = 'active',
-    DateTime? startDate,
-    DateTime? endDate,
-    int offset = 0,
-    int limit = 10,
-    bool? modeAll = false
-  }) async {
+  Future<Map<String, dynamic>> getOnlineExams(
+      {String? search,
+      int? subjectId,
+      dynamic? archive = null,
+      int? classSectionId,
+      int? sessionYearId,
+      String status = 'active',
+      DateTime? startDate,
+      DateTime? endDate,
+      int offset = 0,
+      int limit = 10,
+      bool? modeAll = false}) async {
     try {
       final response = await Api.get(
         url: Api.getOnlineExamList,
@@ -38,7 +37,9 @@ class OnlineExamRepository {
           if (sessionYearId != null)
             'session_year_id': sessionYearId.toString(),
           'type': 'all',
-          if (modeAll == true) 'mode': 'all', // Tambahkan parameter mode=all untuk menampilkan semua kelas
+          if (modeAll == true)
+            'mode':
+                'all', // Tambahkan parameter mode=all untuk menampilkan semua kelas
           if (archive != null) 'archive': archive,
         },
       );

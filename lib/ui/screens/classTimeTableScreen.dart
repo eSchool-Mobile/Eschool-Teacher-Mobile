@@ -5,13 +5,13 @@ import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.da
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/timetableSlotContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/utils/constants.dart' as constants;
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'dart:ui';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -95,306 +95,121 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
         .getClassTimetable(classSectionId: _selectedClassSection?.id ?? 0);
   }
 
-  Widget _buildAppBar() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: Container(
-        height: MediaQuery.of(context).padding.top +
-            200, // Adjusted height for app bar with filters
-        child: Stack(
-          children: [
-            // Gradient background with animated shader
-            Positioned.fill(
-              child: AnimatedBuilder(
-                animation: _fabAnimationController,
-                builder: (context, _) {
-                  return ShaderMask(
-                    shaderCallback: (Rect bounds) {
-                      return LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF690013),
-                          _maroonPrimary,
-                          Color(0xFFA12948),
-                          _maroonLight,
-                        ],
-                        stops: [0.0, 0.3, 0.6, 1.0],
-                        transform: GradientRotation(
-                            _fabAnimationController.value * 0.02),
-                      ).createShader(bounds);
-                    },
-                    blendMode: BlendMode.srcATop,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF800020),
-                            Color(0xFF9A1E3C),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(30),
-                          bottomRight: Radius.circular(30),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // Decorative elements
-            Positioned.fill(
-              child: CustomPaint(
-                painter: AppBarDecorationPainter(
-                  color: Colors.white.withOpacity(0.07),
-                ),
-              ),
-            ),
-
-            // Animated decorative circle
-            AnimatedBuilder(
-              animation: _fabAnimationController,
-              builder: (context, _) {
-                return Positioned(
-                  top: -100 + (_fabAnimationController.value * 20),
-                  right: -60 + (_fabAnimationController.value * 10),
-                  child: Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          Colors.white.withOpacity(0.2),
-                          Colors.white.withOpacity(0.1),
-                          Colors.white.withOpacity(0.0),
-                        ],
-                        stops: [0.0, 0.5, 1.0],
-                      ),
-                    ),
-                  ),
-                );
+  PreferredSizeWidget _buildAppBar() {
+    return CustomModernAppBar(
+      title: Utils.getTranslatedLabel(classTimetableKey),
+      icon: Icons.schedule_outlined,
+      fabAnimationController: _fabAnimationController,
+      primaryColor: _maroonPrimary,
+      lightColor: _maroonLight,
+      onBackPressed: () => Navigator.of(context).pop(),
+      height: 200,
+      showFilterButton: true,
+      onFilterPressed: () {
+        final state = context.read<ClassesCubit>().state;
+        if (state is ClassesFetchSuccess &&
+            context.read<ClassesCubit>().getAllClasses().isNotEmpty) {
+          Utils.showBottomSheet(
+            child: FilterSelectionBottomsheet<ClassSection>(
+              onSelection: (value) {
+                changeSelectedClassSection(value!);
+                Get.back();
               },
+              selectedValue: _selectedClassSection!,
+              titleKey: classKey,
+              values: context.read<ClassesCubit>().getAllClasses(),
             ),
-
-            // App bar with blur effect - Title
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 10,
-              left: 16,
-              right: 16,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        // Back button
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
-                              onTap: () => Navigator.of(context).pop(),
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                child: Icon(
-                                  Icons.arrow_back_rounded,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Separator
-                        Container(
-                          height: 24,
-                          width: 1.5,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0),
-                                Colors.white.withOpacity(0.5),
-                                Colors.white.withOpacity(0),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Title
-                        Expanded(
-                          child: Center(
-                            child: Text(
-                              Utils.getTranslatedLabel(classTimetableKey),
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+            context: context,
+          );
+        }
+      },
+      tabBuilder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Class filter with elegant design
+          Container(
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.15),
+                width: 1,
               ),
             ),
-
-            // Class filter with elegant design
-            Positioned(
-              bottom: 70,
-              left: 16,
-              right: 16,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 1.5,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 8,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(15),
-                        splashColor: Colors.white.withOpacity(0.1),
-                        highlightColor: Colors.white.withOpacity(0.05),
-                        onTap: () {
-                          final state = context.read<ClassesCubit>().state;
-                          if (state is ClassesFetchSuccess &&
-                              context
-                                  .read<ClassesCubit>()
-                                  .getAllClasses()
-                                  .isNotEmpty) {
-                            Utils.showBottomSheet(
-                              child: FilterSelectionBottomsheet<ClassSection>(
-                                onSelection: (value) {
-                                  changeSelectedClassSection(value!);
-                                  Get.back();
-                                },
-                                selectedValue: _selectedClassSection!,
-                                titleKey: classKey,
-                                values: context
-                                    .read<ClassesCubit>()
-                                    .getAllClasses(),
-                              ),
-                              context: context,
-                            );
-                          }
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                splashColor: Colors.white.withOpacity(0.1),
+                highlightColor: Colors.white.withOpacity(0.05),
+                onTap: () {
+                  final state = context.read<ClassesCubit>().state;
+                  if (state is ClassesFetchSuccess &&
+                      context.read<ClassesCubit>().getAllClasses().isNotEmpty) {
+                    Utils.showBottomSheet(
+                      child: FilterSelectionBottomsheet<ClassSection>(
+                        onSelection: (value) {
+                          changeSelectedClassSection(value!);
+                          Get.back();
                         },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.class_outlined,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                              SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  _selectedClassSection == null
-                                      ? Utils.getTranslatedLabel(classKey)
-                                      : (_selectedClassSection?.fullName ?? ""),
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              Icon(
-                                Icons.arrow_drop_down_rounded,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                            ],
+                        selectedValue: _selectedClassSection!,
+                        titleKey: classKey,
+                        values: context.read<ClassesCubit>().getAllClasses(),
+                      ),
+                      context: context,
+                    );
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.class_outlined,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _selectedClassSection == null
+                              ? Utils.getTranslatedLabel(classKey)
+                              : (_selectedClassSection?.fullName ?? ""),
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    ),
+                      Icon(
+                        Icons.arrow_drop_down_rounded,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ],
                   ),
                 ),
               ),
-            )
-                .animate()
-                .fadeIn(duration: 500.ms, delay: 100.ms)
-                .slideY(begin: -0.2, end: 0, curve: Curves.easeOutQuad),
-
-            // Horizontal day selector with elegant design
-            Positioned(
-              bottom: 10,
-              left: 16,
-              right: 16,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 1.5,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 8,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: _buildHorizontalDaySelector(),
-                  ),
-                ),
+            ),
+          ),
+          SizedBox(height: 8),
+          // Horizontal day selector
+          Container(
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.15),
+                width: 1,
               ),
-            )
-                .animate()
-                .fadeIn(duration: 500.ms, delay: 200.ms)
-                .slideY(begin: -0.2, end: 0, curve: Curves.easeOutQuad),
-          ],
-        ),
+            ),
+            child: _buildHorizontalDaySelector(),
+          ),
+        ],
       ),
     );
   }
@@ -522,8 +337,7 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
               child: SingleChildScrollView(
                 controller: _scrollController,
                 padding: EdgeInsets.only(
-                    top: Utils.appContentTopScrollPadding(context: context) +
-                        180),
+                    top: 20), // Reduced padding since AppBar is now separate
                 child: Container(
                   width: MediaQuery.of(context).size.width,
                   padding:
@@ -571,86 +385,41 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          BlocConsumer<ClassesCubit, ClassesState>(
-            listener: (context, state) {
-              if (state is ClassesFetchSuccess &&
-                  context.read<ClassesCubit>().getAllClasses().isNotEmpty) {
-                changeSelectedClassSection(
-                    context.read<ClassesCubit>().getAllClasses().first);
-              }
-            },
-            builder: (context, state) {
-              if (state is ClassesFetchSuccess) {
-                if (context.read<ClassesCubit>().getAllClasses().isEmpty) {
-                  return const SizedBox();
-                }
-                return _buildClassTimetable();
-              }
-              if (state is ClassesFetchFailure) {
-                return Center(
-                  child: CustomErrorWidget(
-                    message: state.errorMessage,
-                    onRetry: () {
-                      context.read<ClassesCubit>().getClasses();
-                    },
-                    primaryColor: _maroonPrimary,
-                  ),
-                );
-              }
+      appBar: _buildAppBar(),
+      body: BlocConsumer<ClassesCubit, ClassesState>(
+        listener: (context, state) {
+          if (state is ClassesFetchSuccess &&
+              context.read<ClassesCubit>().getAllClasses().isNotEmpty) {
+            changeSelectedClassSection(
+                context.read<ClassesCubit>().getAllClasses().first);
+          }
+        },
+        builder: (context, state) {
+          if (state is ClassesFetchSuccess) {
+            if (context.read<ClassesCubit>().getAllClasses().isEmpty) {
+              return const SizedBox();
+            }
+            return _buildClassTimetable();
+          }
+          if (state is ClassesFetchFailure) {
+            return Center(
+              child: CustomErrorWidget(
+                message: state.errorMessage,
+                onRetry: () {
+                  context.read<ClassesCubit>().getClasses();
+                },
+                primaryColor: _maroonPrimary,
+              ),
+            );
+          }
 
-              return Center(
-                child: CustomCircularProgressIndicator(
-                  indicatorColor: Theme.of(context).colorScheme.primary,
-                ),
-              );
-            },
-          ),
-          _buildAppBar(),
-        ],
+          return Center(
+            child: CustomCircularProgressIndicator(
+              indicatorColor: Theme.of(context).colorScheme.primary,
+            ),
+          );
+        },
       ),
     );
-  }
-}
-
-// Custom painter for decorative elements
-class AppBarDecorationPainter extends CustomPainter {
-  final Color color;
-
-  AppBarDecorationPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    // Draw decorative circles
-    canvas.drawCircle(Offset(size.width * 0.9, size.height * 0.2), 30, paint);
-    canvas.drawCircle(Offset(size.width * 0.1, size.height * 0.8), 20, paint);
-    canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.15), 15, paint);
-    canvas.drawCircle(Offset(size.width * 0.7, size.height * 0.7), 10, paint);
-    canvas.drawCircle(Offset(size.width * 0.2, size.height * 0.4), 8, paint);
-
-    // Draw arc
-    final arcPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    final arcRect = Rect.fromLTRB(size.width * 0.1, size.height * 0.2,
-        size.width * 0.6, size.height * 0.6);
-    canvas.drawArc(arcRect, 0.2, 1.5, false, arcPaint);
-
-    // Draw another arc
-    final arcRect2 = Rect.fromLTRB(size.width * 0.5, size.height * 0.4,
-        size.width * 0.9, size.height * 0.8);
-    canvas.drawArc(arcRect2, 3, 1.5, false, arcPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
   }
 }

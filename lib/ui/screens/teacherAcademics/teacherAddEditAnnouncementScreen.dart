@@ -789,7 +789,8 @@ class _TeacherAddEditAnnouncementScreenState
                         editAnnouncement();
                       },
                       isLoading: state is TeacherEditAnnouncementInProgress,
-                      title: 'Perbarui Pengumuman',
+                        title: 'Update Pengumuman',
+                       
                     );
                   },
                 )
