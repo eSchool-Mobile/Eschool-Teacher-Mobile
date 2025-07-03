@@ -21,6 +21,9 @@ class SchoolListScreen extends StatefulWidget {
 class _SchoolListScreenState extends State<SchoolListScreen>
     with TickerProviderStateMixin {
   List<Map<String, dynamic>> schools = [];
+  List<Map<String, dynamic>> filteredSchools = [];
+  TextEditingController searchController = TextEditingController();
+  bool isSearching = false;
   late final AnimationController _animationController;
   late final AnimationController _floatingElementsController;
   late final Animation<double> _fadeAnimation;
@@ -104,6 +107,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
       setState(() {
         schools =
             List<Map<String, dynamic>>.from(widget.userData['data']['schools']);
+        filteredSchools = List.from(schools); // Initialize filtered list
       });
       print('Loaded schools: $schools');
       print('Number of schools loaded: ${schools.length}');
@@ -114,6 +118,23 @@ class _SchoolListScreenState extends State<SchoolListScreen>
     } else {
       print('No schools found in userData');
     }
+  }
+
+  void _filterSchools(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        filteredSchools = List.from(schools);
+        isSearching = false;
+      } else {
+        isSearching = true;
+        filteredSchools = schools.where((school) {
+          final schoolName = (school['school_name'] ?? '').toLowerCase();
+          final searchQuery = query.toLowerCase();
+
+          return schoolName.contains(searchQuery);
+        }).toList();
+      }
+    });
   }
 
   Future<void> _selectSchool(Map<String, dynamic> school) async {
@@ -156,7 +177,8 @@ class _SchoolListScreenState extends State<SchoolListScreen>
         // IMPORTANT: Preserve teacher data from selected school's user object
         // Teacher dan staff data HARUS dari sekolah yang dipilih, bukan userData global
         'teacher': school['user']['teacher'], // Include complete teacher data
-        'staff': school['user']['staff'], // Include complete staff data if exists
+        'staff': school['user']
+            ['staff'], // Include complete staff data if exists
         // Also preserve other user data from the selected school
         'roles': school['user']['roles'] ?? userData['roles'],
         // Preserve user-level data from the selected school user
@@ -170,8 +192,10 @@ class _SchoolListScreenState extends State<SchoolListScreen>
         'status': school['user']['status'] ?? userData['status'],
         // Preserve other attributes...
         'dob': school['user']['dob'] ?? userData['dob'],
-        'current_address': school['user']['current_address'] ?? userData['current_address'],
-        'permanent_address': school['user']['permanent_address'] ?? userData['permanent_address'],
+        'current_address':
+            school['user']['current_address'] ?? userData['current_address'],
+        'permanent_address': school['user']['permanent_address'] ??
+            userData['permanent_address'],
       };
 
       // Set login state before creating user details
@@ -199,11 +223,13 @@ class _SchoolListScreenState extends State<SchoolListScreen>
       // Save teacher ID if available (dari sekolah yang dipilih, bukan global)
       if (school['user']['teacher'] != null) {
         await prefs.setInt('teacher_id', school['user']['teacher']['id']);
-        print('Saved teacher ID from selected school: ${school['user']['teacher']['id']}');
+        print(
+            'Saved teacher ID from selected school: ${school['user']['teacher']['id']}');
       } else if (userData['teacher'] != null) {
         // Fallback ke teacher global jika tidak ada teacher untuk sekolah ini
         await prefs.setInt('teacher_id', userData['teacher']['id']);
-        print('Saved teacher ID from global data: ${userData['teacher']['id']}');
+        print(
+            'Saved teacher ID from global data: ${userData['teacher']['id']}');
       } // Update Auth state in BLoC with proper token format
       if (!context.mounted) return;
 
@@ -256,6 +282,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
   void dispose() {
     _animationController.dispose();
     _floatingElementsController.dispose();
+    searchController.dispose();
     super.dispose();
   }
 
@@ -348,25 +375,37 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                 ],
                               ),
                             ),
+                            // Search Bar Section
+                            _buildSearchBar(
+                                primaryMaroon, softMaroon, goldAccent),
+                            // Search Results Counter
+                            if (isSearching)
+                              _buildSearchResultsCounter(
+                                  primaryMaroon, goldAccent),
                           ],
                         ),
                       ),
                     ),
                     // Schools List Section as Sliver
-                    schools.isEmpty
+                    filteredSchools.isEmpty && isSearching
                         ? SliverToBoxAdapter(
-                            child: _buildEmptyState(
+                            child: _buildNoSearchResults(
                                 primaryMaroon, softMaroon, goldAccent),
                           )
-                        : _buildSchoolsListSliver(
-                            context,
-                            primaryMaroon,
-                            softMaroon,
-                            accentColor,
-                            goldAccent,
-                            shimmerColor,
-                            deepMaroon,
-                          ),
+                        : filteredSchools.isEmpty
+                            ? SliverToBoxAdapter(
+                                child: _buildEmptyState(
+                                    primaryMaroon, softMaroon, goldAccent),
+                              )
+                            : _buildSchoolsListSliver(
+                                context,
+                                primaryMaroon,
+                                softMaroon,
+                                accentColor,
+                                goldAccent,
+                                shimmerColor,
+                                deepMaroon,
+                              ),
                   ],
                 ),
               ),
@@ -1111,7 +1150,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
-            final school = schools[index];
+            final school = filteredSchools[index];
             return Container(
               margin: const EdgeInsets.only(bottom: 18),
               child: Material(
@@ -1271,7 +1310,6 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                       ),
                                       // Hilangkan maxLines untuk tampilkan semua
                                     ),
-                                   
                                   ],
                                 ),
                               ),
@@ -1448,7 +1486,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
               ),
             );
           },
-          childCount: schools.length,
+          childCount: filteredSchools.length,
         ),
       ),
     );
@@ -1796,6 +1834,329 @@ class _SchoolListScreenState extends State<SchoolListScreen>
             ),
           ),
       ],
+    );
+  }
+
+  Widget _buildSearchBar(
+      Color primaryMaroon, Color softMaroon, Color goldAccent) {
+    return Container(
+      margin: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white,
+              softMaroon.withOpacity(0.03),
+              Colors.grey.shade50.withOpacity(0.8),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: primaryMaroon.withOpacity(0.12),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: primaryMaroon.withOpacity(0.08),
+              blurRadius: 20,
+              spreadRadius: 0,
+              offset: const Offset(0, 8),
+            ),
+            BoxShadow(
+              color: goldAccent.withOpacity(0.05),
+              blurRadius: 16,
+              spreadRadius: 2,
+            ),
+            BoxShadow(
+              color: Colors.white.withOpacity(0.9),
+              blurRadius: 8,
+              spreadRadius: -2,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: TextField(
+          controller: searchController,
+          onChanged: _filterSchools,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: primaryMaroon,
+            letterSpacing: 0.2,
+          ),
+          decoration: InputDecoration(
+            hintText: 'Cari nama sekolah...',
+            hintStyle: TextStyle(
+              color: primaryMaroon.withOpacity(0.5),
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+              letterSpacing: 0.2,
+            ),
+            prefixIcon: Container(
+              padding: const EdgeInsets.all(12),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      primaryMaroon.withOpacity(0.1),
+                      softMaroon.withOpacity(0.05),
+                    ],
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.search_rounded,
+                  color: primaryMaroon,
+                  size: 20,
+                ),
+              ),
+            ),
+            suffixIcon: isSearching
+                ? Container(
+                    padding: const EdgeInsets.all(12),
+                    child: GestureDetector(
+                      onTap: () {
+                        searchController.clear();
+                        _filterSchools('');
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              primaryMaroon.withOpacity(0.1),
+                              softMaroon.withOpacity(0.05),
+                            ],
+                          ),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.clear_rounded,
+                          color: primaryMaroon,
+                          size: 16,
+                        ),
+                      ),
+                    ),
+                  )
+                : null,
+            border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 18,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoSearchResults(
+      Color primaryMaroon, Color softMaroon, Color goldAccent) {
+    final Color shimmerColor = Color(0xFFFBF8F9);
+    final Color creamWhite = Color(0xFFFFFCFD);
+
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(40),
+        margin: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              creamWhite,
+              shimmerColor.withOpacity(0.8),
+              Colors.grey.shade50,
+            ],
+          ),
+          borderRadius: BorderRadius.circular(32),
+          border: Border.all(
+            color: softMaroon.withOpacity(0.3),
+            width: 2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: primaryMaroon.withOpacity(0.12),
+              blurRadius: 32,
+              spreadRadius: 0,
+              offset: const Offset(0, 16),
+            ),
+            BoxShadow(
+              color: goldAccent.withOpacity(0.15),
+              blurRadius: 24,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Search Icon Container
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    softMaroon.withOpacity(0.15),
+                    primaryMaroon.withOpacity(0.08),
+                  ],
+                ),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: softMaroon.withOpacity(0.3),
+                  width: 2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: softMaroon.withOpacity(0.2),
+                    blurRadius: 16,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.search_off_rounded,
+                size: 48,
+                color: primaryMaroon,
+              ),
+            ),
+            const SizedBox(height: 24),
+            // Title
+            Text(
+              'Sekolah Tidak Ditemukan',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                color: primaryMaroon,
+                letterSpacing: -0.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            // Subtitle
+            RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: primaryMaroon.withOpacity(0.7),
+                  letterSpacing: 0.2,
+                  height: 1.4,
+                ),
+                children: [
+                  TextSpan(
+                    text: 'Tidak ada hasil untuk pencarian ',
+                  ),
+                  TextSpan(
+                    text: '"${searchController.text}"',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: primaryMaroon,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Search suggestions
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    goldAccent.withOpacity(0.08),
+                    goldAccent.withOpacity(0.04),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: goldAccent.withOpacity(0.2),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    'Tips Pencarian:',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: primaryMaroon,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '• Coba gunakan kata kunci yang berbeda\n• Periksa ejaan nama sekolah\n• Gunakan nama lengkap atau sebagian nama\n• Pastikan nama sekolah sudah benar',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: primaryMaroon.withOpacity(0.8),
+                      height: 1.4,
+                    ),
+                    textAlign: TextAlign.left,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchResultsCounter(Color primaryMaroon, Color goldAccent) {
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  goldAccent.withOpacity(0.15),
+                  goldAccent.withOpacity(0.08),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: goldAccent.withOpacity(0.3),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.filter_list_rounded,
+                  size: 16,
+                  color: primaryMaroon,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  'Ditemukan ${filteredSchools.length} sekolah',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: primaryMaroon,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

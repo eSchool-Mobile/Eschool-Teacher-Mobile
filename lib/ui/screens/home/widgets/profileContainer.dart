@@ -200,7 +200,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                 physics: const BouncingScrollPhysics(),
                 padding: EdgeInsetsDirectional.only(
                   top: Utils.appContentTopScrollPadding(context: context) +
-                      180, // Increased top padding to accommodate new app bar
+                      190, // Increased top padding to accommodate new app bar
                   end: appContentHorizontalPadding,
                   start: appContentHorizontalPadding,
                   bottom: 100,
@@ -738,7 +738,7 @@ class _ProfileContainerState extends State<ProfileContainer>
     return Align(
       alignment: Alignment.topCenter,
       child: Container(
-        height: 200 +
+        height: 210 +
             MediaQuery.of(context)
                 .padding
                 .top, // Increased height to accommodate profile info
@@ -926,13 +926,13 @@ class _ProfileContainerState extends State<ProfileContainer>
 
             // Profile card
             Positioned(
-              bottom: 20,
+              bottom: 15,
               left: 16,
               right: 16,
               child: Container(
-                height: 100,
+                height: 120,
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(24),
@@ -996,7 +996,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                     ? Icon(
                         Icons.person,
                         color: maroonPrimary,
-                        size: 40,
+                        size: 38,
                       )
                     : null,
           ),
@@ -1007,23 +1007,30 @@ class _ProfileContainerState extends State<ProfileContainer>
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // User Name
               Text(
-                context.read<AuthCubit>().getUserDetails().firstName ??
-                    "Pengguna",
+                "${context.read<AuthCubit>().getUserDetails().firstName ?? ""} ${context.read<AuthCubit>().getUserDetails().lastName ?? ""}"
+                        .trim()
+                        .isEmpty
+                    ? "Pengguna"
+                    : "${context.read<AuthCubit>().getUserDetails().firstName ?? ""} ${context.read<AuthCubit>().getUserDetails().lastName ?? ""}"
+                        .trim(),
                 style: GoogleFonts.poppins(
-                  fontSize: 20,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: maroonPrimary,
-                  height: 1,
+                  height: 1.3,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 4),
+
+              // School Info
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
                       color: maroonPrimary.withOpacity(0.1),
                       shape: BoxShape.circle,
@@ -1038,11 +1045,12 @@ class _ProfileContainerState extends State<ProfileContainer>
                   Expanded(
                     child: Text(
                       context.read<AuthCubit>().getUserDetails().school?.name ??
-                          "-",
+                          "Belum ada sekolah",
                       style: GoogleFonts.poppins(
-                        fontSize: 14,
+                        fontSize: 13,
                         color: Colors.black87,
                         fontWeight: FontWeight.w500,
+                        height: 1.2,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -1051,10 +1059,12 @@ class _ProfileContainerState extends State<ProfileContainer>
                 ],
               ),
               const SizedBox(height: 4),
+
+              // Email Info
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
                       color: maroonPrimary.withOpacity(0.1),
                       shape: BoxShape.circle,
@@ -1068,11 +1078,13 @@ class _ProfileContainerState extends State<ProfileContainer>
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      context.read<AuthCubit>().getUserDetails().email ?? "-",
+                      context.read<AuthCubit>().getUserDetails().email ??
+                          "Belum ada email",
                       style: GoogleFonts.poppins(
-                        fontSize: 14,
+                        fontSize: 13,
                         color: Colors.black87,
                         fontWeight: FontWeight.w500,
+                        height: 1.2,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -1211,7 +1223,7 @@ class LogoutConfirmationDialog extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Illustration
-                Container(
+              Container(
                 width: 100,
                 height: 100,
                 margin: const EdgeInsets.only(bottom: 20),
@@ -1220,7 +1232,7 @@ class LogoutConfirmationDialog extends StatelessWidget {
                   size: 60,
                   color: AppColorPalette.primaryMaroon,
                 ),
-                ),
+              ),
 
               // Title
               Text(

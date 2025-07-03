@@ -170,7 +170,7 @@ class _OnlineExamResultQuestionsScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomModernAppBar(
-        title: widget.examName,
+        title: "Soal Ujian Online",
         icon: Icons.assessment,
         fabAnimationController: _pulseController,
         primaryColor: _primaryColor,
@@ -462,22 +462,22 @@ class _OnlineExamResultQuestionsScreenState
                             right: 20,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 10),
+                                  horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(18),
+                                borderRadius: BorderRadius.circular(14),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withOpacity(0.2),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 5),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
                                   ),
                                   BoxShadow(
                                     color: _getTypeColor(question.type)
                                         .withOpacity(0.3),
-                                    blurRadius: 16,
-                                    offset: const Offset(0, 2),
-                                    spreadRadius: -5,
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 1),
+                                    spreadRadius: -3,
                                   ),
                                 ],
                               ),
@@ -490,26 +490,26 @@ class _OnlineExamResultQuestionsScreenState
                                       Icon(
                                         Icons.star_rounded,
                                         color: Colors.amber.shade100,
-                                        size: 26,
+                                        size: 20,
                                       ),
                                       Icon(
                                         Icons.star_rounded,
                                         color: Colors.amber.shade300,
-                                        size: 22,
+                                        size: 17,
                                       ),
                                       Icon(
                                         Icons.star_rounded,
                                         color: Colors.amber,
-                                        size: 18,
+                                        size: 14,
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(width: 8),
+                                  const SizedBox(width: 6),
                                   Text(
                                     '${question.marks} poin',
                                     style: TextStyle(
                                       color: Colors.grey[800],
-                                      fontSize: 14.5,
+                                      fontSize: 12.5,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
@@ -753,120 +753,6 @@ class _OnlineExamResultQuestionsScreenState
                                   ),
                                 ),
                               ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.grey.shade50,
-                            Colors.grey.shade100,
-                          ],
-                        ),
-                        border: Border(
-                          top: BorderSide(
-                            color: Colors.grey.shade200,
-                            width: 1.5,
-                          ),
-                        ),
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(28),
-                          bottomRight: Radius.circular(28),
-                        ),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 18),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(16),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(16),
-                              onTap: () => Get.toNamed(
-                                  "/OnlineExamResultAnswerScreen/${widget.examId}/${question.question_id}/${base64.encode(utf8.encode(widget.examName))}/${question.type}"),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 18, vertical: 13),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      const Color(0xFF800000),
-                                      const Color(0xFF800000).withOpacity(0.9),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(0xFF800000)
-                                          .withOpacity(0.3),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 4),
-                                      spreadRadius: -2,
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Container(
-                                          width: 24,
-                                          height: 24,
-                                          decoration: BoxDecoration(
-                                            color:
-                                                Colors.white.withOpacity(0.1),
-                                            shape: BoxShape.circle,
-                                          ),
-                                        ),
-                                        const Icon(
-                                          Icons.remove_red_eye,
-                                          color: Colors.white,
-                                          size: 18,
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "Lihat Jawaban",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14.5,
-                                            letterSpacing: 0.5,
-                                            shadows: [
-                                              Shadow(
-                                                color: Colors.black
-                                                    .withOpacity(0.3),
-                                                blurRadius: 2,
-                                                offset: const Offset(0, 1),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Icon(
-                                          Icons.arrow_forward_rounded,
-                                          color: Colors.white.withOpacity(0.9),
-                                          size: 16,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
                             ),
                           ),
                         ],

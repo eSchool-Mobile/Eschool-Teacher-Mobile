@@ -289,15 +289,7 @@ class RecapAttendanceContainer extends StatelessWidget {
                   letterSpacing: 0.5,
                 ),
               ),
-              Text(
-                'Aksi',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppColorPalette.primaryMaroon,
-                  letterSpacing: 0.5,
-                ),
-              ),
+            
             ],
           ),
           Divider(

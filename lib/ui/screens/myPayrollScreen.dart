@@ -449,6 +449,7 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
         lightColor: _maroonLight,
         height: 150,
         showFilterButton: true,
+        onBackPressed: () => Navigator.of(context).pop(),
         onFilterPressed: () {
           setState(() {
             _isFilterVisible = !_isFilterVisible;

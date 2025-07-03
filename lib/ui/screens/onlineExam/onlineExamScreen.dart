@@ -60,7 +60,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
 
   // Theme colors - Softer Maroon palette
   final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
-  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon  @override
+  final Color _highlightColor =
+      Color(0xFFB84D4D); // Softer bright maroon  @override
   void initState() {
     super.initState();
     // Initialize date formatting for Indonesian locale
@@ -1092,19 +1093,261 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
-      child: GridView.builder(
+      child: ListView.builder(
         padding: EdgeInsets.all(20),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.85,
-          crossAxisSpacing: 15,
-          mainAxisSpacing: 15,
-        ),
-        itemCount: 6,
-        itemBuilder: (_, __) => Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
+        itemCount: 3,
+        itemBuilder: (_, index) => Container(
+          margin: EdgeInsets.symmetric(vertical: 16),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // Main card container
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(32),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header shimmer - matches the gradient header
+                    Container(
+                      height: 240,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(32),
+                          topRight: Radius.circular(32),
+                        ),
+                      ),
+                      child: Stack(
+                        children: [
+                          // Duration badge position
+                          Positioned(
+                            top: 20,
+                            right: 24,
+                            child: Container(
+                              width: 80,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                          ),
+                          // Title position
+                          Positioned(
+                            top: 80,
+                            left: 24,
+                            right: 24,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  width: double.infinity,
+                                  height: 28,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.6,
+                                  height: 28,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                SizedBox(height: 16),
+                                Container(
+                                  width: 60,
+                                  height: 3,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(1.5),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Content section with action buttons
+                    Container(
+                      padding: EdgeInsets.fromLTRB(24, 120, 24, 24),
+                      child: Row(
+                        children: [
+                          // Edit button shimmer
+                          Expanded(
+                            child: Container(
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          // Archive button shimmer
+                          Expanded(
+                            child: Container(
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Overlapping card shimmer - matches the white overlay card
+              Positioned(
+                top: 155, // Matches the positioning in real card
+                left: 20,
+                right: 20,
+                child: Container(
+                  height: 170, // Approximate height of the overlay card
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    children: [
+                      // Top section: Manage Questions shimmer
+                      Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Row(
+                          children: [
+                            // Icon container shimmer
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            // Text content shimmer
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: double.infinity,
+                                    height: 16,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.7,
+                                    height: 14,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Arrow icon shimmer
+                            Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Divider
+                      Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: Colors.grey[200],
+                        indent: 20,
+                        endIndent: 20,
+                      ),
+                      // Bottom section: Dates shimmer
+                      Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            // Start Date shimmer
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 60,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Container(
+                                  width: 80,
+                                  height: 15,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            // Divider shimmer
+                            Container(
+                              height: 35,
+                              width: 1,
+                              color: Colors.grey[200],
+                            ),
+                            // End Date shimmer
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 60,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Container(
+                                  width: 80,
+                                  height: 15,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

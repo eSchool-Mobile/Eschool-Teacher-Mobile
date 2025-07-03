@@ -1425,7 +1425,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Label with icon
-        Padding(
+        Padding(   
           padding: EdgeInsets.only(left: 2, bottom: 8),
           child: Row(
             children: [

@@ -179,42 +179,12 @@ class _RecapAttendanceSubjectScreenState
       physics: const AlwaysScrollableScrollPhysics(),
       padding: EdgeInsets.only(
         // Adjust top padding to position content below the app bar
-        top: MediaQuery.of(context).padding.top +
-            220, // Increased padding for new app bar
+        top: 180, // Reduced padding to minimize white space
         bottom: 25,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Title section
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  Utils.getTranslatedLabel(recapAttendanceSubjectKey),
-                  style: GoogleFonts.poppins(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: _maroonPrimary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Rekap kehadiran mata pelajaran tahun $_selectedYear',
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-          )
-              .animate()
-              .fadeIn(duration: 400.ms)
-              .slideY(begin: -0.1, end: 0, curve: Curves.easeOutQuad),
-
           // Recap attendance container
           RecapAttendanceContainer(
             classSections: classes,

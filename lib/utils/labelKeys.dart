@@ -466,7 +466,7 @@ const String galleryKey = "gallery";
 
 const String onlyImageAndDocumentsAreAllowedNoteLimitKey =
     "onlyImageAndDocumentsAreAllowedNoteLimit";
-const String maximumAttachmentKey = "maximumAttachment";
+const String maximumAttachmentKey = "Lampiran mencapai max size";
 const String requiredLearningKey = "requiredLearning";
 const String addAttendanceSubjectKey = "addAttendanceSubject";
 const String noAttendanceYetKey = "noAttendanceYet";

@@ -440,105 +440,94 @@ class _EditProfileScreenState extends State<EditProfileScreen>
 
   Widget _buildUpdateProfileButton(EditProfileState state) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.07),
-            offset: const Offset(0, -4),
-            blurRadius: 20,
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(vertical: 16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        height: 56,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [primaryMaroon, accentMaroon],
           ),
-        ],
-      ),
-      child: SafeArea(
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          height: 56,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [primaryMaroon, accentMaroon],
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: primaryMaroon.withOpacity(0.3),
+              offset: const Offset(0, 4),
+              blurRadius: 15,
             ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: primaryMaroon.withOpacity(0.3),
-                offset: const Offset(0, 4),
-                blurRadius: 15,
-              ),
-            ],
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(16),
-              onTap: () {
-                if (state is EditProfileProgress) {
-                  return;
-                }
+            onTap: () {
+              if (state is EditProfileProgress) {
+                return;
+              }
 
-                HapticFeedback.mediumImpact();
+              HapticFeedback.mediumImpact();
 
-                if (firstName.text.trim().isEmpty ||
-                    mobileNumber.text.trim().isEmpty ||
-                    email.text.trim().isEmpty ||
-                    dateOfBirth.text.trim().isEmpty) {
-                  Utils.showSnackBar(
-                      message: pleaseAddNeededDetailsKey, context: context);
-                  return;
-                }
+              if (firstName.text.trim().isEmpty ||
+                  mobileNumber.text.trim().isEmpty ||
+                  email.text.trim().isEmpty ||
+                  dateOfBirth.text.trim().isEmpty) {
+                Utils.showSnackBar(
+                    message: pleaseAddNeededDetailsKey, context: context);
+                return;
+              }
 
-                String apiDateFormat = "";
-                try {
-                  final inputDate =
-                      DateFormat("dd-MM-yyyy").parse(dateOfBirth.text.trim());
-                  apiDateFormat = DateFormat("yyyy-MM-dd").format(inputDate);
-                } catch (e) {
-                  apiDateFormat = dateOfBirth.text.trim();
-                }
-                context.read<EditProfileCubit>().editProfile(
-                    firstName: firstName.text.trim(),
-                    lastName: lastName.text.trim(),
-                    mobileNumber: mobileNumber.text.trim(),
-                    email: email.text.trim(),
-                    dateOfBirth: dateOfBirth.text.trim(),
-                    currentAddress: currentAddress.text.trim(),
-                    permanentAddress: permanentAddress.text.trim(),
-                    gender: selectedGender,
-                    image: uploadedPicture ?? "");
-              },
-              child: Center(
-                child: state is EditProfileProgress
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
+              String formattedDate = "";
+              try {
+                final inputDate =
+                    DateFormat("dd-MM-yyyy").parse(dateOfBirth.text.trim());
+                formattedDate = DateFormat("yyyy-MM-dd").format(inputDate);
+              } catch (e) {
+                formattedDate = dateOfBirth.text.trim();
+              }
+              context.read<EditProfileCubit>().editProfile(
+                  firstName: firstName.text.trim(),
+                  lastName: lastName.text.trim(),
+                  mobileNumber: mobileNumber.text.trim(),
+                  email: email.text.trim(),
+                  dateOfBirth: formattedDate,
+                  currentAddress: currentAddress.text.trim(),
+                  permanentAddress: permanentAddress.text.trim(),
+                  gender: selectedGender,
+                  image: uploadedPicture ?? "");
+            },
+            child: Center(
+              child: state is EditProfileProgress
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.check_circle_outline,
                           color: Colors.white,
                         ),
-                      )
-                    : Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.check_circle_outline,
+                        const SizedBox(width: 8),
+                        Text(
+                          updateProfileKey.tr,
+                          style: GoogleFonts.poppins(
                             color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            updateProfileKey.tr,
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-              ),
+                        ),
+                      ],
+                    ),
             ),
           ),
         ),
@@ -694,7 +683,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                       opacity: _fadeAnimation,
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.only(
-                            top: 80, bottom: 100, left: 24, right: 24),
+                            top: 80, bottom: 40, left: 24, right: 24),
                         physics: const BouncingScrollPhysics(),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -762,6 +751,8 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                 prefixIcon: Icons.location_on_outlined,
                               ),
                             ],
+                            const SizedBox(height: 24),
+                            _buildUpdateProfileButton(state),
                           ],
                         ),
                       ),
@@ -875,14 +866,6 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                     ),
                   ),
                 ),
-              ),
-
-              // Update profile button
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: _buildUpdateProfileButton(state),
               ),
             ],
           ),

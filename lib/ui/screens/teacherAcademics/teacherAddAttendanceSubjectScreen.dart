@@ -304,8 +304,8 @@ class _TeacherAddAttendanceScreenSubjectState
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
         controller: _scrollController,
-        // padding: EdgeInsets.only(
-        //     top: MediaQuery.of(context).padding.top + 2, bottom: 90),
+        padding: EdgeInsets.only(
+            bottom: 100), // Add bottom padding to prevent overlap
         child: BlocBuilder<SubjectAttendanceCubit, SubjectAttendanceState>(
           builder: (context, state) {
             if (state is SubjectAttendanceFetchSuccess) {
@@ -783,26 +783,6 @@ class _TeacherAddAttendanceScreenSubjectState
                                   ],
                                 ),
                               ), // Status badge - Always show as active
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.green.withOpacity(0.3),
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                    color: Colors.green.withOpacity(0.6),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Text(
-                                  'Aktif',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
                             ],
                           ),
                         ),
@@ -897,8 +877,10 @@ class _TeacherAddAttendanceScreenSubjectState
             final bool isSubmitActive = !(submitAttendanceSubjectState
                 is SubmitAttendanceSubjectInProgress);
 
-            return Align(
-              alignment: Alignment.bottomCenter,
+            return Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
@@ -1164,7 +1146,12 @@ class _TeacherAddAttendanceScreenSubjectState
               if (state is ClassesFetchSuccess) {
                 return Stack(children: [
                   _buildStudentsContainer(),
-                  _buildSubmitButton(),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: _buildSubmitButton(),
+                  ),
                 ]);
               }
               if (state is ClassesFetchFailure) {

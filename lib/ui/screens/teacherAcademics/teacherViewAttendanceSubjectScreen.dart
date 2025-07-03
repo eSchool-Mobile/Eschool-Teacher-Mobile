@@ -1501,6 +1501,7 @@ class _TeacherViewAttendanceSubjectScreenState
       lightColor: _maroonLight,
       height: 200, // Increased height to accommodate filter tabs
       tabBuilder: (context) => _buildFilterTabs(),
+      onBackPressed: () => Navigator.of(context).pop(),
     );
   }
 
