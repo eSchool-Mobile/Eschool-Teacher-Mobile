@@ -7,6 +7,8 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
+      vars:
+        ONLY_ACTIVE_ARCH: YES
     scripts:
       - name: Get Flutter packages
         script: |
@@ -23,6 +25,7 @@ workflows:
         ignore_failure: true
       - name: Build iOS for Simulator
         script: |
+          export ONLY_ACTIVE_ARCH=YES
           flutter build ios --simulator --release \
             --build-name=1.0.5 \
             --build-number=$BUILD_NUMBER
@@ -88,6 +91,7 @@ workflows:
         XCODE_WORKSPACE: "ios/Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
         BUNDLE_ID: "id.ac.eschool.teacherstaff.ios"
+        ONLY_ACTIVE_ARCH: YES
       flutter: stable
       xcode: latest
       cocoapods: default
@@ -110,6 +114,7 @@ workflows:
         ignore_failure: true
       - name: Build ipa for distribution  
         script: |
+          export ONLY_ACTIVE_ARCH=YES
           flutter build ipa --release \
             --build-name=1.0.5 \
             --build-number=$BUILD_NUMBER
