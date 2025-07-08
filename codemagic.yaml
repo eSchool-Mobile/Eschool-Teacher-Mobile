@@ -13,9 +13,17 @@ workflows:
       - name: Get Flutter packages
         script: |
           flutter packages pub get
-      - name: Install pods
+      - name: Clean iOS build and pods
         script: |
-          find . -name "Podfile" -execdir pod install \;
+          flutter clean
+          cd ios
+          rm -rf Pods
+          rm -rf .symlinks
+          rm -f Podfile.lock
+      - name: Update CocoaPods repo and install pods
+        script: |
+          pod repo update
+          find . -name "Podfile" -execdir pod install --repo-update \;
       - name: Flutter analyze (ignore warning count)
         script: |
           flutter analyze || echo "Warnings found, but continuing build..."
@@ -102,9 +110,17 @@ workflows:
       - name: Get Flutter packages
         script: |
           flutter packages pub get
-      - name: Install pods
+      - name: Clean iOS build and pods
         script: |
-          find . -name "Podfile" -execdir pod install \;
+          flutter clean
+          cd ios
+          rm -rf Pods
+          rm -rf .symlinks
+          rm -f Podfile.lock
+      - name: Update CocoaPods repo and install pods
+        script: |
+          pod repo update
+          find . -name "Podfile" -execdir pod install --repo-update \;
       - name: Flutter analyze
         script: |
           flutter analyze
