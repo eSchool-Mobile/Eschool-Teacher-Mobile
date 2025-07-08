@@ -15,25 +15,29 @@ workflows:
           flutter packages pub get
       - name: Clean iOS build and pods
         script: |
-          flutter clean
+          flutter clean 
           cd ios
           rm -rf Pods
-          rm -rf .symlinks
           rm -f Podfile.lock
-          rm -rf build
-          rm -rf Runner.xcworkspace
+          # Don't remove .symlinks and Flutter folder - they're needed!
       - name: Regenerate Flutter files and install pods
         script: |
           echo "Regenerating Flutter files..."
           flutter packages pub get
           flutter precache --ios
-          echo "Checking if Generated.xcconfig exists..."
+          echo "Checking Flutter directory structure..."
+          ls -la ios/
+          ls -la ios/Flutter/ || echo "Flutter directory doesn't exist yet"
+          echo "Manually creating Flutter directory if needed..."
+          mkdir -p ios/Flutter
+          echo "Running flutter build ios --config-only to generate files..."
+          flutter build ios --config-only
+          echo "Checking if Generated.xcconfig exists now..."
           ls -la ios/Flutter/
           echo "Updating CocoaPods repo..."
           pod repo update
-          echo "Changing to ios directory and installing pods..."
+          echo "Installing pods..."
           cd ios
-          pod deintegrate || true
           pod install --repo-update --clean-install
       - name: Flutter analyze (ignore warning count)
         script: |
@@ -45,7 +49,7 @@ workflows:
       - name: Build iOS for Simulator
         script: |
           export ONLY_ACTIVE_ARCH=YES
-          flutter build ios --simulator \
+          flutter build ios --simulator --debug \
             --build-name=1.0.5 \
             --build-number=$BUILD_NUMBER
     artifacts:
@@ -126,22 +130,26 @@ workflows:
           flutter clean
           cd ios
           rm -rf Pods
-          rm -rf .symlinks
           rm -f Podfile.lock
-          rm -rf build
-          rm -rf Runner.xcworkspace
+          # Don't remove .symlinks and Flutter folder - they're needed!
       - name: Regenerate Flutter files and install pods
         script: |
           echo "Regenerating Flutter files..."
           flutter packages pub get
           flutter precache --ios
-          echo "Checking if Generated.xcconfig exists..."
+          echo "Checking Flutter directory structure..."
+          ls -la ios/
+          ls -la ios/Flutter/ || echo "Flutter directory doesn't exist yet"
+          echo "Manually creating Flutter directory if needed..."
+          mkdir -p ios/Flutter
+          echo "Running flutter build ios --config-only to generate files..."
+          flutter build ios --config-only
+          echo "Checking if Generated.xcconfig exists now..."
           ls -la ios/Flutter/
           echo "Updating CocoaPods repo..."
           pod repo update
-          echo "Changing to ios directory and installing pods..."
+          echo "Installing pods..."
           cd ios
-          pod deintegrate || true
           pod install --repo-update --clean-install
       - name: Flutter analyze
         script: |
