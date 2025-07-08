@@ -1029,7 +1029,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
               ),
               SizedBox(width: 12),
               Text(
-                'Hapus Bank Soal',
+                'Bank Soal',
                 style: TextStyle(
                   color: Colors.red.shade700,
                   fontWeight: FontWeight.w500,
@@ -1554,7 +1554,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
               ),
               SizedBox(width: 16),
               Text(
-                'Hapus Bank Soal',
+                'Bank Soal',
                 style:
                     TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
               ),

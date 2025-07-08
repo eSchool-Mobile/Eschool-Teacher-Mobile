@@ -51,7 +51,7 @@ String defaultPassword = "smkn8*()";
 // String defaultEmail = "sadenylet@mailinator.com";
 // String defaultPassword = "08123456789";
 
-//R String defaultSchoolCode = "";
+// String defaultSchoolCode = "";
 // String defaultEmail = "";
 // String defaultPassword = "";
 

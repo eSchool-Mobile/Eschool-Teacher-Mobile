@@ -2,8 +2,6 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
 import 'package:eschool_saas_staff/data/repositories/studyMaterialRepository.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:external_path/external_path.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -44,6 +42,36 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
     emit(DownloadFileInProgress(percentage));
   }
 
+  /// Mendapatkan direktori downloads untuk Android atau dokumen untuk platform lain
+  Future<String> _getDownloadsDirectory() async {
+    if (Platform.isAndroid) {
+      // Untuk Android, gunakan direktori eksternal
+      try {
+        final directory = await getExternalStorageDirectory();
+        if (directory != null) {
+          // Membuat path ke folder Downloads
+          final downloadsPath = '/storage/emulated/0/Download';
+          final downloadsDir = Directory(downloadsPath);
+          if (await downloadsDir.exists()) {
+            return downloadsPath;
+          } else {
+            // Fallback ke external storage directory
+            return directory.path;
+          }
+        }
+      } catch (e) {
+        print("Error getting external storage: $e");
+      }
+      // Fallback ke application documents directory
+      final appDir = await getApplicationDocumentsDirectory();
+      return appDir.path;
+    } else {
+      // Untuk platform lain (iOS, etc)
+      final directory = await getApplicationDocumentsDirectory();
+      return directory.path;
+    }
+  }
+
   Future<void> writeFileFromTempStorage({
     required String sourcePath,
     required String destinationPath,
@@ -81,33 +109,25 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
     emit(DownloadFileInProgress(0.0));
     try {
       // Cek izin berdasarkan versi Android
-      bool isPermissionGranted = false;
       if (Platform.isAndroid) {
         final androidVersion = await _getAndroidVersion();
         if (androidVersion >= 30) {
           // Android 11+
           final permission = await Permission.manageExternalStorage.request();
-          if (permission.isGranted) {
-            print("Izin MANAGE_EXTERNAL_STORAGE diberikan");
-            isPermissionGranted = true;
-          } else {
+          if (!permission.isGranted) {
             print("Izin MANAGE_EXTERNAL_STORAGE ditolak");
             throw Exception("Izin untuk mengakses memori eksternal ditolak");
           }
+          print("Izin MANAGE_EXTERNAL_STORAGE diberikan");
         } else {
           // Android 10 ke bawah
           final permission = await Permission.storage.request();
-          if (permission.isGranted) {
-            print("Izin penyimpanan diberikan");
-            isPermissionGranted = true;
-          } else {
+          if (!permission.isGranted) {
             print("Izin penyimpanan ditolak");
             throw Exception("Izin untuk mengakses memori eksternal ditolak");
           }
+          print("Izin penyimpanan diberikan");
         }
-      } else {
-        // Untuk platform non-Android, gunakan direktori dokumen (karena tidak ada memori eksternal seperti Android)
-        isPermissionGranted = true;
       }
 
       // Simpan file sementara
@@ -119,10 +139,7 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
         print("File temp sudah ada: $tempFileSavePath");
         final fileSize = await File(tempFileSavePath).length();
         if (fileSize > 0) {
-          String downloadFilePath = Platform.isAndroid
-              ? await ExternalPath.getExternalStoragePublicDirectory(
-                  ExternalPath.DIRECTORY_DOWNLOADS)
-              : (await getApplicationDocumentsDirectory()).path;
+          String downloadFilePath = await _getDownloadsDirectory();
 
           downloadFilePath =
               "$downloadFilePath/${studyMaterial.fileName}.${studyMaterial.fileExtension}";
@@ -149,10 +166,7 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
       );
 
       // Selalu simpan ke memori eksternal untuk Android
-      String downloadFilePath = Platform.isAndroid
-          ? await ExternalPath.getExternalStoragePublicDirectory(
-              ExternalPath.DIRECTORY_DOWNLOADS)
-          : (await getApplicationDocumentsDirectory()).path;
+      String downloadFilePath = await _getDownloadsDirectory();
 
       downloadFilePath =
           "$downloadFilePath/${studyMaterial.fileName}.${studyMaterial.fileExtension}";
@@ -182,7 +196,7 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
   Future<int> _getAndroidVersion() async {
     try {
       final androidInfo = await DeviceInfoPlugin().androidInfo;
-      return androidInfo.version.sdkInt ?? 0;
+      return androidInfo.version.sdkInt;
     } catch (e) {
       print("Gagal mendapatkan versi Android: $e");
       return 0;

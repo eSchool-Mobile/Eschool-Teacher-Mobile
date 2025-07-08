@@ -449,7 +449,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
             Colors.white, // Change to white to extend all the way to status bar
         extendBodyBehindAppBar: true,
         appBar: CustomModernAppBar(
-          title: widget.bankSoal.name,
+          title: "Soal Akademik",
           icon: Icons.question_answer_rounded,
           fabAnimationController: _breathingController,
           primaryColor: _primaryColor,

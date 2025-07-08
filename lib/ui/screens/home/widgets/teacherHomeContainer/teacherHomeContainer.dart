@@ -78,7 +78,7 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer> {
                           children: [
                             // TeacherHomeOverviewContainer(),
                             SizedBox(
-                              height: 20,
+                              height: 45,
                             ),
                             TeacherTodaysTimetableContainer(),
                             TeacherPermissionContainer(),
