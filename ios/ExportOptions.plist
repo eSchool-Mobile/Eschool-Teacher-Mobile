@@ -5,7 +5,7 @@
 	<key>destination</key>
 	<string>export</string>
 	<key>method</key>
-	<string>app-store</string>
+	<string>ad-hoc</string>
 	<key>teamID</key>
 	<string>TEAM_ID_PLACEHOLDER</string>
 	<key>uploadBitcode</key>
@@ -18,11 +18,11 @@
 	<true/>
 	<key>provisioningProfiles</key>
 	<dict>
-		<key>id.ac.eschool.teacherstaff.android</key>
+		<key>id.ac.eschool.teacherstaff.ios</key>
 		<string>PROVISIONING_PROFILE_SPECIFIER_PLACEHOLDER</string>
 	</dict>
 	<key>signingCertificate</key>
-	<string>iOS Distribution</string>
+	<string>Apple Distribution</string>
 	<key>signingStyle</key>
 	<string>manual</string>
 	<key>stripSwiftSymbols</key>

@@ -7,16 +7,17 @@ workflows:
       app_store_connect: codemagic
     environment:
       ios_signing:
-        distribution_type: app_store
-        bundle_identifier: id.ac.eschool.teacherstaff.android
+        distribution_type: ad_hoc # Changed from app_store to ad_hoc for easier testing
+        bundle_identifier: id.ac.eschool.teacherstaff.ios
       vars:
-        APP_STORE_CONNECT_ISSUER_ID: # Add your App Store Connect Issuer ID
-        APP_STORE_CONNECT_KEY_IDENTIFIER: # Add your App Store Connect Key ID
-        APP_STORE_CONNECT_PRIVATE_KEY: # Add your App Store Connect Private Key
-        CERTIFICATE_PRIVATE_KEY: # Add your certificate private key
+        # App Store Connect credentials - uncomment and fill when ready for App Store
+        # APP_STORE_CONNECT_ISSUER_ID: $APP_STORE_CONNECT_ISSUER_ID
+        # APP_STORE_CONNECT_KEY_IDENTIFIER: $APP_STORE_CONNECT_KEY_IDENTIFIER  
+        # APP_STORE_CONNECT_PRIVATE_KEY: $APP_STORE_CONNECT_PRIVATE_KEY
+        # CERTIFICATE_PRIVATE_KEY: $CERTIFICATE_PRIVATE_KEY
         XCODE_WORKSPACE: "ios/Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
-        BUNDLE_ID: "id.ac.eschool.teacherstaff.android"
+        BUNDLE_ID: "id.ac.eschool.teacherstaff.ios"
       flutter: stable
       xcode: latest
       cocoapods: default
@@ -37,37 +38,26 @@ workflows:
         script: |
           flutter test
         ignore_failure: true
-      - name: Build ipa for distribution
+      - name: Build ipa for distribution  
         script: |
           flutter build ipa --release \
             --build-name=1.0.5 \
-            --build-number=$(($(app-store-connect get-latest-app-store-build-number "$APP_ID") + 1)) \
-            --export-options-plist=ios/ExportOptions.plist
+            --build-number=$BUILD_NUMBER
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
       - flutter_drive.log
     publishing:
-      # email:
-      #   recipients:
-      #     - user_1@example.com
-      #     - user_2@example.com
-      #   notify:
-      #     success: true
-      #     failure: false
-      app_store_connect:
-        auth: integration
-        
-        # Configuration related to TestFlight (optional)
-        # Note: This action is performed during post-processing.
-        submit_to_testflight: true
-        beta_groups: # Specify the names of beta tester groups that will get access to the build once it has passed beta review.
-          - group name 1
-          - group name 2
-
-        # Configuration related to App Store (optional)
-        # Note: This action is performed during post-processing.
-        submit_to_app_store: false
+      email:
+        recipients:
+          -farelrasyah87@gmail.com # Ganti dengan email Anda
+        notify:
+          success: true
+          failure: true
+      # app_store_connect: # Commented out until credentials are configured
+      #   auth: integration
+      #   submit_to_testflight: true
+      #   submit_to_app_store: false
 
   android-workflow:
     name: Android Workflow
