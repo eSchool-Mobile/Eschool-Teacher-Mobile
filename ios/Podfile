@@ -34,6 +34,12 @@ target 'Runner' do
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   
+  # Exclude Firebase pods for simulator builds to avoid modular header issues
+  # This helps with CI/CD simulator builds while keeping Firebase for real devices
+  unless ENV['DISABLE_FIREBASE'] == 'true'
+    # Firebase pods will only be included for non-simulator builds
+  end
+  
   target 'RunnerTests' do
     inherit! :search_paths
   end

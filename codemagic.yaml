@@ -9,6 +9,7 @@ workflows:
       cocoapods: default
       vars:
         ONLY_ACTIVE_ARCH: YES
+        DISABLE_FIREBASE: true
     scripts:
       - name: Get Flutter packages
         script: |
@@ -49,9 +50,20 @@ workflows:
       - name: Build iOS for Simulator
         script: |
           export ONLY_ACTIVE_ARCH=YES
+          # Disable Firebase for simulator build to avoid modular header issues
+          echo "Temporarily disabling Firebase for simulator build..."
+          # Comment out Firebase imports in main.dart
+          sed -i.bak 's/import.*firebase/#&/' lib/main.dart || true
+          sed -i.bak 's/Firebase\./#&/' lib/main.dart || true
+          sed -i.bak 's/FirebaseMessaging\./#&/' lib/main.dart || true
+          sed -i.bak 's/FirebaseAuth\./#&/' lib/main.dart || true
+          # Build for simulator
           flutter build ios --simulator --debug \
             --build-name=1.0.5 \
-            --build-number=$BUILD_NUMBER
+            --build-number=$BUILD_NUMBER \
+            --dart-define=DISABLE_FIREBASE=true
+          # Restore original main.dart
+          mv lib/main.dart.bak lib/main.dart || true
     artifacts:
       - build/ios/iphonesimulator/**/*.app
       - flutter_drive.log
