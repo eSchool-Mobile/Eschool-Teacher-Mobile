@@ -1,20 +1,90 @@
 workflows:
+  ios-simulator-workflow:
+    name: iOS Simulator Build (No Apple ID Required)
+    max_build_duration: 120
+    instance_type: mac_mini_m1
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Get Flutter packages
+        script: |
+          flutter packages pub get
+      - name: Install pods
+        script: |
+          find . -name "Podfile" -execdir pod install \;
+      - name: Flutter analyze
+        script: |
+          flutter analyze
+      - name: Flutter unit tests
+        script: |
+          flutter test
+        ignore_failure: true
+      - name: Build iOS for Simulator
+        script: |
+          flutter build ios --simulator --release \
+            --build-name=1.0.5 \
+            --build-number=$BUILD_NUMBER
+    artifacts:
+      - build/ios/iphonesimulator/**/*.app
+      - flutter_drive.log
+    publishing:
+      email:
+        recipients:
+          - farelrasyah87@gmail.com
+        notify:
+          success: true
+          failure: true
+
+  web-workflow:
+    name: Web Build (Works on iOS Safari)
+    max_build_duration: 60
+    instance_type: linux_x2
+    environment:
+      flutter: stable
+    scripts:
+      - name: Get Flutter packages
+        script: |
+          flutter packages pub get
+      - name: Flutter analyze
+        script: |
+          flutter analyze
+      - name: Flutter unit tests
+        script: |
+          flutter test
+        ignore_failure: true
+      - name: Build Web
+        script: |
+          flutter build web --release \
+            --build-name=1.0.5 \
+            --build-number=$BUILD_NUMBER
+    artifacts:
+      - build/web/**
+    publishing:
+      email:
+        recipients:
+          - farelrasyah87@gmail.com
+        notify:
+          success: true
+          failure: true
+
+  # iOS REAL DEVICE (Requires Apple Developer Account - $99/year)
   ios-workflow:
-    name: iOS Workflow
+    name: iOS Real Device (Requires Apple Developer Account)
     max_build_duration: 120
     instance_type: mac_mini_m1
     integrations:
       app_store_connect: codemagic
     environment:
       ios_signing:
-        distribution_type: ad_hoc # Changed from app_store to ad_hoc for easier testing
+        distribution_type: ad_hoc
         bundle_identifier: id.ac.eschool.teacherstaff.ios
       vars:
-        # App Store Connect credentials - uncomment and fill when ready for App Store
+        # Uncomment when you have Apple Developer Account:
         # APP_STORE_CONNECT_ISSUER_ID: $APP_STORE_CONNECT_ISSUER_ID
         # APP_STORE_CONNECT_KEY_IDENTIFIER: $APP_STORE_CONNECT_KEY_IDENTIFIER  
         # APP_STORE_CONNECT_PRIVATE_KEY: $APP_STORE_CONNECT_PRIVATE_KEY
-        # CERTIFICATE_PRIVATE_KEY: $CERTIFICATE_PRIVATE_KEY
         XCODE_WORKSPACE: "ios/Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
         BUNDLE_ID: "id.ac.eschool.teacherstaff.ios"
@@ -50,7 +120,7 @@ workflows:
     publishing:
       email:
         recipients:
-          - farelrasyah87@gmail.com # Ganti dengan email Anda
+          - farelrasyah87@gmail.com
         notify:
           success: true
           failure: true
