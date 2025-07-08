@@ -50,7 +50,7 @@ workflows:
     publishing:
       email:
         recipients:
-          -farelrasyah87@gmail.com # Ganti dengan email Anda
+          - farelrasyah87@gmail.com # Ganti dengan email Anda
         notify:
           success: true
           failure: true
