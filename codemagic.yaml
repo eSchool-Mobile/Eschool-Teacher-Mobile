@@ -64,9 +64,16 @@ workflows:
             --dart-define=DISABLE_FIREBASE=true
           # Restore original main.dart
           mv lib/main.dart.bak lib/main.dart || true
+          echo "Build completed! Checking artifacts..."
+          ls -la build/ios/iphonesimulator/
+          ls -la build/ios/iphonesimulator/**/*.app || echo "No .app files found"
     artifacts:
       - build/ios/iphonesimulator/**/*.app
+      - build/ios/iphonesimulator/**/Runner.app
+      - build/ios/**/*.app
+      - build/**/*.app
       - flutter_drive.log
+      - ios/build/**/*.app
     publishing:
       email:
         recipients:
