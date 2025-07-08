@@ -22,8 +22,9 @@ workflows:
           rm -f Podfile.lock
           rm -rf build
           rm -rf Runner.xcworkspace
-      - name: Update CocoaPods repo and install pods
+      - name: Regenerate Flutter files and install pods
         script: |
+          flutter packages pub get
           pod repo update
           cd ios
           pod deintegrate || true
@@ -123,8 +124,9 @@ workflows:
           rm -f Podfile.lock
           rm -rf build
           rm -rf Runner.xcworkspace
-      - name: Update CocoaPods repo and install pods
+      - name: Regenerate Flutter files and install pods
         script: |
+          flutter packages pub get
           pod repo update
           cd ios
           pod deintegrate || true
