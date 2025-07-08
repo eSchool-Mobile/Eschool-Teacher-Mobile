@@ -24,8 +24,14 @@ workflows:
           rm -rf Runner.xcworkspace
       - name: Regenerate Flutter files and install pods
         script: |
+          echo "Regenerating Flutter files..."
           flutter packages pub get
+          flutter precache --ios
+          echo "Checking if Generated.xcconfig exists..."
+          ls -la ios/Flutter/
+          echo "Updating CocoaPods repo..."
           pod repo update
+          echo "Changing to ios directory and installing pods..."
           cd ios
           pod deintegrate || true
           pod install --repo-update --clean-install
@@ -126,8 +132,14 @@ workflows:
           rm -rf Runner.xcworkspace
       - name: Regenerate Flutter files and install pods
         script: |
+          echo "Regenerating Flutter files..."
           flutter packages pub get
+          flutter precache --ios
+          echo "Checking if Generated.xcconfig exists..."
+          ls -la ios/Flutter/
+          echo "Updating CocoaPods repo..."
           pod repo update
+          echo "Changing to ios directory and installing pods..."
           cd ios
           pod deintegrate || true
           pod install --repo-update --clean-install
