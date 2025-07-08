@@ -8,8 +8,9 @@ workflows:
       xcode: latest
       cocoapods: default
       vars:
-        ONLY_ACTIVE_ARCH: YES
+        ONLY_ACTIVE_ARCH: NO
         DISABLE_FIREBASE: true
+        ARCHS: x86_64 arm64
     scripts:
       - name: Get Flutter packages
         script: |
@@ -49,7 +50,8 @@ workflows:
         ignore_failure: true
       - name: Build iOS for Simulator
         script: |
-          export ONLY_ACTIVE_ARCH=YES
+          # Build for both x86_64 and arm64 architectures for Appetize.io compatibility
+          echo "Building iOS simulator for x86_64 and arm64 architectures..."
           # Disable Firebase for simulator build to avoid modular header issues
           echo "Temporarily disabling Firebase for simulator build..."
           # Comment out Firebase imports in main.dart
@@ -57,16 +59,29 @@ workflows:
           sed -i.bak 's/Firebase\./#&/' lib/main.dart || true
           sed -i.bak 's/FirebaseMessaging\./#&/' lib/main.dart || true
           sed -i.bak 's/FirebaseAuth\./#&/' lib/main.dart || true
-          # Build for simulator
+          # Build for simulator with multiple architectures
           flutter build ios --simulator --debug \
             --build-name=1.0.5 \
             --build-number=$BUILD_NUMBER \
             --dart-define=DISABLE_FIREBASE=true
+          # Additional build for x86_64 if needed
+          echo "Ensuring x86_64 architecture is included..."
+          cd ios
+          xcodebuild -workspace Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 14' \
+            -arch x86_64 -arch arm64 \
+            ONLY_ACTIVE_ARCH=NO \
+            build
+          cd ..
           # Restore original main.dart
           mv lib/main.dart.bak lib/main.dart || true
           echo "Build completed! Checking artifacts..."
           ls -la build/ios/iphonesimulator/
-          ls -la build/ios/iphonesimulator/**/*.app || echo "No .app files found"
+          file build/ios/iphonesimulator/Runner.app/Runner || echo "No Runner binary found"
+          lipo -info build/ios/iphonesimulator/Runner.app/Runner || echo "Cannot check architectures"
     artifacts:
       - build/ios/iphonesimulator/**/*.app
       - build/ios/iphonesimulator/**/Runner.app
