@@ -279,7 +279,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                            "Kontak Wali",
+                          "Kontak Wali",
                           style: TextStyle(
                             fontSize: 13,
                             color: textMediumColor,
@@ -570,9 +570,9 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                     ),
                   ),
                 )
-              : ProfileImageContainer(
+              : ProfileImageContainer.circular(
                   imageUrl: imageUrl,
-                  heightAndWidth: 70,
+                  size: 70,
                 ),
         ),
       ),

@@ -5,9 +5,9 @@ import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
@@ -63,7 +63,6 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
   // Define the maroon color palette
   final Color _maroonPrimary = const Color(0xFF800020);
   final Color _maroonLight = const Color(0xFFAA6976);
-  final Color _maroonDark = const Color(0xFF690013);
 
   late final TextEditingController _titleTextEditingController =
       TextEditingController(text: widget.announcement.title ?? "");
@@ -134,138 +133,19 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
   }
 
   Widget _buildHeaderSection() {
-    return Container(
-      padding: EdgeInsets.only(
-          top: MediaQuery.of(context).padding.top + 10,
-          bottom: 15,
-          left: 16,
-          right: 16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            _maroonDark,
-            _maroonPrimary,
-            Color(0xFFA12948),
-            _maroonLight,
-          ],
-          stops: [0.0, 0.3, 0.6, 1.0],
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(30),
-          bottomRight: Radius.circular(30),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: _maroonPrimary.withOpacity(0.3),
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // App bar with back button
-          _buildAppBar(),
-
-          SizedBox(height: 16),
-
-          // Header content
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Animated icon
-
-              SizedBox(width: 16),
-
-              // Title and subtitle
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-
-                    Text(
-                      'Perbarui informasi pengumuman Anda',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.white.withOpacity(0.9),
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
-                ),
-              ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.2, end: 0),
-            ],
-          ),
-
-          SizedBox(height: 16),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAppBar() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        // Back button with ripple effect
-        Material(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            highlightColor: Colors.white.withOpacity(0.1),
-            splashColor: Colors.white.withOpacity(0.2),
-            onTap: () {
-              if (context.read<EditGeneralAnnouncementCubit>().state
-                  is! EditGeneralAnnouncementInProgress) {
-                Get.back();
-              }
-            },
-            child: Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                Icons.arrow_back_ios_rounded,
-                color: Colors.white,
-                size: 22,
-              ),
-            ),
-          ),
-        )
-            .animate()
-            .fadeIn(duration: 400.ms, curve: Curves.easeOut)
-            .slideX(begin: -0.3, end: 0),
-
-        // Title with glassmorphism
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.2),
-              width: 1,
-            ),
-          ),
-          child: Text(
-            Utils.getTranslatedLabel(editAnnouncementKey),
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
-          ),
-        ).animate().fadeIn(duration: 500.ms),
-
-        // Empty widget to balance the row
-        SizedBox(width: 40),
-      ],
+    return CustomModernAppBar(
+      title: Utils.getTranslatedLabel(editAnnouncementKey),
+      icon: Icons.announcement_rounded,
+      fabAnimationController: _fabAnimationController,
+      primaryColor: _maroonPrimary,
+      lightColor: _maroonLight,
+      onBackPressed: () {
+        if (context.read<EditGeneralAnnouncementCubit>().state
+            is! EditGeneralAnnouncementInProgress) {
+          Get.back();
+        }
+      },
+      height: 100,
     );
   }
 

@@ -10,7 +10,6 @@ import 'package:eschool_saas_staff/data/models/AssignmentFiletype.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCheckboxContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
@@ -85,12 +84,17 @@ class _TeacherAddEditAssignmentScreenState
   late AnimationController _animationController;
   late AnimationController _pulseController;
 
-  // Theme colors
-  final Color _primaryColor = Color(0xFF7A1E23); // Deep maroon
-  final Color _accentColor = Color(0xFF9D3C3C); // Medium maroon
-  final Color _highlightColor = Color(0xFFB84D4D); // Bright maroon
-  final Color _energyColor = Color(0xFFCE6D6D); // Light maroon
-  final Color _glowColor = Color(0xFFAF4F4F); // Rich maroon  @override
+  // Elegant Maroon Design System
+  static const Color _deepMaroon = Color(0xFF7B2D3A); // Rich deep maroon
+  static const Color _softMaroon = Color(0xFF9B4C5C); // Primary maroon
+  static const Color _dustyRose = Color(0xFFB8707C); // Light dusty rose
+  static const Color _blushPink = Color(0xFFD4A5A5); // Soft blush
+  static const Color _pearl = Color(0xFFF5F0F0); // Pearl white
+  static const Color _roseMist = Color(0xFFFAF8F8); // Rose mist
+  static const Color _burgundy = Color(0xFF5D2329); // Dark burgundy
+  static const Color _champagne = Color(0xFFE8DDD8); // Champagne tint
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomModernAppBar(
@@ -135,8 +139,8 @@ class _TeacherAddEditAssignmentScreenState
   late final TextEditingController _extraResubmissionDaysTextEditingController =
       TextEditingController(
           text: widget.assignment?.extraDaysForResubmission.toString() ?? "0");
-  // Using resubmission information from assignment
-  bool _getResubmissionStatus() => widget.assignment?.resubmission == 0;
+  // Remove unused resubmission status method
+  // Using resubmission information from assignment directly in the code
 
   late DateTime? dueDate =
       DateTime.tryParse(widget.assignment?.dueDate.toString() ?? "");
@@ -189,12 +193,250 @@ class _TeacherAddEditAssignmentScreenState
   // These variables are already declared above, no need to redeclare
   // Just using the existing animation controllers
 
-  // These colors are used in the UI elements
-  Color get primaryColorUI => _primaryColor;
-  Color get accentColorUI => _accentColor;
-  Color get highlightColorUI => _highlightColor;
-  Color get energyColorUI => _energyColor;
-  Color get glowColorUI => _glowColor;
+  // Color getters for elegant maroon design system
+  Color get deepMaroonUI => _deepMaroon;
+  Color get softMaroonUI => _softMaroon;
+  Color get dustyRoseUI => _dustyRose;
+  Color get blushPinkUI => _blushPink;
+  Color get pearlUI => _pearl;
+  Color get roseMistUI => _roseMist;
+  Color get burgundyUI => _burgundy;
+  Color get champagneUI => _champagne;
+
+  // Main form builder method
+  Widget _buildAddEditAssignmentForm() {
+    return BlocBuilder<ClassSectionsAndSubjectsCubit, ClassSectionsAndSubjectsState>(
+      builder: (context, state) {
+        if (state is ClassSectionsAndSubjectsFetchInProgress) {
+          return Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(_deepMaroon),
+            ),
+          );
+        }
+        
+        if (state is ClassSectionsAndSubjectsFetchFailure) {
+          return ErrorContainer(
+            errorMessage: state.errorMessage,
+            onTapRetry: () {
+              context.read<ClassSectionsAndSubjectsCubit>().getClassSectionsAndSubjects(
+                classSectionId: _selectedClassSection?.id,
+              );
+            },
+          );
+        }
+        
+        if (state is ClassSectionsAndSubjectsFetchSuccess) {
+          return SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                SizedBox(height: 24),
+                
+                // Basic Information Section
+                _buildLuxurySection(
+                  title: "Informasi Dasar",
+                  subtitle: "Detail Tugas",
+                  icon: Icons.info_rounded,
+                  gradient: [_deepMaroon, _softMaroon],
+                  children: [
+                    // Class and Subject Selection
+                    _buildElegantField(
+                      "Kelas & Mata Pelajaran",
+                      "Pilih kelas dan mata pelajaran",
+                      Icons.school_rounded,
+                      Column(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(colors: [_pearl, _champagne.withOpacity(0.3)]),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: _blushPink.withOpacity(0.3)),
+                            ),
+                            child: CustomSelectionDropdownSelectionButton(
+                              onTap: () {
+                                if (state.classSections.isNotEmpty) {
+                                  Utils.showBottomSheet(
+                                    child: FilterSelectionBottomsheet<ClassSection>(
+                                      onSelection: (value) {
+                                        changeSelectedClassSection(value, fetchNewSubjects: true);
+                                        Get.back();
+                                      },
+                                      selectedValue: _selectedClassSection ?? state.classSections.first,
+                                      titleKey: "Pilih Kelas",
+                                      values: state.classSections,
+                                    ),
+                                    context: context,
+                                  );
+                                }
+                              },
+                              backgroundColor: Colors.transparent,
+                              titleKey: _selectedClassSection?.fullName ?? "Pilih Kelas",
+                            ),
+                          ),
+                          SizedBox(height: 12),
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(colors: [_pearl, _champagne.withOpacity(0.3)]),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: _blushPink.withOpacity(0.3)),
+                            ),
+                            child: CustomSelectionDropdownSelectionButton(
+                              onTap: () {
+                                Utils.showBottomSheet(
+                                  child: FilterSelectionBottomsheet<TeacherSubject>(
+                                    onSelection: (value) {
+                                      changeSelectedTeacherSubject(value);
+                                      Get.back();
+                                    },
+                                    selectedValue: _selectedSubject ?? state.subjects.first,
+                                    titleKey: "Pilih Mata Pelajaran",
+                                    values: state.subjects,
+                                  ),
+                                  context: context,
+                                );
+                              },
+                              backgroundColor: Colors.transparent,
+                              titleKey: _selectedSubject?.subject.getSybjectNameWithType() ?? "Pilih Mata Pelajaran",
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    SizedBox(height: 24),
+                    
+                    // Assignment Name
+                    _buildElegantField(
+                      "Nama Tugas",
+                      "Berikan nama yang jelas untuk tugas",
+                      Icons.assignment_rounded,
+                      CustomTextFieldContainer(
+                        textEditingController: _assignmentNameTextEditingController,
+                        hintTextKey: 'Masukkan nama tugas...',
+                        backgroundColor: _pearl,
+                      ),
+                    ),
+                    
+                    SizedBox(height: 24),
+                    
+                    // Description
+                    _buildElegantField(
+                      "Deskripsi Tugas",
+                      "Jelaskan detail tugas yang harus dikerjakan",
+                      Icons.description_rounded,
+                      CustomTextFieldContainer(
+                        textEditingController: _assignmentDescriptionTextEditingController,
+                        hintTextKey: 'Jelaskan tugas yang harus dikerjakan...',
+                        backgroundColor: _pearl,
+                        maxLines: 4,
+                      ),
+                    ),
+                  ],
+                ),
+                
+                SizedBox(height: 24),
+                
+                // Date & Time Section
+                _buildLuxurySection(
+                  title: "Jadwal Tugas",
+                  subtitle: "Waktu & Tenggat",
+                  icon: Icons.schedule_rounded,
+                  gradient: [_softMaroon, _dustyRose],
+                  children: [
+                    _buildDateTimeSection(),
+                  ],
+                ),
+                
+                SizedBox(height: 24),
+                
+                // Scoring Section
+                _buildLuxurySection(
+                  title: "Penilaian",
+                  subtitle: "Sistem Poin & Pengumpulan Ulang",
+                  icon: Icons.grade_rounded,
+                  gradient: [_dustyRose, _blushPink],
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildElegantField(
+                            "Poin Maksimal",
+                            "Total poin untuk tugas ini",
+                            Icons.star_rounded,
+                            CustomTextFieldContainer(
+                              keyboardType: TextInputType.number,
+                              textEditingController: _assignmentPointsTextEditingController,
+                              hintTextKey: 'Contoh: 100',
+                              backgroundColor: _pearl,
+                              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: _buildElegantField(
+                            "Poin Minimal",
+                            "Poin minimum untuk lulus",
+                            Icons.star_border_rounded,
+                            CustomTextFieldContainer(
+                              keyboardType: TextInputType.number,
+                              textEditingController: _minPointsTextEditingController,
+                              hintTextKey: 'Contoh: 70',
+                              backgroundColor: _pearl,
+                              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    SizedBox(height: 24),
+                    
+                    _buildElegantField(
+                      "Pengumpulan Ulang",
+                      "Berapa kali siswa boleh mengumpulkan ulang",
+                      Icons.refresh_rounded,
+                      CustomTextFieldContainer(
+                        keyboardType: TextInputType.number,
+                        textEditingController: _extraResubmissionDaysTextEditingController,
+                        hintTextKey: 'Contoh: 2 (0 = tidak boleh)',
+                        backgroundColor: _pearl,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      ),
+                    ),
+                  ],
+                ),
+                
+                SizedBox(height: 24),
+                
+                // Answer Type Section
+                _buildAnswerTypeSection(),
+                
+                SizedBox(height: 24),
+                
+                // Attachment Section
+                _buildAttachmentSection(),
+                
+                SizedBox(height: 24),
+                
+                // Submit Button
+                _buildSubmitButton(),
+                
+                SizedBox(height: 100), // Bottom spacing
+              ],
+            ),
+          );
+        }
+        
+        return Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(_deepMaroon),
+          ),
+        );
+      },
+    );
+  }
   @override
   void initState() {
     super
@@ -690,1139 +932,623 @@ class _TeacherAddEditAssignmentScreenState
         );
   }
 
+  // Helper method for modern form field styling
+  Widget _buildModernFormField({
+    required String label,
+    required Widget child,
+    String? description,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 4,
+              height: 16,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [_deepMaroon, _softMaroon],
+                ),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            SizedBox(width: 12),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: _deepMaroon,
+                letterSpacing: -0.2,
+              ),
+            ),
+          ],
+        ),
+        if (description != null) ...[
+          SizedBox(height: 4),
+          Padding(
+            padding: EdgeInsets.only(left: 16),
+            child: Text(
+              description,
+              style: TextStyle(
+                fontSize: 12,
+                color: _softMaroon.withOpacity(0.7),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+        SizedBox(height: 10),
+        child,
+      ],
+    );
+  }
+
+  // 🚀 PREMIUM SUBMIT BUTTON - Luxury design for action button
   Widget _buildSubmitButton() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: FadeInUp(
-        duration: Duration(milliseconds: 600),
+      margin: EdgeInsets.all(24),
+      child: widget.assignment != null
+          ? BlocConsumer<EditAssignmentCubit, EditAssignmentState>(
+              listener: (context, state) {
+                if (state is EditAssignmentSuccess) {
+                  Get.back(result: true);
+                  _showOverlayMessage(
+                    context: context,
+                    message: assignmentEditedSuccessfullyKey,
+                  );
+                } else if (state is EditAssignmentFailure) {
+                  Utils.showSnackBar(
+                    context: context,
+                    message: state.errorMessage,
+                  );
+                }
+              },
+              builder: (context, state) {
+                return _buildLuxuryButton(
+                  onTap: () {
+                    if (state is EditAssignmentInProgress) return;
+                    editAssignment();
+                  },
+                  isLoading: state is EditAssignmentInProgress,
+                  title: 'Perbarui Tugas',
+                  subtitle: 'Simpan perubahan tugas',
+                  icon: Icons.update_rounded,
+                );
+              },
+            )
+          : BlocConsumer<CreateAssignmentCubit, CreateAssignmentState>(
+              listener: (context, state) {
+                if (state is CreateAssignmentSuccess) {
+                  _showOverlayMessage(
+                    context: context,
+                    message: assignmentAddedSuccessfullyKey,
+                  );
+                  // Reset form fields
+                  _assignmentNameTextEditingController.text = "";
+                  _assignmentDescriptionTextEditingController.text = "";
+                  _assignmentPointsTextEditingController.text = "";
+                  _extraResubmissionDaysTextEditingController.text = "";
+                  _minPointsTextEditingController.text = "";
+                  _maxFileSizeTextEditingController.text = "";
+                  // Reset dates and time
+                  dueDate = null;
+                  dueTime = null;
+                  start_date = null;
+                  end_date = null;
+                  // Reset answer types
+                  _isTextAnswerAllowed = false;
+                  _isFileAnswerAllowed = false;
+                  // Reset file selections
+                  for (var type in fileTypes) {
+                    type.isSelected = false;
+                  }
+                  // Reset uploaded files
+                  uploadedFiles = [];
+                  assignmentAttachments = [];
+                  refreshAssignmentsInPreviousPage = true;
+                  setState(() {});
+                  Future.delayed(Duration(milliseconds: 500), () {
+                    Navigator.pop(context, true);
+                  });
+                } else if (state is CreateAssignmentFailure) {
+                  Utils.showSnackBar(
+                    context: context,
+                    message: state.errorMessage,
+                  );
+                }
+              },
+              builder: (context, state) {
+                return _buildLuxuryButton(
+                  onTap: () {
+                    if (state is CreateAssignmentInProcess) return;
+                    createAssignment();
+                  },
+                  isLoading: state is CreateAssignmentInProcess,
+                  title: 'Buat Tugas',
+                  subtitle: 'Publikasikan tugas baru',
+                  icon: Icons.add_task_rounded,
+                );
+              },
+            ),
+    );
+  }
+
+  // 💎 LUXURY BUTTON - Ultra premium button design
+  Widget _buildLuxuryButton({
+    required VoidCallback onTap,
+    required bool isLoading,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 72,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [_deepMaroon, _softMaroon, _dustyRose],
+            stops: [0.0, 0.6, 1.0],
+          ),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: _deepMaroon.withOpacity(0.4),
+              blurRadius: 20,
+              offset: Offset(0, 10),
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              color: _softMaroon.withOpacity(0.2),
+              blurRadius: 30,
+              offset: Offset(0, 15),
+              spreadRadius: 5,
+            ),
+          ],
+        ),
         child: Container(
-          height: 60,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.white.withOpacity(0.1),
+                Colors.transparent,
+              ],
+              stops: [0.0, 0.3],
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (isLoading) ...[
+                // Premium Loading Animation
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+                SizedBox(width: 20),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Memproses...',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    Text(
+                      'Mohon tunggu sebentar',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.8),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ] else ...[
+                // Premium Icon Container
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+                SizedBox(width: 20),
+                // Title & Subtitle
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.6,
+                        height: 1.1,
+                      ),
+                    ),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.85),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.1,
+                      ),
+                    ),
+                  ],
+                ),
+                Spacer(),
+                // Arrow Indicator
+                Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.arrow_forward_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 🎨 LUXURY SECTION BUILDER - Creates stunning sectioned cards
+  Widget _buildLuxurySection({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required List<Color> gradient,
+    required List<Widget> children,
+  }) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: gradient[0].withOpacity(0.15),
+            blurRadius: 25,
+            offset: Offset(0, 12),
+            spreadRadius: 0,
+          ),
+          BoxShadow(
+            color: Colors.white,
+            blurRadius: 8,
+            offset: Offset(0, -4),
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
               colors: [
-                Theme.of(context).colorScheme.primary,
-                Theme.of(context).colorScheme.secondary,
+                Colors.white,
+                _roseMist,
+                _pearl,
               ],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
+              stops: [0.0, 0.6, 1.0],
             ),
-            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Column(
+            children: [
+              // ✨ ELEGANT HEADER
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      gradient[0].withOpacity(0.08),
+                      gradient[1].withOpacity(0.04),
+                    ],
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    // Icon Container with Glassmorphism Effect
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: gradient,
+                        ),
+                        borderRadius: BorderRadius.circular(18),
+                        boxShadow: [
+                          BoxShadow(
+                            color: gradient[0].withOpacity(0.4),
+                            blurRadius: 12,
+                            offset: Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        icon,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                    ),
+                    SizedBox(width: 20),
+                    // Title & Subtitle
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: gradient[0],
+                              letterSpacing: -0.8,
+                              height: 1.1,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            subtitle,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: gradient[1].withOpacity(0.7),
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // 📝 CONTENT AREA
+              Padding(
+                padding: EdgeInsets.fromLTRB(24, 8, 24, 28),
+                child: Column(
+                  children: children,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 🎯 ELEGANT FIELD BUILDER - Creates beautiful input fields
+  Widget _buildElegantField(
+      String label, String description, IconData icon, Widget child) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Field Label with Icon
+        Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    _dustyRose.withOpacity(0.15),
+                    _blushPink.withOpacity(0.1)
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                size: 18,
+                color: _deepMaroon,
+              ),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: _deepMaroon,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  if (description.isNotEmpty) ...[
+                    SizedBox(height: 2),
+                    Text(
+                      description,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: _dustyRose.withOpacity(0.8),
+                        letterSpacing: 0.1,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 12),
+        // Input Field with Enhanced Styling
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                spreadRadius: 1,
+                color: _blushPink.withOpacity(0.1),
                 blurRadius: 8,
                 offset: Offset(0, 4),
               ),
             ],
           ),
-          child: Material(
-            color: Colors.transparent,
-            child: widget.assignment != null
-                ? BlocConsumer<EditAssignmentCubit, EditAssignmentState>(
-                    listener: (context, state) {
-                      if (state is EditAssignmentSuccess) {
-                        Get.back(result: true);
-                        // Show custom success overlay
-                        _showOverlayMessage(
-                          context: context,
-                          message: assignmentEditedSuccessfullyKey,
-                        );
-                      } else if (state is EditAssignmentFailure) {
-                        Utils.showSnackBar(
-                          context: context,
-                          message: state.errorMessage,
-                        );
-                      }
-                    },
-                    builder: (context, state) {
-                      return _buildButtonContent(
-                        onTap: () {
-                          if (state is EditAssignmentInProgress) return;
-                          editAssignment();
-                        },
-                        isLoading: state is EditAssignmentInProgress,
-                        title: 'Perbarui Tugas',
-                      );
-                    },
-                  )
-                : BlocConsumer<CreateAssignmentCubit, CreateAssignmentState>(
-                    listener: (context, state) {
-                      if (state is CreateAssignmentSuccess) {
-                        // Show custom success overlay from bottom
-                        _showOverlayMessage(
-                          context: context,
-                          message: assignmentAddedSuccessfullyKey,
-                        );
-
-                        // Reset form fields
-                        _assignmentNameTextEditingController.text = "";
-                        _assignmentDescriptionTextEditingController.text = "";
-                        _assignmentPointsTextEditingController.text = "";
-                        _extraResubmissionDaysTextEditingController.text = "";
-                        _minPointsTextEditingController.text = "";
-                        _maxFileSizeTextEditingController.text = "";
-
-                        // Reset dates and time
-                        dueDate = null;
-                        dueTime = null;
-                        start_date = null;
-                        end_date = null;
-
-                        // Reset answer types
-                        _isTextAnswerAllowed = false;
-                        _isFileAnswerAllowed = false;
-
-                        // Reset file selections
-                        for (var type in fileTypes) {
-                          type.isSelected = false;
-                        }
-
-                        // Reset uploaded files
-                        uploadedFiles = [];
-                        assignmentAttachments = [];
-                        refreshAssignmentsInPreviousPage = true;
-
-                        setState(() {});
-
-                        // Navigate back after showing the message
-                        Future.delayed(Duration(milliseconds: 500), () {
-                          Navigator.pop(context, true);
-                        });
-                      } else if (state is CreateAssignmentFailure) {
-                        Utils.showSnackBar(
-                          context: context,
-                          message: state.errorMessage,
-                        );
-                      }
-                    },
-                    builder: (context, state) {
-                      return _buildButtonContent(
-                        onTap: () {
-                          if (state is CreateAssignmentInProcess) return;
-                          createAssignment();
-                        },
-                        isLoading: state is CreateAssignmentInProcess,
-                        title: 'Buat Tugas',
-                      );
-                    },
-                  ),
-          ),
+          child: child,
         ),
-      ),
+      ],
     );
   }
 
-  Widget _buildButtonContent({
-    required VoidCallback onTap,
-    required bool isLoading,
-    required String title,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(15),
-      splashColor: Colors.white.withOpacity(0.2),
-      highlightColor: Colors.white.withOpacity(0.1),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (isLoading) ...[
-              SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+  // 📅 DATE TIME SECTION - Beautiful date and time pickers
+  Widget _buildDateTimeSection() {
+    return Column(
+      children: [
+        // Periode Tugas
+        _buildElegantField(
+          "Periode Tugas",
+          "Tentukan waktu mulai dan berakhir tugas",
+          Icons.date_range_rounded,
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [_pearl, _champagne.withOpacity(0.3)],
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: _blushPink.withOpacity(0.3)),
+                  ),
+                  child: CustomSelectionDropdownSelectionButton(
+                    onTap: () => _selectStartDate(context),
+                    titleKey: start_date != null
+                        ? DateFormat('dd MMM yyyy').format(start_date!)
+                        : "Tanggal Mulai",
+                    backgroundColor: Colors.transparent,
+                  ),
                 ),
               ),
               SizedBox(width: 12),
-            ],
-            Text(
-              isLoading ? 'Memproses...' : title,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.5,
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: [_dustyRose, _blushPink]),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(Icons.arrow_forward_rounded,
+                    color: Colors.white, size: 16),
               ),
-            ),
-            if (!isLoading) ...[
-              SizedBox(width: 8),
-              Icon(
-                Icons.arrow_forward_rounded,
-                color: Colors.white,
-                size: 22,
-              ).animate(onPlay: (controller) {
-                controller.repeat(reverse: true);
-              }).slideX(
-                begin: 0,
-                end: 0.3,
-                duration: Duration(milliseconds: 1000),
-                curve: Curves.easeInOut,
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAnswerTypeSelection() {
-    return Card(
-      elevation: 4,
-      color: Theme.of(context).scaffoldBackgroundColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-        side: BorderSide(
-          color: Theme.of(context).dividerColor,
-          width: 1,
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
+              SizedBox(width: 12),
+              Expanded(
+                child: Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.background,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    Icons.assignment_outlined,
-                    color: Theme.of(context).colorScheme.secondary,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 15),
-                Text(
-                  "Tipe Jawaban",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: CustomCheckboxContainer(
-                    titleKey: 'Teks',
-                    backgroundColor: Colors.grey.shade50,
-                    value: _isTextAnswerAllowed,
-                    onValueChanged: (value) {
-                      setState(() {
-                        _isTextAnswerAllowed = value ?? false;
-                      });
-                    },
-                  ),
-                ),
-                const SizedBox(width: 15),
-                Expanded(
-                  child: CustomCheckboxContainer(
-                    titleKey: 'File',
-                    backgroundColor: Colors.grey.shade50,
-                    value: _isFileAnswerAllowed,
-                    onValueChanged: (value) {
-                      setState(() {
-                        _isFileAnswerAllowed = value ?? false;
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-            if (_isFileAnswerAllowed) ...[
-              const SizedBox(height: 20),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.background,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Theme.of(context).dividerColor,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Jenis File yang Diizinkan",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
+                    gradient: LinearGradient(
+                      colors: [_pearl, _champagne.withOpacity(0.3)],
                     ),
-                    const SizedBox(height: 15),
-                    Center(
-                      child: Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: MediaQuery.of(context).size.width * 0.15,
-                        runSpacing: 12,
-                        children: List.generate(
-                          fileTypes.length,
-                          (index) => SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.25,
-                            child: Container(
-                              margin: EdgeInsets.symmetric(
-                                horizontal:
-                                    MediaQuery.of(context).size.width * 0.01,
-                              ),
-                              decoration: BoxDecoration(
-                                color: fileTypes[index].isSelected
-                                    ? Theme.of(context).colorScheme.surface
-                                    : Theme.of(context).colorScheme.background,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: Theme.of(context).dividerColor,
-                                ),
-                              ),
-                              child: CheckboxListTile(
-                                title: Text(
-                                  fileTypes[index].name.toUpperCase(),
-                                  textAlign: TextAlign.left,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: fileTypes[index].isSelected
-                                        ? FontWeight.w600
-                                        : FontWeight.w500,
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                  ),
-                                ),
-                                value: fileTypes[index].isSelected,
-                                activeColor:
-                                    Theme.of(context).colorScheme.secondary,
-                                checkColor:
-                                    Theme.of(context).colorScheme.background,
-                                dense: true,
-                                visualDensity: VisualDensity.compact,
-                                contentPadding: EdgeInsets.zero,
-                                controlAffinity:
-                                    ListTileControlAffinity.leading,
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    fileTypes[index].isSelected =
-                                        value ?? false;
-                                    print(
-                                        "CHANGED: ${fileTypes[index].name} : ${fileTypes[index].isSelected}");
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAddEditAssignmentForm() {
-    return SingleChildScrollView(
-      padding: EdgeInsets.all(20),
-      physics: BouncingScrollPhysics(),
-      child: Column(
-        children: [
-          // Header with Icon
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 25, horizontal: 20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Theme.of(context).colorScheme.primary.withOpacity(0.9),
-                  Theme.of(context).colorScheme.secondary.withOpacity(0.7),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(15),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 10,
-                  spreadRadius: 2,
-                )
-              ],
-            ),
-            child: Column(
-              children: [
-                Icon(
-                  Icons.assignment_rounded,
-                  size: 42,
-                  color: Colors.white,
-                )
-                    .animate()
-                    .scale(duration: 500.ms)
-                    .then()
-                    .shimmer(duration: 1000.ms),
-                SizedBox(height: 15),
-                Text(
-                  widget.assignment != null ? "Edit Tugas" : "Buat Tugas",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(
-                        blurRadius: 10,
-                        color: Colors.black26,
-                        offset: Offset(2, 2),
-                      ),
-                    ],
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: _blushPink.withOpacity(0.3)),
+                  ),
+                  child: CustomSelectionDropdownSelectionButton(
+                    onTap: () => _selectEndDate(context),
+                    titleKey: end_date != null
+                        ? DateFormat('dd MMM yyyy').format(end_date!)
+                        : "Tanggal Berakhir",
+                    backgroundColor: Colors.transparent,
                   ),
                 ),
-              ],
-            ),
-          ),
-
-          SizedBox(height: 25),
-
-          // Form Content
-          BlocConsumer<ClassSectionsAndSubjectsCubit,
-              ClassSectionsAndSubjectsState>(
-            listener: (context, state) {
-              if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                if (_selectedClassSection == null) {
-                  changeSelectedClassSection(state.classSections.firstOrNull,
-                      fetchNewSubjects: false);
-                }
-                if (_selectedSubject == null) {
-                  changeSelectedTeacherSubject(state.subjects.firstOrNull);
-                }
-              }
-            },
-            builder: (context, state) {
-              return state is ClassSectionsAndSubjectsFetchFailure
-                  ? Center(
-                      child: ErrorContainer(
-                      errorMessage: state.errorMessage,
-                      onTapRetry: () {
-                        context
-                            .read<ClassSectionsAndSubjectsCubit>()
-                            .getClassSectionsAndSubjects();
-                      },
-                    ))
-                  : _buildFormContent(state);
-            },
-          ),
-
-          SizedBox(height: 30),
-
-          // Submit Button
-          _buildSubmitButton(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFormContent(ClassSectionsAndSubjectsState state) {
-    return Column(
-      children: [
-        // Basic Info Section
-        Container(
-          padding: EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 5,
-                blurRadius: 10,
-                offset: Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Informasi Dasar',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              SizedBox(height: 20), // Class Section
-              // Added label for class section
-              Text(
-                'Kelas',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              SizedBox(height: 8),
-              CustomSelectionDropdownSelectionButton(
-                isDisabled: widget.assignment != null,
-                onTap: () {
-                  if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                    Utils.showBottomSheet(
-                      child: FilterSelectionBottomsheet<ClassSection>(
-                        showFilterByLabel: false,
-                        onSelection: (value) {
-                          changeSelectedClassSection(value);
-                          Get.back();
-                        },
-                        selectedValue: _selectedClassSection!,
-                        titleKey: classKey,
-                        values: state.classSections,
-                      ),
-                      context: context,
-                    );
-                  }
-                },
-                titleKey: _selectedClassSection?.fullName ?? 'Pilih Kelas',
-                backgroundColor: Colors.grey.shade50,
-              ),
-              SizedBox(height: 15), // Subject
-              // Added label for subject
-              Text(
-                'Mata Pelajaran',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              SizedBox(height: 8),
-              CustomSelectionDropdownSelectionButton(
-                isDisabled: widget.assignment != null,
-                onTap: () {
-                  if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                    Utils.showBottomSheet(
-                      child: FilterSelectionBottomsheet<TeacherSubject>(
-                        showFilterByLabel: false,
-                        onSelection: (value) {
-                          changeSelectedTeacherSubject(value!);
-                          Get.back();
-                        },
-                        selectedValue: _selectedSubject!,
-                        titleKey: subjectKey,
-                        values: state.subjects,
-                      ),
-                      context: context,
-                    );
-                  }
-                },
-                titleKey: _selectedSubject?.subject.getSybjectNameWithType() ??
-                    'Pilih Mata Pelajaran',
-                backgroundColor: Colors.grey.shade50,
               ),
             ],
           ),
         ),
-
-        SizedBox(height: 20),
-
-        // Details Section
-        Container(
-          padding: EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 5,
-                blurRadius: 10,
-                offset: Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        SizedBox(height: 24),
+        // Deadline
+        _buildElegantField(
+          "Tenggat Waktu",
+          "Waktu deadline pengumpulan tugas",
+          Icons.access_time_rounded,
+          Row(
             children: [
-              Text(
-                'Detail Tugas',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              SizedBox(height: 20),
-
-              // Assignment Name
-              // Added label for assignment name
-              Text(
-                'Judul Tugas',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              SizedBox(height: 8),
-              CustomTextFieldContainer(
-                textEditingController: _assignmentNameTextEditingController,
-                hintTextKey: '',
-                backgroundColor: Colors.grey.shade50,
-              ),
-              SizedBox(height: 15),
-
-              // Description
-              // Added label for assignment description
-              Text(
-                'Deskripsi Tugas',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              SizedBox(height: 8),
-              CustomTextFieldContainer(
-                textEditingController:
-                    _assignmentDescriptionTextEditingController,
-                maxLines: 5,
-                hintTextKey: '',
-                backgroundColor: Colors.grey.shade50,
-              ),
-              SizedBox(height: 15), // Dates
-              // Added label for dates
-              Text(
-                'Tanggal Mulai dan Berakhir',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomSelectionDropdownSelectionButton(
-                      onTap: () {
-                        _selectStartDate(context);
-                      },
-                      titleKey: start_date != null
-                          ? DateFormat('dd-MM-yyyy').format(start_date!)
-                          : "Tanggal Mulai",
-                      backgroundColor: Colors.grey.shade50,
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [_pearl, _champagne.withOpacity(0.3)],
                     ),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: _blushPink.withOpacity(0.3)),
                   ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: CustomSelectionDropdownSelectionButton(
-                      onTap: () {
-                        _selectEndDate(context);
-                      },
-                      titleKey: end_date != null
-                          ? DateFormat('dd-MM-yyyy').format(end_date!)
-                          : "Tanggal Berakhir",
-                      backgroundColor: Colors.grey.shade50,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 15), // Due Date & Time
-              // Added label for due date and time
-              Text(
-                'Tenggat Waktu Pengumpulan',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomSelectionDropdownSelectionButton(
-                      onTap: () {
-                        openDatePicker();
-                      },
-                      titleKey: dueDate != null
-                          ? Utils.getFormattedDate(dueDate!)
-                          : "Tenggat Waktu",
-                      backgroundColor: Colors.grey.shade50,
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: CustomSelectionDropdownSelectionButton(
-                      onTap: () {
-                        openTimePicker();
-                      },
-                      titleKey: dueTime != null
-                          ? Utils.getFormattedDayOfTime(dueTime!)
-                          : "Pilih Jam",
-                      backgroundColor: Colors.grey.shade50,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-
-        SizedBox(height: 20),
-
-        // Points Section
-        Container(
-          padding: EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 5,
-                blurRadius: 10,
-                offset: Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Pengaturan Nilai',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              SizedBox(height: 20),
-
-              // Points
-              // Added label for points
-              Text(
-                'Nilai Maksimal',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              SizedBox(height: 8),
-              CustomTextFieldContainer(
-                keyboardType: TextInputType.number,
-                textEditingController: _assignmentPointsTextEditingController,
-                hintTextKey: '',
-                backgroundColor: Colors.grey.shade50,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              ),
-              SizedBox(height: 15),
-
-              // Min Points
-              // Added label for min points
-              Text(
-                'Nilai Minimal Kelulusan',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              SizedBox(height: 8),
-              CustomTextFieldContainer(
-                keyboardType: TextInputType.number,
-                textEditingController: _minPointsTextEditingController,
-                hintTextKey: '',
-                backgroundColor: Colors.grey.shade50,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              ),
-              SizedBox(height: 15),
-
-              // Extra Resubmission Days
-              // Added label for resubmission days
-              Text(
-                'Hari untuk Pengumpulan Ulang',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              SizedBox(height: 8),
-              CustomTextFieldContainer(
-                keyboardType: TextInputType.number,
-                textEditingController:
-                    _extraResubmissionDaysTextEditingController,
-                hintTextKey: '',
-                backgroundColor: Colors.grey.shade50,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              ),
-            ],
-          ),
-        ),
-
-        SizedBox(height: 20),
-
-        // Answer Types Section
-        Container(
-          padding: EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 5,
-                blurRadius: 10,
-                offset: Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Jenis Jawaban',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              SizedBox(height: 20), // Answer Types
-              // Added label for text answer
-              Text(
-                'Jenis Jawaban yang Diizinkan',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomCheckboxContainer(
-                      titleKey: 'Teks',
-                      backgroundColor: Colors.grey.shade50,
-                      value: _isTextAnswerAllowed,
-                      onValueChanged: (value) {
-                        setState(() {
-                          _isTextAnswerAllowed = value ?? false;
-                        });
-                      },
-                    ),
-                  ),
-                  SizedBox(width: 15),
-                  Expanded(
-                    child: CustomCheckboxContainer(
-                      titleKey: 'File',
-                      backgroundColor: Colors.grey.shade50,
-                      value: _isFileAnswerAllowed,
-                      onValueChanged: (value) {
-                        setState(() {
-                          _isFileAnswerAllowed = value ?? false;
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-
-              // File Types if file answer is allowed
-              if (_isFileAnswerAllowed) ...[
-                SizedBox(height: 20),
-
-                Text(
-                  'Jenis File Yang Diizinkan',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.secondary,
+                  child: CustomSelectionDropdownSelectionButton(
+                    onTap: openDatePicker,
+                    titleKey: dueDate != null
+                        ? Utils.getFormattedDate(dueDate!)
+                        : "Pilih Tanggal",
+                    backgroundColor: Colors.transparent,
                   ),
                 ),
-
-                SizedBox(height: 15),
-
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: fileTypes.map((type) {
-                    return FilterChip(
-                      selected: type.isSelected,
-                      label: Text(type.name.toUpperCase()),
-                      backgroundColor: Colors.grey.shade50,
-                      selectedColor: Theme.of(context)
-                          .colorScheme
-                          .secondary
-                          .withOpacity(0.2),
-                      checkmarkColor: Theme.of(context).colorScheme.secondary,
-                      onSelected: (selected) {
-                        setState(() {
-                          type.isSelected = selected;
-                        });
-                      },
-                    );
-                  }).toList(),
-                ),
-                SizedBox(height: 15),
-
-                // Max File Size
-                // Added label for max file size
-                Text(
-                  'Ukuran Maksimal File (MB)',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.secondary,
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [_pearl, _champagne.withOpacity(0.3)],
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: _blushPink.withOpacity(0.3)),
+                  ),
+                  child: CustomSelectionDropdownSelectionButton(
+                    onTap: openTimePicker,
+                    titleKey: dueTime != null
+                        ? Utils.getFormattedDayOfTime(dueTime!)
+                        : "Pilih Jam",
+                    backgroundColor: Colors.transparent,
                   ),
                 ),
-                SizedBox(height: 8),
-                CustomTextFieldContainer(
-                  keyboardType: TextInputType.number,
-                  textEditingController: _maxFileSizeTextEditingController,
-                  hintTextKey: 'Ukuran Maksimal File (MB)',
-                  backgroundColor: Colors.grey.shade50,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                ),
-              ],
-            ],
-          ),
-        ),
-        SizedBox(height: 20),
-
-        // Attachments Section - Clean & Minimalist Design
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 12,
-                offset: Offset(0, 4),
               ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Clean Header
-              Padding(
-                padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .primary
-                            .withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(
-                        Icons.attach_file_rounded,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 20,
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Text(
-                      'Lampiran Tugas',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Minimalist Info Card
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 20),
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.info_outline,
-                          size: 16,
-                          color: Colors.grey.shade600,
-                        ),
-                        SizedBox(width: 6),
-                        Text(
-                          'Format yang didukung',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey.shade700,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 4,
-                      children: [
-                        _buildFormatChip('PDF'),
-                        _buildFormatChip('JPEG'),
-                        _buildFormatChip('PNG'),
-                        _buildFormatChip('CSV'),
-                        _buildFormatChip('MS Word'),
-                        _buildFormatChip('MP4'),
-                        _buildFormatChip('AVI'),
-                        _buildFormatChip('YouTube'),
-                      ],
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Batasan ukuran file adalah 2 MB',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              SizedBox(height: 20),
-
-              // Content Area
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Existing attachments
-                    if (widget.assignment != null &&
-                        assignmentAttachments.isNotEmpty) ...[
-                      Text(
-                        'Lampiran Saat Ini',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      ...assignmentAttachments.map(
-                        (attachment) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: StudyMaterialContainer(
-                            onDeleteStudyMaterial: (fileId) {
-                              assignmentAttachments.removeWhere(
-                                  (element) => element.id == fileId);
-                              refreshAssignmentsInPreviousPage = true;
-                              setState(() {});
-                            },
-                            showOnlyStudyMaterialTitles: true,
-                            showEditAndDeleteButton: true,
-                            studyMaterial: attachment,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                    ],
-
-                    // New attachments
-                    if (uploadedFiles.isNotEmpty) ...[
-                      Text(
-                        'Lampiran Baru',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      ...uploadedFiles.asMap().entries.map(
-                            (entry) => Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: CustomFileContainer(
-                                backgroundColor: Colors.grey.shade50,
-                                onDelete: () {
-                                  uploadedFiles.removeAt(entry.key);
-                                  setState(() {});
-                                },
-                                title: entry.value.name,
-                              ),
-                            ),
-                          ),
-                      SizedBox(height: 16),
-                    ],
-
-                    // Clean Add Button
-                    InkWell(
-                      onTap: () {
-                        FocusScope.of(context).unfocus();
-                        _addFiles();
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        height: 48,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withOpacity(0.3),
-                            width: 1.5,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.add_circle_outline,
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 20,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              'Tambah Lampiran',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              SizedBox(height: 20),
             ],
           ),
         ),
@@ -1830,22 +1556,413 @@ class _TeacherAddEditAssignmentScreenState
     );
   }
 
-  Widget _buildFormatChip(String label) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-          color: Colors.grey.shade700,
+  // 💫 ANSWER TYPE SECTION - Interactive answer type selection
+  Widget _buildAnswerTypeSection() {
+    return _buildLuxurySection(
+      title: "Jenis Jawaban",
+      subtitle: "Cara Siswa Menjawab",
+      icon: Icons.quiz_rounded,
+      gradient: [_dustyRose, _blushPink],
+      children: [
+        // Answer Type Cards
+        Row(
+          children: [
+            Expanded(
+                child: _buildAnswerTypeCard(
+              "Teks",
+              "Jawaban berupa teks",
+              Icons.text_fields_rounded,
+              _isTextAnswerAllowed,
+              () =>
+                  setState(() => _isTextAnswerAllowed = !_isTextAnswerAllowed),
+            )),
+            SizedBox(width: 16),
+            Expanded(
+                child: _buildAnswerTypeCard(
+              "File",
+              "Upload dokumen",
+              Icons.upload_file_rounded,
+              _isFileAnswerAllowed,
+              () =>
+                  setState(() => _isFileAnswerAllowed = !_isFileAnswerAllowed),
+            )),
+          ],
+        ),
+
+        // File Type Selection
+        if (_isFileAnswerAllowed) ...[
+          SizedBox(height: 28),
+          _buildFileTypeSelection(),
+          SizedBox(height: 24),
+          _buildElegantField(
+            "Ukuran Maksimal File",
+            "Batas ukuran file dalam MB",
+            Icons.storage_rounded,
+            CustomTextFieldContainer(
+              keyboardType: TextInputType.number,
+              textEditingController: _maxFileSizeTextEditingController,
+              hintTextKey: 'Contoh: 10 MB',
+              backgroundColor: _pearl,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  // 🎨 ANSWER TYPE CARD - Beautiful interactive cards
+  Widget _buildAnswerTypeCard(String title, String description, IconData icon,
+      bool isSelected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 300),
+        padding: EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: isSelected
+              ? LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [_deepMaroon, _softMaroon],
+                )
+              : LinearGradient(
+                  colors: [Colors.white, _pearl],
+                ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? _deepMaroon : _blushPink.withOpacity(0.3),
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isSelected
+                  ? _deepMaroon.withOpacity(0.25)
+                  : _blushPink.withOpacity(0.1),
+              blurRadius: isSelected ? 15 : 8,
+              offset: Offset(0, isSelected ? 8 : 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? Colors.white.withOpacity(0.2)
+                    : _dustyRose.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: isSelected ? Colors.white : _deepMaroon,
+                size: 24,
+              ),
+            ),
+            SizedBox(height: 12),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: isSelected ? Colors.white : _deepMaroon,
+                letterSpacing: -0.2,
+              ),
+            ),
+            SizedBox(height: 4),
+            Text(
+              description,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: isSelected ? Colors.white.withOpacity(0.8) : _dustyRose,
+                letterSpacing: 0.1,
+              ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  // 📁 FILE TYPE SELECTION - Elegant file type chips
+  Widget _buildFileTypeSelection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(colors: [
+                  _dustyRose.withOpacity(0.15),
+                  _blushPink.withOpacity(0.1)
+                ]),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(Icons.folder_rounded, size: 18, color: _deepMaroon),
+            ),
+            SizedBox(width: 12),
+            Text(
+              "Format File yang Diizinkan",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: _deepMaroon,
+                letterSpacing: -0.3,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 16),
+        Container(
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [_pearl, _champagne.withOpacity(0.5)],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: _blushPink.withOpacity(0.3)),
+          ),
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children:
+                fileTypes.map((type) => _buildFileTypeChip(type)).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 🏷️ FILE TYPE CHIP - Beautiful file type selectors
+  Widget _buildFileTypeChip(AssignmentFileType type) {
+    return GestureDetector(
+      onTap: () => setState(() => type.isSelected = !type.isSelected),
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 250),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          gradient: type.isSelected
+              ? LinearGradient(colors: [_deepMaroon, _softMaroon])
+              : LinearGradient(colors: [Colors.white, _roseMist]),
+          borderRadius: BorderRadius.circular(25),
+          border: Border.all(
+            color: type.isSelected ? _deepMaroon : _dustyRose.withOpacity(0.4),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: type.isSelected
+                  ? _deepMaroon.withOpacity(0.3)
+                  : _dustyRose.withOpacity(0.1),
+              blurRadius: type.isSelected ? 8 : 4,
+              offset: Offset(0, type.isSelected ? 4 : 2),
+            ),
+          ],
+        ),
+        child: Text(
+          type.name.toUpperCase(),
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: type.isSelected ? Colors.white : _deepMaroon,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 📎 ATTACHMENT SECTION - Modern file attachment UI
+  Widget _buildAttachmentSection() {
+    return _buildLuxurySection(
+      title: "Lampiran Tugas",
+      subtitle: "File Pendukung",
+      icon: Icons.attach_file_rounded,
+      gradient: [_burgundy, _deepMaroon],
+      children: [
+        // Info Banner
+        Container(
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [_champagne.withOpacity(0.6), _pearl],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: _blushPink.withOpacity(0.3)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: [_dustyRose, _blushPink]),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(Icons.info_outline_rounded,
+                    color: Colors.white, size: 16),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Format: PDF, JPEG, PNG, DOCX, MP4",
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: _deepMaroon,
+                      ),
+                    ),
+                    Text(
+                      "Maksimal 2 MB per file",
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: _dustyRose,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        SizedBox(height: 20),
+
+        // Current Attachments
+        if (widget.assignment != null && assignmentAttachments.isNotEmpty) ...[
+          _buildAttachmentList(
+              "Lampiran Saat Ini",
+              assignmentAttachments
+                  .map(
+                    (attachment) => StudyMaterialContainer(
+                      onDeleteStudyMaterial: (fileId) {
+                        assignmentAttachments
+                            .removeWhere((element) => element.id == fileId);
+                        refreshAssignmentsInPreviousPage = true;
+                        setState(() {});
+                      },
+                      showOnlyStudyMaterialTitles: true,
+                      showEditAndDeleteButton: true,
+                      studyMaterial: attachment,
+                    ),
+                  )
+                  .toList()),
+          SizedBox(height: 20),
+        ],
+
+        // New Attachments
+        if (uploadedFiles.isNotEmpty) ...[
+          _buildAttachmentList(
+              "Lampiran Baru",
+              uploadedFiles
+                  .asMap()
+                  .entries
+                  .map(
+                    (entry) => CustomFileContainer(
+                      backgroundColor: _pearl,
+                      onDelete: () {
+                        uploadedFiles.removeAt(entry.key);
+                        setState(() {});
+                      },
+                      title: entry.value.name,
+                    ),
+                  )
+                  .toList()),
+          SizedBox(height: 20),
+        ],
+
+        // Add Files Button
+        GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+            _addFiles();
+          },
+          child: Container(
+            height: 60,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  _deepMaroon.withOpacity(0.1),
+                  _dustyRose.withOpacity(0.05)
+                ],
+              ),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: _deepMaroon.withOpacity(0.3), width: 2),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    gradient:
+                        LinearGradient(colors: [_deepMaroon, _softMaroon]),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(Icons.add_rounded, color: Colors.white, size: 20),
+                ),
+                SizedBox(width: 16),
+                Text(
+                  "Tambah Lampiran",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: _deepMaroon,
+                    letterSpacing: -0.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 📋 ATTACHMENT LIST - Organized file lists
+  Widget _buildAttachmentList(String title, List<Widget> attachments) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(colors: [
+                  _dustyRose.withOpacity(0.15),
+                  _blushPink.withOpacity(0.1)
+                ]),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(Icons.folder_outlined, size: 16, color: _deepMaroon),
+            ),
+            SizedBox(width: 10),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: _deepMaroon,
+                letterSpacing: -0.2,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 12),
+        ...attachments.map((attachment) => Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: attachment,
+            )),
+      ],
     );
   }
 }

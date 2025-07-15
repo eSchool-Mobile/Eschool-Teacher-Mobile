@@ -112,9 +112,9 @@ class StudentListCard extends StatelessWidget {
               Positioned(
                 top: 0,
                 left: 0,
+                bottom: 0,
                 child: Container(
                   width: 8,
-                  height: 140,
                   decoration: BoxDecoration(
                     color: maroonPrimary,
                     borderRadius: BorderRadius.only(
@@ -128,9 +128,9 @@ class StudentListCard extends StatelessWidget {
               Positioned(
                 top: 0,
                 left: 0,
+                bottom: 0,
                 child: Container(
                   width: 8,
-                  height: 140,
                   decoration: BoxDecoration(
                     color: Colors.grey,
                     borderRadius: BorderRadius.only(
@@ -176,9 +176,10 @@ class StudentListCard extends StatelessWidget {
                               ],
                             ),
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(50),
-                              child: ProfileImageContainer(
+                              borderRadius: BorderRadius.circular(32.5),
+                              child: ProfileImageContainer.circular(
                                 imageUrl: studentDetails.image ?? "",
+                                size: 65,
                               ),
                             ),
                           ),
