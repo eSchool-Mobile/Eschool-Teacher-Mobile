@@ -1007,23 +1007,24 @@ class _ProfileContainerState extends State<ProfileContainer>
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // User Name
-              Text(
-                "${context.read<AuthCubit>().getUserDetails().firstName ?? ""} ${context.read<AuthCubit>().getUserDetails().lastName ?? ""}"
-                        .trim()
-                        .isEmpty
-                    ? "Pengguna"
-                    : "${context.read<AuthCubit>().getUserDetails().firstName ?? ""} ${context.read<AuthCubit>().getUserDetails().lastName ?? ""}"
-                        .trim(),
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: maroonPrimary,
-                  height: 1.3,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+// User Name
+Builder(
+  builder: (context) {
+    final userDetails = context.read<AuthCubit>().getUserDetails();
+    final fullName = "${userDetails.firstName ?? ""}".trim();
+    return Text(
+      fullName.isEmpty ? "Pengguna" : fullName,
+      style: GoogleFonts.poppins(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: maroonPrimary,
+        height: 1.3,
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  },
+),
               const SizedBox(height: 4),
 
               // School Info

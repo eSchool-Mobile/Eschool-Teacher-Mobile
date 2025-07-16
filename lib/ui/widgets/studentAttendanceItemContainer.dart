@@ -57,11 +57,12 @@ class _StudentAttendanceItemContainerState
   late AnimationController _animationController;
 
   // Flag to check if student is active or has resigned
-  bool get isStudentActive => !(widget.studentDetails.fullName?.contains("(nonaktif)") ?? false);
+  bool get isStudentActive =>
+      !(widget.studentDetails.fullName?.contains("(nonaktif)") ?? false);
 
   String get cleanStudentName {
-    final name = widget.studentDetails.fullName ?? "";
-    return name.replaceAll("(nonaktif)", "").trim();
+    final name = widget.studentDetails.firstName ?? "";
+    return name.trim();
   }
 
   @override

@@ -507,9 +507,9 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
         GestureDetector(
           onTap: () {
             List<String> roles = [
-              teacherRoleKey,
-              studentRoleKey,
-              guardianRoleKey
+              "Guru",
+              "Siswa",
+              "Wali Kelas",
             ];
             roles.addAll(state.roles.map((role) => role.name ?? "-").toList());
             Utils.showBottomSheet(
@@ -543,7 +543,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    selectRolesKey,
+                   "Pilih Peran",
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[800],
