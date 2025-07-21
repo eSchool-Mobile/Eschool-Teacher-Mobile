@@ -89,7 +89,7 @@ class AuthCubit extends Cubit<AuthState> {
 
     currentUserDetails = currentUserDetails.copyWith(
         firstName: userdetails.firstName,
-        lastName: userdetails.lastName,
+        // lastName: userdetails.lastName,
         mobile: userdetails.mobile,
         email: userdetails.email,
         dob: userdetails.dob,

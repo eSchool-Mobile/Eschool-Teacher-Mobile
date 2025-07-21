@@ -127,6 +127,10 @@ class ClassSection {
   String getClassTeacherNames() {
     return (classTeachers?.isEmpty ?? true)
         ? "-"
-        : (classTeachers!.map((e) => e.teacher?.fullName).toList().join(","));
+        : (classTeachers!
+            .map((e) => e.teacher?.firstName)
+            .where((name) => name != null && name.isNotEmpty)
+            .toList()
+            .join(","));
   }
 }

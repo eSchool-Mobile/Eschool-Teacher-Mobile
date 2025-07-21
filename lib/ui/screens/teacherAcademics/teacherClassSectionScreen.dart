@@ -1061,7 +1061,7 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
                 final subject =
                     subjectTeachers[index].subject?.getSybjectNameWithType() ??
                         '';
-                final teacher = subjectTeachers[index].teacher?.fullName ?? '-';
+                final teacher = subjectTeachers[index].teacher?.firstName ?? '-';
 
                 return AnimationConfiguration.staggeredList(
                   position: index,

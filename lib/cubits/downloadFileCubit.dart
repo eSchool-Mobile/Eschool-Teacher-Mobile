@@ -111,23 +111,15 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
       // Cek izin berdasarkan versi Android
       if (Platform.isAndroid) {
         final androidVersion = await _getAndroidVersion();
-        if (androidVersion >= 30) {
-          // Android 11+
-          final permission = await Permission.manageExternalStorage.request();
-          if (!permission.isGranted) {
-            print("Izin MANAGE_EXTERNAL_STORAGE ditolak");
-            throw Exception("Izin untuk mengakses memori eksternal ditolak");
-          }
-          print("Izin MANAGE_EXTERNAL_STORAGE diberikan");
-        } else {
-          // Android 10 ke bawah
+        if (androidVersion < 13) {  // Android 12L (API 32) dan di bawahnya
           final permission = await Permission.storage.request();
           if (!permission.isGranted) {
             print("Izin penyimpanan ditolak");
-            throw Exception("Izin untuk mengakses memori eksternal ditolak");
+            throw Exception("Izin untuk mengakses penyimpanan ditolak");
           }
           print("Izin penyimpanan diberikan");
         }
+        // Untuk Android 13+ tidak perlu permission khusus karena menggunakan MediaStore
       }
 
       // Simpan file sementara

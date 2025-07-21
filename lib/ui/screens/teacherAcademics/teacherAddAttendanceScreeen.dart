@@ -92,6 +92,7 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
   void initState() {
     super.initState();
 
+    print('timetable');
     // Initialize animation controllers
     _fabAnimationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 300));

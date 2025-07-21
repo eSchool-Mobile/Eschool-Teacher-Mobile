@@ -43,6 +43,8 @@ class AttendanceCubit extends Cubit<AttendanceState> {
     required DateTime date,
     required int? type,
   }) async {
+    print(
+        "fetchAttendance dipanggil: classSectionId=$classSectionId, date=$date, type=$type");
     emit(AttendanceFetchInProgress());
     try {
       final result = await _attendanceRepository.getAttendance(
