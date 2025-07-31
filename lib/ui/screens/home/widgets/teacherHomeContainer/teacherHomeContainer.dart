@@ -74,13 +74,18 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer> {
                         padding: EdgeInsets.only(
                             top: MediaQuery.of(context).padding.top + 80,
                             bottom: 100),
-                        child: const Column(
+                        child: Column(
                           children: [
                             // TeacherHomeOverviewContainer(),
                             SizedBox(
                               height: 45,
                             ),
-                            TeacherTodaysTimetableContainer(),
+                            BlocProvider(
+                              create: (BuildContext context) {
+                                return TeacherMyTimetableCubit()..getTeacherMyTimetable();
+                              },
+                              child: const TeacherTodaysTimetableContainer(),
+                            ),
                             TeacherPermissionContainer(),
                             TeacherLeavesContainer(),
                             TeacherHolidaysContainer(),

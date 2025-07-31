@@ -29,7 +29,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "id.ac.eschool.GuruStaff.android" 
+    namespace "id.ac.eschool.guru" 
 
     compileSdkVersion 36
     ndkVersion flutter.ndkVersion
@@ -55,7 +55,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "id.ac.eschool.GuruStaff.android"
+        applicationId "id.ac.eschool.guru"
         minSdkVersion 26
         targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()

@@ -103,7 +103,7 @@ class AuthRepository {
         "fcm_id": await getFcmToken(),
       }, url: Api.login, useAuthToken: false);
 
-      print("ANGZAIII");
+     
       JsonEncoder.withIndent('  ').convert(result).split('\n').forEach(print);
 
       return (
@@ -114,7 +114,7 @@ class AuthRepository {
     } on ApiException catch (e) {
       throw ApiException(e.toString());
     } catch (e) {
-      print("ERRORNYA");
+      
       print(e);
       throw ApiException(defaultErrorMessageKey);
     }

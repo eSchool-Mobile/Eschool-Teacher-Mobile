@@ -72,6 +72,14 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
     _fabAnimationController.dispose();
+    
+    // Reset the timetable to show all days when leaving the screen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<TeacherMyTimetableCubit>().getTeacherMyTimetable();
+      }
+    });
+    
     super.dispose();
   }
 

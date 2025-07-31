@@ -49,8 +49,7 @@ class _TeacherTodaysTimetableContainerState
   @override
   void initState() {
     _controller = AnimationController(
-      duration:
-          Duration(milliseconds: appearDisappearAnimationDurationMilliseconds),
+      duration: Duration(milliseconds: appearDisappearAnimationDurationMilliseconds),
       vsync: this,
     );
     _iconAngleAnimation = Tween<double>(begin: 0, end: 180)
@@ -59,6 +58,15 @@ class _TeacherTodaysTimetableContainerState
       parent: _controller,
       curve: Curves.fastLinearToSlowEaseIn,
     );
+    
+    // Initialize with today's data
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        // The cubit is now provided by the parent
+        context.read<TeacherMyTimetableCubit>().getTeacherMyTimetable();
+      }
+    });
+    
     super.initState();
   }
 
@@ -227,22 +235,20 @@ class _TeacherTodaysTimetableContainerState
         if (state is TeacherMyTimetableFetchSuccess) {
 
 
+          // Always filter for today's date
+          final today = DateTime.now();
+          final todayDayName = weekDays[today.weekday - 1].toLowerCase();
+          
+          // Filter for today's slots and sort by start time
           final slots = state.timeTableSlots.where((element) {
-            bool isSameDay =
-                element.day == weekDays[DateTime.now().weekday - 1];
-
-            //fungsi untuk mengatur waktu jadwal tampil per mapel
-            // if (element.endTime != null) {
-            //   DateTime endTime = DateFormat('HH:mm:ss').parse(element.endTime!);
-            //   DateTime currentDateTime = DateFormat('HH:mm:ss').parse(Datenow);
-
-            //   if (currentDateTime.isAfter(endTime)) {
-            //     return false;
-            //   }
-            // }
-            print(element);
-            return isSameDay;
-          }).toList();
+            return element.day?.toLowerCase() == todayDayName;
+          }).toList()
+          ..sort((a, b) {
+            // Sort by start time
+            final timeA = a.startTime ?? '';
+            final timeB = b.startTime ?? '';
+            return timeA.compareTo(timeB);
+          });
 
 
           if (slots.isEmpty) {

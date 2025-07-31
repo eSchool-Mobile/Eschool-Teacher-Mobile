@@ -324,9 +324,13 @@ class SimpleAssignmentCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.85,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                     // Header with gradient
                     Container(
                       width: double.infinity,
@@ -407,16 +411,13 @@ class SimpleAssignmentCard extends StatelessWidget {
                         ],
                       ),
                     ),                    // Content
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.all(24),
-                      constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height * 0.7,
-                      ),
+                    Expanded(
                       child: SingleChildScrollView(
                         physics: BouncingScrollPhysics(),
+                        padding: EdgeInsets.all(24),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                           // Status & Submission Count
                           Row(
@@ -614,10 +615,9 @@ class SimpleAssignmentCard extends StatelessWidget {
                         ],
                       ),
                     ),
-
-                  
-                ),
-                  ],
+                    )
+                    ],
+                  ),
                 ),
               ),
 

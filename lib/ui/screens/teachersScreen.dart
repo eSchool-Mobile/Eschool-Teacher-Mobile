@@ -440,7 +440,7 @@ class _TeachersScreenState extends State<TeachersScreen>
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      teacherDetails.fullName ?? "-",
+                                      teacherDetails.firstName ?? "-",
                                       style: GoogleFonts.poppins(
                                         fontWeight: isHovered
                                             ? FontWeight.w600
