@@ -309,7 +309,7 @@ class StudentListCard extends StatelessWidget {
                               ),
                               SizedBox(height: 6),
                               Text(
-                                studentDetails.fullName ?? "-",
+                                studentDetails.firstName ?? "-",
                                 style: TextStyle(
                                   fontSize: 17.0,
                                   fontWeight: FontWeight.w600,

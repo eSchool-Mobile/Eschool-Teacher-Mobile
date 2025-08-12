@@ -1,3 +1,4 @@
+import 'package:eschool_saas_staff/data/models/userDetails.dart';
 class AssignmentMonitoringResponse {
   final bool error;
   final String message;
@@ -42,17 +43,21 @@ class AssignmentMonitoringData {
   }
 }
 
+
+
 class AssignmentMonitoring {
   final int id;
   final int no;
   final String teacherName;
   final int totalAssignments;
+  final UserDetails? teacher;
 
   AssignmentMonitoring({
     required this.id,
     required this.no,
     required this.teacherName,
     required this.totalAssignments,
+    this.teacher,
   });
 
   factory AssignmentMonitoring.fromJson(Map<String, dynamic> json) {
@@ -61,6 +66,7 @@ class AssignmentMonitoring {
       no: json['no'] ?? 0,
       teacherName: json['teacher_name'] ?? '',
       totalAssignments: json['total_assignments'] ?? 0,
+      teacher: json['teacher'] != null ? UserDetails.fromJson(json['teacher']) : null,
     );
   }
 }

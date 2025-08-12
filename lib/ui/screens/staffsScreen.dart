@@ -387,7 +387,7 @@ class _StaffsScreenState extends State<StaffsScreen>
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      staffDetails.fullName ?? "-",
+                                      staffDetails.firstName ?? "-",
                                       style: GoogleFonts.poppins(
                                         fontWeight: isHovered
                                             ? FontWeight.w600

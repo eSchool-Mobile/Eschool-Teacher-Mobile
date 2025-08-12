@@ -205,8 +205,8 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                 children: [
                   _buildProfileImage(
                     imageUrl: guardian?.image ?? "",
-                    nameInitials: guardian?.fullName?.isNotEmpty == true
-                        ? guardian!.fullName!.substring(0, 1).toUpperCase()
+                    nameInitials: guardian?.firstName?.isNotEmpty == true
+                        ? guardian!.firstName!.substring(0, 1).toUpperCase()
                         : "G",
                   ),
                   const SizedBox(width: 16),
@@ -215,7 +215,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          guardian?.fullName ?? "-",
+                          guardian?.firstName ?? "-",
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
@@ -323,8 +323,8 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                   _buildProfileImage(
                     imageUrl: widget.studentDetails.image ?? "",
                     nameInitials:
-                        widget.studentDetails.fullName?.isNotEmpty == true
-                            ? widget.studentDetails.fullName!
+                        widget.studentDetails.firstName?.isNotEmpty == true
+                            ? widget.studentDetails.firstName!
                                 .substring(0, 1)
                                 .toUpperCase()
                             : "S",
@@ -335,7 +335,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.studentDetails.fullName ?? "-",
+                          widget.studentDetails.firstName ?? "-",
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,

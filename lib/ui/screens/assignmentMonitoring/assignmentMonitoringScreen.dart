@@ -11,6 +11,7 @@ import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
@@ -965,7 +966,11 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                                       Expanded(
                                         flex: 3,
                                         child: Text(
-                                          item.teacherName,
+                                          (item.teacher?.firstName != null &&
+                                                  item.teacher!.firstName!
+                                                      .isNotEmpty)
+                                              ? item.teacher!.firstName!
+                                              : item.teacherName,
                                           style: GoogleFonts.poppins(
                                             fontSize: 15,
                                             fontWeight: FontWeight.w600,

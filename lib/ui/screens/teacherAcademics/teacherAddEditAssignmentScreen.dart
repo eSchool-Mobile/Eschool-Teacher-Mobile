@@ -89,28 +89,79 @@ class _TeacherAddEditAssignmentScreenState
   static const Color _softMaroon = Color(0xFF9B4C5C); // Primary maroon
   static const Color _dustyRose = Color(0xFFB8707C); // Light dusty rose
   static const Color _blushPink = Color(0xFFD4A5A5); // Soft blush
-  static const Color _pearl = Color(0xFFF5F0F0); // Pearl white
+  static const Color _pearl = Color(0xFFFFFFFF); // Pure white for better contrast
   static const Color _roseMist = Color(0xFFFAF8F8); // Rose mist
   static const Color _burgundy = Color(0xFF5D2329); // Dark burgundy
-  static const Color _champagne = Color(0xFFE8DDD8); // Champagne tint
+  static const Color _champagne = Color(0xFFF5F0ED); // Lighter champagne for better contrast
+  
+  // Text styles
+  final TextStyle _sectionTitleStyle = TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.w700,
+    color: _deepMaroon,
+    letterSpacing: -0.3,
+  );
+  
+  final TextStyle _sectionSubtitleStyle = TextStyle(
+    fontSize: 14,
+    color: _dustyRose,
+    fontWeight: FontWeight.w500,
+  );
+  
+  final BoxDecoration _cardDecoration = BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(16),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withOpacity(0.05),
+        blurRadius: 15,
+        offset: Offset(0, 5),
+        spreadRadius: 0,
+      ),
+    ],
+  );
+  
+  final BoxDecoration _inputDecoration = BoxDecoration(
+    color: _pearl,
+    borderRadius: BorderRadius.circular(12),
+    border: Border.all(color: _blushPink.withOpacity(0.3)),
+    boxShadow: [
+      BoxShadow(
+        color: _blushPink.withOpacity(0.1),
+        blurRadius: 8,
+        offset: Offset(0, 2),
+      ),
+    ],
+  );
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: _roseMist,
       appBar: CustomModernAppBar(
-        title: widget.assignment != null ? "Edit Tugas" : "Buat Tugas",
+        title: widget.assignment != null ? "Edit Tugas" : "Buat Tugas Baru",
         icon: Icons.assignment_rounded,
         fabAnimationController: _fabAnimationController,
-        onBackPressed: () {
-          Get.back(result: refreshAssignmentsInPreviousPage);
-        },
-        // Not showing any of the optional buttons as requested
+        primaryColor: _deepMaroon,
+        lightColor: _softMaroon,
+        onBackPressed: () => Get.back(result: refreshAssignmentsInPreviousPage),
         showAddButton: false,
         showArchiveButton: false,
         showFilterButton: false,
         showHelperButton: false,
       ),
-      body: _buildAddEditAssignmentForm(),
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            Expanded(
+              child: _buildAddEditAssignmentForm(),
+            ),
+            // Add some bottom padding for better scrolling on devices with notches
+            SizedBox(height: MediaQuery.of(context).padding.bottom + 8),
+          ],
+        ),
+      ),
     );
   }
 
@@ -238,7 +289,7 @@ class _TeacherAddEditAssignmentScreenState
                   title: "Informasi Dasar",
                   subtitle: "Detail Tugas",
                   icon: Icons.info_rounded,
-                  gradient: [_deepMaroon, _softMaroon],
+   gradient: [_burgundy, _deepMaroon],
                   children: [
                     // Class and Subject Selection
                     _buildElegantField(
@@ -342,7 +393,7 @@ class _TeacherAddEditAssignmentScreenState
                   title: "Jadwal Tugas",
                   subtitle: "Waktu & Tenggat",
                   icon: Icons.schedule_rounded,
-                  gradient: [_softMaroon, _dustyRose],
+   gradient: [_burgundy, _deepMaroon],
                   children: [
                     _buildDateTimeSection(),
                   ],
@@ -355,13 +406,13 @@ class _TeacherAddEditAssignmentScreenState
                   title: "Penilaian",
                   subtitle: "Sistem Poin & Pengumpulan Ulang",
                   icon: Icons.grade_rounded,
-                  gradient: [_dustyRose, _blushPink],
+                     gradient: [_burgundy, _deepMaroon],
                   children: [
                     Row(
                       children: [
                         Expanded(
                           child: _buildElegantField(
-                            "Poin Maksimal",
+                            "Poin Max",
                             "Total poin untuk tugas ini",
                             Icons.star_rounded,
                             CustomTextFieldContainer(
@@ -376,7 +427,7 @@ class _TeacherAddEditAssignmentScreenState
                         SizedBox(width: 16),
                         Expanded(
                           child: _buildElegantField(
-                            "Poin Minimal",
+                            "Poin Minim",
                             "Poin minimum untuk lulus",
                             Icons.star_border_rounded,
                             CustomTextFieldContainer(
@@ -1077,7 +1128,7 @@ class _TeacherAddEditAssignmentScreenState
     );
   }
 
-  // 💎 LUXURY BUTTON - Ultra premium button design
+  // LUXURY BUTTON - Ultra premium button design
   Widget _buildLuxuryButton({
     required VoidCallback onTap,
     required bool isLoading,
@@ -1088,154 +1139,147 @@ class _TeacherAddEditAssignmentScreenState
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 72,
+        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        height: 80,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [_deepMaroon, _softMaroon, _dustyRose],
-            stops: [0.0, 0.6, 1.0],
+            colors: [_deepMaroon, _softMaroon],
+            stops: [0.0, 1.0],
           ),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: _deepMaroon.withOpacity(0.4),
-              blurRadius: 20,
-              offset: Offset(0, 10),
+              color: _deepMaroon.withOpacity(0.3),
+              blurRadius: 15,
+              offset: Offset(0, 8),
               spreadRadius: 0,
-            ),
-            BoxShadow(
-              color: _softMaroon.withOpacity(0.2),
-              blurRadius: 30,
-              offset: Offset(0, 15),
-              spreadRadius: 5,
             ),
           ],
         ),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.white.withOpacity(0.1),
-                Colors.transparent,
-              ],
-              stops: [0.0, 0.3],
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              padding: EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (isLoading) ...[
+                    // Loading State
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Center(
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Memproses...',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'Mohon tunggu sebentar',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ] else ...[
+                    // Normal State
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Icon(
+                        icon,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.2,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            subtitle,
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.9),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ],
+                ],
+              ),
             ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (isLoading) ...[
-                // Premium Loading Animation
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: CircularProgressIndicator(
-                    strokeWidth: 3,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                ),
-                SizedBox(width: 20),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Memproses...',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    Text(
-                      'Mohon tunggu sebentar',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 0.2,
-                      ),
-                    ),
-                  ],
-                ),
-              ] else ...[
-                // Premium Icon Container
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
-                      width: 1,
-                    ),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-                SizedBox(width: 20),
-                // Title & Subtitle
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.6,
-                        height: 1.1,
-                      ),
-                    ),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.85),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 0.1,
-                      ),
-                    ),
-                  ],
-                ),
-                Spacer(),
-                // Arrow Indicator
-                Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.arrow_forward_rounded,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ],
-            ],
           ),
         ),
       ),
     );
   }
 
-  // 🎨 LUXURY SECTION BUILDER - Creates stunning sectioned cards
+  // LUXURY SECTION BUILDER - Creates stunning sectioned cards
   Widget _buildLuxurySection({
     required String title,
     required String subtitle,
@@ -1244,9 +1288,9 @@ class _TeacherAddEditAssignmentScreenState
     required List<Widget> children,
   }) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 4),
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: gradient[0].withOpacity(0.15),
@@ -1263,7 +1307,7 @@ class _TeacherAddEditAssignmentScreenState
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(16),
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -1279,7 +1323,7 @@ class _TeacherAddEditAssignmentScreenState
           ),
           child: Column(
             children: [
-              // ✨ ELEGANT HEADER
+              // ELEGANT HEADER
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.all(24),
@@ -1353,7 +1397,7 @@ class _TeacherAddEditAssignmentScreenState
                 ),
               ),
 
-              // 📝 CONTENT AREA
+              // CONTENT AREA
               Padding(
                 padding: EdgeInsets.fromLTRB(24, 8, 24, 28),
                 child: Column(
@@ -1367,83 +1411,72 @@ class _TeacherAddEditAssignmentScreenState
     );
   }
 
-  // 🎯 ELEGANT FIELD BUILDER - Creates beautiful input fields
+  // ELEGANT FIELD BUILDER - Creates beautiful input fields
   Widget _buildElegantField(
       String label, String description, IconData icon, Widget child) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Field Label with Icon
-        Row(
-          children: [
-            Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    _dustyRose.withOpacity(0.15),
-                    _blushPink.withOpacity(0.1)
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                icon,
-                size: 18,
-                color: _deepMaroon,
-              ),
+    return Container(
+      margin: EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            decoration: BoxDecoration(
+              color: _deepMaroon.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(8),
+              border: Border(left: BorderSide(color: _deepMaroon, width: 3)),
             ),
-            SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: _deepMaroon,
-                      letterSpacing: -0.3,
-                    ),
+            child: Row(
+              children: [
+                Icon(icon, color: _deepMaroon, size: 18),
+                SizedBox(width: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: _deepMaroon,
+                    fontSize: 15,
+                    letterSpacing: -0.2,
                   ),
-                  if (description.isNotEmpty) ...[
-                    SizedBox(height: 2),
-                    Text(
-                      description,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: _dustyRose.withOpacity(0.8),
-                        letterSpacing: 0.1,
-                      ),
-                    ),
-                  ],
-                ],
+                ),
+              ],
+            ),
+          ),
+          if (description.isNotEmpty) ...[
+            SizedBox(height: 6),
+            Padding(
+              padding: const EdgeInsets.only(left: 4.0),
+              child: Text(
+                description,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  color: _dustyRose,
+                  fontWeight: FontWeight.w400,
+                  height: 1.4,
+                ),
               ),
             ),
           ],
-        ),
-        SizedBox(height: 12),
-        // Input Field with Enhanced Styling
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: _blushPink.withOpacity(0.1),
-                blurRadius: 8,
-                offset: Offset(0, 4),
-              ),
-            ],
+          SizedBox(height: 10),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: _blushPink.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: child,
           ),
-          child: child,
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  // 📅 DATE TIME SECTION - Beautiful date and time pickers
+  // DATE TIME SECTION - Beautiful date and time pickers
   Widget _buildDateTimeSection() {
     return Column(
       children: [
@@ -1556,13 +1589,13 @@ class _TeacherAddEditAssignmentScreenState
     );
   }
 
-  // 💫 ANSWER TYPE SECTION - Interactive answer type selection
+  // ANSWER TYPE SECTION - Interactive answer type selection
   Widget _buildAnswerTypeSection() {
     return _buildLuxurySection(
       title: "Jenis Jawaban",
       subtitle: "Cara Siswa Menjawab",
       icon: Icons.quiz_rounded,
-      gradient: [_dustyRose, _blushPink],
+         gradient: [_burgundy, _deepMaroon],
       children: [
         // Answer Type Cards
         Row(
@@ -1611,7 +1644,7 @@ class _TeacherAddEditAssignmentScreenState
     );
   }
 
-  // 🎨 ANSWER TYPE CARD - Beautiful interactive cards
+  // ANSWER TYPE CARD - Beautiful interactive cards
   Widget _buildAnswerTypeCard(String title, String description, IconData icon,
       bool isSelected, VoidCallback onTap) {
     return GestureDetector(
@@ -1687,7 +1720,7 @@ class _TeacherAddEditAssignmentScreenState
     );
   }
 
-  // 📁 FILE TYPE SELECTION - Elegant file type chips
+  // FILE TYPE SELECTION - Elegant file type chips
   Widget _buildFileTypeSelection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1738,7 +1771,7 @@ class _TeacherAddEditAssignmentScreenState
     );
   }
 
-  // 🏷️ FILE TYPE CHIP - Beautiful file type selectors
+  // FILE TYPE CHIP - Beautiful file type selectors
   Widget _buildFileTypeChip(AssignmentFileType type) {
     return GestureDetector(
       onTap: () => setState(() => type.isSelected = !type.isSelected),
@@ -1777,7 +1810,7 @@ class _TeacherAddEditAssignmentScreenState
     );
   }
 
-  // 📎 ATTACHMENT SECTION - Modern file attachment UI
+  // ATTACHMENT SECTION - Modern file attachment UI
   Widget _buildAttachmentSection() {
     return _buildLuxurySection(
       title: "Lampiran Tugas",

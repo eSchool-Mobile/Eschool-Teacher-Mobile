@@ -427,14 +427,14 @@ class _ClassesScreenState extends State<ClassesScreen>
     final classes = _searchQuery.isEmpty
         ? state.classes
         : state.classes.where((classSection) {
-            final fullName = (classSection.fullName ?? "").toLowerCase();
+            final firstName = (classSection.fullName ?? "").toLowerCase();
             final searchLower = _searchQuery.toLowerCase();
 
-            // Search in full name
-            if (fullName.contains(searchLower)) return true;
+            // Search in first name
+            if (firstName.contains(searchLower)) return true;
 
             // Search in individual words for better matching
-            final nameWords = fullName.split(' ');
+            final nameWords = firstName.split(' ');
             final searchWords = searchLower.split(' ');
 
             for (String searchWord in searchWords) {
@@ -814,7 +814,7 @@ class _ClassesScreenState extends State<ClassesScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  details.fullName ?? 'Class Section',
+                  details.name ?? 'Class Section',
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -1184,7 +1184,8 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
                 final subject =
                     subjectTeachers[index].subject?.getSybjectNameWithType() ??
                         '';
-                final teacher = subjectTeachers[index].teacher?.fullName ?? '-';
+                final teacher =
+                    subjectTeachers[index].teacher?.firstName ?? '-';
 
                 return AnimationConfiguration.staggeredList(
                   position: index,

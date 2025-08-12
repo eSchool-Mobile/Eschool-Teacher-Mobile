@@ -390,7 +390,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                                             end: Alignment.centerRight,
                                           ).createShader(bounds),
                                           child: Text(
-                                            widget.staffDetails.fullName ?? "",
+                                            widget.staffDetails.firstName ?? "",
                                             style: GoogleFonts.poppins(
                                               fontSize: 20,
                                               fontWeight: FontWeight.w700,

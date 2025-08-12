@@ -680,9 +680,7 @@ class _LeavesScreenState extends State<LeavesScreen>
 
   PreferredSizeWidget _buildHeaderSection() {
     return CustomFilterModernAppBar(
-      title: widget.showMyLeaves
-          ? myLeaveKey.tr
-          : (widget.userDetails?.fullName ?? ""),
+      title:"Detail Cuti",
       titleIcon: Icons.event_available_rounded,
       primaryColor: maroonPrimary,
       secondaryColor: maroonLight,

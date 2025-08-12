@@ -442,7 +442,7 @@ class StaffPayrollDetailsContainerState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.staffPayRoll.userDetails?.fullName ??
+                  widget.staffPayRoll.userDetails?.firstName ??
                       (((widget.staffPayRoll.userDetails?.firstName ?? "") +
                               (widget.staffPayRoll.userDetails?.lastName !=
                                           null &&
