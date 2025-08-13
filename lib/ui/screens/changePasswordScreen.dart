@@ -510,11 +510,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
     }
 
     if (newPassword != confirmPassword) {
-      return 'Kata Sandi Baru Tidak Sama';
+      return 'Kata SandiTidak Sama';
     }
 
     if (!_isPasswordValid) {
-      return 'Password Tidak Memenuhi Standar';
+      return 'Password Tidak Kuat';
     }
 
     if (currentPassword == newPassword) {

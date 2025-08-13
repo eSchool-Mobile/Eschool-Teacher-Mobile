@@ -12,6 +12,7 @@ class RecapAttendanceContainer extends StatelessWidget {
   final List<ClassSection> classSections;
   final Function(ClassSection, int) onDownload;
   final int selectedYear;
+  final int? selectedMonth;
   final String? email;
   final int? schoolId; // Tambahkan parameter schoolId
 
@@ -20,6 +21,7 @@ class RecapAttendanceContainer extends StatelessWidget {
     required this.classSections,
     required this.onDownload,
     required this.selectedYear,
+    this.selectedMonth,
     this.email,
     this.schoolId, // Tambahkan ini
   }) : super(key: key);
@@ -175,15 +177,120 @@ class RecapAttendanceContainer extends StatelessWidget {
       );
     }
 
+    // Show message if no month is selected
+    if (selectedMonth == null) {
+      return FadeIn(
+        duration: Duration(milliseconds: 800),
+        child: Center(
+          child: Container(
+            padding: EdgeInsets.all(24),
+            margin: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColorPalette.warmBeige,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.event_busy_outlined,
+                  size: 64,
+                  color: AppColorPalette.primaryMaroon.withOpacity(0.5),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Pilih Bulan dan Tahun',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppColorPalette.primaryMaroon,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Silakan pilih bulan dan tahun untuk melihat rekap absensi',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppColorPalette.secondaryMaroon,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Check if selected month is available
+    if (selectedMonth! > availableMonths) {
+      return FadeIn(
+        duration: Duration(milliseconds: 800),
+        child: Center(
+          child: Container(
+            padding: EdgeInsets.all(24),
+            margin: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColorPalette.warmBeige,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.warning_amber_rounded,
+                  size: 64,
+                  color: Colors.orange[700],
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Data Belum Tersedia',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppColorPalette.primaryMaroon,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Rekap absensi untuk ${_getMonthName(selectedMonth!)} $selectedYear belum tersedia',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppColorPalette.secondaryMaroon,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return SingleChildScrollView(
       physics: BouncingScrollPhysics(),
       child: Container(
         color: AppColorPalette.warmBeige.withOpacity(0.5),
         padding: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
         child: Column(
-          children: List.generate(availableMonths, (monthIndex) {
-            return FadeInUp(
-              duration: Duration(milliseconds: 400 + (monthIndex * 100)),
+          children: [
+            // Show only the selected month
+            FadeInUp(
+              duration: Duration(milliseconds: 400),
               child: Container(
                 margin: EdgeInsets.only(bottom: 24),
                 decoration: BoxDecoration(
@@ -199,13 +306,15 @@ class RecapAttendanceContainer extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    _buildMonthHeader(monthIndex),
-                    _buildClassList(monthIndex, context),
+                    _buildMonthHeader(
+                        selectedMonth! - 1), // Convert to 0-based index
+                    _buildClassList(selectedMonth! - 1,
+                        context), // Convert to 0-based index
                   ],
                 ),
               ),
-            );
-          }),
+            ),
+          ],
         ),
       ),
     );
@@ -289,7 +398,6 @@ class RecapAttendanceContainer extends StatelessWidget {
                   letterSpacing: 0.5,
                 ),
               ),
-            
             ],
           ),
           Divider(

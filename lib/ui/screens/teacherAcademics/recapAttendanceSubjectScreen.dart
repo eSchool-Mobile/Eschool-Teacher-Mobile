@@ -5,17 +5,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
-import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:ui';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:math';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
@@ -42,6 +38,7 @@ class RecapAttendanceSubjectScreen extends StatefulWidget {
 class _RecapAttendanceSubjectScreenState
     extends State<RecapAttendanceSubjectScreen> with TickerProviderStateMixin {
   int _selectedYear = DateTime.now().year;
+  int? _selectedMonth;
   ClassSection? _selectedClassSection;
   List<ClassSection> _filteredClassSections = [];
   int? teacherId;
@@ -96,9 +93,11 @@ class _RecapAttendanceSubjectScreenState
   }
 
   void getRecap({int? type}) {
-    if (_selectedClassSection == null) {
+    if (_selectedClassSection == null || _selectedMonth == null) {
       return;
     }
+    // Add your logic here to fetch data based on selected year and month
+    print('Getting recap for Year: $_selectedYear, Month: $_selectedMonth');
   }
 
   void _showYearPicker() {
@@ -117,12 +116,72 @@ class _RecapAttendanceSubjectScreenState
               onChanged: (DateTime dateTime) {
                 setState(() {
                   _selectedYear = dateTime.year;
+                  // Reset month selection when year changes
+                  _selectedMonth = null;
                 });
                 Navigator.pop(context);
-                getRecap();
+                // After selecting year, show month picker
+                _showMonthPicker();
               },
             ),
           ),
+        );
+      },
+    );
+  }
+
+  void _showMonthPicker() {
+    final months = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember'
+    ];
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Pilih Bulan untuk Tahun $_selectedYear'),
+          content: Container(
+            width: 300,
+            height: 400,
+            child: ListView.builder(
+              itemCount: months.length,
+              itemBuilder: (context, index) {
+                final monthIndex = index + 1;
+                return ListTile(
+                  title: Text(months[index]),
+                  trailing: _selectedMonth == monthIndex
+                      ? Icon(Icons.check, color: _maroonPrimary)
+                      : null,
+                  onTap: () {
+                    setState(() {
+                      _selectedMonth = monthIndex;
+                    });
+                    Navigator.pop(context);
+                    getRecap();
+                  },
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Batal'),
+            ),
+          ],
         );
       },
     );
@@ -173,6 +232,24 @@ class _RecapAttendanceSubjectScreenState
     }).toList();
   }
 
+  String _getMonthName(int month) {
+    final months = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember'
+    ];
+    return months[month - 1];
+  }
+
   Widget _buildRecapTable(List<ClassSection> classes) {
     return SingleChildScrollView(
       controller: _scrollController,
@@ -189,6 +266,7 @@ class _RecapAttendanceSubjectScreenState
           RecapAttendanceContainer(
             classSections: classes,
             selectedYear: _selectedYear,
+            selectedMonth: _selectedMonth,
             email: email,
             schoolId: schoolId,
             onDownload: (classSection, month) {
@@ -222,7 +300,15 @@ class _RecapAttendanceSubjectScreenState
             return Material(
               color: Colors.transparent,
               child: InkWell(
-                onTap: _showYearPicker,
+                onTap: () {
+                  // If month is already selected, show month picker directly
+                  // If not, start with year picker
+                  if (_selectedMonth != null) {
+                    _showMonthPicker();
+                  } else {
+                    _showYearPicker();
+                  }
+                },
                 borderRadius: BorderRadius.circular(12),
                 highlightColor: Colors.white.withOpacity(0.1),
                 splashColor: Colors.white.withOpacity(0.2),
@@ -259,7 +345,9 @@ class _RecapAttendanceSubjectScreenState
                       ),
                       SizedBox(width: 12),
                       Text(
-                        'Tahun $_selectedYear',
+                        _selectedMonth != null
+                            ? '${_getMonthName(_selectedMonth!)} $_selectedYear'
+                            : 'Pilih Bulan & Tahun',
                         style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontSize: 16,
