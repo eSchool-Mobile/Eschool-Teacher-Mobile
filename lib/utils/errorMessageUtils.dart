@@ -1,10 +1,15 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
+import 'package:eschool_saas_staff/utils/api.dart';
 
 class ErrorMessageUtils {
   /// Mengkonversi error teknis menjadi pesan yang ramah untuk user
   static String getReadableErrorMessage(dynamic error) {
+    if (error is ApiException) {
+      return _handleApiException(error);
+    }
+
     if (error is DioException) {
       return _handleDioException(error);
     }
@@ -19,6 +24,11 @@ class ErrorMessageUtils {
 
     // Fallback untuk error yang tidak dikenal
     return unknownErrorKey;
+  }
+
+  /// Menangani ApiException dengan pesan yang ramah
+  static String _handleApiException(ApiException error) {
+    return _handleStringError(error.errorMessage);
   }
 
   /// Menangani DioException dengan pesan yang ramah
@@ -55,7 +65,6 @@ class ErrorMessageUtils {
         return "Sertifikat keamanan tidak valid";
 
       case DioExceptionType.unknown:
-      default:
         if (error.error is SocketException) {
           return _handleSocketException(error.error as SocketException);
         }
@@ -92,6 +101,21 @@ class ErrorMessageUtils {
   /// Menangani error dalam bentuk string
   static String _handleStringError(String error) {
     final lowerError = error.toLowerCase();
+
+    // Handle specific server errors with more user-friendly messages
+    if (error.contains('Server error: Database query issue')) {
+      return 'Terjadi masalah pada database server. Silakan hubungi administrator.';
+    }
+
+    if (error.contains('Server encountered an error') ||
+        lowerError.contains('error occurred')) {
+      return 'Server mengalami gangguan. Silakan coba lagi atau hubungi administrator.';
+    }
+
+    if (error.contains('Undefined variable') ||
+        lowerError.contains('server details')) {
+      return 'Terjadi kesalahan pada server. Silakan coba lagi atau hubungi administrator.';
+    }
 
     // Cek berbagai pattern error yang umum
     if (lowerError.contains('connection') && lowerError.contains('error')) {

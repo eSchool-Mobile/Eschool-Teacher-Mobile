@@ -70,6 +70,7 @@ class _TeacherAddAttendanceScreenSubjectState
 
   final TextEditingController _materiController = TextEditingController();
   DateTime _selectedDateTime = DateTime.now();
+  int? _selectedGradeLevelId;
   ClassSection? _selectedClassSection;
   int _selectedTimeTableId = 0;
   int _selectedJumlahJp = 0;
@@ -103,6 +104,19 @@ class _TeacherAddAttendanceScreenSubjectState
     }
   }
 
+  // Helper method to check if all required data is valid for fetching attendance
+  bool _isDataValidForFetch() {
+    return _selectedClassSection != null && _selectedClassSection!.id != null;
+  }
+
+  // Helper method to get validation message for missing data
+  String _getValidationMessage() {
+    if (_selectedClassSection == null || _selectedClassSection!.id == null) {
+      return "Pilih kelas terlebih dahulu";
+    }
+    return "";
+  }
+
   @override
   void initState() {
     super.initState();
@@ -125,11 +139,17 @@ class _TeacherAddAttendanceScreenSubjectState
         if (timeTableSlot != null) {
           _selectedTimeTableId = timeTableSlot.id!;
         }
+        // Extract grade level from class section if available
+        if (_selectedClassSection != null) {
+          _selectedGradeLevelId = _selectedClassSection!.gradeLevelId;
+        }
       }
 
       context.read<ClassesCubit>().getClasses();
       context.read<TeacherMyTimetableCubit>().getTeacherMyTimetable();
-      if (_selectedClassSection != null) {
+
+      // Only fetch attendance if we have class section selected
+      if (_selectedClassSection != null && _selectedClassSection!.id != null) {
         getAttendance();
         getStudentList();
       }
@@ -153,13 +173,29 @@ class _TeacherAddAttendanceScreenSubjectState
   void getAttendance() {
     print("Fetching attendance data for:");
     print("- Date: ${_selectedDateTime}");
+    print("- Grade Level ID: ${_selectedGradeLevelId}");
     print("- Class Section ID: ${_selectedClassSection?.id}");
     print("- Timetable ID: $_selectedTimeTableId");
 
+    // Use helper method for validation
+    if (!_isDataValidForFetch()) {
+      String message = _getValidationMessage();
+      if (message.isNotEmpty) {
+        Utils.showSnackBar(message: message, context: context);
+      }
+      return;
+    }
+
+    // Set default timetable ID if not set
+    int timetableIdToUse = _selectedTimeTableId > 0 ? _selectedTimeTableId : 1;
+    int gradeLevelIdToUse =
+        _selectedGradeLevelId ?? _selectedClassSection!.gradeLevelId ?? 1;
+
     context.read<SubjectAttendanceCubit>().fetchSubjectAttendance(
           date: _selectedDateTime,
-          classSectionId: _selectedClassSection?.id ?? 0,
-          timetableId: _selectedTimeTableId,
+          gradeLevelId: gradeLevelIdToUse,
+          classSectionId: _selectedClassSection!.id!,
+          timetableId: timetableIdToUse,
         );
   }
 
@@ -170,29 +206,45 @@ class _TeacherAddAttendanceScreenSubjectState
     print("Getting student list");
     print("Selected class section: ${_selectedClassSection?.id}");
     print("Selected timetable: $_selectedTimeTableId");
-    if (_selectedClassSection?.id != null) {
-      context.read<StudentsByClassSectionCubit>().fetchStudents(
-            status: StudentListStatus
-                .all, // Tampilkan semua siswa termasuk non-aktif
-            classSectionId: _selectedClassSection?.id ?? 0,
-          );
-    } else {
-      print("No class section selected!");
+
+    if (_selectedClassSection == null || _selectedClassSection!.id == null) {
+      Utils.showSnackBar(
+          message: "Pilih kelas terlebih dahulu", context: context);
+      return;
     }
+
+    context.read<StudentsByClassSectionCubit>().fetchStudents(
+          status:
+              StudentListStatus.all, // Tampilkan semua siswa termasuk non-aktif
+          classSectionId: _selectedClassSection!.id!,
+        );
   }
 
   void changeClassSectionSelection(ClassSection? newSelectedClassSection) {
     _selectedClassSection = newSelectedClassSection;
     _selectedTimeTableId = 0; // Reset jadwal pelajaran ketika kelas berubah
 
-    setState(() {});
+    // Extract grade level from class section if available
     if (newSelectedClassSection != null) {
-      getAttendance();
-      getStudentList();
-      context
-          .read<TeacherMyTimetableCubit>()
-          .getTeacherMyTimetable(); // Perbarui jadwal pelajaran
+      _selectedGradeLevelId = newSelectedClassSection.gradeLevelId;
     }
+
+    setState(() {});
+    if (newSelectedClassSection != null && newSelectedClassSection.id != null) {
+      getStudentList();
+      getAttendance(); // Directly call getAttendance since we have class selection
+      context.read<TeacherMyTimetableCubit>().getTeacherMyTimetable();
+    }
+
+    // Clear previous attendance data when class changes
+    attendanceReport.clear();
+  }
+
+  void changeGradeLevelSelection(int? newGradeLevelId) {
+    // Method kept for compatibility but simplified
+    setState(() {
+      _selectedGradeLevelId = newGradeLevelId;
+    });
   }
 
   void resetForm() {
@@ -212,8 +264,17 @@ class _TeacherAddAttendanceScreenSubjectState
   void changeTimetableSlotSelection(int? newSelectedTimetableId) {
     _selectedTimeTableId = newSelectedTimetableId ?? 0;
 
+    // Set default jumlah JP ketika jadwal dipilih
+    if (newSelectedTimetableId != null && newSelectedTimetableId > 0) {
+      _selectedJumlahJp = 1; // Default 1 JP per jadwal
+    } else {
+      _selectedJumlahJp = 1; // Default to 1 JP even without specific timetable
+    }
+
     setState(() {});
-    if (newSelectedTimetableId != null) {
+
+    // Refresh attendance data if we have class section
+    if (_selectedClassSection != null && _selectedClassSection!.id != null) {
       getAttendance();
     }
   }
@@ -308,7 +369,27 @@ class _TeacherAddAttendanceScreenSubjectState
             bottom: 100), // Add bottom padding to prevent overlap
         child: BlocBuilder<SubjectAttendanceCubit, SubjectAttendanceState>(
           builder: (context, state) {
-            if (state is SubjectAttendanceFetchSuccess) {
+            if (state is SubjectAttendanceFetchInProgress) {
+              return Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+                    CustomCircularProgressIndicator(
+                      indicatorColor: _maroonPrimary,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Memuat data kehadiran...',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            } else if (state is SubjectAttendanceFetchSuccess) {
               if (state.isHoliday) {
                 return HolidayAttendanceContainer(
                   holiday: state.holidayDetails,
@@ -815,25 +896,145 @@ class _TeacherAddAttendanceScreenSubjectState
                 ),
               );
             } else {
+              // For initial state or other states, show instructions with class selector
               return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.2),
-                    CustomCircularProgressIndicator(
-                      indicatorColor: _maroonPrimary,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Memuat data kehadiran...',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.grey[600],
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.1),
+                      Container(
+                        padding: EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: _maroonPrimary.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.assignment_turned_in_rounded,
+                          size: 48,
+                          color: _maroonPrimary,
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 24),
+                      Text(
+                        'Siap untuk mengambil absensi?',
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: _maroonPrimary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Pilih kelas untuk memulai',
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+
+                      // Class selection dropdown
+                      const SizedBox(height: 32),
+                      BlocBuilder<ClassesCubit, ClassesState>(
+                        builder: (context, state) {
+                          if (state is ClassesFetchSuccess) {
+                            return Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(horizontal: 20),
+                              child: DropdownButtonFormField<ClassSection>(
+                                value: _selectedClassSection,
+                                items: state.classes
+                                    .map((classSection) =>
+                                        DropdownMenuItem<ClassSection>(
+                                          value: classSection,
+                                          child: Text(classSection.fullName ??
+                                              'Unknown Class'),
+                                        ))
+                                    .toList(),
+                                onChanged: (val) =>
+                                    changeClassSectionSelection(val),
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: _maroonPrimary.withOpacity(0.3),
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: _maroonPrimary.withOpacity(0.3),
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: _maroonPrimary,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 16),
+                                  prefixIcon: Icon(
+                                    Icons.class_rounded,
+                                    color: _maroonPrimary,
+                                  ),
+                                ),
+                                hint: Text(
+                                  'Pilih Kelas',
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                                style: GoogleFonts.poppins(
+                                  color: Colors.black87,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            );
+                          }
+                          return Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(horizontal: 20),
+                            child: Container(
+                              padding: EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.grey[300]!,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: _maroonPrimary,
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                  SizedBox(width: 12),
+                                  Text(
+                                    'Memuat kelas...',
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ).animate().fadeIn(duration: 300.ms);
+              );
             }
           },
         ),
@@ -931,14 +1132,46 @@ class _TeacherAddAttendanceScreenSubjectState
                           return; // Only check if submission is in progress
                         }
 
+                        // Validasi data sebelum submit
+                        if (_selectedClassSection == null ||
+                            _selectedClassSection!.id == null) {
+                          Utils.showSnackBar(
+                              message: "Pilih kelas terlebih dahulu",
+                              context: context);
+                          return;
+                        }
+
+                        // Set defaults for required fields
+                        int gradeLevelIdToSubmit = _selectedGradeLevelId ??
+                            _selectedClassSection!.gradeLevelId ??
+                            1;
+                        int timetableIdToSubmit =
+                            _selectedTimeTableId > 0 ? _selectedTimeTableId : 1;
+                        int jumlahJpToSubmit =
+                            _selectedJumlahJp > 0 ? _selectedJumlahJp : 1;
+
+                        if (_selectedMateri.isEmpty) {
+                          Utils.showSnackBar(
+                              message: "Materi pembelajaran harus diisi",
+                              context: context);
+                          return;
+                        }
+
+                        if (attendanceReport.isEmpty) {
+                          Utils.showSnackBar(
+                              message: "Data kehadiran siswa belum diisi",
+                              context: context);
+                          return;
+                        }
+
                         // Log detailed submission data
                         print('=== ATTENDANCE SUBMISSION DATA ===');
                         print(
                             '📅 Date: ${Utils.formatDate(_selectedDateTime)}');
                         print(
                             '🏫 Class: ${_selectedClassSection?.fullName} (ID: ${_selectedClassSection?.id})');
-                        print('📚 Timetable ID: $_selectedTimeTableId');
-                        print('⏱️ JP Count: $_selectedJumlahJp');
+                        print('📚 Timetable ID: $timetableIdToSubmit');
+                        print('⏱️ JP Count: $jumlahJpToSubmit');
                         print(
                             '📝 Materi: ${_selectedMateri.isEmpty ? "(empty)" : _selectedMateri}');
                         print('📎 Lampiran: ${_selectedLampiran ?? "(none)"}');
@@ -971,14 +1204,13 @@ class _TeacherAddAttendanceScreenSubjectState
                             .read<SubmitAttendanceSubjectCubit>()
                             .submitSubjectAttendance(
                               date: _selectedDateTime,
-                              classSectionId: _selectedClassSection?.id ?? 0,
-                              attendanceReport: attendanceReport.isEmpty
-                                  ? []
-                                  : attendanceReport,
-                              timetableId: _selectedTimeTableId,
-                              jumlahJp: _selectedJumlahJp,
+                              classSectionId: _selectedClassSection!.id!,
+                              attendanceReport: attendanceReport,
+                              timetableId: timetableIdToSubmit,
+                              jumlahJp: jumlahJpToSubmit,
                               materi: _selectedMateri,
                               lampiran: lampiranToSend,
+                              gradeLevelId: gradeLevelIdToSubmit,
                             );
                       },
                       child: Center(
@@ -1069,64 +1301,114 @@ class _TeacherAddAttendanceScreenSubjectState
       fabAnimationController: _fabAnimationController,
       primaryColor: _maroonPrimary,
       lightColor: _maroonLight,
-      height: 160,
+      height: 150, // Decreased height to match TeacherAddAttendanceScreen
       onBackPressed: () => Navigator.of(context).pop(),
       tabBuilder: (context) {
-        // Date filter section
-        return Container(
-          height: 60,
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            children: [
-              // Date filter
-              Expanded(
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      // Date picker functionality
-                    },
-                    borderRadius: BorderRadius.circular(12),
-                    highlightColor: Colors.white.withOpacity(0.1),
-                    splashColor: Colors.white.withOpacity(0.2),
-                    child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
-                          width: 1,
+        // Custom tab content for filters like in TeacherAddAttendanceScreen
+        return Row(
+          children: [
+            // Date filter
+            Expanded(
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () async {
+                    final selectedDate = await Utils.openDatePicker(
+                      context: context,
+                      inititalDate: _selectedDateTime,
+                      lastDate: DateTime.now(),
+                      firstDate:
+                          DateTime.now().subtract(const Duration(days: 30)),
+                    );
+
+                    if (selectedDate != null) {
+                      _selectedDateTime = selectedDate;
+                      setState(() {});
+                      if (_selectedClassSection != null) {
+                        getAttendance();
+                      }
+                    }
+                  },
+                  highlightColor: Colors.white.withOpacity(0.1),
+                  splashColor: Colors.white.withOpacity(0.2),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.calendar_today_rounded,
+                          color: Colors.white,
+                          size: 16,
                         ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.calendar_today_rounded,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                          SizedBox(width: 12),
-                          Flexible(
-                            child: Text(
-                              Utils.formatDate(_selectedDateTime),
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                        SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            Utils.formatDate(_selectedDateTime),
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
                             ),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+
+            // Vertical divider
+            Container(
+              height: 24,
+              width: 1.5,
+              margin: EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.white.withOpacity(0.0),
+                    Colors.white.withOpacity(0.4),
+                    Colors.white.withOpacity(0.0),
+                  ],
+                ),
+              ),
+            ),
+
+            // Class selection filter (display only)
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.class_rounded,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                    SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        _selectedClassSection?.fullName ?? 'Pilih Kelas',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         );
       },
     );

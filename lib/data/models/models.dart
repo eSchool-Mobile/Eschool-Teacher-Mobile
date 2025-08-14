@@ -16,6 +16,7 @@ export 'classSection.dart';
 export 'classTimetableSlot.dart';
 export 'exam.dart';
 export 'fee.dart';
+export 'gradeLevel.dart';
 export 'guardian.dart';
 export 'holiday.dart';
 export 'leaveDetails.dart';

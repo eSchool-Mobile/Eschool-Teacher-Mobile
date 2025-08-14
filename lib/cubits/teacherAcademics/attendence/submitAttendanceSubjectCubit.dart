@@ -30,6 +30,7 @@ class SubmitAttendanceSubjectCubit extends Cubit<SubmitAttendanceSubjectState> {
     required int jumlahJp,
     required String materi,
     required String lampiran,
+    required int gradeLevelId,
     required List<({StudentAttendanceStatus status, int studentId})>
         attendanceReport,
   }) async {
@@ -42,6 +43,7 @@ class SubmitAttendanceSubjectCubit extends Cubit<SubmitAttendanceSubjectState> {
         jumlahJp: jumlahJp,
         materi: materi,
         lampiran: lampiran,
+        gradeLevelId: gradeLevelId,
         attendance: attendanceReport.map(
           (attendanceReport) {
             print('Mapping attendance report:');

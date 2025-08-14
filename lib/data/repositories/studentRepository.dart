@@ -3,6 +3,7 @@ import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
 import 'package:eschool_saas_staff/data/models/studentDetails.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
+import 'package:eschool_saas_staff/utils/logger.dart';
 import 'package:flutter/foundation.dart';
 
 class StudentRepository {
@@ -13,7 +14,16 @@ class StudentRepository {
     StudentListStatus? status,
     String? search,
   }) async {
+    const scope = 'StudentRepository.getStudentsByClassSectionAndSubject';
     try {
+      AppLogger.info(scope, 'Request start', data: {
+        'classSectionId': classSectionId,
+        'classSubjectId': classSubjectId,
+        'examId': examId,
+        'status': status?.toString(),
+        'search': search,
+      });
+
       ///[0 - view all, 1 - Active, 2 - Inactive]
       int studentViewStatus = 0;
       if (status != null) {
@@ -36,23 +46,92 @@ class StudentRepository {
         },
       );
 
+      AppLogger.debug(scope, 'Raw API response', data: {
+        'responseKeys': result.keys.toList(),
+        'hasData': result.containsKey('data'),
+        'dataType': result['data']?.runtimeType.toString(),
+        'dataStructure': result['data'] is Map
+            ? (result['data'] as Map).keys.toList()
+            : 'not a map',
+      });
+
       // Handle different response structures
       List<dynamic> studentsData;
-      if (result['data'] is Map && result['data']['data'] != null) {
-        // Paginated response structure
+      if (result['data'] is Map && result['data']['students'] != null) {
+        // Check if students is a paginated structure
+        if (result['data']['students'] is Map &&
+            result['data']['students']['data'] != null) {
+          // Paginated response structure: data.students.data
+          studentsData = result['data']['students']['data'] as List;
+          AppLogger.debug(scope, 'Using paginated students response structure');
+        } else if (result['data']['students'] is List) {
+          // Non-paginated students structure: data.students
+          studentsData = result['data']['students'] as List;
+          AppLogger.debug(
+              scope, 'Using non-paginated students response structure');
+        } else {
+          studentsData = [];
+          AppLogger.warn(scope, 'Invalid students data structure', data: {
+            'studentsType':
+                result['data']['students']?.runtimeType.toString() ?? 'null',
+            'studentsData': result['data']['students']?.toString() ?? 'null',
+          });
+        }
+      } else if (result['data'] is Map && result['data']['data'] != null) {
+        // Legacy paginated response structure: data.data
         studentsData = result['data']['data'] as List;
+        AppLogger.debug(scope, 'Using legacy paginated response structure');
       } else if (result['data'] is List) {
-        // Non-paginated response structure
+        // Direct list response structure: data
         studentsData = result['data'] as List;
+        AppLogger.debug(scope, 'Using direct list response structure');
       } else {
         studentsData = [];
+        AppLogger.warn(
+            scope, 'Empty or invalid data structure, using empty list',
+            data: {
+              'responseData': result['data']?.toString() ?? 'null',
+              'dataType': result['data']?.runtimeType.toString() ?? 'null',
+            });
       }
+
+      AppLogger.info(scope, 'Request success', data: {
+        'studentsCount': studentsData.length,
+        'sampleData': studentsData.isNotEmpty
+            ? studentsData.first.toString().substring(0, 100) + '...'
+            : null,
+      });
 
       return studentsData.map((e) {
         return StudentDetails.fromJson(Map.from(e ?? {}));
       }).toList();
-    } catch (e) {
-      throw ApiException(e.toString());
+    } on ApiException catch (e, stackTrace) {
+      AppLogger.error(scope, 'API Exception occurred',
+          error: e.errorMessage,
+          stack: stackTrace,
+          data: {
+            'classSectionId': classSectionId,
+            'classSubjectId': classSubjectId,
+          });
+
+      // Provide user-friendly error message for server errors
+      if (e.errorMessage.contains('Undefined variable')) {
+        throw ApiException(
+            'Server error: Database query issue. Please contact administrator.');
+      } else if (e.errorMessage.contains('Error Occurred')) {
+        throw ApiException(
+            'Server encountered an error. Please try again or contact administrator.');
+      }
+
+      throw e;
+    } on Exception catch (e, stackTrace) {
+      AppLogger.error(scope, 'Exception occurred',
+          error: e.toString(), stack: stackTrace);
+      throw ApiException('Failed to get student list: ${e.toString()}');
+    } catch (e, stackTrace) {
+      AppLogger.error(scope, 'Unknown error occurred',
+          error: e.toString(), stack: stackTrace);
+      throw ApiException('Unexpected error occurred while fetching students');
     }
   }
 
@@ -64,7 +143,17 @@ class StudentRepository {
           String? search,
           String? status,
           bool getAllData = false}) async {
+    const scope = 'StudentRepository.getStudents';
     try {
+      AppLogger.info(scope, 'Request start', data: {
+        'classSectionId': classSectionId,
+        'page': page,
+        'sessionYearId': sessionYearId,
+        'search': search,
+        'status': status,
+        'getAllData': getAllData,
+      });
+
       ///[0 - view all, 1 - Active, 2 - Inactive]
       int? studentViewStatus;
       if (status != null) {
@@ -93,6 +182,13 @@ class StudentRepository {
       final result =
           await Api.get(url: Api.getStudents, queryParameters: queryParameters);
 
+      AppLogger.debug(scope, 'Raw API response', data: {
+        'responseKeys': result.keys.toList(),
+        'hasData': result.containsKey('data'),
+        'dataType': result['data']?.runtimeType.toString(),
+        'getAllData': getAllData,
+      });
+
       // Handle different response structures based on pagination
       List<dynamic> studentsData;
       int currentPage = 1;
@@ -102,10 +198,16 @@ class StudentRepository {
         // When paginate=0, response structure is different
         if (result['data'] is List) {
           studentsData = result['data'] as List;
+          AppLogger.debug(scope, 'Using direct list structure for getAllData');
         } else if (result['data'] is Map && result['data']['data'] != null) {
           studentsData = result['data']['data'] as List;
+          AppLogger.debug(scope, 'Using nested data structure for getAllData');
         } else {
           studentsData = [];
+          AppLogger.warn(scope, 'No valid data found for getAllData', data: {
+            'dataType': result['data']?.runtimeType.toString(),
+            'data': result['data']?.toString(),
+          });
         }
         // For non-paginated data, set page info
         currentPage = 1;
@@ -115,7 +217,19 @@ class StudentRepository {
         studentsData = (result['data']['data'] ?? []) as List;
         currentPage = (result['data']['current_page'] as int);
         totalPage = (result['data']['last_page'] as int);
+
+        AppLogger.debug(scope, 'Using paginated response', data: {
+          'studentsCount': studentsData.length,
+          'currentPage': currentPage,
+          'totalPage': totalPage,
+        });
       }
+
+      AppLogger.info(scope, 'Request success', data: {
+        'studentsCount': studentsData.length,
+        'currentPage': currentPage,
+        'totalPage': totalPage,
+      });
 
       return (
         students: studentsData
@@ -126,6 +240,7 @@ class StudentRepository {
         totalPage: totalPage,
       );
     } catch (e, stk) {
+      AppLogger.error(scope, 'Error occurred', error: e.toString(), stack: stk);
       if (kDebugMode) {
         print(stk.toString());
       }
@@ -144,7 +259,15 @@ class StudentRepository {
           required String date,
           int? status,
           int? page}) async {
+    const scope = 'StudentRepository.getStudentAttendance';
     try {
+      AppLogger.info(scope, 'Request start', data: {
+        'classSectionId': classSectionId,
+        'date': date,
+        'status': status,
+        'page': page,
+      });
+
       final result = await Api.get(
           url: Api.getStudentAttendanceForStaff,
           queryParameters: {
@@ -154,6 +277,12 @@ class StudentRepository {
             "status": status
           });
 
+      AppLogger.info(scope, 'Request success', data: {
+        'attendanceCount': (result['data']['data'] as List?)?.length ?? 0,
+        'currentPage': result['data']['current_page'],
+        'totalPage': result['data']['last_page'],
+      });
+
       return (
         studentAttendances: ((result['data']['data'] ?? []) as List)
             .map((studentAttendance) =>
@@ -162,7 +291,8 @@ class StudentRepository {
         currentPage: (result['data']['current_page'] as int),
         totalPage: (result['data']['last_page'] as int),
       );
-    } catch (e) {
+    } catch (e, stk) {
+      AppLogger.error(scope, 'Error occurred', error: e.toString(), stack: stk);
       throw ApiException(e.toString());
     }
   }
@@ -172,12 +302,20 @@ class StudentRepository {
       int? studentID,
       int? publishStatus,
       int? classSectionId}) async {
+    const scope = 'StudentRepository.fetchExamsList';
     try {
       var queryParameter = {
         'status': examStatus,
         if (studentID != null) 'student_id': studentID,
       };
-      print('ID Siswa : $studentID');
+
+      AppLogger.info(scope, 'Request start', data: {
+        'examStatus': examStatus,
+        'studentID': studentID,
+        'publishStatus': publishStatus,
+        'classSectionId': classSectionId,
+      });
+
       if (classSectionId != null) {
         queryParameter["class_section_id"] = classSectionId;
       }
@@ -189,14 +327,22 @@ class StudentRepository {
         queryParameters: queryParameter,
       );
 
-      print(Api.examList);
-      print("::::");
-      print(queryParameter);
+      AppLogger.debug(scope, 'API call details', data: {
+        'url': Api.examList,
+        'queryParameters': queryParameter,
+      });
 
-      return (result['data'] as List)
+      final examsList = (result['data'] as List)
           .map((e) => Exam.fromExamJson(Map.from(e)))
           .toList();
-    } catch (e) {
+
+      AppLogger.info(scope, 'Request success', data: {
+        'examsCount': examsList.length,
+      });
+
+      return examsList;
+    } catch (e, stk) {
+      AppLogger.error(scope, 'Error occurred', error: e.toString(), stack: stk);
       throw ApiException(e.toString());
     }
   }

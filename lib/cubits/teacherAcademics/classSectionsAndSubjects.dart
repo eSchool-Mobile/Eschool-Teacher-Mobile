@@ -35,13 +35,17 @@ class ClassSectionsAndSubjectsCubit
 
   ClassSectionsAndSubjectsCubit() : super(ClassSectionsAndSubjectsInitial());
 
-  void getClassSectionsAndSubjects({int? classSectionId}) async {
+  void getClassSectionsAndSubjects(
+      {int? classSectionId, int? gradeLevelId}) async {
     try {
       print(
           "ClassSectionsAndSubjectsCubit: Starting to fetch class sections and subjects");
       emit(ClassSectionsAndSubjectsFetchInProgress());
 
-      final classesResult = await _academicRepository.getClasses(modeAll: true);
+      final classesResult = await _academicRepository.getClasses(
+        modeAll: true,
+        gradeLevelId: gradeLevelId,
+      );
 
       print(
           "ClassSectionsAndSubjectsCubit: Received classes - Primary: ${classesResult.primaryClasses.length}, Other: ${classesResult.classes.length}");

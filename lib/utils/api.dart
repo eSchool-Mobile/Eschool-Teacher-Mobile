@@ -6,6 +6,7 @@ import 'package:eschool_saas_staff/data/repositories/authRepository.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:http/http.dart' as http;
+import 'package:eschool_saas_staff/utils/logger.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
 
@@ -187,6 +188,8 @@ class Api {
       "${databaseUrl}teacher/get-online-exam-status";
   static String resetOnlineExamStatus =
       "${databaseUrl}teacher/reset-online-exam-status";
+  static String gradeLevel =
+      "${databaseUrl}teacher/get-grade-levels";
 
   static Map<String, String> headers({bool useAuthToken = false}) {
     final String jwtToken = AuthRepository.getAuthToken();
@@ -230,8 +233,11 @@ class Api {
   }) async {
     try {
       if (kDebugMode || true) {
-        print(url);
-        print(body);
+        AppLogger.debug('Api.post', 'Request', data: {
+          'url': url,
+          'body': body,
+          'queryParameters': queryParameters,
+        });
       }
       final Dio dio = Dio();
       final FormData formData =
@@ -245,8 +251,12 @@ class Api {
           onSendProgress: onSendProgress,
           options: (useAuthToken ?? true) ? Options(headers: headers()) : null);
 
-      print(">> RESPONSE <<");
-      print(response);
+      AppLogger.debug('Api.post', 'Response meta', data: {
+        'statusCode': response.statusCode,
+        'dataType': response.data.runtimeType.toString(),
+        'hasErrorKey':
+            response.data is Map && (response.data as Map).containsKey('error'),
+      });
 
       if (response.data.containsKey('error') &&
           response.data['error'] == true) {
@@ -256,7 +266,13 @@ class Api {
       return Map.from(response.data);
     } on DioException catch (e) {
       if (kDebugMode) {
-        print(e.response?.data);
+        AppLogger.error('Api.post', 'DioException',
+            data: {
+              'url': url,
+              'statusCode': e.response?.statusCode,
+              'response': e.response?.data,
+            },
+            error: e);
       }
       throw ApiException(
           e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
@@ -264,7 +280,8 @@ class Api {
       throw ApiException(e.errorMessage);
     } catch (e) {
       if (kDebugMode) {
-        print(e.toString());
+        AppLogger.error('Api.post', 'Unknown exception',
+            data: {'url': url}, error: e);
       }
       throw ApiException(defaultErrorMessageKey);
     }
@@ -305,6 +322,19 @@ class Api {
                 isPdfEndpoint ? ResponseType.bytes : ResponseType.json),
       );
 
+      AppLogger.debug('Api.get', 'Response meta', data: {
+        'url': url,
+        'statusCode': response.statusCode,
+        'query': queryParameters,
+        'responseDataType': response.data.runtimeType.toString(),
+        'responseDataPreview': response.data is String
+            ? (response.data.length > 200
+                ? response.data.substring(0, 200) + '...<truncated>'
+                : response.data)
+            : response.data.toString().length > 200
+                ? response.data.toString().substring(0, 200) + '...<truncated>'
+                : response.data.toString(),
+      });
       if (response.statusCode == 200) {
         if (isPdfEndpoint && response.data is List<int>) {
           // Handle PDF binary data
@@ -312,17 +342,54 @@ class Api {
         } else if (response.data is Map) {
           // Handle regular JSON response
           if (response.data['error'] == true) {
-            throw ApiException(
-                response.data['message'] ?? defaultErrorMessageKey);
+            String errorMessage =
+                response.data['message'] ?? defaultErrorMessageKey;
+            String details = '';
+
+            // Add server details if available
+            if (response.data['details'] != null) {
+              details = ' | Server Details: ${response.data['details']}';
+            }
+            if (response.data['code'] != null) {
+              details += ' | Error Code: ${response.data['code']}';
+            }
+
+            AppLogger.error('Api.get', 'Server returned error response', data: {
+              'url': url,
+              'errorMessage': errorMessage,
+              'errorCode': response.data['code'],
+              'serverDetails': response.data['details'],
+              'fullResponse': response.data.toString(),
+            });
+
+            throw ApiException(errorMessage + details);
           }
           return Map<String, dynamic>.from(response.data);
         }
-        throw ApiException("Invalid response format");
+        // Log detailed information about unexpected response format
+        AppLogger.error('Api.get', 'Invalid response format', data: {
+          'url': url,
+          'statusCode': response.statusCode,
+          'expectedFormat': 'Map or PDF bytes',
+          'actualType': response.data.runtimeType.toString(),
+          'responseData': response.data.toString().length > 500
+              ? response.data.toString().substring(0, 500) + '...<truncated>'
+              : response.data.toString(),
+          'isPdfEndpoint': isPdfEndpoint,
+        });
+        throw ApiException(
+            "Invalid response format: expected Map but got ${response.data.runtimeType}");
       } else {
         throw ApiException(response.data['message'] ?? defaultErrorMessageKey);
       }
-    } catch (e) {
-      print("API Error: $e");
+    } catch (e, st) {
+      AppLogger.error('Api.get', 'Request failed',
+          data: {
+            'url': url,
+            'query': queryParameters,
+          },
+          error: e,
+          stack: st);
       throw ApiException(e.toString());
     }
   }
@@ -357,9 +424,11 @@ class Api {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
-      print('DELETE Request to: $url');
-      print('Body: $body');
-      print('Query Parameters: $queryParameters');
+      AppLogger.debug('Api.delete', 'Request', data: {
+        'url': url,
+        'body': body,
+        'query': queryParameters,
+      });
 
       final Dio dio = Dio();
       final response = await dio.delete(
@@ -374,7 +443,11 @@ class Api {
         ),
       );
 
-      print('DELETE Response: ${response.data}');
+      AppLogger.debug('Api.delete', 'Response meta', data: {
+        'statusCode': response.statusCode,
+        'hasErrorKey':
+            response.data is Map && (response.data as Map).containsKey('error'),
+      });
 
       if (response.statusCode == 404) {
         throw ApiException(response.data['message'] ?? 'Exam not found');
@@ -386,17 +459,25 @@ class Api {
 
       throw ApiException('Invalid response format');
     } on DioException catch (e) {
-      print('DioError Response: ${e.response?.data}');
+      AppLogger.error('Api.delete', 'DioException',
+          data: {
+            'url': url,
+            'statusCode': e.response?.statusCode,
+            'response': e.response?.data,
+          },
+          error: e);
       if (e.response?.data is Map) {
         throw ApiException(
             e.response?.data['message'] ?? defaultErrorMessageKey);
       }
       throw ApiException(e.message ?? defaultErrorMessageKey);
     } catch (e) {
-      print('Error: $e');
+      AppLogger.error('Api.delete', 'Unknown exception',
+          data: {'url': url}, error: e);
       throw ApiException(e.toString());
     }
   }
+
   static Future<Map<String, dynamic>> put({
     required Map<String, dynamic> body,
     required String url,
@@ -408,11 +489,14 @@ class Api {
   }) async {
     try {
       if (kDebugMode || true) {
-        print(url);
-        print(body);
+        AppLogger.debug('Api.put', 'Request', data: {
+          'url': url,
+          'body': body,
+          'queryParameters': queryParameters,
+        });
       }
       final Dio dio = Dio();
-      
+
       // For PUT requests, send JSON data instead of FormData
       final response = await dio.put(url,
           data: body, // Send as JSON instead of FormData
@@ -423,12 +507,15 @@ class Api {
           options: Options(
             headers: {
               ...headers(useAuthToken: useAuthToken ?? true),
-              'Content-Type': 'application/json', // Explicitly set content type to JSON
+              'Content-Type':
+                  'application/json', // Explicitly set content type to JSON
             },
           ));
 
-      print(">> RESPONSE <<");
-      print(response);
+      AppLogger.debug('Api.put', 'Response meta', data: {
+        'statusCode': response.statusCode,
+        'dataType': response.data.runtimeType.toString(),
+      });
 
       if (response.data.containsKey('error') &&
           response.data['error'] == true) {
@@ -438,7 +525,13 @@ class Api {
       return Map.from(response.data);
     } on DioException catch (e) {
       if (kDebugMode) {
-        print(e.response?.data);
+        AppLogger.error('Api.put', 'DioException',
+            data: {
+              'url': url,
+              'statusCode': e.response?.statusCode,
+              'response': e.response?.data,
+            },
+            error: e);
       }
       throw ApiException(
           e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
@@ -446,7 +539,8 @@ class Api {
       throw ApiException(e.errorMessage);
     } catch (e) {
       if (kDebugMode) {
-        print(e.toString());
+        AppLogger.error('Api.put', 'Unknown exception',
+            data: {'url': url}, error: e);
       }
       throw ApiException(defaultErrorMessageKey);
     }

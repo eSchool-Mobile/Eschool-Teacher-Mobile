@@ -8,13 +8,21 @@ import 'package:eschool_saas_staff/utils/api.dart';
 
 class AcademicRepository {
   Future<({List<ClassSection> classes, List<ClassSection> primaryClasses})>
-      getClasses({bool? modeAll}) async {
+      getClasses({bool? modeAll, int? gradeLevelId}) async {
     try {
       print("AcademicRepository: Fetching classes with mode=all parameter");
 
+      Map<String, dynamic> queryParameters = {};
+      if (modeAll == true) {
+        queryParameters["mode"] = "all";
+      }
+      if (gradeLevelId != null) {
+        queryParameters["grade_level_id"] = gradeLevelId;
+      }
+
       final result = await Api.get(
         url: Api.getClasses,
-        queryParameters: {if (modeAll == true) "mode": "all"},
+        queryParameters: queryParameters.isNotEmpty ? queryParameters : null,
       );
       print("AcademicRepository: Raw API response received");
 
@@ -64,7 +72,8 @@ class AcademicRepository {
     }
   }
 
-  Future<List<ClassSection>> getClassesWithTeacherDetails({bool? modeAll}) async {
+  Future<List<ClassSection>> getClassesWithTeacherDetails(
+      {bool? modeAll}) async {
     try {
       final result = await Api.post(
         url: Api.getClassesWithTeacherDetails,

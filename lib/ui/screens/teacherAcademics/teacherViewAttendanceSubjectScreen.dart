@@ -246,6 +246,7 @@ class _TeacherViewAttendanceSubjectScreenState
             date: _selectedDateTime,
             classSectionId: _selectedClassSection!.id!,
             timetableId: _selectedTimetableId,
+            gradeLevelId: _selectedClassSection!.classId!,
           );
     }
   }

@@ -155,6 +155,8 @@ const String totalMarksKey = "totalMarks";
 const String obtainedMarksKey = "obtainedMarks";
 const String percentageKey = "percentage";
 const String gradeKey = "grade";
+const String gradeLevelKey = "gradeLevel";
+const String tingkatKey = "tingkat";
 const String deleteKey = "delete";
 const String addNotificationKey = "addNotification";
 
