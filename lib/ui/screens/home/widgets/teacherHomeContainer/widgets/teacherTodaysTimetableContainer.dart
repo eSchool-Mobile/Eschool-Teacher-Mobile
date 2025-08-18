@@ -291,7 +291,7 @@ class _TeacherTodaysTimetableContainerState
                   ),
                   const SizedBox(height: 8.0),
                   Text(
-                    'Anda tidak memiliki jadwal mengajar untuk hari ini. Nikmati hari istirahat Anda!',
+                    'Anda tidak memiliki jadwal mengajar untuk hari ini',
                     style: TextStyle(
                       fontSize: 14.0,
                       color: Colors.grey[600],

@@ -1,11 +1,13 @@
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/createAssignmentCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/editAssignmentCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
+import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/assignmentRepository.dart';
 import 'package:eschool_saas_staff/data/models/assignment.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
 import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
+import 'package:eschool_saas_staff/data/models/gradeLevel.dart';
 import 'package:eschool_saas_staff/data/models/AssignmentFiletype.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
@@ -41,6 +43,9 @@ class TeacherAddEditAssignmentScreen extends StatefulWidget {
         ),
         BlocProvider(
           create: (context) => ClassSectionsAndSubjectsCubit(),
+        ),
+        BlocProvider(
+          create: (context) => GradeLevelCubit(),
         ),
       ],
       child: TeacherAddEditAssignmentScreen(
@@ -78,6 +83,7 @@ class _TeacherAddEditAssignmentScreenState
     with TickerProviderStateMixin {
   late ClassSection? _selectedClassSection = widget.selectedClassSection;
   late TeacherSubject? _selectedSubject = widget.selectedSubject;
+  GradeLevel? _selectedGradeLevel;
 
   // Animation controllers
   late AnimationController _fabAnimationController;
@@ -291,13 +297,71 @@ class _TeacherAddEditAssignmentScreenState
                   icon: Icons.info_rounded,
    gradient: [_burgundy, _deepMaroon],
                   children: [
-                    // Class and Subject Selection
+                    // Grade Level, Class and Subject Selection
                     _buildElegantField(
                       "Kelas & Mata Pelajaran",
-                      "Pilih kelas dan mata pelajaran",
+                      "Pilih tingkatan, kelas dan mata pelajaran",
                       Icons.school_rounded,
                       Column(
                         children: [
+                          // Grade Level Selection
+                          BlocBuilder<GradeLevelCubit, GradeLevelState>(
+                            builder: (context, gradeLevelState) {
+                              if (gradeLevelState is GradeLevelFetchSuccess) {
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(colors: [_pearl, _champagne.withOpacity(0.3)]),
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(color: _blushPink.withOpacity(0.3)),
+                                  ),
+                                  child: CustomSelectionDropdownSelectionButton(
+                                    onTap: () {
+                                      if (gradeLevelState.gradeLevels.isEmpty) {
+                                        Utils.showSnackBar(
+                                          context: context,
+                                          message: "Tidak ada tingkatan yang tersedia",
+                                        );
+                                        return;
+                                      }
+
+                                      Utils.showBottomSheet(
+                                        child: FilterSelectionBottomsheet<GradeLevel>(
+                                          onSelection: (value) {
+                                            if (value != null) {
+                                              changeSelectedGradeLevel(value);
+                                              Get.back();
+                                            }
+                                          },
+                                          selectedValue: _selectedGradeLevel ?? gradeLevelState.gradeLevels.first,
+                                          titleKey: "gradeLevelKey",
+                                          values: gradeLevelState.gradeLevels,
+                                        ),
+                                        context: context,
+                                      );
+                                    },
+                                    backgroundColor: Colors.transparent,
+                                    titleKey: _selectedGradeLevel?.name ?? "Pilih Tingkatan",
+                                  ),
+                                );
+                              }
+                              return Container(
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(colors: [_pearl, _champagne.withOpacity(0.3)]),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(color: _blushPink.withOpacity(0.3)),
+                                ),
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: _deepMaroon,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          SizedBox(height: 12),
+                          // Class Selection
                           Container(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(colors: [_pearl, _champagne.withOpacity(0.3)]),
@@ -306,26 +370,44 @@ class _TeacherAddEditAssignmentScreenState
                             ),
                             child: CustomSelectionDropdownSelectionButton(
                               onTap: () {
-                                if (state.classSections.isNotEmpty) {
-                                  Utils.showBottomSheet(
-                                    child: FilterSelectionBottomsheet<ClassSection>(
-                                      onSelection: (value) {
-                                        changeSelectedClassSection(value, fetchNewSubjects: true);
-                                        Get.back();
-                                      },
-                                      selectedValue: _selectedClassSection ?? state.classSections.first,
-                                      titleKey: "Pilih Kelas",
-                                      values: state.classSections,
-                                    ),
-                                    context: context,
-                                  );
+                                // Filter classes based on selected grade level if any
+                                List<ClassSection> availableClasses = state.classSections;
+                                
+                                if (_selectedGradeLevel != null) {
+                                  availableClasses = state.classSections
+                                      .where((classSection) => classSection.gradeLevelId == _selectedGradeLevel!.id)
+                                      .toList();
                                 }
+
+                                if (availableClasses.isEmpty) {
+                                  Utils.showSnackBar(
+                                    context: context,
+                                    message: _selectedGradeLevel != null 
+                                      ? "Tidak ada kelas untuk tingkatan ${_selectedGradeLevel!.name}"
+                                      : "Tidak ada kelas yang tersedia",
+                                  );
+                                  return;
+                                }
+
+                                Utils.showBottomSheet(
+                                  child: FilterSelectionBottomsheet<ClassSection>(
+                                    onSelection: (value) {
+                                      changeSelectedClassSection(value, fetchNewSubjects: true);
+                                      Get.back();
+                                    },
+                                    selectedValue: _selectedClassSection ?? availableClasses.first,
+                                    titleKey: "Pilih Kelas",
+                                    values: availableClasses,
+                                  ),
+                                  context: context,
+                                );
                               },
                               backgroundColor: Colors.transparent,
                               titleKey: _selectedClassSection?.fullName ?? "Pilih Kelas",
                             ),
                           ),
                           SizedBox(height: 12),
+                          // Subject Selection
                           Container(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(colors: [_pearl, _champagne.withOpacity(0.3)]),
@@ -334,6 +416,14 @@ class _TeacherAddEditAssignmentScreenState
                             ),
                             child: CustomSelectionDropdownSelectionButton(
                               onTap: () {
+                                if (state.subjects.isEmpty) {
+                                  Utils.showSnackBar(
+                                    context: context,
+                                    message: "Pilih kelas terlebih dahulu",
+                                  );
+                                  return;
+                                }
+
                                 Utils.showBottomSheet(
                                   child: FilterSelectionBottomsheet<TeacherSubject>(
                                     onSelection: (value) {
@@ -522,6 +612,12 @@ class _TeacherAddEditAssignmentScreenState
       // Set description from existing assignment
       _assignmentDescriptionTextEditingController.text =
           widget.assignment!.description;
+          
+      // Set grade level from selected class section
+      if (widget.selectedClassSection != null) {
+        // We'll set the grade level after we fetch the grade levels
+        // This will be handled in the Future.delayed section
+      }
     }
 
     _isTextAnswerAllowed = widget.assignment?.text == "1";
@@ -547,6 +643,25 @@ class _TeacherAddEditAssignmentScreenState
     });
     Future.delayed(Duration.zero, () {
       if (mounted) {
+        context.read<GradeLevelCubit>().getGradeLevels();
+        
+        // Set grade level after data is loaded
+        if (widget.selectedClassSection != null) {
+          // Listen to grade level changes to set initial value
+          context.read<GradeLevelCubit>().stream.listen((gradeLevelState) {
+            if (gradeLevelState is GradeLevelFetchSuccess && _selectedGradeLevel == null) {
+              final matchingGradeLevel = gradeLevelState.gradeLevels
+                  .where((gradeLevel) => gradeLevel.id == widget.selectedClassSection!.gradeLevelId)
+                  .firstOrNull;
+              if (matchingGradeLevel != null && mounted) {
+                setState(() {
+                  _selectedGradeLevel = matchingGradeLevel;
+                });
+              }
+            }
+          });
+        }
+        
         context
             .read<ClassSectionsAndSubjectsCubit>()
             .getClassSectionsAndSubjects(
@@ -674,6 +789,29 @@ class _TeacherAddEditAssignmentScreenState
     );
   }
 
+  void changeSelectedGradeLevel(GradeLevel? gradeLevel) {
+    if (_selectedGradeLevel != gradeLevel) {
+      _selectedGradeLevel = gradeLevel;
+      // Reset class section and subject when grade level changes
+      _selectedClassSection = null;
+      _selectedSubject = null;
+
+      setState(() {});
+
+      // Re-fetch classes for the selected grade level
+      if (_selectedGradeLevel != null) {
+        context
+            .read<ClassSectionsAndSubjectsCubit>()
+            .getClassSectionsAndSubjects(gradeLevelId: _selectedGradeLevel!.id);
+      } else {
+        // If no grade level selected, show all classes
+        context
+            .read<ClassSectionsAndSubjectsCubit>()
+            .getClassSectionsAndSubjects();
+      }
+    }
+  }
+
   void changeSelectedClassSection(ClassSection? classSection,
       {bool fetchNewSubjects = true}) {
     if (_selectedClassSection != classSection) {
@@ -788,13 +926,18 @@ class _TeacherAddEditAssignmentScreenState
   void createAssignment() {
     FocusManager.instance.primaryFocus?.unfocus();
 
-    if (_selectedSubject == null) {
-      showErrorMessage(noSubjectSelectedKey);
+    if (_selectedGradeLevel == null) {
+      showErrorMessage("Silakan pilih tingkatan terlebih dahulu");
       return;
     }
 
     if (_selectedClassSection == null) {
       showErrorMessage(noClassSectionSelectedKey);
+      return;
+    }
+
+    if (_selectedSubject == null) {
+      showErrorMessage(noSubjectSelectedKey);
       return;
     }
 
@@ -889,6 +1032,12 @@ class _TeacherAddEditAssignmentScreenState
 
   void editAssignment() {
     FocusManager.instance.primaryFocus?.unfocus();
+    
+    if (_selectedGradeLevel == null) {
+      showErrorMessage("Silakan pilih tingkatan terlebih dahulu");
+      return;
+    }
+
     if (_assignmentNameTextEditingController.text.trim().isEmpty) {
       showErrorMessage(pleaseEnterAssignmentNameKey);
       return;
@@ -981,61 +1130,6 @@ class _TeacherAddEditAssignmentScreenState
           maxFile:
               int.tryParse(_maxFileSizeTextEditingController.text.trim()) ?? 0,
         );
-  }
-
-  // Helper method for modern form field styling
-  Widget _buildModernFormField({
-    required String label,
-    required Widget child,
-    String? description,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 4,
-              height: 16,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [_deepMaroon, _softMaroon],
-                ),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            SizedBox(width: 12),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: _deepMaroon,
-                letterSpacing: -0.2,
-              ),
-            ),
-          ],
-        ),
-        if (description != null) ...[
-          SizedBox(height: 4),
-          Padding(
-            padding: EdgeInsets.only(left: 16),
-            child: Text(
-              description,
-              style: TextStyle(
-                fontSize: 12,
-                color: _softMaroon.withOpacity(0.7),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
-        SizedBox(height: 10),
-        child,
-      ],
-    );
   }
 
   // 🚀 PREMIUM SUBMIT BUTTON - Luxury design for action button

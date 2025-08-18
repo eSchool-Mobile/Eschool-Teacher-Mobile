@@ -1,11 +1,14 @@
 import 'package:eschool_saas_staff/cubits/teacherAcademics/attendence/attendanceRankingCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
+import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
 import 'package:eschool_saas_staff/data/models/attendanceRanking.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
+import 'package:eschool_saas_staff/data/models/gradeLevel.dart';
 import 'package:eschool_saas_staff/ui/widgets/attendanceRankingContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
+import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,6 +28,9 @@ class RankingAttendanceScreen extends StatefulWidget {
         BlocProvider(
           create: (context) => ClassSectionsAndSubjectsCubit(),
         ),
+        BlocProvider(
+          create: (context) => GradeLevelCubit(),
+        ),
       ],
       child: const RankingAttendanceScreen(),
     );
@@ -43,8 +49,8 @@ class RankingAttendanceScreen extends StatefulWidget {
 
 class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
     with TickerProviderStateMixin {
-  String? selectedClassLevel;
   ClassSection? _selectedClassSection;
+  GradeLevel? _selectedGradeLevel;
 
   // Color scheme for maroon theme matching recapAttendanceSubjectScreen
   final Color _maroonPrimary = const Color(0xFF800020);
@@ -75,6 +81,8 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
         context
             .read<ClassSectionsAndSubjectsCubit>()
             .getClassSectionsAndSubjects();
+        // Initialize grade levels
+        context.read<GradeLevelCubit>().getGradeLevels();
       }
     }); // Listen to class sections state changes for debugging
     context.read<ClassSectionsAndSubjectsCubit>().stream.listen((state) {
@@ -162,20 +170,35 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
   void changeSelectedClassSection(ClassSection? classSection) {
     if (_selectedClassSection != classSection) {
       _selectedClassSection = classSection;
-      // Reset class level filter when class section changes
-      selectedClassLevel = null;
       setState(() {});
-      // Refresh attendance ranking data with new class section filter
-      context.read<AttendanceRankingCubit>().getAttendanceRanking();
+      // Don't refresh data - filtering is done client side
+      // context.read<AttendanceRankingCubit>().getAttendanceRanking();
     }
   }
 
-  void changeSelectedClassLevel(String? classLevel) {
-    if (selectedClassLevel != classLevel) {
-      selectedClassLevel = classLevel;
+  void changeSelectedGradeLevel(GradeLevel? gradeLevel) {
+    if (_selectedGradeLevel != gradeLevel) {
+      _selectedGradeLevel = gradeLevel;
+
+      // Reset selected class section when grade level changes
+      _selectedClassSection = null;
+
       setState(() {});
-      print(
-          "RankingAttendanceScreen: Class level changed to: $selectedClassLevel");
+
+      // Re-fetch classes for the selected grade level to filter them
+      if (_selectedGradeLevel != null) {
+        context
+            .read<ClassSectionsAndSubjectsCubit>()
+            .getClassSectionsAndSubjects(gradeLevelId: _selectedGradeLevel!.id);
+      } else {
+        // If no grade level selected, show all classes
+        context
+            .read<ClassSectionsAndSubjectsCubit>()
+            .getClassSectionsAndSubjects();
+      }
+
+      // Don't refresh attendance data - filtering is done client side
+      // context.read<AttendanceRankingCubit>().getAttendanceRanking();
     }
   }
 
@@ -186,107 +209,166 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
     print(
         "DEBUG: Original data - groupedByClassLevel count: ${attendanceRankings.groupedByClassLevel?.length ?? 0}");
 
+    // Debug: Print selected filters
+    print("DEBUG: Selected grade level: ${_selectedGradeLevel?.name}");
+    print("DEBUG: Selected class section: ${_selectedClassSection?.name}");
+
+    // Debug: Print available data structure
+    if (attendanceRankings.groupedByClassLevel != null) {
+      print("DEBUG: Available class levels:");
+      for (var classLevel in attendanceRankings.groupedByClassLevel!) {
+        print("  - Class Level: '${classLevel.classLevel}'");
+      }
+    }
+
+    if (attendanceRankings.allStudents != null) {
+      print("DEBUG: Sample students:");
+      for (var i = 0;
+          i <
+              (attendanceRankings.allStudents!.length > 5
+                  ? 5
+                  : attendanceRankings.allStudents!.length);
+          i++) {
+        var student = attendanceRankings.allStudents![i];
+        print(
+            "  - Student: '${student.studentName}', Class Level: '${student.classLevel}', Class Name: '${student.className}'");
+      }
+    }
+
     // Update cache with fresh data
     _cachedAttendanceData = attendanceRankings;
     _cachedClassLevels = getClassLevels(attendanceRankings);
     print("DEBUG: Updated cache - class levels: $_cachedClassLevels");
 
-    AttendanceRanking filteredData;
+    // First filter by grade level if selected
+    AttendanceRanking filteredData = attendanceRankings;
+    if (_selectedGradeLevel != null && _selectedGradeLevel!.name != null) {
+      // Filter by selected grade level - this will affect which classes we see
+      final gradeLevelName = _selectedGradeLevel!.name!;
+      print("DEBUG: Filtering by grade level: '$gradeLevelName'");
 
-    // First filter by class section if selected
-    AttendanceRanking classSectionFilteredData = attendanceRankings;
+      filteredData = AttendanceRanking(
+        groupedByClassLevel:
+            attendanceRankings.groupedByClassLevel?.where((classLevel) {
+          final levelName = classLevel.classLevel ?? '';
+          // Since classLevel might be null, check if it matches
+          final matches = levelName.isNotEmpty &&
+              (levelName == gradeLevelName ||
+                  levelName.contains(gradeLevelName) ||
+                  levelName.startsWith(gradeLevelName));
+
+          print(
+              "DEBUG: Class level '$levelName' vs '$gradeLevelName' - matches: $matches");
+          return matches;
+        }).toList(),
+        allStudents: attendanceRankings.allStudents?.where((student) {
+          // Since student.classLevel is null, use className to determine grade level
+          final className = student.className ?? '';
+          final classLevel = student.classLevel ?? '';
+
+          // Extract grade level from className (e.g., "XII TKJ B" -> should match "XII")
+          final classNameMatches = className.startsWith(gradeLevelName);
+          final classLevelMatches = classLevel.isNotEmpty &&
+              (classLevel == gradeLevelName ||
+                  classLevel.contains(gradeLevelName) ||
+                  classLevel.startsWith(gradeLevelName));
+          final matches = classNameMatches || classLevelMatches;
+
+          print(
+              "DEBUG: Student '${student.studentName}' - className: '$className', classLevel: '$classLevel', classNameMatches: $classNameMatches, classLevelMatches: $classLevelMatches, final: $matches");
+          return matches;
+        }).toList(),
+      );
+
+      print(
+          "DEBUG: After grade level filter - groupedByClassLevel: ${filteredData.groupedByClassLevel?.length}, allStudents: ${filteredData.allStudents?.length}");
+    }
+
+    // Then filter by class section if selected
     if (_selectedClassSection != null) {
       // Filter by selected class section
-      classSectionFilteredData = AttendanceRanking(
-        groupedByClassLevel: attendanceRankings.groupedByClassLevel
-            ?.where((classLevel) =>
-                classLevel.classLevel
-                    ?.contains(_selectedClassSection!.name ?? '') ??
-                false)
-            .toList(),
-        allStudents: attendanceRankings.allStudents
-            ?.where((student) =>
-                student.className
-                    ?.contains(_selectedClassSection!.name ?? '') ??
-                false)
-            .toList(),
-      );
-    } // Then filter by class level if selected
-    if (selectedClassLevel == null) {
-      // For "Semua Tingkat", we want to show all students
-      filteredData = classSectionFilteredData;
+      final classSectionName = _selectedClassSection!.name ?? '';
+      print("DEBUG: Filtering by class section: '$classSectionName'");
 
-      // If allStudents is empty but we have groupedByClassLevel data,
-      // create allStudents from groupedByClassLevel
-      if ((filteredData.allStudents?.isEmpty ?? true) &&
-          (filteredData.groupedByClassLevel?.isNotEmpty ?? false)) {
-        print(
-            "DEBUG: Converting groupedByClassLevel to allStudents for Semua Tingkat");
-
-        List<AllStudents> generatedAllStudents = [];
-
-        for (var classLevel in filteredData.groupedByClassLevel!) {
-          for (var topStudent in (classLevel.topStudents ?? [])) {
-            generatedAllStudents.add(AllStudents(
-              studentId: topStudent.studentId,
-              studentName: topStudent.studentName,
-              classLevel: classLevel.classLevel,
-              className: topStudent.className,
-              jumlahJpSum: topStudent.jumlahJpSum,
-              point: topStudent.point,
-              alpha_count: topStudent.alpha_count,
-            ));
-          }
-        }
-
-        // Sort by point (assuming higher points are better)
-        generatedAllStudents.sort((a, b) {
-          double pointA = double.tryParse(a.point?.toString() ?? '0') ?? 0;
-          double pointB = double.tryParse(b.point?.toString() ?? '0') ?? 0;
-          return pointB.compareTo(pointA); // Descending order
-        });
-
-        filteredData = AttendanceRanking(
-          groupedByClassLevel: filteredData.groupedByClassLevel,
-          allStudents: generatedAllStudents,
-        );
-
-        print(
-            "DEBUG: Generated ${generatedAllStudents.length} students for allStudents");
-      }
-    } else {
-      // Filter by specific class level
       filteredData = AttendanceRanking(
-        groupedByClassLevel: classSectionFilteredData.groupedByClassLevel
-            ?.where((classLevel) => classLevel.classLevel == selectedClassLevel)
-            .toList(),
-        // For specific class level, filter allStudents by class level too
-        allStudents: classSectionFilteredData.allStudents
-            ?.where((student) => student.classLevel == selectedClassLevel)
-            .toList(),
+        groupedByClassLevel:
+            filteredData.groupedByClassLevel?.where((classLevel) {
+          final levelName = classLevel.classLevel ?? '';
+          // Try multiple matching strategies for class sections too
+          final exactMatch = levelName == classSectionName;
+          final containsMatch = levelName.contains(classSectionName);
+          final startsWithMatch = levelName.startsWith(classSectionName);
+          final matches = exactMatch || containsMatch || startsWithMatch;
+
+          print(
+              "DEBUG: Class level '$levelName' vs class section '$classSectionName' - exact: $exactMatch, contains: $containsMatch, starts: $startsWithMatch, final: $matches");
+          return matches;
+        }).toList(),
+        allStudents: filteredData.allStudents?.where((student) {
+          final className = student.className ?? '';
+          // For students, use exact match for className since we want specific class
+          final classNameExactMatch = className == classSectionName;
+          // Also try partial match as fallback
+          final classNamePartialMatch = className.contains(classSectionName);
+          final matches = classNameExactMatch || classNamePartialMatch;
+
+          print(
+              "DEBUG: Student '${student.studentName}' - className: '$className' vs '$classSectionName' - exact: $classNameExactMatch, partial: $classNamePartialMatch, final: $matches");
+          return matches;
+        }).toList(),
       );
-    } // Check if data is empty based on the selected filter
-    bool hasNoData = false;
-    if (selectedClassLevel == null) {
-      // For "Semua Tingkat", check if allStudents is empty
-      hasNoData = (filteredData.allStudents?.isEmpty ?? true);
+
       print(
-          "DEBUG: Semua Tingkat - allStudents count: ${filteredData.allStudents?.length ?? 0}");
-      print("DEBUG: Semua Tingkat - hasNoData: $hasNoData");
-    } else {
-      // For specific class level, check if groupedByClassLevel is empty
-      hasNoData = (filteredData.groupedByClassLevel?.isEmpty ?? true);
-      print(
-          "DEBUG: Specific Level - groupedByClassLevel count: ${filteredData.groupedByClassLevel?.length ?? 0}");
-      print("DEBUG: Specific Level - hasNoData: $hasNoData");
+          "DEBUG: After class section filter - groupedByClassLevel: ${filteredData.groupedByClassLevel?.length}, allStudents: ${filteredData.allStudents?.length}");
     }
 
-    // Additional check: if both data sources are empty, show no data
+    // If allStudents is empty but we have groupedByClassLevel data,
+    // create allStudents from groupedByClassLevel
     if ((filteredData.allStudents?.isEmpty ?? true) &&
-        (filteredData.groupedByClassLevel?.isEmpty ?? true)) {
-      hasNoData = true;
-      print("DEBUG: Both data sources are empty");
+        (filteredData.groupedByClassLevel?.isNotEmpty ?? false)) {
+      print("DEBUG: Converting groupedByClassLevel to allStudents");
+
+      List<AllStudents> generatedAllStudents = [];
+
+      for (var classLevel in filteredData.groupedByClassLevel!) {
+        for (var topStudent in (classLevel.topStudents ?? [])) {
+          generatedAllStudents.add(AllStudents(
+            studentId: topStudent.studentId,
+            studentName: topStudent.studentName,
+            classLevel: classLevel.classLevel,
+            className: topStudent.className,
+            jumlahJpSum: topStudent.jumlahJpSum,
+            point: topStudent.point,
+            alpha_count: topStudent.alpha_count,
+          ));
+        }
+      }
+
+      // Sort by point (assuming higher points are better)
+      generatedAllStudents.sort((a, b) {
+        double pointA = double.tryParse(a.point?.toString() ?? '0') ?? 0;
+        double pointB = double.tryParse(b.point?.toString() ?? '0') ?? 0;
+        return pointB.compareTo(pointA); // Descending order
+      });
+
+      filteredData = AttendanceRanking(
+        groupedByClassLevel: filteredData.groupedByClassLevel,
+        allStudents: generatedAllStudents,
+      );
+
+      print(
+          "DEBUG: Generated ${generatedAllStudents.length} students for allStudents");
     }
+
+    // Check if data is empty - we have data if either source has content
+    bool hasNoData = (filteredData.allStudents?.isEmpty ?? true) &&
+        (filteredData.groupedByClassLevel?.isEmpty ?? true);
+
+    print(
+        "DEBUG: allStudents empty: ${filteredData.allStudents?.isEmpty ?? true}");
+    print(
+        "DEBUG: groupedByClassLevel empty: ${filteredData.groupedByClassLevel?.isEmpty ?? true}");
+    print("DEBUG: Final hasNoData result: $hasNoData");
 
     if (hasNoData) {
       return Center(
@@ -309,8 +391,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              if (_selectedClassSection != null ||
-                  selectedClassLevel != null) ...[
+              if (_selectedClassSection != null) ...[
                 SizedBox(height: 8),
                 Text(
                   "Coba ubah filter yang dipilih",
@@ -330,9 +411,10 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
     }
 
     // Debug print to help verify filter logic
-    print("RankingAttendanceScreen: selectedClassLevel = $selectedClassLevel");
     print(
-        "RankingAttendanceScreen: showAllStudents = ${selectedClassLevel == null}");
+        "RankingAttendanceScreen: _selectedGradeLevel = ${_selectedGradeLevel?.name}");
+    print(
+        "RankingAttendanceScreen: _selectedClassSection = ${_selectedClassSection?.name}");
     print(
         "RankingAttendanceScreen: allStudents count = ${filteredData.allStudents?.length ?? 0}");
     print(
@@ -340,7 +422,8 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
 
     return AttendanceRankingContainer(
       attendanceRankings: filteredData,
-      showAllStudents: selectedClassLevel == null,
+      showAllStudents:
+          true, // Always show all students since we removed class level filter
       searchQuery: _searchQuery,
     ).animate().fadeIn(duration: 500.ms).slideY(
           begin: 0.05,
@@ -364,9 +447,66 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
           ? Icons.close_rounded
           : Icons.search_rounded, // Dynamic search icon
       tabBuilder: (context) {
-        // Custom tab content for filters like in teacherAddAttendanceScreen
+        // Custom tab content for filters with 2 filters: Grade Level and Class Section
         return Row(
           children: [
+            // Grade Level filter
+            Expanded(
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: _showGradeLevelFilter,
+                  highlightColor: Colors.white.withOpacity(0.1),
+                  splashColor: Colors.white.withOpacity(0.2),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.school_rounded,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                        SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            _selectedGradeLevel?.name ?? 'Semua Tingkatan',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // Vertical divider
+            Container(
+              height: 24,
+              width: 1.5,
+              margin: EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.white.withOpacity(0.0),
+                    Colors.white.withOpacity(0.4),
+                    Colors.white.withOpacity(0.0),
+                  ],
+                ),
+              ),
+            ),
+
             // Class Section filter
             Expanded(
               child: Material(
@@ -405,63 +545,6 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                 ),
               ),
             ),
-
-            // Vertical divider
-            Container(
-              height: 24,
-              width: 1.5,
-              margin: EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.white.withOpacity(0.0),
-                    Colors.white.withOpacity(0.4),
-                    Colors.white.withOpacity(0.0),
-                  ],
-                ),
-              ),
-            ),
-
-            // Class Level filter
-            Expanded(
-              child: Material(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(12),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: _showClassLevelFilter,
-                  highlightColor: Colors.white.withOpacity(0.1),
-                  splashColor: Colors.white.withOpacity(0.2),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.filter_list_rounded,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                        SizedBox(width: 8),
-                        Flexible(
-                          child: Text(
-                            selectedClassLevel ?? 'Semua Tingkat',
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white,
-                              fontSize: 14,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
           ],
         );
       },
@@ -473,10 +556,25 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
     final currentState = context.read<ClassSectionsAndSubjectsCubit>().state;
 
     if (currentState is ClassSectionsAndSubjectsFetchSuccess) {
-      if (currentState.classSections.isEmpty) {
+      // Filter classes based on selected grade level if any
+      List<ClassSection> availableClasses = currentState.classSections;
+
+      // If a grade level is selected, filter classes by grade level
+      if (_selectedGradeLevel != null) {
+        availableClasses = currentState.classSections
+            .where((classSection) =>
+                classSection.gradeLevelId == _selectedGradeLevel!.id)
+            .toList();
+      }
+
+      if (availableClasses.isEmpty) {
+        final message = _selectedGradeLevel != null
+            ? "Tidak ada kelas yang tersedia untuk tingkatan ${_selectedGradeLevel!.name}"
+            : "Tidak ada kelas yang tersedia";
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Tidak ada kelas yang tersedia"),
+            content: Text(message),
             backgroundColor: _maroonPrimary,
             behavior: SnackBarBehavior.floating,
             margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -487,12 +585,13 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
         );
         return;
       }
+
       HapticFeedback.lightImpact();
 
-      // Create list with "Semua Kelas" option
+      // Create list with "Semua Kelas" option using filtered classes
       List<String> classNames = [
         "Semua Kelas",
-        ...currentState.classSections.map((e) => e.name ?? "")
+        ...availableClasses.map((e) => e.name ?? "")
       ];
 
       Utils.showBottomSheet(
@@ -502,8 +601,8 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                 if (value == "Semua Kelas") {
                   changeSelectedClassSection(null);
                 } else {
-                  // Find the corresponding ClassSection
-                  final selectedClass = currentState.classSections
+                  // Find the corresponding ClassSection from filtered classes
+                  final selectedClass = availableClasses
                       .firstWhere((classSection) => classSection.name == value);
                   changeSelectedClassSection(selectedClass);
                 }
@@ -596,24 +695,56 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
     }
   }
 
-  // Helper method for class level filter
-  void _showClassLevelFilter() {
-    final attendanceState = context.read<AttendanceRankingCubit>().state;
+  // Helper method for grade level filter
+  void _showGradeLevelFilter() {
+    final currentState = context.read<GradeLevelCubit>().state;
 
-    // Use cached class levels if available, otherwise try to get from current state
-    List<String> availableClassLevels = _cachedClassLevels;
+    if (currentState is GradeLevelFetchSuccess) {
+      if (currentState.gradeLevels.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Tidak ada tingkatan yang tersedia"),
+            backgroundColor: _maroonPrimary,
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        );
+        return;
+      }
 
-    // If cache is empty, try to get from current state
-    if (availableClassLevels.isEmpty &&
-        attendanceState is AttendanceRankingFetchSuccess) {
-      availableClassLevels = getClassLevels(attendanceState.attendanceRanking);
-      // Update cache
-      _cachedClassLevels = availableClassLevels;
-    }
+      HapticFeedback.lightImpact();
 
-    print("DEBUG: Available class levels for filter: $availableClassLevels");
+      // Create list with "Semua Tingkatan" option
+      List<String> gradeLevelNames = [
+        "Semua Tingkatan",
+        ...currentState.gradeLevels.map((e) => e.name ?? "")
+      ];
 
-    if (availableClassLevels.isEmpty) {
+      Utils.showBottomSheet(
+        child: FilterSelectionBottomsheet<String>(
+          onSelection: (value) {
+            if (value != null) {
+              if (value == "Semua Tingkatan") {
+                changeSelectedGradeLevel(null);
+              } else {
+                // Find the corresponding GradeLevel
+                final selectedGradeLevel = currentState.gradeLevels
+                    .firstWhere((gradeLevel) => gradeLevel.name == value);
+                changeSelectedGradeLevel(selectedGradeLevel);
+              }
+              Get.back();
+            }
+          },
+          selectedValue: _selectedGradeLevel?.name ?? "Semua Tingkatan",
+          titleKey: gradeLevelKey,
+          values: gradeLevelNames,
+        ),
+        context: context,
+      );
+    } else if (currentState is GradeLevelFetchInProgress) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
@@ -627,7 +758,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                 ),
               ),
               SizedBox(width: 12),
-              Text("Tingkat kelas sedang dimuat..."),
+              Text("Sedang memuat tingkatan..."),
             ],
           ),
           backgroundColor: _maroonPrimary,
@@ -638,27 +769,54 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
           ),
         ),
       );
+    } else if (currentState is GradeLevelFetchFailure) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Gagal memuat tingkatan. Coba lagi."),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          action: SnackBarAction(
+            label: "Retry",
+            textColor: Colors.white,
+            onPressed: () {
+              context.read<GradeLevelCubit>().getGradeLevels();
+            },
+          ),
+        ),
+      );
+    } else {
+      // Initial state - trigger data loading
+      context.read<GradeLevelCubit>().getGradeLevels();
 
-      // Try to trigger data load
-      context.read<AttendanceRankingCubit>().getAttendanceRanking();
-      return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+              SizedBox(width: 12),
+              Text("Memuat tingkatan..."),
+            ],
+          ),
+          backgroundColor: _maroonPrimary,
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      );
     }
-
-    HapticFeedback.lightImpact();
-    Utils.showBottomSheet(
-      child: FilterSelectionBottomsheet(
-        onSelection: (value) {
-          if (value != null) {
-            changeSelectedClassLevel(value == "Semua Tingkat" ? null : value);
-            Get.back();
-          }
-        },
-        selectedValue: selectedClassLevel ?? "Semua Tingkat",
-        titleKey: 'Pilih Tingkat Kelas',
-        values: ["Semua Tingkat", ...availableClassLevels],
-      ),
-      context: context,
-    );
   }
 
   // Helper method for search toggle
@@ -816,6 +974,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
               onPressed: () {
                 print("Manual refresh triggered via FAB");
                 HapticFeedback.lightImpact();
+                context.read<GradeLevelCubit>().getGradeLevels();
                 context
                     .read<ClassSectionsAndSubjectsCubit>()
                     .getClassSectionsAndSubjects();
@@ -860,23 +1019,12 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
   bool _hasNoSearchResults(AttendanceRanking filteredData) {
     if (_searchQuery.isEmpty) return false;
 
-    // Check if showing all students (selectedClassLevel == null)
-    if (selectedClassLevel == null) {
-      // Filter all students by search query
-      final filteredStudents = (filteredData.allStudents ?? [])
-          .where((student) => (student.studentName?.toLowerCase() ?? '')
-              .contains(_searchQuery.toLowerCase()))
-          .toList();
-      return filteredStudents.isEmpty;
-    } else {
-      // Filter grouped students by search query
-      final filteredStudents = (filteredData.groupedByClassLevel ?? [])
-          .expand((classLevel) => (classLevel.topStudents ?? []))
-          .where((student) => (student.studentName?.toLowerCase() ?? '')
-              .contains(_searchQuery.toLowerCase()))
-          .toList();
-      return filteredStudents.isEmpty;
-    }
+    // Filter all students by search query
+    final filteredStudents = (filteredData.allStudents ?? [])
+        .where((student) => (student.studentName?.toLowerCase() ?? '')
+            .contains(_searchQuery.toLowerCase()))
+        .toList();
+    return filteredStudents.isEmpty;
   }
 
   Widget _buildNoSearchResults() {

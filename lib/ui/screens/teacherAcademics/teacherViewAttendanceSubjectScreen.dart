@@ -372,8 +372,7 @@ class _TeacherViewAttendanceSubjectScreenState
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
         controller: _scrollController,
-        padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top + 160, bottom: 90),
+        padding: EdgeInsets.only(top: 20, bottom: 90),
         child: BlocBuilder<SubjectAttendanceCubit, SubjectAttendanceState>(
           builder: (context, state) {
             if (state is SubjectAttendanceFetchSuccess) {
@@ -390,7 +389,7 @@ class _TeacherViewAttendanceSubjectScreenState
                   return Center(
                     child: Padding(
                       padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).size.height * 0.2,
+                        top: MediaQuery.of(context).size.height * 0.1,
                       ),
                       child: Column(
                         children: [

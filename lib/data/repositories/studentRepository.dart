@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/exam.dart';
+ import 'package:eschool_saas_staff/data/models/exam.dart';
 import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
 import 'package:eschool_saas_staff/data/models/studentDetails.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
@@ -53,45 +53,61 @@ class StudentRepository {
         'dataStructure': result['data'] is Map
             ? (result['data'] as Map).keys.toList()
             : 'not a map',
+        'studentsExists': result['data'] is Map ? result['data'].containsKey('students') : false,
+        'studentsType': result['data'] is Map && result['data']['students'] != null
+            ? result['data']['students'].runtimeType.toString()
+            : 'null',
+        'studentsHasData': result['data'] is Map && 
+                          result['data']['students'] is Map
+            ? result['data']['students'].containsKey('data')
+            : false,
       });
 
       // Handle different response structures
       List<dynamic> studentsData;
-      if (result['data'] is Map && result['data']['students'] != null) {
+      if (result['data'] is Map && result['data'].containsKey('students')) {
+        var students = result['data']['students'];
+        AppLogger.debug(scope, 'Students object found', data: {
+          'studentsType': students.runtimeType.toString(),
+          'hasDataKey': students is Map ? students.containsKey('data') : false,
+        });
+        
         // Check if students is a paginated structure
-        if (result['data']['students'] is Map &&
-            result['data']['students']['data'] != null) {
+        if (students is Map && students.containsKey('data') && students['data'] is List) {
           // Paginated response structure: data.students.data
-          studentsData = result['data']['students']['data'] as List;
-          AppLogger.debug(scope, 'Using paginated students response structure');
-        } else if (result['data']['students'] is List) {
+          studentsData = students['data'] as List;
+          AppLogger.debug(scope, 'Using paginated students response structure',
+              data: {'count': studentsData.length});
+        } else if (students is List) {
           // Non-paginated students structure: data.students
-          studentsData = result['data']['students'] as List;
-          AppLogger.debug(
-              scope, 'Using non-paginated students response structure');
+          studentsData = students as List;
+          AppLogger.debug(scope, 'Using non-paginated students response structure',
+              data: {'count': studentsData.length});
         } else {
           studentsData = [];
           AppLogger.warn(scope, 'Invalid students data structure', data: {
-            'studentsType':
-                result['data']['students']?.runtimeType.toString() ?? 'null',
-            'studentsData': result['data']['students']?.toString() ?? 'null',
+            'studentsType': students?.runtimeType.toString() ?? 'null',
+            'studentsKeys': students is Map ? students.keys.toList() : 'not a map',
           });
         }
-      } else if (result['data'] is Map && result['data']['data'] != null) {
+      } else if (result['data'] is Map && result['data'].containsKey('data')) {
         // Legacy paginated response structure: data.data
         studentsData = result['data']['data'] as List;
-        AppLogger.debug(scope, 'Using legacy paginated response structure');
+        AppLogger.debug(scope, 'Using legacy paginated response structure',
+            data: {'count': studentsData.length});
       } else if (result['data'] is List) {
         // Direct list response structure: data
         studentsData = result['data'] as List;
-        AppLogger.debug(scope, 'Using direct list response structure');
+        AppLogger.debug(scope, 'Using direct list response structure',
+            data: {'count': studentsData.length});
       } else {
         studentsData = [];
         AppLogger.warn(
             scope, 'Empty or invalid data structure, using empty list',
             data: {
-              'responseData': result['data']?.toString() ?? 'null',
+              'responseData': result['data']?.toString()?.substring(0, 200) ?? 'null',
               'dataType': result['data']?.runtimeType.toString() ?? 'null',
+              'dataKeys': result['data'] is Map ? (result['data'] as Map).keys.toList() : 'not a map',
             });
       }
 

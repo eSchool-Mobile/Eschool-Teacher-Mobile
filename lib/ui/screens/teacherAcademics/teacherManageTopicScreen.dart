@@ -1,9 +1,11 @@
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
+import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/lesson/lessonsCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/topic/deleteTopicCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/topic/topicsCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
+import 'package:eschool_saas_staff/data/models/gradeLevel.dart';
 import 'package:eschool_saas_staff/data/models/lesson.dart';
 import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
 import 'package:eschool_saas_staff/data/models/topic.dart';
@@ -44,6 +46,7 @@ class TeacherManageTopicScreen extends StatefulWidget {
         BlocProvider(create: (context) => LessonsCubit()),
         BlocProvider(create: (context) => ClassSectionsAndSubjectsCubit()),
         BlocProvider(create: (context) => TopicsCubit()),
+        BlocProvider(create: (context) => GradeLevelCubit()),
       ],
       child: TeacherManageTopicScreen(
         selectedClassSection: arguments?['selectedClassSection'],
@@ -82,6 +85,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
   ClassSection? _selectedClassSection;
   TeacherSubject? _selectedSubject;
   Lesson? _selectedLesson;
+  GradeLevel? _selectedGradeLevel;
   bool didCreateNewTopic = false; // For tracking new topic creation
   // Animation controllers
   late AnimationController _fadeController;
@@ -117,6 +121,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
     if (widget.selectedLesson == null) {
       Future.delayed(Duration.zero, () {
         if (mounted) {
+          context.read<GradeLevelCubit>().getGradeLevels();
           context
               .read<ClassSectionsAndSubjectsCubit>()
               .getClassSectionsAndSubjects();
@@ -127,6 +132,12 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
       _selectedSubject = widget.selectedSubject;
       _selectedClassSection = widget.selectedClassSection;
       getTopics();
+      // Initialize grade level cubit even when we have selected lesson
+      Future.delayed(Duration.zero, () {
+        if (mounted) {
+          context.read<GradeLevelCubit>().getGradeLevels();
+        }
+      });
     }
   }
 
@@ -143,6 +154,10 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
       {bool fetchNewSubjects = true}) {
     if (_selectedClassSection != classSection) {
       _selectedClassSection = classSection;
+      // Reset subject and lesson when changing class
+      _selectedSubject = null;
+      _selectedLesson = null;
+
       if (fetchNewSubjects && _selectedClassSection != null) {
         context
             .read<ClassSectionsAndSubjectsCubit>()
@@ -165,12 +180,56 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
     }
   }
 
+  void changeSelectedGradeLevel(GradeLevel? gradeLevel) {
+    if (_selectedGradeLevel != gradeLevel) {
+      _selectedGradeLevel = gradeLevel;
+
+      // Reset selected class, subject, and lesson when grade level changes
+      _selectedClassSection = null;
+      _selectedSubject = null;
+      _selectedLesson = null;
+
+      setState(() {});
+
+      // Re-fetch classes for the selected grade level to filter them
+      if (_selectedGradeLevel != null) {
+        context
+            .read<ClassSectionsAndSubjectsCubit>()
+            .getClassSectionsAndSubjects(gradeLevelId: _selectedGradeLevel!.id);
+      } else {
+        // If no grade level selected, show all classes
+        context
+            .read<ClassSectionsAndSubjectsCubit>()
+            .getClassSectionsAndSubjects();
+      }
+
+      // Clear topics since filters have changed
+      context.read<TopicsCubit>().updateState(TopicsFetchSuccess([]));
+    }
+  }
+
   void changeSelectedTeacherSubject(TeacherSubject? teacherSubject) {
     if (_selectedSubject != teacherSubject) {
       _selectedSubject = teacherSubject;
+      // Reset lesson when changing subject
+      _selectedLesson = null;
       setState(() {});
       getLessons();
     }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: maroonPrimary,
+        behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+    );
   }
 
   void getLessons() {
@@ -1334,7 +1393,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
       fabAnimationController: _fabAnimationController,
       primaryColor: maroonPrimary,
       lightColor: maroonLight,
-      height: 200, // Increased height to accommodate filters
+      height: 260, // Adjusted height for new layout
       onBackPressed: () {
         Get.back(result: didCreateNewTopic);
       },
@@ -1344,298 +1403,360 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
 
   Widget _buildFilterTabs() {
     return Container(
-      height: 100, // Height for three filters
+      height: 140, // Slightly increased height for better spacing
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
         children: [
-          // Top row with two filters
-          Expanded(
-            child: Row(
-              children: [
-                // Class Section filter
-                Expanded(
-                  child: BlocBuilder<ClassSectionsAndSubjectsCubit,
-                      ClassSectionsAndSubjectsState>(
-                    builder: (context, state) {
-                      return Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () {
-                            if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                              if (state.classSections.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content:
-                                        Text("Tidak ada kelas yang tersedia"),
-                                    backgroundColor: maroonPrimary,
-                                  ),
-                                );
-                                return;
-                              }
+          // Top row with Grade Level and Class Section filters
+          Row(
+            children: [
+              // Grade Level filter
+              Expanded(
+                child: BlocBuilder<GradeLevelCubit, GradeLevelState>(
+                  builder: (context, gradeLevelState) {
+                    return _buildFilterButton(
+                      icon: Icons.school_rounded,
+                      text: _selectedGradeLevel?.name ?? "Pilih Tingkatan",
+                      onTap: () {
+                        if (gradeLevelState is GradeLevelFetchSuccess) {
+                          if (gradeLevelState.gradeLevels.isEmpty) {
+                            _showSnackBar("Tidak ada tingkatan yang tersedia");
+                            return;
+                          }
 
-                              if (_selectedClassSection == null) {
-                                changeSelectedClassSection(
-                                    state.classSections.first,
-                                    fetchNewSubjects: false);
-                              }
-
-                              HapticFeedback.lightImpact();
-                              Utils.showBottomSheet(
-                                child: FilterSelectionBottomsheet<ClassSection>(
-                                  onSelection: (value) {
-                                    if (value != null) {
-                                      changeSelectedClassSection(value);
-                                      Get.back();
-                                    }
-                                  },
-                                  selectedValue: _selectedClassSection ??
-                                      state.classSections.first,
-                                  values: state.classSections,
-                                  titleKey: classKey,
-                                ),
-                                context: context,
-                              );
-                            }
-                          },
-                          highlightColor: Colors.white.withOpacity(0.1),
-                          splashColor: Colors.white.withOpacity(0.2),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 12),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.class_rounded,
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
-                                SizedBox(width: 8),
-                                Flexible(
-                                  child: Text(
-                                    _selectedClassSection?.name ??
-                                        "Pilih Kelas",
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
+                          HapticFeedback.lightImpact();
+                          Utils.showBottomSheet(
+                            child: FilterSelectionBottomsheet<GradeLevel>(
+                              onSelection: (value) {
+                                if (value != null) {
+                                  changeSelectedGradeLevel(value);
+                                  Get.back();
+                                }
+                              },
+                              selectedValue: _selectedGradeLevel ??
+                                  gradeLevelState.gradeLevels.first,
+                              titleKey: gradeLevelKey,
+                              values: gradeLevelState.gradeLevels,
                             ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-
-                // Vertical divider
-                Container(
-                  height: 24,
-                  width: 1.5,
-                  margin: EdgeInsets.symmetric(horizontal: 8),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.white.withOpacity(0.0),
-                        Colors.white.withOpacity(0.4),
-                        Colors.white.withOpacity(0.0),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Subject filter
-                Expanded(
-                  child: BlocBuilder<ClassSectionsAndSubjectsCubit,
-                      ClassSectionsAndSubjectsState>(
-                    builder: (context, state) {
-                      return Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () {
-                            if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                              if (state.subjects.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                        "Tidak ada mata pelajaran yang tersedia"),
-                                    backgroundColor: maroonPrimary,
-                                  ),
-                                );
-                                return;
-                              }
-
-                              HapticFeedback.lightImpact();
-                              Utils.showBottomSheet(
-                                child:
-                                    FilterSelectionBottomsheet<TeacherSubject>(
-                                  onSelection: (value) {
-                                    if (value != null) {
-                                      changeSelectedTeacherSubject(value);
-                                      Get.back();
-                                    }
-                                  },
-                                  selectedValue:
-                                      _selectedSubject ?? state.subjects.first,
-                                  values: state.subjects,
-                                  titleKey: subjectKey,
-                                ),
-                                context: context,
-                              );
-                            }
-                          },
-                          highlightColor: Colors.white.withOpacity(0.1),
-                          splashColor: Colors.white.withOpacity(0.2),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 12),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.book_rounded,
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
-                                SizedBox(width: 8),
-                                Flexible(
-                                  child: Text(
-                                    _selectedSubject?.subject
-                                            .getSybjectNameWithType() ??
-                                        "Pilih Mapel",
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Horizontal divider
-          Container(
-            height: 1.5,
-            margin: EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  Colors.white.withOpacity(0.0),
-                  Colors.white.withOpacity(0.4),
-                  Colors.white.withOpacity(0.0),
-                ],
-              ),
-            ),
-          ),
-
-          // Bottom row with lesson filter
-          Expanded(
-            child: BlocConsumer<LessonsCubit, LessonsState>(
-              listener: (context, state) {
-                if (state is LessonsFetchSuccess) {
-                  if (state.lessons.isNotEmpty && _selectedLesson == null) {
-                    _selectedLesson = state.lessons.first;
-                    getTopics();
-                    setState(() {});
-                  }
-                }
-              },
-              builder: (context, state) {
-                return Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      if (state is LessonsFetchSuccess) {
-                        if (state.lessons.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content:
-                                  Text("Tidak ada bab pelajaran yang tersedia"),
-                              backgroundColor: maroonPrimary,
-                            ),
+                            context: context,
                           );
-                          return;
                         }
+                      },
+                    );
+                  },
+                ),
+              ),
 
-                        HapticFeedback.lightImpact();
-                        Utils.showBottomSheet(
-                          child: FilterSelectionBottomsheet<Lesson>(
-                            onSelection: (value) {
-                              if (value != _selectedLesson) {
-                                _selectedLesson = value;
-                                getTopics();
-                                setState(() {});
-                              }
-                              Get.back();
-                            },
-                            selectedValue:
-                                _selectedLesson ?? state.lessons.first,
-                            values: state.lessons,
-                            titleKey: "Bab",
-                          ),
-                          context: context,
-                        );
-                      }
-                    },
-                    highlightColor: Colors.white.withOpacity(0.1),
-                    splashColor: Colors.white.withOpacity(0.2),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.menu_book_rounded,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                          SizedBox(width: 8),
-                          Flexible(
-                            child: Text(
-                              _selectedLesson?.name ?? "Pilih Bab Pelajaran",
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: 14,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+              SizedBox(width: 12),
+
+              // Class Section filter
+              Expanded(
+                child: BlocBuilder<ClassSectionsAndSubjectsCubit,
+                    ClassSectionsAndSubjectsState>(
+                  builder: (context, state) {
+                    return _buildFilterButton(
+                      icon: Icons.class_rounded,
+                      text: _selectedClassSection?.name ?? "Pilih Kelas",
+                      onTap: () {
+                        if (state is ClassSectionsAndSubjectsFetchSuccess) {
+                          // Filter classes based on selected grade level if any
+                          List<ClassSection> availableClasses =
+                              state.classSections;
+
+                          // If a grade level is selected, filter classes by grade level
+                          if (_selectedGradeLevel != null) {
+                            availableClasses = state.classSections
+                                .where((classSection) =>
+                                    classSection.gradeLevelId ==
+                                    _selectedGradeLevel!.id)
+                                .toList();
+                          }
+
+                          if (availableClasses.isEmpty) {
+                            _showSnackBar("Tidak ada kelas yang tersedia");
+                            return;
+                          }
+
+                          HapticFeedback.lightImpact();
+                          Utils.showBottomSheet(
+                            child: FilterSelectionBottomsheet<ClassSection>(
+                              onSelection: (value) {
+                                if (value != null) {
+                                  changeSelectedClassSection(value);
+                                  Get.back();
+                                }
+                              },
+                              selectedValue: _selectedClassSection ??
+                                  availableClasses.first,
+                              values: availableClasses,
+                              titleKey: classKey,
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
+                            context: context,
+                          );
+                        }
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+
+          SizedBox(height: 12),
+
+          // Bottom row with Subject and Lesson filters
+          Row(
+            children: [
+              // Subject filter
+              Expanded(
+                child: BlocBuilder<ClassSectionsAndSubjectsCubit,
+                    ClassSectionsAndSubjectsState>(
+                  builder: (context, state) {
+                    return _buildFilterButton(
+                      icon: Icons.book_rounded,
+                      text:
+                          _selectedSubject?.subject.getSybjectNameWithType() ??
+                              "Pilih Mapel",
+                      onTap: () {
+                        if (state is ClassSectionsAndSubjectsFetchSuccess) {
+                          if (state.subjects.isEmpty) {
+                            _showSnackBar(
+                                "Tidak ada mata pelajaran yang tersedia");
+                            return;
+                          }
+
+                          HapticFeedback.lightImpact();
+                          Utils.showBottomSheet(
+                            child: FilterSelectionBottomsheet<TeacherSubject>(
+                              onSelection: (value) {
+                                if (value != null) {
+                                  changeSelectedTeacherSubject(value);
+                                  Get.back();
+                                }
+                              },
+                              selectedValue:
+                                  _selectedSubject ?? state.subjects.first,
+                              values: state.subjects,
+                              titleKey: subjectKey,
+                            ),
+                            context: context,
+                          );
+                        }
+                      },
+                    );
+                  },
+                ),
+              ),
+
+              SizedBox(width: 12),
+
+              // Lesson filter
+              Expanded(
+                child: BlocConsumer<LessonsCubit, LessonsState>(
+                  listener: (context, state) {
+                    if (state is LessonsFetchSuccess) {
+                      if (state.lessons.isNotEmpty && _selectedLesson == null) {
+                        _selectedLesson = state.lessons.first;
+                        getTopics();
+                        setState(() {});
+                      }
+                    }
+                  },
+                  builder: (context, state) {
+                    return _buildFilterButton(
+                      icon: Icons.menu_book_rounded,
+                      text: _selectedLesson?.name ?? "Pilih Bab",
+                      onTap: () {
+                        if (state is LessonsFetchSuccess) {
+                          if (state.lessons.isEmpty) {
+                            _showSnackBar(
+                                "Tidak ada bab pelajaran yang tersedia");
+                            return;
+                          }
+
+                          HapticFeedback.lightImpact();
+                          Utils.showBottomSheet(
+                            child: FilterSelectionBottomsheet<Lesson>(
+                              onSelection: (value) {
+                                if (value != _selectedLesson) {
+                                  _selectedLesson = value;
+                                  getTopics();
+                                  setState(() {});
+                                }
+                                Get.back();
+                              },
+                              selectedValue:
+                                  _selectedLesson ?? state.lessons.first,
+                              values: state.lessons,
+                              titleKey: "Bab",
+                            ),
+                            context: context,
+                          );
+                        }
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
+  Widget _buildFilterButton({
+    required IconData icon,
+    required String text,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        highlightColor: Colors.white.withOpacity(0.1),
+        splashColor: Colors.white.withOpacity(0.2),
+        child: Container(
+          height: 48,
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.3),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Icon(
+                  icon,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ),
+              SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  text,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      body: Stack(
-        children: [
-          _buildTopicList(),
-          _buildSubmitButton(),
-        ],
-      ),
+    return BlocBuilder<GradeLevelCubit, GradeLevelState>(
+      builder: (context, gradeLevelState) {
+        if (gradeLevelState is GradeLevelFetchSuccess) {
+          return Scaffold(
+            appBar: _buildAppBar(),
+            body: Stack(
+              children: [
+                _buildTopicList(),
+                _buildSubmitButton(),
+              ],
+            ),
+          );
+        }
+
+        if (gradeLevelState is GradeLevelFetchFailure) {
+          return Scaffold(
+            appBar: _buildAppBar(),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    color: maroonPrimary,
+                    size: 64,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    "Gagal mendapatkan data tingkat, mohon coba lagi",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: textMediumColor,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<GradeLevelCubit>().getGradeLevels();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: maroonPrimary,
+                    ),
+                    child: Text(
+                      "Coba Lagi",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return Scaffold(
+          appBar: _buildAppBar(),
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: CircularProgressIndicator(
+                    color: maroonPrimary,
+                    strokeWidth: 4,
+                  ),
+                ),
+                SizedBox(height: 24),
+                Text(
+                  "Memuat data...",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: textMediumColor,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

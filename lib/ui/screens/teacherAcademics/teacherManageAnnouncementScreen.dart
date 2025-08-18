@@ -2,9 +2,11 @@ import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/announcement/teacherAnnouncementsCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/announcement/teacherDeleteAnnouncementCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
+import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/teacherAnnouncement.dart';
 import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
+import 'package:eschool_saas_staff/data/models/gradeLevel.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherAddEditAnnouncementScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/confirmDeleteDialog.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customExpandableContainer.dart';
@@ -50,6 +52,9 @@ class TeacherManageAnnouncementScreen extends StatefulWidget {
       BlocProvider(
         create: (context) => ClassSectionsAndSubjectsCubit(),
       ),
+      BlocProvider(
+        create: (context) => GradeLevelCubit(),
+      ),
     ], child: const TeacherManageAnnouncementScreen());
   }
 
@@ -69,6 +74,7 @@ class _TeacherManageAnnouncementScreenState
     with TickerProviderStateMixin {
   ClassSection? _selectedClassSection;
   TeacherSubject? _selectedSubject;
+  GradeLevel? _selectedGradeLevel;
 
   // Animation controllers
   late final AnimationController _fadeController;
@@ -135,6 +141,7 @@ class _TeacherManageAnnouncementScreenState
         context
             .read<ClassSectionsAndSubjectsCubit>()
             .getClassSectionsAndSubjects();
+        context.read<GradeLevelCubit>().getGradeLevels();
       }
     });
 
@@ -339,6 +346,39 @@ class _TeacherManageAnnouncementScreenState
         ),
       ),
     );
+  }
+
+  void changeSelectedGradeLevel(GradeLevel? gradeLevel) {
+    if (_selectedGradeLevel != gradeLevel) {
+      _selectedGradeLevel = gradeLevel;
+
+      // Reset class section and subject selection
+      _selectedClassSection = null;
+      _selectedSubject = null;
+
+      setState(() {});
+
+      // If grade level is selected, filter class sections automatically
+      if (gradeLevel != null) {
+        final state = context.read<ClassSectionsAndSubjectsCubit>().state;
+        if (state is ClassSectionsAndSubjectsFetchSuccess) {
+          final filteredClassSections = state.classSections
+              .where(
+                  (classSection) => classSection.gradeLevelId == gradeLevel.id)
+              .toList();
+
+          // If there are filtered class sections, auto-select the first one
+          if (filteredClassSections.isNotEmpty) {
+            changeSelectedClassSection(filteredClassSections.first);
+          }
+        }
+      } else {
+        // If no grade level selected, fetch all class sections
+        context
+            .read<ClassSectionsAndSubjectsCubit>()
+            .getClassSectionsAndSubjects();
+      }
+    }
   }
 
   void changeSelectedClassSection(ClassSection? classSection,
@@ -710,7 +750,8 @@ class _TeacherManageAnnouncementScreenState
                                         });
                                       }
                                     },
-                                    itemBuilder: (context) => [                                      // Enhanced Edit button
+                                    itemBuilder: (context) => [
+                                      // Enhanced Edit button
                                       PopupMenuItem<String>(
                                         value: 'edit',
                                         height: 64,
@@ -769,8 +810,9 @@ class _TeacherManageAnnouncementScreenState
                                                     SizedBox(width: 12),
                                                     Expanded(
                                                       child: Text(
-                                                        Utils.getTranslatedLabel(
-                                                            'edit'),
+                                                        Utils
+                                                            .getTranslatedLabel(
+                                                                'edit'),
                                                         style:
                                                             GoogleFonts.poppins(
                                                           fontWeight:
@@ -847,8 +889,9 @@ class _TeacherManageAnnouncementScreenState
                                                     SizedBox(width: 12),
                                                     Expanded(
                                                       child: Text(
-                                                        Utils.getTranslatedLabel(
-                                                            'delete'),
+                                                        Utils
+                                                            .getTranslatedLabel(
+                                                                'delete'),
                                                         style:
                                                             GoogleFonts.poppins(
                                                           fontWeight:
@@ -865,7 +908,8 @@ class _TeacherManageAnnouncementScreenState
                                           },
                                         ),
                                       ),
-                                    ],                                    child: TweenAnimationBuilder<double>(
+                                    ],
+                                    child: TweenAnimationBuilder<double>(
                                       tween:
                                           Tween<double>(begin: 0.8, end: 1.0),
                                       duration: Duration(milliseconds: 300),
@@ -1300,7 +1344,7 @@ class _TeacherManageAnnouncementScreenState
         controller: _scrollController,
         padding: EdgeInsets.only(
             bottom: 70,
-            top: Utils.appContentTopScrollPadding(context: context) + 145),
+            top: Utils.appContentTopScrollPadding(context: context) + 195),
         child:
             BlocBuilder<TeacherAnnouncementsCubit, TeacherAnnouncementsState>(
           builder: (context, state) {
@@ -1627,21 +1671,21 @@ class _TeacherManageAnnouncementScreenState
 
   Widget _buildHeaderSection() {
     // Create filter configs for the CustomFilterModernAppBar
+    FilterItemConfig? gradeLevelFilter;
     FilterItemConfig? classSectionFilter;
     FilterItemConfig? subjectFilter;
 
-    // Create filters based on the current state
-    final state = context.read<ClassSectionsAndSubjectsCubit>().state;
-    if (state is ClassSectionsAndSubjectsFetchSuccess) {
-      // Class Section Filter
-      classSectionFilter = FilterItemConfig(
-        title: _selectedClassSection?.name ?? "Pilih Kelas",
-        icon: Icons.class_rounded,
+    // Grade Level Filter
+    final gradeLevelState = context.read<GradeLevelCubit>().state;
+    if (gradeLevelState is GradeLevelFetchSuccess) {
+      gradeLevelFilter = FilterItemConfig(
+        title: _selectedGradeLevel?.name ?? "Pilih Tingkatan",
+        icon: Icons.school_rounded,
         onTap: () {
-          if (state.classSections.isEmpty) {
+          if (gradeLevelState.gradeLevels.isEmpty) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text("Tidak ada kelas yang tersedia untuk guru ini"),
+                content: Text("Tidak ada tingkatan yang tersedia"),
                 backgroundColor: maroonPrimary,
                 behavior: SnackBarBehavior.floating,
               ),
@@ -1649,17 +1693,63 @@ class _TeacherManageAnnouncementScreenState
             return;
           }
 
-          if (_selectedClassSection == null) {
-            changeSelectedClassSection(state.classSections.first);
+          HapticFeedback.lightImpact();
+          Utils.showBottomSheet(
+            child: FilterSelectionBottomsheet<GradeLevel>(
+              titleKey: gradeLevelKey,
+              values: gradeLevelState.gradeLevels,
+              selectedValue:
+                  _selectedGradeLevel ?? gradeLevelState.gradeLevels.first,
+              onSelection: (value) {
+                if (value != null) {
+                  Navigator.pop(context);
+                  changeSelectedGradeLevel(value);
+                }
+              },
+            ),
+            context: context,
+          );
+        },
+      );
+    }
+
+    // Create filters based on the current state
+    final state = context.read<ClassSectionsAndSubjectsCubit>().state;
+    if (state is ClassSectionsAndSubjectsFetchSuccess) {
+      // Filter class sections based on selected grade level
+      List<ClassSection> filteredClassSections = state.classSections;
+      if (_selectedGradeLevel != null) {
+        filteredClassSections = state.classSections
+            .where((classSection) =>
+                classSection.gradeLevelId == _selectedGradeLevel!.id)
+            .toList();
+      }
+
+      // Class Section Filter
+      classSectionFilter = FilterItemConfig(
+        title: _selectedClassSection?.name ?? "Pilih Kelas",
+        icon: Icons.class_rounded,
+        onTap: () {
+          if (filteredClassSections.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(_selectedGradeLevel != null
+                    ? "Tidak ada kelas yang tersedia untuk tingkatan ${_selectedGradeLevel!.name}"
+                    : "Tidak ada kelas yang tersedia untuk guru ini"),
+                backgroundColor: maroonPrimary,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+            return;
           }
 
           HapticFeedback.lightImpact();
           Utils.showBottomSheet(
               child: FilterSelectionBottomsheet<ClassSection>(
                 titleKey: classKey,
-                values: state.classSections,
+                values: filteredClassSections,
                 selectedValue:
-                    _selectedClassSection ?? state.classSections.first,
+                    _selectedClassSection ?? filteredClassSections.first,
                 onSelection: (value) {
                   if (value != null) {
                     Navigator.pop(context);
@@ -1689,7 +1779,8 @@ class _TeacherManageAnnouncementScreenState
             return;
           }
 
-          HapticFeedback.lightImpact();          Utils.showBottomSheet(
+          HapticFeedback.lightImpact();
+          Utils.showBottomSheet(
               child: FilterSelectionBottomsheet<TeacherSubject>(
                 titleKey: subjectKey,
                 selectedValue: _selectedSubject ?? state.subjects.first,
@@ -1715,9 +1806,10 @@ class _TeacherManageAnnouncementScreenState
       primaryColor: maroonPrimary,
       secondaryColor: maroonLight,
       onBackPressed: () => Navigator.pop(context),
-      firstFilterItem: classSectionFilter,
-      secondFilterItem: subjectFilter,
-      height: 200.0,
+      firstFilterItem: gradeLevelFilter,
+      secondFilterItem: classSectionFilter,
+      thirdFilterItem: subjectFilter,
+      height: 250.0, // Increased height for 3 filters
     );
   }
 

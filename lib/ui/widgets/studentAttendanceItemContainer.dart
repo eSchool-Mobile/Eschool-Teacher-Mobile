@@ -313,17 +313,6 @@ class _StudentAttendanceItemContainerState
                           ),
                         ],
                       ),
-                      // Student ID if available
-                      if (widget.studentDetails.rollNumber != null)
-                        Text(
-                          widget.studentDetails.rollNumber ?? "",
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: Colors.grey[500],
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
                     ],
                   ),
                 ),

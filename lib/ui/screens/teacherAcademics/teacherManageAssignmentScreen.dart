@@ -154,6 +154,9 @@ class _TeacherManageAssignmentScreenState
       {bool fetchNewSubjects = true}) {
     if (_selectedClassSection != classSection) {
       _selectedClassSection = classSection;
+      // Reset subject when changing class
+      _selectedSubject = null;
+
       //fetching new subjects after user changes the selected class
       if (fetchNewSubjects && _selectedClassSection != null) {
         context
@@ -181,6 +184,10 @@ class _TeacherManageAssignmentScreenState
     if (_selectedGradeLevel != gradeLevel) {
       _selectedGradeLevel = gradeLevel;
 
+      // Reset selected class and subject when grade level changes
+      _selectedClassSection = null;
+      _selectedSubject = null;
+
       setState(() {});
 
       // Re-fetch classes for the selected grade level to filter them
@@ -194,6 +201,15 @@ class _TeacherManageAssignmentScreenState
             .read<ClassSectionsAndSubjectsCubit>()
             .getClassSectionsAndSubjects();
       }
+
+      // Clear assignments since filters have changed
+      context.read<AssignmentCubit>().updateState(AssignmentsFetchSuccess(
+            assignment: [],
+            totalPage: 0,
+            currentPage: 0,
+            moreAssignmentsFetchError: false,
+            fetchMoreAssignmentsInProgress: false,
+          ));
     }
   }
 
@@ -206,9 +222,18 @@ class _TeacherManageAssignmentScreenState
   }
 
   void getAssignments() {
-    context.read<AssignmentCubit>().fetchAssignment(
-        subjectId: _selectedSubject?.classSubjectId ?? 0,
-        classSectionId: _selectedClassSection?.id ?? 0);
+    if (_selectedSubject != null && _selectedClassSection != null) {
+      context.read<AssignmentCubit>().fetchAssignment(
+          subjectId: _selectedSubject?.classSubjectId ?? 0,
+          classSectionId: _selectedClassSection?.id ?? 0);
+    }
+  }
+
+  void fetchAssignmentsWithFilters() {
+    // Only fetch assignments if both class and subject are selected
+    if (_selectedClassSection != null && _selectedSubject != null) {
+      getAssignments();
+    }
   }
 
   void getMoreAssignments() {
@@ -1746,35 +1771,44 @@ class _TeacherManageAssignmentScreenState
               );
             }
 
-            // Class Section Filter - always available
+            // Class Section Filter - available when we have class sections
             if (classSectionState is ClassSectionsAndSubjectsFetchSuccess) {
-              classSectionFilter = FilterItemConfig(
-                title: _selectedClassSection?.name ?? "Pilih Kelas",
-                icon: Icons.class_rounded,
-                onTap: () {
-                  if (classSectionState.classSections.isEmpty) {
-                    _showSnackBar("Tidak ada kelas yang tersedia");
-                    return;
-                  }
+              // Filter classes based on selected grade level if any
+              List<ClassSection> availableClasses =
+                  classSectionState.classSections;
 
-                  HapticFeedback.lightImpact();
-                  Utils.showBottomSheet(
-                    child: FilterSelectionBottomsheet<ClassSection>(
-                      onSelection: (value) {
-                        if (value != null) {
-                          changeSelectedClassSection(value);
-                          Get.back();
-                        }
-                      },
-                      selectedValue: _selectedClassSection ??
-                          classSectionState.classSections.first,
-                      titleKey: classKey,
-                      values: classSectionState.classSections,
-                    ),
-                    context: context,
-                  );
-                },
-              );
+              // If a grade level is selected, filter classes by grade level
+              if (_selectedGradeLevel != null) {
+                availableClasses = classSectionState.classSections
+                    .where((classSection) =>
+                        classSection.gradeLevelId == _selectedGradeLevel!.id)
+                    .toList();
+              }
+
+              if (availableClasses.isNotEmpty) {
+                classSectionFilter = FilterItemConfig(
+                  title: _selectedClassSection?.name ?? "Pilih Kelas",
+                  icon: Icons.class_rounded,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    Utils.showBottomSheet(
+                      child: FilterSelectionBottomsheet<ClassSection>(
+                        onSelection: (value) {
+                          if (value != null) {
+                            changeSelectedClassSection(value);
+                            Get.back();
+                          }
+                        },
+                        selectedValue:
+                            _selectedClassSection ?? availableClasses.first,
+                        titleKey: classKey,
+                        values: availableClasses, // Use filtered classes
+                      ),
+                      context: context,
+                    );
+                  },
+                );
+              }
 
               // Subject Filter - only available after class section selected
               if (_selectedClassSection != null) {

@@ -1,8 +1,10 @@
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
+import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/lesson/deleteLessonCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/lesson/lessonsCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
+import 'package:eschool_saas_staff/data/models/gradeLevel.dart';
 import 'package:eschool_saas_staff/data/models/lesson.dart';
 import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherAddEditLessonScreen.dart';
@@ -44,6 +46,7 @@ class TeacherManageLessonScreen extends StatefulWidget {
       providers: [
         BlocProvider(create: (context) => LessonsCubit()),
         BlocProvider(create: (context) => ClassSectionsAndSubjectsCubit()),
+        BlocProvider(create: (context) => GradeLevelCubit()),
       ],
       child: const TeacherManageLessonScreen(),
     );
@@ -64,6 +67,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
     with TickerProviderStateMixin {
   ClassSection? _selectedClassSection;
   TeacherSubject? _selectedSubject;
+  GradeLevel? _selectedGradeLevel;
 
   // Animation controllers
   late final AnimationController _fadeController;
@@ -112,6 +116,8 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
 
     Future.delayed(Duration.zero, () {
       if (mounted) {
+        context.read<GradeLevelCubit>().getGradeLevels();
+        // Also fetch class sections initially without grade level filter
         context
             .read<ClassSectionsAndSubjectsCubit>()
             .getClassSectionsAndSubjects();
@@ -127,10 +133,40 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
     super.dispose();
   }
 
+  void changeSelectedGradeLevel(GradeLevel? gradeLevel) {
+    if (_selectedGradeLevel != gradeLevel) {
+      _selectedGradeLevel = gradeLevel;
+
+      // Reset selected class and subject when grade level changes
+      _selectedClassSection = null;
+      _selectedSubject = null;
+
+      setState(() {});
+
+      // Re-fetch classes for the selected grade level to filter them
+      if (_selectedGradeLevel != null) {
+        context
+            .read<ClassSectionsAndSubjectsCubit>()
+            .getClassSectionsAndSubjects(gradeLevelId: _selectedGradeLevel!.id);
+      } else {
+        // If no grade level selected, show all classes
+        context
+            .read<ClassSectionsAndSubjectsCubit>()
+            .getClassSectionsAndSubjects();
+      }
+
+      // Clear lessons since filters have changed
+      context.read<LessonsCubit>().updateState(LessonsFetchSuccess([]));
+    }
+  }
+
   void changeSelectedClassSection(ClassSection? classSection,
       {bool fetchNewSubjects = true}) {
     if (_selectedClassSection != classSection) {
       _selectedClassSection = classSection;
+      // Reset subject when changing class
+      _selectedSubject = null;
+
       if (fetchNewSubjects && _selectedClassSection != null) {
         context
             .read<ClassSectionsAndSubjectsCubit>()
@@ -1168,6 +1204,16 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
     }
   }
 
+  // Helper function to calculate dynamic app bar height based on filter count
+  double _getDynamicAppBarHeight() {
+    // For consistency, use the same logic as in _buildHeaderSection
+    // When we have 3 filters, return 250, otherwise 200
+    if (_selectedClassSection != null) {
+      return 250.0; // 3 filters: grade level + class + subject
+    }
+    return 200.0; // 2 filters: grade level + class
+  }
+
   Widget _buildLessonList() {
     return Align(
       alignment: Alignment.topCenter,
@@ -1177,7 +1223,9 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
             bottom: (_selectedClassSection != null && _selectedSubject != null)
                 ? 70
                 : 20,
-            top: Utils.appContentTopScrollPadding(context: context) + 145),
+            top: Utils.appContentTopScrollPadding(context: context) +
+                _getDynamicAppBarHeight() -
+                55), // Dynamic AppBar height with offset
         child: BlocBuilder<LessonsCubit, LessonsState>(
           builder: (context, state) {
             if (state is LessonsFetchSuccess) {
@@ -1519,105 +1567,161 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
   }
 
   Widget _buildHeaderSection() {
-    // Create filter configs for the CustomFilterModernAppBar
-    FilterItemConfig? classSectionFilter;
-    FilterItemConfig? subjectFilter;
+    return BlocBuilder<GradeLevelCubit, GradeLevelState>(
+      builder: (context, gradeLevelState) {
+        return BlocBuilder<ClassSectionsAndSubjectsCubit,
+            ClassSectionsAndSubjectsState>(
+          builder: (context, classSectionState) {
+            // Create filter configs for the CustomFilterModernAppBar
+            FilterItemConfig? gradeLevelFilter;
+            FilterItemConfig? classSectionFilter;
+            FilterItemConfig? subjectFilter;
 
-    // Create filters based on the current state
-    final state = context.read<ClassSectionsAndSubjectsCubit>().state;
-    if (state is ClassSectionsAndSubjectsFetchSuccess) {
-      // Class Section Filter
-      classSectionFilter = FilterItemConfig(
-        title: _selectedClassSection?.name ?? "Pilih Kelas",
-        icon: Icons.class_rounded,
-        onTap: () {
-          if (state.classSections.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("Tidak ada kelas yang tersedia"),
-                backgroundColor: maroonPrimary,
-                behavior: SnackBarBehavior.floating,
-                margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-            );
-            return;
-          }
-
-          if (_selectedClassSection == null) {
-            changeSelectedClassSection(state.classSections.first,
-                fetchNewSubjects: false);
-          }
-
-          HapticFeedback.lightImpact();
-          Utils.showBottomSheet(
-              child: FilterSelectionBottomsheet<ClassSection>(
-                onSelection: (value) {
-                  if (value != null) {
-                    changeSelectedClassSection(value);
-                    Get.back();
+            // Grade Level Filter - always available
+            if (gradeLevelState is GradeLevelFetchSuccess) {
+              gradeLevelFilter = FilterItemConfig(
+                title: _selectedGradeLevel?.name ?? "Pilih Tingkatan",
+                icon: Icons.school_rounded,
+                onTap: () {
+                  if (gradeLevelState.gradeLevels.isEmpty) {
+                    _showSnackBar("Tidak ada tingkatan yang tersedia");
+                    return;
                   }
-                },
-                selectedValue:
-                    _selectedClassSection ?? state.classSections.first,
-                values: state.classSections,
-                titleKey: classKey,
-              ),
-              context: context);
-        },
-      );
 
-      // Subject Filter
-      subjectFilter = FilterItemConfig(
-        title:
-            _selectedSubject?.subject.getSybjectNameWithType() ?? "Pilih Mapel",
-        icon: Icons.book_rounded,
-        onTap: () {
-          if (state.subjects.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("Tidak ada mata pelajaran yang tersedia"),
-                backgroundColor: maroonPrimary,
-                behavior: SnackBarBehavior.floating,
-                margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
+                  HapticFeedback.lightImpact();
+                  Utils.showBottomSheet(
+                    child: FilterSelectionBottomsheet<GradeLevel>(
+                      onSelection: (value) {
+                        if (value != null) {
+                          changeSelectedGradeLevel(value);
+                          Get.back();
+                        }
+                      },
+                      selectedValue: _selectedGradeLevel ??
+                          gradeLevelState.gradeLevels.first,
+                      titleKey: gradeLevelKey,
+                      values: gradeLevelState.gradeLevels,
+                    ),
+                    context: context,
+                  );
+                },
+              );
+            }
+
+            // Class Section Filter - available when we have class sections
+            if (classSectionState is ClassSectionsAndSubjectsFetchSuccess) {
+              // Filter classes based on selected grade level if any
+              List<ClassSection> availableClasses =
+                  classSectionState.classSections;
+
+              // If a grade level is selected, filter classes by grade level
+              if (_selectedGradeLevel != null) {
+                availableClasses = classSectionState.classSections
+                    .where((classSection) =>
+                        classSection.gradeLevelId == _selectedGradeLevel!.id)
+                    .toList();
+              }
+
+              if (availableClasses.isNotEmpty) {
+                classSectionFilter = FilterItemConfig(
+                  title: _selectedClassSection?.name ?? "Pilih Kelas",
+                  icon: Icons.class_rounded,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    Utils.showBottomSheet(
+                      child: FilterSelectionBottomsheet<ClassSection>(
+                        onSelection: (value) {
+                          if (value != null) {
+                            changeSelectedClassSection(value);
+                            Get.back();
+                          }
+                        },
+                        selectedValue:
+                            _selectedClassSection ?? availableClasses.first,
+                        titleKey: classKey,
+                        values: availableClasses, // Use filtered classes
+                      ),
+                      context: context,
+                    );
+                  },
+                );
+              }
+
+              // Subject Filter - only available after class section selected
+              if (_selectedClassSection != null) {
+                subjectFilter = FilterItemConfig(
+                  title: _selectedSubject?.subject.getSybjectNameWithType() ??
+                      "Pilih Mapel",
+                  icon: Icons.book_rounded,
+                  onTap: () {
+                    if (classSectionState.subjects.isEmpty) {
+                      _showSnackBar("Tidak ada mata pelajaran yang tersedia");
+                      return;
+                    }
+
+                    HapticFeedback.lightImpact();
+                    Utils.showBottomSheet(
+                      child: FilterSelectionBottomsheet<TeacherSubject>(
+                        onSelection: (value) {
+                          if (value != null) {
+                            changeSelectedTeacherSubject(value);
+                            Get.back();
+                          }
+                        },
+                        selectedValue: _selectedSubject ??
+                            classSectionState.subjects.first,
+                        values: classSectionState.subjects,
+                        titleKey: subjectKey,
+                      ),
+                      context: context,
+                    );
+                  },
+                );
+              }
+            }
+
+            // Calculate height dynamically based on available filters
+            double dynamicHeight = 200.0; // Base height
+            if (gradeLevelFilter != null &&
+                classSectionFilter != null &&
+                subjectFilter != null) {
+              dynamicHeight = 250.0; // 3 filters need more space
+            } else if ((gradeLevelFilter != null &&
+                    classSectionFilter != null) ||
+                (gradeLevelFilter != null && subjectFilter != null) ||
+                (classSectionFilter != null && subjectFilter != null)) {
+              dynamicHeight = 200.0; // 2 filters work well with base height
+            }
+
+            // Return the new modern AppBar with filters
+            return CustomFilterModernAppBar(
+              title: Utils.getTranslatedLabel(manageLessonKey),
+              titleIcon: Icons.menu_book_rounded,
+              primaryColor: maroonPrimary,
+              secondaryColor: maroonLight,
+              onBackPressed: () => Navigator.pop(context),
+              firstFilterItem: gradeLevelFilter,
+              secondFilterItem: classSectionFilter,
+              thirdFilterItem: subjectFilter,
+              height: dynamicHeight,
             );
-            return;
-          }
+          },
+        );
+      },
+    );
+  }
 
-          HapticFeedback.lightImpact();
-          Utils.showBottomSheet(
-              child: FilterSelectionBottomsheet<TeacherSubject>(
-                onSelection: (value) {
-                  if (value != null) {
-                    changeSelectedTeacherSubject(value);
-                    Get.back();
-                  }
-                },
-                selectedValue: _selectedSubject ?? state.subjects.first,
-                values: state.subjects,
-                titleKey: subjectKey,
-              ),
-              context: context);
-        },
-      );
-    }
-
-    // Return the new modern AppBar with filters
-    return CustomFilterModernAppBar(
-      title: Utils.getTranslatedLabel(manageLessonKey),
-      titleIcon: Icons.menu_book_rounded,
-      primaryColor: maroonPrimary,
-      secondaryColor: maroonLight,
-      onBackPressed: () => Navigator.pop(context),
-      firstFilterItem: classSectionFilter,
-      secondFilterItem: subjectFilter,
-      height: 200.0,
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: maroonPrimary,
+        behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
     );
   }
 
@@ -1640,31 +1744,79 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
         backgroundColor: bgColor,
         body: Stack(
           children: [
-            BlocBuilder<ClassSectionsAndSubjectsCubit,
-                ClassSectionsAndSubjectsState>(
-              builder: (context, state) {
-                if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                  return Stack(
-                    children: [
-                      _buildLessonList(),
-                      _buildHeaderSection(),
-                      _buildSubmitButton(),
-                    ],
+            BlocBuilder<GradeLevelCubit, GradeLevelState>(
+              builder: (context, gradeLevelState) {
+                if (gradeLevelState is GradeLevelFetchSuccess) {
+                  return BlocBuilder<ClassSectionsAndSubjectsCubit,
+                      ClassSectionsAndSubjectsState>(
+                    builder: (context, classSectionState) {
+                      if (classSectionState
+                          is ClassSectionsAndSubjectsFetchSuccess) {
+                        return Stack(
+                          children: [
+                            _buildLessonList(),
+                            _buildHeaderSection(),
+                            _buildSubmitButton(),
+                          ],
+                        );
+                      }
+                      if (classSectionState
+                          is ClassSectionsAndSubjectsFetchFailure) {
+                        return Center(
+                          child: CustomErrorWidget(
+                            message:
+                                "Gagal mendapatkan data kelas dan mata pelajaran, mohon coba lagi",
+                            onRetry: () {
+                              context
+                                  .read<ClassSectionsAndSubjectsCubit>()
+                                  .getClassSectionsAndSubjects();
+                            },
+                            primaryColor: maroonPrimary,
+                          ),
+                        );
+                      }
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 60,
+                              height: 60,
+                              child: CircularProgressIndicator(
+                                color: maroonPrimary,
+                                strokeWidth: 4,
+                              ),
+                            ),
+                            SizedBox(height: 24),
+                            Text(
+                              "Memuat data...",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: textMediumColor,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   );
                 }
-                if (state is ClassSectionsAndSubjectsFetchFailure) {
+
+                if (gradeLevelState is GradeLevelFetchFailure) {
                   return Center(
-                      child: CustomErrorWidget(
-                    message:
-                        "Gagal mendapatkan data kelas dan mata pelajaran, mohon coba lagi",
-                    onRetry: () {
-                      context
-                          .read<ClassSectionsAndSubjectsCubit>()
-                          .getClassSectionsAndSubjects();
-                    },
-                    primaryColor: maroonPrimary,
-                  ));
+                    child: CustomErrorWidget(
+                      message:
+                          "Gagal mendapatkan data tingkat, mohon coba lagi",
+                      onRetry: () {
+                        context.read<GradeLevelCubit>().getGradeLevels();
+                      },
+                      primaryColor: maroonPrimary,
+                    ),
+                  );
                 }
+
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
