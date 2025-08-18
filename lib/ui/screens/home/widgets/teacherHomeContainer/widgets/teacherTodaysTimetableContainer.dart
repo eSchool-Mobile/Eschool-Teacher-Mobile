@@ -201,7 +201,7 @@ class _TeacherTodaysTimetableContainerState
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.w600,
-                  fontSize: 10.0,
+                  fontSize: 12.5,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

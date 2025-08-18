@@ -276,12 +276,19 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                 newClassSectionId: classSection?.id ?? 0)
             .then((value) {
           if (mounted) {
+            // Remove auto-selection for subjects, let user choose manually
+            // Only auto-select if we're editing an existing topic
             if (context.read<ClassSectionsAndSubjectsCubit>().state
-                is ClassSectionsAndSubjectsFetchSuccess) {
+                    is ClassSectionsAndSubjectsFetchSuccess &&
+                widget.topic != null) {
               final successState = (context
                   .read<ClassSectionsAndSubjectsCubit>()
                   .state as ClassSectionsAndSubjectsFetchSuccess);
-              changeSelectedTeacherSubject(successState.subjects.firstOrNull);
+              // Only auto-select if we don't have a subject selected yet and we're editing
+              if (_selectedSubject == null &&
+                  successState.subjects.isNotEmpty) {
+                changeSelectedTeacherSubject(successState.subjects.firstOrNull);
+              }
             }
           }
         });
@@ -919,7 +926,6 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                       },
                     ),
                     SizedBox(height: 15),
-
                     // Lesson Selection
                     BlocConsumer<LessonsCubit, LessonsState>(
                       listener: (context, lessonState) {
@@ -931,14 +937,8 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                           lessonState.lessons.forEach((lesson) {
                             print("Lesson: ${lesson.name} (ID: ${lesson.id})");
                           });
-                          // Auto-select first lesson if none selected
-                          if (_selectedLesson == null &&
-                              lessonState.lessons.isNotEmpty) {
-                            print(
-                                "Auto-selecting first lesson: ${lessonState.lessons.first.name}");
-                            _selectedLesson = lessonState.lessons.first;
-                            setState(() {});
-                          }
+                          // Remove auto-selection to let user choose manually
+                          // Only auto-select if we're editing an existing topic with a predefined lesson
                         } else if (lessonState is LessonsFetchFailure) {
                           print(
                               "ERROR fetching lessons: ${lessonState.errorMessage}");
@@ -1392,13 +1392,14 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                       BlocConsumer<ClassSectionsAndSubjectsCubit,
                           ClassSectionsAndSubjectsState>(
                         listener: (context, state) {
+                          // Remove auto-selection to let user choose manually
+                          // Only auto-select if we're editing an existing topic and have predefined selections
                           if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                            if (_selectedClassSection == null) {
-                              changeSelectedClassSection(
-                                  state.classSections.firstOrNull,
-                                  fetchNewSubjects: false);
-                            }
-                            if (_selectedSubject == null) {
+                            // Only auto-select subjects if we already have a selected class section
+                            // and we're editing an existing topic (not creating new)
+                            if (_selectedClassSection != null &&
+                                _selectedSubject == null &&
+                                widget.topic != null) {
                               changeSelectedTeacherSubject(
                                   state.subjects.firstOrNull);
                             }

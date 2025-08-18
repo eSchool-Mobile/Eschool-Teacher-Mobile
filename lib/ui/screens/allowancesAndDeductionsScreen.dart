@@ -63,12 +63,12 @@ class _AllowancesAndDeductionsScreenState
   }
 
   void _scrollListener() {
-    // Calculate the height needed to scroll past the net salary card
-    // This includes: summary cards height (~160) + margin (16) + net salary card height (~200)
-    // Total approximate height: ~240 pixels (scroll starts from net salary card)
-    const double netSalaryCardPosition = 240.0;
+    // Calculate the height needed to scroll past the summary cards
+    // This includes: net salary card height (~240) + margin (32) + summary cards height (~160) + margin (16)
+    // Total approximate height: ~320 pixels (scroll starts from summary cards)
+    const double summaryCardsPosition = 320.0;
 
-    if (_scrollController.offset > netSalaryCardPosition) {
+    if (_scrollController.offset > summaryCardsPosition) {
       _fabAnimationController.forward();
     } else {
       _fabAnimationController.reverse();
@@ -715,11 +715,27 @@ class _AllowancesAndDeductionsScreenState
           controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            // Fixed Stats Header (Summary Cards only)
+            // Net Salary Card - moved to top position
             SliverToBoxAdapter(
               child: Container(
                 margin:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: _buildNetSalaryCard(
+                  state.allowances.fold<double>(
+                      0, (sum, item) => sum + calculateActualAmount(item)),
+                  state.deductions.fold<double>(
+                      0, (sum, item) => sum + calculateActualAmount(item)),
+                ),
+              )
+                  .animate()
+                  .fadeIn(duration: 800.ms, delay: 100.ms)
+                  .slideY(begin: 0.1, end: 0),
+            ),
+
+            // Summary Cards - moved below Net Salary Card
+            SliverToBoxAdapter(
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 child: Row(
                   children: [
                     Expanded(
@@ -753,19 +769,6 @@ class _AllowancesAndDeductionsScreenState
                   .animate()
                   .fadeIn(duration: 800.ms, delay: 200.ms)
                   .slideY(begin: 0.1, end: 0),
-            ),
-
-            // Scrollable content starting from Net Salary Card
-            SliverToBoxAdapter(
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                child: _buildNetSalaryCard(
-                  state.allowances.fold<double>(
-                      0, (sum, item) => sum + calculateActualAmount(item)),
-                  state.deductions.fold<double>(
-                      0, (sum, item) => sum + calculateActualAmount(item)),
-                ),
-              ),
             ),
 
             // Floating Tab Bar
