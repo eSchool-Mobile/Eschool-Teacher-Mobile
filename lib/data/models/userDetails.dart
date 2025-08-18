@@ -182,6 +182,7 @@ class UserDetails {
 
   String getRoles() {
     return (roles ?? []).map((item) => item.name).toList().join(",");
+
   }
 
   bool isSchoolAdmin() {

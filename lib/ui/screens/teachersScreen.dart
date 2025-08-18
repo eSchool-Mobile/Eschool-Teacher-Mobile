@@ -76,6 +76,26 @@ class _TeachersScreenState extends State<TeachersScreen>
   final Color accentPink = const Color(0xFFF4D0D9);
   final Color warmBeige = const Color(0xFFF5E6E8);
 
+  // Map untuk terjemahan role ke bahasa Indonesia
+  final Map<String, String> _roleTranslations = {
+    'Teacher': 'Guru',
+    'Staff': 'Staf',
+    'School Admin': 'Admin Sekolah',
+    'Super Admin': 'Super Admin',
+    'Principal': 'Kepala Sekolah',
+    'Vice Principal': 'Wakil Kepala Sekolah',
+    'Academic Coordinator': 'Koordinator Akademik',
+    'Student Affairs': 'Bagian Kesiswaan',
+    'Librarian': 'Pustakawan',
+    'Counselor': 'Konselor',
+    'IT Support': 'Dukungan IT',
+    'Finance': 'Keuangan',
+    'HR': 'SDM',
+    'Class Teacher': 'Wali Kelas',
+    'Subject Teacher': 'Guru Mata Pelajaran',
+    'Homeroom Teacher': 'Guru Wali Kelas',
+  };
+
   // Controllers untuk animasi
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
@@ -250,6 +270,11 @@ class _TeachersScreenState extends State<TeachersScreen>
       return timetableKey;
     }
     return viewProfileKey;
+  }
+
+  // Fungsi untuk menerjemahkan role ke bahasa Indonesia
+  String _translateRole(String role) {
+    return _roleTranslations[role] ?? role;
   }
 
   Widget _buildTeacherList(TeachersFetchSuccess state, BuildContext context) {
@@ -478,14 +503,7 @@ class _TeachersScreenState extends State<TeachersScreen>
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 4),
-                              Text(
-                                teacherDetails.occupation ?? "Guru",
-                                style: GoogleFonts.poppins(
-                                  color: Colors.grey.shade700,
-                                  fontSize: 14,
-                                ),
-                              ),
+
                               SizedBox(height: 4),
 
                               // Role tags
@@ -508,7 +526,7 @@ class _TeachersScreenState extends State<TeachersScreen>
                                                   BorderRadius.circular(12),
                                             ),
                                             child: Text(
-                                              role,
+                                              _translateRole(role),
                                               style: TextStyle(
                                                 fontSize: 11,
                                                 color: maroonPrimary,
