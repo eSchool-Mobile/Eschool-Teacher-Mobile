@@ -409,11 +409,15 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
           color: Colors.grey[600],
         ),
         SizedBox(width: 4),
-        Text(
-          text,
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 13,
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: Colors.grey[600],
+              fontSize: 13,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
           ),
         ),
       ],
@@ -532,12 +536,20 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                   SizedBox(height: 12),
                   Row(
                     children: [
-                      _buildInfoRow(
-                        Icons.calendar_today,
-                        DateFormat('dd MMMM yyyy HH:mm').format(exam.startDate),
+                      Expanded(
+                        flex: 2,
+                        child: _buildInfoRow(
+                          Icons.calendar_today,
+                          DateFormat('dd MMMM yyyy HH:mm')
+                              .format(exam.startDate),
+                        ),
                       ),
-                      SizedBox(width: 16),
-                      _buildInfoRow(Icons.timer, '${exam.duration} menit'),
+                      SizedBox(width: 8),
+                      Expanded(
+                        flex: 1,
+                        child: _buildInfoRow(
+                            Icons.timer, '${exam.duration} menit'),
+                      ),
                     ],
                   ),
                   // Hapus deretan tombol di sini
@@ -1186,72 +1198,6 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
         ),
       ),
       barrierDismissible: false,
-    );
-  }
-
-  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.12),
-              boxShadow: [
-                BoxShadow(
-                  color: _highlightColor
-                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                  blurRadius: 12 * (1 + _pulseAnimation.value),
-                  spreadRadius: 2 * _pulseAnimation.value,
-                )
-              ],
-              border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildCircleButton({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white.withOpacity(0.15),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          customBorder: CircleBorder(),
-          onTap: () {
-            HapticFeedback.lightImpact();
-            onTap();
-          },
-          child: Padding(
-            padding: EdgeInsets.all(10),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 20,
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

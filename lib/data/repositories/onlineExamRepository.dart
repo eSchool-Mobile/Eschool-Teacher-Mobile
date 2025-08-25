@@ -419,7 +419,20 @@ class OnlineExamRepository {
         throw ApiException('Invalid input parameters');
       }
 
-      final response = await Api.post(
+      // Debug: Log the data being sent
+      print('=== DEBUGGING STORE QUESTIONS ===');
+      print('assign_questions: $assignQuestions');
+      print('Data types in assign_questions:');
+      assignQuestions.forEach((key, value) {
+        print('  $key: ${value.runtimeType}');
+        value.forEach((k, v) {
+          print('    $k: $v (${v.runtimeType})');
+        });
+      });
+      print('merge_existing: true (Boolean)');
+      print('===================================');
+
+      final response = await Api.postJson(
         url: Api.storeOnlineExamQuestions,
         useAuthToken: true,
         body: {
@@ -427,7 +440,7 @@ class OnlineExamRepository {
           'class_section_id': classSectionId,
           'class_subject_id': classSubjectId,
           'assign_questions': assignQuestions,
-          'merge_existing': true, // Add flag to merge with existing questions
+          'merge_existing': true, // Send as actual boolean
         },
       );
 

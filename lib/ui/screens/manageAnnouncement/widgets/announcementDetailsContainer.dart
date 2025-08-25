@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'dart:ui';
-
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/announcement/announcementsCubit.dart';
 import 'package:eschool_saas_staff/cubits/announcement/deleteAnnouncementCubit.dart';
@@ -64,12 +63,21 @@ class _AnnouncementDetailsContainerState
   final Color _maroonPrimary = const Color(0xFF800020);
   final Color _maroonLight = const Color(0xFFAA6976);
   bool _isHovering = false;
-  bool _isExpanded = false;
+  bool _isExpanded = true; // Set to true by default to show all details
   bool _isTapped = false;
 
   // Action button hover states
   bool _editHovered = false;
   bool _deleteHovered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Automatically show details when the component is first loaded
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _animationController.forward();
+    });
+  }
 
   @override
   void dispose() {
@@ -93,14 +101,8 @@ class _AnnouncementDetailsContainerState
       onTapUp: (_) => setState(() => _isTapped = false),
       onTapCancel: () => setState(() => _isTapped = false),
       onTap: () {
-        if (_animationController.isAnimating) return;
-
-        setState(() => _isExpanded = !_isExpanded);
-        if (_isExpanded) {
-          _animationController.forward();
-        } else {
-          _animationController.reverse();
-        }
+        // Remove toggle behavior - details are always shown
+        // Could add other actions here if needed
       },
       child: MouseRegion(
         onEnter: (_) => setState(() => _isHovering = true),
@@ -109,52 +111,65 @@ class _AnnouncementDetailsContainerState
           duration: Duration(milliseconds: 400),
           curve: Curves.easeOutQuint,
           margin: EdgeInsets.symmetric(
-            horizontal: _isExpanded ? 12 : 0,
-            vertical: _isExpanded ? 8 : 0,
+            horizontal: 12, // Always use expanded margin
+            vertical: 8,
           ),
           decoration: BoxDecoration(
-            color: _isTapped
-                ? Color(0xFFF5F5F5) // Solid light grey when tapped
-                : _isHovering || _isExpanded
-                    ? Colors.white
-                    : Color(
-                        0xFFFAFAFA), // Very light grey background when not expanded
-            borderRadius: BorderRadius.circular(_isExpanded ? 16 : 0),
-            boxShadow: _isExpanded
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 16,
-                      offset: Offset(0, 4),
-                      spreadRadius: -2,
-                    )
-                  ]
-                : null,
+            color: Colors.white, // Always use white background
+            borderRadius: BorderRadius.circular(16), // Always use rounded corners
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 16,
+                offset: Offset(0, 4),
+                spreadRadius: -2,
+              )
+            ],
           ),
           child: Stack(
             clipBehavior: Clip.none,
             children: [
+              // Close button in top right corner
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.close,
+                        size: 20,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              
               // Main content container
               Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: _isExpanded ? 16 : 16,
-                  vertical: _isExpanded ? 16 : 12,
+                  horizontal: 16,
+                  vertical: 16,
                 ),
                 decoration: BoxDecoration(
-                  // Only add bottom border when not expanded
-                  border: _isExpanded
-                      ? null
-                      : Border(
-                          bottom: BorderSide(
-                            color: Colors.grey.shade200,
-                            width: 1,
-                          ),
-                        ),
+                  // No border needed since we're always expanded
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Add padding for close button
+                    SizedBox(height: 8),
+                    
                     // Header row with number and title - icon removed
                     Stack(
                       children: [
@@ -167,36 +182,30 @@ class _AnnouncementDetailsContainerState
                               height: 32,
                               decoration: BoxDecoration(
                                 color: _maroonPrimary,
-                                borderRadius:
-                                    BorderRadius.circular(_isExpanded ? 10 : 8),
-                                boxShadow: _isExpanded
-                                    ? [
-                                        BoxShadow(
-                                          color:
-                                              _maroonPrimary.withOpacity(0.3),
-                                          blurRadius: 4,
-                                          offset: Offset(0, 2),
-                                          spreadRadius: -1,
-                                        )
-                                      ]
-                                    : null,
+                                borderRadius: BorderRadius.circular(10), // Always use expanded radius
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: _maroonPrimary.withOpacity(0.3),
+                                    blurRadius: 4,
+                                    offset: Offset(0, 2),
+                                    spreadRadius: -1,
+                                  )
+                                ],
                               ),
                               alignment: Alignment.center,
                               child: Text(
                                 (widget.index + 1).toString().padLeft(2, '0'),
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                  ),
-                                ).animate(
-                                  target: _isExpanded ? 1 : 0,
-                                ).scale(
-                                  begin: Offset(1, 1),
-                                  end: Offset(1.1, 1.1),
-                                  curve: Curves.easeOutQuint,
-                                  duration: 400.ms,
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
                                 ),
+                              ).animate().scale(
+                                begin: Offset(1, 1),
+                                end: Offset(1.1, 1.1),
+                                curve: Curves.easeOutQuint,
+                                duration: 400.ms,
+                              ),
                             ),
 
                             // Title column - moved closer to number since icon is removed
@@ -204,30 +213,23 @@ class _AnnouncementDetailsContainerState
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Animated title
+                                  // Title (always expanded style)
                                   Padding(
                                     padding: const EdgeInsets.only(
                                         left: 12, top: 4, bottom: 2),
-                                    child: AnimatedDefaultTextStyle(
-                                      duration: Duration(milliseconds: 300),
+                                    child: Text(
+                                      widget.announcement.title ?? "-",
                                       style: GoogleFonts.poppins(
-                                        fontWeight: _isExpanded
-                                            ? FontWeight.w700
-                                            : FontWeight.w600,
-                                        fontSize: _isExpanded ? 16 : 15,
-                                        letterSpacing: _isExpanded ? 0.2 : 0,
-                                        color: _isExpanded
-                                            ? _maroonPrimary
-                                            : Colors.black87,
+                                        fontWeight: FontWeight.w700, // Always use expanded weight
+                                        fontSize: 16, // Always use expanded size
+                                        letterSpacing: 0.2, // Always use expanded spacing
+                                        color: _maroonPrimary, // Always use expanded color
                                         height: 1.3,
                                       ),
-                                      child: Text(
-                                        widget.announcement.title ?? "-",
-                                        maxLines: _isExpanded ? 4 : 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
+                                      maxLines: 4, // Always use expanded max lines
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                  ).animate(target: _isExpanded ? 1 : 0).slideX(
+                                  ).animate().slideX(
                                         begin: 0.02,
                                         end: 0,
                                         duration: 300.ms,
@@ -251,57 +253,20 @@ class _AnnouncementDetailsContainerState
                               ),
                             ),
 
-                            // Expand/collapse button
-                            AnimatedBuilder(
-                              animation: _animationController,
-                              builder: (context, child) {
-                                return Container(
-                                  width: 32,
-                                  height: 32,
-                                  margin: EdgeInsets.only(top: 4),
-                                  decoration: BoxDecoration(
-                                    color: _isExpanded
-                                        ? _maroonPrimary
-                                        : Colors.grey.shade200,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Stack(
-                                    children: [
-                                      // The rotating arrow icon
-                                      Center(
-                                        child: Transform.rotate(
-                                          angle:
-                                              _animationController.value * pi,
-                                          child: Icon(
-                                            Icons.keyboard_arrow_down_rounded,
-                                            color: _isExpanded
-                                                ? Colors.white
-                                                : Colors.grey[600],
-                                            size: 24,
-                                          ),
-                                        ),
-                                      ),
-
-                                      // Ripple effect
-                                      if (_isExpanded)
-                                        Positioned.fill(
-                                          child: AnimatedOpacity(
-                                            duration:
-                                                Duration(milliseconds: 300),
-                                            opacity: _isExpanded ? 1.0 : 0.0,
-                                            child: CustomPaint(
-                                              painter: CircleRipplePainter(
-                                                color: Colors.white,
-                                                animationValue:
-                                                    _animationController.value,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                );
-                              },
+                            // Info indicator (replaces expand/collapse button)
+                            Container(
+                              width: 32,
+                              height: 32,
+                              margin: EdgeInsets.only(top: 4),
+                              decoration: BoxDecoration(
+                                color: _maroonPrimary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.info_outline,
+                                color: Colors.white,
+                                size: 18,
+                              ),
                             ),
                           ],
                         ),
@@ -315,43 +280,30 @@ class _AnnouncementDetailsContainerState
                         ),
                     const SizedBox(height: 8),
 
-                    // Expanded content
-                    AnimatedBuilder(
-                      animation: _animationController,
-                      builder: (context, child) {
-                        return ClipRect(
-                          child: Align(
-                            heightFactor: _animationController.value,
-                            child: Opacity(
-                              opacity: _animationController.value,
-                              child: child,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Content divider with gradient
-                            Container(
-                              height: 2,
-                              margin: EdgeInsets.only(bottom: 16),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.grey.shade300,
-                                    _maroonPrimary,
-                                    accentColor,
-                                    _maroonPrimary,
-                                    Colors.grey.shade300,
-                                  ],
-                                  stops: [0.0, 0.25, 0.5, 0.75, 1.0],
-                                ),
-                                borderRadius: BorderRadius.circular(2),
+                    // Detail content (always visible)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Content divider with gradient
+                          Container(
+                            height: 2,
+                            margin: EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.grey.shade300,
+                                  _maroonPrimary,
+                                  accentColor,
+                                  _maroonPrimary,
+                                  Colors.grey.shade300,
+                                ],
+                                stops: [0.0, 0.25, 0.5, 0.75, 1.0],
                               ),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
                             ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
 
                             // Description content with fancy box
@@ -969,27 +921,26 @@ class _AnnouncementDetailsContainerState
                           ],
                         ),
                       ),
-                    ),
+                    
+                    // End of detail content padding
                   ],
                 ),
               ),
 
-              // Edge highlight when expanded - top
-              if (_isExpanded)
-                Positioned(
-                  top: 0,
-                  left: 16,
-                  right: 16,
-                  child: AnimatedContainer(
-                    duration: Duration(milliseconds: 400),
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: _maroonPrimary,
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(8)),
-                    ),
-                  ).animate().fadeIn(duration: 300.ms),
-                ),
+              // Edge highlight (always visible)
+              Positioned(
+                top: 0,
+                left: 16,
+                right: 16,
+                child: Container(
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: _maroonPrimary,
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(8)),
+                  ),
+                ).animate().fadeIn(duration: 300.ms),
+              ),
             ],
           ),
         ),

@@ -43,7 +43,7 @@ class _OnlineExamResultAnswerScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomModernAppBar(
-        title: widget.examName,
+        title: "Hasil Ujian Online",
         icon: Icons.assignment_outlined,
         fabAnimationController: _animationController,
         primaryColor: _primaryColor,

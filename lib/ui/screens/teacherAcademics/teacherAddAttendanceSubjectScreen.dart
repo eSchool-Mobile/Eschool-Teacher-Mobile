@@ -520,7 +520,7 @@ class _TeacherAddAttendanceScreenSubjectState
                                   ),
                                   SizedBox(width: 8),
                                   Text(
-                                    'Materi Pembelajaran',
+                                    'Materi Pembelajaran (Opsional)',
                                     style: GoogleFonts.poppins(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
@@ -549,7 +549,7 @@ class _TeacherAddAttendanceScreenSubjectState
                                   maxLines: 5,
                                   decoration: InputDecoration(
                                     hintText:
-                                        'Tuliskan materi pembelajaran di sini...',
+                                        'Tuliskan materi pembelajaran di sini (opsional)...',
                                     hintStyle: GoogleFonts.poppins(
                                       fontSize: 14,
                                       color: Colors.grey[400],
@@ -1149,13 +1149,6 @@ class _TeacherAddAttendanceScreenSubjectState
                             _selectedTimeTableId > 0 ? _selectedTimeTableId : 1;
                         int jumlahJpToSubmit =
                             _selectedJumlahJp > 0 ? _selectedJumlahJp : 1;
-
-                        if (_selectedMateri.isEmpty) {
-                          Utils.showSnackBar(
-                              message: "Materi pembelajaran harus diisi",
-                              context: context);
-                          return;
-                        }
 
                         if (attendanceReport.isEmpty) {
                           Utils.showSnackBar(

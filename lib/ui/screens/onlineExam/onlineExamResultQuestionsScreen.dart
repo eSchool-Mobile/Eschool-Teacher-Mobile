@@ -141,6 +141,37 @@ class _OnlineExamResultQuestionsScreenState
     }
   }
 
+  String _getQuestionTitle(QuestionOnlineExam question) {
+    // First try to get the title
+    if (question.title != null && question.title!.trim().isNotEmpty) {
+      return question.title!;
+    }
+
+    // If no title, try to extract first part of question as title
+    if (question.question.isNotEmpty) {
+      String questionText = parseHtmlString(question.question);
+
+      // Take first sentence or first 50 characters as title
+      List<String> sentences = questionText.split(RegExp(r'[.!?]'));
+      if (sentences.isNotEmpty && sentences[0].trim().isNotEmpty) {
+        String firstSentence = sentences[0].trim();
+        if (firstSentence.length > 50) {
+          return '${firstSentence.substring(0, 47)}...';
+        }
+        return firstSentence;
+      }
+
+      // Fallback to first 50 characters
+      if (questionText.length > 50) {
+        return '${questionText.substring(0, 47)}...';
+      }
+      return questionText;
+    }
+
+    // Final fallback
+    return 'Soal ${question.question_id ?? 'Tanpa Nomor'}';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -311,12 +342,12 @@ class _OnlineExamResultQuestionsScreenState
       if (query.isEmpty) {
         _filteredQuestions = questions;
       } else {
-        _filteredQuestions = questions
-            .where((question) =>
-                (question.title?.toLowerCase().contains(query.toLowerCase()) ??
-                    false) ||
-                question.question.toLowerCase().contains(query.toLowerCase()))
-            .toList();
+        _filteredQuestions = questions.where((question) {
+          final title = _getQuestionTitle(question).toLowerCase();
+          final questionText = question.question.toLowerCase();
+          return title.contains(query.toLowerCase()) ||
+              questionText.contains(query.toLowerCase());
+        }).toList();
       }
     });
   }
@@ -541,7 +572,7 @@ class _OnlineExamResultQuestionsScreenState
                                 ),
                                 const SizedBox(height: 12),
                                 Text(
-                                  question.title ?? 'Untitled',
+                                  _getQuestionTitle(question),
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 19,

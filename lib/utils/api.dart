@@ -188,8 +188,7 @@ class Api {
       "${databaseUrl}teacher/get-online-exam-status";
   static String resetOnlineExamStatus =
       "${databaseUrl}teacher/reset-online-exam-status";
-  static String gradeLevel =
-      "${databaseUrl}teacher/get-grade-levels";
+  static String gradeLevel = "${databaseUrl}teacher/get-grade-levels";
 
   static Map<String, String> headers({bool useAuthToken = false}) {
     final String jwtToken = AuthRepository.getAuthToken();
@@ -281,6 +280,69 @@ class Api {
     } catch (e) {
       if (kDebugMode) {
         AppLogger.error('Api.post', 'Unknown exception',
+            data: {'url': url}, error: e);
+      }
+      throw ApiException(defaultErrorMessageKey);
+    }
+  }
+
+  static Future<Map<String, dynamic>> postJson({
+    required Map<String, dynamic> body,
+    required String url,
+    bool? useAuthToken,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    Function(int, int)? onSendProgress,
+    Function(int, int)? onReceiveProgress,
+  }) async {
+    try {
+      if (kDebugMode || true) {
+        AppLogger.debug('Api.postJson', 'Request', data: {
+          'url': url,
+          'body': body,
+          'queryParameters': queryParameters,
+        });
+      }
+      final Dio dio = Dio();
+
+      final response = await dio.post(url,
+          data: body, // Send as JSON directly, not FormData
+          queryParameters: queryParameters,
+          cancelToken: cancelToken,
+          onReceiveProgress: onReceiveProgress,
+          onSendProgress: onSendProgress,
+          options: Options(
+            headers: {
+              ...((useAuthToken ?? true) ? headers() : {}),
+              'Content-Type': 'application/json',
+            },
+          ));
+
+      AppLogger.debug('Api.postJson', 'Response meta', data: {
+        'statusCode': response.statusCode,
+        'dataType': response.data.runtimeType.toString(),
+        'hasErrorKey':
+            response.data is Map && (response.data as Map).containsKey('error'),
+      });
+
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      if (kDebugMode) {
+        AppLogger.error('Api.postJson', 'DioException',
+            data: {
+              'url': url,
+              'statusCode': e.response?.statusCode,
+              'response': e.response?.data,
+            },
+            error: e.toString());
+      }
+      throw ApiException(
+          e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
+    } on ApiException catch (e) {
+      throw ApiException(e.errorMessage);
+    } catch (e) {
+      if (kDebugMode) {
+        AppLogger.error('Api.postJson', 'Unknown exception',
             data: {'url': url}, error: e);
       }
       throw ApiException(defaultErrorMessageKey);

@@ -166,12 +166,18 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
   }
 
   Future<void> _fetchQuestions() async {
-    await context.read<QuestionBankCubit>().fetchBankQuestions(
-          examId: widget.examId,
-          bankId: widget.bank.id,
-          subjectId: widget.bank.subjectId,
-        );
-    _filterQuestionsLocally();
+    try {
+      await context.read<QuestionBankCubit>().fetchBankQuestions(
+            examId: widget.examId,
+            bankId: widget.bank.id,
+            subjectId: widget.bank.subjectId,
+          );
+      _filterQuestionsLocally();
+    } catch (e) {
+      print('Error fetching questions: $e');
+      print('Technical error: $e');
+      // The error will be handled by the BlocConsumer in the UI
+    }
   }
 
   void _filterQuestionsLocally() {
@@ -181,10 +187,28 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
         _filteredQuestions = List.from(_allQuestions);
       } else {
         _filteredQuestions = _allQuestions.where((question) {
-          final questionText = parseHtmlString(
-                  question.versions[question.versions.length - 1].question)
-              .toLowerCase();
-          return questionText.contains(query);
+          try {
+            // Safely access question text with null checks and type validation
+            if (question?.versions == null ||
+                question.versions.isEmpty ||
+                question.versions is! List) {
+              return false;
+            }
+
+            final latestVersion =
+                question.versions[question.versions.length - 1];
+            if (latestVersion == null || latestVersion.question == null) {
+              return false;
+            }
+
+            final questionText =
+                parseHtmlString(latestVersion.question.toString())
+                    .toLowerCase();
+            return questionText.contains(query);
+          } catch (e) {
+            print('Error filtering question: $e');
+            return false;
+          }
         }).toList();
       }
     });
@@ -483,10 +507,21 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
               child: BlocConsumer<QuestionBankCubit, QuestionBankState>(
                 listener: (context, state) {
                   if (state is BankQuestionsFetchSuccess) {
-                    setState(() {
-                      _allQuestions = List.from(state.questions);
-                      _filterQuestionsLocally();
-                    });
+                    try {
+                      setState(() {
+                        _allQuestions = List.from(state.questions);
+                        _filterQuestionsLocally();
+                      });
+                    } catch (e) {
+                      print('Error processing questions: $e');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content:
+                              Text('Error loading questions: ${e.toString()}'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
                   }
                 },
                 builder: (context, state) {
@@ -1546,7 +1581,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
         assignQuestions[question.id.toString()] = {
           'question_id': question.question_id,
           'marks': question.marks,
-          'from_bank': false
+          'from_bank': false // Boolean value for JSON
         };
       }
 
@@ -1563,7 +1598,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
           assignQuestions[version.id.toString()] = {
             'question_id': version.id,
             'marks': question.defaultPoint,
-            'from_bank': true
+            'from_bank': true // Boolean value for JSON
           };
         }
       });
@@ -1952,72 +1987,6 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   ),
                 ),
                 // Modern Footer
-                Container(
-                  padding: EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    border: Border(
-                      top: BorderSide(
-                        color: Colors.grey[200]!,
-                        width: 1,
-                      ),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: 48,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                _getTypeColor(version.type),
-                                _getTypeColor(version.type).withOpacity(0.8),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(14),
-                            boxShadow: [
-                              BoxShadow(
-                                color: _getTypeColor(version.type)
-                                    .withOpacity(0.3),
-                                blurRadius: 8,
-                                offset: Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(14),
-                              onTap: () => Get.back(),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.check_circle_outline_rounded,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Tutup',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),

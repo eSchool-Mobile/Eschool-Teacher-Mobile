@@ -367,22 +367,6 @@ class _TeacherEditAssignmentSubmissionScreenState
                     ),
                   ),
                 ),
-                if (_isCurrentlyAcceptedOrRejected && !_isInEditMode)
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      'Final',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ),
               ],
             ),
           ),
@@ -527,7 +511,8 @@ class _TeacherEditAssignmentSubmissionScreenState
             ),
           ],
         ),
-        SizedBox(height: 10),
+       
+        SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
             color: Colors.grey.shade50,
@@ -555,9 +540,9 @@ class _TeacherEditAssignmentSubmissionScreenState
                   : Colors.grey.shade600,
             ),
             decoration: InputDecoration(
-              labelText: 'Poin Nilai',
-              labelStyle: TextStyle(
-                color: Theme.of(context).colorScheme.secondary.withOpacity(0.7),
+              hintText: 'Masukkan poin nilai',
+              hintStyle: TextStyle(
+                color: Colors.grey.shade400,
                 fontSize: 14,
               ),
               prefixIcon: Icon(

@@ -1,4 +1,4 @@
- import 'package:eschool_saas_staff/data/models/exam.dart';
+import 'package:eschool_saas_staff/data/models/exam.dart';
 import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
 import 'package:eschool_saas_staff/data/models/studentDetails.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
@@ -53,14 +53,17 @@ class StudentRepository {
         'dataStructure': result['data'] is Map
             ? (result['data'] as Map).keys.toList()
             : 'not a map',
-        'studentsExists': result['data'] is Map ? result['data'].containsKey('students') : false,
-        'studentsType': result['data'] is Map && result['data']['students'] != null
-            ? result['data']['students'].runtimeType.toString()
-            : 'null',
-        'studentsHasData': result['data'] is Map && 
-                          result['data']['students'] is Map
-            ? result['data']['students'].containsKey('data')
+        'studentsExists': result['data'] is Map
+            ? result['data'].containsKey('students')
             : false,
+        'studentsType':
+            result['data'] is Map && result['data']['students'] != null
+                ? result['data']['students'].runtimeType.toString()
+                : 'null',
+        'studentsHasData':
+            result['data'] is Map && result['data']['students'] is Map
+                ? result['data']['students'].containsKey('data')
+                : false,
       });
 
       // Handle different response structures
@@ -71,9 +74,11 @@ class StudentRepository {
           'studentsType': students.runtimeType.toString(),
           'hasDataKey': students is Map ? students.containsKey('data') : false,
         });
-        
+
         // Check if students is a paginated structure
-        if (students is Map && students.containsKey('data') && students['data'] is List) {
+        if (students is Map &&
+            students.containsKey('data') &&
+            students['data'] is List) {
           // Paginated response structure: data.students.data
           studentsData = students['data'] as List;
           AppLogger.debug(scope, 'Using paginated students response structure',
@@ -81,13 +86,15 @@ class StudentRepository {
         } else if (students is List) {
           // Non-paginated students structure: data.students
           studentsData = students as List;
-          AppLogger.debug(scope, 'Using non-paginated students response structure',
+          AppLogger.debug(
+              scope, 'Using non-paginated students response structure',
               data: {'count': studentsData.length});
         } else {
           studentsData = [];
           AppLogger.warn(scope, 'Invalid students data structure', data: {
             'studentsType': students?.runtimeType.toString() ?? 'null',
-            'studentsKeys': students is Map ? students.keys.toList() : 'not a map',
+            'studentsKeys':
+                students is Map ? students.keys.toList() : 'not a map',
           });
         }
       } else if (result['data'] is Map && result['data'].containsKey('data')) {
@@ -105,9 +112,12 @@ class StudentRepository {
         AppLogger.warn(
             scope, 'Empty or invalid data structure, using empty list',
             data: {
-              'responseData': result['data']?.toString()?.substring(0, 200) ?? 'null',
+              'responseData':
+                  result['data']?.toString()?.substring(0, 200) ?? 'null',
               'dataType': result['data']?.runtimeType.toString() ?? 'null',
-              'dataKeys': result['data'] is Map ? (result['data'] as Map).keys.toList() : 'not a map',
+              'dataKeys': result['data'] is Map
+                  ? (result['data'] as Map).keys.toList()
+                  : 'not a map',
             });
       }
 
@@ -203,6 +213,15 @@ class StudentRepository {
         'hasData': result.containsKey('data'),
         'dataType': result['data']?.runtimeType.toString(),
         'getAllData': getAllData,
+        'dataKeys': result['data'] is Map
+            ? (result['data'] as Map).keys.toList()
+            : 'not a map',
+        'hasStudentsKey':
+            result['data'] is Map && result['data'].containsKey('students'),
+        'studentsType':
+            result['data'] is Map && result['data']['students'] != null
+                ? result['data']['students'].runtimeType.toString()
+                : 'null',
       });
 
       // Handle different response structures based on pagination
@@ -212,32 +231,37 @@ class StudentRepository {
 
       if (getAllData) {
         // When paginate=0, response structure is different
-        if (result['data'] is List) {
-          studentsData = result['data'] as List;
+        final studentsResponse = result['data']['students'] ?? result['data'];
+        if (studentsResponse is List) {
+          studentsData = studentsResponse;
           AppLogger.debug(scope, 'Using direct list structure for getAllData');
-        } else if (result['data'] is Map && result['data']['data'] != null) {
-          studentsData = result['data']['data'] as List;
+        } else if (studentsResponse is Map &&
+            studentsResponse['data'] != null) {
+          studentsData = studentsResponse['data'] as List;
           AppLogger.debug(scope, 'Using nested data structure for getAllData');
         } else {
           studentsData = [];
           AppLogger.warn(scope, 'No valid data found for getAllData', data: {
-            'dataType': result['data']?.runtimeType.toString(),
-            'data': result['data']?.toString(),
+            'dataType': studentsResponse?.runtimeType.toString(),
+            'data': studentsResponse?.toString(),
+            'hasStudentsWrapper': result['data']['students'] != null,
           });
         }
         // For non-paginated data, set page info
         currentPage = 1;
         totalPage = 1;
       } else {
-        // Normal paginated response
-        studentsData = (result['data']['data'] ?? []) as List;
-        currentPage = (result['data']['current_page'] as int);
-        totalPage = (result['data']['last_page'] as int);
+        // Normal paginated response - handle nested students structure
+        final studentsResponse = result['data']['students'] ?? result['data'];
+        studentsData = (studentsResponse['data'] ?? []) as List;
+        currentPage = (studentsResponse['current_page'] ?? 1) as int;
+        totalPage = (studentsResponse['last_page'] ?? 1) as int;
 
         AppLogger.debug(scope, 'Using paginated response', data: {
           'studentsCount': studentsData.length,
           'currentPage': currentPage,
           'totalPage': totalPage,
+          'hasStudentsWrapper': result['data']['students'] != null,
         });
       }
 
@@ -304,8 +328,8 @@ class StudentRepository {
             .map((studentAttendance) =>
                 StudentAttendance.fromJson(Map.from(studentAttendance ?? {})))
             .toList(),
-        currentPage: (result['data']['current_page'] as int),
-        totalPage: (result['data']['last_page'] as int),
+        currentPage: (result['data']['current_page'] ?? 1) as int,
+        totalPage: (result['data']['last_page'] ?? 1) as int,
       );
     } catch (e, stk) {
       AppLogger.error(scope, 'Error occurred', error: e.toString(), stack: stk);
@@ -419,10 +443,11 @@ class StudentRepository {
 
       // Handle both paginated and non-paginated response structure
       List<dynamic> studentsData;
-      if (result['data'] is Map && result['data']['data'] != null) {
-        studentsData = result['data']['data'] as List;
-      } else if (result['data'] is List) {
-        studentsData = result['data'] as List;
+      final studentsResponse = result['data']['students'] ?? result['data'];
+      if (studentsResponse is Map && studentsResponse['data'] != null) {
+        studentsData = studentsResponse['data'] as List;
+      } else if (studentsResponse is List) {
+        studentsData = studentsResponse;
       } else {
         studentsData = [];
       }

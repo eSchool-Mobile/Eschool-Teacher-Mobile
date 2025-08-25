@@ -239,86 +239,31 @@ class _StudentsScreenState extends State<StudentsScreen>
 
   void getStudents() {
     if (_selectedClassSection == null || _selectedSessionYear == null) return;
+    if (_selectedClassSection!.id == null || _selectedSessionYear!.id == null)
+      return;
 
     print('Fetching students with status: ${_selectedStatus ?? "all"}');
     context.read<StudentsCubit>().getStudents(
         search: _textEditingController.text.trim().isEmpty
             ? null
             : _textEditingController.text.trim(),
-        classSectionId: _selectedClassSection?.id ?? 0,
-        sessionYearId: _selectedSessionYear?.id,
+        classSectionId: _selectedClassSection!.id!,
+        sessionYearId: _selectedSessionYear!.id!,
         status: _selectedStatus);
   }
 
   void getMoreStudents() {
     if (_selectedClassSection == null || _selectedSessionYear == null) return;
+    if (_selectedClassSection!.id == null || _selectedSessionYear!.id == null)
+      return;
 
     context.read<StudentsCubit>().fetchMore(
         search: _textEditingController.text.trim().isEmpty
             ? null
             : _textEditingController.text.trim(),
-        classSectionId: _selectedClassSection?.id ?? 0,
-        sessionYearId: _selectedSessionYear?.id,
+        classSectionId: _selectedClassSection!.id!,
+        sessionYearId: _selectedSessionYear!.id!,
         status: _selectedStatus);
-  }
-
-  ///[This will be in use to display rollNo,class section and session year]
-  Widget _buildStudentDetailsTitleAndValueContainer(
-      {required double width,
-      required String titleKey,
-      required String value,
-      required bool showBorder,
-      IconData? icon}) {
-    return Container(
-      decoration: BoxDecoration(
-          border: showBorder
-              ? Border(
-                  right: BorderSide(
-                    color: borderColor,
-                  ),
-                  left: BorderSide(
-                    color: borderColor,
-                  ))
-              : null),
-      width: width,
-      height: double.maxFinite,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (icon != null) ...[
-            Icon(
-              icon,
-              size: 16,
-              color: maroonPrimary.withOpacity(0.7),
-            ),
-            SizedBox(height: 4),
-          ],
-          Text(
-            value.tr,
-            style: TextStyle(
-              fontSize: 15.0,
-              fontWeight: FontWeight.w600,
-              fontFamily: 'Poppins',
-              color: maroonPrimary,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          SizedBox(height: 2),
-          Text(
-            titleKey.tr,
-            style: TextStyle(
-              fontSize: 13.0,
-              fontFamily: 'Poppins',
-              color: textMediumColor,
-              fontWeight: FontWeight.w400,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
   }
 
   PreferredSizeWidget _buildHeaderSection() {

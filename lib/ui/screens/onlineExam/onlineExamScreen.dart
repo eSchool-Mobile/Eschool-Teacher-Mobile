@@ -48,7 +48,6 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   int? selectedSessionYearId;
   late AnimationController _animationController;
   late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
   String searchQuery = ""; // Tambahkan ini
 
   // Animation controller for CustomModernAppBar
@@ -97,11 +96,6 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       vsync: this,
       duration: Duration(milliseconds: 1200),
     )..repeat(reverse: true);
-
-    _pulseAnimation = CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    );
 
     // Initialize the app bar animation controller
     _appBarAnimationController = AnimationController(
@@ -433,25 +427,6 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     );
   }
 
-  Widget _buildFilterChip(String label, bool isSelected) {
-    return Padding(
-      padding: EdgeInsets.only(right: 8),
-      child: FilterChip(
-        selected: isSelected,
-        label: Text(label),
-        onSelected: (bool selected) {
-          // Handle filter selection
-        },
-        selectedColor: Theme.of(context).primaryColor.withOpacity(0.2),
-        checkmarkColor: Theme.of(context).primaryColor,
-        labelStyle: TextStyle(
-          color: isSelected ? Theme.of(context).primaryColor : Colors.grey[700],
-          fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
-        ),
-      ),
-    );
-  }
-
   Widget _buildExamGrid(OnlineExamSuccess state) {
     // Filter ujian berdasarkan kata kunci pencarian
     final filteredExams = searchQuery.isEmpty
@@ -511,15 +486,33 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       'gradient1': Color(0xFF7D1F1F), // Lighter maroon
       'gradient2': Color(0xFF9B2F2F), // Medium maroon
       'gradient3': Color(0xFFBF4040), // Soft bright maroon
+      'neutral1': Color(0xFF333333), // Dark gray for primary text
+      'neutral2': Color(0xFF666666), // Medium gray for secondary text
+      'accent': Color(0xFF8B4513), // Brown accent color
     }; // Calculate the positioning for perfect centering
-    final double estimatedTextHeight = (exam.title.length / 20).ceil() * 32.0;
-    final double minHeight = 240.0; // Minimum height untuk header
-    final double maxHeight = 400.0; // Maximum height untuk header
 
-    // Sesuaikan headerHeight dengan batasan min dan max
+    // Improved calculation for text wrapping
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double availableWidth = screenWidth - 48; // 24px padding on each side
+    final double titleFontSize = 24.0;
+    final double lineHeight = 1.4;
+
+    // Calculate estimated number of lines based on character count and available width
+    final int estimatedCharactersPerLine =
+        (availableWidth / (titleFontSize * 0.6)).floor();
+    final int estimatedLines =
+        math.max(1, (exam.title.length / estimatedCharactersPerLine).ceil());
+    final double estimatedTextHeight =
+        estimatedLines * (titleFontSize * lineHeight);
+
+    final double minHeight = 260.0; // Increased minimum height untuk header
+    final double maxHeight = 450.0; // Increased maximum height untuk header
+
+    // Sesuaikan headerHeight dengan batasan min dan max, plus extra space untuk wrapping
     final double headerHeight = math.min(
       maxHeight,
-      math.max(minHeight, estimatedTextHeight + 180.0),
+      math.max(minHeight,
+          estimatedTextHeight + 200.0), // Increased padding for better spacing
     );
 
     return FadeInUp(
@@ -636,7 +629,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                               ),
                             ),
 
-                            // Exam Title - Updated position and styling
+                            // Exam Title - Updated position and styling with better wrapping
                             Positioned(
                               top: 80, // Move title more to top
                               left: 24,
@@ -644,34 +637,34 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Container(
-                                    constraints: BoxConstraints(
-                                      maxWidth:
-                                          MediaQuery.of(context).size.width -
-                                              64,
-                                    ),
-                                    child: Text(
-                                      exam.title,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 24, // Slightly smaller font
-                                        fontWeight: FontWeight.w800,
-                                        height: 1.4, // Increased line height
-                                        letterSpacing: 0.3,
-                                        shadows: [
-                                          Shadow(
-                                            color:
-                                                Colors.black.withOpacity(0.5),
-                                            offset: Offset(0, 2),
-                                            blurRadius: 4,
-                                          ),
-                                        ],
-                                      ),
-                                      softWrap: true,
-                                      overflow: TextOverflow.visible,
-                                      textAlign: TextAlign
-                                          .left, // Ensure left alignment
-                                    ),
+                                  // Remove Container constraint and let text wrap naturally
+                                  LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      return Text(
+                                        exam.title,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize:
+                                              24, // Keep consistent font size
+                                          fontWeight: FontWeight.w800,
+                                          height:
+                                              1.4, // Good line height for readability
+                                          letterSpacing: 0.3,
+                                          shadows: [
+                                            Shadow(
+                                              color:
+                                                  Colors.black.withOpacity(0.5),
+                                              offset: Offset(0, 2),
+                                              blurRadius: 4,
+                                            ),
+                                          ],
+                                        ),
+                                        softWrap: true,
+                                        overflow: TextOverflow.visible,
+                                        textAlign: TextAlign.left,
+                                        maxLines: null, // Allow unlimited lines
+                                      );
+                                    },
                                   ),
                                   SizedBox(height: 16),
                                   Container(
@@ -689,10 +682,17 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                         ),
                       ),
 
-                      // Content Section - Add increased top padding for better spacing
+                      // Content Section - Dynamic padding based on header height
                       Container(
                         padding: EdgeInsets.fromLTRB(
-                            24, 120, 24, 24), // Increased top padding
+                            24,
+                            math.max(
+                                120,
+                                (headerHeight * 0.35)
+                                    .round()
+                                    .toDouble()), // Dynamic top padding based on header height
+                            24,
+                            24),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -758,10 +758,10 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                     ],
                   ),
 
-                  // Overlapping Card - Adjust position based on new title position
+                  // Overlapping Card - Dynamic position based on header height
                   Positioned(
                     top: headerHeight -
-                        85, // Adjust this value to fine-tune positioning
+                        85, // Dynamic positioning based on header height
                     left: 20,
                     right: 20,
                     child: Container(
@@ -1096,249 +1096,130 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       child: ListView.builder(
         padding: EdgeInsets.all(20),
         itemCount: 3,
-        itemBuilder: (_, index) => Container(
-          margin: EdgeInsets.symmetric(vertical: 16),
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              // Main card container
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(32),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Header shimmer - matches the gradient header
-                    Container(
-                      height: 240,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(32),
-                          topRight: Radius.circular(32),
-                        ),
-                      ),
-                      child: Stack(
-                        children: [
-                          // Duration badge position
-                          Positioned(
-                            top: 20,
-                            right: 24,
-                            child: Container(
-                              width: 80,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                            ),
-                          ),
-                          // Title position
-                          Positioned(
-                            top: 80,
-                            left: 24,
-                            right: 24,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  width: double.infinity,
-                                  height: 28,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.6,
-                                  height: 28,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                SizedBox(height: 16),
-                                Container(
-                                  width: 60,
-                                  height: 3,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(1.5),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Content section with action buttons
-                    Container(
-                      padding: EdgeInsets.fromLTRB(24, 120, 24, 24),
-                      child: Row(
-                        children: [
-                          // Edit button shimmer
-                          Expanded(
-                            child: Container(
-                              height: 56,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          // Archive button shimmer
-                          Expanded(
-                            child: Container(
-                              height: 56,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Overlapping card shimmer - matches the white overlay card
-              Positioned(
-                top: 155, // Matches the positioning in real card
-                left: 20,
-                right: 20,
-                child: Container(
-                  height: 170, // Approximate height of the overlay card
+        itemBuilder: (_, index) {
+          // Use dynamic height for shimmer similar to real cards
+          final double shimmerHeaderHeight =
+              280.0; // Average header height for shimmer
+
+          return Container(
+            margin: EdgeInsets.symmetric(vertical: 16),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // Main card container
+                Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(32),
                   ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Top section: Manage Questions shimmer
-                      Padding(
-                        padding: EdgeInsets.all(20),
-                        child: Row(
+                      // Header shimmer - matches the gradient header with dynamic height
+                      Container(
+                        height: shimmerHeaderHeight,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(32),
+                            topRight: Radius.circular(32),
+                          ),
+                        ),
+                        child: Stack(
                           children: [
-                            // Icon container shimmer
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                shape: BoxShape.circle,
+                            // Duration badge position
+                            Positioned(
+                              top: 20,
+                              right: 24,
+                              child: Container(
+                                width: 80,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
                               ),
                             ),
-                            SizedBox(width: 12),
-                            // Text content shimmer
-                            Expanded(
+                            // Title position with more space for wrapping
+                            Positioned(
+                              top: 80,
+                              left: 24,
+                              right: 24,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  // First line of title
                                   Container(
                                     width: double.infinity,
-                                    height: 16,
+                                    height: 28,
                                     decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(4),
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
-                                  SizedBox(height: 4),
+                                  SizedBox(height: 8),
+                                  // Second line of title (for long titles)
                                   Container(
                                     width:
-                                        MediaQuery.of(context).size.width * 0.7,
-                                    height: 14,
+                                        MediaQuery.of(context).size.width * 0.6,
+                                    height: 28,
                                     decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(4),
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  // Third line for very long titles
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.4,
+                                    height: 28,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  SizedBox(height: 16),
+                                  Container(
+                                    width: 60,
+                                    height: 3,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(1.5),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            // Arrow icon shimmer
-                            Container(
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
                           ],
                         ),
                       ),
-                      // Divider
-                      Divider(
-                        height: 1,
-                        thickness: 1,
-                        color: Colors.grey[200],
-                        indent: 20,
-                        endIndent: 20,
-                      ),
-                      // Bottom section: Dates shimmer
-                      Padding(
-                        padding: EdgeInsets.all(20),
+                      // Content section with action buttons - dynamic padding
+                      Container(
+                        padding: EdgeInsets.fromLTRB(
+                            24, 140, 24, 24), // Increased padding
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            // Start Date shimmer
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 60,
-                                  height: 12,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
+                            // Edit button shimmer
+                            Expanded(
+                              child: Container(
+                                height: 56,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
-                                SizedBox(height: 4),
-                                Container(
-                                  width: 80,
-                                  height: 15,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                            // Divider shimmer
-                            Container(
-                              height: 35,
-                              width: 1,
-                              color: Colors.grey[200],
-                            ),
-                            // End Date shimmer
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 60,
-                                  height: 12,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
+                            SizedBox(width: 16),
+                            // Archive button shimmer
+                            Expanded(
+                              child: Container(
+                                height: 56,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
-                                SizedBox(height: 4),
-                                Container(
-                                  width: 80,
-                                  height: 15,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ],
                         ),
@@ -1346,10 +1227,149 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                     ],
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
+                // Overlapping card shimmer - dynamic position based on header height
+                Positioned(
+                  top: shimmerHeaderHeight - 85, // Dynamic positioning
+                  left: 20,
+                  right: 20,
+                  child: Container(
+                    height: 170, // Approximate height of the overlay card
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      children: [
+                        // Top section: Manage Questions shimmer
+                        Padding(
+                          padding: EdgeInsets.all(20),
+                          child: Row(
+                            children: [
+                              // Icon container shimmer
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              SizedBox(width: 12),
+                              // Text content shimmer
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      width: double.infinity,
+                                      height: 16,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.7,
+                                      height: 14,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Arrow icon shimmer
+                              Container(
+                                width: 32,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Divider
+                        Divider(
+                          height: 1,
+                          thickness: 1,
+                          color: Colors.grey[200],
+                          indent: 20,
+                          endIndent: 20,
+                        ),
+                        // Bottom section: Dates shimmer
+                        Padding(
+                          padding: EdgeInsets.all(20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              // Start Date shimmer
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    width: 60,
+                                    height: 12,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Container(
+                                    width: 80,
+                                    height: 15,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              // Divider shimmer
+                              Container(
+                                height: 35,
+                                width: 1,
+                                color: Colors.grey[200],
+                              ),
+                              // End Date shimmer
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    width: 60,
+                                    height: 12,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Container(
+                                    width: 80,
+                                    height: 15,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -1582,7 +1602,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
             ],
           ),
           actions: [
-            TextButton(
+            TextButton( 
               onPressed: () => Navigator.pop(dialogContext),
               child: Text(
                 'Batal',
@@ -1593,121 +1613,6 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
               ),
             ),
           ],
-        );
-      },
-    );
-  }
-
-  // Add these helper methods
-  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.12),
-              boxShadow: [
-                BoxShadow(
-                  color: _highlightColor
-                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                  blurRadius: 12 * (1 + _pulseAnimation.value),
-                  spreadRadius: 2 * _pulseAnimation.value,
-                )
-              ],
-              border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildCircleButton({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white.withOpacity(0.15),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          customBorder: CircleBorder(),
-          onTap: () {
-            HapticFeedback.lightImpact();
-            onTap();
-          },
-          child: Padding(
-            padding: EdgeInsets.all(10),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 20,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAddButton() {
-    return AnimatedBuilder(
-      animation: _pulseAnimation,
-      builder: (context, child) {
-        return Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white.withOpacity(0.3),
-                Colors.white.withOpacity(0.2),
-              ],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color:
-                    Colors.white.withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                blurRadius: 12 * (1 + _pulseAnimation.value),
-                spreadRadius: 2 * _pulseAnimation.value,
-              ),
-            ],
-          ),
-          child: Material(
-            color: Colors.transparent,
-            shape: CircleBorder(),
-            child: InkWell(
-              customBorder: CircleBorder(),
-              onTap: () {
-                HapticFeedback.mediumImpact();
-                Get.toNamed(Routes.createOnlineExam);
-              },
-              child: Padding(
-                padding: EdgeInsets.all(10),
-                child: Icon(
-                  Icons.add_rounded,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-            ),
-          ),
         );
       },
     );

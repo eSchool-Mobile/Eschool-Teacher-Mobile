@@ -484,13 +484,28 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
       'accent': Color(0xFFE53E3E), // Accent color
     };
 
-    // Calculate header height based on title length
-    final double estimatedTextHeight = (exam.title.length / 20).ceil() * 32.0;
-    final double minHeight = 240.0;
-    final double maxHeight = 400.0;
+    // Improved calculation for text wrapping - same as onlineExamScreen.dart
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double availableWidth = screenWidth - 48; // 24px padding on each side
+    final double titleFontSize = 24.0;
+    final double lineHeight = 1.4;
+
+    // Calculate estimated number of lines based on character count and available width
+    final int estimatedCharactersPerLine =
+        (availableWidth / (titleFontSize * 0.6)).floor();
+    final int estimatedLines =
+        math.max(1, (exam.title.length / estimatedCharactersPerLine).ceil());
+    final double estimatedTextHeight =
+        estimatedLines * (titleFontSize * lineHeight);
+
+    final double minHeight = 260.0; // Increased minimum height untuk header
+    final double maxHeight = 450.0; // Increased maximum height untuk header
+
+    // Sesuaikan headerHeight dengan batasan min dan max, plus extra space untuk wrapping
     final double headerHeight = math.min(
       maxHeight,
-      math.max(minHeight, estimatedTextHeight + 180.0),
+      math.max(minHeight,
+          estimatedTextHeight + 200.0), // Increased padding for better spacing
     );
 
     return FadeInUp(

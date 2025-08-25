@@ -73,6 +73,10 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
 
   void getLeaves() {
     LeaveDayType leaveDayType = LeaveDayType.today;
+    print("Fetching leaves for date: $_selectedDateTime");
+    print(
+        "Formatted date: ${_selectedDateTime.toIso8601String().split('T')[0]}");
+
     context
         .read<GeneralPermissionCubit>()
         .getGeneralLeaves(leaveDayType: leaveDayType, date: _selectedDateTime);
@@ -99,6 +103,8 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
           _selectedDateTime = selectedDate;
           setState(() {});
           print("Tanggal Terpilih: $_selectedDateTime");
+          print(
+              "Tanggal ISO: ${_selectedDateTime.toIso8601String().split('T')[0]}");
           getLeaves();
         }
       },
@@ -117,7 +123,9 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
               if (selectedDate != null) {
                 _selectedDateTime = selectedDate;
                 setState(() {});
-                print("Tanggal Terpilih: $_selectedDateTime");
+                print("Tanggal Terpilih dari tab: $_selectedDateTime");
+                print(
+                    "Tanggal ISO dari tab: ${_selectedDateTime.toIso8601String().split('T')[0]}");
                 getLeaves();
               }
             },
@@ -169,27 +177,121 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                     BlocBuilder<GeneralPermissionCubit, GeneralPermissionState>(
                   builder: (context, state) {
                     if (state is GeneralPermissionFetchSuccess) {
+                      print("Total leaves data: ${state.leaves.length}");
+                      print("Selected date: $_selectedDateTime");
+
+                      // Debug: Print all leaves data structure
+                      for (int i = 0; i < state.leaves.length; i++) {
+                        final permissionDetails = state.leaves[i];
+                        print(
+                            "Permission $i: User - ${permissionDetails.user?.fullName ?? 'Unknown'}");
+                        print(
+                            "Permission $i: Leaves count - ${permissionDetails.leaves.length}");
+
+                        // Print raw object structure
+                        print(
+                            "Permission $i raw: ${permissionDetails.toString()}");
+
+                        // Try to access properties directly (in case of wrong model mapping)
+                        try {
+                          // Check if permissionDetails has direct student info
+                          if (permissionDetails is Map) {
+                            print("Permission $i is Map: ${permissionDetails}");
+                          }
+                        } catch (e) {
+                          print("Error checking raw object: $e");
+                        }
+
+                        for (int j = 0;
+                            j < permissionDetails.leaves.length;
+                            j++) {
+                          final leave = permissionDetails.leaves[j];
+                          print("  Leave $j: fromDate - ${leave.fromDate}");
+                          print("  Leave $j: toDate - ${leave.toDate}");
+                          print("  Leave $j: reason - ${leave.reason}");
+                        }
+                      }
+
                       final filteredLeaves =
                           state.leaves.where((permissionDetails) {
-                        return permissionDetails.leaves.any((leave) {
-                          final leaveDate = DateTime.parse(leave.fromDate!);
-                          final isSameDate =
-                              leaveDate.year == _selectedDateTime.year &&
-                                  leaveDate.month == _selectedDateTime.month &&
-                                  leaveDate.day == _selectedDateTime.day;
-                          if (isSameDate) {
-                            print(
-                                "Siswa izin: ${permissionDetails.user?.fullName ?? 'Unknown'}");
+                        bool hasMatchingLeave =
+                            permissionDetails.leaves.any((leave) {
+                          try {
+                            if (leave.fromDate == null ||
+                                leave.fromDate!.isEmpty) {
+                              print("Skipping leave with null/empty fromDate");
+                              return false;
+                            }
+
+                            // Parse date with more flexible approach
+                            DateTime leaveDate;
+                            try {
+                              leaveDate = DateTime.parse(leave.fromDate!);
+                            } catch (e) {
+                              print("Error parsing date ${leave.fromDate}: $e");
+                              return false;
+                            }
+
+                            // Compare dates (ignoring time)
+                            final leaveDay = DateTime(
+                                leaveDate.year, leaveDate.month, leaveDate.day);
+                            final selectedDay = DateTime(_selectedDateTime.year,
+                                _selectedDateTime.month, _selectedDateTime.day);
+
+                            final isSameDate =
+                                leaveDay.isAtSameMomentAs(selectedDay);
+
+                            if (isSameDate) {
+                              print(
+                                  "MATCH FOUND: Siswa izin: ${permissionDetails.user?.fullName ?? 'Unknown'} pada tanggal ${leave.fromDate}");
+                            }
+
+                            return isSameDate;
+                          } catch (e) {
+                            print("Error processing leave: $e");
+                            return false;
                           }
-                          return isSameDate;
                         });
+
+                        return hasMatchingLeave;
                       }).toList();
+
+                      print("Filtered leaves count: ${filteredLeaves.length}");
 
                       if (filteredLeaves.isEmpty) {
                         return Center(
-                          child: CustomTextContainer(
-                            textKey: Utils.getTranslatedLabel(
-                                noStudentPermissionKey),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.assignment_ind_outlined,
+                                size: 80,
+                                color: Colors.grey[400],
+                              ),
+                              SizedBox(height: 16),
+                              CustomTextContainer(
+                                textKey: Utils.getTranslatedLabel(
+                                    noStudentPermissionKey),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Tanggal: ${Utils.formatDate(_selectedDateTime)}',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
+                              ),
+                              SizedBox(height: 16),
+                              ElevatedButton.icon(
+                                onPressed: getLeaves,
+                                icon: Icon(Icons.refresh),
+                                label: Text('Refresh Data'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _maroonPrimary,
+                                  foregroundColor: Colors.white,
+                                ),
+                              ),
+                            ],
                           ),
                         );
                       } else {
