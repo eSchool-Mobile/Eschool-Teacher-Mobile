@@ -91,7 +91,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
       lightColor: _maroonLight,
       height: 150,
       onBackPressed: () => Navigator.of(context).pop(),
-      showFilterButton: true,
+      // showFilterButton: true,
       onFilterPressed: () async {
         final selectedDate = await Utils.openDatePicker(
           context: context,

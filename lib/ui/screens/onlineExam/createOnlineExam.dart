@@ -22,11 +22,60 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
   final _formKey = GlobalKey<FormState>();
 
   SubjectDetail? selectedSubject;
+  String? selectedTingkatan;
+  String? selectedKelas;
+  String? selectedMapel;
+  List<String> tingkatanList = [];
+  List<String> kelasList = [];
+  List<String> mapelList = [];
   String title = '';
   String examKey = '';
   int duration = 0;
   DateTime? startDate;
   TimeOfDay? startTime;
+  // Animation controllers for the UI elements
+  late AnimationController _animationController; // For the AppBar
+  late AnimationController _pulseController; // For pulsing effects
+  late Animation<double> _pulseAnimation;
+  // Theme colors for elements within the screen
+  final Color _highlightColor = Color(0xFFB84D4D);
+
+  // Text controllers
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _examKeyController = TextEditingController();
+  final TextEditingController _durationController = TextEditingController();
+  final TextEditingController _startDateController = TextEditingController();
+  final TextEditingController _startTimeController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Ensure exams and class/subject data are loaded
+    context.read<OnlineExamCubit>().getOnlineExams();
+    Future.delayed(Duration.zero, () {
+      if (mounted) {
+        context
+            .read<ClassSectionsAndSubjectsCubit>()
+            .getClassSectionsAndSubjects();
+      }
+    });
+
+    // Initialize animation controllers
+    _animationController = AnimationController(
+      duration: Duration(milliseconds: 1000),
+      vsync: this,
+    );
+    _animationController.forward();
+
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+
+    _pulseAnimation =
+        CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,60 +106,13 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                   delay: Duration(milliseconds: 100),
                   child: _buildExamDetailsSection(),
                 ),
-                SizedBox(height: 30),
-                _buildSubmitButton(),
                 SizedBox(height: 20),
+                _buildSubmitButton(),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-
-  // Animation controllers for the UI elements
-  late AnimationController _animationController; // For the AppBar
-  late AnimationController _pulseController; // For pulsing effects
-  late Animation<double> _pulseAnimation;
-  // Theme colors for elements within the screen
-  final Color _highlightColor = Color(0xFFB84D4D); // For widget highlights
-
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _examKeyController = TextEditingController();
-  final TextEditingController _durationController = TextEditingController();
-  final TextEditingController _startDateController = TextEditingController();
-  final TextEditingController _startTimeController = TextEditingController();  @override
-  void initState() {
-    super.initState();
-    context.read<OnlineExamCubit>().getOnlineExams();
-
-    // Initialize class sections data untuk filter
-    Future.delayed(Duration.zero, () {
-      if (mounted) {
-        context
-            .read<ClassSectionsAndSubjectsCubit>()
-            .getClassSectionsAndSubjects();
-      }
-    });
-
-    // Initialize animation controller for the CustomModernAppBar
-    _animationController = AnimationController(
-      duration: Duration(milliseconds: 1000),
-      vsync: this,
-    );
-
-    // Start the animation
-    _animationController.forward();
-
-    // Setup pulse animation for button effects
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
-
-    _pulseAnimation = CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
     );
   }
 
@@ -494,18 +496,12 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
       builder: (context, state) {
         List<SubjectDetail> subjects = [];
         if (state is OnlineExamSuccess) {
-          // subjectDetails dijamin non-null, tapi bisa jadi List kosong atau berisi null
           subjects = (state.subjectDetails as List)
-              .where((e) =>
-                  e != null &&
-                  e is Map &&
-                  e['class_subject'] != null &&
-                  e['class_section'] != null)
+              .where((e) => e != null)
               .map((e) {
                 try {
                   return SubjectDetail.fromJson(e);
                 } catch (err) {
-                  print('Error parsing SubjectDetail: $e, error: $err');
                   return null;
                 }
               })
@@ -513,52 +509,123 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
               .toList();
         }
 
-        return DropdownButtonFormField<SubjectDetail>(
-          value: selectedSubject,
-          decoration: InputDecoration(
-            prefixIcon: Icon(Icons.school_rounded, color: Color(0xFF8B0000)),
-            labelText: 'Pilih Kelas & Mata Pelajaran',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Color(0xFF8B0000)),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade300),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Color(0xFF8B0000)),
-            ),
-            filled: true,
-            fillColor: Colors.grey.shade50,
-          ),
-          items: subjects.map((SubjectDetail detail) {
-            return DropdownMenuItem<SubjectDetail>(
-              value: detail,
-              child: Text(
-                '${detail.classSection.name} - ${detail.subject.name}',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[800],
-                ),
+        tingkatanList = subjects
+            .map((e) => e.classSection.name.split(RegExp(r"\s+")).first.trim())
+            .where((t) => t.isNotEmpty)
+            .toSet()
+            .toList()
+          ..sort();
+
+        kelasList = selectedTingkatan == null
+            ? []
+            : subjects
+                .where((e) =>
+                    e.classSection.name.split(RegExp(r"\s+")).first.trim() ==
+                    selectedTingkatan)
+                .map((e) => e.classSection.name)
+                .toSet()
+                .toList()
+          ..sort();
+
+        mapelList = selectedKelas == null
+            ? []
+            : subjects
+                .where((e) => e.classSection.name == selectedKelas)
+                .map((e) => e.subject.name)
+                .toSet()
+                .toList()
+          ..sort();
+
+        return Column(
+          children: [
+            DropdownButtonFormField<String>(
+              value: selectedTingkatan,
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.layers, color: Color(0xFF8B0000)),
+                labelText: 'Pilih Tingkatan',
+                filled: true,
+                fillColor: Colors.grey.shade50,
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
-            );
-          }).toList(),
-          onChanged: (SubjectDetail? value) {
-            setState(() {
-              selectedSubject = value;
-            });
-          },
-          isExpanded: true,
-          hint: Text(
-            'Pilih Kelas & Mata Pelajaran',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
+              items: tingkatanList
+                  .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                  .toList(),
+              onChanged: (v) {
+                setState(() {
+                  selectedTingkatan = v;
+                  selectedKelas = null;
+                  selectedMapel = null;
+                  selectedSubject = null;
+                });
+              },
+              isExpanded: true,
+              hint: Text('Pilih Tingkatan'),
             ),
-          ),
-          validator: (value) => value == null ? 'Pilih mata pelajaran' : null,
+            if (selectedTingkatan != null) ...[
+              SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: selectedKelas,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.class_, color: Color(0xFF8B0000)),
+                  labelText: 'Pilih Kelas',
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                items: kelasList
+                    .map((k) => DropdownMenuItem(value: k, child: Text(k)))
+                    .toList(),
+                onChanged: (v) {
+                  setState(() {
+                    selectedKelas = v;
+                    selectedMapel = null;
+                    selectedSubject = null;
+                  });
+                },
+                isExpanded: true,
+                hint: Text('Pilih Kelas'),
+              ),
+            ],
+            if (selectedKelas != null) ...[
+              SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: selectedMapel,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.menu_book, color: Color(0xFF8B0000)),
+                  labelText: 'Pilih Mata Pelajaran',
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                items: mapelList
+                    .map((m) => DropdownMenuItem(value: m, child: Text(m)))
+                    .toList(),
+                onChanged: (v) {
+                  setState(() {
+                    selectedMapel = v;
+                  });
+
+                  final matches = subjects
+                      .where((e) =>
+                          e.classSection.name == selectedKelas &&
+                          e.subject.name == v)
+                      .toList();
+                  if (matches.isNotEmpty) {
+                    setState(() {
+                      selectedSubject = matches.first;
+                    });
+                  }
+                },
+                isExpanded: true,
+                hint: Text('Pilih Mata Pelajaran'),
+                validator: (value) =>
+                    value == null ? 'Pilih mata pelajaran' : null,
+              ),
+            ],
+          ],
         );
       },
     );

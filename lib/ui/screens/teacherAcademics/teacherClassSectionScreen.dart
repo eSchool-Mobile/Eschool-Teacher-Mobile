@@ -132,203 +132,78 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
   }
 
   Widget _buildGradeLevelFilter() {
-    return Container(
-      height: 120,
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      child: BlocBuilder<GradeLevelCubit, GradeLevelState>(
-        builder: (context, gradeLevelState) {
-          return Stack(
-            children: [
-              // Simple background without floating particles
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              ),
-
-              // Main filter container
-              Material(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
-                child: InkWell(
-                  onTap: () {
-                    if (gradeLevelState is GradeLevelFetchSuccess) {
-                      if (gradeLevelState.gradeLevels.isEmpty) {
-                        _showSnackBar("Tidak ada tingkatan yang tersedia");
-                        return;
+    return BlocBuilder<GradeLevelCubit, GradeLevelState>(
+      builder: (context, gradeLevelState) {
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () {
+              if (gradeLevelState is GradeLevelFetchSuccess) {
+                if (gradeLevelState.gradeLevels.isEmpty) {
+                  _showSnackBar("Tidak ada tingkatan yang tersedia");
+                  return;
+                }
+                HapticFeedback.lightImpact();
+                Utils.showBottomSheet(
+                  child: FilterSelectionBottomsheet<GradeLevel>(
+                    onSelection: (value) {
+                      if (value != null) {
+                        changeSelectedGradeLevel(value);
+                        Navigator.pop(context);
                       }
-
-                      HapticFeedback.lightImpact();
-                      Utils.showBottomSheet(
-                        child: FilterSelectionBottomsheet<GradeLevel>(
-                          onSelection: (value) {
-                            if (value != null) {
-                              changeSelectedGradeLevel(value);
-                              Navigator.pop(context);
-                            }
-                          },
-                          selectedValue: _selectedGradeLevel ??
-                              gradeLevelState.gradeLevels.first,
-                          titleKey: gradeLevelKey,
-                          values: gradeLevelState.gradeLevels,
-                        ),
-                        context: context,
-                      );
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(20),
-                  splashColor: Colors.white.withOpacity(0.3),
-                  highlightColor: Colors.white.withOpacity(0.1),
-                  child: Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(18),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Colors.white.withOpacity(0.3),
-                          Colors.white.withOpacity(0.2),
-                          Colors.white.withOpacity(0.15),
-                        ],
-                        stops: [0.0, 0.5, 1.0],
+                    },
+                    selectedValue: _selectedGradeLevel ??
+                        gradeLevelState.gradeLevels.first,
+                    titleKey: "Tingkatan",
+                    values: gradeLevelState.gradeLevels,
+                  ),
+                  context: context,
+                );
+              }
+            },
+            child: Container(
+              width: double.infinity,
+              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              decoration: BoxDecoration(
+                color: AppColorPalette.primaryMaroon,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColorPalette.primaryMaroon.withOpacity(0.12),
+                    blurRadius: 12,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.school_rounded, color: Colors.white, size: 20),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _selectedGradeLevel?.name ?? "Pilih Tingkatan",
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.2,
                       ),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.5),
-                        width: 2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 20,
-                          offset: Offset(0, 8),
-                          spreadRadius: -4,
-                        ),
-                        BoxShadow(
-                          color: Colors.white.withOpacity(0.1),
-                          blurRadius: 4,
-                          offset: Offset(0, -2),
-                          spreadRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        // Modern icon with glow effect
-                        Container(
-                          width: 45,
-                          height: 45,
-                          decoration: BoxDecoration(
-                            gradient: RadialGradient(
-                              colors: [
-                                Colors.white.withOpacity(0.8),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.2),
-                              ],
-                              stops: [0.3, 0.7, 1.0],
-                            ),
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.white.withOpacity(0.3),
-                                blurRadius: 15,
-                                spreadRadius: 2,
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.school_rounded,
-                            color: AppColorPalette.primaryMaroon,
-                            size: 24,
-                          ),
-                        ),
-
-                        SizedBox(width: 16),
-
-                        // Enhanced text section with better typography
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // Subtitle with elegant styling
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 3,
-                                    height: 10,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.8),
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    "FILTER TINGKATAN",
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.white.withOpacity(0.9),
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 1.2,
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              SizedBox(height: 3),
-
-                              // Main title with elegant font
-                              Text(
-                                _selectedGradeLevel?.name ?? "Semua Tingkatan",
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.1,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Animated chevron with premium styling
-                        AnimatedContainer(
-                          duration: Duration(milliseconds: 300),
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.2),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.3),
-                              width: 1,
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.expand_more_rounded,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                      ],
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ),
+                  SizedBox(width: 8),
+                  Icon(Icons.arrow_drop_down_rounded,
+                      color: Colors.white, size: 28),
+                ],
               ),
-            ],
-          );
-        },
-      ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -351,7 +226,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
           fabAnimationController: _fabAnimationController,
           primaryColor: AppColorPalette.primaryMaroon,
           lightColor: AppColorPalette.secondaryMaroon,
-          height: 220, // Increased height for better modern filter display
+          height: 180, // Increased height for better modern filter display
           onBackPressed: () => Navigator.of(context).pop(),
           showHelperButton: true,
           helperIcon: Icons.search_rounded,

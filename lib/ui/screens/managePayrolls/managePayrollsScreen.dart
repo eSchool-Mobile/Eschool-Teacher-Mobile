@@ -1087,6 +1087,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
           icon: Icons.account_balance_wallet,
           fabAnimationController: _fabAnimationController,
           primaryColor: _maroonPrimary,
+          onBackPressed: () => Get.back(),
           lightColor: _maroonLight,
           height: 160, // Increased height to accommodate all content properly
           showSearchButton: true,
