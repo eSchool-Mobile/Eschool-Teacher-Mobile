@@ -55,6 +55,12 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
 
   SubjectDetail? selectedSubjectDetail;
   List<SubjectDetail> subjectDetails = [];
+  String? selectedTingkatan;
+  String? selectedKelas;
+  String? selectedMapel;
+  List<String> tingkatanList = [];
+  List<String> kelasList = [];
+  List<String> mapelList = [];
   final ScrollController _scrollController = ScrollController();
 
   // Theme colors - Softer Maroon palette
@@ -298,9 +304,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       builder: (context, state) {
         List<SubjectDetail> subjects = [];
         if (state is OnlineExamSuccess) {
-          // Filter out null items and safely convert valid ones
           subjects = state.subjectDetails
-              .where((e) => e != null) // Filter out null items
+              .where((e) => e != null)
               .map((e) {
                 try {
                   return SubjectDetail.fromJson(e);
@@ -308,9 +313,40 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                   return null;
                 }
               })
-              .whereType<SubjectDetail>() // Filter out failed conversions
+              .whereType<SubjectDetail>()
               .toList();
         }
+
+        // Build Tingkatan list (X, XI, XII) from subjectDetails
+        tingkatanList = subjects
+            .map((e) => e.classSection.name.split(RegExp(r"\s+")).first.trim())
+            .where((t) => t.isNotEmpty)
+            .toSet()
+            .toList()
+          ..sort();
+
+        // Build Kelas list based on selectedTingkatan
+        // Use exact match on the first token (tingkatan) to avoid 'X' matching 'XI'/'XII'
+        kelasList = selectedTingkatan == null
+            ? []
+            : subjects
+                .where((e) =>
+                    e.classSection.name.split(RegExp(r"\s+")).first.trim() ==
+                    selectedTingkatan)
+                .map((e) => e.classSection.name)
+                .toSet()
+                .toList()
+          ..sort();
+
+        // Build Mapel list based on selectedKelas
+        mapelList = selectedKelas == null
+            ? []
+            : subjects
+                .where((e) => e.classSection.name == selectedKelas)
+                .map((e) => e.subject.name)
+                .toSet()
+                .toList()
+          ..sort();
 
         return FadeInDown(
           duration: Duration(milliseconds: 700),
@@ -351,14 +387,16 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                     TextButton(
                       onPressed: () {
                         setState(() {
-                          selectedSubjectDetail = null;
+                          selectedTingkatan = null;
+                          selectedKelas = null;
+                          selectedMapel = null;
                         });
                         context.read<OnlineExamCubit>().getOnlineExams();
                       },
                       child: Text(
                         'Reset',
                         style: TextStyle(
-                          color: Color(0xFF800020), // Maroon color
+                          color: Color(0xFF800020),
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -366,12 +404,12 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                   ],
                 ),
                 SizedBox(height: 15),
-                DropdownButtonFormField<SubjectDetail>(
-                  value: selectedSubjectDetail,
+                // Tingkatan Dropdown
+                DropdownButtonFormField<String>(
+                  value: selectedTingkatan,
                   decoration: InputDecoration(
-                    prefixIcon:
-                        Icon(Icons.school_rounded, color: Color(0xFF8B0000)),
-                    labelText: 'Pilih Kelas & Mata Pelajaran',
+                    prefixIcon: Icon(Icons.layers, color: Color(0xFF8B0000)),
+                    labelText: 'Pilih Tingkatan',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(color: Color(0xFF8B0000)),
@@ -385,40 +423,114 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                       borderSide: BorderSide(color: Color(0xFF8B0000)),
                     ),
                   ),
-                  items: subjects.map((SubjectDetail detail) {
-                    return DropdownMenuItem<SubjectDetail>(
-                      value: detail,
-                      child: Text(
-                        '${detail.classSection.name} - ${detail.subject.name}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[800],
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (SubjectDetail? value) {
+                  items: tingkatanList
+                      .map((tingkatan) => DropdownMenuItem<String>(
+                            value: tingkatan,
+                            child: Text(tingkatan),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
                     setState(() {
-                      selectedSubjectDetail = value;
+                      selectedTingkatan = value;
+                      selectedKelas = null;
+                      selectedMapel = null;
                     });
-                    if (value != null) {
-                      context.read<OnlineExamCubit>().getOnlineExams(
-                            subjectId: value.class_subject_id,
-                            classSectionId: value.classSection.id,
-                          );
-                    } else {
-                      context.read<OnlineExamCubit>().getOnlineExams();
-                    }
                   },
                   isExpanded: true,
-                  hint: Text(
-                    'Pilih Kelas & Mata Pelajaran',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                  ),
+                  hint: Text('Pilih Tingkatan',
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600])),
                 ),
+                if (selectedTingkatan != null) ...[
+                  SizedBox(height: 15),
+                  // Kelas Dropdown
+                  DropdownButtonFormField<String>(
+                    value: selectedKelas,
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.class_, color: Color(0xFF8B0000)),
+                      labelText: 'Pilih Kelas',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Color(0xFF8B0000)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Color(0xFF8B0000)),
+                      ),
+                    ),
+                    items: kelasList
+                        .map((kelas) => DropdownMenuItem<String>(
+                              value: kelas,
+                              child: Text(kelas),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedKelas = value;
+                        selectedMapel = null;
+                      });
+                    },
+                    isExpanded: true,
+                    hint: Text('Pilih Kelas',
+                        style:
+                            TextStyle(fontSize: 14, color: Colors.grey[600])),
+                  ),
+                ],
+                if (selectedKelas != null) ...[
+                  SizedBox(height: 15),
+                  // Mata Pelajaran Dropdown
+                  DropdownButtonFormField<String>(
+                    value: selectedMapel,
+                    decoration: InputDecoration(
+                      prefixIcon:
+                          Icon(Icons.menu_book, color: Color(0xFF8B0000)),
+                      labelText: 'Pilih Mata Pelajaran',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Color(0xFF8B0000)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Color(0xFF8B0000)),
+                      ),
+                    ),
+                    items: mapelList
+                        .map((mapel) => DropdownMenuItem<String>(
+                              value: mapel,
+                              child: Text(mapel),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedMapel = value;
+                      });
+                      // Find the SubjectDetail for this selection
+                      final matches = subjects
+                          .where((e) =>
+                              e.classSection.name == selectedKelas &&
+                              e.subject.name == value)
+                          .toList();
+                      if (matches.isNotEmpty) {
+                        final selectedDetail = matches.first;
+                        context.read<OnlineExamCubit>().getOnlineExams(
+                              subjectId: selectedDetail.class_subject_id,
+                              classSectionId: selectedDetail.classSection.id,
+                            );
+                      }
+                    },
+                    isExpanded: true,
+                    hint: Text('Pilih Mata Pelajaran',
+                        style:
+                            TextStyle(fontSize: 14, color: Colors.grey[600])),
+                  ),
+                ],
               ],
             ),
           ),
@@ -1602,7 +1714,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
             ],
           ),
           actions: [
-            TextButton( 
+            TextButton(
               onPressed: () => Navigator.pop(dialogContext),
               child: Text(
                 'Batal',
