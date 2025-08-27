@@ -42,6 +42,10 @@ class HomeOverviewDetailsContainer extends StatelessWidget {
     return (showStaffs || showStudents || showTeachers || showLeaveRequests)
         ? Column(
             children: [
+              // Adding top padding to create space between this container and the AppBar
+              const SizedBox(
+                height: 60,
+              ),
               const ContentTitleWithViewMoreButton(
                   showViewMoreButton: false, contentTitleKey: overviewKey),
               const SizedBox(
@@ -62,10 +66,9 @@ class HomeOverviewDetailsContainer extends StatelessWidget {
                                       .extension<CustomColors>()!
                                       .leaveRequestOverviewBackgroundColor!,
                                   titleKey: leaveRequestKey,
-                                  value: context
+                                  value: Utils.formatNumber(context
                                       .read<HomeScreenDataCubit>()
-                                      .getTotalLeaveRequests()
-                                      .toString(),
+                                      .getTotalLeaveRequests()),
                                   iconPath:
                                       Utils.getImagePath("leave_overview.svg"),
                                   bottomButtonTitleKey: viewRequestKey,
@@ -81,10 +84,9 @@ class HomeOverviewDetailsContainer extends StatelessWidget {
                                 .extension<CustomColors>()!
                                 .totalTeacherOverviewBackgroundColor!,
                             titleKey: totalTeachersKey,
-                            value: context
+                            value: Utils.formatNumber(context
                                 .read<HomeScreenDataCubit>()
-                                .getTotalTeachers()
-                                .toString(),
+                                .getTotalTeachers()),
                             iconPath:
                                 Utils.getImagePath("teachers_overview.svg"),
                             bottomButtonTitleKey: viewTeachersKey,
@@ -101,10 +103,9 @@ class HomeOverviewDetailsContainer extends StatelessWidget {
                                 .extension<CustomColors>()!
                                 .totalStudentOverviewBackgroundColor!,
                             titleKey: totalStudentsKey,
-                            value: context
+                            value: Utils.formatNumber(context
                                 .read<HomeScreenDataCubit>()
-                                .getTotalStudents()
-                                .toString(),
+                                .getTotalStudents()),
                             iconPath:
                                 Utils.getImagePath("students_overview.svg"),
                             bottomButtonTitleKey: viewStudentsKey,
@@ -118,10 +119,9 @@ class HomeOverviewDetailsContainer extends StatelessWidget {
                                 .extension<CustomColors>()!
                                 .totalStaffOverviewBackgroundColor!,
                             titleKey: totalStaffsKey,
-                            value: context
+                            value: Utils.formatNumber(context
                                 .read<HomeScreenDataCubit>()
-                                .getTotalStaffs()
-                                .toString(),
+                                .getTotalStaffs()),
                             iconPath: Utils.getImagePath("staffs_overview.svg"),
                             bottomButtonTitleKey: viewStaffsKey,
                             onTapBottomViewButton: () {

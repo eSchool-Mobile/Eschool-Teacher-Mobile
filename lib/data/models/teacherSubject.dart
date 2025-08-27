@@ -38,12 +38,12 @@ class TeacherSubject {
   }
 
   @override
-  bool operator ==(covariant TeacherSubject other) {
-    return other.id == id;
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! TeacherSubject) return false;
+    return classSubjectId == other.classSubjectId;
   }
 
   @override
-  int get hashCode {
-    return id.hashCode;
-  }
+  int get hashCode => classSubjectId.hashCode;
 }

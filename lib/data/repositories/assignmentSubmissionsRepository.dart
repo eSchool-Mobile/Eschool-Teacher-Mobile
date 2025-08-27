@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:eschool_saas_staff/data/models/assignmentSubmission.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 
@@ -15,6 +17,13 @@ class AssignmentSubmissionsRepository {
         queryParameters: body,
       );
 
+      print(body);
+
+      for (var line
+          in JsonEncoder.withIndent("  ").convert(result).split("\n")) {
+        print(line);
+      }
+
       return (result['data'] as List)
           .map(
             (reviewAssignment) =>
@@ -22,6 +31,7 @@ class AssignmentSubmissionsRepository {
           )
           .toList();
     } catch (e) {
+      print(e.toString());
       throw ApiException(e.toString());
     }
   }
@@ -39,9 +49,6 @@ class AssignmentSubmissionsRepository {
         "points": assignmentSubmissionPoints,
         "feedback": assignmentSubmissionFeedBack,
       };
-      if (assignmentSubmissionPoints == 0 || assignmentSubmissionPoints == -1) {
-        body.remove("points");
-      }
       if (assignmentSubmissionFeedBack.isEmpty) {
         body.remove("feedback");
       }

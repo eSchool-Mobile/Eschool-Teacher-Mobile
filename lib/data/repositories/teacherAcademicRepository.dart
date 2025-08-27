@@ -2,17 +2,37 @@ import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/timeTableSlot.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
 
 class TeacherAcademicsRepository {
-  Future<List<TimeTableSlot>> getTeacherMyTimetable() async {
+  Future<List<TimeTableSlot>> getTeacherMyTimetable({String? dayKey}) async {
     try {
+      // Convert abbreviated day to full day name
+      String? fullDayName;
+      if (dayKey != null) {
+        // Convert from abbreviated to full day name
+        Map<String, String> dayMapping = {
+          'mon': 'Monday',
+          'tue': 'Tuesday',
+          'wed': 'Wednesday',
+          'thu': 'Thursday',
+          'fri': 'Friday',
+          'sat': 'Saturday',
+          'sun': 'Sunday',
+        };
+        fullDayName = dayMapping[dayKey.toLowerCase()] ?? dayKey;
+      }
+
+      print("Requesting with day parameter: ${fullDayName ?? 'none'}");
+
       final response = await Api.get(
-        url: Api.getTeacherMyTimetable,
+        url: fullDayName != null
+            ? "${Api.getTeacherMyTimetable}?day=$fullDayName"
+            : Api.getTeacherMyTimetable,
         useAuthToken: true,
       );
 
-      print("API Response type: ${response['data'].runtimeType}");
-      print("Raw API Response: ${response['data']}");
+      print("API Response for day $fullDayName: ${response['data']}");
 
       // Handle both Map and List responses
       if (response['data'] is Map<String, dynamic>) {
@@ -24,6 +44,7 @@ class TeacherAcademicsRepository {
             timeTableSlots.add(TimeTableSlot.fromJson(value));
           }
         });
+
         return timeTableSlots;
       } else if (response['data'] is List) {
         final List<dynamic> data = response['data'];
@@ -50,7 +71,7 @@ class TeacherAcademicsRepository {
         useAuthToken: true,
       );
 
-      print("API Response for class section timetable: ${response['data']}");
+      print("INI RESPONNYAA ${response}");
 
       if (response['data'] is List) {
         final List<dynamic> data = response['data'];
@@ -66,11 +87,14 @@ class TeacherAcademicsRepository {
     }
   }
 
-  Future<List<ClassSection>> getClassSectionDetails({int? classId}) async {
+  Future<List<ClassSection>> getClassSectionDetails({int? classId, bool? modeAll}) async {
     try {
       final result = await Api.post(
         url: Api.getClassDetails,
-        body: {if (classId != null) "class_id": classId},
+        body: {
+          if (classId != null) "class_id": classId,
+          if (modeAll == true) "mode": "all",
+        },
       );
       return ((result['data'] ?? []) as List)
           .map((classDetails) =>

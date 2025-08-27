@@ -66,6 +66,7 @@ class _StudentAttendanceContainerState
 
   @override
   Widget build(BuildContext context) {
+    print(widget.studentAttendances[0]);
     return Container(
       width: MediaQuery.of(context).size.width,
       padding: EdgeInsets.all(appContentHorizontalPadding),

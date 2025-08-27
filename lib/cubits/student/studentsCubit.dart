@@ -1,5 +1,6 @@
 import 'package:eschool_saas_staff/data/models/studentDetails.dart';
 import 'package:eschool_saas_staff/data/repositories/studentRepository.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class StudentsState {}
@@ -48,14 +49,20 @@ class StudentsCubit extends Cubit<StudentsState> {
 
   StudentsCubit() : super(StudentsInitial());
 
-  void getStudents(
-      {required int classSectionId, int? sessionYearId, String? search}) async {
+  void getStudents({
+    required int classSectionId,
+    int? sessionYearId,
+    String? search,
+    String? status,
+  }) async {
     emit(StudentsFetchInProgress());
     try {
       final result = await _studentRepository.getStudents(
-          classSectionId: classSectionId,
-          search: search,
-          sessionYearId: sessionYearId);
+        classSectionId: classSectionId,
+        search: search,
+        sessionYearId: sessionYearId,
+        status: status,
+      );
       emit(StudentsFetchSuccess(
           currentPage: result.currentPage,
           students: result.students,
@@ -63,7 +70,10 @@ class StudentsCubit extends Cubit<StudentsState> {
           fetchMoreInProgress: false,
           totalPage: result.totalPage));
     } catch (e) {
-      emit(StudentsFetchFailure(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(StudentsFetchFailure(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 
@@ -75,8 +85,12 @@ class StudentsCubit extends Cubit<StudentsState> {
     return false;
   }
 
-  void fetchMore(
-      {required int classSectionId, int? sessionYearId, String? search}) async {
+  void fetchMore({
+    required int classSectionId,
+    int? sessionYearId,
+    String? search,
+    String? status,
+  }) async {
     //
     if (state is StudentsFetchSuccess) {
       if ((state as StudentsFetchSuccess).fetchMoreInProgress) {
@@ -90,6 +104,7 @@ class StudentsCubit extends Cubit<StudentsState> {
             classSectionId: classSectionId,
             search: search,
             sessionYearId: sessionYearId,
+            status: status,
             page: (state as StudentsFetchSuccess).currentPage + 1);
 
         final currentState = (state as StudentsFetchSuccess);

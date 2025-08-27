@@ -2,13 +2,10 @@ import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/attendence/attendanceCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/holidayAttendanceContainer.dart';
-import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
-import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/studentAttendanceContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
@@ -17,6 +14,10 @@ import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'dart:ui';
+import 'package:flutter/services.dart';
 
 class TeacherViewAttendanceScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -46,20 +47,71 @@ class TeacherViewAttendanceScreen extends StatefulWidget {
 }
 
 class _TeacherViewAttendanceScreenState
-    extends State<TeacherViewAttendanceScreen> {
+    extends State<TeacherViewAttendanceScreen> with TickerProviderStateMixin {
   bool? isPresentStatusOnly;
   DateTime _selectedDateTime = DateTime.now();
   ClassSection? _selectedClassSection;
   StudentAttendanceStatus? selectedStatus;
 
+  // Color scheme for maroon theme
+  final Color _maroonPrimary = const Color(0xFF800020);
+  final Color _maroonLight = const Color(0xFFAA6976);
+
+  // Animation controllers
+  late AnimationController _fabAnimationController;
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
+    super.initState();
+    _selectedDateTime = DateTime.now();
+
+    // Initialize animation controllers
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    // Add scroll listener
+    _scrollController.addListener(scrollListener);
+
     Future.delayed(Duration.zero, () {
       if (mounted) {
+        // Get classes and automatically select the first class
         context.read<ClassesCubit>().getClasses();
+
+        // Add a listener to react to state changes
+        context.read<ClassesCubit>().stream.listen((classState) {
+          if (mounted &&
+              classState is ClassesFetchSuccess &&
+              classState.primaryClasses.isNotEmpty) {
+            setState(() {
+              _selectedClassSection = classState.primaryClasses.first;
+            });
+            // Load attendance data for the automatically selected class
+            getAttendance();
+          }
+        });
       }
     });
-    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(scrollListener);
+    _scrollController.dispose();
+    _fabAnimationController.dispose();
+
+    super.dispose();
+  }
+
+  void scrollListener() {
+    // Animate elements based on scroll
+    if (_scrollController.offset > 50) {
+      _fabAnimationController.forward();
+    } else {
+      _fabAnimationController.reverse();
+    }
   }
 
   String _getSelectedStatusKey() {
@@ -124,6 +176,80 @@ class _TeacherViewAttendanceScreenState
         );
   }
 
+  Widget _buildStatCard({
+    required IconData icon,
+    required String title,
+    required int count,
+    required int total,
+    required Color color,
+    bool small = false,
+  }) {
+    final percentage =
+        total > 0 ? (count / total * 100).toStringAsFixed(0) : '0';
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: small ? 10 : 16,
+        horizontal: small ? 8 : 16,
+      ),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: small ? 14 : 18,
+                ),
+              ),
+              Text(
+                '$percentage%',
+                style: GoogleFonts.poppins(
+                  fontSize: small ? 12 : 14,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: small ? 6 : 10),
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: small ? 11 : 13,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[700],
+            ),
+          ),
+          SizedBox(height: 2),
+          Text(
+            '$count/$total',
+            style: GoogleFonts.poppins(
+              fontSize: small ? 14 : 18,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildTotalTitleContainer(
       {required String value,
       required String title,
@@ -156,8 +282,8 @@ class _TeacherViewAttendanceScreenState
     return Align(
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
-        padding: EdgeInsets.only(
-            top: Utils.appContentTopScrollPadding(context: context) + 145),
+        controller: _scrollController,
+        padding: EdgeInsets.only(top: 20, bottom: 90),
         child: BlocBuilder<AttendanceCubit, AttendanceState>(
           builder: (context, state) {
             if (state is AttendanceFetchSuccess) {
@@ -174,13 +300,25 @@ class _TeacherViewAttendanceScreenState
                   return Center(
                     child: Padding(
                       padding: EdgeInsets.only(
-                        top:
-                            Utils.appContentTopScrollPadding(context: context) +
-                                110,
+                        top: MediaQuery.of(context).size.height * 0.2,
                       ),
-                      child: CustomTextContainer(
-                        textKey:
-                            Utils.getTranslatedLabel('Tidak Ada Kehadiran'),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.calendar_today_rounded,
+                            size: 48,
+                            color: Colors.grey[400],
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'Tidak Ada Kehadiran Hari Ini',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   );
@@ -190,153 +328,362 @@ class _TeacherViewAttendanceScreenState
                 return Center(
                   child: Padding(
                     padding: EdgeInsets.only(
-                      top: Utils.appContentTopScrollPadding(context: context) +
-                          110,
+                      top: MediaQuery.of(context).size.height * 0.2,
                     ),
-                    child: CustomTextContainer(
-                      textKey: Utils.getTranslatedLabel('Belum Ada Kehadiran'),
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.pending_actions_rounded,
+                          size: 48,
+                          color: Colors.grey[400],
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'Belum Ada Data Kehadiran',
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 );
               }
+
+              // Title and subtitle section
               return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      Expanded(
-                        child: _buildTotalTitleContainer(
-                          backgroundColor: Theme.of(context)
-                              .extension<CustomColors>()!
-                              .totalStaffOverviewBackgroundColor!
-                              .withOpacity(0.3),
-                          title: presentKey,
-                          value: state.attendance
-                              .where((element) => element.isPresent())
-                              .length
-                              .toString(),
+                  // Title and subtitle section
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                    width: double.infinity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Kehadiran Siswa',
+                          style: GoogleFonts.poppins(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: _maroonPrimary,
+                          ),
                         ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                        child: _buildTotalTitleContainer(
-                          backgroundColor: Theme.of(context)
-                              .extension<CustomColors>()!
-                              .totalStudentOverviewBackgroundColor!
-                              .withOpacity(0.3),
-                          title: absentKey,
-                          value: state.attendance
-                              .where((element) => !element.isPresent())
-                              .length
-                              .toString(),
+                        const SizedBox(height: 8),
+                      ],
+                    ),
+                  )
+                      .animate()
+                      .fadeIn(duration: 400.ms)
+                      .slideY(begin: -0.1, end: 0, curve: Curves.easeOutQuad),
+
+                  // Statistics cards
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: Offset(0, 5),
                         ),
-                      ),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  Row(
-                    children: [
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      Expanded(
-                        child: _buildTotalTitleContainer(
-                          backgroundColor: Theme.of(context)
-                              .extension<CustomColors>()!
-                              .sickBackgroundColor!
-                              .withOpacity(0.3),
-                          title: sickKey,
-                          value: state.attendance
-                              .where((element) => element.isSick())
-                              .length
-                              .toString(),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        // Summary header
+                        Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: _maroonPrimary.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.pie_chart_rounded,
+                                size: 18,
+                                color: _maroonPrimary,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Text(
+                              'Ringkasan Kehadiran',
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: _maroonPrimary,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                        child: _buildTotalTitleContainer(
-                          backgroundColor: Theme.of(context)
-                              .extension<CustomColors>()!
-                              .permissionBackgroundColor!
-                              .withOpacity(0.3),
-                          title: permissionKey,
-                          value: state.attendance
-                              .where((element) => element.isPermission())
-                              .length
-                              .toString(),
+                        SizedBox(height: 16),
+
+                        // Present and Absent stats
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildStatCard(
+                                icon: Icons.check_circle_rounded,
+                                title: 'Hadir',
+                                count: state.attendance
+                                    .where((element) => element.isPresent())
+                                    .length,
+                                total: state.attendance.length,
+                                color: Colors.green,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: _buildStatCard(
+                                icon: Icons.cancel_rounded,
+                                title: 'Tidak Hadir',
+                                count: state.attendance
+                                    .where((element) => !element.isPresent())
+                                    .length,
+                                total: state.attendance.length,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                        child: _buildTotalTitleContainer(
-                          backgroundColor: Theme.of(context)
-                              .extension<CustomColors>()!
-                              .totalStudentOverviewBackgroundColor!
-                              .withOpacity(0.3),
-                          title: alpaKey,
-                          value: state.attendance
-                              .where((element) => element.isAlpa())
-                              .length
-                              .toString(),
+                        SizedBox(height: 12),
+
+                        // Sick, Permission, and Alpa stats
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildStatCard(
+                                icon: Icons.healing_rounded,
+                                title: 'Sakit',
+                                count: state.attendance
+                                    .where((element) => element.isSick())
+                                    .length,
+                                total: state.attendance.length,
+                                color: Colors.orange,
+                                small: true,
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: _buildStatCard(
+                                icon: Icons.sticky_note_2_rounded,
+                                title: 'Izin',
+                                count: state.attendance
+                                    .where((element) => element.isPermission())
+                                    .length,
+                                total: state.attendance.length,
+                                color: Colors.blue,
+                                small: true,
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: _buildStatCard(
+                                icon: Icons.not_interested_rounded,
+                                title: 'Alpa',
+                                count: state.attendance
+                                    .where((element) => element.isAlpa())
+                                    .length,
+                                total: state.attendance.length,
+                                color: Colors.deepPurple,
+                                small: true,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  StudentAttendanceContainer(
-                    studentAttendances: state.attendance,
-                    isForAddAttendance: false,
-                  ),
+                      ],
+                    ),
+                  )
+                      .animate()
+                      .fadeIn(duration: 500.ms, delay: 200.ms)
+                      .slideY(begin: 0.05, end: 0, curve: Curves.easeOutQuad),
+
+                  // Students attendance list
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        // List header with modern design
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 16),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                _maroonPrimary.withOpacity(0.9),
+                                _maroonPrimary,
+                                _maroonLight,
+                              ],
+                            ),
+                            borderRadius:
+                                BorderRadius.vertical(top: Radius.circular(16)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: _maroonPrimary.withOpacity(0.3),
+                                blurRadius: 10,
+                                offset: Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              // Animated icon
+                              Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.people_alt_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              )
+                                  .animate()
+                                  .fadeIn(duration: 300.ms)
+                                  .slideX(begin: -0.2, end: 0),
+
+                              const SizedBox(width: 16),
+
+                              // Title text
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Daftar Kehadiran Siswa',
+                                      style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              // Filter badge
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.4),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.filter_list_rounded,
+                                      color: Colors.white,
+                                      size: 12,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      selectedStatus == null
+                                          ? isPresentStatusOnly == false
+                                              ? 'Tidak Hadir'
+                                              : isPresentStatusOnly == true
+                                                  ? 'Hadir'
+                                                  : 'Semua'
+                                          : selectedStatus ==
+                                                  StudentAttendanceStatus.sick
+                                              ? 'Sakit'
+                                              : selectedStatus ==
+                                                      StudentAttendanceStatus
+                                                          .permission
+                                                  ? 'Izin'
+                                                  : 'Alpa',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Student list
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 8),
+                          child: StudentAttendanceContainer(
+                            studentAttendances: state.attendance,
+                            isForAddAttendance: false,
+                            showSummary:
+                                false, // Hide the summary in this screen
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                      .animate()
+                      .fadeIn(duration: 500.ms, delay: 300.ms)
+                      .slideY(begin: 0.05, end: 0, curve: Curves.easeOutQuad),
                 ],
               );
             } else if (state is AttendanceFetchFailure) {
               return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Terjadi kesalahan: ${state.errorMessage}',
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Retry fetch
-                        getAttendance(selectedStatus: selectedStatus);
-                      },
-                      child: const Text('Coba Lagi'),
-                    ),
-                  ],
+                child: Padding(
+                  padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).size.height * 0.2),
+                  child: CustomErrorWidget(
+                    message: state.errorMessage,
+                    onRetry: () {
+                      getAttendance();
+                    },
+                    primaryColor: _maroonPrimary,
+                  ),
                 ),
               );
             } else {
               return Center(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      top: topPaddingOfErrorAndLoadingContainer),
-                  child: CustomCircularProgressIndicator(
-                    indicatorColor: Theme.of(context).colorScheme.primary,
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+                    CustomCircularProgressIndicator(
+                      indicatorColor: _maroonPrimary,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Memuat data kehadiran...',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
                 ),
-              );
+              ).animate().fadeIn(duration: 300.ms);
             }
           },
         ),
@@ -345,163 +692,382 @@ class _TeacherViewAttendanceScreenState
   }
 
   Widget _buildAppbarAndFilters() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: BlocConsumer<ClassesCubit, ClassesState>(
-        listener: (context, state) {
-          if (state is ClassesFetchSuccess) {
-            if (_selectedClassSection == null &&
-                state.primaryClasses.isNotEmpty) {
-              _selectedClassSection = state.primaryClasses.first;
-              setState(() {});
-              getAttendance();
-            }
-          }
-        },
-        builder: (context, state) {
-          return Column(
-            children: [
-              const CustomAppbar(titleKey: viewAttendanceKey),
-              AppbarFilterBackgroundContainer(
-                height: 130,
-                child: LayoutBuilder(builder: (context, boxConstraints) {
-                  return Column(
-                    children: [
-                      SizedBox(
-                        height: 40,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            FilterButton(
-                                onTap: () {
-                                  if (state is ClassesFetchSuccess &&
-                                      state.primaryClasses.isNotEmpty) {
-                                    Utils.showBottomSheet(
-                                        child: FilterSelectionBottomsheet<
-                                            ClassSection>(
-                                          onSelection: (value) {
-                                            Get.back();
-                                            if (_selectedClassSection !=
-                                                value) {
-                                              setState(() {
-                                                _selectedClassSection = value;
-                                              });
-                                              getAttendance();
-                                            }
-                                          },
-                                          selectedValue: _selectedClassSection!,
-                                          titleKey: classKey,
-                                          values: state.primaryClasses,
-                                        ),
-                                        context: context);
-                                  }
-                                },
-                                titleKey: _selectedClassSection?.id == null
-                                    ? classKey
-                                    : Utils().cleanClassName(
-                                        _selectedClassSection?.fullName ?? ""),
-                                width: boxConstraints.maxWidth * (0.48)),
-                            FilterButton(
+    return CustomModernAppBar(
+      title: 'Lihat Kehadiran',
+      icon: Icons.people_outline_rounded,
+      fabAnimationController: _fabAnimationController,
+      primaryColor: _maroonPrimary,
+      lightColor: _maroonLight,
+      height: 210, // Increased height to accommodate filters
+      onBackPressed: () => Navigator.of(context).pop(),
+      showFilterButton: true,
+      onFilterPressed: () {
+        // Show filter options
+        _showStatusFilterDialog();
+      },
+      tabBuilder: (context) {
+        return Column(
+          children: [
+            // First row: Class and Date filters
+            Container(
+              height: 50,
+              child: Row(
+                children: [
+                  // Class filter
+                  Expanded(
+                    child: BlocBuilder<ClassesCubit, ClassesState>(
+                      builder: (context, state) {
+                        if (state is ClassesFetchSuccess) {
+                          return Material(
+                            color: Colors.transparent,
+                            child: InkWell(
                               onTap: () {
-                                Utils.showBottomSheet(
-                                  child: FilterSelectionBottomsheet<String>(
-                                    onSelection: (value) {
-                                      Get.back();
-
-                                      StudentAttendanceStatus? newStatus;
-                                      bool? newIsPresentStatusOnly;
-
-                                      if (value == sickKey) {
-                                        newStatus =
-                                            StudentAttendanceStatus.sick;
-                                        newIsPresentStatusOnly = null;
-                                      } else if (value == permissionKey) {
-                                        newStatus =
-                                            StudentAttendanceStatus.permission;
-                                        newIsPresentStatusOnly = null;
-                                      } else if (value == alpaKey) {
-                                        newStatus =
-                                            StudentAttendanceStatus.alpa;
-                                        newIsPresentStatusOnly = null;
-                                      } else if (value == presentKey) {
-                                        newStatus = null;
-                                        newIsPresentStatusOnly = true;
-                                      } else if (value == absentKey) {
-                                        newStatus = null;
-                                        newIsPresentStatusOnly = false;
-                                      } else {
-                                        // allKey
-                                        newStatus = null;
-                                        newIsPresentStatusOnly = null;
-                                      }
-
-                                      setState(() {
-                                        selectedStatus = newStatus;
-                                        isPresentStatusOnly =
-                                            newIsPresentStatusOnly;
-                                      });
-
-                                      print('After setState:');
-                                      print('selectedStatus: $selectedStatus');
-                                      print(
-                                          'isPresentStatusOnly: $isPresentStatusOnly');
-
-                                      // Ubah pemanggilan getAttendance dengan mengirim selectedStatus
-                                      getAttendance(selectedStatus: newStatus);
-                                    },
-                                    selectedValue: _getSelectedStatusKey(),
-                                    titleKey: statusKey,
-                                    values: const [
-                                      allKey,
-                                      presentKey,
-                                      absentKey,
-                                      sickKey,
-                                      permissionKey,
-                                      alpaKey,
-                                    ],
-                                  ),
-                                  context: context,
-                                );
+                                if (state.primaryClasses.isNotEmpty) {
+                                  Utils.showBottomSheet(
+                                    child: FilterSelectionBottomsheet<
+                                        ClassSection>(
+                                      onSelection: (value) {
+                                        Get.back();
+                                        if (_selectedClassSection != value) {
+                                          setState(() {
+                                            _selectedClassSection = value;
+                                          });
+                                          getAttendance();
+                                        }
+                                      },
+                                      selectedValue: _selectedClassSection ??
+                                          state.primaryClasses.first,
+                                      titleKey: classKey,
+                                      values: state.primaryClasses,
+                                    ),
+                                    context: context,
+                                  );
+                                }
                               },
-                              titleKey: _getSelectedStatusKey(),
-                              width: boxConstraints.maxWidth * (0.48),
+                              borderRadius: BorderRadius.circular(10),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.3),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.class_rounded,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Flexible(
+                                      child: Text(
+                                        _selectedClassSection?.fullName ??
+                                            'Pilih Kelas',
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      SizedBox(
-                        height: 40,
-                        child: FilterButton(
-                          onTap: () async {
-                            final selectedDate = await showDatePicker(
-                                context: context,
-                                currentDate: _selectedDateTime,
-                                firstDate: DateTime.now()
-                                    .subtract(const Duration(days: 30)),
-                                lastDate: DateTime.now()
-                                    .add(const Duration(days: 30)));
+                          );
+                        }
+                        return Center(
+                          child: Text(
+                            'Loading...',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
 
-                            if (selectedDate != null) {
-                              setState(() {
-                                _selectedDateTime = selectedDate;
-                              });
-                              getAttendance();
-                            }
-                          },
-                          titleKey: Utils.formatDate(_selectedDateTime),
-                          width: boxConstraints.maxWidth,
+                  SizedBox(width: 8),
+
+                  // Date filter
+                  Expanded(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () async {
+                          final selectedDate = await Utils.openDatePicker(
+                            context: context,
+                            lastDate: DateTime.now(),
+                            firstDate: DateTime.now()
+                                .subtract(const Duration(days: 30)),
+                          );
+
+                          if (selectedDate != null) {
+                            _selectedDateTime = selectedDate;
+                            setState(() {});
+                            getAttendance();
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.calendar_today_rounded,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                              SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  Utils.formatDate(_selectedDateTime),
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ],
-                  );
-                }),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 8),
+
+            // Second row: Status filters
+            Container(
+              height: 50,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  // Semua filter
+                  _buildCompactStatusFilterButton(
+                    icon: Icons.all_inclusive_rounded,
+                    label: "Semua",
+                    isSelected:
+                        isPresentStatusOnly == null && selectedStatus == null,
+                    onTap: () {
+                      setState(() {
+                        isPresentStatusOnly = null;
+                        selectedStatus = null;
+                      });
+                      getAttendance();
+                    },
+                  ),
+
+                  // Hadir filter
+                  _buildCompactStatusFilterButton(
+                    icon: Icons.check_circle_rounded,
+                    label: "Hadir",
+                    isSelected: isPresentStatusOnly == true,
+                    color: Colors.green,
+                    onTap: () {
+                      setState(() {
+                        isPresentStatusOnly = true;
+                        selectedStatus = null;
+                      });
+                      getAttendance();
+                    },
+                  ),
+
+                  // Tidak Hadir filter
+                  _buildCompactStatusFilterButton(
+                    icon: Icons.remove_circle_rounded,
+                    label: "Tidak Hadir",
+                    isSelected: isPresentStatusOnly == false,
+                    color: Colors.red,
+                    onTap: () {
+                      setState(() {
+                        isPresentStatusOnly = false;
+                        selectedStatus = null;
+                      });
+                      getAttendance();
+                    },
+                  ),
+
+                  // Sakit filter
+                  _buildCompactStatusFilterButton(
+                    icon: Icons.healing_rounded,
+                    label: "Sakit",
+                    isSelected: selectedStatus == StudentAttendanceStatus.sick,
+                    color: Colors.orange,
+                    onTap: () {
+                      setState(() {
+                        selectedStatus = StudentAttendanceStatus.sick;
+                        isPresentStatusOnly = null;
+                      });
+                      getAttendance(
+                          selectedStatus: StudentAttendanceStatus.sick);
+                    },
+                  ),
+
+                  // Izin filter
+                  _buildCompactStatusFilterButton(
+                    icon: Icons.sticky_note_2_rounded,
+                    label: "Izin",
+                    isSelected:
+                        selectedStatus == StudentAttendanceStatus.permission,
+                    color: Colors.blue,
+                    onTap: () {
+                      setState(() {
+                        selectedStatus = StudentAttendanceStatus.permission;
+                        isPresentStatusOnly = null;
+                      });
+                      getAttendance(
+                          selectedStatus: StudentAttendanceStatus.permission);
+                    },
+                  ),
+
+                  // Alpha filter
+                  _buildCompactStatusFilterButton(
+                    icon: Icons.not_interested_rounded,
+                    label: "Alpa",
+                    isSelected: selectedStatus == StudentAttendanceStatus.alpa,
+                    color: Colors.deepPurple,
+                    onTap: () {
+                      setState(() {
+                        selectedStatus = StudentAttendanceStatus.alpa;
+                        isPresentStatusOnly = null;
+                      });
+                      getAttendance(
+                          selectedStatus: StudentAttendanceStatus.alpa);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showStatusFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Filter Status Kehadiran'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.all_inclusive_rounded),
+                title: Text('Semua'),
+                onTap: () {
+                  setState(() {
+                    isPresentStatusOnly = null;
+                    selectedStatus = null;
+                  });
+                  getAttendance();
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.check_circle_rounded, color: Colors.green),
+                title: Text('Hadir'),
+                onTap: () {
+                  setState(() {
+                    isPresentStatusOnly = true;
+                    selectedStatus = null;
+                  });
+                  getAttendance();
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.remove_circle_rounded, color: Colors.red),
+                title: Text('Tidak Hadir'),
+                onTap: () {
+                  setState(() {
+                    isPresentStatusOnly = false;
+                    selectedStatus = null;
+                  });
+                  getAttendance();
+                  Navigator.pop(context);
+                },
               ),
             ],
-          );
-        },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCompactStatusFilterButton({
+    required IconData icon,
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+    Color color = Colors.white,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8, top: 4, bottom: 4),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isSelected
+                    ? color.withOpacity(0.7)
+                    : Colors.white.withOpacity(0.3),
+                width: 1,
+              ),
+              color: isSelected ? color.withOpacity(0.2) : Colors.transparent,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  color: isSelected ? color : Colors.white,
+                  size: 16,
+                ),
+                SizedBox(width: 4),
+                Text(
+                  label,
+                  style: GoogleFonts.poppins(
+                    fontSize: 11,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    color: isSelected ? color : Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -509,31 +1075,31 @@ class _TeacherViewAttendanceScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          BlocBuilder<ClassesCubit, ClassesState>(
-            builder: (context, state) {
-              if (state is ClassesFetchSuccess) {
-                return _buildStudentsContainer();
-              }
-              if (state is ClassesFetchFailure) {
-                return Center(
-                    child: ErrorContainer(
-                  errorMessage: state.errorMessage,
-                  onTapRetry: () {
-                    context.read<ClassesCubit>().getClasses();
-                  },
-                ));
-              }
-              return Center(
-                child: CustomCircularProgressIndicator(
-                  indicatorColor: Theme.of(context).colorScheme.primary,
-                ),
-              );
-            },
-          ),
-          _buildAppbarAndFilters(),
-        ],
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(240),
+        child: _buildAppbarAndFilters(),
+      ),
+      body: BlocBuilder<ClassesCubit, ClassesState>(
+        builder: (context, state) {
+          if (state is ClassesFetchSuccess) {
+            return _buildStudentsContainer();
+          }
+          if (state is ClassesFetchFailure) {
+            return Center(
+                child: CustomErrorWidget(
+              message: state.errorMessage,
+              onRetry: () {
+                context.read<ClassesCubit>().getClasses();
+              },
+              primaryColor: _maroonPrimary,
+            ));
+          }
+          return Center(
+            child: CustomCircularProgressIndicator(
+              indicatorColor: Theme.of(context).colorScheme.primary,
+            ),
+          );
+        },
       ),
     );
   }

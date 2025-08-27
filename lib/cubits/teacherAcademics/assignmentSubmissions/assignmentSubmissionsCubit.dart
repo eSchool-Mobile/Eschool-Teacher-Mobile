@@ -46,7 +46,7 @@ class AssignmentSubmissionsCubit extends Cubit<AssignmentSubmissionsState> {
         );
       });
     } catch (e) {
-      emit(AssignmentSubmissionsFetchFailure(errorMessage: e.toString()));
+      emit(AssignmentSubmissionsFetchFailure(errorMessage: "Tidak dapat memuat hasil penugasan, mohon coba lagi"));
     }
   }
 

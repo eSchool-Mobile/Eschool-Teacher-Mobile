@@ -1,0 +1,622 @@
+import 'dart:math' as math;
+import 'dart:ui';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
+import 'package:eschool_saas_staff/cubits/questionOnlineExam/questionOnlineExamCubit.dart';
+import 'package:eschool_saas_staff/app/routes.dart';
+import 'package:get/get.dart' as getx;
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:flutter/services.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
+
+class LightRaysPainter extends CustomPainter {
+  final Color color;
+
+  LightRaysPainter(this.color);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final rays = 12;
+    final maxLength = size.width > size.height ? size.width : size.height;
+
+    for (int i = 0; i < rays; i++) {
+      final angle = (i * 2 * math.pi / rays);
+      final x = math.cos(angle) * maxLength;
+      final y = math.sin(angle) * maxLength;
+
+      final path = Path()
+        ..moveTo(center.dx, center.dy)
+        ..lineTo(center.dx + x * 0.2, center.dy + y * 0.2)
+        ..lineTo(center.dx + x, center.dy + y)
+        ..close();
+
+      canvas.drawPath(path, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
+}
+
+class BankSoalSelectionScreen extends StatefulWidget {
+  final int examId;
+
+  const BankSoalSelectionScreen({
+    Key? key,
+    required this.examId,
+  }) : super(key: key);
+
+  @override
+  State<BankSoalSelectionScreen> createState() =>
+      _BankSoalSelectionScreenState();
+}
+
+class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
+    with TickerProviderStateMixin {
+  final TextEditingController _searchController = TextEditingController();
+  List<BankSoalQuestion> _filteredBanks = [];
+  bool _showSearch = false;
+  int _hoveredCardIndex = -1;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      extendBodyBehindAppBar: true,
+      resizeToAvoidBottomInset: false,
+      bottomNavigationBar: SizedBox.shrink(),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(MediaQuery.of(context).padding.top + 80),
+        child: CustomModernAppBar(
+          title: 'Bank Soal',
+          icon: Icons.auto_stories_rounded,
+          fabAnimationController: _breathingController,
+          primaryColor: _primaryColor,
+          lightColor: _accentColor,
+          onBackPressed: () => Navigator.of(context).pop(),
+          showFilterButton: false,
+          height: 80,
+        ),
+      ),
+      body: SafeArea(
+        bottom: true,
+        child: BlocBuilder<QuestionOnlineExamCubit, QuestionOnlineExamState>(
+          builder: (context, state) {
+            return Column(
+              children: [
+                SizedBox(
+                    height: MediaQuery.of(context).padding.top +
+                        10), // Further reduced padding for AppBar
+                if (state is QuestionBanksLoaded && _showSearch)
+                  _buildSearchBar(state.banks),
+                Expanded(
+                  child: _buildContentArea(state),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  late AnimationController _backgroundAnimationController;
+  late AnimationController _waveAnimationController;
+  late AnimationController _floatingIconsController;
+  late AnimationController _cardHoverController;
+  late AnimationController _breathingController;
+  late AnimationController _rotationController;
+  late AnimationController _pulseController;
+  late AnimationController _loadingController;
+  late AnimationController _tabTransitionController;
+  late AnimationController _searchExpandController;
+
+  late Animation<double> _pulseAnimation;
+  final Color _primaryColor = Color(0xFF7A1E23);
+  final Color _accentColor = Color(0xFF9D3C3C);
+  final Color _highlightColor = Color(0xFFB84D4D);
+  final List<Color> _cardGradients = [
+    Color(0xFF7A2828),
+    Color(0xFF9D3C3C),
+    Color(0xFFAF4F4F),
+    Color(0xFFB84D4D),
+    Color(0xFFC65454),
+    Color(0xFFAA3939),
+    Color(0xFF8F2D2D),
+    Color(0xFFB14040),
+  ];
+  @override
+  void initState() {
+    super.initState();
+    context.read<QuestionOnlineExamCubit>().getBankSoal(widget.examId);
+
+    _backgroundAnimationController = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 30000))
+      ..repeat();
+    _waveAnimationController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 7000))
+          ..repeat();
+    _floatingIconsController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 2000))
+          ..repeat(reverse: true);
+    _cardHoverController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 200));
+    _breathingController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 3000))
+          ..repeat(reverse: true);
+    _rotationController = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 10000))
+      ..repeat();
+    _pulseController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 1200))
+          ..repeat(reverse: true);
+    _loadingController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 1500))
+          ..repeat();
+    _tabTransitionController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 400));
+    _searchExpandController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+    _pulseAnimation =
+        CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+    // Fix untuk menghilangkan warna maroon di bagian bawah layar
+    // Set system navigation bar menjadi putih, bukan maroon
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: Colors.white,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _backgroundAnimationController.dispose();
+    _waveAnimationController.dispose();
+    _floatingIconsController.dispose();
+    _cardHoverController.dispose();
+    _breathingController.dispose();
+    _rotationController.dispose();
+    _pulseController.dispose();
+    _loadingController.dispose();
+    _tabTransitionController.dispose();
+    _searchExpandController.dispose();
+    // Reset system UI overlay style to default untuk mencegah warna maroon
+    // mengikuti ke halaman lain
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.white,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
+
+    super.dispose();
+  }
+
+  void _filterBanks(String query, List<BankSoalQuestion> banks) {
+    setState(() {
+      if (query.isEmpty) {
+        _filteredBanks = banks;
+      } else {
+        _filteredBanks = banks
+            .where(
+                (bank) => bank.name.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+        if (_filteredBanks.isNotEmpty) HapticFeedback.selectionClick();
+      }
+    });
+  }
+
+  Widget _buildSearchBar(List<BankSoalQuestion> banks) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Container(
+        height: 55,
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(16),
+          border:
+              Border.all(color: _highlightColor.withOpacity(0.3), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+                color: _accentColor.withOpacity(0.2),
+                blurRadius: 15,
+                spreadRadius: 0,
+                offset: Offset(0, 5))
+          ],
+        ),
+        child: TextField(
+          controller: _searchController,
+          onChanged: (query) => _filterBanks(query, banks),
+          style: TextStyle(color: _primaryColor),
+          decoration: InputDecoration(
+            hintText: 'Cari bank soal...',
+            hintStyle: TextStyle(color: Colors.grey[600]),
+            prefixIcon: Icon(Icons.search, color: _primaryColor),
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          ),
+        ),
+      ),
+    ).animate().fadeIn(duration: 800.ms).slideY(
+        begin: -0.2, end: 0, duration: 800.ms, curve: Curves.easeOutQuad);
+  }
+
+  Widget _buildContentArea(QuestionOnlineExamState state) {
+    if (state is QuestionBanksLoading) return _buildLoadingView();
+    if (state is QuestionBanksLoaded) {
+      _showSearch = false; // Remove filter functionality
+      if (_searchController.text.isEmpty) {
+        _filteredBanks = state.banks;
+      } else {
+        _filteredBanks = state.banks
+            .where((bank) => bank.name
+                .toLowerCase()
+                .contains(_searchController.text.toLowerCase()))
+            .toList();
+      }
+      if (state.banks.isEmpty)
+        return _buildEmptyView("Tidak ada bank soal yang tersedia",
+            "Silakan tambahkan bank soal baru.");
+      return Column(
+          children: [Expanded(child: _buildBankList(_filteredBanks))]);
+    }
+    if (state is QuestionOnlineExamFailure) {
+      return Center(
+        child: CustomErrorWidget(
+          message: "Tidak dapat memuat bank soal. Silakan coba lagi.",
+          onRetry: () => context
+              .read<QuestionOnlineExamCubit>()
+              .getBankSoal(widget.examId),
+          primaryColor: _primaryColor,
+        ),
+      );
+    }
+    return SizedBox();
+  }
+
+  Widget _buildLoadingView() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.white, Color(0xFFFFF0F0)],
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Shimmer.fromColors(
+              baseColor: _accentColor.withOpacity(0.4),
+              highlightColor: _highlightColor.withOpacity(0.7),
+              period: Duration(milliseconds: 1500),
+              child: Container(
+                width: 160,
+                height: 160,
+                decoration: BoxDecoration(shape: BoxShape.circle),
+                child: Icon(Icons.auto_stories_rounded,
+                    size: 80, color: Colors.white),
+              ),
+            ),
+            SizedBox(height: 25),
+            Text('Memuat Bank Soal',
+                style: TextStyle(
+                    color: _primaryColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Container(
+              width: 150,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: LinearProgressIndicator(
+                    backgroundColor: _accentColor.withOpacity(0.2),
+                    valueColor: AlwaysStoppedAnimation<Color>(_accentColor),
+                    minHeight: 6),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyView(String title, String subtitle) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.assignment_outlined,
+            size: 80,
+            color: _accentColor.withOpacity(0.6),
+          ),
+          SizedBox(height: 20),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+              color: _primaryColor,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            subtitle,
+            style: TextStyle(
+              fontSize: 16,
+              color: _accentColor,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 800.ms);
+  }
+
+  Widget _buildBankList(List<BankSoalQuestion> banks) {
+    if (banks.isEmpty && _searchController.text.isNotEmpty) {
+      return _buildEmptyView(
+        "Tidak ada bank soal yang cocok",
+        "Coba gunakan kata kunci lain untuk pencarian.",
+      );
+    }
+    return Stack(children: [
+      ListView.builder(
+        padding: EdgeInsets.fromLTRB(20, 10, 20, 100),
+        physics: BouncingScrollPhysics(),
+        itemCount: banks.length,
+        itemBuilder: (context, index) {
+          final bank = banks[index];
+          final Color cardBaseColor =
+              _cardGradients[index % _cardGradients.length];
+          final neonGlowColor = HSLColor.fromColor(cardBaseColor)
+              .withLightness(0.7)
+              .withSaturation(0.9)
+              .toColor();
+          final bool isHovered = _hoveredCardIndex == index;
+
+          return GestureDetector(
+            onTap: () => navigateToPreview(bank),
+            onTapDown: (_) {
+              setState(() => _hoveredCardIndex = index);
+              HapticFeedback.selectionClick();
+            },
+            onTapCancel: () => setState(() => _hoveredCardIndex = -1),
+            onTapUp: (_) => Future.delayed(Duration(milliseconds: 300),
+                () => mounted ? setState(() => _hoveredCardIndex = -1) : null),
+            child: Transform.translate(
+              offset: Offset(0, isHovered ? -5 : 0),
+              child: AnimatedContainer(
+                duration: Duration(milliseconds: 300),
+                curve: Curves.easeOutCubic,
+                margin: EdgeInsets.only(bottom: 24),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            cardBaseColor.withOpacity(isHovered ? 1.0 : 0.85),
+                            HSLColor.fromColor(cardBaseColor)
+                                .withLightness(HSLColor.fromColor(cardBaseColor)
+                                        .lightness *
+                                    0.7)
+                                .toColor()
+                                .withOpacity(isHovered ? 0.95 : 0.8),
+                          ],
+                          stops: [0.3, 1.0],
+                        ),
+                        borderRadius: BorderRadius.circular(28),
+                        boxShadow: [
+                          BoxShadow(
+                              color: neonGlowColor
+                                  .withOpacity(isHovered ? 0.35 : 0.15),
+                              blurRadius: isHovered ? 25 : 15,
+                              spreadRadius: isHovered ? 2 : 0),
+                          BoxShadow(
+                              color: cardBaseColor.withOpacity(0.5),
+                              blurRadius: 15,
+                              spreadRadius: -3,
+                              offset: Offset(0, 8)),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ShaderMask(
+                                      blendMode: BlendMode.srcIn,
+                                      shaderCallback: (bounds) =>
+                                          LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          Colors.white.withOpacity(1.0),
+                                          Colors.white.withOpacity(0.9),
+                                          Colors.white.withOpacity(1.0)
+                                        ],
+                                      ).createShader(bounds),
+                                      child: Text(
+                                        bank.name,
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          height: 1.2,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.5,
+                                          shadows: [
+                                            Shadow(
+                                                color: Colors.black26,
+                                                blurRadius: 3,
+                                                offset: Offset(1, 1))
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    AnimatedContainer(
+                                      duration: Duration(milliseconds: 400),
+                                      margin: EdgeInsets.symmetric(vertical: 8),
+                                      height: 2,
+                                      width: isHovered ? 180 : 80,
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.centerLeft,
+                                          end: Alignment.centerRight,
+                                          colors: [
+                                            Colors.white.withOpacity(0.8),
+                                            Colors.white.withOpacity(0.2)
+                                          ],
+                                        ),
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 7),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.15),
+                                        borderRadius: BorderRadius.circular(30),
+                                        border: Border.all(
+                                            color:
+                                                Colors.white.withOpacity(0.2),
+                                            width: 1),
+                                        boxShadow: [
+                                          BoxShadow(
+                                              color: Colors.black12,
+                                              blurRadius: 8,
+                                              spreadRadius: 0)
+                                        ],
+                                      ),
+                                      child: Text(
+                                        '${bank.soal.length} Soal',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              AnimatedContainer(
+                                duration: Duration(milliseconds: 300),
+                                width: isHovered ? 50 : 45,
+                                height: isHovered ? 50 : 45,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: isHovered
+                                        ? [
+                                            Colors.white.withOpacity(0.3),
+                                            Colors.white.withOpacity(0.1)
+                                          ]
+                                        : [
+                                            Colors.white.withOpacity(0.2),
+                                            Colors.white.withOpacity(0.05)
+                                          ],
+                                  ),
+                                  boxShadow: isHovered
+                                      ? [
+                                          BoxShadow(
+                                              color: neonGlowColor
+                                                  .withOpacity(0.4),
+                                              blurRadius: 15,
+                                              spreadRadius: 1)
+                                        ]
+                                      : [],
+                                  border: Border.all(
+                                      color: Colors.white.withOpacity(0.3),
+                                      width: 1),
+                                ),
+                                child: AnimatedBuilder(
+                                  animation: _pulseAnimation,
+                                  builder: (context, child) {
+                                    return Transform.rotate(
+                                      angle: isHovered ? 0.1 : 0,
+                                      child: Transform.scale(
+                                        scale: isHovered
+                                            ? 1.0 + 0.15 * _pulseAnimation.value
+                                            : 1.0,
+                                        child: Icon(Icons.arrow_forward_rounded,
+                                            color: Colors.white,
+                                            size: isHovered ? 25 : 22),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Positioned(
+                      right: 20,
+                      top: -10,
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: neonGlowColor.withOpacity(0.1)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    ]);
+  }
+
+  void navigateToPreview(BankSoalQuestion bank) {
+    print('Navigating to preview with:');
+    print('Bank ID: ${bank.id}');
+    print('Exam ID: ${widget.examId}');
+    print('Class Section ID: ${bank.classSectionId}');
+    print('Class Subject ID: ${bank.classSubjectId}');
+
+    if (bank.classSectionId == 0 || bank.classSubjectId == 0) {
+      getx.Get.snackbar('Error', 'Data kelas atau mata pelajaran tidak valid',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          snackPosition: getx.SnackPosition.BOTTOM);
+      return;
+    }
+
+    getx.Get.toNamed(Routes.previewQuestionBank, arguments: {
+      'bank': bank,
+      'examId': widget.examId,
+      'classSectionId': bank.classSectionId,
+      'classSubjectId': bank.classSubjectId
+    });
+  }
+}

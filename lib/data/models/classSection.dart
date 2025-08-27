@@ -10,6 +10,10 @@ class ClassSection {
   final int? sectionId;
   final int? mediumId;
   final int? schoolId;
+  final int? gradeLevelId;
+  String? createdAt;
+  String? updatedAt;
+  final int? pkl;
   final String? name;
   final String? fullName;
   final ClassDetails? classDetails;
@@ -24,8 +28,10 @@ class ClassSection {
       this.sectionId,
       this.mediumId,
       this.schoolId,
+      this.gradeLevelId,
       this.name,
       this.fullName,
+      this.pkl,
       this.classDetails,
       this.medium,
       this.section,
@@ -38,6 +44,8 @@ class ClassSection {
       int? sectionId,
       int? mediumId,
       int? schoolId,
+      int? gradeLevelId,
+      int? pkl,
       String? name,
       String? fullName,
       Medium? medium,
@@ -53,6 +61,7 @@ class ClassSection {
         sectionId: sectionId ?? this.sectionId,
         mediumId: mediumId ?? this.mediumId,
         schoolId: schoolId ?? this.schoolId,
+        gradeLevelId: gradeLevelId ?? this.gradeLevelId,
         name: name ?? this.name,
         fullName: fullName ?? this.fullName,
         classDetails: classDetails ?? this.classDetails,
@@ -66,8 +75,10 @@ class ClassSection {
         sectionId = json['section_id'] as int?,
         mediumId = json['medium_id'] as int?,
         schoolId = json['school_id'] as int?,
+        gradeLevelId = json['grade_level_id'] as int?,
         name = json['name'] as String?,
         fullName = json['full_name'] as String?,
+        pkl = json['pkl'] as int?,
         classDetails = json['class'] != null
             ? ClassDetails.fromJson(Map.from(json['class']))
             : null,
@@ -91,8 +102,10 @@ class ClassSection {
         'section_id': sectionId,
         'medium_id': mediumId,
         'school_id': schoolId,
+        'grade_level_id': gradeLevelId,
         'name': name,
         'full_name': fullName,
+        'pkl': pkl,
         'class': classDetails?.toJson(),
         'medium': medium?.toJson(),
         'section': section?.toJson(),
@@ -120,6 +133,10 @@ class ClassSection {
   String getClassTeacherNames() {
     return (classTeachers?.isEmpty ?? true)
         ? "-"
-        : (classTeachers!.map((e) => e.teacher?.fullName).toList().join(","));
+        : (classTeachers!
+            .map((e) => e.teacher?.firstName)
+            .where((name) => name != null && name.isNotEmpty)
+            .toList()
+            .join(","));
   }
 }

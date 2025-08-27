@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:eschool_saas_staff/cubits/payRoll/downloadPayRollSlipCubit.dart';
 import 'package:eschool_saas_staff/data/models/payRoll.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
@@ -24,6 +26,14 @@ class _DownloadPayRollSlipDialogState extends State<DownloadPayRollSlipDialog> {
     super.initState();
     Future.delayed(Duration.zero, () {
       if (mounted) {
+        print("=== UI INITIATED PAYROLL PDF DOWNLOAD ===");
+        print("Payroll Details:");
+        print("ID: ${widget.payRoll.id}");
+        print("Title: ${widget.payRoll.title}");
+        print("Month: ${widget.payRoll.month}");
+        print("Year: ${widget.payRoll.year}");
+        print("Amount: ${widget.payRoll.amount}");
+
         context.read<DownloadPayRollSlipCubit>().downloadPayRollSlip(
             payRollId: widget.payRoll.id ?? 0,
             payRollSlipTitle: widget.payRoll.title ?? "-");
@@ -37,10 +47,46 @@ class _DownloadPayRollSlipDialogState extends State<DownloadPayRollSlipDialog> {
       listener: (context, state) {
         if (state is DownloadPayRollSlipSuccess) {
           Get.back();
-          OpenFilex.open(state.downloadedFilePath);
+
+          // Verify file exists before trying to open
+          final file = File(state.downloadedFilePath);
+          if (file.existsSync()) {
+            OpenFilex.open(state.downloadedFilePath).then((result) {
+              print("File open result: ${result.message}");
+
+              // If file opening failed, show a user-friendly message
+              if (result.type != ResultType.done) {
+                Utils.showSnackBar(
+                    message:
+                        "Slip gaji berhasil diunduh namun tidak dapat dibuka otomatis. File tersimpan di: ${state.downloadedFilePath}",
+                    context: context);
+              }
+            });
+          } else {
+            Utils.showSnackBar(
+                message:
+                    "File slip gaji tidak dapat ditemukan setelah download",
+                context: context);
+          }
         } else if (state is DownloadPayRollSlipFailure) {
           Get.back();
-          Utils.showSnackBar(message: state.errorMessage, context: context);
+
+          // Show more user-friendly error messages
+          String userMessage = state.errorMessage;
+          if (userMessage.contains("format") ||
+              userMessage.contains("decode")) {
+            userMessage =
+                "Format file slip gaji tidak valid. Silakan coba lagi atau hubungi administrator.";
+          } else if (userMessage.contains("network") ||
+              userMessage.contains("connection")) {
+            userMessage =
+                "Masalah koneksi internet. Periksa koneksi Anda dan coba lagi.";
+          } else if (userMessage.contains("empty")) {
+            userMessage =
+                "Data slip gaji kosong. Silakan hubungi administrator.";
+          }
+
+          Utils.showSnackBar(message: userMessage, context: context);
         }
       },
       child: AlertDialog(

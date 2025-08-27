@@ -1,6 +1,7 @@
 import 'package:eschool_saas_staff/data/models/assignment.dart';
 import 'package:eschool_saas_staff/data/repositories/assignmentRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:convert';
 
 abstract class AssignmentState {}
 
@@ -28,6 +29,18 @@ class AssignmentsFetchSuccess extends AssignmentState {
     final bool? newMoreAssignmentsFetchError,
     final bool? newFetchMoreAssignmentsInProgress,
   }) {
+    print("assignment:${newAssignment ?? assignment}");
+
+    print("totalPage:${newTotalPage ?? totalPage}");
+
+    print("currentPage:${newCurrentPage ?? currentPage}");
+
+    print(
+        "moreAssignmentsFetchError:${newMoreAssignmentsFetchError ?? moreAssignmentsFetchError}");
+
+    print(
+        "fetchMoreAssignmentsInProgress:${newFetchMoreAssignmentsInProgress ?? fetchMoreAssignmentsInProgress}");
+
     return AssignmentsFetchSuccess(
       assignment: newAssignment ?? assignment,
       totalPage: newTotalPage ?? totalPage,
@@ -62,6 +75,9 @@ class AssignmentCubit extends Cubit<AssignmentState> {
         classSubjectId: subjectId,
         page: page,
       );
+
+  
+
       emit(AssignmentsFetchSuccess(
         assignment: result.assignments,
         currentPage: result.currentPage,
@@ -103,6 +119,8 @@ class AssignmentCubit extends Cubit<AssignmentState> {
         classSubjectId: classSubjectId,
         page: (state as AssignmentsFetchSuccess).currentPage + 1,
       );
+
+  
 
       final currentState = state as AssignmentsFetchSuccess;
 

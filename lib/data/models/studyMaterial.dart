@@ -55,8 +55,7 @@ class StudyMaterial {
   late final String fileThumbnail;
   late final String fileUrl;
   late final String fileExtension;
-
-  
+  late final Map<String, dynamic> fullFileData;
 
   StudyMaterial.fromJson(Map<String, dynamic> json) {
     studyMaterialType = getStudyMaterialType(int.parse(json['type'] ?? "0"));
@@ -66,6 +65,7 @@ class StudyMaterial {
     fileThumbnail = json['file_thumbnail'] ?? "";
     fileUrl = json['file_url'] ?? "";
     fileExtension = json['file_extension'] ?? "";
+    fullFileData = json;
   }
 
   StudyMaterial.fromURL(String url) {

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/leaveDetails.dart';
 import 'package:eschool_saas_staff/data/models/leaveRequest.dart';
@@ -9,14 +11,34 @@ class LeaveRepository {
   Future<List<LeaveDetails>> getLeaves(
       {required LeaveDayType leaveDayType}) async {
     try {
+      print('\n=== DEBUG: LeaveRepository.getLeaves() ===');
+      print('LeaveDayType: $leaveDayType');
+      print('API URL: ${Api.getLeaves}');
+      print(
+          'Query params: {"type": ${getLeaveDayTypeStatus(leaveDayType: leaveDayType)}}');
+
       final result = await Api.get(url: Api.getLeaves, queryParameters: {
         "type": getLeaveDayTypeStatus(leaveDayType: leaveDayType)
       });
 
-      return ((result['data'] ?? []) as List)
+      print('Raw API response:');
+      final prettyJson = JsonEncoder.withIndent('  ').convert(result);
+      print(prettyJson);
+
+      final leaves = ((result['data'] ?? []) as List)
           .map((leaveDetails) =>
               LeaveDetails.fromJson(Map.from(leaveDetails ?? {})))
           .toList();
+
+      print('Number of leaves parsed: ${leaves.length}');
+      if (leaves.isEmpty) {
+        print('WARNING: No leaves parsed from response');
+      } else {
+        print('First leave details: ${leaves.first.toJson()}');
+      }
+      print('=== DEBUG: End LeaveRepository.getLeaves() ===\n');
+
+      return leaves;
     } catch (e) {
       throw ApiException(e.toString());
     }
@@ -83,6 +105,16 @@ class LeaveRepository {
         "staff_id": userId,
         "month": monthNumber
       });
+
+      final prettyJson = JsonEncoder.withIndent('  ').convert(result);
+
+      // Memecah JSON menjadi baris-baris
+      final lines = prettyJson.split('\n');
+
+      // Mencetak setiap baris
+      for (final line in lines) {
+        print(line);
+      }
 
       return (
         leaves: ((result['data']['leave_details'] ?? []) as List)

@@ -57,8 +57,7 @@ class StudentAttendance {
       schoolId: studentDetails.schoolId,
       classSectionId: studentDetails.student?.classSectionId,
       sessionYearId: studentDetails.student?.sessionYearId,
-      type: type ??
-          1, //default attendance on add attendance screen items is Present
+      type: type ?? 1, // Set default to 1 (present) if type is null
       studentDetails: studentDetails,
     );
   }
@@ -72,7 +71,7 @@ class StudentAttendance {
         date = json['date'] as String?,
         schoolId = json['school_id'] as int?,
         createdAt = json['created_at'] as String?,
-        studentDetails = StudentDetails.fromJson(Map.from(json['user'] ?? {})),
+        studentDetails = StudentDetails.fromJson(Map.from(json['user'] ?? {})..['status'] = json['type']),
         updatedAt = json['updated_at'] as String?;
 
   Map<String, dynamic> toJson() => {

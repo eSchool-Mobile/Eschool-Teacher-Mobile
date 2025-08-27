@@ -1,9 +1,13 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/repositories/authRepository.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
+import 'package:http/http.dart' as http;
+import 'package:eschool_saas_staff/utils/logger.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
 
 class ApiException implements Exception {
@@ -40,6 +44,10 @@ class Api {
   static String getClasses = "${databaseUrl}classes";
   static String getSessionYears = "${databaseUrl}session-years";
 
+  static String getAssignmentMonitoring =
+      "${databaseUrl}staff/assignment-monitoring/show";
+  static String getTeacherAssignmentMonitoring =
+      "${databaseUrl}staff/assignment-monitoring/teacher";
   static String getStudents = "${databaseUrl}teacher/student-list";
   static String getStaffs = "${databaseUrl}staff/staffs";
   static String getTimeTableOfTeacher = "${databaseUrl}staff/teacher-timetable";
@@ -110,6 +118,8 @@ class Api {
   static String uploadAssignment = "${databaseUrl}teacher/update-assignment";
   static String deleteAssignment = "${databaseUrl}teacher/delete-assignment";
   static String createAssignment = "${databaseUrl}teacher/create-assignment";
+  static String getAssignmentFileTypes =
+      "${databaseUrl}teacher/get-assignment-filetype";
 
   static String getAnnouncement = "${databaseUrl}teacher/get-announcement";
   static String createAnnouncement = "${databaseUrl}teacher/send-announcement";
@@ -141,18 +151,74 @@ class Api {
   //-------------
 
   static String downloadStudentResult = "${databaseUrl}student-exan-result-pdf";
+  static String getTeacherSubjectId =
+      "${databaseUrl}teacher/bank-soal/getTeacherSubject";
+
+  // Question Bank APIs
+  static String getTeacherSubject =
+      "${databaseUrl}teacher/bank-soal/getTeacherSubject";
+  static String getOnlineExamQuestionListCorrection =
+      "${databaseUrl}teacher/get-online-exam-question-list-correction";
+  static String getOnlineExamAnswerCorrection =
+      "${databaseUrl}teacher/get-online-exam-answer-list-correction";
+  static String updateOnlineExamAnswerCorrection =
+      "${databaseUrl}teacher/update-online-exam-answer-correction";
+  static String getBankSoal = "${databaseUrl}teacher/bank-soal/get";
+  static String getBankQuestions = "${databaseUrl}teacher/bank-soal/getSoal";
+  static String createQuestionBank = "${databaseUrl}teacher/bank-soal/create";
+  static String createQuestion = "${databaseUrl}teacher/bank-soal/createSoal";
+  static String updateQuestionBank = "${databaseUrl}teacher/bank-soal/update";
+  static String updateQuestion = "${databaseUrl}teacher/bank-soal/updateSoal";
+  static String deleteQuestionBank = "${databaseUrl}teacher/bank-soal/delete";
+  static String deleteQuestion = "${databaseUrl}teacher/bank-soal/deleteSoal";
+
+  // Online Exam APIs
+  static String getOnlineExamList =
+      "${databaseUrl}teacher/get-online-exam-list";
+  static String createOnlineExam = "${databaseUrl}teacher/store-online-exam";
+  static String updateOnlineExam = "${databaseUrl}teacher/update-online-exam";
+  static String deleteOnlineExam = "${databaseUrl}teacher/delete-online-exam";
+  static String deleteQuestionOnlineExam =
+      "${databaseUrl}teacher/delete-online-exam-questions";
+  static String getOnlineExamQuestions =
+      "${databaseUrl}teacher/get-online-exam-questions";
+  static String storeOnlineExamQuestions =
+      "${databaseUrl}teacher/store-online-exam-questions";
+  static String getOnlineExamStatus =
+      "${databaseUrl}teacher/get-online-exam-status";
+  static String resetOnlineExamStatus =
+      "${databaseUrl}teacher/reset-online-exam-status";
+  static String gradeLevel = "${databaseUrl}teacher/get-grade-levels";
 
   static Map<String, String> headers({bool useAuthToken = false}) {
     final String jwtToken = AuthRepository.getAuthToken();
+    print(jwtToken);
     final schoolCode = AuthRepository().schoolCode;
 
-    if (kDebugMode) {
-      print({"Authorization": "Bearer $jwtToken", "school_code": schoolCode});
-    }
     return {
       "Authorization": "Bearer $jwtToken",
       "school_code": schoolCode,
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "X-Requested-With": "XMLHttpRequest",
+      "role": "teacher",
+      "view_type": "teacher",
+      "all": "true",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers":
+          "Origin, Content-Type, Accept, Authorization, X-Request-With, role, view_type, all",
     };
+  }
+
+  static Future<XFile> fetchImg(String url) async {
+    var response = await http.get(Uri.parse("${storageUrl}${url}"));
+
+    if (response.statusCode == 200) {
+      return XFile.fromData(response.bodyBytes, mimeType: 'image/jpeg');
+    } else {
+      throw Exception("Gagal mengunduh gambar");
+    }
   }
 
   static Future<Map<String, dynamic>> post({
@@ -165,9 +231,12 @@ class Api {
     Function(int, int)? onReceiveProgress,
   }) async {
     try {
-      if (kDebugMode) {
-        print(url);
-        print(body);
+      if (kDebugMode || true) {
+        AppLogger.debug('Api.post', 'Request', data: {
+          'url': url,
+          'body': body,
+          'queryParameters': queryParameters,
+        });
       }
       final Dio dio = Dio();
       final FormData formData =
@@ -181,13 +250,28 @@ class Api {
           onSendProgress: onSendProgress,
           options: (useAuthToken ?? true) ? Options(headers: headers()) : null);
 
-      if (bool.parse(response.data['error'].toString())) {
+      AppLogger.debug('Api.post', 'Response meta', data: {
+        'statusCode': response.statusCode,
+        'dataType': response.data.runtimeType.toString(),
+        'hasErrorKey':
+            response.data is Map && (response.data as Map).containsKey('error'),
+      });
+
+      if (response.data.containsKey('error') &&
+          response.data['error'] == true) {
         throw ApiException(response.data['message'].toString());
       }
+
       return Map.from(response.data);
     } on DioException catch (e) {
       if (kDebugMode) {
-        print(e.response?.data);
+        AppLogger.error('Api.post', 'DioException',
+            data: {
+              'url': url,
+              'statusCode': e.response?.statusCode,
+              'response': e.response?.data,
+            },
+            error: e);
       }
       throw ApiException(
           e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
@@ -195,7 +279,71 @@ class Api {
       throw ApiException(e.errorMessage);
     } catch (e) {
       if (kDebugMode) {
-        print(e.toString());
+        AppLogger.error('Api.post', 'Unknown exception',
+            data: {'url': url}, error: e);
+      }
+      throw ApiException(defaultErrorMessageKey);
+    }
+  }
+
+  static Future<Map<String, dynamic>> postJson({
+    required Map<String, dynamic> body,
+    required String url,
+    bool? useAuthToken,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    Function(int, int)? onSendProgress,
+    Function(int, int)? onReceiveProgress,
+  }) async {
+    try {
+      if (kDebugMode || true) {
+        AppLogger.debug('Api.postJson', 'Request', data: {
+          'url': url,
+          'body': body,
+          'queryParameters': queryParameters,
+        });
+      }
+      final Dio dio = Dio();
+
+      final response = await dio.post(url,
+          data: body, // Send as JSON directly, not FormData
+          queryParameters: queryParameters,
+          cancelToken: cancelToken,
+          onReceiveProgress: onReceiveProgress,
+          onSendProgress: onSendProgress,
+          options: Options(
+            headers: {
+              ...((useAuthToken ?? true) ? headers() : {}),
+              'Content-Type': 'application/json',
+            },
+          ));
+
+      AppLogger.debug('Api.postJson', 'Response meta', data: {
+        'statusCode': response.statusCode,
+        'dataType': response.data.runtimeType.toString(),
+        'hasErrorKey':
+            response.data is Map && (response.data as Map).containsKey('error'),
+      });
+
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      if (kDebugMode) {
+        AppLogger.error('Api.postJson', 'DioException',
+            data: {
+              'url': url,
+              'statusCode': e.response?.statusCode,
+              'response': e.response?.data,
+            },
+            error: e.toString());
+      }
+      throw ApiException(
+          e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
+    } on ApiException catch (e) {
+      throw ApiException(e.errorMessage);
+    } catch (e) {
+      if (kDebugMode) {
+        AppLogger.error('Api.postJson', 'Unknown exception',
+            data: {'url': url}, error: e);
       }
       throw ApiException(defaultErrorMessageKey);
     }
@@ -207,36 +355,104 @@ class Api {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
-      if (kDebugMode) {
-        print(url);
-        print(queryParameters);
-      }
-      //
       final Dio dio = Dio();
-      final response = await dio.get(url,
-          queryParameters: queryParameters,
-          options: (useAuthToken ?? true) ? Options(headers: headers()) : null);
 
-      if (bool.parse(response.data['error'].toString())) {
-        if (kDebugMode) {
-          print(response.data);
+      // Add default parameters
+      queryParameters = {
+        'role': 'teacher',
+        'view_type': 'teacher',
+        'all': 'true',
+        ...?queryParameters,
+      };
+
+      // Get headers
+      final requestHeaders = headers(useAuthToken: useAuthToken ?? true);
+
+      // Set response type based on URL
+      final bool isPdfEndpoint = url.contains('pdf') ||
+          url == downloadPayRollSlip ||
+          url == downloadStudentFeeReceipt ||
+          url == downloadStudentResult;
+
+      final response = await dio.get(
+        url,
+        queryParameters: queryParameters,
+        options: Options(
+            headers: requestHeaders,
+            validateStatus: (status) => status! < 500,
+            responseType:
+                isPdfEndpoint ? ResponseType.bytes : ResponseType.json),
+      );
+
+      AppLogger.debug('Api.get', 'Response meta', data: {
+        'url': url,
+        'statusCode': response.statusCode,
+        'query': queryParameters,
+        'responseDataType': response.data.runtimeType.toString(),
+        'responseDataPreview': response.data is String
+            ? (response.data.length > 200
+                ? response.data.substring(0, 200) + '...<truncated>'
+                : response.data)
+            : response.data.toString().length > 200
+                ? response.data.toString().substring(0, 200) + '...<truncated>'
+                : response.data.toString(),
+      });
+      if (response.statusCode == 200) {
+        if (isPdfEndpoint && response.data is List<int>) {
+          // Handle PDF binary data
+          return {'pdf': base64Encode(response.data), 'error': false};
+        } else if (response.data is Map) {
+          // Handle regular JSON response
+          if (response.data['error'] == true) {
+            String errorMessage =
+                response.data['message'] ?? defaultErrorMessageKey;
+            String details = '';
+
+            // Add server details if available
+            if (response.data['details'] != null) {
+              details = ' | Server Details: ${response.data['details']}';
+            }
+            if (response.data['code'] != null) {
+              details += ' | Error Code: ${response.data['code']}';
+            }
+
+            AppLogger.error('Api.get', 'Server returned error response', data: {
+              'url': url,
+              'errorMessage': errorMessage,
+              'errorCode': response.data['code'],
+              'serverDetails': response.data['details'],
+              'fullResponse': response.data.toString(),
+            });
+
+            throw ApiException(errorMessage + details);
+          }
+          return Map<String, dynamic>.from(response.data);
         }
-
-        throw ApiException(response.data['message'].toString());
+        // Log detailed information about unexpected response format
+        AppLogger.error('Api.get', 'Invalid response format', data: {
+          'url': url,
+          'statusCode': response.statusCode,
+          'expectedFormat': 'Map or PDF bytes',
+          'actualType': response.data.runtimeType.toString(),
+          'responseData': response.data.toString().length > 500
+              ? response.data.toString().substring(0, 500) + '...<truncated>'
+              : response.data.toString(),
+          'isPdfEndpoint': isPdfEndpoint,
+        });
+        throw ApiException(
+            "Invalid response format: expected Map but got ${response.data.runtimeType}");
+      } else {
+        throw ApiException(response.data['message'] ?? defaultErrorMessageKey);
       }
-
-      return Map.from(response.data);
-    } on DioException catch (e) {
-      if (kDebugMode) {
-        print(e.error?.toString());
-        print(e.response?.data);
-      }
-      throw ApiException(
-          e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
-    } on ApiException catch (e) {
-      throw ApiException(e.errorMessage);
-    } catch (e) {
-      throw ApiException(defaultErrorMessageKey);
+    } catch (e, st) {
+      AppLogger.error('Api.get', 'Request failed',
+          data: {
+            'url': url,
+            'query': queryParameters,
+          },
+          error: e,
+          stack: st);
+      throw ApiException(e.toString());
     }
   }
 
@@ -252,11 +468,142 @@ class Api {
         updateDownloadedPercentage((count / total) * 100);
       }));
     } on DioException catch (e) {
+      print(e);
       throw ApiException(
           e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
     } on ApiException catch (e) {
       throw ApiException(e.errorMessage);
     } catch (e) {
+      print(e);
+      throw ApiException(defaultErrorMessageKey);
+    }
+  }
+
+  static Future<Map<String, dynamic>> delete({
+    required String url,
+    required Map<String, dynamic> body,
+    bool? useAuthToken,
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      AppLogger.debug('Api.delete', 'Request', data: {
+        'url': url,
+        'body': body,
+        'query': queryParameters,
+      });
+
+      final Dio dio = Dio();
+      final response = await dio.delete(
+        url,
+        data: body,
+        queryParameters: queryParameters,
+        options: Options(
+          headers: headers(useAuthToken: useAuthToken ?? false),
+          validateStatus: (status) {
+            return status! < 500;
+          },
+        ),
+      );
+
+      AppLogger.debug('Api.delete', 'Response meta', data: {
+        'statusCode': response.statusCode,
+        'hasErrorKey':
+            response.data is Map && (response.data as Map).containsKey('error'),
+      });
+
+      if (response.statusCode == 404) {
+        throw ApiException(response.data['message'] ?? 'Exam not found');
+      }
+
+      if (response.data is Map) {
+        return response.data;
+      }
+
+      throw ApiException('Invalid response format');
+    } on DioException catch (e) {
+      AppLogger.error('Api.delete', 'DioException',
+          data: {
+            'url': url,
+            'statusCode': e.response?.statusCode,
+            'response': e.response?.data,
+          },
+          error: e);
+      if (e.response?.data is Map) {
+        throw ApiException(
+            e.response?.data['message'] ?? defaultErrorMessageKey);
+      }
+      throw ApiException(e.message ?? defaultErrorMessageKey);
+    } catch (e) {
+      AppLogger.error('Api.delete', 'Unknown exception',
+          data: {'url': url}, error: e);
+      throw ApiException(e.toString());
+    }
+  }
+
+  static Future<Map<String, dynamic>> put({
+    required Map<String, dynamic> body,
+    required String url,
+    bool? useAuthToken,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    Function(int, int)? onSendProgress,
+    Function(int, int)? onReceiveProgress,
+  }) async {
+    try {
+      if (kDebugMode || true) {
+        AppLogger.debug('Api.put', 'Request', data: {
+          'url': url,
+          'body': body,
+          'queryParameters': queryParameters,
+        });
+      }
+      final Dio dio = Dio();
+
+      // For PUT requests, send JSON data instead of FormData
+      final response = await dio.put(url,
+          data: body, // Send as JSON instead of FormData
+          queryParameters: queryParameters,
+          cancelToken: cancelToken,
+          onReceiveProgress: onReceiveProgress,
+          onSendProgress: onSendProgress,
+          options: Options(
+            headers: {
+              ...headers(useAuthToken: useAuthToken ?? true),
+              'Content-Type':
+                  'application/json', // Explicitly set content type to JSON
+            },
+          ));
+
+      AppLogger.debug('Api.put', 'Response meta', data: {
+        'statusCode': response.statusCode,
+        'dataType': response.data.runtimeType.toString(),
+      });
+
+      if (response.data.containsKey('error') &&
+          response.data['error'] == true) {
+        throw ApiException(response.data['message'].toString());
+      }
+
+      return Map.from(response.data);
+    } on DioException catch (e) {
+      if (kDebugMode) {
+        AppLogger.error('Api.put', 'DioException',
+            data: {
+              'url': url,
+              'statusCode': e.response?.statusCode,
+              'response': e.response?.data,
+            },
+            error: e);
+      }
+      throw ApiException(
+          e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
+    } on ApiException catch (e) {
+      throw ApiException(e.errorMessage);
+    } catch (e) {
+      if (kDebugMode) {
+        AppLogger.error('Api.put', 'Unknown exception',
+            data: {'url': url}, error: e);
+      }
       throw ApiException(defaultErrorMessageKey);
     }
   }

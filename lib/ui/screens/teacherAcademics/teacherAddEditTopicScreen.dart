@@ -2,29 +2,27 @@ import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubje
 import 'package:eschool_saas_staff/cubits/teacherAcademics/lesson/lessonsCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/topic/createTopicCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/topic/editTopicCubit.dart';
+import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/lesson.dart';
 import 'package:eschool_saas_staff/data/models/pickedStudyMaterial.dart';
 import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
 import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
 import 'package:eschool_saas_staff/data/models/topic.dart';
+import 'package:eschool_saas_staff/data/models/gradeLevel.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/addStudyMaterialBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/addedStudyMaterialFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
-import 'package:eschool_saas_staff/ui/widgets/uploadImageOrFileButton.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
+import 'package:flutter/services.dart';
 
 class TeacherAddEditTopicScreen extends StatefulWidget {
   final Topic? topic;
@@ -46,6 +44,9 @@ class TeacherAddEditTopicScreen extends StatefulWidget {
         ),
         BlocProvider(
           create: (context) => ClassSectionsAndSubjectsCubit(),
+        ),
+        BlocProvider(
+          create: (context) => GradeLevelCubit(),
         ),
       ],
       child: TeacherAddEditTopicScreen(
@@ -82,10 +83,22 @@ class TeacherAddEditTopicScreen extends StatefulWidget {
       _TeacherAddEditTopicScreenState();
 }
 
-class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen> {
+class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
+    with TickerProviderStateMixin {
   late ClassSection? _selectedClassSection = widget.selectedClassSection;
   late TeacherSubject? _selectedSubject = widget.selectedSubject;
   late Lesson? _selectedLesson = widget.selectedLesson;
+  GradeLevel? _selectedGradeLevel;
+  late AnimationController _animationController;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+  late AnimationController
+      _fabAnimationController; // Added for CustomModernAppBar
+
+  // Theme colors - Softer Maroon palette
+  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
+  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
 
   //This will determine if need to refresh the previous page
   //topics data. If teacher remove the the any study material
@@ -104,24 +117,65 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen> {
   List<PickedStudyMaterial> _addedStudyMaterials = [];
 
   late List<StudyMaterial> studyMaterials = widget.topic?.studyMaterials ?? [];
-
   @override
   void initState() {
+    super.initState();
+    // Debug: Check study materials
+    print("=== Topic Study Materials Debug ===");
+    print("Topic is null: ${widget.topic == null}");
+    print("Study materials count: ${studyMaterials.length}");
+    if (widget.topic != null) {
+      print("Topic name: ${widget.topic!.name}");
+      print(
+          "Topic studyMaterials count: ${widget.topic!.studyMaterials.length}");
+      widget.topic!.studyMaterials.forEach((material) {
+        print(
+            "Study Material: ${material.fileName} - Type: ${material.studyMaterialType}");
+      });
+    }
+    print("================================");
+
     Future.delayed(Duration.zero, () {
       if (mounted) {
+        context.read<GradeLevelCubit>().getGradeLevels();
         context
             .read<ClassSectionsAndSubjectsCubit>()
             .getClassSectionsAndSubjects(
                 classSectionId: _selectedClassSection?.id);
       }
-    });
-    super.initState();
+    }); // Add animation controllers initialization
+    _animationController = AnimationController(
+      duration: Duration(milliseconds: 1000),
+      vsync: this,
+    );
+    _animationController.forward();
+
+    // Controller for pulse animation
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+
+    _pulseAnimation = CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    );
+
+    // Initialize fabAnimationController for CustomModernAppBar
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1000),
+    );
+    _fabAnimationController.repeat(reverse: true);
   }
 
   @override
   void dispose() {
     _topicNameTextEditingController.dispose();
     _topicDescriptionTextEditingController.dispose();
+    _animationController.dispose();
+    _pulseController.dispose();
+    _fabAnimationController.dispose(); // Added to dispose the controller
     super.dispose();
   }
 
@@ -222,12 +276,19 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen> {
                 newClassSectionId: classSection?.id ?? 0)
             .then((value) {
           if (mounted) {
+            // Remove auto-selection for subjects, let user choose manually
+            // Only auto-select if we're editing an existing topic
             if (context.read<ClassSectionsAndSubjectsCubit>().state
-                is ClassSectionsAndSubjectsFetchSuccess) {
+                    is ClassSectionsAndSubjectsFetchSuccess &&
+                widget.topic != null) {
               final successState = (context
                   .read<ClassSectionsAndSubjectsCubit>()
                   .state as ClassSectionsAndSubjectsFetchSuccess);
-              changeSelectedTeacherSubject(successState.subjects.firstOrNull);
+              // Only auto-select if we don't have a subject selected yet and we're editing
+              if (_selectedSubject == null &&
+                  successState.subjects.isNotEmpty) {
+                changeSelectedTeacherSubject(successState.subjects.firstOrNull);
+              }
             }
           }
         });
@@ -236,304 +297,1001 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen> {
     }
   }
 
+  void changeSelectedGradeLevel(GradeLevel? gradeLevel) {
+    if (_selectedGradeLevel != gradeLevel) {
+      _selectedGradeLevel = gradeLevel;
+
+      // Reset selected class, subject, and lesson when grade level changes
+      _selectedClassSection = null;
+      _selectedSubject = null;
+      _selectedLesson = null;
+
+      setState(() {});
+
+      // Re-fetch classes for the selected grade level to filter them
+      if (_selectedGradeLevel != null) {
+        // Add delay to prevent lag
+        Future.delayed(Duration(milliseconds: 100), () {
+          if (mounted) {
+            context
+                .read<ClassSectionsAndSubjectsCubit>()
+                .getClassSectionsAndSubjects(
+                    gradeLevelId: _selectedGradeLevel!.id);
+          }
+        });
+      } else {
+        // If no grade level selected, show all classes
+        context
+            .read<ClassSectionsAndSubjectsCubit>()
+            .getClassSectionsAndSubjects();
+      }
+    }
+  }
+
   void changeSelectedTeacherSubject(TeacherSubject? teacherSubject) {
     if (_selectedSubject != teacherSubject) {
       _selectedSubject = teacherSubject;
+      // Reset lesson when changing subject
+      _selectedLesson = null;
       setState(() {});
-      getLessons();
+
+      // Add debug log
+      print("=== Subject Changed Debug ===");
+      print(
+          "New subject: ${_selectedSubject?.subject.getSybjectNameWithType()}");
+      print("Class subject ID: ${_selectedSubject?.classSubjectId}");
+      print("Class section ID: ${_selectedClassSection?.id}");
+
+      if (_selectedSubject != null && _selectedClassSection != null) {
+        getLessons();
+      }
     }
   }
 
   void getLessons() {
-    context.read<LessonsCubit>().fetchLessons(
-        classSubjectId: _selectedSubject?.classSubjectId ?? 0,
-        classSectionId: _selectedClassSection?.id ?? 0);
+    print("=== Getting Lessons Debug ===");
+    print("Class subject ID: ${_selectedSubject?.classSubjectId}");
+    print("Class section ID: ${_selectedClassSection?.id}");
+
+    if (_selectedSubject?.classSubjectId != null &&
+        _selectedClassSection?.id != null) {
+      context.read<LessonsCubit>().fetchLessons(
+          classSubjectId: _selectedSubject!.classSubjectId,
+          classSectionId: _selectedClassSection!.id ?? 0);
+    } else {
+      print("ERROR: Missing required IDs for fetching lessons");
+    }
   }
 
-  Widget _buildSubmitButton() {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Container(
-        padding: EdgeInsets.all(appContentHorizontalPadding),
-        decoration: BoxDecoration(boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 1, spreadRadius: 1)
-        ], color: Theme.of(context).colorScheme.surface),
-        width: MediaQuery.of(context).size.width,
-        height: 70,
-        child: widget.topic != null
-            ? BlocConsumer<EditTopicCubit, EditTopicState>(
-                listener: (context, state) {
-                  if (state is EditTopicSuccess) {
-                    Get.back(result: true);
-                    Utils.showSnackBar(
-                        context: context, message: topicEditedSuccessfullyKey);
-                  } else if (state is EditTopicFailure) {
-                    Utils.showSnackBar(
-                        context: context, message: state.errorMessage);
-                  }
-                },
-                builder: (context, state) {
-                  return CustomRoundedButton(
-                      height: 40,
-                      widthPercentage: 1.0,
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      buttonTitle: submitKey,
-                      showBorder: false,
-                      onTap: () {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        if (state is EditTopicInProgress) {
-                          return;
-                        }
-                        editTopic();
-                      },
-                      child: state is EditTopicInProgress
-                          ? const CustomCircularProgressIndicator(
-                              strokeWidth: 2,
-                              widthAndHeight: 20,
-                            )
-                          : null);
-                },
-              )
-            : BlocConsumer<CreateTopicCubit, CreateTopicState>(
-                listener: (context, state) {
-                  if (state is CreateTopicSuccess) {
-                    Utils.showSnackBar(
-                        context: context, message: topicAddedSuccessfullyKey);
-                    _topicNameTextEditingController.text = "";
-                    _topicDescriptionTextEditingController.text = "";
-                    _addedStudyMaterials = [];
-                    refreshTopicsInPreviousPage = true;
-                    setState(() {});
-                    Navigator.pop(context, true);
-                  } else if (state is CreateTopicFailure) {
-                    Utils.showSnackBar(
-                      context: context,
-                      message: state.errorMessage,
-                    );
-                  }
-                },
-                builder: (context, state) {
-                  return CustomRoundedButton(
-                      height: 40,
-                      widthPercentage: 1.0,
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      buttonTitle: submitKey,
-                      showBorder: false,
-                      onTap: () {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        if (state is CreateTopicInProgress) {
-                          return;
-                        }
-                        createTopic();
-                      },
-                      child: state is CreateTopicInProgress
-                          ? const CustomCircularProgressIndicator(
-                              strokeWidth: 2,
-                              widthAndHeight: 20,
-                            )
-                          : null);
-                },
-              ),
+  Widget _buildFormatChip(String label) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          color: Colors.grey.shade700,
+        ),
       ),
     );
   }
 
-  Widget _buildAddEditTopicForm() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.only(
-            bottom: 100,
-            left: appContentHorizontalPadding,
-            right: appContentHorizontalPadding,
-            top: Utils.appContentTopScrollPadding(context: context) + 20),
-        child: BlocConsumer<ClassSectionsAndSubjectsCubit,
-            ClassSectionsAndSubjectsState>(
-          listener: (context, state) {
-            if (state is ClassSectionsAndSubjectsFetchSuccess) {
-              if (_selectedClassSection == null) {
-                changeSelectedClassSection(state.classSections.firstOrNull,
-                    fetchNewSubjects: false);
-              }
-              if (_selectedSubject == null) {
-                changeSelectedTeacherSubject(state.subjects.firstOrNull);
-              }
-            }
-          },
-          builder: (context, state) {
-            return BlocConsumer<LessonsCubit, LessonsState>(
-              listener: (context, lessonState) {
-                if (lessonState is LessonsFetchSuccess) {
-                  if (lessonState.lessons.isNotEmpty) {
-                    _selectedLesson = lessonState.lessons.first;
-                    setState(() {});
-                  }
-                }
-              },
-              builder: (context, lessonState) {
-                return state is ClassSectionsAndSubjectsFetchFailure ||
-                        lessonState is LessonsFetchFailure
-                    ? Center(
-                        child: ErrorContainer(
-                        errorMessage: state
-                                is ClassSectionsAndSubjectsFetchFailure
-                            ? state.errorMessage
-                            : (lessonState as LessonsFetchFailure).errorMessage,
-                        onTapRetry: () {
-                          if (state is ClassSectionsAndSubjectsFetchFailure) {
-                            context
-                                .read<ClassSectionsAndSubjectsCubit>()
-                                .getClassSectionsAndSubjects();
+  // Helper methods for attachment type styling
+  Color _getAttachmentTypeColor(StudyMaterialType type) {
+    switch (type) {
+      case StudyMaterialType.youtubeVideo:
+        return Colors.red.shade600;
+      case StudyMaterialType.uploadedVideoUrl:
+        return Colors.purple.shade600;
+      case StudyMaterialType.file:
+        return Colors.blue.shade600;
+      default:
+        return Colors.grey.shade600;
+    }
+  }
+
+  IconData _getAttachmentIcon(StudyMaterialType type) {
+    switch (type) {
+      case StudyMaterialType.youtubeVideo:
+        return Icons.play_circle_fill;
+      case StudyMaterialType.uploadedVideoUrl:
+        return Icons.video_file;
+      case StudyMaterialType.file:
+        return Icons.attach_file;
+      default:
+        return Icons.attachment;
+    }
+  }
+
+  String _getAttachmentTypeLabel(StudyMaterialType type) {
+    switch (type) {
+      case StudyMaterialType.youtubeVideo:
+        return 'Video YouTube';
+      case StudyMaterialType.uploadedVideoUrl:
+        return 'Video Upload';
+      case StudyMaterialType.file:
+        return 'File/Dokumen';
+      default:
+        return 'Lampiran';
+    }
+  }
+
+  Widget _buildButtonContent({
+    required VoidCallback onTap,
+    required bool isLoading,
+    required String title,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(15),
+      splashColor: Colors.white.withOpacity(0.2),
+      highlightColor: Colors.white.withOpacity(0.1),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (isLoading) ...[
+              SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+              SizedBox(width: 12),
+            ],
+            Text(
+              isLoading ? 'Memproses...' : title,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              ),
+            ),
+            if (!isLoading) ...[
+              SizedBox(width: 8),
+              Icon(
+                Icons.arrow_forward_rounded,
+                color: Colors.white,
+                size: 22,
+              ).animate(onPlay: (controller) {
+                controller.repeat(reverse: true);
+              }).slideX(
+                begin: 0,
+                end: 0.3,
+                duration: Duration(milliseconds: 1000),
+                curve: Curves.easeInOut,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Container(
+        height: 60,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).colorScheme.primary,
+              Theme.of(context).colorScheme.secondary,
+            ],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              spreadRadius: 1,
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: widget.topic != null
+              ? BlocConsumer<EditTopicCubit, EditTopicState>(
+                  listener: (context, state) {
+                    if (state is EditTopicSuccess) {
+                      Get.back(result: true);
+                      // Show auto-dismissing success banner
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Container(
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.check_circle, color: Colors.white),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Topik berhasil diperbarui!',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          backgroundColor: Colors.green.shade400,
+                          duration: Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
+                          margin: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                        ),
+                      );
+
+                      // Add slight delay before popping
+                      Future.delayed(Duration(milliseconds: 2200), () {
+                        if (context.mounted) {
+                          Navigator.pop(context, true);
+                        }
+                      });
+                    } else if (state is EditTopicFailure) {
+                      Utils.showSnackBar(
+                          context: context, message: state.errorMessage);
+                    }
+                  },
+                  builder: (context, state) {
+                    return _buildButtonContent(
+                      onTap: () {
+                        if (state is EditTopicInProgress) return;
+                        editTopic();
+                      },
+                      isLoading: state is EditTopicInProgress,
+                      title: 'Perbarui Topik',
+                    );
+                  },
+                )
+              : BlocConsumer<CreateTopicCubit, CreateTopicState>(
+                  listener: (context, state) {
+                    if (state is CreateTopicSuccess) {
+                      // Show auto-dismissing success banner
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Container(
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.check_circle, color: Colors.white),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Topik berhasil ditambahkan!',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          backgroundColor: Colors.green.shade400,
+                          duration: Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
+                          margin: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                        ),
+                      );
+
+                      // Clear form and pop with slight delay
+                      Future.delayed(Duration(milliseconds: 2200), () {
+                        if (context.mounted) {
+                          Navigator.pop(context, true);
+                        }
+                      });
+                      _topicNameTextEditingController.text = "";
+                      _topicDescriptionTextEditingController.text = "";
+                      _addedStudyMaterials = [];
+                      refreshTopicsInPreviousPage = true;
+                      setState(() {});
+                      Navigator.pop(context, true);
+                    } else if (state is CreateTopicFailure) {
+                      Utils.showSnackBar(
+                          context: context, message: state.errorMessage);
+                    }
+                  },
+                  builder: (context, state) {
+                    return _buildButtonContent(
+                      onTap: () {
+                        if (state is CreateTopicInProgress) return;
+                        createTopic();
+                      },
+                      isLoading: state is CreateTopicInProgress,
+                      title: 'Buat Topik',
+                    );
+                  },
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnimatedTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    int maxLines = 1,
+    int? maxLength,
+    bool readOnly = false,
+    VoidCallback? onTap,
+    TextInputType? keyboardType,
+    bool expandable =
+        false, // Tambahkan parameter untuk input yang dapat mengembang
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines:
+          expandable ? null : maxLines, // Set null agar bisa ekspansi otomatis
+      minLines: expandable
+          ? 3
+          : maxLines, // Set minimal line untuk input yang expandable
+      maxLength: maxLength,
+      readOnly: readOnly,
+      onTap: onTap,
+      keyboardType: keyboardType ??
+          (expandable ? TextInputType.multiline : TextInputType.text),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(
+          color: Theme.of(context).colorScheme.secondary,
+        ),
+        prefixIcon: Icon(
+          icon,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide.none,
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide:
+              BorderSide(color: Theme.of(context).colorScheme.secondary),
+        ),
+        counterText: "", // Menyembunyikan indikator jumlah karakter
+        alignLabelWithHint:
+            expandable, // Agar label selaras dengan baris pertama pada input multiline
+      ),
+      validator: (v) => v!.isEmpty ? 'Required' : null,
+      textAlignVertical:
+          expandable ? TextAlignVertical.top : TextAlignVertical.center,
+    );
+  }
+
+  Widget _buildFormContent(ClassSectionsAndSubjectsState state) {
+    return state is ClassSectionsAndSubjectsFetchFailure
+        ? Center(
+            child: ErrorContainer(
+            errorMessage: state.errorMessage,
+            onTapRetry: () {
+              context
+                  .read<ClassSectionsAndSubjectsCubit>()
+                  .getClassSectionsAndSubjects();
+            },
+          ))
+        : Column(
+            children: [
+              // Basic Info Section
+              Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.1),
+                      spreadRadius: 5,
+                      blurRadius: 10,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Informasi Dasar',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+
+                    // Grade Level Selection
+                    BlocBuilder<GradeLevelCubit, GradeLevelState>(
+                      builder: (context, gradeLevelState) {
+                        String displayText = 'Pilih Tingkatan';
+                        bool isEnabled = false;
+
+                        if (gradeLevelState is GradeLevelFetchInProgress) {
+                          displayText = 'Memuat tingkatan...';
+                        } else if (gradeLevelState is GradeLevelFetchSuccess) {
+                          if (gradeLevelState.gradeLevels.isNotEmpty) {
+                            displayText =
+                                _selectedGradeLevel?.name ?? 'Pilih Tingkatan';
+                            isEnabled = true;
+                          } else {
+                            displayText = 'Tidak ada tingkatan tersedia';
                           }
-                          if (lessonState is LessonsFetchFailure) {
-                            getLessons();
+                        } else if (gradeLevelState is GradeLevelFetchFailure) {
+                          displayText = 'Error memuat tingkatan';
+                        }
+
+                        return _buildAnimatedTextField(
+                          controller: TextEditingController(text: displayText),
+                          label: 'Tingkatan',
+                          icon: Icons.school_rounded,
+                          readOnly: true,
+                          onTap: isEnabled
+                              ? () {
+                                  if (gradeLevelState
+                                          is GradeLevelFetchSuccess &&
+                                      gradeLevelState.gradeLevels.isNotEmpty) {
+                                    Utils.showBottomSheet(
+                                      child: FilterSelectionBottomsheet<
+                                          GradeLevel>(
+                                        showFilterByLabel: false,
+                                        onSelection: (value) {
+                                          if (value != null) {
+                                            changeSelectedGradeLevel(value);
+                                            Get.back();
+                                          }
+                                        },
+                                        selectedValue: _selectedGradeLevel ??
+                                            gradeLevelState.gradeLevels.first,
+                                        titleKey: gradeLevelKey,
+                                        values: gradeLevelState.gradeLevels,
+                                      ),
+                                      context: context,
+                                    );
+                                  }
+                                }
+                              : null,
+                        );
+                      },
+                    ),
+                    SizedBox(height: 15),
+
+                    // Class Selection
+                    BlocBuilder<ClassSectionsAndSubjectsCubit,
+                        ClassSectionsAndSubjectsState>(
+                      builder: (context, state) {
+                        String displayText = 'Pilih Kelas';
+                        bool isEnabled = false;
+
+                        if (state is ClassSectionsAndSubjectsFetchInProgress) {
+                          displayText = 'Memuat kelas...';
+                        } else if (state
+                            is ClassSectionsAndSubjectsFetchSuccess) {
+                          // Filter classes based on selected grade level if any
+                          List<ClassSection> availableClasses =
+                              state.classSections;
+
+                          // If a grade level is selected, filter classes by grade level
+                          if (_selectedGradeLevel != null) {
+                            availableClasses = state.classSections
+                                .where((classSection) =>
+                                    classSection.gradeLevelId ==
+                                    _selectedGradeLevel!.id)
+                                .toList();
                           }
-                        },
-                      ))
-                    : Column(
-                        children: [
-                          CustomSelectionDropdownSelectionButton(
-                            isDisabled: widget.topic !=
-                                null, //if user is editing, they can't change class
-                            onTap: () {
-                              if (state
-                                  is ClassSectionsAndSubjectsFetchSuccess) {
-                                Utils.showBottomSheet(
+
+                          if (availableClasses.isNotEmpty) {
+                            displayText = _selectedClassSection?.fullName ??
+                                'Pilih Kelas';
+                            isEnabled = true;
+                          } else {
+                            displayText = _selectedGradeLevel != null
+                                ? 'Tidak ada kelas untuk tingkatan ini'
+                                : 'Tidak ada kelas tersedia';
+                          }
+                        } else if (state
+                            is ClassSectionsAndSubjectsFetchFailure) {
+                          displayText = 'Error memuat kelas';
+                        }
+
+                        return _buildAnimatedTextField(
+                          controller: TextEditingController(text: displayText),
+                          label: 'Bagian Kelas',
+                          icon: Icons.class_,
+                          readOnly: true,
+                          onTap: isEnabled
+                              ? () {
+                                  if (state
+                                      is ClassSectionsAndSubjectsFetchSuccess) {
+                                    // Filter classes based on selected grade level if any
+                                    List<ClassSection> availableClasses =
+                                        state.classSections;
+
+                                    // If a grade level is selected, filter classes by grade level
+                                    if (_selectedGradeLevel != null) {
+                                      availableClasses = state.classSections
+                                          .where((classSection) =>
+                                              classSection.gradeLevelId ==
+                                              _selectedGradeLevel!.id)
+                                          .toList();
+                                    }
+
+                                    if (availableClasses.isNotEmpty) {
+                                      Utils.showBottomSheet(
+                                          child: FilterSelectionBottomsheet<
+                                              ClassSection>(
+                                            showFilterByLabel: false,
+                                            onSelection: (value) {
+                                              changeSelectedClassSection(value);
+                                              Get.back();
+                                            },
+                                            selectedValue:
+                                                _selectedClassSection ??
+                                                    availableClasses.first,
+                                            titleKey: classKey,
+                                            values: availableClasses,
+                                          ),
+                                          context: context);
+                                    }
+                                  }
+                                }
+                              : null,
+                        );
+                      },
+                    ),
+                    SizedBox(height: 15),
+
+                    // Subject Selection
+                    BlocBuilder<ClassSectionsAndSubjectsCubit,
+                        ClassSectionsAndSubjectsState>(
+                      builder: (context, state) {
+                        String displayText = 'Pilih Mata Pelajaran';
+                        bool isEnabled = false;
+
+                        if (state is ClassSectionsAndSubjectsFetchInProgress) {
+                          displayText = 'Memuat mata pelajaran...';
+                        } else if (state
+                            is ClassSectionsAndSubjectsFetchSuccess) {
+                          if (state.subjects.isNotEmpty) {
+                            displayText = _selectedSubject?.subject
+                                    .getSybjectNameWithType() ??
+                                'Pilih Mata Pelajaran';
+                            isEnabled = true;
+                          } else {
+                            displayText = 'Tidak ada mata pelajaran tersedia';
+                          }
+                        } else if (state
+                            is ClassSectionsAndSubjectsFetchFailure) {
+                          displayText = 'Error memuat mata pelajaran';
+                        } else {
+                          displayText = 'Pilih kelas terlebih dahulu';
+                        }
+
+                        return _buildAnimatedTextField(
+                          controller: TextEditingController(text: displayText),
+                          label: 'Mata Pelajaran',
+                          icon: Icons.subject,
+                          readOnly: true,
+                          onTap: isEnabled
+                              ? () {
+                                  if (state
+                                          is ClassSectionsAndSubjectsFetchSuccess &&
+                                      state.subjects.isNotEmpty) {
+                                    Utils.showBottomSheet(
                                         child: FilterSelectionBottomsheet<
-                                            ClassSection>(
+                                            TeacherSubject>(
                                           showFilterByLabel: false,
+                                          selectedValue: _selectedSubject ??
+                                              state.subjects.first,
+                                          titleKey: subjectKey,
+                                          values: state.subjects,
                                           onSelection: (value) {
-                                            changeSelectedClassSection(value!);
+                                            changeSelectedTeacherSubject(
+                                                value!);
                                             Get.back();
                                           },
-                                          selectedValue: _selectedClassSection!,
-                                          titleKey: classKey,
-                                          values: state.classSections,
                                         ),
-                                        context: context)
-                                    .then((value) {
-                                  final selectedClassSection =
-                                      value as ClassSection;
-                                  if (selectedClassSection.id !=
-                                      _selectedClassSection?.id) {
-                                    changeSelectedClassSection(
-                                        selectedClassSection);
+                                        context: context);
                                   }
-                                });
-                              }
-                            },
-                            titleKey: _selectedClassSection?.id == null
-                                ? classKey
-                                : (_selectedClassSection?.fullName ?? ""),
-                            backgroundColor:
-                                Theme.of(context).scaffoldBackgroundColor,
-                          ),
-                          const SizedBox(
-                            height: 15,
-                          ),
-                          CustomSelectionDropdownSelectionButton(
-                            isDisabled: widget.topic !=
-                                null, //if user is editing, they can't change subject
-                            onTap: () {
-                              if (state
-                                  is ClassSectionsAndSubjectsFetchSuccess) {
-                                Utils.showBottomSheet(
-                                    child: FilterSelectionBottomsheet<
-                                        TeacherSubject>(
-                                      showFilterByLabel: false,
-                                      selectedValue: _selectedSubject!,
-                                      titleKey: subjectKey,
-                                      values: state.subjects,
-                                      onSelection: (value) {
-                                        changeSelectedTeacherSubject(value!);
-                                        Get.back();
-                                      },
-                                    ),
-                                    context: context);
-                              }
-                            },
-                            titleKey: _selectedSubject?.id == null
-                                ? subjectKey
-                                : _selectedSubject?.subject
-                                        .getSybjectNameWithType() ??
-                                    "",
-                            backgroundColor:
-                                Theme.of(context).scaffoldBackgroundColor,
-                          ),
-                          const SizedBox(
-                            height: 15,
-                          ),
-                          CustomSelectionDropdownSelectionButton(
-                            isDisabled: widget.topic !=
-                                null, //if user is editing, they can't change lesson
-                            onTap: () {
-                              if (lessonState is LessonsFetchSuccess) {
-                                Utils.showBottomSheet(
-                                    child: FilterSelectionBottomsheet<Lesson>(
-                                      showFilterByLabel: false,
-                                      selectedValue: _selectedLesson!,
-                                      titleKey: lessonKey,
-                                      values: lessonState.lessons,
-                                      onSelection: (value) {
-                                        if (_selectedLesson != value) {
-                                          _selectedLesson = value;
-                                          setState(() {});
-                                        }
-                                        Get.back();
-                                      },
-                                    ),
-                                    context: context);
-                              }
-                            },
-                            titleKey: _selectedLesson?.id == null
-                                ? lessonKey
-                                : _selectedLesson?.name ?? "",
-                            backgroundColor:
-                                Theme.of(context).scaffoldBackgroundColor,
-                          ),
-                          const SizedBox(
-                            height: 15,
-                          ),
-                          CustomTextFieldContainer(
-                              textEditingController:
-                                  _topicNameTextEditingController,
-                              backgroundColor:
-                                  Theme.of(context).scaffoldBackgroundColor,
-                              hintTextKey: topicNameKey),
-                          CustomTextFieldContainer(
-                              textEditingController:
-                                  _topicDescriptionTextEditingController,
-                              maxLines: 5,
-                              backgroundColor:
-                                  Theme.of(context).scaffoldBackgroundColor,
-                              hintTextKey: descriptionKey),
+                                }
+                              : null,
+                        );
+                      },
+                    ),
+                    SizedBox(height: 15),
+                    // Lesson Selection
+                    BlocConsumer<LessonsCubit, LessonsState>(
+                      listener: (context, lessonState) {
+                        print("=== Lesson State Changed ===");
+                        print("State: ${lessonState.runtimeType}");
+                        if (lessonState is LessonsFetchSuccess) {
+                          print(
+                              "Lessons fetched: ${lessonState.lessons.length}");
+                          lessonState.lessons.forEach((lesson) {
+                            print("Lesson: ${lesson.name} (ID: ${lesson.id})");
+                          });
+                          // Remove auto-selection to let user choose manually
+                          // Only auto-select if we're editing an existing topic with a predefined lesson
+                        } else if (lessonState is LessonsFetchFailure) {
+                          print(
+                              "ERROR fetching lessons: ${lessonState.errorMessage}");
+                        }
+                      },
+                      builder: (context, lessonState) {
+                        String displayText = 'Pilih Bab';
+                        bool isEnabled = false;
 
-                          //pre-added study materials
-                          widget.topic != null
-                              ? Column(
-                                  children: studyMaterials
-                                      .map(
-                                        (studyMaterial) => Padding(
-                                          padding:
-                                              const EdgeInsets.only(bottom: 15),
-                                          child: StudyMaterialContainer(
-                                            onDeleteStudyMaterial:
-                                                deleteStudyMaterial,
-                                            onEditStudyMaterial:
-                                                updateStudyMaterials,
-                                            showEditAndDeleteButton: true,
-                                            studyMaterial: studyMaterial,
-                                          ),
+                        if (lessonState is LessonsFetchInProgress) {
+                          displayText = 'Memuat bab...';
+                        } else if (lessonState is LessonsFetchSuccess) {
+                          if (lessonState.lessons.isNotEmpty) {
+                            displayText = _selectedLesson?.name ?? 'Pilih Bab';
+                            isEnabled = true;
+                          } else {
+                            displayText = 'Tidak ada bab tersedia';
+                          }
+                        } else if (lessonState is LessonsFetchFailure) {
+                          displayText = 'Error memuat bab';
+                        } else {
+                          displayText = 'Pilih mata pelajaran terlebih dahulu';
+                        }
+
+                        return _buildAnimatedTextField(
+                          controller: TextEditingController(text: displayText),
+                          label: 'Bab',
+                          icon: Icons.book_outlined,
+                          readOnly: true,
+                          onTap: isEnabled
+                              ? () {
+                                  if (lessonState is LessonsFetchSuccess &&
+                                      lessonState.lessons.isNotEmpty) {
+                                    Utils.showBottomSheet(
+                                        child:
+                                            FilterSelectionBottomsheet<Lesson>(
+                                          showFilterByLabel: false,
+                                          selectedValue: _selectedLesson ??
+                                              lessonState.lessons.first,
+                                          titleKey: lessonKey,
+                                          values: lessonState.lessons,
+                                          onSelection: (value) {
+                                            if (_selectedLesson != value) {
+                                              _selectedLesson = value;
+                                              print(
+                                                  "Selected lesson: ${value?.name} (ID: ${value?.id})");
+                                              setState(() {});
+                                            }
+                                            Get.back();
+                                          },
                                         ),
-                                      )
-                                      .toList(),
-                                )
-                              : const SizedBox(),
+                                        context: context);
+                                  }
+                                }
+                              : null,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
 
-                          //user study material picker
-                          UploadImageOrFileButton(
-                            uploadFile: true,
-                            customTitleKey: addStudyMaterialKey,
+              SizedBox(height: 20),
+
+              // Topic Details Section
+              Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.1),
+                      spreadRadius: 5,
+                      blurRadius: 10,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Detail Topik',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    _buildAnimatedTextField(
+                        controller: _topicNameTextEditingController,
+                        label: 'Nama Topik',
+                        icon: Icons.topic,
+                        maxLength: 128),
+                    SizedBox(height: 15),
+                    _buildAnimatedTextField(
+                      controller: _topicDescriptionTextEditingController,
+                      label: 'Deskripsi',
+                      icon: Icons.description,
+                      maxLength: 1024,
+                      expandable: true, // Aktifkan fitur ekspansi otomatis
+                      keyboardType: TextInputType.multiline,
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(
+                  height:
+                      20), // Study Materials Section - Clean & Minimalist Design
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Clean Header
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              Icons.folder_copy_outlined,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 20,
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Text(
+                            'Materi Pembelajaran',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey.shade800,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Minimalist Info Card
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 20),
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                size: 16,
+                                color: Colors.grey.shade600,
+                              ),
+                              SizedBox(width: 6),
+                              Text(
+                                'Format yang didukung',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 4,
+                            children: [
+                              _buildFormatChip('PDF'),
+                              _buildFormatChip('JPEG'),
+                              _buildFormatChip('PNG'),
+                              _buildFormatChip('CSV'),
+                              _buildFormatChip('MS Word'),
+                              _buildFormatChip('MP4'),
+                              _buildFormatChip('AVI'),
+                              _buildFormatChip('YouTube'),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Batasan ukuran file adalah 2 MB',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 20),
+
+                    // Content Area
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Existing study materials/attachments - Show when editing topic
+                          if (studyMaterials.isNotEmpty) ...[
+                            Text(
+                              'Materi Saat Ini (${studyMaterials.length})',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+
+                            // Display existing attachments in clean format
+                            ...studyMaterials.map(
+                              (studyMaterial) => Container(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: _getAttachmentTypeColor(
+                                            studyMaterial.studyMaterialType)
+                                        .withOpacity(0.2),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    // Clean attachment type indicator
+                                    Container(
+                                      width: double.infinity,
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: _getAttachmentTypeColor(
+                                                studyMaterial.studyMaterialType)
+                                            .withOpacity(0.08),
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(8),
+                                          topRight: Radius.circular(8),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            _getAttachmentIcon(studyMaterial
+                                                .studyMaterialType),
+                                            color: _getAttachmentTypeColor(
+                                                studyMaterial
+                                                    .studyMaterialType),
+                                            size: 14,
+                                          ),
+                                          SizedBox(width: 6),
+                                          Text(
+                                            _getAttachmentTypeLabel(
+                                                studyMaterial
+                                                    .studyMaterialType),
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w500,
+                                              color: _getAttachmentTypeColor(
+                                                  studyMaterial
+                                                      .studyMaterialType),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    // Study material content
+                                    StudyMaterialContainer(
+                                      onDeleteStudyMaterial:
+                                          deleteStudyMaterial,
+                                      onEditStudyMaterial: updateStudyMaterials,
+                                      showEditAndDeleteButton: true,
+                                      studyMaterial: studyMaterial,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            SizedBox(height: 16),
+                          ],
+
+                          // Added study materials (new ones being added)
+                          if (_addedStudyMaterials.isNotEmpty) ...[
+                            Text(
+                              'Materi Baru (${_addedStudyMaterials.length})',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            ..._addedStudyMaterials.asMap().entries.map(
+                                  (entry) => Container(
+                                    margin: const EdgeInsets.only(bottom: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.shade50,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Colors.blue.withOpacity(0.2),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: AddedStudyMaterialContainer(
+                                      backgroundColor: Colors.blue.shade50,
+                                      onDelete: (index) {
+                                        _addedStudyMaterials.removeAt(index);
+                                        setState(() {});
+                                      },
+                                      onEdit: (index, file) {
+                                        _addedStudyMaterials[index] = file;
+                                        setState(() {});
+                                      },
+                                      file: entry.value,
+                                      fileIndex: entry.key,
+                                    ),
+                                  ),
+                                ),
+                            SizedBox(height: 16),
+                          ],
+
+                          // Clean Add Button
+                          InkWell(
                             onTap: () {
                               FocusScope.of(context).unfocus();
                               Utils.showBottomSheet(
@@ -544,38 +1302,52 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen> {
                                 context: context,
                               );
                             },
-                          ),
-
-                          //user's added study materials
-                          ...List.generate(
-                                  _addedStudyMaterials.length, (index) => index)
-                              .map(
-                            (index) => Padding(
-                              padding: const EdgeInsets.only(top: 15),
-                              child: AddedStudyMaterialContainer(
-                                backgroundColor:
-                                    Theme.of(context).scaffoldBackgroundColor,
-                                onDelete: (index) {
-                                  _addedStudyMaterials.removeAt(index);
-                                  setState(() {});
-                                },
-                                onEdit: (index, file) {
-                                  _addedStudyMaterials[index] = file;
-                                  setState(() {});
-                                },
-                                file: _addedStudyMaterials[index],
-                                fileIndex: index,
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              height: 48,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primary
+                                      .withOpacity(0.3),
+                                  width: 1.5,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.add_circle_outline,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Tambah Materi',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
                         ],
-                      );
-              },
-            );
-          },
-        ),
-      ),
-    );
+                      ),
+                    ),
+
+                    SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ],
+          );
   }
 
   @override
@@ -589,21 +1361,65 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen> {
         Get.back(result: refreshTopicsInPreviousPage);
       },
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: Stack(
-          children: [
-            _buildAddEditTopicForm(),
-            _buildSubmitButton(),
-            Align(
-              alignment: Alignment.topCenter,
-              child: CustomAppbar(
-                titleKey: widget.topic != null ? editTopicKey : createTopicKey,
-                onBackButtonTap: () {
-                  Get.back(result: refreshTopicsInPreviousPage);
-                },
+        extendBodyBehindAppBar: true, // Allow content behind status bar
+        appBar: CustomModernAppBar(
+          title: widget.topic != null ? "Edit Topik" : "Tambah Topik",
+          icon: Icons.topic_rounded,
+          fabAnimationController: _fabAnimationController,
+          onBackPressed: () {
+            Get.back(result: refreshTopicsInPreviousPage);
+          },
+          primaryColor: _primaryColor,
+          lightColor: _accentColor,
+          height: 80,
+        ),
+        body: Container(
+          color: Colors.grey[50], // White background for the entire screen
+          child: Column(
+            children: [
+              SizedBox(
+                  height: 80 +
+                      MediaQuery.of(context).padding.top), // Space for app bar
+
+              // Main content section
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(20),
+                  physics: BouncingScrollPhysics(),
+                  child: Column(
+                    children: [
+                      // Form Content
+                      BlocConsumer<ClassSectionsAndSubjectsCubit,
+                          ClassSectionsAndSubjectsState>(
+                        listener: (context, state) {
+                          // Remove auto-selection to let user choose manually
+                          // Only auto-select if we're editing an existing topic and have predefined selections
+                          if (state is ClassSectionsAndSubjectsFetchSuccess) {
+                            // Only auto-select subjects if we already have a selected class section
+                            // and we're editing an existing topic (not creating new)
+                            if (_selectedClassSection != null &&
+                                _selectedSubject == null &&
+                                widget.topic != null) {
+                              changeSelectedTeacherSubject(
+                                  state.subjects.firstOrNull);
+                            }
+                          }
+                        },
+                        builder: (context, state) {
+                          return _buildFormContent(state);
+                        },
+                      ),
+
+                      SizedBox(height: 30),
+
+                      // Submit Button
+                      _buildSubmitButton(),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

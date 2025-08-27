@@ -1,3 +1,5 @@
+import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/createAssignmentCubit.dart';
+import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
 import 'package:eschool_saas_staff/data/repositories/assignmentRepository.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -28,33 +30,45 @@ class EditAssignmentCubit extends Cubit<EditAssignmentState> {
     required int classSubjectId,
     required String name,
     required String dateTime,
-    required String instruction,
+    required String description,
     required String points,
+    required String minPoints,
     required int resubmission,
     required String extraDayForResubmission,
     required List<PlatformFile> filePaths,
+    required String startDate,
+    required String endDate,
+    required int maxFile,
+    required String text,
+    required List<StudyMaterial> studyMaterials,
+    required List<String> acceptedFile,
   }) async {
-    emit(EditAssignmentInProgress());
+    print("Edit Assignment nih le");
+    print("acceptedFile: ${acceptedFile}");
+    print("maxFile: ${maxFile}");
     try {
       await _assignmentRepository.editAssignment(
-        assignmentId: assignmentId,
-        classSelectionId: classSelectionId,
-        dateTime: dateTime,
-        name: name,
-        classSubjectId: classSubjectId,
-        extraDayForResubmission: int.parse(
-          extraDayForResubmission.isEmpty ? "0" : extraDayForResubmission,
-        ),
-        instruction: instruction,
-        points: int.parse(points.isEmpty ? "0" : points),
-        resubmission: resubmission,
-        filePaths: filePaths,
-      );
+          assignmentId: assignmentId,
+          classSelectionId: classSelectionId,
+          dateTime: dateTime,
+          name: name,
+          classSubjectId: classSubjectId,
+          extraDayForResubmission: int.parse(
+            extraDayForResubmission.isEmpty ? "0" : extraDayForResubmission,
+          ),
+          description: description,
+          points: int.parse(points.isEmpty ? "0" : points),
+          minPoints: int.parse(minPoints.isEmpty ? "0" : minPoints),
+          resubmission: resubmission,
+          filePaths: filePaths,
+          startDate: startDate,
+          endDate: endDate,
+          acceptedFile: acceptedFile,
+          studyMaterials: studyMaterials,
+          maxFile: maxFile,
+          text: text);
       emit(EditAssignmentSuccess());
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
       emit(EditAssignmentFailure(e.toString()));
     }
   }

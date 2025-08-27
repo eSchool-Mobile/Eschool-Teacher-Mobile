@@ -1,5 +1,7 @@
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/leave.dart';
+import 'package:eschool_saas_staff/data/models/file.dart';
+import 'package:eschool_saas_staff/data/models/leaveRequest.dart';
 
 class PermissionDetails {
   final int? id;
@@ -114,6 +116,64 @@ class PermissionDetails {
                 ?.map((leave) => Leave.fromJson(leave as Map<String, dynamic>))
                 .toList() ??
             [];
+
+  // Alternative constructor for direct API data structure
+  PermissionDetails.fromApiData(Map<String, dynamic> json)
+      : id = json['student_id'] as int?,
+        userId = json['user_id'] as int?,
+        classSectionId = json['class_section_id'] as int?,
+        admissionNo = null,
+        rollNumber = null,
+        admissionDate = null,
+        schoolId = json['school_id'] as int?,
+        guardianId = null,
+        sessionYearId = null,
+        createdAt = null,
+        updatedAt = null,
+        deletedAt = null,
+        firstName = json['student_name'] as String?,
+        lastName = null,
+        fullName = json['student_name'] as String?,
+        user = User(
+          id: json['user_id'] as int?,
+          firstName: json['student_name'] as String?,
+          lastName: null,
+          fullName: json['student_name'] as String?,
+          image: json['image'] as String?,
+          mobile: null,
+          email: null,
+          gender: null,
+          dob: null,
+          currentAddress: null,
+          permanentAddress: null,
+          occupation: null,
+          createdAt: null,
+          updatedAt: null,
+        ),
+        leaves = [
+          Leave(
+            id: json['leave_id'] as int?,
+            userId: json['user_id'] as int?,
+            reason: json['reason'] as String?,
+            fromDate: json['from_date'] as String?,
+            toDate: json['to_date'] as String?,
+            status: json['status'] as int?,
+            schoolId: json['school_id'] as int?,
+            leaveMasterId: null,
+            createdAt: null,
+            updatedAt: null,
+            file: (json['files'] as List<dynamic>?)?.isNotEmpty == true
+                ? (json['files'][0] as List<dynamic>?)
+                    ?.map((fileData) =>
+                        File.fromJson(fileData as Map<String, dynamic>))
+                    .toList()
+                : null,
+            leaveDetail: (json['leave_details'] as List<dynamic>?)
+                ?.map((detail) =>
+                    LeaveDetail.fromJson(detail as Map<String, dynamic>))
+                .toList(),
+          )
+        ];
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -263,16 +323,6 @@ class User {
         fullName = json['full_name'] as String?,
         schoolNames = json['school_names'] as String?,
         role = json['role'] as String?;
-
-  static String? _translateRole(String? role) {
-    if (role == null) return null;
-    // Map terjemahan dari Inggris ke Indonesia
-    const roleTranslations = {
-      'Teacher': 'Guru',
-      'Student': 'Siswa',
-    };
-    return roleTranslations[role] ?? role;
-  }
 
   Map<String, dynamic> toJson() => {
         'id': id,

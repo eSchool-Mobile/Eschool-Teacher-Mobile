@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'dart:convert';
+
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCubit.dart';
@@ -16,6 +18,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+
+// 1. Tambahkan enum untuk status waktu
+enum TimeSlotStatus {
+  before,
+  during,
+  after
+}
 
 class TeacherTodaysTimetableContainer extends StatefulWidget {
   const TeacherTodaysTimetableContainer({super.key});
@@ -40,8 +49,7 @@ class _TeacherTodaysTimetableContainerState
   @override
   void initState() {
     _controller = AnimationController(
-      duration:
-          Duration(milliseconds: appearDisappearAnimationDurationMilliseconds),
+      duration: Duration(milliseconds: appearDisappearAnimationDurationMilliseconds),
       vsync: this,
     );
     _iconAngleAnimation = Tween<double>(begin: 0, end: 180)
@@ -50,6 +58,15 @@ class _TeacherTodaysTimetableContainerState
       parent: _controller,
       curve: Curves.fastLinearToSlowEaseIn,
     );
+    
+    // Initialize with today's data
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        // The cubit is now provided by the parent
+        context.read<TeacherMyTimetableCubit>().getTeacherMyTimetable();
+      }
+    });
+    
     super.initState();
   }
 
@@ -148,6 +165,26 @@ class _TeacherTodaysTimetableContainerState
     return now.isBefore(todayStart);
   }
 
+  // 2. Tambahkan fungsi untuk mendapatkan status waktu
+  TimeSlotStatus getTimeSlotStatus(String startTime, String endTime) {
+    DateTime now = DateTime.now();
+    DateTime start = DateFormat('HH:mm:ss').parse(startTime);
+    DateTime end = DateFormat('HH:mm:ss').parse(endTime);
+
+    DateTime todayStart = DateTime(
+        now.year, now.month, now.day, start.hour, start.minute, start.second);
+    DateTime todayEnd = DateTime(
+        now.year, now.month, now.day, end.hour, end.minute, end.second);
+
+    if (now.isBefore(todayStart)) {
+      return TimeSlotStatus.before;
+    } else if (now.isAfter(todayEnd)) {
+      return TimeSlotStatus.after;
+    } else {
+      return TimeSlotStatus.during;
+    }
+  }
+
   Widget _viewMoreViewLessContainer(
       {required bool isExpanded, required Function() onTap}) {
     return InkWell(
@@ -164,7 +201,7 @@ class _TeacherTodaysTimetableContainerState
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.w600,
-                  fontSize: 10.0,
+                  fontSize: 12.5,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -196,23 +233,75 @@ class _TeacherTodaysTimetableContainerState
     return BlocBuilder<TeacherMyTimetableCubit, TeacherMyTimetableState>(
       builder: (context, state) {
         if (state is TeacherMyTimetableFetchSuccess) {
+
+
+          // Always filter for today's date
+          final today = DateTime.now();
+          final todayDayName = weekDays[today.weekday - 1].toLowerCase();
+          
+          // Filter for today's slots and sort by start time
           final slots = state.timeTableSlots.where((element) {
-            bool isSameDay =
-                element.day == weekDays[DateTime.now().weekday - 1];
+            return element.day?.toLowerCase() == todayDayName;
+          }).toList()
+          ..sort((a, b) {
+            // Sort by start time
+            final timeA = a.startTime ?? '';
+            final timeB = b.startTime ?? '';
+            return timeA.compareTo(timeB);
+          });
 
-            if (element.endTime != null) {
-              DateTime endTime = DateFormat('HH:mm:ss').parse(element.endTime!);
-              DateTime currentDateTime = DateFormat('HH:mm:ss').parse(Datenow);
-
-              if (currentDateTime.isAfter(endTime)) {
-                return false;
-              }
-            }
-            return isSameDay;
-          }).toList();
 
           if (slots.isEmpty) {
-            return const SizedBox();
+            return Container(
+              margin: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
+              padding: const EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(12.0),
+                border: Border.all(
+                  color: Colors.grey[200]!,
+                  width: 1.0,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.calendar_today_outlined,
+                    size: 48.0,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 12.0),
+                  Text(
+                    'Tidak Ada Jadwal Hari Ini',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[800],
+                      letterSpacing: 0.2,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8.0),
+                  Text(
+                    'Anda tidak memiliki jadwal mengajar untuk hari ini',
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.grey[600],
+                      height: 1.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            );
           }
 
           return Padding(
@@ -240,47 +329,45 @@ class _TeacherTodaysTimetableContainerState
 
                       // Update GestureDetector onTap
                       return GestureDetector(
-                        onTap: isWithinSlot
-                            ? () {
-                                if (timeTableSlot.classSectionId != null) {
-                                  final classState =
-                                      context.read<ClassesCubit>().state;
-                                  if (classState is ClassesFetchSuccess) {
-                                    // Find class section from either primary or other classes
-                                    final classSection = [
-                                      ...classState.primaryClasses,
-                                      ...classState.classes
-                                    ].firstWhere(
-                                      (element) =>
-                                          element.id ==
-                                          timeTableSlot.classSectionId,
-                                      orElse: () => ClassSection(
-                                          id: 0, name: "-", classId: 0),
-                                    );
+                        onTap: () {
+                          if (timeTableSlot.classSectionId != null) {
+                            final classState =
+                                context.read<ClassesCubit>().state;
+                            if (classState is ClassesFetchSuccess) {
+                              final classSection = [
+                                ...classState.primaryClasses,
+                                ...classState.classes
+                              ].firstWhere(
+                                (element) =>
+                                    element.id == timeTableSlot.classSectionId,
+                                orElse: () =>
+                                    ClassSection(id: 0, name: "-", classId: 0),
+                              );
 
-                                    print(
-                                        "Found class section: ${classSection.name} (${classSection.id})");
-                                    print("TimeTableSlot: ${timeTableSlot.id}");
+                              TimeSlotStatus status = getTimeSlotStatus(
+                                timeTableSlot.startTime ?? "",
+                                timeTableSlot.endTime ?? "",
+                              );
 
-                                    Get.toNamed(
-                                      Routes.teacherAddAttendanceSubjectScreen,
-                                      arguments:
-                                          TeacherAddAttendanceSubjectScreen
-                                              .buildArguments(
-                                        classSection: classSection,
-                                        timeTableSlot: timeTableSlot,
-                                      ),
-                                    );
-                                  }
-                                }
-                              }
-                            : () {
-                                if (isBeforeSlot) {
-                                  Utils.showSnackBar(
-                                      message: "Belum masuk jam mengajar",
-                                      context: context);
-                                }
-                              },
+                            
+
+                              // Navigasi ke mode view-only untuk status before dan after
+                              Get.toNamed(
+                                Routes.teacherAddAttendanceSubjectScreen,
+                                arguments: TeacherAddAttendanceSubjectScreen.buildArguments(
+                                  classSection: classSection,
+                                  timeTableSlot: timeTableSlot,
+                               
+                                ),
+                              );
+                            }
+                          } else {
+                            Utils.showSnackBar(
+                              message: "Tidak ada ID bagian kelas",
+                              context: context,
+                            );
+                          }
+                        },
                         child: TimetableSlotContainer(
                           note: timeTableSlot.note ?? "",
                           endTime: timeTableSlot.endTime ?? "",
@@ -319,33 +406,80 @@ class _TeacherTodaysTimetableContainerState
                                   timeTableSlot.startTime ?? "");
 
                               return GestureDetector(
-                                onTap: isWithinSlot
-                                    ? () {
-                                        Get.toNamed(Routes
-                                            .teacherAddAttendanceSubjectScreen);
-                                      }
-                                    : () {
-                                        if (isBeforeSlot) {
+                                onTap: () {
+                                  if (timeTableSlot.classSectionId != null) {
+                                    final classState =
+                                        context.read<ClassesCubit>().state;
+                                    if (classState is ClassesFetchSuccess) {
+                                      final classSection = [
+                                        ...classState.primaryClasses,
+                                        ...classState.classes
+                                      ].firstWhere(
+                                        (element) =>
+                                            element.id ==
+                                            timeTableSlot.classSectionId,
+                                        orElse: () => ClassSection(
+                                            id: 0, name: "-", classId: 0),
+                                      );
+
+                                      TimeSlotStatus status = getTimeSlotStatus(
+                                        timeTableSlot.startTime ?? "",
+                                        timeTableSlot.endTime ?? "",
+                                      );
+
+                                      switch (status) {
+                                        case TimeSlotStatus.before:
                                           Utils.showSnackBar(
-                                              message:
-                                                  "Belum masuk jam mengajar",
-                                              context: context);
-                                        }
-                                      },
+                                            message: "Anda belum memasuki jam pelajaran.",
+                                            context: context,
+                                          );
+                                          break;
+                                        case TimeSlotStatus.after:
+                                        
+                                          break;
+                                        case TimeSlotStatus.during:
+                                          // Lanjutkan ke halaman pengisian
+                                          Get.toNamed(
+                                            Routes.teacherAddAttendanceSubjectScreen,
+                                            arguments: TeacherAddAttendanceSubjectScreen.buildArguments(
+                                              classSection: classSection,
+                                              timeTableSlot: timeTableSlot,
+                                          
+                                            ),
+                                          );
+                                          return;
+                                      }
+
+                                      // Navigasi ke mode view-only untuk status before dan after
+                                      Get.toNamed(
+                                        Routes.teacherAddAttendanceSubjectScreen,
+                                        arguments: TeacherAddAttendanceSubjectScreen.buildArguments(
+                                          classSection: classSection,
+                                          timeTableSlot: timeTableSlot,
+                                 
+                                        ),
+                                      );
+                                    }
+                                  } else {
+                                    Utils.showSnackBar(
+                                      message: "Tidak ada ID bagian kelas",
+                                      context: context,
+                                    );
+                                  }
+                                },
                                 child: TimetableSlotContainer(
                                   note: timeTableSlot.note ?? "",
                                   endTime: timeTableSlot.endTime ?? "",
-                                  isForClass: false,
-                                  classSectionName:
-                                      timeTableSlot.classSection?.fullName ??
-                                          "-",
                                   startTime: timeTableSlot.startTime ?? "",
                                   subjectName:
                                       timeTableSlot.subject?.name ?? "-",
-                                  backgroundColor: isBeforeSlot
+                                  isForClass: false,
+                                  classSectionName: getClassSectionName(
+                                      timeTableSlot.classSectionId),
+                                  backgroundColor: isWithinSlot
                                       ? Theme.of(context)
                                           .scaffoldBackgroundColor
-                                      : Colors.grey[300]!,
+                                      : Colors.grey[300],
                                 ),
                               );
                             },

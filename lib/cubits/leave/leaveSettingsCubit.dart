@@ -3,6 +3,7 @@ import 'package:eschool_saas_staff/data/models/sessionYear.dart';
 import 'package:eschool_saas_staff/data/repositories/academicRepository.dart';
 import 'package:eschool_saas_staff/data/repositories/leaveRepository.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class LeaveSettingsAndSessionYearsState {}
@@ -29,11 +30,13 @@ class LeaveSettingsAndSessionYearsFetchFailure
   LeaveSettingsAndSessionYearsFetchFailure(this.errorMessage);
 }
 
-class LeaveSettingsAndSessionYearsCubit extends Cubit<LeaveSettingsAndSessionYearsState> {
+class LeaveSettingsAndSessionYearsCubit
+    extends Cubit<LeaveSettingsAndSessionYearsState> {
   final LeaveRepository _leaveRepository = LeaveRepository();
   final AcademicRepository _settingsRepository = AcademicRepository();
 
-  LeaveSettingsAndSessionYearsCubit() : super(LeaveSettingsAndSessionYearsInitial());
+  LeaveSettingsAndSessionYearsCubit()
+      : super(LeaveSettingsAndSessionYearsInitial());
 
   void getLeaveSettingsAndSessionYears() async {
     emit(LeaveSettingsAndSessionYearsFetchInProgress());
@@ -42,7 +45,13 @@ class LeaveSettingsAndSessionYearsCubit extends Cubit<LeaveSettingsAndSessionYea
           sessionYears: await _settingsRepository.getSessionYears(),
           leaveSettings: await _leaveRepository.getLeaveSettings()));
     } catch (e) {
-      emit(LeaveSettingsAndSessionYearsFetchFailure(e.toString()));
+      // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(LeaveSettingsAndSessionYearsFetchFailure(userFriendlyMessage));
+
+      // Log technical error untuk debugging (hanya untuk development)
+      print(
+          'Technical error in getLeaveSettingsAndSessionYears: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 

@@ -1,6 +1,7 @@
 import 'package:eschool_saas_staff/data/models/attendanceStudent.dart';
 import 'package:eschool_saas_staff/data/models/holiday.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
+import 'package:eschool_saas_staff/utils/logger.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 
@@ -14,11 +15,18 @@ class SubjectAttendanceRepository {
         String? lampiran,
       })> getAttendance({
     required int classSectionId,
-    required int? type,
     required String date,
     required int timetableId,
+    required int gradeLevelId,
   }) async {
+    const scope = 'SubjectAttendanceRepository.getAttendance';
     try {
+      AppLogger.info(scope, 'Request start', data: {
+        'class_section_id': classSectionId,
+        'date': date,
+        'timetable_id': timetableId,
+        'grade_level_id': gradeLevelId,
+      });
       final result = await Api.get(
         url: Api.getSubjectAttendance,
         useAuthToken: true,
@@ -26,12 +34,9 @@ class SubjectAttendanceRepository {
           "class_section_id": classSectionId,
           "date": date,
           "timetable_id": timetableId,
-          if (type != null) "type": type
+          "grade_level_id": gradeLevelId,
         },
       );
-
-      // Tambahkan logging untuk mencetak respons dari server
-      print("API Response: $result");
 
       if (result['data'] == null) {
         throw ApiException('Data is null');
@@ -53,9 +58,13 @@ class SubjectAttendanceRepository {
           ? (result['data'][0]['materi'] as String?)
           : null;
 
-      print("Lampiran di repository: $lampiran");
-      print("Materi di repository: $materi");
-
+      AppLogger.debug(scope, 'Parsed response', data: {
+        'attendance_count': attendanceData.length,
+        'is_holiday': result['is_holiday'],
+        'has_holiday_details': result['holiday'] != null,
+        'lampiran': lampiran,
+        'materi': materi,
+      });
       return (
         attendance: attendanceData,
         isHoliday: result['is_holiday'] as bool,
@@ -67,8 +76,16 @@ class SubjectAttendanceRepository {
         materi: materi,
         lampiran: lampiran,
       );
-    } catch (e) {
-      print("Error in getAttendance: $e");
+    } catch (e, st) {
+      AppLogger.error(scope, 'Failed fetching subject attendance',
+          data: {
+            'class_section_id': classSectionId,
+            'date': date,
+            'timetable_id': timetableId,
+            'grade_level_id': gradeLevelId,
+          },
+          error: e,
+          stack: st);
       throw ApiException(e.toString());
     }
   }
@@ -80,8 +97,10 @@ class SubjectAttendanceRepository {
     required int jumlahJp,
     required String materi,
     required String lampiran,
+    required int gradeLevelId,
     required List<Map<String, dynamic>> attendance,
   }) async {
+    const scope = 'SubjectAttendanceRepository.submitSubjectAttendance';
     try {
       var request = http.MultipartRequest(
         'POST',
@@ -96,6 +115,7 @@ class SubjectAttendanceRepository {
       request.fields['date'] = date;
       request.fields['jumlah_jp'] = jumlahJp.toString();
       request.fields['materi'] = materi;
+      request.fields['grade_level_id'] = gradeLevelId.toString();
 
       // Convert attendance list to form data format
       for (int i = 0; i < attendance.length; i++) {
@@ -105,9 +125,7 @@ class SubjectAttendanceRepository {
             attendance[i]['type'].toString();
       }
 
-      print('Request Fields: ${request.fields}');
       if (lampiran.isNotEmpty) {
-        print('Request Files: ${request.files}');
         request.files.add(await http.MultipartFile.fromPath(
           'lampiran',
           lampiran,
@@ -115,18 +133,46 @@ class SubjectAttendanceRepository {
         ));
       }
 
-      var response = await request.send();
+      AppLogger.info(scope, 'Submitting multipart attendance', data: {
+        'class_section_id': classSectionId,
+        'timetable_id': timetableId,
+        'date': date,
+        'jumlah_jp': jumlahJp,
+        'grade_level_id': gradeLevelId,
+        'attendance_items': attendance.length,
+        'has_lampiran': lampiran.isNotEmpty,
+      });
 
-      // Tambahkan logging untuk mencetak respons dari server
+      final stopwatch = Stopwatch()..start();
+      var response = await request.send();
       var responseData = await http.Response.fromStream(response);
-      print("Response status: ${response.statusCode}");
-      print("Response body: ${responseData.body}");
+      stopwatch.stop();
+
+      AppLogger.info(scope, 'Response received', data: {
+        'status_code': response.statusCode,
+        'duration_ms': stopwatch.elapsedMilliseconds,
+        'body_preview': responseData.body.length > 500
+            ? responseData.body.substring(0, 500) + '...<truncated>'
+            : responseData.body,
+      });
 
       if (response.statusCode != 200) {
-        throw ApiException('Failed to submit attendance');
+        throw ApiException(
+            'Failed to submit attendance (${response.statusCode})');
       }
-    } catch (e) {
-      print("error : $e");
+    } catch (e, st) {
+      AppLogger.error(scope, 'Submit failed',
+          data: {
+            'class_section_id': classSectionId,
+            'timetable_id': timetableId,
+            'date': date,
+            'jumlah_jp': jumlahJp,
+            'grade_level_id': gradeLevelId,
+            'attendance_items': attendance.length,
+            'has_lampiran': lampiran.isNotEmpty,
+          },
+          error: e,
+          stack: st);
       throw ApiException(e.toString());
     }
   }

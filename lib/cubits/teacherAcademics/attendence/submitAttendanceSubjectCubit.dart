@@ -1,5 +1,6 @@
 import 'package:eschool_saas_staff/data/repositories/subjectAttendanceRepository.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class SubmitAttendanceSubjectState {}
@@ -29,6 +30,7 @@ class SubmitAttendanceSubjectCubit extends Cubit<SubmitAttendanceSubjectState> {
     required int jumlahJp,
     required String materi,
     required String lampiran,
+    required int gradeLevelId,
     required List<({StudentAttendanceStatus status, int studentId})>
         attendanceReport,
   }) async {
@@ -41,19 +43,30 @@ class SubmitAttendanceSubjectCubit extends Cubit<SubmitAttendanceSubjectState> {
         jumlahJp: jumlahJp,
         materi: materi,
         lampiran: lampiran,
-        attendance: attendanceReport
-            .map(
-              (attendanceReport) => {
-                "student_id": attendanceReport.studentId,
-                "type": _mapAttendanceStatusToType(attendanceReport.status),
-              },
-            )
-            .toList(),
+        gradeLevelId: gradeLevelId,
+        attendance: attendanceReport.map(
+          (attendanceReport) {
+            print('Mapping attendance report:');
+            print('Student ID: ${attendanceReport.studentId}');
+            print('Original Status: ${attendanceReport.status}');
+            final mappedType =
+                _mapAttendanceStatusToType(attendanceReport.status);
+            print('Mapped Type: $mappedType');
+
+            return {
+              "student_id": attendanceReport.studentId,
+              "type": mappedType,
+            };
+          },
+        ).toList(),
       );
       emit(SubmitAttendanceSubjectSuccess());
     } catch (e) {
       print("Error during attendance submission: $e");
-      emit(SubmitAttendanceSubjectFailure(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(SubmitAttendanceSubjectFailure(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 

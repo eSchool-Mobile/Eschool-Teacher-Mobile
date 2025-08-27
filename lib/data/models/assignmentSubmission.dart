@@ -17,6 +17,7 @@ class AssignmentSubmission {
     required this.assignment,
     required this.student,
     required this.file,
+    required this.content,
   });
   late final int id;
   late final int assignmentId;
@@ -30,6 +31,7 @@ class AssignmentSubmission {
   late final ReviewAssignment assignment;
   late final ReviewAssignmentStudent student;
   late final List<StudyMaterial> file;
+  late final String content;
 
   AssignmentSubmissionStatus get submissionStatus =>
       Utils.getAssignmentSubmissionStatusFromTypeId(typeId: status);
@@ -49,6 +51,7 @@ class AssignmentSubmission {
     file = List.from(json['file'] ?? [])
         .map((e) => StudyMaterial.fromJson(e))
         .toList();
+    content = json['content'] ?? "";
   }
 
   AssignmentSubmission copyWith({
@@ -58,19 +61,19 @@ class AssignmentSubmission {
     int? id,
   }) {
     return AssignmentSubmission(
-      id: id ?? this.id,
-      assignmentId: assignmentId,
-      studentId: studentId,
-      sessionYearId: sessionYearId,
-      feedback: feedback ?? this.feedback,
-      points: points ?? this.points,
-      status: status ?? this.status,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
-      assignment: assignment,
-      student: student,
-      file: file,
-    );
+        id: id ?? this.id,
+        assignmentId: assignmentId,
+        studentId: studentId,
+        sessionYearId: sessionYearId,
+        feedback: feedback ?? this.feedback,
+        points: points ?? this.points,
+        status: status ?? this.status,
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+        assignment: assignment,
+        student: student,
+        file: file,
+        content: content);
   }
 }
 
@@ -80,7 +83,7 @@ class ReviewAssignment {
     required this.classSectionId,
     required this.classSubjectId,
     required this.name,
-    required this.instructions,
+    required this.description,
     required this.dueDate,
     required this.points,
     required this.resubmission,
@@ -93,7 +96,7 @@ class ReviewAssignment {
   late final int classSectionId;
   late final int classSubjectId;
   late final String name;
-  late final String instructions;
+  late final String description;
   late final String dueDate;
   late final int points;
   late final int resubmission;
@@ -107,18 +110,16 @@ class ReviewAssignment {
     classSectionId = json['class_section_id'] ?? 0;
     classSubjectId = json['class_subject_id'] ?? 0;
     name = json['name'] ?? "";
-    instructions = json['instructions'] ?? "";
+    description = json['description'] ?? "";
     dueDate = json['due_date'] ?? "";
     points = json['points'] ?? 0;
     resubmission = json['resubmission'] ?? 0;
     extraDaysForResubmission = json['extra_days_for_resubmission'] ?? 0;
     sessionYearId = json['session_year_id'] ?? 0;
     createdAt = json['created_at'] ?? "";
-    subject = Subject.fromJson(
-        json['class_subject']?['subject'] ?? {});
+    subject = Subject.fromJson(json['class_subject']?['subject'] ?? {});
   }
 }
-
 
 class ReviewAssignmentStudent {
   ReviewAssignmentStudent({

@@ -1,6 +1,7 @@
 import 'package:eschool_saas_staff/data/models/studentDetails.dart';
 import 'package:eschool_saas_staff/data/repositories/studentRepository.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class StudentsByClassSectionState {}
@@ -64,19 +65,26 @@ class StudentsByClassSectionCubit extends Cubit<StudentsByClassSectionState> {
   }) async {
     emit(StudentsByClassSectionFetchInProgress());
     try {
+      final studentDetailsList =
+          await _studentRepository.getStudentsByClassSectionAndSubject(
+        classSectionId: classSectionId,
+        status: status,
+        classSubjectId: classSubjectId,
+        examId: examId,
+      );
+
+      print(
+          'Fetched Students: ${studentDetailsList.map((student) => student.toJson()).toList()}');
       emit(
         StudentsByClassSectionFetchSuccess(
-          studentDetailsList:
-              await _studentRepository.getStudentsByClassSectionAndSubject(
-            classSectionId: classSectionId,
-            status: status,
-            classSubjectId: classSubjectId,
-            examId: examId,
-          ),
+          studentDetailsList: studentDetailsList,
         ),
       );
     } catch (e) {
-      emit(StudentsByClassSectionFetchFailure(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(StudentsByClassSectionFetchFailure(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 
@@ -112,12 +120,16 @@ class StudentsByClassSectionCubit extends Cubit<StudentsByClassSectionState> {
         },
       ).catchError(
         (e) {
+          final userFriendlyMessage =
+              ErrorMessageUtils.getReadableErrorMessage(e);
           emit(
             (state as StudentsByClassSectionFetchSuccess).copyWith(
               searchStatus: StudentByClassSectionSearchStatus.failure,
-              searchErrorMessage: e.toString(),
+              searchErrorMessage: userFriendlyMessage,
             ),
           );
+          print(
+              'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
         },
       );
     }

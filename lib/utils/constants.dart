@@ -4,13 +4,17 @@ import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:flutter/material.dart';
 
 ///[Do not add / at the end of the url]
-const String baseUrl = "https://eschbeta.techflow.my.id";
+ const String baseUrl = "https://esbeta.deanry.my.id";
+// const String baseUrl = "https://es2.techflow.my.id";
+// const String baseUrl = "https://eschbeta.techflow.my.id";
+// const String baseUrl = "https://eschbeta.quantech.web.id";
 // const String baseUrl = "https://eschoolbeta.lucia.id";
-// const String baseUrl = "https://eschool.lucia.id";
+// // const String baseUrl = "https://eschool.lucia.id";
 // const String baseUrl = "https://eschool.ac.id";
 // const String baseUrl = "https://wrteam.net";
 
 const String databaseUrl = "$baseUrl/api/";
+const String storageUrl = "$baseUrl/storage/";
 
 // Socket url
 const socketUrl = "ws://193.203.162.252:8090";
@@ -31,11 +35,34 @@ int nextSearchRequestQueryTimeInMilliSeconds = 700;
 int searchRequestPerodicMilliSeconds = 100;
 double topPaddingOfErrorAndLoadingContainer = 150;
 
-String defaultSchoolCode = "SCH20248";
-String defaultEmail = "erinta@smkn9malang.sch.id";
-// String defaultPassword = "081234234234";
-String defaultPassword = "28052024";
+// String defaultSchoolCode = "";
+// String defaultEmail = "agungcahyono533@gmail.com";
+// String defaultPassword = "081230093978";
 
+String defaultSchoolCode = "";
+String defaultEmail = "agungcahyono533@gmail.com";
+String defaultPassword = "smkn8*()";
+
+// String defaultSchoolCode = "";
+// String defaultEmail = "adminsmk8malang@gmail.com";
+// String defaultPassword = "smkn8*()";
+
+// String defaultSchoolCode = ""; 
+// String defaultEmail = "adminblimbingsdn100@sekolahku.id";
+// String defaultPassword = "087890123456";
+
+// String defaultSchoolCode = "SCH20248";
+// String defaultEmail = "adminsmk9malang@gmail.com";
+// String defaultPassword = "0341479148";
+
+// // String defaultSchoolCode = "SCH20247";
+// String defaultEmail = "sadenylet@mailinator.com";
+// String defaultPassword = "08123456789";
+
+// String defaultSchoolCode = "";
+// String defaultEmail = "";
+// String defaultPassword = "";
+ 
 List<String> months = [
   januaryKey,
   februaryKey,
@@ -129,22 +156,25 @@ enum StudentListStatus { all, active, inactive }
 enum StudentAttendanceStatus { absent, present, sick, permission, alpa }
 
 StudentAttendanceStatus getStudentAttendanceStatusFromValue(int status) {
+  print('Getting attendance status for value: $status');
+
+  StudentAttendanceStatus result;
   if (status == 0) {
-    return StudentAttendanceStatus.absent;
+    result = StudentAttendanceStatus.absent;
+  } else if (status == 1) {
+    result = StudentAttendanceStatus.present;
+  } else if (status == 2) {
+    result = StudentAttendanceStatus.sick;
+  } else if (status == 3) {
+    result = StudentAttendanceStatus.permission;
+  } else if (status == 4) {
+    result = StudentAttendanceStatus.alpa;
+  } else {
+    result = StudentAttendanceStatus.absent;
   }
-  if (status == 1) {
-    return StudentAttendanceStatus.present;
-  }
-  if (status == 2) {
-    return StudentAttendanceStatus.sick;
-  }
-  if (status == 3) {
-    return StudentAttendanceStatus.permission;
-  }
-  if (status == 4) {
-    return StudentAttendanceStatus.alpa;
-  }
-  return StudentAttendanceStatus.absent;
+
+  print('Attendance status resolved to: ${result.toString().split('.').last}');
+  return result;
 }
 
 String getStudentAttendanceStatusKey(

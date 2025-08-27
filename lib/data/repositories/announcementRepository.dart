@@ -27,8 +27,8 @@ class AnnouncementRepository {
             .map((notification) =>
                 NotificationDetails.fromJson(Map.from(notification ?? {})))
             .toList(),
-        currentPage: (result['data']['current_page'] as int),
-        totalPage: (result['data']['last_page'] as int),
+        currentPage: (result['data']['current_page'] ?? 1) as int,
+        totalPage: (result['data']['last_page'] ?? 1) as int,
       );
     } catch (e) {
       throw ApiException(e.toString());
@@ -42,13 +42,23 @@ class AnnouncementRepository {
         "page": page ?? 1,
         "class_section_id": classSectionId
       });
+
+      // print("GETTING");
+
+      // String formattedJson = JsonEncoder.withIndent("  ").convert(result);
+
+      // // Cetak per baris
+      // for (var line in formattedJson.split("\n")) {
+      //   print(line);
+      // }
+
       return (
         announcements: ((result['data']['data'] ?? []) as List)
             .map((announcement) =>
                 Announcement.fromJson(Map.from(announcement ?? {})))
             .toList(),
-        currentPage: (result['data']['current_page'] as int),
-        totalPage: (result['data']['last_page'] as int),
+        currentPage: (result['data']['current_page'] ?? 1) as int,
+        totalPage: (result['data']['last_page'] ?? 1) as int,
       );
     } catch (e) {
       throw ApiException(e.toString());

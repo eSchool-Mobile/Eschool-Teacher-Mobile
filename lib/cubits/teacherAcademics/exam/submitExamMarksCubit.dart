@@ -1,6 +1,7 @@
 // ignore: depend_on_referenced_packages
 import 'package:bloc/bloc.dart';
 import 'package:eschool_saas_staff/data/repositories/studentRepository.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 abstract class SubmitExamMarksState {}
 
@@ -43,7 +44,17 @@ class SubmitExamMarksCubit extends Cubit<SubmitExamMarksState> {
       );
       emit(SubmitExamMarksSubmitSuccess());
     } catch (e) {
-      emit(SubmitExamMarksSubmitFailure(errorMessage: e.toString()));
+      // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
+      // Check if error is numeric (integer or string number)
+      final errorString = e.toString();
+      final isNumericError = int.tryParse(errorString) != null;
+      
+      if (isNumericError) {
+        final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+        emit(SubmitExamMarksSubmitFailure(errorMessage: userFriendlyMessage));
+      } else {
+        emit(SubmitExamMarksSubmitFailure(errorMessage: errorString));
+      }
     }
   }
 }

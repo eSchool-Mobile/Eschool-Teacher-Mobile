@@ -115,4 +115,26 @@ class TimeTableSlot {
         'subject': subject?.toJson(),
         'title': title
       };
+
+  @override
+  String toString() {
+    return 'TimeTableSlot{'
+        'id: $id, '
+        'subjectTeacherId: $subjectTeacherId, '
+        'classSectionId: $classSectionId, '
+        'subjectId: $subjectId, '
+        'startTime: $startTime, '
+        'endTime: $endTime, '
+        'note: $note, '
+        'day: $day, '
+        'type: $type, '
+        'semesterId: $semesterId, '
+        'schoolId: $schoolId, '
+        'createdAt: $createdAt, '
+        'updatedAt: $updatedAt, '
+        'title: $title, '
+        'classSection: ${classSection?.toString()}, '
+        'subject: ${subject?.toString()}'
+        '}';
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:eschool_saas_staff/data/models/leaveRequest.dart';
 import 'package:eschool_saas_staff/data/repositories/leaveRepository.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class UserLeavesState {}
@@ -47,7 +48,10 @@ class UserLeavesCubit extends Cubit<UserLeavesState> {
           monthlyAllowedLeaves: result.monthlyAllowedLeaves,
           takenLeaves: result.takenLeaves));
     } catch (e) {
-      emit(UserLeavesFetchFailure(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(UserLeavesFetchFailure(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 

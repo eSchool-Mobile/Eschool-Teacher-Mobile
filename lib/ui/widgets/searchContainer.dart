@@ -48,15 +48,15 @@ class SearchContainer extends StatelessWidget {
               hintText: searchKey.tr,
             ),
           )),
-          IconButton(
-              onPressed: () {
-                if (textEditingController.text.trim().isNotEmpty) {
-                  textEditingController.clear();
+          // IconButton(
+          //     onPressed: () {
+          //       if (textEditingController.text.trim().isNotEmpty) {
+          //         textEditingController.clear();
 
-                  additionalCallback?.call();
-                }
-              },
-              icon: const Icon(Icons.close))
+          //         additionalCallback?.call();
+          //       }
+          //     },
+          //     icon: const Icon(Icons.close))
         ],
       ),
     );

@@ -5,20 +5,21 @@ import 'package:eschool_saas_staff/data/models/assignmentSubmission.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherEditAssignmentSubmission.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customExpandableContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customTitleDescriptionContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customImageWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'dart:ui';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class TeacherManageAssignmentSubmissionScreen extends StatefulWidget {
   final Assignment assignment;
@@ -46,22 +47,61 @@ class TeacherManageAssignmentSubmissionScreen extends StatefulWidget {
 }
 
 class _TeacherManageAssignmentSubmissionScreenState
-    extends State<TeacherManageAssignmentSubmissionScreen> {
+    extends State<TeacherManageAssignmentSubmissionScreen>
+    with TickerProviderStateMixin {
   AssignmentSubmissionStatus selectedAssignmentSubmissionFilterStatus =
       allAssignmentSubmissionStatus.first;
 
+  // Animation controllers
+  late AnimationController _fabAnimationController;
+  late AnimationController _containerAnimationController;
+
   @override
   void initState() {
+    // Initialize animation controllers
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 3),
+    )..repeat(reverse: true);
+
+    _containerAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 800),
+    );
+
     Future.delayed(Duration.zero, () {
       fetchAssignmentSubmissions();
+      _containerAnimationController.forward();
     });
     super.initState();
   }
+
+  // Sort options for submissions
+  final List<Map<String, dynamic>> _sortOptions = [
+    {'label': 'Terbaru dulu', 'key': 'date_desc'},
+    {'label': 'Terlama dulu', 'key': 'date_asc'},
+    {'label': 'Nama A-Z', 'key': 'name_asc'},
+    {'label': 'Nama Z-A', 'key': 'name_desc'},
+    {'label': 'Status', 'key': 'status'},
+  ];
+
+  // Current sort option
+  Map<String, dynamic> _currentSortOption = {
+    'label': 'Terbaru dulu',
+    'key': 'date_desc'
+  };
 
   void fetchAssignmentSubmissions() {
     context
         .read<AssignmentSubmissionsCubit>()
         .fetchAssignmentSubmissions(assignmentId: widget.assignment.id);
+  }
+
+  @override
+  void dispose() {
+    _fabAnimationController.dispose();
+    _containerAnimationController.dispose();
+    super.dispose();
   }
 
   Widget _buildAssignmentSubmissionItem(
@@ -70,90 +110,818 @@ class _TeacherManageAssignmentSubmissionScreenState
         Utils.getAssignmentSubmissionStatusFromTypeId(
             typeId: assignmentSubmission.status);
 
-    return CustomExpandableContainer(
-      customTitleWidget: Container(
-        constraints: const BoxConstraints(maxHeight: 30, maxWidth: 30),
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
+    // Menentukan warna status dengan gradasi yang lebih menarik
+    final List<Color> statusGradient = _getStatusGradient(status.color);
+
+    // Menentukan warna border card berdasarkan status submission
+    Color borderColor = Color(0xFFEADADA);
+    Color highlightColor = Colors.transparent;
+    double borderWidth = 1.0;
+
+    // Customize border for different statuses
+    if (status.typeStatusId == 1) {
+      // Submitted
+      borderColor = Color(0xFF6A1B31).withOpacity(0.3);
+      highlightColor = Color(0xFF6A1B31).withOpacity(0.03);
+      borderWidth = 1.5;
+    } else if (status.typeStatusId == 2) {
+      // Evaluated
+      borderColor = Color(0xFF9A4156).withOpacity(0.3);
+      highlightColor = Color(0xFF9A4156).withOpacity(0.03);
+      borderWidth = 1.5;
+    } else if (status.typeStatusId == 3) {
+      // Resubmission Request
+      borderColor = Color(0xFFAA6976).withOpacity(0.3);
+      highlightColor = Color(0xFFAA6976).withOpacity(0.03);
+      borderWidth = 1.5;
+    }
+
+    return Container(
+      margin: EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0xFF6A1B31).withOpacity(0.08),
+            blurRadius: 12,
+            spreadRadius: 0,
+            offset: Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Colors.white,
+            blurRadius: 5,
+            spreadRadius: -2,
+            offset: Offset(-5, -5),
+          ),
+        ],
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white,
+            Color(0xFFF9F5F6).withOpacity(0.5),
+          ],
+          stops: [0.4, 1.0],
         ),
-        clipBehavior: Clip.antiAlias,
-        child: CustomImageWidget(
-          imagePath: assignmentSubmission.student.image,
+        border: Border.all(
+          color: borderColor,
+          width: borderWidth,
         ),
       ),
-      contractedContentWidget: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: CustomTitleDescriptionContainer(
-                  titleKey: submittedOnKey,
-                  description: Utils.formatDateAndTime(
-                    DateTime.parse(assignmentSubmission.createdAt),
+      foregroundDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: [
+            highlightColor,
+            Colors.transparent,
+            Colors.transparent,
+          ],
+          stops: [0.0, 0.4, 1.0],
+        ),
+      ),
+      child: CustomExpandableContainer(
+        titleText: "", // Required parameter
+        customTitleWidget: Row(
+          children: [
+            // Foto Profil Siswa
+            Container(
+              width: 45,
+              height: 45,
+              margin: EdgeInsets.only(left: 15, right: 10),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0xFF6A1B31).withOpacity(0.15),
+                    blurRadius: 8,
+                    offset: Offset(0, 3),
                   ),
+                ],
+                border: Border.all(
+                  color: Colors.white,
+                  width: 2,
                 ),
               ),
-              CustomTitleDescriptionContainer(
-                titleKey: statusKey,
-                description: "",
-                customDescriptionWidget: Container(
-                  decoration: BoxDecoration(
-                    color: status.color,
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                  child: CustomTextContainer(
-                    textKey: status.titleKey,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(45),
+                child: assignmentSubmission.student.image.isNotEmpty
+                    ? CustomImageWidget(
+                        imagePath: assignmentSubmission.student.image,
+                        boxFit: BoxFit.cover,
+                        errorWidget: (context, url, error) => Container(
+                          decoration: BoxDecoration(
+                            color: Color(0xFF6A1B31).withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.person,
+                            color: Color(0xFF6A1B31),
+                            size: 24,
+                          ),
+                        ),
+                      )
+                    : Container(
+                        decoration: BoxDecoration(
+                          color: Color(0xFF6A1B31).withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.person,
+                          color: Color(0xFF6A1B31),
+                          size: 24,
+                        ),
+                      ),
+              ),
+            ).animate().fadeIn(duration: 500.ms).scale(
+                begin: const Offset(0.8, 0.8), end: const Offset(1.0, 1.0)),
+
+            Expanded(
+              child: Text(
+                assignmentSubmission.student.fullName,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF4A2728),
+                  letterSpacing: 0.2,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        contractedContentWidget: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Nama siswa dengan tipografi yang ditingkatkan
+
+              // Info pengiriman dan status dengan layout yang lebih modern
+              Row(
+                children: [
+                  // Waktu pengiriman dengan ikon
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today_rounded,
+                          size: 16,
+                          color: Color(0xFF6A1B31),
+                        ),
+                        SizedBox(width: 6),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CustomTextContainer(
+                                textKey: submittedOnKey,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF6A1B31).withOpacity(0.8),
+                                ),
+                              ),
+                              Text(
+                                Utils.formatDateAndTime(
+                                  DateTime.parse(
+                                      assignmentSubmission.createdAt),
+                                ),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
+
+                  // Badge status dengan desain yang lebih menarik
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: statusGradient,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: status.color.withOpacity(0.25),
+                          blurRadius: 8,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 6, horizontal: 14),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        SizedBox(width: 6),
+                        CustomTextContainer(
+                          textKey: status.titleKey,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
-      expandedContentWidget: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (assignmentSubmission.points != 0)
-            CustomTitleDescriptionContainer(
-              titleKey: pointsKey,
-              description:
-                  "${assignmentSubmission.points.toString()} / ${assignmentSubmission.assignment.points}",
+        ),
+        expandedContentWidget: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFFF6EDF0),
+                Color(0xFFEFDFE4),
+              ],
             ),
-          if (assignmentSubmission.points != 0 &&
-              assignmentSubmission.feedback.trim().isNotEmpty)
-            const SizedBox(
-              height: 10,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Color(0xFFE7D2D9),
+              width: 1,
             ),
-          if (assignmentSubmission.feedback.trim().isNotEmpty)
-            CustomTitleDescriptionContainer(
-              titleKey: feedbackKey,
-              description: assignmentSubmission.feedback,
-            ),
-        ],
-      ),
-      onEdit: () {
-        Get.toNamed(Routes.teacherEditAssignmentSubmissionScreen,
-                arguments: TeacherEditAssignmentSubmissionScreen.buildArguments(
-                    assignmentSubmission: assignmentSubmission))
-            ?.then((value) {
-          if (value != null && value is AssignmentSubmission) {
-            if (mounted) {
-              context.read<AssignmentSubmissionsCubit>().updateReviewAssignment(
-                  updatedReviewAssignmentSubmission: value);
+            boxShadow: [
+              BoxShadow(
+                color: Color(0xFF6A1B31).withOpacity(0.04),
+                blurRadius: 6,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          padding: EdgeInsets.all(16),
+          margin: EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Section header
+              Container(
+                margin: EdgeInsets.only(bottom: 12),
+                child: Text(
+                  "Detail Tugas",
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF6A1B31),
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ),
+
+              // Section untuk nilai dengan desain yang lebih menarik dan interaktif
+              if (assignmentSubmission.points != 0)
+                Container(
+                  margin: EdgeInsets.only(bottom: 14),
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: Color(0xFFEADADA),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0xFF800020).withOpacity(0.03),
+                        blurRadius: 8,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFF6A1B31).withOpacity(0.08),
+                                  Color(0xFF6A1B31).withOpacity(0.12),
+                                ],
+                              ),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.grade_rounded,
+                              size: 22,
+                              color: Color(0xFF6A1B31),
+                            ),
+                          )
+                              .animate(
+                                onPlay: (controller) =>
+                                    controller.repeat(reverse: true),
+                              )
+                              .rotate(
+                                duration: 5000.ms,
+                                begin: -0.02,
+                                end: 0.02,
+                              ),
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CustomTextContainer(
+                                  textKey: pointsKey,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF800020).withOpacity(0.8),
+                                    letterSpacing: 0.2,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: assignmentSubmission.points
+                                            .toString(),
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xFF6A1B31),
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            " / ${assignmentSubmission.assignment.points}",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w400,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                              border: Border.all(
+                                color: _getGradeColor(
+                                    assignmentSubmission.points.toDouble(),
+                                    assignmentSubmission.assignment.points
+                                        .toDouble()),
+                                width: 3,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: _getGradeColor(
+                                          assignmentSubmission.points
+                                              .toDouble(),
+                                          assignmentSubmission.assignment.points
+                                              .toDouble())
+                                      .withOpacity(0.2),
+                                  blurRadius: 8,
+                                  spreadRadius: 1,
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Text(
+                                _getGradeLabel(
+                                    assignmentSubmission.points.toDouble(),
+                                    assignmentSubmission.assignment.points
+                                        .toDouble()),
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: _getGradeColor(
+                                      assignmentSubmission.points.toDouble(),
+                                      assignmentSubmission.assignment.points
+                                          .toDouble()),
+                                ),
+                              ),
+                            ),
+                          )
+                              .animate()
+                              .fadeIn(duration: 600.ms, delay: 300.ms)
+                              .scale(
+                                  begin: const Offset(0.8, 0.8),
+                                  end: const Offset(1.0, 1.0)),
+                        ],
+                      ),
+                      SizedBox(height: 12),
+                      Stack(
+                        children: [
+                          // Background track
+                          Container(
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: Color(0xFFEADADA),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          // Progress indicator
+                          Container(
+                            height: 8,
+                            width: MediaQuery.of(context).size.width *
+                                ((assignmentSubmission.points /
+                                            assignmentSubmission
+                                                .assignment.points
+                                                .toDouble()) *
+                                        0.65)
+                                    .clamp(0.0, 0.65),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                                colors: [
+                                  _getGradeColor(
+                                      assignmentSubmission.points.toDouble(),
+                                      assignmentSubmission.assignment.points
+                                          .toDouble()
+                                          .toDouble()),
+                                  _getGradeColor(
+                                          assignmentSubmission.points
+                                              .toDouble(),
+                                          assignmentSubmission.assignment.points
+                                              .toDouble())
+                                      .withOpacity(0.7),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(4),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: _getGradeColor(
+                                          assignmentSubmission.points
+                                              .toDouble(),
+                                          assignmentSubmission.assignment.points
+                                              .toDouble())
+                                      .withOpacity(0.3),
+                                  blurRadius: 4,
+                                  offset: Offset(0, 1),
+                                ),
+                              ],
+                            ),
+                          ).animate().fadeIn(duration: 300.ms).slideX(
+                              begin: -1.0,
+                              end: 0.0,
+                              duration: 800.ms,
+                              curve: Curves.easeOutQuart),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            "${((assignmentSubmission.points / assignmentSubmission.assignment.points) * 100).round()}%",
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: _getGradeColor(
+                                  assignmentSubmission.points.toDouble(),
+                                  assignmentSubmission.assignment.points
+                                      .toDouble()),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+              // Section untuk umpan balik dengan desain yang lebih menarik dan modern
+              if (assignmentSubmission.feedback.trim().isNotEmpty)
+                Container(
+                  margin: EdgeInsets.only(bottom: 14),
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: Color(0xFFEADADA),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0xFF6A1B31).withOpacity(0.03),
+                        blurRadius: 8,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFF6A1B31).withOpacity(0.08),
+                                  Color(0xFF6A1B31).withOpacity(0.12),
+                                ],
+                              ),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.comment_rounded,
+                              size: 22,
+                              color: Color(0xFF6A1B31),
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Flexible(
+                                  child: CustomTextContainer(
+                                    textKey: feedbackKey,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF6A1B31).withOpacity(0.8),
+                                      letterSpacing: 0.2,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 12),
+                      Container(
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Color(0xFFF9F5F6).withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Color(0xFFEADADA),
+                            width: 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.02),
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Color(0xFF800020).withOpacity(0.1),
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.format_quote,
+                                      size: 14,
+                                      color: Color(0xFF6A1B31),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  "Umpan Balik Guru",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              assignmentSubmission.feedback,
+                              style: TextStyle(
+                                fontSize: 14,
+                                height: 1.5,
+                                color: Colors.black87,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                          .animate()
+                          .fadeIn(duration: 400.ms, delay: 150.ms)
+                          .slideY(begin: 0.05, end: 0),
+                    ],
+                  ),
+                ),
+              // Section untuk berkas yang dikirimkan dengan desain yang lebih modern
+              if (assignmentSubmission.file.isNotEmpty)
+                Container(
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: Color(0xFFEADADA),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0xFF800020).withOpacity(0.03),
+                        blurRadius: 6,
+                        spreadRadius: 0,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Color(0xFF800020).withOpacity(0.08),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.attachment_rounded,
+                              size: 22,
+                              color: Color(0xFF6A1B31),
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Text(
+                            "Berkas Tugas",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF6A1B31).withOpacity(0.8),
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Color(0xFF6A1B31).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              "${assignmentSubmission.file.length}",
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF6A1B31),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 12),
+                      // Render each file in the submission
+                      ...assignmentSubmission.file
+                          .map((fileItem) => Container(
+                                margin: EdgeInsets.only(bottom: 8),
+                                padding: EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Color(0xFFF9F5F6).withOpacity(0.7),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: Color(0xFFEADADA),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 42,
+                                      height: 42,
+                                      decoration: BoxDecoration(
+                                        color:
+                                            Color(0xFF6A1B31).withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Center(
+                                        child: Icon(
+                                          _getFileIcon(fileItem.fileName),
+                                          color: Color(0xFF6A1B31),
+                                          size: 24,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            fileItem.fileName,
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black87,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          SizedBox(height: 2),
+                                          Text(
+                                            "Klik untuk mengunduh berkas",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.black54,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            Color(0xFF6A1B31).withOpacity(0.1),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        Icons.download_rounded,
+                                        size: 16,
+                                        color: Color(0xFF6A1B31),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ))
+                          .toList()
+                          .animate(interval: 100.ms)
+                          .fadeIn(duration: 400.ms, delay: 200.ms)
+                          .slideY(begin: 0.1, end: 0),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+        onEdit: () {
+          Get.toNamed(Routes.teacherEditAssignmentSubmissionScreen,
+                  arguments:
+                      TeacherEditAssignmentSubmissionScreen.buildArguments(
+                          assignmentSubmission: assignmentSubmission))
+              ?.then((value) {
+            if (value != null && value is AssignmentSubmission) {
+              if (mounted) {
+                context
+                    .read<AssignmentSubmissionsCubit>()
+                    .updateReviewAssignment(
+                        updatedReviewAssignmentSubmission: value);
+              }
             }
-          }
-        });
-      },
-      isStudyMaterialFile: true,
-      studyMaterials: assignmentSubmission.file,
-      titleText: assignmentSubmission.student.fullName,
+          });
+        },
+        isStudyMaterialFile: false,
+        studyMaterials: [],
+// Kosongkan karena nama siswa sudah ditampilkan di card yang dirancang ulang
+      ),
     );
   }
 
@@ -162,7 +930,8 @@ class _TeacherManageAssignmentSubmissionScreenState
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
         padding: EdgeInsets.only(
-            top: Utils.appContentTopScrollPadding(context: context) + 95),
+            top: Utils.appContentTopScrollPadding(context: context) + 120),
+        physics: const BouncingScrollPhysics(),
         child:
             BlocBuilder<AssignmentSubmissionsCubit, AssignmentSubmissionsState>(
           builder: (context, state) {
@@ -170,50 +939,194 @@ class _TeacherManageAssignmentSubmissionScreenState
               final List<AssignmentSubmission> filteredAssignmentSubmissions =
                   [];
               filteredAssignmentSubmissions.addAll(state.reviewAssignment);
+
               if (selectedAssignmentSubmissionFilterStatus.filter !=
                   AssignmentSubmissionFilters.all) {
-                //if any filter is selected, remove the items that does not apply that filter to
                 filteredAssignmentSubmissions.removeWhere((element) =>
                     element.status !=
                     selectedAssignmentSubmissionFilterStatus.typeStatusId);
               }
+
               if (filteredAssignmentSubmissions.isEmpty) {
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.only(top: 50),
-                    child: CustomTextContainer(
-                      textKey:
-                          Utils.getTranslatedLabel(noAssignmentSubmissionKey),
+                    child: Container(
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xFF6A1B31).withOpacity(0.08),
+                            blurRadius: 15,
+                            offset: Offset(0, 5),
+                          ),
+                        ],
+                        border: Border.all(
+                          color: Color(0xFFEADADA),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: RadialGradient(
+                                colors: [
+                                  Color(0xFFF9F5F6),
+                                  Color(0xFFEADADA),
+                                ],
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.assignment_late_outlined,
+                              size: 60,
+                              color: Color(0xFF6A1B31).withOpacity(0.7),
+                            ),
+                          ).animate().fadeIn(duration: 600.ms).scale(
+                              begin: const Offset(0.8, 0.8),
+                              end: const Offset(1.0, 1.0)),
+                          const SizedBox(height: 20),
+                          CustomTextContainer(
+                            textKey: Utils.getTranslatedLabel(
+                                noAssignmentSubmissionKey),
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF6A1B31),
+                            ),
+                          ).animate().fadeIn(duration: 600.ms, delay: 200.ms),
+                        ],
+                      ),
                     ),
                   ),
                 );
               }
+
               return Container(
-                padding: EdgeInsets.all(appContentHorizontalPadding),
-                color: Theme.of(context).colorScheme.surface,
+                padding: EdgeInsets.fromLTRB(
+                    appContentHorizontalPadding,
+                    appContentHorizontalPadding,
+                    appContentHorizontalPadding,
+                    20),
+                margin: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xFF800020).withOpacity(0.05),
+                      blurRadius: 20,
+                      spreadRadius: 0,
+                      offset: Offset(0, 4),
+                    ),
+                    BoxShadow(
+                      color: Colors.white.withOpacity(0.7),
+                      blurRadius: 10,
+                      spreadRadius: -5,
+                      offset: Offset(-5, -5),
+                    ),
+                  ],
+                ),
                 width: MediaQuery.of(context).size.width,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    const CustomTextContainer(
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textKey: assignmentSubmissionListKey,
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.bold,
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF6A1B31).withOpacity(0.12),
+                            Color(0xFF9A4156).withOpacity(0.06),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Color(0xFF6A1B31).withOpacity(0.18),
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xFF800020).withOpacity(0.05),
+                            blurRadius: 8,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.7),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: Color(0xFF800020).withOpacity(0.15),
+                                width: 1,
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.assignment_turned_in,
+                              color: Color(0xFF800020),
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const CustomTextContainer(
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textKey: assignmentSubmissionListKey,
+                                  style: TextStyle(
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF800020),
+                                    letterSpacing: 0.2,
+                                  ),
+                                ),
+                                SizedBox(height: 3),
+                                Text(
+                                  '${filteredAssignmentSubmissions.length} pengumpulan',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                        .animate()
+                        .fadeIn(duration: 500.ms)
+                        .slideY(begin: -0.1, end: 0.0),
+                    const SizedBox(height: 20),
                     ...List.generate(
-                      state.reviewAssignment.length,
+                      filteredAssignmentSubmissions.length,
                       (index) => _buildAssignmentSubmissionItem(
-                          assignmentSubmission: state.reviewAssignment[index]),
+                              assignmentSubmission:
+                                  filteredAssignmentSubmissions[index])
+                          .animate()
+                          .fadeIn(
+                              duration: 400.ms,
+                              delay: (80 * index).ms,
+                              curve: Curves.easeOutQuad)
+                          .slideY(begin: 0.1, end: 0.0)
+                          .scale(
+                              begin: const Offset(0.98, 0.98),
+                              end: const Offset(1.0, 1.0)),
                     ),
                   ],
                 ),
@@ -228,7 +1141,9 @@ class _TeacherManageAssignmentSubmissionScreenState
                     onTapRetry: () {
                       fetchAssignmentSubmissions();
                     },
-                  ),
+                  ).animate().fadeIn(duration: 300.ms).scale(
+                      begin: const Offset(0.9, 0.9),
+                      end: const Offset(1.0, 1.0)),
                 ),
               );
             } else {
@@ -237,8 +1152,8 @@ class _TeacherManageAssignmentSubmissionScreenState
                   padding: EdgeInsets.only(
                       top: topPaddingOfErrorAndLoadingContainer),
                   child: CustomCircularProgressIndicator(
-                    indicatorColor: Theme.of(context).colorScheme.primary,
-                  ),
+                    indicatorColor: Color(0xFF800020),
+                  ).animate().fadeIn(duration: 300.ms),
                 ),
               );
             }
@@ -251,47 +1166,248 @@ class _TeacherManageAssignmentSubmissionScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor:
+          Color(0xFFF8F1F3), // Soft dark maroon background yang lebih tajam
       body: Stack(
         children: [
+          // Content area with submissions list
           _buildAssignmentSubmissionList(),
+
+          // Modern AppBar with CustomModernAppBar
           Align(
             alignment: Alignment.topCenter,
-            child: Column(
-              children: [
-                CustomAppbar(titleKey: widget.assignment.name),
-                AppbarFilterBackgroundContainer(
-                  child: LayoutBuilder(
-                    builder: (context, boxConstraints) {
-                      return FilterButton(
-                          onTap: () {
-                            Utils.showBottomSheet(
-                                child: FilterSelectionBottomsheet<
-                                        AssignmentSubmissionStatus>(
-                                    onSelection: (value) {
-                                      Get.back();
-                                      if (value != null) {
-                                        selectedAssignmentSubmissionFilterStatus =
-                                            value;
-                                        setState(() {});
-                                      }
-                                    },
-                                    selectedValue:
-                                        selectedAssignmentSubmissionFilterStatus,
-                                    titleKey: statusKey,
-                                    values: allAssignmentSubmissionStatus),
-                                context: context);
-                          },
-                          titleKey:
-                              selectedAssignmentSubmissionFilterStatus.titleKey,
-                          width: boxConstraints.maxWidth);
-                    },
-                  ),
-                ),
-              ],
+            child: CustomModernAppBar(
+              title: "Pengumpulan",
+              icon: Icons.assignment_rounded,
+              fabAnimationController: _fabAnimationController,
+              primaryColor:
+                  Color(0xFF6A1B31), // Soft dark maroon yang lebih tajam
+              lightColor:
+                  Color(0xFF9A4156), // Lighter maroon shade yang lebih tajam
+              onBackPressed: () => Get.back(),
+              showFilterButton: true,
+              onFilterPressed: () {
+                Utils.showBottomSheet(
+                    child:
+                        FilterSelectionBottomsheet<AssignmentSubmissionStatus>(
+                      onSelection: (value) {
+                        Get.back();
+                        if (value != null) {
+                          selectedAssignmentSubmissionFilterStatus = value;
+                          setState(() {});
+                        }
+                      },
+                      selectedValue: selectedAssignmentSubmissionFilterStatus,
+                      titleKey: statusKey,
+                      values: allAssignmentSubmissionStatus,
+                    ),
+                    context: context);
+              },
             ),
           ),
+
+          // Filter status indicator
+          // Fixed position filter indicator
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 90,
+            left: 20,
+            right: 20,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF800020).withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+                border: Border.all(
+                  color: const Color(0xFF800020).withOpacity(0.15),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.filter_list_rounded,
+                    color: Color(0xFF800020),
+                    size: 20,
+                  ),
+                  const SizedBox(width: 10),
+                  CustomTextContainer(
+                    textKey: filterByKey,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF800020),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF800020).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: const Color(0xFF800020).withOpacity(0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: CustomTextContainer(
+                      textKey:
+                          selectedAssignmentSubmissionFilterStatus.titleKey,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF800020),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+              .animate()
+              .fadeIn(
+                  duration: 600.ms, delay: 300.ms, curve: Curves.easeOutQuad)
+              .slideY(begin: -0.2, end: 0.0),
         ],
       ),
     );
+  }
+
+  // Helper method untuk mendapatkan gradasi warna status yang lebih menarik dengan tema maroon
+  List<Color> _getStatusGradient(Color baseColor) {
+    // Untuk status tertentu berikan warna maroon yang lebih menarik
+    if (baseColor.value == Colors.green.value) {
+      return [
+        Color(0xFF2E8B57), // Sea Green
+        Color(0xFF228B22), // Forest Green
+      ];
+    } else if (baseColor.value == Colors.orange.value ||
+        baseColor.value == Colors.amber.value) {
+      return [
+        Color(0xFF9A4156), // Medium Maroon
+        Color(0xFF7D3546), // Darker Medium Maroon
+      ];
+    } else if (baseColor.value == Colors.red.value) {
+      return [
+        Color(0xFF470F1F), // Very Dark Maroon
+        Color(0xFF380D19), // Even Darker Maroon
+      ];
+    } else if (baseColor.value == Colors.blue.value) {
+      return [
+        Color(0xFFAA6976), // Secondary Maroon
+        Color(0xFF8F5461), // Darker Secondary Maroon
+      ];
+    }
+
+    // Default gradient for other colors - maroon themed
+    return [Color(0xFF6A1B31), Color(0xFF57152A)];
+  }
+
+  // Helper method untuk mendapatkan ikon yang sesuai dengan opsi pengurutan
+  IconData _getSortIcon(String sortKey) {
+    switch (sortKey) {
+      case 'date_desc':
+        return Icons.arrow_downward_rounded;
+      case 'date_asc':
+        return Icons.arrow_upward_rounded;
+      case 'name_asc':
+        return Icons.sort_by_alpha;
+      case 'name_desc':
+        return Icons.sort_by_alpha;
+      case 'status':
+        return Icons.label_important_outline_rounded;
+      default:
+        return Icons.sort_rounded;
+    }
+  }
+
+  // Helper method untuk mendapatkan warna grade berdasarkan nilai siswa dengan tema maroon
+  Color _getGradeColor(double points, double totalPoints) {
+    double percentage = (points / totalPoints) * 100;
+    if (percentage >= 90) {
+      return Color(0xFF6A1B31); // Dark Maroon (main theme color)
+    } else if (percentage >= 80) {
+      return Color(0xFF9A4156); // Medium Maroon
+    } else if (percentage >= 70) {
+      return Color(0xFFBE7685); // Light Maroon
+    } else if (percentage >= 60) {
+      return Color(0xFFD1919D); // Lighter Maroon
+    } else if (percentage >= 50) {
+      return Color(0xFFAA6976); // Secondary Maroon
+    } else {
+      return Color(0xFF470F1F); // Very Dark Maroon
+    }
+  }
+
+  // Helper method untuk menentukan label grade berdasarkan nilai siswa
+  String _getGradeLabel(double points, double totalPoints) {
+    double percentage = (points / totalPoints) * 100;
+    if (percentage >= 90) {
+      return "A";
+    } else if (percentage >= 80) {
+      return "B";
+    } else if (percentage >= 70) {
+      return "C";
+    } else if (percentage >= 60) {
+      return "D";
+    } else if (percentage >= 50) {
+      return "E";
+    } else {
+      return "F";
+    }
+  }
+
+  // Helper method untuk menentukan ikon berkas berdasarkan ekstensi file
+  IconData _getFileIcon(String fileName) {
+    final extension = fileName.split('.').last.toLowerCase();
+
+    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].contains(extension)) {
+      return Icons.image_outlined;
+    } else if (['pdf'].contains(extension)) {
+      return Icons.picture_as_pdf_outlined;
+    } else if (['doc', 'docx', 'txt', 'rtf'].contains(extension)) {
+      return Icons.description_outlined;
+    } else if (['xls', 'xlsx', 'csv'].contains(extension)) {
+      return Icons.table_chart_outlined;
+    } else if (['ppt', 'pptx'].contains(extension)) {
+      return Icons.slideshow_outlined;
+    } else if (['zip', 'rar', '7z', 'tar', 'gz'].contains(extension)) {
+      return Icons.folder_zip_outlined;
+    } else if (['mp3', 'wav', 'ogg', 'aac'].contains(extension)) {
+      return Icons.audio_file_outlined;
+    } else if (['mp4', 'avi', 'mov', 'mkv', 'wmv'].contains(extension)) {
+      return Icons.video_file_outlined;
+    }
+
+    return Icons.insert_drive_file_outlined;
+  }
+
+  // Menangani event tap pada filter badge
+  void _handleFilterBadgeTap() {
+    // Animasikan badge filter dengan skala
+    setState(() {
+      // Implementasi untuk mengganti filter dengan UI yang lebih interaktif
+    });
+  }
+
+  // Menampilkan animasi pulse pada badge filter
+  Widget _buildPulseAnimationWidget(Widget child) {
+    return child
+        .animate(
+          onPlay: (controller) => controller.repeat(reverse: true),
+        )
+        .scale(
+          duration: 1500.ms,
+          begin: const Offset(1.0, 1.0),
+          end: const Offset(1.05, 1.05),
+          curve: Curves.easeInOut,
+        );
   }
 }

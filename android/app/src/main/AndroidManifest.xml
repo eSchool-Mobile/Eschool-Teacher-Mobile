@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
 
     <queries>
     <!-- If your app checks for SMS support -->
@@ -51,7 +54,7 @@
             android:value="2" />
     </application>
     <!-- Required to query activities that can process text, see:
-         https://developer.android.com/training/package="id.ac.eschool.teacherstaff.android">
+         https://developer.android.com/training/package="id.ac.eschool.guru">
          https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
 
          In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->

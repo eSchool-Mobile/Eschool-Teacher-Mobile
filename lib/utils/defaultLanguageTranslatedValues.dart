@@ -92,6 +92,8 @@ Map<String, String> defaultLanguageTranslatedValues = {
   "joinDate": "Join date",
   "contactUs": "Contact us",
   "subject": "Subject",
+  "tingkat": "Grade Level",
+  "gradeLevel": "Grade Level",
   "message": "Message",
   "enterYourSubject": "Enter your subject",
   "enterMessage": "Enter message",

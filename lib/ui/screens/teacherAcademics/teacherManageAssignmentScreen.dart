@@ -1,22 +1,18 @@
+import 'dart:ui';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/assignmentCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/deleteAssignmentCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
+import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
 import 'package:eschool_saas_staff/data/models/assignment.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
+import 'package:eschool_saas_staff/data/models/gradeLevel.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherAddEditAssignmentScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherManageAssignmentSubmissionScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/confirmDeleteDialog.dart';
-import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customExpandableContainer.dart';
-import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customTitleDescriptionContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
+import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
@@ -24,6 +20,22 @@ import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+// Define our theme colors
+final Color maroonPrimary = Color(0xFF8B1F41);
+final Color maroonLight = Color(0xFFAC3B5C);
+final Color maroonDark = Color(0xFF6A0F2A);
+final Color accentColor = Color(0xFFF5EBE0);
+final Color bgColor = Color(0xFFFAF6F2);
+final Color cardColor = Colors.white;
+final Color textDarkColor = Color(0xFF2D2D2D);
+final Color textMediumColor = Color(0xFF717171);
+final Color borderColor = Color(0xFFE8E8E8);
+
+// Define missing key constants
+const String noAssignmentKey = 'noAssignment';
 
 class TeacherManageAssignmentScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -35,6 +47,9 @@ class TeacherManageAssignmentScreen extends StatefulWidget {
         ),
         BlocProvider(
           create: (context) => ClassSectionsAndSubjectsCubit(),
+        ),
+        BlocProvider(
+          create: (context) => GradeLevelCubit(),
         ),
       ],
       child: const TeacherManageAssignmentScreen(),
@@ -53,27 +68,74 @@ class TeacherManageAssignmentScreen extends StatefulWidget {
 }
 
 class _TeacherManageAssignmentScreenState
-    extends State<TeacherManageAssignmentScreen> {
+    extends State<TeacherManageAssignmentScreen> with TickerProviderStateMixin {
   ClassSection? _selectedClassSection;
   TeacherSubject? _selectedSubject;
+  GradeLevel? _selectedGradeLevel;
 
-  late final ScrollController _scrollController = ScrollController()
-    ..addListener(scrollListener);
+  // Animation controllers
+  late final AnimationController _fadeController;
+  late final Animation<double> _fadeAnimation;
+  late final AnimationController _slideController;
+  late final Animation<Offset> _slideAnimation;
+
+  // For header collapsing effect
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
+    super.initState();
+
+    // Initialize animations
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 800),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _fadeController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _slideController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 700),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: Offset(0, 0.2),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _slideController,
+        curve: Curves.easeOutQuint,
+      ),
+    );
+
+    // Start animations
+    _fadeController.forward();
+    _slideController.forward();
+
+    // Add scroll listener for pagination
+    _scrollController.addListener(scrollListener);
+
     Future.delayed(Duration.zero, () {
       if (mounted) {
+        context.read<GradeLevelCubit>().getGradeLevels();
+        // Also fetch class sections initially without grade level filter
         context
             .read<ClassSectionsAndSubjectsCubit>()
             .getClassSectionsAndSubjects();
       }
     });
-    super.initState();
   }
 
   @override
   void dispose() {
+    _fadeController.dispose();
+    _slideController.dispose();
     _scrollController.removeListener(scrollListener);
     _scrollController.dispose();
     super.dispose();
@@ -92,6 +154,9 @@ class _TeacherManageAssignmentScreenState
       {bool fetchNewSubjects = true}) {
     if (_selectedClassSection != classSection) {
       _selectedClassSection = classSection;
+      // Reset subject when changing class
+      _selectedSubject = null;
+
       //fetching new subjects after user changes the selected class
       if (fetchNewSubjects && _selectedClassSection != null) {
         context
@@ -115,6 +180,39 @@ class _TeacherManageAssignmentScreenState
     }
   }
 
+  void changeSelectedGradeLevel(GradeLevel? gradeLevel) {
+    if (_selectedGradeLevel != gradeLevel) {
+      _selectedGradeLevel = gradeLevel;
+
+      // Reset selected class and subject when grade level changes
+      _selectedClassSection = null;
+      _selectedSubject = null;
+
+      setState(() {});
+
+      // Re-fetch classes for the selected grade level to filter them
+      if (_selectedGradeLevel != null) {
+        context
+            .read<ClassSectionsAndSubjectsCubit>()
+            .getClassSectionsAndSubjects(gradeLevelId: _selectedGradeLevel!.id);
+      } else {
+        // If no grade level selected, show all classes
+        context
+            .read<ClassSectionsAndSubjectsCubit>()
+            .getClassSectionsAndSubjects();
+      }
+
+      // Clear assignments since filters have changed
+      context.read<AssignmentCubit>().updateState(AssignmentsFetchSuccess(
+            assignment: [],
+            totalPage: 0,
+            currentPage: 0,
+            moreAssignmentsFetchError: false,
+            fetchMoreAssignmentsInProgress: false,
+          ));
+    }
+  }
+
   void changeSelectedTeacherSubject(TeacherSubject? teacherSubject) {
     if (_selectedSubject != teacherSubject) {
       _selectedSubject = teacherSubject;
@@ -124,9 +222,18 @@ class _TeacherManageAssignmentScreenState
   }
 
   void getAssignments() {
-    context.read<AssignmentCubit>().fetchAssignment(
-        subjectId: _selectedSubject?.classSubjectId ?? 0,
-        classSectionId: _selectedClassSection?.id ?? 0);
+    if (_selectedSubject != null && _selectedClassSection != null) {
+      context.read<AssignmentCubit>().fetchAssignment(
+          subjectId: _selectedSubject?.classSubjectId ?? 0,
+          classSectionId: _selectedClassSection?.id ?? 0);
+    }
+  }
+
+  void fetchAssignmentsWithFilters() {
+    // Only fetch assignments if both class and subject are selected
+    if (_selectedClassSection != null && _selectedSubject != null) {
+      getAssignments();
+    }
   }
 
   void getMoreAssignments() {
@@ -136,127 +243,1143 @@ class _TeacherManageAssignmentScreenState
   }
 
   Widget _buildAssignmentItem({required Assignment assignment}) {
-    return BlocProvider<DeleteAssignmentCubit>(
+    return BlocProvider(
       create: (context) => DeleteAssignmentCubit(),
-      child: Builder(
-        builder: (context) {
-          return BlocConsumer<DeleteAssignmentCubit, DeleteAssignmentState>(
-              listener: (context, state) {
+      child: Builder(builder: (context) {
+        return BlocConsumer<DeleteAssignmentCubit, DeleteAssignmentState>(
+          listener: (context, state) {
             if (state is DeleteAssignmentSuccess) {
-              Utils.showSnackBar(
-                context: context,
-                message:
-                    "${Utils.getTranslatedLabel('Tugas Berhasil Dihapus')} ${assignment.name}",
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Container(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(Icons.check_circle_rounded,
+                            color: Colors.white, size: 24),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            "Tugas berhasil dihapus",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  backgroundColor: Colors.green.shade600,
+                  duration: Duration(seconds: 3),
+                  behavior: SnackBarBehavior.floating,
+                  margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                  elevation: 6,
+                ),
               );
               context.read<AssignmentCubit>().deleteAssignment(assignment.id);
             } else if (state is DeleteAssignmentFailure) {
-              Utils.showSnackBar(
-                context: context,
-                message: unableToDeleteAssignmentKey,
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Container(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error_outline_rounded, color: Colors.white),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            "${Utils.getTranslatedLabel(unableToDeleteAssignmentKey)} ${assignment.name}",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  backgroundColor: maroonPrimary,
+                  duration: Duration(seconds: 3),
+                  behavior: SnackBarBehavior.floating,
+                  margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 6,
+                ),
               );
             }
-          }, builder: (context, state) {
-            return CustomExpandableContainer(
-                key: ValueKey(assignment.id),
-                customActionContainer: InkWell(
-                  onTap: () {
-                    Get.toNamed(
-                      Routes.teacherManageAssignmentSubmissionScreen,
-                      arguments: TeacherManageAssignmentSubmissionScreen
-                          .buildArguments(
-                        assignment: assignment,
-                      ),
-                    );
-                  },
-                  child: CustomTextContainer(
-                    textKey: submissionsKey,
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: Utils.getScaledValue(context, 15)),
+          },
+          builder: (context, state) {
+            return TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0.0, end: 1.0),
+              duration: Duration(milliseconds: 600),
+              curve: Curves.easeOutCubic,
+              builder: (context, value, child) {
+                return Transform.translate(
+                  offset: Offset(0, 30 * (1 - value)),
+                  child: Opacity(
+                    opacity: value,
+                    child: child,
                   ),
-                ),
-                contractedContentWidget: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    CustomTitleDescriptionContainer(
-                      titleKey: dueDateKey,
-                      description: Utils.formatDateAndTime(assignment.dueDate),
+                );
+              },
+              child: Container(
+                margin: EdgeInsets.only(bottom: 30),
+                decoration: BoxDecoration(
+                  color: cardColor,
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: maroonPrimary.withOpacity(0.1),
+                      blurRadius: 25,
+                      offset: Offset(0, 12),
+                      spreadRadius: 0,
                     ),
-                    if (assignment.points != 0 ||
-                        assignment.extraDaysForResubmission != 0) ...[
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        children: [
-                          if (assignment.points != 0)
-                            Expanded(
-                              child: CustomTitleDescriptionContainer(
-                                  titleKey: pointsKey,
-                                  description: assignment.points.toString()),
-                            ),
-                          if (assignment.extraDaysForResubmission != 0)
-                            CustomTitleDescriptionContainer(
-                              titleKey: extraDaysForResubmissionKey,
-                              description:
-                                  "${assignment.extraDaysForResubmission.toString()} Kali",
-                              useReadMoreForDescription: false,
-                            ),
-                        ],
-                      ),
-                    ],
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: 8,
+                      offset: Offset(0, 4),
+                    )
                   ],
                 ),
-                expandedContentWidget: assignment.instructions.trim().isNotEmpty
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(28),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Premium header with enhanced design
+                      Stack(
                         children: [
-                          CustomTitleDescriptionContainer(
-                              titleKey: instructionsKey,
-                              description: assignment.instructions),
+                          // Sophisticated background with animated gradient
+                          AnimatedContainer(
+                            duration: Duration(milliseconds: 300),
+                            height: 130,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Color(0xFFF9F0F5),
+                                  Color(0xFFFDF7FA),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
+                          ),
+
+                          // Dynamic decorative elements
+                          Positioned(
+                            top: -30,
+                            right: -30,
+                            child: Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    maroonPrimary.withOpacity(0.08),
+                                    maroonPrimary.withOpacity(0.03)
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: -25,
+                            left: -15,
+                            child: Container(
+                              width: 70,
+                              height: 70,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    maroonPrimary.withOpacity(0.06),
+                                    maroonPrimary.withOpacity(0.02)
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          // Elegant accent bar
+                          Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            child: Container(
+                              height: 6,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [maroonPrimary, maroonLight],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: maroonPrimary.withOpacity(0.2),
+                                    blurRadius: 10,
+                                    offset: Offset(0, 2),
+                                    spreadRadius: -2,
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Enhanced content layout
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(26, 24, 20, 0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Enhanced typography and layout for assignment title
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        assignment.name,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w700,
+                                          color: textDarkColor,
+                                          letterSpacing: -0.3,
+                                          height: 1.2,
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+
+                                      // Due date with improved styling
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color:
+                                              maroonPrimary.withOpacity(0.08),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          border: Border.all(
+                                            color:
+                                                maroonPrimary.withOpacity(0.15),
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              Icons.calendar_today_rounded,
+                                              color: maroonPrimary,
+                                              size: 14,
+                                            ),
+                                            SizedBox(width: 6),
+                                            Text(
+                                              Utils.formatDateAndTime(
+                                                  assignment.dueDate),
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w600,
+                                                color: maroonPrimary,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                // Refined action menu with visual feedback
+                                Material(
+                                  color: Colors.transparent,
+                                  child: PopupMenuButton<String>(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    elevation: 12,
+                                    offset: Offset(0, 50),
+                                    color: Colors.white,
+                                    onSelected: (value) {
+                                      if (value == 'edit') {
+                                        HapticFeedback.lightImpact();
+                                        Get.toNamed(
+                                                Routes
+                                                    .teacherAddEditAssignmentScreen,
+                                                arguments: TeacherAddEditAssignmentScreen
+                                                    .buildArguments(
+                                                        assignment: assignment,
+                                                        selectedClassSection:
+                                                            _selectedClassSection,
+                                                        selectedSubject:
+                                                            _selectedSubject))
+                                            ?.then((value) {
+                                          if (value != null &&
+                                              value is bool &&
+                                              value) {
+                                            getAssignments();
+                                          }
+                                        });
+                                      } else if (value == 'delete') {
+                                        if (state is DeleteAssignmentInProgress)
+                                          return;
+                                        HapticFeedback.mediumImpact();
+                                        showDialog<bool>(
+                                          context: context,
+                                          builder: (_) =>
+                                              const ConfirmDeleteDialog(),
+                                        ).then((value) {
+                                          if (value != null && value) {
+                                            if (context.mounted) {
+                                              context
+                                                  .read<DeleteAssignmentCubit>()
+                                                  .deleteAssignment(
+                                                    assignmentId: assignment.id,
+                                                  );
+                                            }
+                                          }
+                                        });
+                                      }
+                                    },
+                                    itemBuilder: (context) => [
+                                      // Enhanced Edit button
+                                      PopupMenuItem<String>(
+                                        value: 'edit',
+                                        height: 64,
+                                        child: TweenAnimationBuilder<double>(
+                                          tween: Tween<double>(
+                                              begin: 0.9, end: 1.0),
+                                          duration: Duration(milliseconds: 200),
+                                          builder: (context, value, child) {
+                                            return Transform.scale(
+                                              scale: value,
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 8, horizontal: 8),
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      Colors.blue.shade400,
+                                                      Colors.blue.shade600
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors
+                                                          .blue.shade500
+                                                          .withOpacity(0.3),
+                                                      blurRadius: 12,
+                                                      offset: Offset(0, 4),
+                                                      spreadRadius: -2,
+                                                    )
+                                                  ],
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Container(
+                                                      padding:
+                                                          EdgeInsets.all(6),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.25),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10),
+                                                      ),
+                                                      child: Icon(
+                                                        Icons.edit_rounded,
+                                                        color: Colors.white,
+                                                        size: 20,
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 12),
+                                                    Expanded(
+                                                      child: Text(
+                                                        'Edit',
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontSize: 15,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+
+                                      // Enhanced Delete button
+                                      PopupMenuItem<String>(
+                                        value: 'delete',
+                                        height: 64,
+                                        child: TweenAnimationBuilder<double>(
+                                          tween: Tween<double>(
+                                              begin: 0.9, end: 1.0),
+                                          duration: Duration(milliseconds: 300),
+                                          builder: (context, value, child) {
+                                            return Transform.scale(
+                                              scale: value,
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 8, horizontal: 8),
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      Colors.red.shade400,
+                                                      Colors.red.shade700
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.red.shade500
+                                                          .withOpacity(0.3),
+                                                      blurRadius: 12,
+                                                      offset: Offset(0, 4),
+                                                      spreadRadius: -2,
+                                                    )
+                                                  ],
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Container(
+                                                      padding:
+                                                          EdgeInsets.all(6),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.25),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10),
+                                                      ),
+                                                      child: Icon(
+                                                        Icons
+                                                            .delete_outline_rounded,
+                                                        color: Colors.white,
+                                                        size: 20,
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 12),
+                                                    Expanded(
+                                                      child: Text(
+                                                        'Hapus',
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontSize: 15,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                    child: TweenAnimationBuilder<double>(
+                                      tween:
+                                          Tween<double>(begin: 0.8, end: 1.0),
+                                      duration: Duration(milliseconds: 300),
+                                      builder: (context, value, child) {
+                                        return Transform.scale(
+                                          scale: value,
+                                          child: Container(
+                                            width: 44,
+                                            height: 44,
+                                            decoration: BoxDecoration(
+                                              gradient: state
+                                                      is DeleteAssignmentInProgress
+                                                  ? LinearGradient(
+                                                      colors: [
+                                                        Colors.grey.shade300,
+                                                        Colors.grey.shade400
+                                                      ],
+                                                      begin: Alignment.topLeft,
+                                                      end:
+                                                          Alignment.bottomRight,
+                                                    )
+                                                  : LinearGradient(
+                                                      colors: [
+                                                        Colors.white,
+                                                        Colors.grey.shade100
+                                                      ],
+                                                      begin: Alignment.topLeft,
+                                                      end:
+                                                          Alignment.bottomRight,
+                                                    ),
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                              border: Border.all(
+                                                color: Colors.grey.shade300,
+                                                width: 1.5,
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: maroonPrimary
+                                                      .withOpacity(0.1),
+                                                  blurRadius: 10,
+                                                  offset: Offset(0, 4),
+                                                  spreadRadius: -2,
+                                                ),
+                                              ],
+                                            ),
+                                            child: state
+                                                    is DeleteAssignmentInProgress
+                                                ? Center(
+                                                    child: SizedBox(
+                                                      width: 20,
+                                                      height: 20,
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                        color: maroonPrimary,
+                                                        strokeWidth: 2,
+                                                      ),
+                                                    ),
+                                                  )
+                                                : Icon(
+                                                    Icons.more_vert_rounded,
+                                                    color: maroonPrimary,
+                                                    size: 22,
+                                                  ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
-                      )
-                    : null,
-                onDelete: () {
-                  if (state is DeleteAssignmentInProgress) {
-                    return;
-                  }
-                  showDialog<bool>(
-                    context: context,
-                    builder: (_) => const ConfirmDeleteDialog(),
-                  ).then((value) {
-                    if (value != null && value) {
-                      if (context.mounted) {
-                        context.read<DeleteAssignmentCubit>().deleteAssignment(
-                              assignmentId: assignment.id,
-                            );
-                      }
-                    }
-                  });
-                },
-                isDeleteLoading: state is DeleteAssignmentInProgress,
-                onEdit: () {
-                  Get.toNamed(Routes.teacherAddEditAssignmentScreen,
-                          arguments:
-                              TeacherAddEditAssignmentScreen.buildArguments(
+                      ),
+
+                      // Enhanced description section with refined styling
+                      Container(
+                        padding: EdgeInsets.fromLTRB(26, 22, 26, 24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.grey.shade100,
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  Utils.getTranslatedLabel(instructionsKey),
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: textDarkColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 16),
+
+                            // Elegant description container with enhanced readability
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 20),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade50,
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(
+                                  color: Colors.grey.shade200,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Text(
+                                assignment.description,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14.5,
+                                  color: textMediumColor,
+                                  height: 1.6,
+                                  letterSpacing: 0.1,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Assignment details section
+                      Container(
+                        padding: EdgeInsets.all(26),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.grey.shade100,
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: maroonPrimary.withOpacity(0.08),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    Icons.info_outline_rounded,
+                                    color: maroonPrimary,
+                                    size: 18,
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Text(
+                                  "Detail Tugas",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: textDarkColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 16),
+
+                            // Points and resubmission info
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade50,
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(
+                                  color: Colors.grey.shade200,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Column(
+                                children: [
+                                  // Points row in a nice card format
+                                  Container(
+                                    width: double.infinity,
+                                    margin: EdgeInsets.only(bottom: 10),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 10),
+                                    decoration: BoxDecoration(
+                                      color: Colors.amber.withOpacity(0.08),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Colors.amber.withOpacity(0.3),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          padding: EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color:
+                                                Colors.amber.withOpacity(0.2),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.amber
+                                                    .withOpacity(0.1),
+                                                blurRadius: 4,
+                                                offset: Offset(0, 2),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Icon(
+                                            Icons.star_rounded,
+                                            color: Colors.amber.shade700,
+                                            size: 18,
+                                          ),
+                                        ),
+                                        SizedBox(width: 12),
+                                        Text(
+                                          "${Utils.getTranslatedLabel(pointsKey)}: ",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: textDarkColor,
+                                          ),
+                                        ),
+                                        Text(
+                                          assignment.points.toString(),
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.amber.shade800,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  // Resubmission row in a matching card format
+                                  if (assignment.extraDaysForResubmission != 0)
+                                    Container(
+                                      width: double.infinity,
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 10),
+                                      decoration: BoxDecoration(
+                                        color: Colors.green.withOpacity(0.08),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: Colors.green.withOpacity(0.3),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            padding: EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  Colors.green.withOpacity(0.2),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.green
+                                                      .withOpacity(0.1),
+                                                  blurRadius: 4,
+                                                  offset: Offset(0, 2),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Icon(
+                                              Icons.replay_rounded,
+                                              color: Colors.green,
+                                              size: 18,
+                                            ),
+                                          ),
+                                          SizedBox(width: 12),
+                                          Text(
+                                            "${Utils.getTranslatedLabel(extraDaysForResubmissionKey)}: ",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: textDarkColor,
+                                            ),
+                                          ),
+                                          Text(
+                                            "${assignment.extraDaysForResubmission}",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.green.shade700,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Study materials section with enhanced styling
+                      if (assignment.studyMaterial.isNotEmpty)
+                        Container(
+                          padding: EdgeInsets.all(26),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border(
+                              bottom: BorderSide(
+                                color: Colors.grey.shade100,
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: maroonPrimary.withOpacity(0.08),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      Icons.attach_file_rounded,
+                                      color: maroonPrimary,
+                                      size: 18,
+                                    ),
+                                  ),
+                                  SizedBox(width: 12),
+                                  Text(
+                                    "Lampiran Tugas",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: textDarkColor,
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+
+                                  // Animated counter badge
+                                  TweenAnimationBuilder<double>(
+                                    tween: Tween<double>(begin: 0.8, end: 1.0),
+                                    duration: Duration(milliseconds: 300),
+                                    builder: (context, value, child) {
+                                      return Transform.scale(
+                                        scale: value,
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 3),
+                                          decoration: BoxDecoration(
+                                            color:
+                                                maroonPrimary.withOpacity(0.1),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            border: Border.all(
+                                              color: maroonPrimary
+                                                  .withOpacity(0.2),
+                                              width: 1,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            "${assignment.studyMaterial.length}",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              color: maroonPrimary,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 16),
+
+                              // Enhanced file list container
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade50,
+                                  borderRadius: BorderRadius.circular(18),
+                                  border: Border.all(
+                                    color: Colors.grey.shade200,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(18),
+                                  child: Column(
+                                    children: assignment.studyMaterial
+                                        .asMap()
+                                        .entries
+                                        .map((entry) {
+                                      final index = entry.key;
+                                      final material = entry.value;
+
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey.shade50,
+                                          border: index > 0
+                                              ? Border(
+                                                  top: BorderSide(
+                                                    color: Colors.grey.shade200,
+                                                    width: 1,
+                                                  ),
+                                                )
+                                              : null,
+                                        ),
+                                        padding: EdgeInsets.all(18),
+                                        child: Row(
+                                          children: [
+                                            // Enhanced file icon
+                                            Container(
+                                              width: 48,
+                                              height: 48,
+                                              padding: EdgeInsets.all(12),
+                                              decoration: BoxDecoration(
+                                                color: maroonPrimary
+                                                    .withOpacity(0.08),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Icon(
+                                                _getFileTypeIcon(
+                                                    material.fileName),
+                                                color: maroonPrimary,
+                                                size: 20,
+                                              ),
+                                            ),
+                                            SizedBox(width: 16),
+
+                                            // Enhanced file info
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    material.fileName,
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: textDarkColor,
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                  SizedBox(height: 4),
+                                                  Text(
+                                                    _getFileType(
+                                                        material.fileName),
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 12,
+                                                      color: textMediumColor,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+
+                                            // Enhanced download button
+                                            Material(
+                                              color: Colors.transparent,
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  HapticFeedback.lightImpact();
+                                                  // Add download functionality here
+                                                },
+                                                borderRadius:
+                                                    BorderRadius.circular(14),
+                                                child: Container(
+                                                  padding: EdgeInsets.all(10),
+                                                  decoration: BoxDecoration(
+                                                    color: maroonPrimary
+                                                        .withOpacity(0.07),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            14),
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.download_rounded,
+                                                    color: maroonPrimary,
+                                                    size: 20,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      // View submissions button
+                      Container(
+                        padding: EdgeInsets.all(26),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              HapticFeedback.lightImpact();
+                              Get.toNamed(
+                                Routes.teacherManageAssignmentSubmissionScreen,
+                                arguments:
+                                    TeacherManageAssignmentSubmissionScreen
+                                        .buildArguments(
                                   assignment: assignment,
-                                  selectedClassSection: _selectedClassSection,
-                                  selectedSubject: _selectedSubject))
-                      ?.then((value) {
-                    if (value != null && value is bool && value) {
-                      //re-fetch assignments if they edit or add
-                      getAssignments();
-                    }
-                  });
-                },
-                isStudyMaterialFile: true,
-                studyMaterials: assignment.studyMaterial,
-                titleText: assignment.name);
-          });
-        },
-      ),
+                                ),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(20),
+                            child: Ink(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [maroonPrimary, maroonDark],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: maroonPrimary.withOpacity(0.3),
+                                    blurRadius: 18,
+                                    offset: Offset(0, 8),
+                                    spreadRadius: -6,
+                                  ),
+                                ],
+                              ),
+                              child: Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.symmetric(vertical: 20),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    // Icon(
+                                    //   Icons.assignment_turned_in_outlined,
+                                    //   color: Colors.white,
+                                    //   size: 20,
+                                    // ),
+                                    // SizedBox(width: 14),
+                                    Text(
+                                      "Lihat & Nilai Pengumpulan",
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 16,
+                                        letterSpacing: 0.3,
+                                      ),
+                                    ),
+                                    SizedBox(width: 10),
+                                    Icon(
+                                      Icons.arrow_forward_rounded,
+                                      color: Colors.white,
+                                      size: 18,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      }),
     );
+  }
+
+  IconData _getFileTypeIcon(String fileName) {
+    final extension = fileName.split('.').last.toLowerCase();
+
+    switch (extension) {
+      case 'pdf':
+        return Icons.picture_as_pdf_outlined;
+      case 'doc':
+      case 'docx':
+        return Icons.description_outlined;
+      case 'xls':
+      case 'xlsx':
+        return Icons.table_chart_outlined;
+      case 'ppt':
+      case 'pptx':
+        return Icons.slideshow_outlined;
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+        return Icons.image_outlined;
+      case 'mp4':
+      case 'avi':
+      case 'mov':
+        return Icons.video_file_outlined;
+      case 'mp3':
+      case 'wav':
+        return Icons.audio_file_outlined;
+      default:
+        return Icons.insert_drive_file_outlined;
+    }
+  }
+
+  String _getFileType(String fileName) {
+    final extension = fileName.split('.').last.toLowerCase();
+
+    switch (extension) {
+      case 'pdf':
+        return 'PDF Document';
+      case 'doc':
+      case 'docx':
+        return 'Word Document';
+      case 'xls':
+      case 'xlsx':
+        return 'Excel Spreadsheet';
+      case 'ppt':
+      case 'pptx':
+        return 'PowerPoint Presentation';
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+        return 'Image File';
+      case 'mp4':
+      case 'avi':
+      case 'mov':
+        return 'Video File';
+      case 'mp3':
+      case 'wav':
+        return 'Audio File';
+      default:
+        return extension.toUpperCase() + ' File';
+    }
+  }
+
+  // Helper function to calculate dynamic app bar height based on filter count
+  double _getDynamicAppBarHeight() {
+    // For consistency, use the same logic as in _buildHeaderSection
+    // When we have 3 filters, return 230, otherwise 200
+    if (_selectedClassSection != null) {
+      return 230.0; // 3 filters: grade level + class + subject
+    }
+    return 200.0; // 2 filters: grade level + class
   }
 
   Widget _buildAssignmentList() {
@@ -266,49 +1389,62 @@ class _TeacherManageAssignmentScreenState
         controller: _scrollController,
         padding: EdgeInsets.only(
             bottom: 70,
-            top: Utils.appContentTopScrollPadding(context: context) + 100),
+            top: Utils.appContentTopScrollPadding(context: context) +
+                _getDynamicAppBarHeight() -
+                55), // Dynamic AppBar height with offset
         child: BlocBuilder<AssignmentCubit, AssignmentState>(
           builder: (context, state) {
             if (state is AssignmentsFetchSuccess) {
               if (state.assignment.isEmpty) {
-                // Menampilkan pesan "Tidak ada Tugas" jika kosong
                 return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 50),
-                    child: CustomTextContainer(
-                      textKey: Utils.getTranslatedLabel('Tidak Ada Tugas'),
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 50),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.assignment_outlined,
+                            color: textMediumColor,
+                            size: 80,
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            "Belum ada tugas tersedia",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'Poppins',
+                              color: textMediumColor,
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                        ],
+                      ),
                     ),
                   ),
                 );
               }
-              return Container(
-                padding: EdgeInsets.all(appContentHorizontalPadding),
-                color: Theme.of(context).colorScheme.surface,
-                width: MediaQuery.of(context).size.width,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    CustomTextContainer(
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textKey: assignmentListKey,
-                      style: TextStyle(
-                        fontSize: Utils.getScaledValue(context, 17),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    ...List.generate(
-                      state.assignment.length,
-                      (index) => _buildAssignmentItem(
-                          assignment: state.assignment[index]),
-                    ),
-                  ],
+              return SlideTransition(
+                position: _slideAnimation,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: appContentHorizontalPadding),
+                  width: MediaQuery.of(context).size.width,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Add initial padding at the top of the list
+                      SizedBox(height: 20),
+
+                      // Assignments
+                      ...List.generate(
+                          state.assignment.length,
+                          (index) => _buildAssignmentItem(
+                              assignment: state.assignment[index])),
+                    ],
+                  ),
                 ),
               );
             } else if (state is AssignmentFetchFailure) {
@@ -316,11 +1452,12 @@ class _TeacherManageAssignmentScreenState
                 child: Padding(
                   padding: EdgeInsets.only(
                       top: topPaddingOfErrorAndLoadingContainer),
-                  child: ErrorContainer(
-                    errorMessage: state.errorMessage,
-                    onTapRetry: () {
+                  child: CustomErrorWidget(
+                    message: "Gagal mendapatkan tugas, mohon coba lagi",
+                    onRetry: () {
                       getAssignments();
                     },
+                    primaryColor: maroonPrimary,
                   ),
                 ),
               );
@@ -329,8 +1466,34 @@ class _TeacherManageAssignmentScreenState
                 child: Padding(
                   padding: EdgeInsets.only(
                       top: topPaddingOfErrorAndLoadingContainer),
-                  child: CustomCircularProgressIndicator(
-                    indicatorColor: Theme.of(context).colorScheme.primary,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(40),
+                        ),
+                        child: Icon(
+                          Icons.assignment_outlined,
+                          size: 40,
+                          color: maroonPrimary,
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      Text(
+                        "Pilih kelas dan mata pelajaran untuk melihat tugas",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: textMediumColor,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               );
@@ -342,152 +1505,462 @@ class _TeacherManageAssignmentScreenState
   }
 
   Widget _buildSubmitButton() {
+    final bool showButton =
+        _selectedClassSection != null && _selectedSubject != null;
+
+    if (!showButton) {
+      return SizedBox.shrink();
+    }
+
     return Align(
       alignment: Alignment.bottomCenter,
-      child: Container(
-        padding: EdgeInsets.all(appContentHorizontalPadding),
-        decoration: BoxDecoration(boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 1, spreadRadius: 1)
-        ], color: Theme.of(context).colorScheme.surface),
-        width: MediaQuery.of(context).size.width,
-        height: 70,
-        child: CustomRoundedButton(
-          height: 40,
-          widthPercentage: 1.0,
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          buttonTitle: createAssignmentKey,
-          showBorder: false,
-          onTap: () {
-            Get.toNamed(Routes.teacherAddEditAssignmentScreen,
-                    arguments: TeacherAddEditAssignmentScreen.buildArguments(
-                        assignment: null,
-                        selectedClassSection: _selectedClassSection,
-                        selectedSubject: _selectedSubject))
-                ?.then((value) {
-              if (value != null && value is bool && value) {
-                //re-fetch assignments if they edit or add
-                getAssignments();
-              }
-            });
-          },
+      child: ClipRRect(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
+        ),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          child: Container(
+            padding: EdgeInsets.all(appContentHorizontalPadding),
+            width: MediaQuery.of(context).size.width,
+            height: 90,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  _getDarkenedColor(maroonPrimary, 0.1),
+                  maroonPrimary,
+                  _getLightenedColor(maroonPrimary, 0.1),
+                  maroonLight,
+                ],
+                stops: const [0.0, 0.3, 0.6, 1.0],
+              ),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30),
+                topRight: Radius.circular(30),
+              ),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.2),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: maroonPrimary.withOpacity(0.3),
+                  blurRadius: 20,
+                  offset: Offset(0, -5),
+                  spreadRadius: -2,
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                // Decorative elements like in the AppBar
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: AppBarDecorationPainter(
+                      color: Colors.white.withOpacity(0.07),
+                    ),
+                  ),
+                ),
+                // Animated glowing effect
+                Positioned(
+                  bottom: -80,
+                  right: -40,
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0.8, end: 1.0),
+                    duration: Duration(milliseconds: 2000),
+                    curve: Curves.easeInOut,
+                    builder: (context, value, child) {
+                      return Container(
+                        width: 180,
+                        height: 180,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              Colors.white.withOpacity(0.2 * value),
+                              Colors.white.withOpacity(0.1 * value),
+                              Colors.white.withOpacity(0.0),
+                            ],
+                            stops: const [0.0, 0.5, 1.0],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                // Button content
+                Center(
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0.95, end: 1.0),
+                    duration: Duration(milliseconds: 500),
+                    builder: (context, value, child) {
+                      return Transform.scale(
+                        scale: value,
+                        child: Material(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(15),
+                          child: InkWell(
+                            onTap: () {
+                              HapticFeedback.mediumImpact();
+                              Get.toNamed(Routes.teacherAddEditAssignmentScreen,
+                                      arguments: TeacherAddEditAssignmentScreen
+                                          .buildArguments(
+                                              assignment: null,
+                                              selectedClassSection:
+                                                  _selectedClassSection,
+                                              selectedSubject:
+                                                  _selectedSubject))
+                                  ?.then((value) {
+                                if (value != null && value is bool && value) {
+                                  getAssignments();
+                                }
+                              });
+                            },
+                            borderRadius: BorderRadius.circular(15),
+                            highlightColor: Colors.white.withOpacity(0.1),
+                            splashColor: Colors.white.withOpacity(0.2),
+                            child: Container(
+                              height: 56,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.2),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Center(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Using the same style as in AppBar
+                                    Container(
+                                      padding: const EdgeInsets.all(6),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            Colors.white.withOpacity(0.9),
+                                            Colors.white.withOpacity(0.4),
+                                          ],
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.2),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Icon(
+                                        Icons.add_rounded,
+                                        color: maroonPrimary,
+                                        size: 20,
+                                      ),
+                                    ),
+                                    SizedBox(width: 12),
+                                    // Title text with glowing effect - same as AppBar title
+                                    ShaderMask(
+                                      shaderCallback: (Rect bounds) {
+                                        return LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: [
+                                            Colors.white,
+                                            Colors.white.withOpacity(0.9),
+                                          ],
+                                        ).createShader(bounds);
+                                      },
+                                      blendMode: BlendMode.srcIn,
+                                      child: Text(
+                                        Utils.getTranslatedLabel(
+                                            createAssignmentKey),
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.black26,
+                                              offset: const Offset(0, 1),
+                                              blurRadius: 3,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildAppbarAndFilters() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: BlocConsumer<ClassSectionsAndSubjectsCubit,
-          ClassSectionsAndSubjectsState>(
-        listener: (context, state) {
-          if (state is ClassSectionsAndSubjectsFetchSuccess) {
-            if (_selectedClassSection == null) {
-              changeSelectedClassSection(state.classSections.firstOrNull,
-                  fetchNewSubjects: false);
+  // Helper functions borrowed from CustomFilterModernAppBar for consistency
+  Color _getLightenedColor(Color baseColor, double factor) {
+    HSLColor hsl = HSLColor.fromColor(baseColor);
+    return hsl
+        .withLightness((hsl.lightness + factor).clamp(0.0, 1.0))
+        .toColor();
+  }
+
+  Color _getDarkenedColor(Color baseColor, double factor) {
+    HSLColor hsl = HSLColor.fromColor(baseColor);
+    return hsl
+        .withLightness((hsl.lightness - factor).clamp(0.0, 1.0))
+        .toColor();
+  }
+
+  Widget _buildHeaderSection() {
+    return BlocBuilder<GradeLevelCubit, GradeLevelState>(
+      builder: (context, gradeLevelState) {
+        return BlocBuilder<ClassSectionsAndSubjectsCubit,
+            ClassSectionsAndSubjectsState>(
+          builder: (context, classSectionState) {
+            // Create filter configs for the CustomFilterModernAppBar
+            FilterItemConfig? gradeLevelFilter;
+            FilterItemConfig? classSectionFilter;
+            FilterItemConfig? subjectFilter;
+
+            // Grade Level Filter - always available
+            if (gradeLevelState is GradeLevelFetchSuccess) {
+              gradeLevelFilter = FilterItemConfig(
+                title: _selectedGradeLevel?.name ?? "Pilih Tingkatan",
+                icon: Icons.school_rounded,
+                onTap: () {
+                  if (gradeLevelState.gradeLevels.isEmpty) {
+                    _showSnackBar("Tidak ada tingkatan yang tersedia");
+                    return;
+                  }
+
+                  HapticFeedback.lightImpact();
+                  Utils.showBottomSheet(
+                    child: FilterSelectionBottomsheet<GradeLevel>(
+                      onSelection: (value) {
+                        if (value != null) {
+                          changeSelectedGradeLevel(value);
+                          Get.back();
+                        }
+                      },
+                      selectedValue: _selectedGradeLevel ??
+                          gradeLevelState.gradeLevels.first,
+                      titleKey: gradeLevelKey,
+                      values: gradeLevelState.gradeLevels,
+                    ),
+                    context: context,
+                  );
+                },
+              );
             }
-            if (_selectedSubject == null) {
-              changeSelectedTeacherSubject(state.subjects.firstOrNull);
-            }
-          }
-        },
-        builder: (context, state) {
-          return Column(
-            children: [
-              const CustomAppbar(titleKey: manageAssignmentKey),
-              AppbarFilterBackgroundContainer(
-                child: LayoutBuilder(builder: (context, boxConstraints) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      FilterButton(
-                        onTap: () {
-                          if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                            Utils.showBottomSheet(
-                                child: FilterSelectionBottomsheet<ClassSection>(
-                                  onSelection: (value) {
-                                    changeSelectedClassSection(value!);
-                                    Get.back();
-                                  },
-                                  selectedValue: _selectedClassSection!,
-                                  titleKey: classKey,
-                                  values: state.classSections,
-                                ),
-                                context: context);
+
+            // Class Section Filter - available when we have class sections
+            if (classSectionState is ClassSectionsAndSubjectsFetchSuccess) {
+              // Filter classes based on selected grade level if any
+              List<ClassSection> availableClasses =
+                  classSectionState.classSections;
+
+              // If a grade level is selected, filter classes by grade level
+              if (_selectedGradeLevel != null) {
+                availableClasses = classSectionState.classSections
+                    .where((classSection) =>
+                        classSection.gradeLevelId == _selectedGradeLevel!.id)
+                    .toList();
+              }
+
+              if (availableClasses.isNotEmpty) {
+                classSectionFilter = FilterItemConfig(
+                  title: _selectedClassSection?.name ?? "Pilih Kelas",
+                  icon: Icons.class_rounded,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    Utils.showBottomSheet(
+                      child: FilterSelectionBottomsheet<ClassSection>(
+                        onSelection: (value) {
+                          if (value != null) {
+                            changeSelectedClassSection(value);
+                            Get.back();
                           }
                         },
-                        titleKey: _selectedClassSection?.id == null
-                            ? classKey
-                            : _selectedClassSection?.name ?? "",
-                        width: boxConstraints.maxWidth * (0.48),
+                        selectedValue:
+                            _selectedClassSection ?? availableClasses.first,
+                        titleKey: classKey,
+                        values: availableClasses, // Use filtered classes
                       ),
-                      FilterButton(
-                          onTap: () {
-                            if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                              Utils.showBottomSheet(
-                                  child: FilterSelectionBottomsheet<
-                                      TeacherSubject>(
-                                    selectedValue: _selectedSubject!,
-                                    titleKey: subjectKey,
-                                    values: state.subjects,
-                                    onSelection: (value) {
-                                      changeSelectedTeacherSubject(value!);
-                                      Get.back();
-                                    },
-                                  ),
-                                  context: context);
-                            }
-                          },
-                          titleKey: _selectedSubject?.id == null
-                              ? subjectKey
-                              : _selectedSubject?.subject
-                                      .getSybjectNameWithType() ??
-                                  "",
-                          width: boxConstraints.maxWidth * (0.48)),
-                    ],
-                  );
-                }),
-              ),
-            ],
-          );
-        },
+                      context: context,
+                    );
+                  },
+                );
+              }
+
+              // Subject Filter - only available after class section selected
+              if (_selectedClassSection != null) {
+                subjectFilter = FilterItemConfig(
+                  title: _selectedSubject?.subject.getSybjectNameWithType() ??
+                      "Pilih Mapel",
+                  icon: Icons.subject_rounded,
+                  onTap: () {
+                    if (classSectionState.subjects.isEmpty) {
+                      _showSnackBar("Tidak ada mata pelajaran yang tersedia");
+                      return;
+                    }
+
+                    HapticFeedback.lightImpact();
+                    Utils.showBottomSheet(
+                      child: FilterSelectionBottomsheet<TeacherSubject>(
+                        onSelection: (value) {
+                          if (value != null) {
+                            changeSelectedTeacherSubject(value);
+                            Get.back();
+                          }
+                        },
+                        selectedValue: _selectedSubject ??
+                            classSectionState.subjects.first,
+                        values: classSectionState.subjects,
+                        titleKey: subjectKey,
+                      ),
+                      context: context,
+                    );
+                  },
+                );
+              }
+            }
+
+            // Calculate height dynamically based on available filters
+            double dynamicHeight = 200.0; // Base height
+            if (gradeLevelFilter != null &&
+                classSectionFilter != null &&
+                subjectFilter != null) {
+              dynamicHeight = 250.0; // 3 filters need more space
+            } else if ((gradeLevelFilter != null &&
+                    classSectionFilter != null) ||
+                (gradeLevelFilter != null && subjectFilter != null) ||
+                (classSectionFilter != null && subjectFilter != null)) {
+              dynamicHeight = 200.0; // 2 filters work well with base height
+            }
+
+            // Return the original CustomFilterModernAppBar with dynamic sizing
+            return CustomFilterModernAppBar(
+              title: Utils.getTranslatedLabel(manageAssignmentKey),
+              titleIcon: Icons.assignment_rounded,
+              primaryColor: maroonPrimary,
+              secondaryColor: maroonLight,
+              onBackPressed: () => Navigator.pop(context),
+              firstFilterItem: gradeLevelFilter,
+              secondFilterItem: classSectionFilter,
+              thirdFilterItem: subjectFilter,
+              height: dynamicHeight,
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: maroonPrimary,
+        behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          BlocBuilder<ClassSectionsAndSubjectsCubit,
-              ClassSectionsAndSubjectsState>(
-            builder: (context, state) {
-              if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                return _buildAssignmentList();
-              }
+    final ThemeData theme = ThemeData(
+      primaryColor: maroonPrimary,
+      scaffoldBackgroundColor: bgColor,
+      textTheme: GoogleFonts.poppinsTextTheme(),
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: maroonPrimary,
+        primary: maroonPrimary,
+        secondary: maroonLight,
+      ),
+    );
 
-              if (state is ClassSectionsAndSubjectsFetchFailure) {
+    return Theme(
+      data: theme,
+      child: Scaffold(
+        backgroundColor: bgColor,
+        body: Stack(
+          children: [
+            BlocBuilder<GradeLevelCubit, GradeLevelState>(
+              builder: (context, gradeLevelState) {
+                if (gradeLevelState is GradeLevelFetchSuccess) {
+                  return Stack(
+                    children: [
+                      _buildAssignmentList(),
+                      _buildHeaderSection(),
+                      _buildSubmitButton(),
+                    ],
+                  );
+                }
+
+                if (gradeLevelState is GradeLevelFetchFailure) {
+                  return Center(
+                    child: CustomErrorWidget(
+                      message:
+                          "Gagal mendapatkan data tingkat, mohon coba lagi",
+                      onRetry: () {
+                        context.read<GradeLevelCubit>().getGradeLevels();
+                      },
+                      primaryColor: maroonPrimary,
+                    ),
+                  );
+                }
+
                 return Center(
-                    child: ErrorContainer(
-                  errorMessage: state.errorMessage,
-                  onTapRetry: () {
-                    context
-                        .read<ClassSectionsAndSubjectsCubit>()
-                        .getClassSectionsAndSubjects();
-                  },
-                ));
-              }
-              return Center(
-                child: CustomCircularProgressIndicator(
-                  indicatorColor: Theme.of(context).colorScheme.primary,
-                ),
-              );
-            },
-          ),
-          _buildSubmitButton(),
-          _buildAppbarAndFilters(),
-        ],
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 60,
+                        height: 60,
+                        child: CircularProgressIndicator(
+                          color: maroonPrimary,
+                          strokeWidth: 4,
+                        ),
+                      ),
+                      SizedBox(height: 24),
+                      Text(
+                        "Memuat data...",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: textMediumColor,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

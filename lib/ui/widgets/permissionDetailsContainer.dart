@@ -1,103 +1,178 @@
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
-import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/permissionDetails.dart';
-import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/dateWithFadedBackgroundContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:ui';
 
 class PermissionDetailsContainer extends StatefulWidget {
   final PermissionDetails permissionDetails;
   final bool? overflow;
 
-  const PermissionDetailsContainer(
-      {super.key, required this.permissionDetails, this.overflow});
+  const PermissionDetailsContainer({
+    super.key,
+    required this.permissionDetails,
+    this.overflow,
+  });
 
   @override
   State<PermissionDetailsContainer> createState() =>
       _PermissionDetailsContainerState();
 }
 
-class _PermissionDetailsContainerState
-    extends State<PermissionDetailsContainer> {
+class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
+  bool _isHovering = false;
+
+  // Refined maroon color palette with added accent colors
+  final Color _maroonPrimary = const Color(0xFF7D2027);
+  final Color _maroonLight = const Color(0xFFBF8A8D);
+  final Color _maroonDark = const Color(0xFF5A171C);
+  final Color _maroonAccent = const Color(0xFFE5C6C8);
+  final Color _goldAccent = const Color(0xFFE6D2AA);
+
   @override
   void initState() {
     super.initState();
     context.read<ClassesCubit>().getClasses();
+
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 450),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.95, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOutQuint,
+      ),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   String getClassSectionName(int? classSectionId) {
     if (classSectionId == null) return '-';
 
-    final classesCubit = context.read<ClassesCubit>();
-    final allClasses = classesCubit.getAllClasses();
-    print("Looking for class section ID: $classSectionId");
-    print(
-        "Available classes: ${allClasses.map((e) => "${e.name} (${e.id})").toList()}");
+    try {
+      final classesCubit = context.read<ClassesCubit>();
+      final allClasses = classesCubit.getAllClasses();
 
-    // Cari di semua kelas
-    final classSection = allClasses.firstWhere(
-        (classSection) => classSection.id == classSectionId, orElse: () {
-      print("Class section not found for ID: $classSectionId");
-      return ClassSection(name: '-');
-    });
+      // Check if allClasses is empty
+      if (allClasses.isEmpty) {
+        return '-';
+      }
 
-    print("Found class section: ${classSection.name}");
-    return classSection.name ?? 'Unknown Class';
+      // Use where().isNotEmpty to safely check if element exists
+      final matchingClasses = allClasses.where(
+        (classSection) => classSection.id == classSectionId,
+      );
+
+      if (matchingClasses.isNotEmpty) {
+        return matchingClasses.first.name ?? 'Unknown Class';
+      } else {
+        return '-';
+      }
+    } catch (e) {
+      print('Error in getClassSectionName: $e');
+      return '-';
+    }
   }
 
   String translateRole(String role) {
     final Map<String, String> roleTranslations = {
       "Teacher": "Guru",
     };
-
     return roleTranslations[role] ?? role;
   }
 
-  Widget _buildLeaveTypeContainer(String type) {
+  Widget _buildLeaveTypeChip(String type) {
     Color backgroundColor;
     Color textColor;
+    Color shadowColor;
     String translatedType;
+    IconData iconData;
 
-    switch (type) {
-      case 'Sick':
-        backgroundColor = Theme.of(context)
-            .extension<CustomColors>()!
-            .sickBackgroundColor!
-            .withOpacity(0.1);
-        textColor =
-            Theme.of(context).extension<CustomColors>()!.sickBackgroundColor!;
-        translatedType = 'Sakit';
-        break;
-      case 'Leave':
-        backgroundColor = Theme.of(context)
-            .extension<CustomColors>()!
-            .permissionBackgroundColor!
-            .withOpacity(0.1);
-        textColor = Theme.of(context)
-            .extension<CustomColors>()!
-            .permissionBackgroundColor!;
-        translatedType = 'Izin';
-        break;
-      default:
-        backgroundColor = Theme.of(context).colorScheme.error.withOpacity(0.1);
-        textColor = Theme.of(context).colorScheme.error;
-        translatedType = type;
+    // Set defaults based on type
+    if (type.toLowerCase() == 'sick') {
+      translatedType = 'Sakit';
+      backgroundColor = Colors.red.shade50;
+      textColor = Colors.red.shade700;
+      shadowColor = Colors.red.shade200.withOpacity(0.3);
+      iconData = Icons.healing;
+    } else {
+      // Default to Leave or any other type
+      translatedType = 'Izin';
+      backgroundColor = Colors.blue.shade50;
+      textColor = Colors.blue.shade700;
+      shadowColor = Colors.blue.shade200.withOpacity(0.3);
+      iconData = Icons.event_busy;
     }
 
-    return DateWithFadedBackgroundContainer(
-      backgroundColor: backgroundColor,
-      textColor: textColor,
-      titleKey: translatedType,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: shadowColor,
+            blurRadius: 8,
+            spreadRadius: 1,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        border: Border.all(
+          color: textColor.withOpacity(0.15),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(iconData, color: textColor, size: 18),
+          const SizedBox(width: 8),
+          Text(
+            translatedType,
+            style: TextStyle(
+              color: textColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   void _showAttachments(BuildContext context) {
-    final files = widget.permissionDetails.leaves.last.file;
+    final lastLeave = safeLastLeave;
+    if (lastLeave == null) {
+      Utils.showSnackBar(message: noAttachmentKey, context: context);
+      return;
+    }
+
+    final files = lastLeave.file;
     if (files == null || files.isEmpty) {
       Utils.showSnackBar(message: noAttachmentKey, context: context);
       return;
@@ -105,16 +180,378 @@ class _PermissionDetailsContainerState
 
     showDialog(
       context: context,
+      barrierColor: Colors.black54,
+      builder: (BuildContext context) {
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          child: AnimatedOpacity(
+            opacity: 1.0,
+            duration: const Duration(milliseconds: 300),
+            child: Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+              child: TweenAnimationBuilder(
+                duration: const Duration(milliseconds: 400),
+                tween: Tween<double>(begin: 0.8, end: 1.0),
+                curve: Curves.easeOutQuad,
+                builder: (context, double value, child) {
+                  return Transform.scale(
+                    scale: value,
+                    child: child,
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _maroonDark.withOpacity(0.2),
+                        blurRadius: 20,
+                        spreadRadius: 5,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                    border: Border.all(color: _maroonPrimary.withOpacity(0.2)),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.photo_library_rounded,
+                                color: _maroonPrimary,
+                                size: 24,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Lampiran',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: _maroonPrimary,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () => Navigator.of(context).pop(),
+                              borderRadius: BorderRadius.circular(50),
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: _maroonLight.withOpacity(0.1),
+                                ),
+                                child: Icon(
+                                  Icons.close_rounded,
+                                  color: _maroonPrimary,
+                                  size: 22,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Divider(
+                        thickness: 1,
+                        color: _maroonAccent.withOpacity(0.5),
+                        height: 24,
+                      ),
+                      const SizedBox(height: 8),
+                      // Informative message about fullscreen view
+
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight: MediaQuery.of(context).size.height * 0.6,
+                          maxWidth: MediaQuery.of(context).size.width * 0.8,
+                        ),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: files.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 20.0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: TweenAnimationBuilder(
+                                  duration: Duration(
+                                      milliseconds: 500 + (index * 100)),
+                                  tween: Tween<double>(begin: 0.0, end: 1.0),
+                                  builder: (context, double value, child) {
+                                    return Opacity(
+                                      opacity: value,
+                                      child: child,
+                                    );
+                                  },
+                                  child: GestureDetector(
+                                    onTap: () => _showFullScreenImage(
+                                        context, files[index].fileUrl ?? ''),
+                                    child: Stack(
+                                      children: [
+                                        Image.network(
+                                          files[index].fileUrl ?? '',
+                                          loadingBuilder: (context, child,
+                                              loadingProgress) {
+                                            if (loadingProgress == null)
+                                              return child;
+                                            return Container(
+                                              height: 240,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey.shade50,
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                              ),
+                                              child: Center(
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    SizedBox(
+                                                      width: 40,
+                                                      height: 40,
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                        value: loadingProgress
+                                                                    .expectedTotalBytes !=
+                                                                null
+                                                            ? loadingProgress
+                                                                    .cumulativeBytesLoaded /
+                                                                (loadingProgress
+                                                                        .expectedTotalBytes ??
+                                                                    1)
+                                                            : null,
+                                                        valueColor:
+                                                            AlwaysStoppedAnimation<
+                                                                    Color>(
+                                                                _maroonPrimary),
+                                                        strokeWidth: 3,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 12),
+                                                    Text(
+                                                      "Memuat lampiran...",
+                                                      style: TextStyle(
+                                                        color: _maroonPrimary,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Container(
+                                              height: 240,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey.shade100,
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                                border: Border.all(
+                                                  color: _maroonLight
+                                                      .withOpacity(0.2),
+                                                  width: 1,
+                                                ),
+                                              ),
+                                              child: Center(
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Icon(
+                                                      Icons
+                                                          .broken_image_rounded,
+                                                      color: _maroonPrimary,
+                                                      size: 48,
+                                                    ),
+                                                    const SizedBox(height: 16),
+                                                    Text(
+                                                      "Tidak dapat memuat gambar",
+                                                      style: TextStyle(
+                                                        color: _maroonPrimary,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        fontSize: 15,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 8),
+                                                    Text(
+                                                      "Coba lagi nanti",
+                                                      style: TextStyle(
+                                                        color: Colors
+                                                            .grey.shade700,
+                                                        fontSize: 13,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                        // Zoom indicator overlay
+                                        Positioned(
+                                          right: 10,
+                                          bottom: 10,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  Colors.black.withOpacity(0.5),
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            child: Icon(
+                                              Icons.zoom_out_map_rounded,
+                                              color: Colors.white,
+                                              size: 18,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showFullScreenImage(BuildContext context, String imageUrl) {
+    showDialog(
+      context: context,
       builder: (BuildContext context) {
         return Dialog(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: files.map((file) {
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Image.network(file.fileUrl ?? ''),
-              );
-            }).toList(),
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.zero,
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: Colors.black.withOpacity(0.85),
+              child: Stack(
+                children: [
+                  // Fullscreen image with pinch-to-zoom
+                  Center(
+                    child: InteractiveViewer(
+                      minScale: 0.5,
+                      maxScale: 4.0,
+                      child: Image.network(
+                        imageUrl,
+                        fit: BoxFit.contain,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: SizedBox(
+                              width: 60,
+                              height: 60,
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        (loadingProgress.expectedTotalBytes ??
+                                            1)
+                                    : null,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    _maroonPrimary),
+                                strokeWidth: 3,
+                              ),
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.broken_image_rounded,
+                                color: Colors.white,
+                                size: 70,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                "Tidak dapat memuat gambar",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+
+                  // Close button
+                  Positioned(
+                    top: 40,
+                    right: 20,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => Navigator.of(context).pop(),
+                        borderRadius: BorderRadius.circular(50),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.black.withOpacity(0.5),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.2),
+                              width: 1,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.close_rounded,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         );
       },
@@ -123,146 +560,764 @@ class _PermissionDetailsContainerState
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final textScaleFactor = MediaQuery.of(context).textScaleFactor;
-
     return BlocBuilder<ClassesCubit, ClassesState>(
       builder: (context, state) {
         if (state is ClassesFetchSuccess) {
-          return IntrinsicHeight(
-            child: Container(
-              margin:
-                  EdgeInsets.symmetric(horizontal: appContentHorizontalPadding),
-              padding: EdgeInsets.symmetric(
-                horizontal: appContentHorizontalPadding,
-                vertical: appContentHorizontalPadding,
-              ),
-              width: double.maxFinite,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(2.5),
-                color: Theme.of(context).scaffoldBackgroundColor,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      _buildLeaveTypeContainer(
-                        widget.permissionDetails.leaves.last.leaveDetail?.last
-                                .type ??
-                            '',
-                      ),
-                    ],
+          // Start animation once data is loaded
+          if (!_animationController.isCompleted) {
+            _animationController.forward();
+          }
+          return AnimatedBuilder(
+            animation: _animationController,
+            builder: (context, child) {
+              try {
+                return FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: _buildSuccessUI(),
                   ),
-                  const SizedBox(height: 20),
-                  // Menggunakan Column sebagai container utama
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CustomTextContainer(
-                        textKey: widget.permissionDetails.user?.fullName ?? "",
-                        style: TextStyle(
-                          fontSize: Utils.getScaledValue(context, 18.5),
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 3,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CustomTextContainer(
-                            textKey:
-                                'Kelas : ${getClassSectionName(widget.permissionDetails.classSectionId)}',
-                            style: TextStyle(
-                              fontSize: Utils.getScaledValue(context, 17.0),
-                            ),
-                            maxLines: 2,
-                          ),
-                          CircleAvatar(
-                            radius: screenWidth * 0.05,
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withOpacity(0.1),
-                            child: IconButton(
-                              onPressed: () => _showAttachments(context),
-                              icon: Icon(
+                );
+              } catch (e, stackTrace) {
+                print('Error in AnimatedBuilder: $e');
+                print('Stack trace: $stackTrace');
+                print(
+                    'Permission details: ${widget.permissionDetails.toJson()}');
+                // Fallback to simple UI without animation
+                return _buildSimpleUI();
+              }
+            },
+          );
+        } else if (state is ClassesFetchFailure) {
+          return _buildErrorUI();
+        } else {
+          return _buildLoadingUI();
+        }
+      },
+    );
+  }
+
+  Widget _buildSuccessUI() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 600;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovering = true),
+      onExit: (_) => setState(() => _isHovering = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutQuint,
+        margin: EdgeInsets.symmetric(
+          horizontal: appContentHorizontalPadding,
+          vertical: 12,
+        ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: _isHovering
+                  ? _maroonPrimary.withOpacity(0.25)
+                  : Colors.black.withOpacity(0.06),
+              blurRadius: _isHovering ? 18 : 8,
+              offset: Offset(0, _isHovering ? 6 : 4),
+              spreadRadius: _isHovering ? 2 : 0,
+            ),
+          ],
+          border: Border.all(
+            color: _isHovering
+                ? _maroonPrimary.withOpacity(0.3)
+                : _maroonLight.withOpacity(0.15),
+            width: 1.5,
+          ),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
+            children: [
+              // Background pattern and decorative elements
+              Positioned(
+                top: -20,
+                right: -20,
+                child: Container(
+                  width: 150,
+                  height: 150,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        _maroonAccent.withOpacity(0.2),
+                        Colors.transparent,
+                      ],
+                      radius: 0.7,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: -15,
+                left: -15,
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        _goldAccent.withOpacity(0.15),
+                        Colors.transparent,
+                      ],
+                      radius: 0.7,
+                    ),
+                  ),
+                ),
+              ),
+
+              // Main content
+              Container(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header with leave type and attachment button
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildLeaveTypeChip(getSafeLeaveType()),
+                        Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => _showAttachments(context),
+                            borderRadius: BorderRadius.circular(50),
+                            splashColor: _maroonPrimary.withOpacity(0.1),
+                            highlightColor: _maroonPrimary.withOpacity(0.05),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: _isHovering
+                                    ? _maroonPrimary.withOpacity(0.15)
+                                    : _maroonPrimary.withOpacity(0.1),
+                                shape: BoxShape.circle,
+                                boxShadow: _isHovering
+                                    ? [
+                                        BoxShadow(
+                                          color:
+                                              _maroonPrimary.withOpacity(0.2),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 3),
+                                        )
+                                      ]
+                                    : null,
+                              ),
+                              child: Icon(
                                 Icons.attach_file_rounded,
-                                size: screenWidth * 0.05,
-                                color: Theme.of(context).colorScheme.primary,
+                                size: 22,
+                                color: _maroonPrimary,
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          CustomTextContainer(
-                            textKey: 'Absen : ',
-                            style: TextStyle(
-                              fontSize: 17.0 / textScaleFactor,
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    // Student info header section with enhanced styling
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                _maroonPrimary.withOpacity(0.8),
+                                _maroonDark,
+                              ],
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: _maroonPrimary.withOpacity(0.3),
+                                blurRadius: 12,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
                           ),
-                          CustomTextContainer(
-                            textKey: '${widget.permissionDetails.rollNumber}',
-                            style: TextStyle(
-                                fontSize: Utils.getScaledValue(context, 17.0),
-                                fontWeight: FontWeight.bold),
+                          child: const Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 30,
                           ),
-                        ],
-                      ),
-                      // SizedBox(height: 10),
-                      Divider(thickness: 1),
-                      // Container untuk alasan dengan wrapping text
-                      Container(
-                        width: double.infinity,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 5.0),
-                              child: CustomTextContainer(
-                                textKey: "Keterangan : ",
+                        ),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.permissionDetails.user?.fullName ?? "",
                                 style: TextStyle(
-                                  fontSize: Utils.getScaledValue(context, 17.0),
+                                  fontSize: isSmallScreen ? 20 : 22,
                                   fontWeight: FontWeight.bold,
+                                  color: _maroonDark,
+                                  letterSpacing: 0.3,
+                                  height: 1.2,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade50,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: Colors.grey.shade200,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.class_outlined,
+                                      size: 16,
+                                      color: _maroonPrimary.withOpacity(0.7),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Flexible(
+                                      child: Text(
+                                        'Kelas: ${getClassSectionName(widget.permissionDetails.classSectionId)}',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
-                            Container(
-                              width: double.infinity,
-                              child: CustomTextContainer(
-                                textKey: translateRole(widget
-                                        .permissionDetails.leaves.last.reason ??
-                                    ''),
-                                style: TextStyle(
-                                  fontSize: Utils.getScaledValue(context, 17.5),
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade50,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: Colors.grey.shade200,
+                                  ),
                                 ),
-                                maxLines: null, // Allow unlimited lines
-                                overflow: TextOverflow
-                                    .visible, // Text will wrap to next line
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.format_list_numbered,
+                                      size: 16,
+                                      color: _maroonPrimary.withOpacity(0.7),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Absen: ${widget.permissionDetails.rollNumber}',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Container(
+                        height: 1,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.transparent,
+                              _maroonLight.withOpacity(0.6),
+                              _maroonLight.withOpacity(0.6),
+                              Colors.transparent,
+                            ],
+                            stops: const [0.0, 0.2, 0.8, 1.0],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Reason section with enhanced styling
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: _maroonLight.withOpacity(0.05),
+                        border: Border.all(
+                          color: _maroonPrimary.withOpacity(0.15),
+                          width: 1.5,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: _maroonPrimary.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: _maroonPrimary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.description_outlined,
+                                  color: _maroonPrimary,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  "Keterangan",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: _maroonPrimary,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.grey.shade200,
+                              ),
+                            ),
+                            child: Text(
+                              translateRole(safeLastLeave?.reason ?? ''),
+                              style: const TextStyle(
+                                fontSize: 15,
+                                height: 1.6,
+                                color: Colors.black87,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ), // Footer with date in a more elegant style
+                    if (safeLastLeave?.fromDate != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 24),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // School branding indicator
+
+                            const SizedBox(width: 8),
+
+                            // Date container
+                            Flexible(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: isSmallScreen ? 12 : 16,
+                                    vertical: 10),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      _maroonLight.withOpacity(0.2),
+                                      _goldAccent.withOpacity(0.15),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.03),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                  border: Border.all(
+                                    color: _maroonLight.withOpacity(0.2),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_today_rounded,
+                                      size: 16,
+                                      color: _maroonDark,
+                                    ),
+                                    SizedBox(width: isSmallScreen ? 6 : 10),
+                                    Flexible(
+                                      child: Text(
+                                        safeLastLeave?.fromDate ?? '',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: _maroonDark,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      // const SizedBox(height: 15),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorUI() {
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 800),
+      tween: Tween<double>(begin: 0.0, end: 1.0),
+      curve: Curves.easeOutQuad,
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+              offset: Offset(0, 20 * (1 - value)),
+              child: Center(
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  margin: EdgeInsets.symmetric(
+                      horizontal: appContentHorizontalPadding),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.red.shade50,
+                        Colors.red.shade100,
+                      ],
+                    ),
+                    border: Border.all(color: Colors.red.shade300),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.red.shade100.withOpacity(0.5),
+                        blurRadius: 12,
+                        offset: const Offset(0, 5),
+                      ),
                     ],
                   ),
-                ],
-              ),
-            ),
-          );
-        } else if (state is ClassesFetchFailure) {
-          return Center(
-            child: Text('Failed to load classes'),
-          );
-        } else {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.red.shade300.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.error_outline_rounded,
+                          color: Colors.red.shade700,
+                          size: 26,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Gagal memuat data',
+                              style: TextStyle(
+                                color: Colors.red.shade800,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Silakan coba lagi dalam beberapa saat',
+                              style: TextStyle(
+                                color: Colors.red.shade700,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )),
+        );
       },
     );
+  }
+
+  Widget _buildLoadingUI() {
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 1200),
+      tween: Tween<double>(begin: 0.0, end: 1.0),
+      curve: Curves.easeInOut,
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 60 * value,
+                          height: 60 * value,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _maroonPrimary.withOpacity(0.1 * value),
+                          ),
+                        ),
+                      ),
+                      Center(
+                        child: SizedBox(
+                          width: 48,
+                          height: 48,
+                          child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(_maroonPrimary),
+                            strokeWidth: 4,
+                          ),
+                        ),
+                      ),
+                      Center(
+                        child: Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _maroonPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Memuat data...',
+                  style: TextStyle(
+                    color: _maroonPrimary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  width: 140,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(2),
+                    color: Colors.grey.shade200,
+                  ),
+                  child: Stack(
+                    children: [
+                      AnimatedPositioned(
+                        duration: const Duration(milliseconds: 1500),
+                        curve: Curves.easeInOut,
+                        left: value > 0.5 ? 0 : 140 * (1 - value * 2),
+                        right: value > 0.5 ? 140 * (1 - (value - 0.5) * 2) : 0,
+                        top: 0,
+                        bottom: 0,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(2),
+                            color: _maroonPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSimpleUI() {
+    // Simple fallback UI without animations
+
+    return Container(
+      margin: EdgeInsets.symmetric(
+        horizontal: appContentHorizontalPadding,
+        vertical: 12,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: _maroonLight.withOpacity(0.15),
+          width: 1.5,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Leave type chip
+              _buildLeaveTypeChip(getSafeLeaveType()),
+              SizedBox(height: 16),
+
+              // Student name
+              Text(
+                widget.permissionDetails.user?.fullName ?? "",
+                style: TextStyle(
+                  fontSize: 18.5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 8),
+
+              // Class and roll number
+              Text(
+                'Kelas: ${getClassSectionName(widget.permissionDetails.classSectionId)}',
+                style: TextStyle(fontSize: 16),
+              ),
+              Text(
+                'Absen: ${widget.permissionDetails.rollNumber}',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 12),
+
+              Divider(thickness: 1),
+              SizedBox(height: 8),
+
+              // Reason
+              Text(
+                "Keterangan:",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                translateRole(safeLastLeave?.reason ?? ''),
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Helper method to safely get the last leave
+  dynamic get safeLastLeave {
+    try {
+      if (widget.permissionDetails.leaves.isEmpty) {
+        print('Debug: leaves list is empty');
+        return null;
+      }
+      final lastLeave = widget.permissionDetails.leaves.last;
+      print(
+          'Debug: found last leave with ${lastLeave.leaveDetail?.length ?? 0} leave details');
+      return lastLeave;
+    } catch (e) {
+      print('Error in safeLastLeave: $e');
+      return null;
+    }
+  }
+
+  // Helper method to safely get leave type
+  String getSafeLeaveType() {
+    try {
+      final lastLeave = safeLastLeave;
+      if (lastLeave == null) {
+        print('Debug: lastLeave is null');
+        return '';
+      }
+
+      final leaveDetail = lastLeave.leaveDetail;
+      if (leaveDetail == null) {
+        print('Debug: leaveDetail is null');
+        return '';
+      }
+
+      if (leaveDetail.isEmpty) {
+        print('Debug: leaveDetail is empty');
+        return '';
+      }
+
+      final type = leaveDetail.last?.type;
+      print('Debug: leave type is $type');
+      return type ?? '';
+    } catch (e) {
+      print('Error in getSafeLeaveType: $e');
+      return '';
+    }
   }
 }

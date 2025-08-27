@@ -22,36 +22,46 @@ class CreateAssignmentCubit extends Cubit<CreateAssignmentState> {
 
   CreateAssignmentCubit() : super(CreateAssignmentInitial());
 
-  Future<void> createAssignment({
-    required int classSectionId,
-    required int classSubjectId,
-    required String name,
-    required String instruction,
-    required String dateTime,
-    required String points,
-    required bool resubmission,
-    required String extraDayForResubmission,
-    List<PlatformFile>? file,
-  }) async {
-    emit(CreateAssignmentInProcess());
-    try {
-      await _assignmentRepository
-          .createAssignment(
-            classSectionId: classSectionId,
-            classSubjectId: classSubjectId,
-            name: name,
-            dateTime: dateTime,
-            resubmission: resubmission,
-            extraDayForResubmission: int.parse(
-              extraDayForResubmission.isEmpty ? "0" : extraDayForResubmission,
-            ),
-            filePaths: file,
-            instruction: instruction,
-            points: int.parse(points.isEmpty ? "0" : points),
-          )
-          .then((value) => emit(CreateAssignmentSuccess()));
-    } catch (e) {
-      emit(CreateAssignmentFailure(errorMessage: e.toString()));
-    }
+ Future<void> createAssignment({
+  required int classSectionId,
+  required int classSubjectId,
+  required String name,
+  required String description,
+  required String dateTime,
+  required String startDate, 
+  required String endDate, 
+  required String points,
+  required String minPoints,
+  required String maxFile,
+  required bool resubmission,
+  required String extraDayForResubmission,
+  List<PlatformFile>? file,
+  required List<String> acceptedFile,
+  required String text,
+}) async {
+  emit(CreateAssignmentInProcess());
+  try {
+    await _assignmentRepository.createAssignment(
+      classSectionId: classSectionId,
+      classSubjectId: classSubjectId,
+      name: name,
+      description: description,
+      dateTime: dateTime,
+      startDate: startDate, 
+      endDate: endDate, 
+      points: int.parse(points.isEmpty ? "0" : points),
+      minPoints: int.parse(minPoints.isEmpty ? "0" : minPoints),
+      maxFile: int.parse(maxFile.isEmpty ? "0" : maxFile),
+      resubmission: resubmission,
+      extraDayForResubmission:
+          int.parse(extraDayForResubmission.isEmpty ? "0" : extraDayForResubmission),
+      filePaths: file,
+      acceptedFile: acceptedFile,
+      text: text,
+    );
+    emit(CreateAssignmentSuccess());
+  } catch (e) {
+    emit(CreateAssignmentFailure(errorMessage: e.toString()));
   }
+}
 }

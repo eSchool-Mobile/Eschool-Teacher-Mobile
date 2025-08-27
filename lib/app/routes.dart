@@ -1,4 +1,9 @@
-import 'package:eschool_saas_staff/ui/screens/aboutUsScreen.dart';
+import 'dart:convert';
+
+import 'package:eschool_saas_staff/ui/screens/AboutUsScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/PrivacyPolicyScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/TermsAndConditionScreen.dart';
+import 'package:flutter/material.dart';
 import 'package:eschool_saas_staff/ui/screens/addAnnouncementScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/addNotification/addNotificationScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/allowancesAndDeductionsScreen.dart';
@@ -20,14 +25,18 @@ import 'package:eschool_saas_staff/ui/screens/home/widgets/chatContainer/newChat
 import 'package:eschool_saas_staff/ui/screens/leaveRequestsScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/leaves/leavesScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/login/loginScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/archiveOnlineExam.dart';
 import 'package:eschool_saas_staff/ui/screens/manageAnnouncement/manageAnnouncementScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/manageNotification/manageNotificationScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/managePayrolls/managePayrollsScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/myPayrollScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/notificationsScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/offlineResult/offlineResultScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResultQuestionsScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResultAnswerScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResult.dart';
 import 'package:eschool_saas_staff/ui/screens/paidFeesScreen.dart';
-import 'package:eschool_saas_staff/ui/screens/privacyPolicyScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/PrivacyPolicyScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/searchTeachersScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/searchUsersScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/sessionYearsScreen.dart';
@@ -59,8 +68,37 @@ import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherViewAttend
 import 'package:eschool_saas_staff/ui/screens/teacherProfileScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherTimeTableDetailsScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teachersScreen.dart';
-import 'package:eschool_saas_staff/ui/screens/termsAndConditionScreen.dart';
-import 'package:get/get_navigation/src/routes/get_route.dart';
+import 'package:eschool_saas_staff/ui/screens/TermsAndConditionScreen.dart';
+import 'package:get/get.dart';
+import 'package:eschool_saas_staff/ui/screens/teacherAcademics/questionBankListScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/teacherAcademics/questionSubjectScreen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart' as bloc;
+import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/questionBankCubit.dart';
+import 'package:eschool_saas_staff/data/repositories/questionBankRepository.dart';
+import 'package:eschool_saas_staff/ui/screens/teacherAcademics/addQuestionScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/editQuestionScreen.dart';
+import 'package:eschool_saas_staff/data/models/question.dart';
+import 'package:eschool_saas_staff/data/models/subjectQuestion.dart';
+import 'package:dio/dio.dart';
+import 'package:eschool_saas_staff/data/models/questionBank.dart';
+import 'package:eschool_saas_staff/ui/screens/teacherAcademics/bankQuestionScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/createOnlineExam.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/editOnlineExam.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
+import 'package:eschool_saas_staff/cubits/questionOnlineExam/questionOnlineExamCubit.dart';
+import 'package:eschool_saas_staff/data/repositories/onlineExamRepository.dart';
+import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/questionOnlineExamScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/BankSoalSelectionScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/previewQuestionBankSoal.dart';
+import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
+import 'package:eschool_saas_staff/ui/screens/onlineExam/examStatuScreen.dart';
+import 'package:eschool_saas_staff/cubits/examStatus/examStatusCubit.dart';
+import 'package:eschool_saas_staff/data/repositories/examStatusRepository.dart';
+import 'package:eschool_saas_staff/ui/screens/assignmentMonitoring/assignmentMonitoringScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/assignmentMonitoring/assignmentDetailMonitoringScreen.dart';
 
 // Nama route
 class Routes {
@@ -103,6 +141,9 @@ class Routes {
   static String contactUsScreen = "/contactUS";
   static String privacyPolicyScreen = "/privacyPolicy";
   static String termsAndConditionScreen = "/termsAndCondition";
+  static String assignmentMonitoringScreen = "/assignmentMonitoring";
+  static String assignmentDetailMonitoringScreen =
+      "/assignmentDetailMonitoring";
 
   static String sessionYearsScreen = "/sessionYears";
   static String allowancesAndDeductionsScreen = "/allowancesAndDeductions";
@@ -120,6 +161,16 @@ class Routes {
   static String attendanceRankingScreen = "/attendanceRanking";
   static String teacherManageLessonScreen = "/teacherManageLesson";
   static String teacherManageTopicScreen = "/teacherManageTopic";
+
+  // Question Bank routes
+  static String questionBankScreen = "/questionBank";
+  static String questionSubjectScreen = "/questionSubject";
+  static String addQuestionScreen = "/addQuestion";
+  static String editQuestionScreen = "/editQuestion";
+  static String bankQuestionScreen = "/bankQuestion";
+  static const String addQuestionBank = '/addQuestionBank';
+  static const String previewQuestionBank = '/preview-question-bank';
+
   static String teacherManageAssignmentScreen = "/teacherManageAssignment";
   static String teacherManageAssignmentSubmissionScreen =
       "/teacherManageAssignmentSubmissionScreen";
@@ -138,6 +189,22 @@ class Routes {
   static String chatScreen = "/chat";
   static String chatContacts = "/chatContacts";
   static String newChatContactsScreen = "/newChatContactsScreen";
+
+  static String onlineExamScreen = "/onlineExam";
+  static String onlineExamResultScreen = "/onlineExamResult";
+  static String onlineExamResultQuestionsScreen =
+      "/OnlineExamResultQuestionsScreen/:id/:nama";
+  static String onlineExamResultAnswerScreen =
+      "/OnlineExamResultAnswerScreen/:examId/:questionId/:examName/:questionType";
+  static String createOnlineExam = "/create-exam";
+
+  // Tambahkan route baru
+  static const String questionOnlineExam = '/exam-questions/:id';
+  static const String editOnlineExam = '/edit-exam';
+  static const String archiveOnlineExam = '/archive-online-exam';
+  static const String bankSoalSelection = '/bank-soal-selection';
+  static const String questionOnlineExamScreen = '/question-online-exam';
+  static const String examStatusScreen = "/examStatus";
 
   // Nama page
   static final List<GetPage> getPages = [
@@ -210,7 +277,17 @@ class Routes {
     GetPage(
         name: changePasswordScreen,
         page: () => ChangePasswordScreen.getRouteInstance()),
-    GetPage(name: aboutUsScreen, page: () => AboutUsScrren.getRouteInstance()),
+    GetPage(
+      name: questionSubjectScreen,
+      page: () => BlocProvider(
+        create: (context) => QuestionBankCubit(
+          repository: QuestionBankRepository(),
+        )..fetchTeacherSubjects(
+            isStaffView: true), // Set isStaffView to true for staff
+        child: QuestionSubjectScreen(isStaffView: true),
+      ),
+    ),
+    GetPage(name: aboutUsScreen, page: () => AboutUsScreen.getRouteInstance()),
     GetPage(
         name: contactUsScreen, page: () => ContactUsScreen.getRouteInstance()),
     GetPage(
@@ -332,11 +409,330 @@ class Routes {
       name: chatContacts,
       page: () => ChatContainer.getRouteInstance(),
     ),
-    GetPage(name: chatScreen, page: () => ChatScreen.getRouteInstance()),
     GetPage(
-        name: newChatContactsScreen,
-        page: () => NewChatContactsScreen.getRouteInstance()),
-  ];
+      name: questionSubjectScreen,
+      page: () => BlocProvider(
+        create: (context) =>
+            QuestionBankCubit(repository: QuestionBankRepository()),
+        child: QuestionSubjectScreen(),
+      ),
+    ),
+    GetPage(
+      name: questionBankScreen,
+      page: () => BlocProvider(
+        create: (context) => QuestionBankCubit(
+          repository: QuestionBankRepository(),
+        ),
+        child: QuestionBankListScreen(
+          subject: Get.arguments as SubjectQuestion,
+        ),
+      ),
+    ),
+    //   GetPage(
+    //     name: questionBankScreen,
+    //     page: () => BlocProvider(
+    //       create: (context) => QuestionBankCubit(QuestionBankRepository()),
+    //       child: QuestionBankListScreen(),
+    //     ),
+    //   ),
+    //   GetPage(name: chatScreen, page: () => ChatScreen.getRouteInstance()),
+    //   GetPage(
+    //       name: newChatContactsScreen,
+    //       page: () => NewChatContactsScreen.getRouteInstance()),
+    //   GetPage(
+    //     name: addQuestionScreen,
+    //     page: () => BlocProvider(
+    //       create: (context) => QuestionBankCubit(QuestionBankRepository()),
+    //       child: AddQuestionScreen(),
+    //     ),
+    //   ),
+    //  GetPage(
+    //   name: editQuestionScreen, // Route yang sudah didefinisikan
+    //   page: () => BlocProvider(
+    //     create: (context) => QuestionBankCubit(QuestionBankRepository()),
+    //     child: EditQuestionScreen(
+    //       question: Get.arguments as Question,
+    //     ),
+    //   ),
+    // ),
+    // GetPage(
+    //   name: editQuestionScreen,
+    //   page: () => BlocProvider(
+    //     create: (context) => QuestionBankCubit(QuestionBankRepository()),
+    //     child: EditQuestionScreen(
+    //       question: Get.arguments as Question,
+    //     ),
+    //   ),
+    // ),
+
+    GetPage(
+      name: onlineExamResultScreen,
+      page: () => MultiBlocProvider(
+        providers: [
+          BlocProvider<OnlineExamCubit>(
+            create: (context) => OnlineExamCubit(OnlineExamRepository()),
+          ),
+          BlocProvider<ClassSectionsAndSubjectsCubit>(
+            create: (context) => ClassSectionsAndSubjectsCubit(),
+          ),
+        ],
+        child: OnlineExamResultScreen(),
+      ),
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: onlineExamResultQuestionsScreen,
+      page: () => MultiBlocProvider(
+        providers: [
+          BlocProvider<OnlineExamCubit>(
+            create: (context) => OnlineExamCubit(OnlineExamRepository()),
+          ),
+          BlocProvider<ClassSectionsAndSubjectsCubit>(
+            create: (context) => ClassSectionsAndSubjectsCubit(),
+          ),
+        ],
+        child: OnlineExamResultQuestionsScreen(
+            examId: int.parse(Get.parameters['id'] ?? '0'),
+            examName: utf8.decode(base64.decode(Get.parameters['nama'] ?? ''))),
+      ),
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: onlineExamResultAnswerScreen,
+      page: () => MultiBlocProvider(
+        providers: [
+          BlocProvider<OnlineExamCubit>(
+            create: (context) => OnlineExamCubit(OnlineExamRepository()),
+          ),
+          BlocProvider<ClassSectionsAndSubjectsCubit>(
+            create: (context) => ClassSectionsAndSubjectsCubit(),
+          ),
+        ],
+        child: OnlineExamResultAnswerScreen(
+            examId: int.parse(Get.parameters['examId'] ?? '0'),
+            questionId: int.parse(Get.parameters['questionId'] ?? '0'),
+            examName:
+                utf8.decode(base64.decode(Get.parameters['examName'] ?? '')),
+            questionType: Get.parameters['questionType'] ?? ''),
+      ),
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+
+    GetPage(
+      name: bankQuestionScreen,
+      page: () => BlocProvider(
+        create: (context) =>
+            QuestionBankCubit(repository: QuestionBankRepository()),
+        child: BankQuestionScreen(
+          bankSoal: Get.arguments['bankSoal'] as BankSoal,
+          subjectId: Get.arguments['subjectId'] as int,
+          subject: Get.arguments['subject'] as SubjectQuestion,
+        ),
+      ),
+    ),
+    // GetPage(
+    //   name: addQuestionBank,
+    //   page: () => BlocProvider(
+    //     create: (context) => QuestionBankCubit(repository: QuestionBankRepository()),
+    //     child: AddQuestionBank(subject: Get.arguments as SubjectQuestion),
+    //   ),
+    // ),
+
+    GetPage(
+      name: bankQuestionScreen,
+      page: () => BlocProvider(
+        create: (context) =>
+            QuestionBankCubit(repository: QuestionBankRepository()),
+        child: BankQuestionScreen(
+          bankSoal: Get.arguments['bankSoal'] as BankSoal,
+          subjectId: Get.arguments['subjectId'] as int,
+          subject: Get.arguments['subject'] as SubjectQuestion,
+        ),
+      ),
+    ),
+    GetPage(
+      name: addQuestionScreen,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return BlocProvider(
+          create: (context) => QuestionBankCubit(
+            repository: QuestionBankRepository(),
+          ),
+          child: AddQuestionScreen(
+            bankSoalId: args['bankSoalId'] as int,
+            subjectId: args['subjectId'] as int,
+          ),
+        );
+      },
+    ),
+    GetPage(
+      name: editQuestionScreen,
+      page: () => BlocProvider(
+        create: (context) =>
+            QuestionBankCubit(repository: QuestionBankRepository()),
+        child: EditQuestionScreen(
+          idList: Get.arguments['idList'],
+          questionData:
+              Get.arguments['questionData'], // This expects 'questionData'
+        ),
+      ),
+    ),
+    GetPage(
+      name: onlineExamScreen,
+      page: () => OnlineExamScreen.getRouteInstance(),
+    ),
+
+    GetPage(
+      name: createOnlineExam,
+      page: () => MultiBlocProvider(
+        providers: [
+          BlocProvider<OnlineExamCubit>(
+            create: (context) => OnlineExamCubit(OnlineExamRepository()),
+          ),
+          BlocProvider<ClassSectionsAndSubjectsCubit>(
+            create: (context) => ClassSectionsAndSubjectsCubit(),
+          ),
+        ],
+        child: CreateOnlineExam(),
+      ),
+    ),
+    GetPage(
+      name: Routes.questionOnlineExam,
+      page: () => MultiBlocProvider(
+        providers: [
+          BlocProvider<QuestionOnlineExamCubit>(
+            create: (context) =>
+                QuestionOnlineExamCubit(OnlineExamRepository()),
+          ),
+        ],
+        child: QuestionOnlineExamScreen(
+          examId: int.parse(Get.parameters['id'] ?? '0'),
+        ),
+      ),
+    ),
+    GetPage(
+      name: bankSoalSelection,
+      page: () => BlocProvider(
+        create: (context) => QuestionOnlineExamCubit(
+          OnlineExamRepository(),
+        ),
+        child: BankSoalSelectionScreen(
+          examId: int.parse(Get.parameters['examId'] ?? '0'),
+        ),
+      ),
+    ),
+
+    // GetPage(
+    //   name: bankSoalSelection,
+
+    GetPage(
+      name: editOnlineExam,
+      page: () => MultiBlocProvider(
+        providers: [
+          BlocProvider<OnlineExamCubit>(
+            create: (context) => OnlineExamCubit(OnlineExamRepository()),
+          ),
+          BlocProvider<ClassSectionsAndSubjectsCubit>(
+            create: (context) => ClassSectionsAndSubjectsCubit(),
+          ),
+        ],
+        child: EditOnlineExam(
+          exam: Get.arguments,
+        ),
+      ),
+    ),
+
+    GetPage(
+      name: archiveOnlineExam,
+      page: () => MultiBlocProvider(
+        providers: [
+          BlocProvider<OnlineExamCubit>(
+            create: (context) => OnlineExamCubit(OnlineExamRepository()),
+          ),
+          BlocProvider<ClassSectionsAndSubjectsCubit>(
+            create: (context) => ClassSectionsAndSubjectsCubit(),
+          ),
+        ],
+        child:
+            ArchiveOnlineExam(), // Replace Container() with ArchiveOnlineExam()
+      ),
+    ),
+    GetPage(
+      name: Routes
+          .previewQuestionBank, // Pastikan 'previewQuestionBank' didefinisikan di Routes
+      page: () => MultiBlocProvider(
+        providers: [
+          BlocProvider<OnlineExamCubit>(
+            create: (context) => OnlineExamCubit(OnlineExamRepository()),
+          ),
+          BlocProvider<ClassSectionsAndSubjectsCubit>(
+            create: (context) => ClassSectionsAndSubjectsCubit(),
+          ),
+          BlocProvider<QuestionBankCubit>(
+            // Tambahkan QuestionBankCubit
+            create: (context) => QuestionBankCubit(
+              repository: QuestionBankRepository(),
+            )..fetchTeacherSubjects(
+                isStaffView: true), // Set isStaffView to true for staff
+            child: QuestionSubjectScreen(isStaffView: true),
+          ),
+        ],
+        child: Builder(
+          builder: (context) {
+            final args = Get.arguments as Map<String, dynamic>;
+            return PreviewQuestionBankSoal(
+              bank: args['bank'] as BankSoalQuestion,
+              examId: args['examId'] as int,
+              classSectionId: args['classSectionId'] as int,
+              classSubjectId: args['classSubjectId'] as int,
+            );
+          },
+        ),
+      ),
+    ),
+    GetPage(
+      name: questionOnlineExamScreen,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return QuestionOnlineExamScreen(
+          examId: args['examId'] as int,
+        );
+      },
+    ),
+    GetPage(
+      name: examStatusScreen,
+      page: () => MultiBlocProvider(
+        providers: [
+          BlocProvider<OnlineExamCubit>(
+            create: (context) => OnlineExamCubit(OnlineExamRepository()),
+          ),
+          BlocProvider<ExamStatusCubit>(
+            create: (context) => ExamStatusCubit(
+              examStatusRepository: ExamStatusRepository(),
+            ),
+          ),
+        ],
+        child: ExamStatusScreen(),
+      ),
+    ),
+    // Add AssignmentMonitoringScreen route
+    GetPage(
+      name: assignmentMonitoringScreen,
+      page: () => AssignmentMonitoringScreen.getRouteInstance(),
+    ),
+
+    // Add AssignmentDetailMonitoringScreen route
+    GetPage(
+      name: assignmentDetailMonitoringScreen,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return AssignmentDetailMonitoringScreen.getRouteInstance(
+          teacherId: args['teacherId'] as int,
+          teacherName: args['teacherName'] as String,
+        );
+      },
+    ),
+  ]; // Add semicolon here
 
   // /[This will check if user is login or not. If user is login then navigate to target screen]
   // /[If user is not login then it will redirect user to login screen]

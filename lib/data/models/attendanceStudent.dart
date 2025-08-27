@@ -22,6 +22,7 @@ class AttendanceStudent {
   });
 
   factory AttendanceStudent.fromJson(Map<String, dynamic> json) {
+    print(json["type"]);
     return AttendanceStudent(
       id: json['id'] as int?,
       subjectAttendanceId: json['subject_attendance_id'] as int?,

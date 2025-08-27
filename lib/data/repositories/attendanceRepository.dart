@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:eschool_saas_staff/data/models/holiday.dart';
 import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
@@ -14,15 +16,6 @@ class AttendanceRepository {
     required String date,
   }) async {
     try {
-      // Debug API request
-      print('\n=== Attendance API Request ===');
-      print('URL: ${Api.getAttendance}');
-      print('Parameters: {');
-      print('  class_section_id: $classSectionId,');
-      print('  date: $date,');
-      print('  type: $type');
-      print('}');
-
       final result = await Api.get(
         url: Api.getAttendance,
         useAuthToken: true,
@@ -34,21 +27,13 @@ class AttendanceRepository {
       );
 
       // Debug API response
-      print('\n=== Attendance API Response ===');
-      print('Raw Response: $result');
-      print('data: ${result['data']}');
-      print('is_holiday: ${result['is_holiday']}');
-      print('holiday: ${result['holiday']}');
 
       if (result['data'] == null || result['is_holiday'] == null) {
-        print('\n=== API Error ===');
-        print('Invalid response structure');
-        print('Missing fields: ${[
-          if (result['data'] == null) 'data',
-          if (result['is_holiday'] == null) 'is_holiday',
-        ].join(', ')}');
         throw ApiException("Invalid response from API");
       }
+
+      // JsonEncoder.withIndent('  ').convert(result).split('\n').forEach(print);
+      // print("KUCING MESIR");
 
       return (
         attendance: (result['data'] as List)

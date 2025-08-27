@@ -5,17 +5,13 @@ import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
 import 'package:eschool_saas_staff/data/models/teacherAnnouncement.dart';
 import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
+import 'package:flutter/services.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
-import 'package:eschool_saas_staff/ui/widgets/uploadImageOrFileButton.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:file_picker/file_picker.dart';
@@ -72,9 +68,31 @@ class TeacherAddEditAnnouncementScreen extends StatefulWidget {
 }
 
 class _TeacherAddEditAnnouncementScreenState
-    extends State<TeacherAddEditAnnouncementScreen> {
+    extends State<TeacherAddEditAnnouncementScreen>
+    with TickerProviderStateMixin {
   late ClassSection? _selectedClassSection = widget.selectedClassSection;
   late TeacherSubject? _selectedSubject = widget.selectedSubject;
+  late AnimationController _fabAnimationController;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomModernAppBar(
+        title:
+            widget.announcement != null ? "Edit Pengumuman" : "Buat Pengumuman",
+        icon: Icons.campaign_rounded,
+        fabAnimationController: _fabAnimationController,
+        onBackPressed: () {
+          Get.back(result: refreshAnnouncementsInPreviousPage);
+        },
+        // Not showing any of the optional buttons as requested
+        showAddButton: false,
+        showArchiveButton: false,
+        showFilterButton: false,
+        showHelperButton: false,
+      ),
+      body: _buildAddEditAnnouncementForm(),
+    );
+  }
 
   //This will determine if need to refresh the previous page
   //announcement data. If teacher remove the the any files
@@ -97,6 +115,13 @@ class _TeacherAddEditAnnouncementScreenState
 
   @override
   void initState() {
+    // Initialize the animation controller for the modern app bar
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 3000),
+    );
+    _fabAnimationController.repeat();
+
     Future.delayed(Duration.zero, () {
       if (mounted) {
         context
@@ -112,6 +137,7 @@ class _TeacherAddEditAnnouncementScreenState
   void dispose() {
     _announcementTitleTextEditingController.dispose();
     _announcementDescriptionTextEditingController.dispose();
+    _fabAnimationController.dispose();
     super.dispose();
   }
 
@@ -217,247 +243,404 @@ class _TeacherAddEditAnnouncementScreenState
         );
   }
 
-  Widget _buildSubmitButton() {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Container(
-        padding: EdgeInsets.all(appContentHorizontalPadding),
-        decoration: BoxDecoration(boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 1, spreadRadius: 1)
-        ], color: Theme.of(context).colorScheme.surface),
-        width: MediaQuery.of(context).size.width,
-        height: Utils().getResponsiveHeight(context, 80),
-        child: widget.announcement != null
-            ? BlocConsumer<TeacherEditAnnouncementCubit,
-                TeacherEditAnnouncementState>(
-                listener: (context, state) {
-                  if (state is TeacherEditAnnouncementSuccess) {
-                    Get.back(result: true);
-                    Utils.showSnackBar(
-                        context: context,
-                        message: announcementEditedSuccessfullyKey);
-                  } else if (state is TeacherEditAnnouncementFailure) {
-                    Utils.showSnackBar(
-                        context: context, message: state.errorMessage);
-                  }
-                },
-                builder: (context, state) {
-                  return CustomRoundedButton(
-                      height: 40,
-                      widthPercentage: 1.0,
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      buttonTitle: submitKey,
-                      showBorder: false,
-                      onTap: () {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        if (state is TeacherEditAnnouncementInProgress) {
-                          return;
-                        }
-                        editAnnouncement();
-                      },
-                      child: state is TeacherEditAnnouncementInProgress
-                          ? const CustomCircularProgressIndicator(
-                              strokeWidth: 2,
-                              widthAndHeight: 20,
-                            )
-                          : null);
-                },
-              )
-            : BlocConsumer<TeacherCreateAnnouncementCubit,
-                TeacherCreateAnnouncementState>(
-                listener: (context, state) {
-                  if (state is TeacherCreateAnnouncementSuccess) {
-                    Utils.showSnackBar(
-                        context: context,
-                        message: announcementAddedSuccessfullyKey);
-                    _announcementTitleTextEditingController.text = "";
-                    _announcementDescriptionTextEditingController.text = "";
-                    uploadedFiles = [];
-                    announcementAttachments = [];
-                    refreshAnnouncementsInPreviousPage = true;
-                    Navigator.pop(context, true);
-                    setState(() {});
-                  } else if (state is TeacherCreateAnnouncementFailure) {
-                    Utils.showSnackBar(
-                      context: context,
-                      message: state.errorMessage,
-                    );
-                  }
-                },
-                builder: (context, state) {
-                  return CustomRoundedButton(
-                      height: 40,
-                      widthPercentage: 1.0,
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      buttonTitle: submitKey,
-                      showBorder: false,
-                      onTap: () {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        if (state is TeacherCreateAnnouncementInProgress) {
-                          return;
-                        }
-                        createAnnouncement();
-                      },
-                      child: state is TeacherCreateAnnouncementInProgress
-                          ? const CustomCircularProgressIndicator(
-                              strokeWidth: 2,
-                              widthAndHeight: 20,
-                            )
-                          : null);
-                },
+  Widget _buildAddEditAnnouncementForm() {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(20),
+      physics: BouncingScrollPhysics(),
+      child: Column(
+        children: [
+          // Header with Icon
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 25, horizontal: 20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Theme.of(context).colorScheme.primary.withOpacity(0.9),
+                  Theme.of(context).colorScheme.secondary.withOpacity(0.7),
+                ],
               ),
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                )
+              ],
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.campaign_rounded,
+                  size: 42,
+                  color: Colors.white,
+                )
+                    .animate()
+                    .scale(duration: 500.ms)
+                    .then()
+                    .shimmer(duration: 1000.ms),
+                SizedBox(height: 15),
+                Text(
+                  widget.announcement != null
+                      ? "Edit Pengumuman"
+                      : "Buat Pengumuman",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 10,
+                        color: Colors.black26,
+                        offset: Offset(2, 2),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          SizedBox(height: 25),
+
+          // Form Content
+          BlocConsumer<ClassSectionsAndSubjectsCubit,
+              ClassSectionsAndSubjectsState>(
+            listener: (context, state) {
+              if (state is ClassSectionsAndSubjectsFetchSuccess) {
+                if (_selectedClassSection == null) {
+                  changeSelectedClassSection(state.classSections.firstOrNull,
+                      fetchNewSubjects: false);
+                }
+                if (_selectedSubject == null) {
+                  changeSelectedTeacherSubject(state.subjects.firstOrNull);
+                }
+              }
+            },
+            builder: (context, state) {
+              return state is ClassSectionsAndSubjectsFetchFailure
+                  ? Center(
+                      child: ErrorContainer(
+                      errorMessage: state.errorMessage,
+                      onTapRetry: () {
+                        context
+                            .read<ClassSectionsAndSubjectsCubit>()
+                            .getClassSectionsAndSubjects();
+                      },
+                    ))
+                  : _buildFormContent(state);
+            },
+          ),
+
+          SizedBox(height: 30),
+
+          // Submit Button
+          _buildSubmitButton(),
+        ],
       ),
     );
   }
 
-  Widget _buildAddEditAnnouncementForm() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.only(
-            bottom: 100,
-            left: appContentHorizontalPadding,
-            right: appContentHorizontalPadding,
-            top: Utils.appContentTopScrollPadding(context: context) + 20),
-        child: BlocConsumer<ClassSectionsAndSubjectsCubit,
-            ClassSectionsAndSubjectsState>(
-          listener: (context, state) {
-            if (state is ClassSectionsAndSubjectsFetchSuccess) {
-              if (_selectedClassSection == null) {
-                changeSelectedClassSection(state.classSections.firstOrNull,
-                    fetchNewSubjects: false);
-              }
-              if (_selectedSubject == null) {
-                changeSelectedTeacherSubject(state.subjects.firstOrNull);
-              }
-            }
-          },
-          builder: (context, state) {
-            return state is ClassSectionsAndSubjectsFetchFailure
-                ? Center(
-                    child: ErrorContainer(
-                    errorMessage: state.errorMessage,
-                    onTapRetry: () {
-                      context
-                          .read<ClassSectionsAndSubjectsCubit>()
-                          .getClassSectionsAndSubjects();
-                    },
-                  ))
-                : Column(
-                    children: [
-                      CustomSelectionDropdownSelectionButton(
-                        isDisabled: widget.announcement !=
-                            null, //if user is editing, they can't change class
-                        onTap: () {
-                          if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                            Utils.showBottomSheet(
-                                child: FilterSelectionBottomsheet<ClassSection>(
-                                  showFilterByLabel: false,
-                                  onSelection: (value) {
-                                    changeSelectedClassSection(value!);
-                                    Get.back();
-                                  },
-                                  selectedValue: _selectedClassSection!,
-                                  titleKey: classKey,
-                                  values: state.classSections,
-                                ),
-                                context: context);
-                          }
-                        },
-                        titleKey: _selectedClassSection?.id == null
-                            ? classKey
-                            : (_selectedClassSection?.fullName ?? ""),
-                        backgroundColor:
-                            Theme.of(context).scaffoldBackgroundColor,
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      CustomSelectionDropdownSelectionButton(
-                        isDisabled: widget.announcement !=
-                            null, //if user is editing, they can't change subject
-                        onTap: () {
-                          if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                            Utils.showBottomSheet(
-                                child:
-                                    FilterSelectionBottomsheet<TeacherSubject>(
-                                  showFilterByLabel: false,
-                                  selectedValue: _selectedSubject!,
-                                  titleKey: subjectKey,
-                                  values: state.subjects,
-                                  onSelection: (value) {
-                                    changeSelectedTeacherSubject(value!);
-                                    Get.back();
-                                  },
-                                ),
-                                context: context);
-                          }
-                        },
-                        titleKey: _selectedSubject?.id == null
-                            ? subjectKey
-                            : _selectedSubject?.subject
-                                    .getSybjectNameWithType() ??
-                                "",
-                        backgroundColor:
-                            Theme.of(context).scaffoldBackgroundColor,
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      CustomTextFieldContainer(
-                          textEditingController:
-                              _announcementTitleTextEditingController,
-                          backgroundColor:
-                              Theme.of(context).scaffoldBackgroundColor,
-                          hintTextKey: titleKey),
-                      CustomTextFieldContainer(
-                          textEditingController:
-                              _announcementDescriptionTextEditingController,
-                          maxLines: 5,
-                          backgroundColor:
-                              Theme.of(context).scaffoldBackgroundColor,
-                          hintTextKey: descriptionKey),
+  Widget _buildFormContent(ClassSectionsAndSubjectsState state) {
+    return Column(
+      children: [
+        // Basic Info Section
+        Container(
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 5,
+                blurRadius: 10,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Informasi Dasar',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 20),
 
-                      //pre-added study materials
-                      widget.announcement != null
-                          ? Column(
-                              children: announcementAttachments
-                                  .map(
-                                    (studyMaterial) => Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 15),
-                                      child: StudyMaterialContainer(
-                                        onDeleteStudyMaterial: (fileId) {
-                                          announcementAttachments.removeWhere(
-                                              (element) =>
-                                                  element.id == fileId);
-                                          refreshAnnouncementsInPreviousPage =
-                                              true;
-                                          setState(() {});
-                                        },
-                                        showOnlyStudyMaterialTitles: true,
-                                        showEditAndDeleteButton: true,
-                                        studyMaterial: studyMaterial,
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
-                            )
-                          : const SizedBox(),
+              // Class Selection
+              _buildAnimatedTextField(
+                controller: TextEditingController(
+                    text: _selectedClassSection?.fullName ?? 'Pilih Kelas'),
+                label: 'Bagian Kelas',
+                icon: Icons.class_,
+                readOnly: true,
+                onTap: () {
+                  if (state is ClassSectionsAndSubjectsFetchSuccess) {
+                    Utils.showBottomSheet(
+                        child: FilterSelectionBottomsheet<ClassSection>(
+                          showFilterByLabel: false,
+                          onSelection: (value) {
+                            changeSelectedClassSection(value);
+                            Get.back();
+                          },
+                          selectedValue: _selectedClassSection!,
+                          titleKey: classKey,
+                          values: state.classSections,
+                        ),
+                        context: context);
+                  }
+                },
+              ),
+              SizedBox(height: 15),
 
-                      UploadImageOrFileButton(
-                        uploadFile: true,
-                        includeImageFileOnlyAllowedNote: true,
-                        onTap: () {
-                          _addFiles();
-                        },
+              // Subject Selection
+              _buildAnimatedTextField(
+                controller: TextEditingController(
+                    text: _selectedSubject?.subject.getSybjectNameWithType() ??
+                        'Pilih Mata Pelajaran'),
+                label: 'Mata Pelajaran',
+                icon: Icons.subject,
+                readOnly: true,
+                onTap: () {
+                  if (state is ClassSectionsAndSubjectsFetchSuccess) {
+                    Utils.showBottomSheet(
+                        child: FilterSelectionBottomsheet<TeacherSubject>(
+                          showFilterByLabel: false,
+                          selectedValue: _selectedSubject!,
+                          titleKey: subjectKey,
+                          values: state.subjects,
+                          onSelection: (value) {
+                            changeSelectedTeacherSubject(value!);
+                            Get.back();
+                          },
+                        ),
+                        context: context);
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+
+        SizedBox(height: 20),
+
+        // Announcement Details Section
+        Container(
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 5,
+                blurRadius: 10,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Detail Pengumuman',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 20),
+              _buildAnimatedTextField(
+                  controller: _announcementTitleTextEditingController,
+                  label: 'Judul Pengumuman',
+                  icon: Icons.title,
+                  maxLength: 128),
+              SizedBox(height: 15),
+              _buildAnimatedTextField(
+                controller: _announcementDescriptionTextEditingController,
+                label: 'Deskripsi',
+                icon: Icons.description,
+                maxLength: 1024,
+                autoExpand: true, // Enable auto-expanding
+                keyboardType: TextInputType.multiline,
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 20),
+
+        // Attachments Section - Clean & Minimalist Design
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 12,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Clean Header
+              Padding(
+                padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
                       ),
+                      child: Icon(
+                        Icons.attach_file_rounded,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 20,
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Text(
+                      'Lampiran Pengumuman',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
-                      //user's added study materials
+              // Minimalist Info Card
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: 16,
+                          color: Colors.grey.shade600,
+                        ),
+                        SizedBox(width: 6),
+                        Text(
+                          'Format yang didukung',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        _buildFormatChip('PDF'),
+                        _buildFormatChip('JPEG'),
+                        _buildFormatChip('PNG'),
+                        _buildFormatChip('CSV'),
+                        _buildFormatChip('MS Word'),
+                        _buildFormatChip('MP4'),
+                        _buildFormatChip('AVI'),
+                        _buildFormatChip('YouTube'),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Batasan ukuran file adalah 2 MB',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: 20),
+
+              // Content Area
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Existing attachments
+                    if (widget.announcement != null &&
+                        announcementAttachments.isNotEmpty) ...[
+                      Text(
+                        'Lampiran Saat Ini',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      ...announcementAttachments.map(
+                        (attachment) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: StudyMaterialContainer(
+                            onDeleteStudyMaterial: (fileId) {
+                              announcementAttachments.removeWhere(
+                                  (element) => element.id == fileId);
+                              refreshAnnouncementsInPreviousPage = true;
+                              setState(() {});
+                            },
+                            showOnlyStudyMaterialTitles: true,
+                            showEditAndDeleteButton: true,
+                            studyMaterial: attachment,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                    ],
+
+                    // New attachments
+                    if (uploadedFiles.isNotEmpty) ...[
+                      Text(
+                        'Lampiran Baru',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                      SizedBox(height: 8),
                       ...List.generate(uploadedFiles.length, (index) => index)
                           .map(
                         (index) => Padding(
-                          padding: const EdgeInsets.only(top: 15),
+                          padding: const EdgeInsets.only(bottom: 8),
                           child: CustomFileContainer(
                             backgroundColor:
                                 Theme.of(context).scaffoldBackgroundColor,
@@ -469,39 +652,338 @@ class _TeacherAddEditAnnouncementScreenState
                           ),
                         ),
                       ),
+                      SizedBox(height: 16),
                     ],
-                  );
-          },
+
+                    // Clean Add Button
+                    InkWell(
+                      onTap: () {
+                        FocusScope.of(context).unfocus();
+                        _addFiles();
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withOpacity(0.3),
+                            width: 1.5,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.add_circle_outline,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 20,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Tambah Lampiran',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Container(
+        height: 60,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).colorScheme.primary,
+              Theme.of(context).colorScheme.secondary,
+            ],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              spreadRadius: 1,
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: widget.announcement != null
+              ? BlocConsumer<TeacherEditAnnouncementCubit,
+                  TeacherEditAnnouncementState>(
+                  listener: (context, state) {
+                    if (state is TeacherEditAnnouncementSuccess) {
+                      // Show auto-dismissing success snackbar
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Container(
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.check_circle, color: Colors.white),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Pengumuman diperbarui!',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          backgroundColor: Colors.green.shade400,
+                          duration: Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
+                          margin: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                        ),
+                      );
+
+                      // Add slight delay before popping
+                      Future.delayed(Duration(milliseconds: 2200), () {
+                        if (context.mounted) {
+                          Get.back(result: true);
+                        }
+                      });
+                    } else if (state is TeacherEditAnnouncementFailure) {
+                      Utils.showSnackBar(
+                          context: context, message: state.errorMessage);
+                    }
+                  },
+                  builder: (context, state) {
+                    return _buildButtonContent(
+                      onTap: () {
+                        if (state is TeacherEditAnnouncementInProgress) return;
+                        editAnnouncement();
+                      },
+                      isLoading: state is TeacherEditAnnouncementInProgress,
+                        title: 'Update Pengumuman',
+                       
+                    );
+                  },
+                )
+              : BlocConsumer<TeacherCreateAnnouncementCubit,
+                  TeacherCreateAnnouncementState>(
+                  listener: (context, state) async {
+                    if (state is TeacherCreateAnnouncementSuccess) {
+                      // Show auto-dismissing success banner
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Container(
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.check_circle, color: Colors.white),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Pengumuman ditambahkan!',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          backgroundColor: Colors.green.shade400,
+                          duration: Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
+                          margin: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                        ),
+                      );
+
+                      // Clear form and pop
+                      _announcementTitleTextEditingController.text = "";
+                      _announcementDescriptionTextEditingController.text = "";
+                      uploadedFiles = [];
+                      announcementAttachments = [];
+                      refreshAnnouncementsInPreviousPage = true;
+
+                      // Add slight delay before popping
+                      Future.delayed(Duration(milliseconds: 2200), () {
+                        if (context.mounted) {
+                          Navigator.pop(context, true);
+                        }
+                      });
+                    } else if (state is TeacherCreateAnnouncementFailure) {
+                      Utils.showSnackBar(
+                        context: context,
+                        message: state.errorMessage,
+                      );
+                    }
+                  },
+                  builder: (context, state) {
+                    return _buildButtonContent(
+                      onTap: () {
+                        if (state is TeacherCreateAnnouncementInProgress)
+                          return;
+                        createAnnouncement();
+                      },
+                      isLoading: state is TeacherCreateAnnouncementInProgress,
+                      title: 'Buat Pengumuman',
+                    );
+                  },
+                ),
         ),
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        Get.back(result: refreshAnnouncementsInPreviousPage);
-        return false;
-      },
-      child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: Stack(
+  Widget _buildButtonContent({
+    required VoidCallback onTap,
+    required bool isLoading,
+    required String title,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(15),
+      splashColor: Colors.white.withOpacity(0.2),
+      highlightColor: Colors.white.withOpacity(0.1),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildAddEditAnnouncementForm(),
-            _buildSubmitButton(),
-            Align(
-              alignment: Alignment.topCenter,
-              child: CustomAppbar(
-                titleKey: widget.announcement != null
-                    ? editAnnouncementKey
-                    : addAnnouncementKey,
-                onBackButtonTap: () {
-                  Get.back(result: refreshAnnouncementsInPreviousPage);
-                },
+            if (isLoading) ...[
+              SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+              SizedBox(width: 12),
+            ],
+            Text(
+              isLoading ? 'Memproses...' : title,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
               ),
             ),
+            if (!isLoading) ...[
+              SizedBox(width: 8),
+              Icon(
+                Icons.arrow_forward_rounded,
+                color: Colors.white,
+                size: 22,
+              ).animate(onPlay: (controller) {
+                controller.repeat(reverse: true);
+              }).slideX(
+                begin: 0,
+                end: 0.3,
+                duration: Duration(milliseconds: 1000),
+                curve: Curves.easeInOut,
+              ),
+            ],
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnimatedTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    int maxLines = 1,
+    int? maxLength,
+    bool readOnly = false,
+    VoidCallback? onTap,
+    TextInputType? keyboardType,
+    bool autoExpand = false,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: autoExpand ? null : maxLines,
+      minLines: autoExpand ? 3 : null,
+      maxLength: maxLength,
+      readOnly: readOnly,
+      onTap: onTap,
+      keyboardType:
+          keyboardType ?? (autoExpand ? TextInputType.multiline : null),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(
+          color: Theme.of(context).colorScheme.secondary,
+        ),
+        prefixIcon: Icon(
+          icon,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide.none,
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide:
+              BorderSide(color: Theme.of(context).colorScheme.secondary),
+        ),
+        counterText: "",
+      ),
+      validator: (v) => v!.isEmpty ? 'Required' : null,
+    );
+  }
+
+  Widget _buildFormatChip(String label) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          color: Colors.grey.shade700,
         ),
       ),
     );

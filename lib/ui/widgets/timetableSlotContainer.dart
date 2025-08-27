@@ -106,7 +106,9 @@ class TimetableSlotContainer extends StatelessWidget {
                   child: note.isNotEmpty
                       ? Center(
                           child: CustomTextContainer(
-                            textKey: note,
+                            textKey: note.toLowerCase() == "break"
+                                ? "istirahat"
+                                : note,
                             style: const TextStyle(
                               fontSize: 18.0,
                             ),

@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:eschool_saas_staff/data/models/offlineExamSubjectResult.dart';
 import 'package:eschool_saas_staff/data/models/paidFeeDetails.dart';
+import 'package:eschool_saas_staff/data/models/payment.dart';
 import 'package:eschool_saas_staff/data/models/student.dart';
 
 class StudentDetails {
@@ -26,9 +29,14 @@ class StudentDetails {
   final String? fullName;
   final String? schoolNames;
   final Student? student;
+  final ClassSection? classSection;
+  final PaymentStatus? paymentStatus;
   final List<OfflineExamSubjectResult>? offlineExamMarks;
   final List<ExamMarks>? examMarks;
   final PaidFeeDetails? paidFeeDetails;
+  final String? profileUrl;
+  final String? rollNumber;
+  final List<PaymentHistory>? paymentHistory;
 
   StudentDetails({
     this.id,
@@ -57,32 +65,43 @@ class StudentDetails {
     this.schoolNames,
     this.offlineExamMarks,
     this.examMarks,
+    this.profileUrl,
+    this.rollNumber,
+    this.classSection,
+    this.paymentStatus,
+    this.paymentHistory,
   });
 
-  StudentDetails copyWith(
-      {int? id,
-      String? firstName,
-      String? lastName,
-      String? mobile,
-      String? email,
-      String? gender,
-      String? image,
-      String? dob,
-      String? currentAddress,
-      String? permanentAddress,
-      String? occupation,
-      int? status,
-      int? resetRequest,
-      String? fcmId,
-      int? schoolId,
-      String? language,
-      String? emailVerifiedAt,
-      String? createdAt,
-      String? updatedAt,
-      String? deletedAt,
-      String? fullName,
-      String? schoolNames,
-      Student? student}) {
+  StudentDetails copyWith({
+    int? id,
+    String? firstName,
+    String? lastName,
+    String? mobile,
+    String? email,
+    String? gender,
+    String? image,
+    String? dob,
+    String? currentAddress,
+    String? permanentAddress,
+    String? occupation,
+    int? status,
+    int? resetRequest,
+    String? fcmId,
+    int? schoolId,
+    String? language,
+    String? emailVerifiedAt,
+    String? createdAt,
+    String? updatedAt,
+    String? deletedAt,
+    String? fullName,
+    String? schoolNames,
+    Student? student,
+    String? profileUrl,
+    String? rollNumber,
+    ClassSection? classSection,
+    PaymentStatus? paymentStatus,
+    List<PaymentHistory>? paymentHistory,
+  }) {
     return StudentDetails(
       id: id ?? this.id,
       student: student ?? this.student,
@@ -107,43 +126,140 @@ class StudentDetails {
       deletedAt: deletedAt ?? this.deletedAt,
       fullName: fullName ?? this.fullName,
       schoolNames: schoolNames ?? this.schoolNames,
+      profileUrl: profileUrl ?? this.profileUrl,
+      rollNumber: rollNumber ?? this.rollNumber,
+      classSection: classSection ?? this.classSection,
+      paymentStatus: paymentStatus ?? this.paymentStatus,
+      paymentHistory: paymentHistory ?? this.paymentHistory,
     );
   }
 
-  StudentDetails.fromJson(Map<String, dynamic> json)
-      : id = json['id'] as int?,
-        firstName = json['first_name'] as String?,
-        lastName = json['last_name'] as String?,
-        mobile = json['mobile'] as String?,
-        email = json['email'] as String?,
-        gender = json['gender'] as String?,
-        image = json['image'] as String?,
-        dob = json['dob'] as String?,
-        currentAddress = json['current_address'] as String?,
-        permanentAddress = json['permanent_address'] as String?,
-        occupation = json['occupation'] as String?,
-        status = json['status'] as int?,
-        resetRequest = json['reset_request'] as int?,
-        fcmId = json['fcm_id'] as String?,
-        schoolId = json['school_id'] as int?,
-        language = json['language'] as String?,
-        emailVerifiedAt = json['email_verified_at'] as String?,
-        createdAt = json['created_at'] as String?,
-        updatedAt = json['updated_at'] as String?,
-        deletedAt = json['deleted_at'] as String?,
-        fullName = json['full_name'] as String?,
-        offlineExamMarks = ((json['exam_marks'] ?? []) as List)
-            .map((offlineExamSubjectResult) =>
-                OfflineExamSubjectResult.fromJson(
-                    Map.from(offlineExamSubjectResult ?? {})))
-            .toList(),
-        student = Student.fromJson(Map.from(json['student'] ?? {})),
-        schoolNames = json['school_names'] as String?,
-        paidFeeDetails =
-            PaidFeeDetails.fromJson(Map.from(json['fees_paid'] ?? {})),
-        examMarks = ((json['marks'] ?? []) as List)
-            .map<ExamMarks>((e) => ExamMarks.fromJson(Map.from(e ?? {})))
+  factory StudentDetails.fromJson(Map<String, dynamic> json) {
+
+    print("AMAN BOSQUEH");
+    // Debug status parsing
+    
+    int? parsedStatus;
+    if (json['status'] is int) {
+      parsedStatus = json['status'] as int;
+    } else {
+      parsedStatus = int.tryParse(json['status']?.toString() ?? '');
+    }
+    print("Parsed status: $parsedStatus");
+
+    // Handle new API format with class_section and payment_status
+    ClassSection? classSection;
+    if (json.containsKey('class_section')) {
+      classSection = ClassSection.fromJson(
+          Map<String, dynamic>.from(json['class_section'] ?? {}));
+    }
+
+    PaymentStatus? paymentStatus;
+    if (json.containsKey('payment_status')) {
+      paymentStatus = PaymentStatus.fromJson(
+          Map<String, dynamic>.from(json['payment_status'] ?? {}));
+    }
+
+    List<PaymentHistory> paymentHistory = [];
+    if (json.containsKey('payment_history')) {
+      if (json['payment_history'] is List) {
+        // Handle case where payment_history is a List (as expected)
+        paymentHistory = (json['payment_history'] as List)
+            .map((item) =>
+                PaymentHistory.fromJson(Map<String, dynamic>.from(item ?? {})))
             .toList();
+      } else if (json['payment_history'] is Map) {
+        // Handle case where payment_history is a Map (not a List as expected)
+        try {
+          // If it's a map with numeric keys (like {0: {...}, 1: {...}}), try to extract values
+          final Map<String, dynamic> paymentMap =
+              Map<String, dynamic>.from(json['payment_history']);
+
+          // Convert map values to a list if possible
+          final values = paymentMap.values.toList();
+          if (values.isNotEmpty) {
+            paymentHistory = values
+                .map((item) => PaymentHistory.fromJson(
+                    Map<String, dynamic>.from(item ?? {})))
+                .toList();
+          }
+        } catch (e) {
+          // If any error occurs during conversion, just leave paymentHistory empty
+          print("Error parsing payment_history in StudentDetails: $e");
+        }
+      }
+    }
+
+    // Create legacy PaidFeeDetails from new payment_status and payment_history if needed
+    PaidFeeDetails? paidFeeDetails;
+    if (json.containsKey('fees_paid')) {
+      paidFeeDetails = PaidFeeDetails.fromJson(
+          Map<String, dynamic>.from(json['fees_paid'] ?? {}));
+    } else if (paymentStatus != null) {
+      // Create a PaidFeeDetails from the new format
+      paidFeeDetails = PaidFeeDetails(
+        id: json['id'] as int?,
+        feesId: json['fees_id'] as int?,
+        studentId: json['id'] as int?,
+        isFullyPaid: paymentStatus.isFullyPaid,
+        totalAmount: paymentStatus.totalAmount,
+        paidAmount: paymentStatus.paidAmount,
+        remainingAmount: paymentStatus.remainingAmount,
+        paymentHistory: paymentHistory,
+      );
+    }
+
+    return StudentDetails(
+      id: json['id'] is int
+          ? json['id'] as int
+          : int.tryParse(json['id']?.toString() ?? ''),
+      firstName: json['first_name']?.toString(),
+      lastName: json['last_name']?.toString(),
+      mobile: json['mobile']?.toString(),
+      email: json['email']?.toString(),
+      gender: json['gender']?.toString(),
+      image: json['image']?.toString(),
+      dob: json['dob']?.toString(),
+      currentAddress: json['current_address']?.toString(),
+      permanentAddress: json['permanent_address']?.toString(),
+      occupation: json['occupation']?.toString(),
+      status: json['status'] is int
+          ? json['status'] as int
+          : int.tryParse(json['status']?.toString() ?? ''),
+      resetRequest: json['reset_request'] is int
+          ? json['reset_request'] as int
+          : int.tryParse(json['reset_request']?.toString() ?? ''),
+      fcmId: json['fcm_id']?.toString(),
+      schoolId: json['school_id'] is int
+          ? json['school_id'] as int
+          : int.tryParse(json['school_id']?.toString() ?? ''),
+      language: json['language']?.toString(),
+      emailVerifiedAt: json['email_verified_at']?.toString(),
+      createdAt: json['created_at']?.toString(),
+      updatedAt: json['updated_at']?.toString(),
+      deletedAt: json['deleted_at']?.toString(),
+      fullName: json['name']?.toString() ?? json['full_name']?.toString(),
+      offlineExamMarks: ((json['exam_marks'] ?? []) as List)
+          .map((offlineExamSubjectResult) => OfflineExamSubjectResult.fromJson(
+              Map<String, dynamic>.from(offlineExamSubjectResult ?? {})))
+          .toList(),
+      student: json.containsKey('student')
+          ? Student.fromJson(Map<String, dynamic>.from(json['student'] ?? {}))
+          : null,
+      schoolNames: json['school_names']?.toString(),
+      paidFeeDetails: paidFeeDetails,
+      examMarks: ((json['marks'] ?? []) as List)
+          .map<ExamMarks>(
+              (e) => ExamMarks.fromJson(Map<String, dynamic>.from(e ?? {})))
+          .toList(),
+      profileUrl: json['profileUrl']?.toString(),
+      rollNumber:
+          json['roll_number']?.toString() ?? json['rollNumber']?.toString(),
+      classSection: classSection,
+      paymentStatus: paymentStatus,
+      paymentHistory: paymentHistory,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -169,7 +285,14 @@ class StudentDetails {
         'full_name': fullName,
         'school_names': schoolNames,
         'student': student?.toJson(),
+        'profileUrl': profileUrl,
+        'rollNumber': rollNumber,
       };
+
+  @override
+  String toString() {
+    return 'StudentDetails(id: $id, firstName: $firstName, lastName: $lastName, rollNumber: $rollNumber)';
+  }
 
   String getGender() {
     if (gender == "male") {
@@ -183,7 +306,23 @@ class StudentDetails {
   }
 
   bool isActive() {
-    return (status == 1);
+    print("Student status check:");
+    print("Status value: $status");
+    print("Status type: ${status.runtimeType}");
+    
+    // Jika status null, kemungkinan ada masalah dengan API atau parsing
+    if (status == null) {
+      print("WARNING: Student status is null - check API response");
+      return false; // Default ke non-aktif jika tidak ada data status
+    }
+
+    // print(">///<");
+    // print(status);
+    
+    // Status 1 = aktif, 0 = non-aktif
+    bool isActiveStatus = (status == 1);
+    print("Is student active: $isActiveStatus");
+    return isActiveStatus;
   }
 }
 

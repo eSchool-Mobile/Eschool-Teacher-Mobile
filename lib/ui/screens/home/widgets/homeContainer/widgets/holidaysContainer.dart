@@ -18,6 +18,13 @@ class HolidaysContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Holiday> holidays = context.read<HomeScreenDataCubit>().getHolidays();
 
+    // Sort by start_date
+    holidays.sort((a, b) {
+      final dateA = DateTime.parse(a.start_date ?? "");
+      final dateB = DateTime.parse(b.start_date ?? "");
+      return dateA.compareTo(dateB);
+    });
+
     holidays = holidays.length > 5 ? holidays.sublist(0, 5) : holidays;
 
     return holidays.isEmpty
@@ -42,7 +49,7 @@ class HolidaysContainer extends StatelessWidget {
                 height: 15,
               ),
               SizedBox(
-                height: 125,
+                height: 150,
                 child: ListView.builder(
                   itemCount: holidays.length,
                   scrollDirection: Axis.horizontal,

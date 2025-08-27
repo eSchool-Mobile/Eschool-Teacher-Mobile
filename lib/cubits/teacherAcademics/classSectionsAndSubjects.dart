@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
 import 'package:eschool_saas_staff/data/repositories/academicRepository.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class ClassSectionsAndSubjectsState {}
@@ -32,11 +35,20 @@ class ClassSectionsAndSubjectsCubit
 
   ClassSectionsAndSubjectsCubit() : super(ClassSectionsAndSubjectsInitial());
 
-  void getClassSectionsAndSubjects({int? classSectionId}) async {
+  void getClassSectionsAndSubjects(
+      {int? classSectionId, int? gradeLevelId}) async {
     try {
+      print(
+          "ClassSectionsAndSubjectsCubit: Starting to fetch class sections and subjects");
       emit(ClassSectionsAndSubjectsFetchInProgress());
 
-      final classesResult = await _academicRepository.getClasses();
+      final classesResult = await _academicRepository.getClasses(
+        modeAll: true,
+        gradeLevelId: gradeLevelId,
+      );
+
+      print(
+          "ClassSectionsAndSubjectsCubit: Received classes - Primary: ${classesResult.primaryClasses.length}, Other: ${classesResult.classes.length}");
 
       //
       List<ClassSection> classSections =
@@ -44,12 +56,19 @@ class ClassSectionsAndSubjectsCubit
       classSections
           .addAll(List<ClassSection>.from(classesResult.primaryClasses));
 
+      print(
+          "ClassSectionsAndSubjectsCubit: Combined total classes: ${classSections.length}");
+
       emit(ClassSectionsAndSubjectsFetchSuccess(
           classSections: classSections,
           subjects: await _academicRepository.getClassSectionSubjects(
               classSectionId: classSectionId ?? classSections.first.id ?? 0)));
     } catch (e) {
-      emit(ClassSectionsAndSubjectsFetchFailure(e.toString()));
+      print("ClassSectionsAndSubjectsCubit: Error occurred - $e");
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(ClassSectionsAndSubjectsFetchFailure(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 

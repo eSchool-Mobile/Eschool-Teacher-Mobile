@@ -4,6 +4,16 @@ const String signInScreenSubTitleKey = "signInScreenSubTitle";
 const String defaultErrorMessageKey = "defaultErrorMessage";
 const String retryKey = "retry";
 const String noInternetKey = "noInternet";
+
+// Error message keys untuk pesan yang lebih ramah
+const String connectionErrorKey = "connectionError";
+const String serverNotReachableKey = "serverNotReachable";
+const String timeoutErrorKey = "timeoutError";
+const String unknownErrorKey = "connectionError";
+const String pleaseCheckConnectionKey = "pleaseCheckConnection";
+const String serverMaintenanceKey = "serverMaintenance";
+const String requestFailedKey = "requestFailed";
+
 const String emailKey = "email";
 const String passwordKey = "password";
 
@@ -45,7 +55,7 @@ const String firstHalfKey = "firstHalf";
 const String secondHalfKey = "secondHalf";
 const String roleKey = "role";
 const String sendLinkKey = "sendLink";
-const String teachersKey = "teachers";
+const String teachersKey = "Guru";
 const String searchKey = "search";
 const String viewProfileKey = "viewProfile";
 const String viewLeavesKey = "viewLeaves";
@@ -114,7 +124,7 @@ const String manageAnnouncementKey = "manageAnnouncement";
 const String paymentKey = "payment";
 const String paidFeesKey = "paidFees";
 const String managePayRollsKey = "managePayRolls";
-const String myPayRollKey = "myPayRoll";
+const String myPayRollKey = "Gaji Saya";
 const String readMoreKey = "readMore";
 const String holidayKey = "holiday";
 const String reasonKey = "reason";
@@ -145,6 +155,8 @@ const String totalMarksKey = "totalMarks";
 const String obtainedMarksKey = "obtainedMarks";
 const String percentageKey = "percentage";
 const String gradeKey = "grade";
+const String gradeLevelKey = "gradeLevel";
+const String tingkatKey = "tingkat";
 const String deleteKey = "delete";
 const String addNotificationKey = "addNotification";
 
@@ -419,18 +431,17 @@ const String pleaseEnterFeedbackKey = "pleaseEnterFeedback";
 const String pleaseEnterPointsKey = "pleaseAddPoints";
 const String cannotGiveMorePointsThenTotalKey = "cannotGiveMorePointsThenTotal";
 
-const String attendanceSubmittedSuccessfullyKey =
-    "attendanceSubmittedSuccessfully";
+const String attendanceSubmittedSuccessfullyKey = "Kehadiran Berhasil Dikirim";
 const String attendanceViewEditNotPossibleKey = "attendanceViewEditNotPossible";
 const String pleaseAddMarksToAllStudentsKey = "pleaseAddMarksToAllStudents";
 const String resultAddedSuccessfullyKey = "resultAddedSuccessfully";
 const String cannotAddMoreMarksThenTotalKey = "cannotAddMoreMarksThenTotal";
-const String allUsersKey = "allUsers";
-const String overDueFeesKey = "overDueFees";
-const String specificRolesKey = "specificRoles";
-const String specificUsersKey = "specificUsers";
+const String allUsersKey = "Semua Pengguna";
+const String overDueFeesKey = "Biaya Tunggakan";
+const String specificRolesKey = "Peran Tertentu";
+const String specificUsersKey = "Pengguna Tertentu";
 const String selectRolesKey = "selectRoles";
-const String selectUsersKey = "selectUsers";
+const String selectUsersKey = "Pilih Pengguna";
 const String searchUsersKey = "searchUsers";
 const String feeKey = "fee";
 const String everyoneIsPresentTodayKey = "everyoneIsPresentToday";
@@ -457,9 +468,20 @@ const String galleryKey = "gallery";
 
 const String onlyImageAndDocumentsAreAllowedNoteLimitKey =
     "onlyImageAndDocumentsAreAllowedNoteLimit";
-const String maximumAttachmentKey = "maximumAttachment";
+const String maximumAttachmentKey = "Lampiran mencapai max size";
 const String requiredLearningKey = "requiredLearning";
 const String addAttendanceSubjectKey = "addAttendanceSubject";
 const String noAttendanceYetKey = "noAttendanceYet";
 const String noAttendanceRankingKey = "noAttendanceRanking";
 const String recapAttendanceSubjectKey = "recapAttendanceSubject";
+
+// Add these new keys
+
+// Exam screen labels
+const String viewTimetableKey = "View Timetable";
+const String subjectsKey = "Subjects";
+const String noTimetableKey = "No Timetable";
+const String noExamsFoundKey = "No Exams Found";
+const String tryDifferentFiltersKey = "Try different filters or refresh";
+const String refreshKey = "Refresh";
+const String loadingExamsKey = "Loading Exams...";

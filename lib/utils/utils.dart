@@ -21,6 +21,11 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Utils {
+  static String formatNumber(int number) {
+    final formatter = intl.NumberFormat('#,###', 'id_ID');
+    return formatter.format(number).replaceAll(',', '.');
+  }
+
   String cleanClassName(String? className) {
     if (className == null) return "-";
 
@@ -187,6 +192,53 @@ class Utils {
       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
       snackPosition: SnackPosition.BOTTOM,
     );
+  }
+
+  static void showColoredSnackBar({
+    required String message,
+    required BuildContext context,
+    required bool isSuccess, // true for success, false for warning/error
+  }) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: isSuccess ? Colors.green : Colors.red,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  static void showAnimatedSnackBar({
+    required String message,
+    required BuildContext context,
+    required bool isSuccess,
+  }) {
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   // SnackBar(
+    //   //   duration: const Duration(seconds: 3),
+    //   //   behavior: SnackBarBehavior.floating,
+    //   //   margin: EdgeInsets.only(
+    //   //     bottom: MediaQuery.of(context).size.height - 100,
+    //   //     left: 20,
+    //   //     right: 20,
+    //   //   ),
+    //   //   elevation: 0,
+    //   //   backgroundColor: Colors.transparent,
+    //   //   // content: CustomSnackbar(
+    //   //   //   message: message,
+    //   //   //   isSuccess: isSuccess,
+    //   //   // ),
+    //   //   animation: CurvedAnimation(
+    //   //     parent: const AlwaysStoppedAnimation(1),
+    //   //     curve: Curves.elasticOut,
+    //   //   ),
+    //   // ),
+    // );
   }
 
   static intl.DateFormat hourMinutesDateFormat = intl.DateFormat('HH.mm');

@@ -5,13 +5,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
-import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:ui';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 
 class RecapAttendanceSubjectScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -33,60 +36,170 @@ class RecapAttendanceSubjectScreen extends StatefulWidget {
 }
 
 class _RecapAttendanceSubjectScreenState
-    extends State<RecapAttendanceSubjectScreen> {
-  DateTime _selectedDateTime = DateTime.now();
+    extends State<RecapAttendanceSubjectScreen> with TickerProviderStateMixin {
+  int _selectedYear = DateTime.now().year;
+  int? _selectedMonth;
   ClassSection? _selectedClassSection;
   List<ClassSection> _filteredClassSections = [];
   int? teacherId;
   int? schoolId;
   String? email;
-  // String? token;
+
+  final Color _maroonPrimary = const Color(0xFF800020);
+  final Color _maroonLight = const Color(0xFFAA6976);
+
+  late AnimationController _fabAnimationController;
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _fabAnimationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 300));
+    _scrollController.addListener(_scrollListener);
+  }
+
+  void _scrollListener() {
+    if (_scrollController.offset > 50) {
+      _fabAnimationController.forward();
+    } else {
+      _fabAnimationController.reverse();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    _fabAnimationController.dispose();
+    super.dispose();
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    print("didChangeDependencies called");
     _loadClassTeacherData();
   }
 
   void _loadClassTeacherData() {
     final userDetails = context.read<AuthCubit>().getUserDetails();
-    // final authToken = AuthRepository.getAuthToken();
 
     setState(() {
       teacherId = userDetails.id;
       schoolId = userDetails.schoolId;
       email = userDetails.email ?? "";
-      // token = authToken;
-      print("Loaded teacher Id: $teacherId");
-      print("Loaded school Id: $schoolId");
-      print("Loaded school Id: $email");
-      // print("Loaded token : $token");
     });
     context.read<ClassesCubit>().getClasses();
   }
 
   void getRecap({int? type}) {
-    if (_selectedClassSection == null) {
-      print("Invalid class section ID");
+    if (_selectedClassSection == null || _selectedMonth == null) {
       return;
     }
-    // Implement the logic to fetch recap data based on the selected class section and date
+    // Add your logic here to fetch data based on selected year and month
+    print('Getting recap for Year: $_selectedYear, Month: $_selectedMonth');
+  }
+
+  void _showYearPicker() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Pilih Tahun'),
+          content: Container(
+            width: 300,
+            height: 300,
+            child: YearPicker(
+              firstDate: DateTime(2020),
+              lastDate: DateTime(DateTime.now().year + 1),
+              selectedDate: DateTime(_selectedYear),
+              onChanged: (DateTime dateTime) {
+                setState(() {
+                  _selectedYear = dateTime.year;
+                  // Reset month selection when year changes
+                  _selectedMonth = null;
+                });
+                Navigator.pop(context);
+                // After selecting year, show month picker
+                _showMonthPicker();
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showMonthPicker() {
+    final months = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember'
+    ];
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Pilih Bulan untuk Tahun $_selectedYear'),
+          content: Container(
+            width: 300,
+            height: 400,
+            child: ListView.builder(
+              itemCount: months.length,
+              itemBuilder: (context, index) {
+                final monthIndex = index + 1;
+                return ListTile(
+                  title: Text(months[index]),
+                  trailing: _selectedMonth == monthIndex
+                      ? Icon(Icons.check, color: _maroonPrimary)
+                      : null,
+                  onTap: () {
+                    setState(() {
+                      _selectedMonth = monthIndex;
+                    });
+                    Navigator.pop(context);
+                    getRecap();
+                  },
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Batal'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void downloadRecap(int classId, int classSectionId, int month) async {
     if (schoolId == null || email == null) {
-      print('Ada parameter yang kosong');
+      return;
     }
 
     final encodedEmail = Uri.encodeComponent(email!);
 
-    final url = Uri.parse('https://eschbeta.techflow.my.id/recap-download'
-        // '_token=$token'
+    final url = Uri.parse('https://eschool.ac.id/recap-download'
         '?school_id=$schoolId'
         '&class_id=$classId'
         '&class_section_id=$classSectionId'
         '&month=$month'
+        '&year=$_selectedYear'
         '&email=$encodedEmail'
         '&gm=naowndoianwodinaiwondaoiwnd');
 
@@ -102,125 +215,166 @@ class _RecapAttendanceSubjectScreenState
   }
 
   void filterClassSections(List<ClassSection> classSections, int teacherId) {
-    print("Filtering class sections for teacherId: $teacherId");
-
     _filteredClassSections = classSections.where((classSection) {
-      print(
-          "Checking class section: ${classSection.name} (ID: ${classSection.id})");
-
       if (classSection.classTeachers == null ||
           classSection.classTeachers!.isEmpty) {
-        print("No class teachers found for ${classSection.name}");
         return false;
       }
 
-      // Debug: Print all teachers in this section
-      print("Class teachers for ${classSection.name}:");
-      for (var teacher in classSection.classTeachers!) {
-        print("- Teacher ID: ${teacher.teacherId}");
-        print("- Teacher Detail ID: ${teacher.teacher?.id}");
-        print("- Class Section ID: ${teacher.classSectionId}");
-        print("- Current Section ID: ${classSection.id}");
-      }
-
-      // Loop through setiap class_teacher
       for (var classTeacher in classSection.classTeachers!) {
-        // Step 1: Cek teacher.id
-        if (classTeacher.teacher?.id == teacherId) {
-          print("Found matching teacher.id for class ${classSection.name}");
-
-          // Step 2: Cek teacher_id
-          if (classTeacher.teacherId == teacherId) {
-            print("Verified teacher_id match");
-
-            // Step 3: Cek class_section_id dengan id class section
-            if (classTeacher.classSectionId == classSection.id) {
-              print("Verified as class teacher for ${classSection.name}:");
-              print("- teacher.id: ${classTeacher.teacher?.id}");
-              print("- teacher_id: ${classTeacher.teacherId}");
-              print(
-                  "- class_section_id: ${classTeacher.classSectionId} matches section.id: ${classSection.id}");
-              return true;
-            }
-          }
+        if (classTeacher.teacher?.id == teacherId &&
+            classTeacher.teacherId == teacherId &&
+            classTeacher.classSectionId == classSection.id) {
+          return true;
         }
       }
       return false;
     }).toList();
+  }
 
-    print(
-        "Final filtered classes for teacher $teacherId: ${_filteredClassSections.map((e) => e.name).toList()}");
+  String _getMonthName(int month) {
+    final months = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember'
+    ];
+    return months[month - 1];
   }
 
   Widget _buildRecapTable(List<ClassSection> classes) {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.only(
-            top: Utils.appContentTopScrollPadding(context: context) + 100,
-            bottom: 25),
-        child: RecapAttendanceContainer(
-          classSections: classes,
-          onDownload: (classSection) {
-            final classId = classSection.classDetails?.id ?? 0;
-            final classSectionId = classSection.id ?? 0;
-            final month = _selectedDateTime.month;
-            downloadRecap(classId, classSectionId, month);
-          },
-        ),
+    return SingleChildScrollView(
+      controller: _scrollController,
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: EdgeInsets.only(
+        // Adjust top padding to position content below the app bar
+        top: 180, // Reduced padding to minimize white space
+        bottom: 25,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Recap attendance container
+          RecapAttendanceContainer(
+            classSections: classes,
+            selectedYear: _selectedYear,
+            selectedMonth: _selectedMonth,
+            email: email,
+            schoolId: schoolId,
+            onDownload: (classSection, month) {
+              final classId = classSection.classDetails?.id ?? 0;
+              final classSectionId = classSection.id ?? 0;
+              downloadRecap(classId, classSectionId, month);
+            },
+          ).animate().fadeIn(duration: 500.ms).slideY(
+                begin: 0.05,
+                end: 0,
+                curve: Curves.easeOutQuad,
+                duration: 500.ms,
+              ),
+        ],
       ),
     );
   }
 
-  Widget _buildAppbarAndFilters() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: BlocConsumer<ClassesCubit, ClassesState>(
-        listener: (context, state) {
-          if (state is ClassesFetchSuccess) {
-            print("ClassesFetchSuccess state received");
-            if (teacherId != null) {
-              print("Teacher ID: $teacherId");
-              print(
-                  "Primary Classes: ${state.primaryClasses.map((e) => e.name).toList()}");
-
-              filterClassSections(state.primaryClasses, teacherId!);
-
-              if (_selectedClassSection == null &&
-                  _filteredClassSections.isNotEmpty) {
-                _selectedClassSection = _filteredClassSections.first;
-                setState(() {});
-                getRecap();
-              }
-            }
-          }
-        },
-        builder: (context, state) {
-          return Column(
-            children: [
-              const CustomAppbar(titleKey: recapAttendanceSubjectKey),
-              AppbarFilterBackgroundContainer(
-                height: Utils().getResponsiveHeight(context, 85),
-                child: LayoutBuilder(builder: (context, boxConstraints) {
-                  return Column(
+  Widget _buildAppBar() {
+    return CustomModernAppBar(
+      title: Utils.getTranslatedLabel(recapAttendanceSubjectKey),
+      icon: Icons.receipt_long_rounded,
+      fabAnimationController: _fabAnimationController,
+      primaryColor: _maroonPrimary,
+      lightColor: _maroonLight,
+      onBackPressed: () => Navigator.of(context).pop(),
+      height: 150, // Increased height to accommodate the tab filter
+      tabBuilder: (context) {
+        return BlocBuilder<ClassesCubit, ClassesState>(
+          builder: (context, state) {
+            return Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  // If month is already selected, show month picker directly
+                  // If not, start with year picker
+                  if (_selectedMonth != null) {
+                    _showMonthPicker();
+                  } else {
+                    _showYearPicker();
+                  }
+                },
+                borderRadius: BorderRadius.circular(12),
+                highlightColor: Colors.white.withOpacity(0.1),
+                splashColor: Colors.white.withOpacity(0.2),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(
-                        height: 40,
-                        child: FilterButton(
-                          onTap: () async {},
-                          titleKey: Utils.getMonthFullName(_selectedDateTime
-                              .month), // Set titleKey hanya menampilkan nama bulan
-                          width: boxConstraints.maxWidth * (0.98),
+                      Container(
+                        padding: EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Colors.white.withOpacity(0.9),
+                              Colors.white.withOpacity(0.4),
+                            ],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.calendar_today_rounded,
+                          color: _maroonPrimary,
+                          size: 16,
                         ),
                       ),
+                      SizedBox(width: 12),
+                      Text(
+                        _selectedMonth != null
+                            ? '${_getMonthName(_selectedMonth!)} $_selectedYear'
+                            : 'Pilih Bulan & Tahun',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black26,
+                              offset: Offset(0, 1),
+                              blurRadius: 3,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Icon(
+                        Icons.arrow_drop_down_rounded,
+                        color: Colors.white.withOpacity(0.8),
+                        size: 24,
+                      ),
                     ],
-                  );
-                }),
+                  ),
+                ),
               ),
-            ],
-          );
-        },
-      ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -232,15 +386,47 @@ class _RecapAttendanceSubjectScreenState
           BlocBuilder<ClassesCubit, ClassesState>(
             builder: (context, state) {
               if (state is ClassesFetchSuccess) {
-                return _buildRecapTable(_filteredClassSections);
+                // Get ALL classes (both primary and other)
+                List<ClassSection> allClasses =
+                    context.read<ClassesCubit>().getAllClasses();
+
+                // Debugging to check if we're getting classes
+                print(
+                    "Received ${allClasses.length} total classes (primary + other)");
+
+                if (teacherId != null) {
+                  // Process for teacher's classes
+                  // First try to filter by teacher ID
+                  filterClassSections(allClasses, teacherId!);
+
+                  // If no filtered classes found, just show all classes
+                  if (_filteredClassSections.isEmpty) {
+                    print(
+                        "No filtered classes found, showing all ${allClasses.length} classes");
+                    return _buildRecapTable(allClasses);
+                  } else {
+                    print(
+                        "Found ${_filteredClassSections.length} classes for teacher ID: $teacherId");
+                    return _buildRecapTable(_filteredClassSections);
+                  }
+                } else {
+                  // If teacherId is null, show all classes
+                  print("Teacher ID is null, showing all classes");
+                  return _buildRecapTable(allClasses);
+                }
               }
               if (state is ClassesFetchFailure) {
-                return Center(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      top: topPaddingOfErrorAndLoadingContainer,
-                    ),
-                    child: Text('Failed to fetch classes data'),
+                return Padding(
+                  padding: EdgeInsets.only(
+                    top: topPaddingOfErrorAndLoadingContainer,
+                  ),
+                  child: CustomErrorWidget(
+                    message: ErrorMessageUtils.getReadableErrorMessage(
+                        state.errorMessage),
+                    onRetry: () {
+                      context.read<ClassesCubit>().getClasses();
+                    },
+                    primaryColor: _maroonPrimary,
                   ),
                 );
               }
@@ -256,7 +442,7 @@ class _RecapAttendanceSubjectScreenState
               );
             },
           ),
-          _buildAppbarAndFilters(),
+          _buildAppBar(),
         ],
       ),
     );

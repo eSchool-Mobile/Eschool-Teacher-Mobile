@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/userDetails.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
@@ -13,6 +15,7 @@ class AuthRepository {
     setIsLogIn(false);
     setUserDetails(UserDetails());
     setAuthToken("");
+    setSchoolsData([]);
     schoolCode = "";
   }
 
@@ -45,6 +48,37 @@ class AuthRepository {
     return Hive.box(authBoxKey).put(userDetailsKey, value.toJson());
   }
 
+  Future<List<Map<String, dynamic>>> getSchoolsData() async {
+    print('DEBUG: getSchoolsData called');
+    final schoolsData = Hive.box(authBoxKey).get(schoolsDataKey);
+    print('DEBUG: Raw schoolsData from Hive: $schoolsData');
+    print('DEBUG: schoolsData type: ${schoolsData.runtimeType}');
+
+    if (schoolsData == null) {
+      print('DEBUG: schoolsData is null, returning empty list');
+      return [];
+    }
+
+    final result = List<Map<String, dynamic>>.from(schoolsData);
+    print('DEBUG: Converted schoolsData: $result');
+    print('DEBUG: Result length: ${result.length}');
+    return result;
+  }
+
+  Future<void> setSchoolsData(List<Map<String, dynamic>> schools) async {
+    print('DEBUG: setSchoolsData called with: $schools');
+    print('DEBUG: schools length: ${schools.length}');
+    final result = await Hive.box(authBoxKey).put(schoolsDataKey, schools);
+    print('DEBUG: Schools data stored in Hive');
+
+    // Verify storage immediately
+    final stored = await getSchoolsData();
+    print('DEBUG: Verification - stored schools: $stored');
+    print('DEBUG: Verification - stored schools length: ${stored.length}');
+
+    return result;
+  }
+
   Future<String> getFcmToken() async {
     try {
       return (await FirebaseMessaging.instance.getToken()) ?? "";
@@ -53,26 +87,35 @@ class AuthRepository {
     }
   }
 
-  Future<({UserDetails userDetails, String token})> loginUser({
+  Future<
+      ({
+        UserDetails userDetails,
+        String token,
+        Map<String, dynamic> responseJson
+      })> loginUser({
     required String email,
     required String password,
-    required String schoolCode,
   }) async {
     try {
       final result = await Api.post(body: {
         "email": email,
         "password": password,
-        "school_code": schoolCode,
         "fcm_id": await getFcmToken(),
       }, url: Api.login, useAuthToken: false);
+
+     
+      JsonEncoder.withIndent('  ').convert(result).split('\n').forEach(print);
 
       return (
         token: (result['token'] ?? "").toString(),
         userDetails: UserDetails.fromJson(Map.from(result['data'] ?? {})),
+        responseJson: Map<String, dynamic>.from(result),
       );
     } on ApiException catch (e) {
       throw ApiException(e.toString());
     } catch (e) {
+      
+      print(e);
       throw ApiException(defaultErrorMessageKey);
     }
   }

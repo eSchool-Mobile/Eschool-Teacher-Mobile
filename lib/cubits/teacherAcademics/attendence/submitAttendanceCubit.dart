@@ -1,5 +1,6 @@
 import 'package:eschool_saas_staff/data/repositories/attendanceRepository.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class SubmitAttendanceState {}
@@ -47,7 +48,10 @@ class SubmitAttendanceCubit extends Cubit<SubmitAttendanceState> {
       );
       emit(SubmitAttendanceSuccess());
     } catch (e) {
-      emit(SubmitAttendanceFailure(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(SubmitAttendanceFailure(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 

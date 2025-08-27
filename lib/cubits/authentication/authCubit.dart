@@ -32,16 +32,28 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  void authenticateUser({
+  Future<void> authenticateUser({
     required String authToken,
     required UserDetails userDetails,
     required String schoolCode,
-  }) {
+    List<Map<String, dynamic>>? schools,
+  }) async {
     //
     authRepository.schoolCode = schoolCode;
     authRepository.setAuthToken(authToken);
     authRepository.setUserDetails(userDetails);
     authRepository.setIsLogIn(true);
+
+    // Store schools data if provided
+    if (schools != null) {
+      print('DEBUG: AuthCubit.authenticateUser - storing schools: $schools');
+      print(
+          'DEBUG: AuthCubit.authenticateUser - schools length: ${schools.length}');
+      await authRepository.setSchoolsData(schools);
+      print('DEBUG: AuthCubit.authenticateUser - schools stored successfully');
+    } else {
+      print('DEBUG: AuthCubit.authenticateUser - schools is null');
+    }
 
     //emit new state
     emit(
@@ -63,6 +75,10 @@ class AuthCubit extends Cubit<AuthState> {
     return false;
   }
 
+  Future<List<Map<String, dynamic>>> getSchoolsData() async {
+    return await authRepository.getSchoolsData();
+  }
+
   void signOut() {
     authRepository.signOutUser();
     emit(Unauthenticated());
@@ -73,7 +89,7 @@ class AuthCubit extends Cubit<AuthState> {
 
     currentUserDetails = currentUserDetails.copyWith(
         firstName: userdetails.firstName,
-        lastName: userdetails.lastName,
+        // lastName: userdetails.lastName,
         mobile: userdetails.mobile,
         email: userdetails.email,
         dob: userdetails.dob,

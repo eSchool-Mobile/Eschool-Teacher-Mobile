@@ -19,7 +19,6 @@ class SendPasswordResetEmailCubit extends Cubit<SendPasswordResetEmailState> {
   final AuthRepository _authRepository = AuthRepository();
 
   SendPasswordResetEmailCubit() : super(SendPasswordResetEmailInitial());
-
   void sendPasswordResetEmail({required String email}) async {
     try {
       emit(SendPasswordResetEmailInProgress());

@@ -1,5 +1,6 @@
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/repositories/teacherAcademicRepository.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class TeacherClassSectionDetailsState {}
@@ -38,7 +39,10 @@ class TeacherClassSectionDetailsCubit
           classSectionDetails: await _teacherAcademicsRepository
               .getClassSectionDetails(classId: classId)));
     } catch (e) {
-      emit(TeacherClassSectionDetailsFetchFailure(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(TeacherClassSectionDetailsFetchFailure(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 }

@@ -39,7 +39,9 @@ class FilterSelectionBottomsheet<T> extends StatelessWidget {
               children: [
                 FilterSelectionTile(
                   onTap: () {
-                    onSelection.call(value);
+                    if (value != null) {
+                      onSelection.call(value);
+                    }
                   },
                   isSelected: value == selectedValue,
                   title: displayFunction != null

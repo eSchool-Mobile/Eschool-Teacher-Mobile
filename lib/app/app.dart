@@ -23,6 +23,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/route_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:eschool_saas_staff/cubits/questionOnlineExam/questionOnlineExamCubit.dart';
+import 'package:eschool_saas_staff/data/repositories/onlineExamRepository.dart';
 
 //to avoid handshake error on some devices
 class MyHttpOverrides extends HttpOverrides {
@@ -97,13 +99,12 @@ class _MyAppState extends State<MyApp> {
           BlocProvider<HomeScreenDataCubit>(
             create: (context) => HomeScreenDataCubit(),
           ),
-          // BlocProvider<SubjectAttendanceCubit>(
-          //   create: (_) => SubjectAttendanceCubit(),
-          // )
-          // BlocProvider<TeacherClassSectionDetailsCubit>(
-          //   create: (_) => TeacherClassSectionDetailsCubit(),
-          // ),
           BlocProvider<SocketSettingCubit>(create: (_) => SocketSettingCubit()),
+          BlocProvider<QuestionOnlineExamCubit>(
+            create: (context) => QuestionOnlineExamCubit(
+              OnlineExamRepository(),
+            ),
+          ),
         ],
         child: Builder(builder: (context) {
           return GetMaterialApp(

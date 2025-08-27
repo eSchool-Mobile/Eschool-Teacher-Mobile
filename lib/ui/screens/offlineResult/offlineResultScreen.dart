@@ -4,19 +4,19 @@ import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/offlineExam.dart';
 import 'package:eschool_saas_staff/data/models/sessionYear.dart';
 import 'package:eschool_saas_staff/ui/screens/offlineResult/widgets/studentOfflineResultContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
+import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:get/route_manager.dart';
 
 class OfflineResultScreen extends StatefulWidget {
@@ -45,10 +45,31 @@ class OfflineResultScreen extends StatefulWidget {
   State<OfflineResultScreen> createState() => _OfflineResultScreenState();
 }
 
-class _OfflineResultScreenState extends State<OfflineResultScreen> {
+class _OfflineResultScreenState extends State<OfflineResultScreen>
+    with TickerProviderStateMixin {
   ClassSection? _selectedClassSection;
   SessionYear? _selectedSessionYear;
   OfflineExam? _selectedOfflineExam;
+
+  // Animation controller for the app bar
+  late AnimationController _animationController;
+
+  // Define colors
+  final Color maroonPrimary = const Color(0xFF8B1F41);
+  final Color maroonLight = const Color(0xFFAC3B5C);
+  final Color maroonDark = const Color(0xFF6A0F2A);
+  final Color accentColor = const Color(0xFFF5EBE0);
+  final Color bgColor = const Color(0xFFFAF6F2);
+  final Color cardColor = Colors.white;
+  final Color textDarkColor = const Color(0xFF2D2D2D);
+  final Color textMediumColor = const Color(0xFF717171);
+  final Color borderColor = const Color(0xFFE8E8E8);
+
+  // Gradient colors for modern design
+  final List<Color> gradientColors = [
+    const Color(0xFF8B1F41),
+    const Color(0xFFAC3B5C),
+  ];
 
   late final ScrollController _scrollController = ScrollController()
     ..addListener(scrollListener);
@@ -56,6 +77,16 @@ class _OfflineResultScreenState extends State<OfflineResultScreen> {
   @override
   void initState() {
     super.initState();
+
+    // Initialize animation controller
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    // Start animations
+    _animationController.forward();
+
     Future.delayed(Duration.zero, () {
       if (mounted) {
         context
@@ -68,9 +99,10 @@ class _OfflineResultScreenState extends State<OfflineResultScreen> {
 
   @override
   void dispose() {
-    super.dispose();
+    _animationController.dispose();
     _scrollController.removeListener(scrollListener);
     _scrollController.dispose();
+    super.dispose();
   }
 
   void scrollListener() {
@@ -117,7 +149,59 @@ class _OfflineResultScreenState extends State<OfflineResultScreen> {
       builder: (context, state) {
         if (state is OfflineExamStudentResultsFetchSuccess) {
           if (state.studentResults.isEmpty) {
-            return const SizedBox();
+            return Align(
+              alignment: Alignment.topCenter,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(
+                    top: Utils.appContentTopScrollPadding(context: context) +
+                        100),
+                child: Container(
+                  margin: EdgeInsets.all(appContentHorizontalPadding),
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: 1,
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        size: 64,
+                        color: maroonPrimary.withOpacity(0.7),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Tidak Ada Data',
+                        style: GoogleFonts.poppins(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: textDarkColor,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Tidak ada data siswa untuk ujian ini.\nSilakan pilih ujian yang berbeda atau periksa kembali pengaturan filter.',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: textMediumColor,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
           }
           return Align(
             alignment: Alignment.topCenter,
@@ -221,9 +305,9 @@ class _OfflineResultScreenState extends State<OfflineResultScreen> {
 
         if (state is OfflineExamStudentResultsFetchFailure) {
           return Center(
-            child: ErrorContainer(
-              errorMessage: state.errorMessage,
-              onTapRetry: () {
+            child: CustomErrorWidget(
+              message: state.errorMessage,
+              onRetry: () {
                 getStudentResults();
               },
             ),
@@ -239,13 +323,166 @@ class _OfflineResultScreenState extends State<OfflineResultScreen> {
     );
   }
 
+  // Build the new modern app bar with filter options
+  PreferredSizeWidget _buildHeaderSection() {
+    final state =
+        context.read<OfflineExamsWithClassesAndSessionYearsCubit>().state;
+    final bool hasSessionYears =
+        state is OfflineExamsWithClassesAndSessionYearsFetchSuccess &&
+            state.sessionYears.isNotEmpty;
+    final bool hasOfflineExams =
+        state is OfflineExamsWithClassesAndSessionYearsFetchSuccess &&
+            state.offlineExams.isNotEmpty;
+    final bool hasClasses =
+        state is OfflineExamsWithClassesAndSessionYearsFetchSuccess &&
+            context
+                .read<OfflineExamsWithClassesAndSessionYearsCubit>()
+                .getAllClasses()
+                .isNotEmpty;
+
+    return CustomFilterModernAppBar(
+      title: Utils.getTranslatedLabel(offlineResultKey),
+      titleIcon: Icons.assignment_outlined,
+      primaryColor: maroonPrimary,
+      secondaryColor: maroonLight,
+      onBackPressed: () {
+        Navigator.pop(context);
+      },
+      animationController: _animationController,
+      enableAnimations: true,
+      height: 240.0, // Increased height to accommodate filters below title
+      firstFilterItem: FilterItemConfig(
+        title: _selectedSessionYear?.name ?? Utils.getTranslatedLabel(yearKey),
+        icon: Icons.calendar_today_rounded,
+        onTap: () {
+          if (hasSessionYears) {
+            final successState =
+                state as OfflineExamsWithClassesAndSessionYearsFetchSuccess;
+            Utils.showBottomSheet(
+                child: FilterSelectionBottomsheet<SessionYear>(
+                  onSelection: (value) {
+                    if (value != null) {
+                      changeSelectedSessionYear(value);
+                      context
+                          .read<OfflineExamsWithClassesAndSessionYearsCubit>()
+                          .getOfflineExamsWithSessionYearsAndClasses(
+                              sesstionYearId: value.id);
+                      Get.back();
+                    }
+                  },
+                  selectedValue:
+                      _selectedSessionYear ?? successState.sessionYears.first,
+                  titleKey: sessionYearKey,
+                  values: successState.sessionYears,
+                ),
+                context: context);
+          }
+        },
+      ),
+      secondFilterItem: FilterItemConfig(
+        title: _selectedOfflineExam?.name ?? Utils.getTranslatedLabel(examKey),
+        icon: Icons.ballot_outlined,
+        onTap: () {
+          if (hasOfflineExams) {
+            final successState =
+                state as OfflineExamsWithClassesAndSessionYearsFetchSuccess;
+            Utils.showBottomSheet(
+                child: FilterSelectionBottomsheet<OfflineExam>(
+                    onSelection: (value) {
+                      if (value != null) {
+                        changeSelectedOfflineExam(value);
+                        getStudentResults();
+                        Get.back();
+                      }
+                    },
+                    selectedValue:
+                        _selectedOfflineExam ?? successState.offlineExams.first,
+                    titleKey: examKey,
+                    values: successState.offlineExams),
+                context: context);
+          }
+        },
+      ),
+      thirdFilterItem: FilterItemConfig(
+        title: _selectedClassSection?.fullName ??
+            Utils.getTranslatedLabel(classKey),
+        icon: Icons.class_outlined,
+        onTap: () {
+          if (hasClasses) {
+            final classes = context
+                .read<OfflineExamsWithClassesAndSessionYearsCubit>()
+                .getAllClasses();
+            Utils.showBottomSheet(
+                child: FilterSelectionBottomsheet<ClassSection>(
+                    onSelection: (value) {
+                      if (value != null) {
+                        changeSelectedClassSection(value);
+                        getStudentResults();
+                        Get.back();
+                      }
+                    },
+                    selectedValue: _selectedClassSection ?? classes.first,
+                    titleKey: classKey,
+                    values: classes),
+                context: context);
+          }
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: Stack(
-      children: [
-        BlocBuilder<OfflineExamsWithClassesAndSessionYearsCubit,
+    final ThemeData theme = ThemeData(
+      primaryColor: maroonPrimary,
+      scaffoldBackgroundColor: bgColor,
+      textTheme: GoogleFonts.poppinsTextTheme(),
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: maroonPrimary,
+        primary: maroonPrimary,
+        secondary: maroonLight,
+      ),
+    );
+
+    return Theme(
+      data: theme,
+      child: Scaffold(
+        backgroundColor: bgColor,
+        appBar: _buildHeaderSection(),
+        body: BlocConsumer<OfflineExamsWithClassesAndSessionYearsCubit,
             OfflineExamsWithClassesAndSessionYearsState>(
+          listener: (context, state) {
+            if (state is OfflineExamsWithClassesAndSessionYearsFetchSuccess) {
+              if (state.offlineExams.isNotEmpty) {
+                changeSelectedOfflineExam(state.offlineExams.first);
+              } else {
+                changeSelectedOfflineExam(null);
+              }
+
+              if (context
+                      .read<OfflineExamsWithClassesAndSessionYearsCubit>()
+                      .getAllClasses()
+                      .isNotEmpty &&
+                  state.sessionYears.isNotEmpty) {
+                if (_selectedSessionYear?.id == null) {
+                  changeSelectedSessionYear(state.sessionYears
+                      .where((element) => element.isThisDefault())
+                      .first);
+                }
+
+                if (_selectedClassSection?.id == null) {
+                  changeSelectedClassSection(context
+                      .read<OfflineExamsWithClassesAndSessionYearsCubit>()
+                      .getAllClasses()
+                      .first);
+                }
+
+                if (state.offlineExams.isNotEmpty) {
+                  getStudentResults();
+                }
+              }
+            }
+          },
           builder: (context, state) {
             if (state is OfflineExamsWithClassesAndSessionYearsFetchSuccess) {
               if (state.offlineExams.isEmpty ||
@@ -253,16 +490,65 @@ class _OfflineResultScreenState extends State<OfflineResultScreen> {
                       .read<OfflineExamsWithClassesAndSessionYearsCubit>()
                       .getAllClasses()
                       .isEmpty) {
-                return const SizedBox();
+                return Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                    margin: EdgeInsets.all(appContentHorizontalPadding),
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.1),
+                          spreadRadius: 1,
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.assignment_outlined,
+                          size: 64,
+                          color: maroonPrimary.withOpacity(0.7),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Tidak Ada Ujian',
+                          style: GoogleFonts.poppins(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: textDarkColor,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          state.offlineExams.isEmpty
+                              ? 'Tidak ada ujian offline tersedia untuk tahun ajaran yang dipilih.'
+                              : 'Tidak ada kelas tersedia untuk ujian ini.',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: textMediumColor,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
               }
               return _buildStudentResults();
             }
 
             if (state is OfflineExamsWithClassesAndSessionYearsFetchFailure) {
               return Center(
-                child: ErrorContainer(
-                  errorMessage: state.errorMessage,
-                  onTapRetry: () {
+                child: CustomErrorWidget(
+                  message: state.errorMessage,
+                  onRetry: () {
                     context
                         .read<OfflineExamsWithClassesAndSessionYearsCubit>()
                         .getOfflineExamsWithSessionYearsAndClasses(
@@ -279,138 +565,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen> {
             );
           },
         ),
-        Align(
-          alignment: Alignment.topCenter,
-          child: BlocConsumer<OfflineExamsWithClassesAndSessionYearsCubit,
-              OfflineExamsWithClassesAndSessionYearsState>(
-            listener: (context, state) {
-              if (state is OfflineExamsWithClassesAndSessionYearsFetchSuccess) {
-                if (state.offlineExams.isNotEmpty) {
-                  changeSelectedOfflineExam(state.offlineExams.first);
-                } else {
-                  changeSelectedOfflineExam(null);
-                }
-
-                if (context
-                        .read<OfflineExamsWithClassesAndSessionYearsCubit>()
-                        .getAllClasses()
-                        .isNotEmpty &&
-                    state.sessionYears.isNotEmpty) {
-                  if (_selectedSessionYear?.id == null) {
-                    changeSelectedSessionYear(state.sessionYears
-                        .where((element) => element.isThisDefault())
-                        .first);
-                  }
-
-                  if (_selectedClassSection?.id == null) {
-                    changeSelectedClassSection(context
-                        .read<OfflineExamsWithClassesAndSessionYearsCubit>()
-                        .getAllClasses()
-                        .first);
-                  }
-
-                  //
-                  if (state.offlineExams.isNotEmpty) {
-                    getStudentResults();
-                  }
-                }
-              }
-            },
-            builder: (context, state) {
-              return Column(
-                children: [
-                  const CustomAppbar(titleKey: offlineResultKey),
-                  AppbarFilterBackgroundContainer(
-                      child: LayoutBuilder(builder: (context, boxConstraints) {
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        FilterButton(
-                            onTap: () {
-                              if (state
-                                      is OfflineExamsWithClassesAndSessionYearsFetchSuccess &&
-                                  state.sessionYears.isNotEmpty) {
-                                Utils.showBottomSheet(
-                                    child:
-                                        FilterSelectionBottomsheet<SessionYear>(
-                                      onSelection: (value) {
-                                        changeSelectedSessionYear(value!);
-                                        context
-                                            .read<
-                                                OfflineExamsWithClassesAndSessionYearsCubit>()
-                                            .getOfflineExamsWithSessionYearsAndClasses(
-                                                sesstionYearId: value.id);
-                                        Get.back();
-                                      },
-                                      selectedValue: _selectedSessionYear!,
-                                      titleKey: sessionYearKey,
-                                      values: state.sessionYears,
-                                    ),
-                                    context: context);
-                              }
-                            },
-                            titleKey: _selectedSessionYear?.name ?? yearKey,
-                            width: boxConstraints.maxWidth * (0.31)),
-                        FilterButton(
-                            onTap: () {
-                              if (state
-                                      is OfflineExamsWithClassesAndSessionYearsFetchSuccess &&
-                                  state.offlineExams.isNotEmpty) {
-                                Utils.showBottomSheet(
-                                    child:
-                                        FilterSelectionBottomsheet<OfflineExam>(
-                                            onSelection: (value) {
-                                              changeSelectedOfflineExam(value!);
-                                              getStudentResults();
-                                              Get.back();
-                                            },
-                                            selectedValue:
-                                                _selectedOfflineExam!,
-                                            titleKey: examKey,
-                                            values: state.offlineExams),
-                                    context: context);
-                              }
-                            },
-                            titleKey: _selectedOfflineExam?.name ?? examKey,
-                            width: boxConstraints.maxWidth * (0.31)),
-                        FilterButton(
-                            onTap: () {
-                              if (state
-                                      is OfflineExamsWithClassesAndSessionYearsFetchSuccess &&
-                                  context
-                                      .read<
-                                          OfflineExamsWithClassesAndSessionYearsCubit>()
-                                      .getAllClasses()
-                                      .isNotEmpty) {
-                                Utils.showBottomSheet(
-                                    child: FilterSelectionBottomsheet<
-                                            ClassSection>(
-                                        onSelection: (value) {
-                                          changeSelectedClassSection(value!);
-                                          getStudentResults();
-                                          Get.back();
-                                        },
-                                        selectedValue: _selectedClassSection!,
-                                        titleKey: classKey,
-                                        values: context
-                                            .read<
-                                                OfflineExamsWithClassesAndSessionYearsCubit>()
-                                            .getAllClasses()),
-                                    context: context);
-                              }
-                            },
-                            titleKey:
-                                _selectedClassSection?.fullName ?? classKey,
-                            width: boxConstraints.maxWidth * (0.31)),
-                      ],
-                    );
-                  }))
-                ],
-              );
-            },
-          ),
-        )
-      ],
-    ));
+      ),
+    );
   }
 }

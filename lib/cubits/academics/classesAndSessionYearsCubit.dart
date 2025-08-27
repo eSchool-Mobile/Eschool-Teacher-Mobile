@@ -1,6 +1,7 @@
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/sessionYear.dart';
 import 'package:eschool_saas_staff/data/repositories/academicRepository.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class ClassesAndSessionYearsState {}
@@ -41,7 +42,10 @@ class ClassesAndSessionYearsCubit extends Cubit<ClassesAndSessionYearsState> {
           primaryClassSections: result.primaryClasses,
           sessionYears: await _academicRepository.getSessionYears()));
     } catch (e) {
-      emit(ClassesAndSessionYearsFetchFailure(e.toString()));
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(ClassesAndSessionYearsFetchFailure(userFriendlyMessage));
+      print(
+          'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
 

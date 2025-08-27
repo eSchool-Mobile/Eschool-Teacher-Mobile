@@ -5,23 +5,22 @@ import 'package:eschool_saas_staff/cubits/student/studentsCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/sessionYear.dart';
 import 'package:eschool_saas_staff/ui/screens/studentProfileScreen.dart';
-import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
+import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/searchContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/studentListCard.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/route_manager.dart';
+import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class StudentsScreen extends StatefulWidget {
   const StudentsScreen({super.key});
@@ -42,12 +41,17 @@ class StudentsScreen extends StatefulWidget {
   State<StudentsScreen> createState() => _StudentsScreenState();
 }
 
-class _StudentsScreenState extends State<StudentsScreen> {
+// State implementation for StudentsScreen
+class _StudentsScreenState extends State<StudentsScreen>
+    with TickerProviderStateMixin {
   ClassSection? _selectedClassSection;
   SessionYear? _selectedSessionYear;
+  String? _selectedStatus; // null = semua, '1' = aktif, '0' = non-aktif
+  // Static header height
+  static const double _headerHeight =
+      270.0; // Increased for better filter spacing
 
-  late final ScrollController _scrollController = ScrollController()
-    ..addListener(scrollListener);
+  late final ScrollController _scrollController = ScrollController();
 
   late final TextEditingController _textEditingController =
       TextEditingController()..addListener(searchQueryTextControllerListener);
@@ -57,21 +61,121 @@ class _StudentsScreenState extends State<StudentsScreen> {
 
   Timer? waitForNextSearchRequestTimer;
 
+  // Animation controllers
+  late final AnimationController _animationController;
+  late final Animation<double> _fadeAnimation;
+  late final Animation<double> _scaleAnimation;
+
+  // Define theme colors
+  final Color maroonPrimary = Color(0xFF8B1F41);
+  final Color maroonLight = Color(0xFFAC3B5C);
+  final Color maroonDark = Color(0xFF6A0F2A);
+  final Color accentColor = Color(0xFFF5EBE0);
+  final Color bgColor = Color(0xFFFAF6F2);
+  final Color cardColor = Colors.white;
+  final Color textDarkColor = Color(0xFF2D2D2D);
+  final Color textMediumColor = Color(0xFF717171);
+  final Color borderColor = Color(0xFFE8E8E8);
+
+  // Helper method to build info columns in student cards
+  Widget _buildInfoColumn({
+    required IconData icon,
+    required Color iconColor,
+    required String label,
+    required String value,
+  }) {
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            height: 32,
+            width: 32,
+            decoration: BoxDecoration(
+              color: iconColor.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: iconColor,
+              size: 16,
+            ),
+          ),
+          SizedBox(height: 6),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Poppins',
+              color: textDarkColor,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          SizedBox(height: 2),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontFamily: 'Poppins',
+              color: textMediumColor,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
+    super.initState();
+
+    // Update header height to accommodate filters better
+    // _headerHeight = 240.0; // Increased from 200 to 240
+
+    // Primary animation controller for fade effects
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 800),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.95, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOutBack,
+      ),
+    );
+
+    // Start animations
+    _animationController.forward();
+
+    // Add scroll listener for pagination only
+    _scrollController.addListener(scrollListener);
+
     Future.delayed(Duration.zero, () {
       if (mounted) {
         context.read<ClassesAndSessionYearsCubit>().getClassesAndSessionYears();
       }
     });
-    super.initState();
   }
 
   @override
   void dispose() {
-    _scrollController.removeListener(scrollListener);
     _scrollController.dispose();
     _textEditingController.dispose();
+    _animationController.dispose();
     waitForNextSearchRequestTimer?.cancel();
     super.dispose();
   }
@@ -108,6 +212,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
   }
 
   void scrollListener() {
+    // Only check for pagination, no header height changes
     if (_scrollController.position.maxScrollExtent ==
         _scrollController.offset) {
       if (context.read<StudentsCubit>().hasMore()) {
@@ -126,154 +231,494 @@ class _StudentsScreenState extends State<StudentsScreen> {
     setState(() {});
   }
 
+  void changeSelectedStatus(String? status) {
+    _selectedStatus = status;
+    setState(() {});
+    getStudents();
+  }
+
   void getStudents() {
+    if (_selectedClassSection == null || _selectedSessionYear == null) return;
+    if (_selectedClassSection!.id == null || _selectedSessionYear!.id == null)
+      return;
+
+    print('Fetching students with status: ${_selectedStatus ?? "all"}');
     context.read<StudentsCubit>().getStudents(
         search: _textEditingController.text.trim().isEmpty
             ? null
             : _textEditingController.text.trim(),
-        classSectionId: _selectedClassSection?.id ?? 0,
-        sessionYearId: _selectedSessionYear?.id);
+        classSectionId: _selectedClassSection!.id!,
+        sessionYearId: _selectedSessionYear!.id!,
+        status: _selectedStatus);
   }
 
   void getMoreStudents() {
+    if (_selectedClassSection == null || _selectedSessionYear == null) return;
+    if (_selectedClassSection!.id == null || _selectedSessionYear!.id == null)
+      return;
+
     context.read<StudentsCubit>().fetchMore(
         search: _textEditingController.text.trim().isEmpty
             ? null
             : _textEditingController.text.trim(),
-        classSectionId: _selectedClassSection?.id ?? 0,
-        sessionYearId: _selectedSessionYear?.id);
+        classSectionId: _selectedClassSection!.id!,
+        sessionYearId: _selectedSessionYear!.id!,
+        status: _selectedStatus);
   }
 
-  ///[This will be in use to display rollNo,class section and session year]
-  Widget _buildStudentDetailsTitleAndValueContainer(
-      {required double width,
-      required String titleKey,
-      required String value,
-      required bool showBorder}) {
-    return Container(
-      decoration: BoxDecoration(
-          border: showBorder
-              ? Border(
-                  right: BorderSide(
-                    color: Theme.of(context).colorScheme.tertiary,
-                  ),
-                  left: BorderSide(
-                    color: Theme.of(context).colorScheme.tertiary,
-                  ))
-              : null),
-      width: width,
-      height: double.maxFinite,
-      child: Column(
-        children: [
-          CustomTextContainer(
-            textKey: value,
-            style: const TextStyle(fontSize: 15.0, fontWeight: FontWeight.w600),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          CustomTextContainer(
-            textKey: titleKey,
-            style: TextStyle(
-                fontSize: 13.0,
-                color:
-                    Theme.of(context).colorScheme.secondary.withOpacity(0.76)),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
+  PreferredSizeWidget _buildHeaderSection() {
+    return CustomFilterModernAppBar(
+      title: studentsKey.tr,
+      titleIcon: Icons.school_rounded,
+      primaryColor: maroonPrimary,
+      secondaryColor: maroonLight,
+      onBackPressed: () {
+        Navigator.pop(context);
+      },
+      animationController: _animationController,
+      enableAnimations: true,
+      height: 250.0, // Further increased height for more breathing room
+      // contentPadding:
+      //     EdgeInsets.fromLTRB(24, 20, 24, 24), // Increased outer padding
+      firstFilterItem: FilterItemConfig(
+        title: _selectedClassSection?.name ?? classKey.tr,
+        icon: Icons.class_rounded,
+        onTap: () {
+          if (context.read<ClassesAndSessionYearsCubit>().state
+              is ClassesAndSessionYearsFetchSuccess) {
+            final classes =
+                context.read<ClassesAndSessionYearsCubit>().getClasses();
+            if (classes.isNotEmpty) {
+              _showClassSectionFilter(context, classes);
+            }
+          }
+        },
+      ),
+      secondFilterItem: FilterItemConfig(
+        title: _selectedSessionYear?.name ?? sessionYearKey.tr,
+        icon: Icons.calendar_today_rounded,
+        onTap: () {
+          if (context.read<ClassesAndSessionYearsCubit>().state
+              is ClassesAndSessionYearsFetchSuccess) {
+            final state = context.read<ClassesAndSessionYearsCubit>().state
+                as ClassesAndSessionYearsFetchSuccess;
+            if (state.sessionYears.isNotEmpty) {
+              _showSessionYearFilter(context, state.sessionYears);
+            }
+          }
+        },
+      ),
+      thirdFilterItem: FilterItemConfig(
+        title: _selectedStatus == '0'
+            ? "Siswa Aktif"
+            : _selectedStatus == '1'
+                ? "Siswa Non-Aktif"
+                : "Semua Status",
+        icon: Icons.filter_list_rounded,
+        onTap: () {
+          _showStatusFilter(context);
+        },
       ),
     );
   }
 
-  Widget _buildAppbarAndFilters() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: BlocConsumer<ClassesAndSessionYearsCubit,
-          ClassesAndSessionYearsState>(
-        listener: (context, state) {
-          if (state is ClassesAndSessionYearsFetchSuccess) {
-            if (context
-                    .read<ClassesAndSessionYearsCubit>()
-                    .getClasses()
-                    .isNotEmpty &&
-                state.sessionYears.isNotEmpty) {
-              changeSelectedClassSection(context
-                  .read<ClassesAndSessionYearsCubit>()
-                  .getClasses()
-                  .first);
-              changeSelectedSessionYear(state.sessionYears
-                  .where((element) => element.isThisDefault())
-                  .first);
-              getStudents();
-            }
-          }
-        },
-        builder: (context, state) {
-          return Column(
+  void _showClassSectionFilter(
+      BuildContext context, List<ClassSection> classSections) {
+    // Prevent overflow errors with proper sheet sizing
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6, // Start at 60% of screen height
+        minChildSize: 0.3, // Can be dragged to minimum 30%
+        maxChildSize: 0.9, // Maximum 90% of screen height
+        expand: false,
+        builder: (context, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const CustomAppbar(titleKey: studentsKey),
-              AppbarFilterBackgroundContainer(
-                child: LayoutBuilder(builder: (context, boxConstraints) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      FilterButton(
-                          onTap: () {
-                            if (state is ClassesAndSessionYearsFetchSuccess &&
-                                context
-                                    .read<ClassesAndSessionYearsCubit>()
-                                    .getClasses()
-                                    .isNotEmpty) {
-                              Utils.showBottomSheet(
-                                  child: FilterSelectionBottomsheet<
-                                          ClassSection>(
-                                      onSelection: (value) {
-                                        changeSelectedClassSection(value!);
-                                        getStudents();
-                                        Get.back();
-                                      },
-                                      selectedValue: _selectedClassSection!,
-                                      titleKey: classKey,
-                                      values: context
-                                          .read<ClassesAndSessionYearsCubit>()
-                                          .getClasses()),
-                                  context: context);
-                            }
-                          },
-                          titleKey: _selectedClassSection?.id == null
-                              ? classKey
-                              : (_selectedClassSection?.name ?? ""),
-                          width: boxConstraints.maxWidth * (0.48)),
-                      FilterButton(
-                          onTap: () {
-                            if (state is ClassesAndSessionYearsFetchSuccess &&
-                                state.sessionYears.isNotEmpty) {
-                              Utils.showBottomSheet(
-                                  child:
-                                      FilterSelectionBottomsheet<SessionYear>(
-                                    selectedValue: _selectedSessionYear!,
-                                    titleKey: sessionYearKey,
-                                    values: state.sessionYears,
-                                    onSelection: (value) {
-                                      changeSelectedSessionYear(value!);
-                                      getStudents();
-                                      Get.back();
-                                    },
-                                  ),
-                                  context: context);
-                            }
-                          },
-                          titleKey: _selectedSessionYear?.id == null
-                              ? sessionYearKey
-                              : _selectedSessionYear!.name ?? "",
-                          width: boxConstraints.maxWidth * (0.48)),
-                    ],
-                  );
-                }),
-              )
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              Center(
+                child: Text(
+                  "Pilih Kelas",
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: textDarkColor,
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  itemCount: classSections.length,
+                  itemBuilder: (context, index) {
+                    final classSection = classSections[index];
+                    final isSelected =
+                        _selectedClassSection?.id == classSection.id;
+
+                    return InkWell(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        changeSelectedClassSection(classSection);
+                        getStudents();
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 8),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? maroonPrimary.withOpacity(0.1)
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isSelected ? maroonPrimary : borderColor,
+                            width: isSelected ? 2 : 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.class_rounded,
+                              color:
+                                  isSelected ? maroonPrimary : textMediumColor,
+                              size: 22,
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                classSection.name ?? "",
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 16,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+                                  color: isSelected
+                                      ? maroonPrimary
+                                      : textDarkColor,
+                                ),
+                              ),
+                            ),
+                            if (isSelected)
+                              Icon(
+                                Icons.check_circle_rounded,
+                                color: maroonPrimary,
+                                size: 24,
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ],
-          );
-        },
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showSessionYearFilter(
+      BuildContext context, List<SessionYear> sessionYears) {
+    // Prevent overflow errors with proper sheet sizing
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6, // Start at 60% of screen height
+        minChildSize: 0.3, // Can be dragged to minimum 30%
+        maxChildSize: 0.9, // Maximum 90% of screen height
+        expand: false,
+        builder: (context, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              Center(
+                child: Text(
+                  "Pilih Tahun Ajaran",
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: textDarkColor,
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  itemCount: sessionYears.length,
+                  itemBuilder: (context, index) {
+                    final sessionYear = sessionYears[index];
+                    final isSelected =
+                        _selectedSessionYear?.id == sessionYear.id;
+                    final isDefault = sessionYear.isThisDefault();
+
+                    return InkWell(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        changeSelectedSessionYear(sessionYear);
+                        getStudents();
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 8),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? maroonPrimary.withOpacity(0.1)
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isSelected ? maroonPrimary : borderColor,
+                            width: isSelected ? 2 : 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_today_rounded,
+                              color:
+                                  isSelected ? maroonPrimary : textMediumColor,
+                              size: 22,
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    sessionYear.name ?? "",
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: 16,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.w400,
+                                      color: isSelected
+                                          ? maroonPrimary
+                                          : textDarkColor,
+                                    ),
+                                  ),
+                                  if (isDefault)
+                                    Text(
+                                      "Tahun Ajaran Saat Ini",
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: 12,
+                                        color: maroonLight,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            if (isSelected)
+                              Icon(
+                                Icons.check_circle_rounded,
+                                color: maroonPrimary,
+                                size: 24,
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showStatusFilter(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            Center(
+              child: Text(
+                "Filter Status Siswa",
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: textDarkColor,
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            _buildStatusFilterOption(
+              context: context,
+              title: "Semua Siswa",
+              subtitle: "Tampilkan semua status siswa",
+              icon: Icons.people_alt_rounded,
+              isSelected: _selectedStatus == null,
+              onTap: () {
+                HapticFeedback.lightImpact();
+                changeSelectedStatus(null);
+                Navigator.pop(context);
+              },
+            ),
+            SizedBox(height: 8),
+            _buildStatusFilterOption(
+              context: context,
+              title: "Siswa Aktif",
+              subtitle: "Hanya tampilkan siswa dengan status aktif",
+              icon: Icons.check_circle_outline_rounded,
+              isSelected: _selectedStatus == '0',
+              onTap: () {
+                HapticFeedback.lightImpact();
+                changeSelectedStatus('0');
+                Navigator.pop(context);
+              },
+            ),
+            SizedBox(height: 8),
+            _buildStatusFilterOption(
+              context: context,
+              title: "Siswa Non-Aktif",
+              subtitle: "Hanya tampilkan siswa dengan status non-aktif",
+              icon: Icons.cancel_outlined,
+              isSelected: _selectedStatus == '1',
+              onTap: () {
+                HapticFeedback.lightImpact();
+                changeSelectedStatus('1');
+                Navigator.pop(context);
+              },
+            ),
+            SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusFilterOption({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        decoration: BoxDecoration(
+          color: isSelected ? maroonPrimary.withOpacity(0.1) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? maroonPrimary : borderColor,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? maroonPrimary : textMediumColor,
+              size: 22,
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 16,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w400,
+                      color: isSelected ? maroonPrimary : textDarkColor,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 12,
+                      color: textMediumColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected)
+              Icon(
+                Icons.check_circle_rounded,
+                color: maroonPrimary,
+                size: 24,
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -281,257 +726,390 @@ class _StudentsScreenState extends State<StudentsScreen> {
   Widget _buildStudents() {
     return SingleChildScrollView(
       controller: _scrollController,
-      padding: EdgeInsets.only(
-          top: Utils.appContentTopScrollPadding(context: context) + 90),
+      padding: EdgeInsets.only(top: 10), // Fixed top padding
+      physics: BouncingScrollPhysics(),
       child: Column(
         children: [
-          SearchContainer(
-            additionalCallback: () {
-              getStudents();
+          // Only show search container when both filters are selected
+          if (_selectedClassSection != null && _selectedSessionYear != null)
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: AnimatedBuilder(
+                animation: _animationController,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: _scaleAnimation.value,
+                    child: Opacity(
+                      opacity: _fadeAnimation.value,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: Offset(0, 5),
+                            )
+                          ],
+                        ),
+                        child: SearchContainer(
+                          additionalCallback: () {
+                            getStudents();
+                          },
+                          textEditingController: _textEditingController,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          // Only add space if search is shown
+          if (_selectedClassSection != null && _selectedSessionYear != null)
+            const SizedBox(height: 15),
+          BlocConsumer<ClassesAndSessionYearsCubit,
+              ClassesAndSessionYearsState>(
+            listener: (context, state) {
+              if (state is ClassesAndSessionYearsFetchSuccess) {
+                if (context
+                        .read<ClassesAndSessionYearsCubit>()
+                        .getClasses()
+                        .isNotEmpty &&
+                    state.sessionYears.isNotEmpty) {
+                  // Only set initial values if not already set
+                  if (_selectedClassSection == null) {
+                    changeSelectedClassSection(context
+                        .read<ClassesAndSessionYearsCubit>()
+                        .getClasses()
+                        .first);
+                  }
+                  if (_selectedSessionYear == null) {
+                    changeSelectedSessionYear(state.sessionYears
+                        .where((element) => element.isThisDefault())
+                        .first);
+                  }
+                  if (context.read<StudentsCubit>().state is StudentsInitial) {
+                    getStudents();
+                  }
+                }
+              }
             },
-            textEditingController: _textEditingController,
-          ),
-          const SizedBox(
-            height: 25,
-          ),
-          BlocBuilder<StudentsCubit, StudentsState>(
             builder: (context, state) {
-              if (state is StudentsFetchSuccess) {
-                return Column(
-                  children: [
-                    state.students.isEmpty
-                        ? const SizedBox()
-                        : Container(
-                            width: MediaQuery.of(context).size.width,
-                            color: Theme.of(context).colorScheme.surface,
-                            padding:
-                                EdgeInsets.all(appContentHorizontalPadding),
-                            child: Column(
-                              children:
-                                  List.generate(state.students.length, (index) {
-                                final studentDetails = state.students[index];
-
-                                if (index == (state.students.length - 1)) {
-                                  //
-                                  if (context.read<StudentsCubit>().hasMore()) {
-                                    //
-                                    if (state.fetchMoreError) {
-                                      return Center(
-                                        child: CustomTextButton(
-                                            buttonTextKey: retryKey,
-                                            onTapButton: () {
-                                              getMoreStudents();
-                                            }),
-                                      );
-                                    }
+              return BlocBuilder<StudentsCubit, StudentsState>(
+                  builder: (context, state) {
+                if (state is StudentsFetchSuccess) {
+                  return FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: Column(
+                        children: [
+                          if (state.students.isEmpty)
+                            Center(
+                              child: Padding(
+                                padding: EdgeInsets.only(top: 100),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.school_outlined,
+                                      size: 80,
+                                      color: maroonPrimary.withOpacity(0.3),
+                                    ),
+                                    SizedBox(height: 20),
+                                    Text(
+                                      "Tidak ada data siswa",
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                        color: textMediumColor,
+                                      ),
+                                    ),
+                                    SizedBox(height: 10),
+                                    Text(
+                                      "Silakan pilih kelas dan tahun ajaran lain",
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: 14,
+                                        color: textMediumColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          if (state.students.isNotEmpty) ...[
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 24),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.people_alt_rounded,
+                                    color: maroonPrimary,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "Daftar Siswa",
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: textDarkColor,
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: maroonPrimary.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(30),
+                                      border: Border.all(
+                                        color: maroonPrimary.withOpacity(0.3),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      "${state.students.length} Siswa",
+                                      style: TextStyle(
+                                        color: maroonPrimary,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 12,
+                                        fontFamily: 'Poppins',
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              padding: EdgeInsets.symmetric(horizontal: 20),
+                              itemCount: state.students.length +
+                                  (context.read<StudentsCubit>().hasMore()
+                                      ? 1
+                                      : 0),
+                              itemBuilder: (context, index) {
+                                if (index == state.students.length) {
+                                  // This is the loading more indicator
+                                  if (state.fetchMoreError) {
                                     return Center(
-                                      child: CustomCircularProgressIndicator(
-                                        indicatorColor: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
+                                      child: Padding(
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 20),
+                                        child: CustomTextButton(
+                                          buttonTextKey: retryKey,
+                                          onTapButton: () {
+                                            getMoreStudents();
+                                          },
+                                        ),
                                       ),
                                     );
                                   }
+                                  return Center(
+                                    child: Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 20),
+                                      child: CustomCircularProgressIndicator(
+                                        indicatorColor: maroonPrimary,
+                                      ),
+                                    ),
+                                  );
                                 }
 
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 20),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      Get.toNamed(Routes.studentProfileScreen,
+                                final studentDetails = state.students[index];
+                                return AnimatedBuilder(
+                                  animation: _animationController,
+                                  builder: (context, child) {
+                                    // Stagger the animations
+                                    final delay = (index * 0.1).clamp(0.0, 1.0);
+                                    final delayedAnimation =
+                                        Tween<double>(begin: 0.0, end: 1.0)
+                                            .animate(
+                                      CurvedAnimation(
+                                        parent: _animationController,
+                                        curve: Interval(delay, 1.0,
+                                            curve: Curves.easeOut),
+                                      ),
+                                    );
+
+                                    return Transform.translate(
+                                      offset: Offset(0,
+                                          20 * (1.0 - delayedAnimation.value)),
+                                      child: Opacity(
+                                        opacity: delayedAnimation.value,
+                                        child: child,
+                                      ),
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(bottom: 16),
+                                    child: StudentListCard(
+                                      studentDetails: studentDetails,
+                                      classSection: _selectedClassSection,
+                                      sessionYear: _selectedSessionYear,
+                                      onTap: () {
+                                        HapticFeedback.lightImpact();
+                                        Get.toNamed(
+                                          Routes.studentProfileScreen,
                                           arguments: StudentProfileScreen
                                               .buildArguments(
-                                                  classSection:
-                                                      _selectedClassSection ??
-                                                          ClassSection.fromJson(
-                                                              {}),
-                                                  sessionYear:
-                                                      _selectedSessionYear ??
-                                                          SessionYear.fromJson(
-                                                              {}),
-                                                  studentDetails:
-                                                      studentDetails));
-                                    },
-                                    child: Container(
-                                      width: double.maxFinite,
-                                      height: 160,
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          border: Border.all(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .tertiary)),
-                                      child: LayoutBuilder(
-                                          builder: (context, boxConstraints) {
-                                        return Column(
-                                          children: [
-                                            Container(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal:
-                                                      appContentHorizontalPadding),
-                                              width: boxConstraints.maxWidth,
-                                              decoration: BoxDecoration(
-                                                  border: Border(
-                                                      bottom: BorderSide(
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .colorScheme
-                                                                  .tertiary))),
-                                              height: boxConstraints.maxHeight *
-                                                  (0.55),
-                                              child: Row(
-                                                children: [
-                                                  ProfileImageContainer(
-                                                    imageUrl:
-                                                        studentDetails.image ??
-                                                            "",
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Expanded(
-                                                      child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      CustomTextContainer(
-                                                        textKey: studentDetails
-                                                                .fullName ??
-                                                            "-",
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        style: const TextStyle(
-                                                            fontSize: 16.0,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w600),
-                                                      ),
-                                                      CustomTextContainer(
-                                                        textKey:
-                                                            "GR No : ${studentDetails.student?.admissionNo ?? '-'}",
-                                                        style: TextStyle(
-                                                            color: Theme.of(
-                                                                    context)
-                                                                .colorScheme
-                                                                .secondary
-                                                                .withOpacity(
-                                                                    0.76)),
-                                                      ),
-                                                    ],
-                                                  )),
-                                                  CircleAvatar(
-                                                    radius: 15,
-                                                    backgroundColor:
-                                                        Theme.of(context)
-                                                            .colorScheme
-                                                            .primary
-                                                            .withOpacity(0.1),
-                                                    child: Icon(
-                                                      Utils.isRTLEnabled(
-                                                              context)
-                                                          ? CupertinoIcons
-                                                              .arrow_left
-                                                          : CupertinoIcons
-                                                              .arrow_right,
-                                                      size: 17.5,
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .primary,
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: boxConstraints.maxHeight *
-                                                  (0.45),
-                                              child: Padding(
-                                                padding: EdgeInsets.all(
-                                                    appContentHorizontalPadding),
-                                                child: LayoutBuilder(builder:
-                                                    (context,
-                                                        innnerBoxconstraints) {
-                                                  return Row(
-                                                    children: [
-                                                      _buildStudentDetailsTitleAndValueContainer(
-                                                          showBorder: false,
-                                                          width:
-                                                              innnerBoxconstraints
-                                                                      .maxWidth *
-                                                                  (0.325),
-                                                          titleKey: rollNoKey,
-                                                          value: studentDetails
-                                                                  .student
-                                                                  ?.rollNumber
-                                                                  ?.toString() ??
-                                                              "-"),
-                                                      _buildStudentDetailsTitleAndValueContainer(
-                                                          showBorder: true,
-                                                          width:
-                                                              innnerBoxconstraints
-                                                                      .maxWidth *
-                                                                  (0.35),
-                                                          titleKey: statusKey,
-                                                          value: studentDetails
-                                                                  .isActive()
-                                                              ? activeKey
-                                                              : inactiveKey),
-                                                      _buildStudentDetailsTitleAndValueContainer(
-                                                          showBorder: false,
-                                                          width:
-                                                              innnerBoxconstraints
-                                                                      .maxWidth *
-                                                                  (0.325),
-                                                          titleKey: genderKey,
-                                                          value: studentDetails
-                                                              .getGender()),
-                                                    ],
-                                                  );
-                                                }),
-                                              ),
-                                            ),
-                                          ],
+                                            classSection:
+                                                _selectedClassSection ??
+                                                    ClassSection.fromJson({}),
+                                            sessionYear: _selectedSessionYear ??
+                                                SessionYear.fromJson({}),
+                                            studentDetails: studentDetails,
+                                          ),
                                         );
-                                      }),
+                                      },
                                     ),
                                   ),
                                 );
-                              }),
-                            ),
-                          ),
-                  ],
-                );
-              }
-              if (state is StudentsFetchFailure) {
-                return Center(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                        top: topPaddingOfErrorAndLoadingContainer),
-                    child: ErrorContainer(
-                      errorMessage: state.errorMessage,
-                      onTapRetry: () {
-                        getStudents();
-                      },
+                              },
+                            )
+                          ],
+                        ],
+                      ));
+                }
+                if (state is StudentsFetchFailure) {
+                  return Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                          top: topPaddingOfErrorAndLoadingContainer),
+                      child: CustomErrorWidget(
+                        message: state.errorMessage,
+                        onRetry: () {
+                          getStudents();
+                        },
+                        primaryColor: const Color(0xFF8B1F41),
+                      ),
                     ),
+                  );
+                }
+
+                // Condition when one of the filters is selected but not both
+                if (_selectedClassSection != null &&
+                    _selectedSessionYear == null) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.calendar_today_rounded,
+                          size: 60,
+                          color: maroonPrimary.withOpacity(0.3),
+                        ),
+                        SizedBox(height: 24),
+                        Text(
+                          "Kelas telah dipilih",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: textMediumColor,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          "Silakan pilih tahun ajaran untuk melanjutkan",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: textMediumColor.withOpacity(0.8),
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                if (_selectedClassSection == null &&
+                    _selectedSessionYear != null) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.class_rounded,
+                          size: 60,
+                          color: maroonPrimary.withOpacity(0.3),
+                        ),
+                        SizedBox(height: 24),
+                        Text(
+                          "Tahun ajaran telah dipilih",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: textMediumColor,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          "Silakan pilih kelas untuk melanjutkan",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: textMediumColor.withOpacity(0.8),
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                // Default loading state when no filters selected or waiting for initial data
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.filter_list_rounded,
+                        size: 60,
+                        color: maroonPrimary.withOpacity(0.3),
+                      ),
+                      SizedBox(height: 24),
+                      Text(
+                        "Pilih kelas dan tahun ajaran terlebih dahulu",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: textMediumColor,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        "Untuk melihat daftar siswa, silakan pilih kelas dan tahun ajaran",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: textMediumColor.withOpacity(0.8),
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w400,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
                 );
-              }
-              return Center(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      top: topPaddingOfErrorAndLoadingContainer),
-                  child: CustomCircularProgressIndicator(
-                    indicatorColor: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              );
+              });
             },
           ),
+          // Add some bottom padding
+          SizedBox(height: 30),
         ],
       ),
     );
@@ -539,43 +1117,79 @@ class _StudentsScreenState extends State<StudentsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: Stack(
-      children: [
-        BlocBuilder<ClassesAndSessionYearsCubit, ClassesAndSessionYearsState>(
+    final ThemeData theme = ThemeData(
+      primaryColor: maroonPrimary,
+      scaffoldBackgroundColor: bgColor,
+      textTheme: GoogleFonts.poppinsTextTheme(),
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: maroonPrimary,
+        primary: maroonPrimary,
+        secondary: maroonLight,
+      ),
+      appBarTheme: AppBarTheme(
+        systemOverlayStyle: SystemUiOverlayStyle(
+          // Ensure status bar has correct styling with fixed AppBar
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+        ),
+      ),
+    );
+
+    return Theme(
+      data: theme,
+      child: Scaffold(
+        backgroundColor: bgColor,
+        // Set extendBodyBehindAppBar to false to ensure AppBar stays fixed
+        extendBodyBehindAppBar: false,
+        appBar: _buildHeaderSection(),
+        body: BlocBuilder<ClassesAndSessionYearsCubit,
+            ClassesAndSessionYearsState>(
           builder: (context, state) {
             if (state is ClassesAndSessionYearsFetchSuccess) {
-              if (state.sessionYears.isNotEmpty &&
-                  context
-                      .read<ClassesAndSessionYearsCubit>()
-                      .getClasses()
-                      .isNotEmpty) {
-                return _buildStudents();
-              }
-              return const SizedBox();
+              return _buildStudents();
             }
 
             if (state is ClassesAndSessionYearsFetchFailure) {
               return Center(
-                  child: ErrorContainer(
-                errorMessage: state.errorMessage,
-                onTapRetry: () {
+                  child: CustomErrorWidget(
+                message: state.errorMessage,
+                onRetry: () {
                   context
                       .read<ClassesAndSessionYearsCubit>()
                       .getClassesAndSessionYears();
                 },
+                primaryColor: const Color(0xFF8B1F41),
               ));
             }
 
             return Center(
-              child: CustomCircularProgressIndicator(
-                indicatorColor: Theme.of(context).colorScheme.primary,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: CircularProgressIndicator(
+                      color: maroonPrimary,
+                      strokeWidth: 4,
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  Text(
+                    "Memuat data...",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: textMediumColor,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             );
           },
         ),
-        _buildAppbarAndFilters(),
-      ],
-    ));
+      ),
+    );
   }
 }

@@ -9,7 +9,7 @@ import 'package:eschool_saas_staff/ui/screens/home/widgets/teacherHomeContainer/
 import 'package:eschool_saas_staff/ui/screens/home/widgets/teacherHomeContainer/widgets/teacherPermissionContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/teacherHomeContainer/widgets/teacherTodaysTimetableContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/systemModulesAndPermissions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -74,10 +74,18 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer> {
                         padding: EdgeInsets.only(
                             top: MediaQuery.of(context).padding.top + 80,
                             bottom: 100),
-                        child: const Column(
+                        child: Column(
                           children: [
                             // TeacherHomeOverviewContainer(),
-                            TeacherTodaysTimetableContainer(),
+                            SizedBox(
+                              height: 45,
+                            ),
+                            BlocProvider(
+                              create: (BuildContext context) {
+                                return TeacherMyTimetableCubit()..getTeacherMyTimetable();
+                              },
+                              child: const TeacherTodaysTimetableContainer(),
+                            ),
                             TeacherPermissionContainer(),
                             TeacherLeavesContainer(),
                             TeacherHolidaysContainer(),
@@ -94,11 +102,12 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer> {
                       child: Padding(
                         padding: EdgeInsets.only(
                             top: MediaQuery.of(context).size.height * (0.15)),
-                        child: ErrorContainer(
-                          errorMessage: homeScreenDataState.errorMessage,
-                          onTapRetry: () {
+                        child: CustomErrorWidget(
+                          message: homeScreenDataState.errorMessage,
+                          onRetry: () {
                             getHomeScreenData();
                           },
+                          primaryColor: const Color(0xFF800020),
                         ),
                       ),
                     );
@@ -116,13 +125,14 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer> {
                 },
               );
             } else if (state is StaffAllowedPermissionsAndModulesFetchFailure) {
-              return ErrorContainer(
-                errorMessage: state.errorMessage,
-                onTapRetry: () {
+              return CustomErrorWidget(
+                message: state.errorMessage,
+                onRetry: () {
                   context
                       .read<StaffAllowedPermissionsAndModulesCubit>()
                       .getPermissionAndAllowedModules();
                 },
+                primaryColor: const Color(0xFF800020),
               );
             } else {
               return Center(

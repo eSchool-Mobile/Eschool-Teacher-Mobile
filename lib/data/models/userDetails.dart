@@ -171,17 +171,18 @@ class UserDetails {
 
   String getGender() {
     if (gender == "male") {
-      return "Male";
+      return "Laki-Laki";
     }
 
     if (gender == "female") {
-      return "Female";
+      return "Perempuan";
     }
     return gender ?? "-";
   }
 
   String getRoles() {
     return (roles ?? []).map((item) => item.name).toList().join(",");
+
   }
 
   bool isSchoolAdmin() {

@@ -2,6 +2,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:eschool_saas_staff/data/models/exam.dart';
 import 'package:eschool_saas_staff/data/repositories/studentRepository.dart';
+import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 abstract class ExamsState {}
 
@@ -42,7 +43,15 @@ class ExamsCubit extends Cubit<ExamsState> {
           classSectionId: classSectionId,
         )
         .then((value) => emit(ExamsFetchSuccess(examList: value)))
-        .catchError((e) => emit(ExamsFetchFailure(e.toString())));
+        .catchError((e) {
+      // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
+      final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
+      emit(ExamsFetchFailure(userFriendlyMessage));
+
+      // Log technical error untuk debugging (hanya untuk development)
+      print(
+          'Technical error in fetchExamsList: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
+    });
   }
 
   List<Exam> getAllExams() {

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="A new Flutter project.">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="eschool_saas_staff">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>eschool_saas_staff</title>
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Firebase Scripts -->
+  <script type="module" src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/9.6.0/firebase-messaging.js"></script>
+
+  <!-- Firebase Config -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCpb7FV7ftE4RUASyGgoQVoi4I_AAcntcc",
+      authDomain: "eschool_saas_staff.firebaseapp.com",
+      projectId: "e-school-saas",
+      storageBucket: "e-school-saas.appspot.com",
+      messagingSenderId: "539033120705",
+      appId: "1:539033120705:android:a1b82fa3121c43a2d8c940"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+<body>
+  <!-- Main Script -->
+  <script src="flutter_bootstrap.js" async></script>
+  
+  <!-- Firebase App Check -->
+  <script>
+    window.addEventListener('load', function() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/firebase-messaging-sw.js');
+      }
+    });
+  </script>
+</body>
+</html>
