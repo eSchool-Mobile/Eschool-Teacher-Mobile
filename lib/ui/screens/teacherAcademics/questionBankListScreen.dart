@@ -15,6 +15,7 @@ import '../../../data/models/questionBank.dart';
 import '../../../data/models/subjectQuestion.dart';
 import 'package:eschool_saas_staff/data/repositories/questionBankRepository.dart';
 import '../../widgets/customModernAppBar.dart';
+import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 
 // Controller GetX untuk lifecycle
 class QuestionBankListController extends GetxController {
@@ -123,6 +124,10 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
   int _selectedTabIndex = 0;
   int _hoveredCardIndex = -1;
   double _dragPosition = 0;
+
+  // Search functionality
+  final TextEditingController _searchController = TextEditingController();
+  List<BankSoal> _filteredBanks = [];
 
   // Particles
   // final List<ParticleModel> _particles = [];
@@ -257,6 +262,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     _nameController.dispose();
     _typeController.dispose();
     _defaultPointController.dispose();
+    _searchController.dispose();
     _backgroundAnimationController.dispose();
     _waveAnimationController.dispose();
     _floatingIconsController.dispose();
@@ -273,6 +279,45 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
   void _reloadData() {
     print("Manual reload triggered for QuestionBankListScreen");
     context.read<QuestionBankCubit>().fetchBankSoal(widget.subject.subject.id);
+  }
+
+  void _filterBanks(String query, List<BankSoal> banks) {
+    print(
+        '_filterBanks called with query: "$query", total banks: ${banks.length}');
+
+    // Defer setState to avoid calling it during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      setState(() {
+        if (query.isEmpty) {
+          _filteredBanks = List.from(banks);
+          print('Query empty, showing all ${_filteredBanks.length} banks');
+        } else {
+          _filteredBanks = banks.where((bank) {
+            final bankNameMatch =
+                bank.name.toLowerCase().contains(query.toLowerCase());
+
+            return bankNameMatch;
+          }).toList();
+
+          // Debug: Print hasil filter
+          print(
+              'Search query: "$query", Found: ${_filteredBanks.length} results from ${banks.length} total banks');
+        }
+      });
+    });
+  }
+
+  void _clearSearch(List<BankSoal> banks) {
+    // Defer setState to avoid calling it during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() {
+        _searchController.clear();
+        _filteredBanks = List.from(banks);
+      });
+    });
   }
 
   @override
@@ -595,367 +640,536 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     );
   }
 
+  Widget _buildNoSearchResultsWidget() {
+    return NoSearchResultsWidget(
+      searchQuery: _searchController.text,
+      onClearSearch: () {
+        // Defer setState to avoid calling it during build
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          setState(() {
+            _searchController.clear();
+            _filteredBanks = [];
+          });
+        });
+      },
+      primaryColor: _primaryColor,
+      accentColor: _highlightColor,
+      title: 'Tidak Ada Bank Soal',
+      description:
+          'Tidak ditemukan bank soal yang sesuai dengan pencarian Anda. Coba gunakan kata kunci yang berbeda.',
+      clearButtonText: 'Hapus Pencarian',
+      icon: Icons.source_outlined,
+    );
+  }
+
   Widget _buildBankList(List<BankSoal> banks) {
-    return Stack(
-      children: [
-        // Holographic background effect
-        Positioned.fill(
-          child: AnimatedBuilder(
-            animation: _backgroundAnimationController,
-            builder: (context, child) {
-              return Transform.rotate(
-                angle: _backgroundAnimation.value * 0.05,
-                child: ShaderMask(
-                  blendMode: BlendMode.srcATop,
-                  shaderCallback: (bounds) => RadialGradient(
-                    center: Alignment(
-                      math.sin(_backgroundAnimation.value * math.pi * 2) * 0.5,
-                      math.cos(_backgroundAnimation.value * math.pi * 2) * 0.5,
-                    ),
-                    colors: [
-                      Colors.transparent,
-                      _highlightColor.withOpacity(0.01),
-                      _accentColor.withOpacity(0.02),
-                      Colors.transparent,
-                    ],
-                    radius: 1.0,
-                  ).createShader(bounds),
-                  child: Container(
-                    color: Colors.white,
-                  ),
+    if (banks.isEmpty) {
+      return _buildEmptyView();
+    }
+
+    // Determine if search should be shown (more than 5 banks)
+    final bool shouldShowSearch = banks.length > 5;
+
+    // Update filtered banks only if search is not active or if banks changed
+    if (_searchController.text.isEmpty) {
+      _filteredBanks = List.from(banks);
+    } else if (_filteredBanks.isEmpty || _filteredBanks.length > banks.length) {
+      // Re-filter if banks list changed
+      _filterBanks(_searchController.text, banks);
+    }
+
+    // Use filtered banks if search is active, otherwise use all banks
+    final displayBanks =
+        _searchController.text.isNotEmpty ? _filteredBanks : banks;
+
+    return Column(children: [
+      // Search bar if needed
+      if (shouldShowSearch)
+        FadeInDown(
+          duration: Duration(milliseconds: 600),
+          child: Container(
+            margin: EdgeInsets.fromLTRB(20, 50, 20, 20),
+            height: 55,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10,
+                  offset: Offset(0, 5),
                 ),
-              );
-            },
+              ],
+            ),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Cari bank soal...',
+                prefixIcon: Icon(Icons.search, color: _primaryColor),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(Icons.clear, color: _primaryColor),
+                        onPressed: () {
+                          _clearSearch(banks);
+                        },
+                      )
+                    : null,
+                border: InputBorder.none,
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              ),
+              onChanged: (value) {
+                _filterBanks(value, banks);
+              },
+            ),
           ),
         ),
 
-        // Interactive card list with 3D effects
-        ListView.builder(
-          padding: EdgeInsets.fromLTRB(20, 50, 20, 100),
-          physics: BouncingScrollPhysics(),
-          itemCount: banks.length,
-          itemBuilder: (context, index) {
-            final bank = banks[index];
-            final Color cardBaseColor =
-                _cardGradients[index % _cardGradients.length];
-            // Generate bank-specific neon colors for glow effects
-            final neonGlowColor = HSLColor.fromColor(cardBaseColor)
-                .withLightness(0.7)
-                .withSaturation(0.9)
-                .toColor();
+      // Banks list
+      Expanded(
+        child: Stack(
+          children: [
+            // Show no search results if search is active and no results found
+            if (_searchController.text.isNotEmpty && _filteredBanks.isEmpty)
+              _buildNoSearchResultsWidget(),
 
-            final bool isHovered = _hoveredCardIndex == index;
-
-            return GestureDetector(
-              onTap: () async {
-                // Add spectacular tap effect
-                setState(() {
-                  _hoveredCardIndex = index;
-                });
-
-                // Elaborate haptic pattern
-                HapticFeedback.mediumImpact();
-                await Future.delayed(Duration(milliseconds: 50));
-                HapticFeedback.lightImpact();
-
-                // Exaggerated scale animation on tap
-                _cardHoverController.forward().then((_) {
-                  _cardHoverController.reverse();
-                });
-
-                await Get.toNamed(
-                  Routes.bankQuestionScreen,
-                  arguments: {
-                    'bankSoal': bank,
-                    'subjectId': widget.subject.subject.id,
-                    'subject': widget.subject,
-                  },
-                );
-                _reloadData();
-              },
-              onTapDown: (_) {
-                setState(() {
-                  _hoveredCardIndex = index;
-                });
-                HapticFeedback.selectionClick();
-              },
-              onTapCancel: () {
-                setState(() {
-                  _hoveredCardIndex = -1;
-                });
-              },
-              onTapUp: (_) {
-                Future.delayed(Duration(milliseconds: 300), () {
-                  if (mounted) {
-                    setState(() {
-                      _hoveredCardIndex = -1;
-                    });
-                  }
-                });
-              },
-              child: Transform.translate(
-                offset: Offset(0, index == _hoveredCardIndex ? -5 : 0),
-                child: AnimatedContainer(
-                  duration: Duration(milliseconds: 300),
-                  curve: Curves.easeOutCubic,
-                  margin: EdgeInsets.only(bottom: 24),
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      // 3D Card Background with "holographic" effect
-                      Transform(
-                        alignment: Alignment.center,
-                        transform: Matrix4.identity()
-                          ..setEntry(3, 2, 0.001) // Perspective
-                          ..rotateX(isHovered ? 0.05 : 0.0)
-                          ..rotateY(isHovered ? -0.05 : 0.0),
-                        child: Container(
-                          padding: EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                cardBaseColor
-                                    .withOpacity(isHovered ? 1.0 : 0.85),
-                                HSLColor.fromColor(cardBaseColor)
-                                    .withLightness(
-                                      HSLColor.fromColor(cardBaseColor)
-                                              .lightness *
-                                          0.7,
-                                    )
-                                    .toColor()
-                                    .withOpacity(isHovered ? 0.95 : 0.8),
-                              ],
-                              stops: [0.3, 1.0],
+            // Banks list
+            if (_searchController.text.isEmpty || _filteredBanks.isNotEmpty)
+              Positioned.fill(
+                child: Stack(
+                  children: [
+                    // Holographic background effect
+                    Positioned.fill(
+                      child: AnimatedBuilder(
+                        animation: _backgroundAnimationController,
+                        builder: (context, child) {
+                          return Transform.rotate(
+                            angle: _backgroundAnimation.value * 0.05,
+                            child: ShaderMask(
+                              blendMode: BlendMode.srcATop,
+                              shaderCallback: (bounds) => RadialGradient(
+                                center: Alignment(
+                                  math.sin(_backgroundAnimation.value *
+                                          math.pi *
+                                          2) *
+                                      0.5,
+                                  math.cos(_backgroundAnimation.value *
+                                          math.pi *
+                                          2) *
+                                      0.5,
+                                ),
+                                colors: [
+                                  Colors.transparent,
+                                  _highlightColor.withOpacity(0.01),
+                                  _accentColor.withOpacity(0.02),
+                                  Colors.transparent,
+                                ],
+                                radius: 1.0,
+                              ).createShader(bounds),
+                              child: Container(
+                                color: Colors.white,
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(28),
-                            boxShadow: [
-                              // Outer glow shadow
-                              BoxShadow(
-                                color: neonGlowColor
-                                    .withOpacity(isHovered ? 0.35 : 0.15),
-                                blurRadius: isHovered ? 25 : 15,
-                                spreadRadius: isHovered ? 2 : 0,
-                              ),
-                              // Inner depth shadow
-                              BoxShadow(
-                                color: cardBaseColor.withOpacity(0.5),
-                                blurRadius: 15,
-                                spreadRadius: -3,
-                                offset: Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: Stack(
-                            children: [
-                              // Content layout
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                          );
+                        },
+                      ),
+                    ),
+
+                    // Interactive card list with 3D effects
+                    ListView.builder(
+                      padding: EdgeInsets.fromLTRB(
+                          20, shouldShowSearch ? 15 : 50, 20, 100),
+                      physics: BouncingScrollPhysics(),
+                      itemCount: displayBanks.length,
+                      itemBuilder: (context, index) {
+                        final bank = displayBanks[index];
+                        final Color cardBaseColor =
+                            _cardGradients[index % _cardGradients.length];
+                        // Generate bank-specific neon colors for glow effects
+                        final neonGlowColor = HSLColor.fromColor(cardBaseColor)
+                            .withLightness(0.7)
+                            .withSaturation(0.9)
+                            .toColor();
+
+                        final bool isHovered = _hoveredCardIndex == index;
+
+                        return GestureDetector(
+                          onTap: () async {
+                            // Add spectacular tap effect
+                            setState(() {
+                              _hoveredCardIndex = index;
+                            });
+
+                            // Elaborate haptic pattern
+                            HapticFeedback.mediumImpact();
+                            await Future.delayed(Duration(milliseconds: 50));
+                            HapticFeedback.lightImpact();
+
+                            // Exaggerated scale animation on tap
+                            _cardHoverController.forward().then((_) {
+                              _cardHoverController.reverse();
+                            });
+
+                            await Get.toNamed(
+                              Routes.bankQuestionScreen,
+                              arguments: {
+                                'bankSoal': bank,
+                                'subjectId': widget.subject.subject.id,
+                                'subject': widget.subject,
+                              },
+                            );
+                            _reloadData();
+                          },
+                          onTapDown: (_) {
+                            setState(() {
+                              _hoveredCardIndex = index;
+                            });
+                            HapticFeedback.selectionClick();
+                          },
+                          onTapCancel: () {
+                            setState(() {
+                              _hoveredCardIndex = -1;
+                            });
+                          },
+                          onTapUp: (_) {
+                            Future.delayed(Duration(milliseconds: 300), () {
+                              if (mounted) {
+                                setState(() {
+                                  _hoveredCardIndex = -1;
+                                });
+                              }
+                            });
+                          },
+                          child: Transform.translate(
+                            offset:
+                                Offset(0, index == _hoveredCardIndex ? -5 : 0),
+                            child: AnimatedContainer(
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.easeOutCubic,
+                              margin: EdgeInsets.only(bottom: 24),
+                              child: Stack(
+                                clipBehavior: Clip.none,
                                 children: [
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // Bank text & details with advanced effects
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            // Elaborated bank title with glow
-                                            ShaderMask(
-                                              blendMode: BlendMode.srcIn,
-                                              shaderCallback: (bounds) =>
-                                                  LinearGradient(
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                                colors: [
-                                                  Colors.white.withOpacity(1.0),
-                                                  Colors.white.withOpacity(0.9),
-                                                  Colors.white.withOpacity(1.0),
-                                                ],
-                                              ).createShader(bounds),
-                                              child: Text(
-                                                bank.name,
-                                                style: TextStyle(
-                                                  fontSize: 20,
-                                                  height: 1.2,
-                                                  fontWeight: FontWeight.bold,
-                                                  letterSpacing: 0.5,
-                                                  shadows: [
-                                                    Shadow(
-                                                      color: Colors.black26,
-                                                      blurRadius: 3,
-                                                      offset: Offset(1, 1),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-
-                                            SizedBox(height: 4),
-
-                                            // Divider with animation
-                                            AnimatedContainer(
-                                              duration:
-                                                  Duration(milliseconds: 400),
-                                              margin: EdgeInsets.symmetric(
-                                                  vertical: 8),
-                                              height: 2,
-                                              width: isHovered ? 180 : 80,
-                                              decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  begin: Alignment.centerLeft,
-                                                  end: Alignment.centerRight,
-                                                  colors: [
-                                                    Colors.white
-                                                        .withOpacity(0.8),
-                                                    Colors.white
-                                                        .withOpacity(0.2),
-                                                  ],
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(2),
-                                              ),
-                                            ),
-
-                                            SizedBox(height: 4),
-
-                                            // Question count badge
-                                            Container(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 12, vertical: 7),
-                                              decoration: BoxDecoration(
-                                                color: Colors.white
-                                                    .withOpacity(0.15),
-                                                borderRadius:
-                                                    BorderRadius.circular(30),
-                                                border: Border.all(
-                                                  color: Colors.white
-                                                      .withOpacity(0.2),
-                                                  width: 1,
-                                                ),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black12,
-                                                    blurRadius: 8,
-                                                    spreadRadius: 0,
-                                                  ),
-                                                ],
-                                              ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Text(
-                                                    '${bank.soalCount} Soal',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
+                                  // 3D Card Background with "holographic" effect
+                                  Transform(
+                                    alignment: Alignment.center,
+                                    transform: Matrix4.identity()
+                                      ..setEntry(3, 2, 0.001) // Perspective
+                                      ..rotateX(isHovered ? 0.05 : 0.0)
+                                      ..rotateY(isHovered ? -0.05 : 0.0),
+                                    child: Container(
+                                      padding: EdgeInsets.all(20),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            cardBaseColor.withOpacity(
+                                                isHovered ? 1.0 : 0.85),
+                                            HSLColor.fromColor(cardBaseColor)
+                                                .withLightness(
+                                                  HSLColor.fromColor(
+                                                              cardBaseColor)
+                                                          .lightness *
+                                                      0.7,
+                                                )
+                                                .toColor()
+                                                .withOpacity(
+                                                    isHovered ? 0.95 : 0.8),
                                           ],
+                                          stops: [0.3, 1.0],
                                         ),
+                                        borderRadius: BorderRadius.circular(28),
+                                        boxShadow: [
+                                          // Outer glow shadow
+                                          BoxShadow(
+                                            color: neonGlowColor.withOpacity(
+                                                isHovered ? 0.35 : 0.15),
+                                            blurRadius: isHovered ? 25 : 15,
+                                            spreadRadius: isHovered ? 2 : 0,
+                                          ),
+                                          // Inner depth shadow
+                                          BoxShadow(
+                                            color:
+                                                cardBaseColor.withOpacity(0.5),
+                                            blurRadius: 15,
+                                            spreadRadius: -3,
+                                            offset: Offset(0, 8),
+                                          ),
+                                        ],
                                       ),
+                                      child: Stack(
+                                        children: [
+                                          // Content layout
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  // Bank text & details with advanced effects
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        // Elaborated bank title with glow
+                                                        ShaderMask(
+                                                          blendMode:
+                                                              BlendMode.srcIn,
+                                                          shaderCallback:
+                                                              (bounds) =>
+                                                                  LinearGradient(
+                                                            begin: Alignment
+                                                                .topLeft,
+                                                            end: Alignment
+                                                                .bottomRight,
+                                                            colors: [
+                                                              Colors.white
+                                                                  .withOpacity(
+                                                                      1.0),
+                                                              Colors.white
+                                                                  .withOpacity(
+                                                                      0.9),
+                                                              Colors.white
+                                                                  .withOpacity(
+                                                                      1.0),
+                                                            ],
+                                                          ).createShader(
+                                                                      bounds),
+                                                          child: Text(
+                                                            bank.name,
+                                                            style: TextStyle(
+                                                              fontSize: 20,
+                                                              height: 1.2,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              letterSpacing:
+                                                                  0.5,
+                                                              shadows: [
+                                                                Shadow(
+                                                                  color: Colors
+                                                                      .black26,
+                                                                  blurRadius: 3,
+                                                                  offset:
+                                                                      Offset(
+                                                                          1, 1),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
 
-                                      // Three-dots menu button
-                                      _buildMoreOptionsButton(
-                                        bank: bank,
-                                        banks: banks,
-                                        index: index,
-                                        isHovered: isHovered,
-                                        neonGlowColor: neonGlowColor,
+                                                        SizedBox(height: 4),
+
+                                                        // Divider with animation
+                                                        AnimatedContainer(
+                                                          duration: Duration(
+                                                              milliseconds:
+                                                                  400),
+                                                          margin: EdgeInsets
+                                                              .symmetric(
+                                                                  vertical: 8),
+                                                          height: 2,
+                                                          width: isHovered
+                                                              ? 180
+                                                              : 80,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            gradient:
+                                                                LinearGradient(
+                                                              begin: Alignment
+                                                                  .centerLeft,
+                                                              end: Alignment
+                                                                  .centerRight,
+                                                              colors: [
+                                                                Colors.white
+                                                                    .withOpacity(
+                                                                        0.8),
+                                                                Colors.white
+                                                                    .withOpacity(
+                                                                        0.2),
+                                                              ],
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        2),
+                                                          ),
+                                                        ),
+
+                                                        SizedBox(height: 4),
+
+                                                        // Question count badge
+                                                        Container(
+                                                          padding: EdgeInsets
+                                                              .symmetric(
+                                                                  horizontal:
+                                                                      12,
+                                                                  vertical: 7),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: Colors.white
+                                                                .withOpacity(
+                                                                    0.15),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        30),
+                                                            border: Border.all(
+                                                              color: Colors
+                                                                  .white
+                                                                  .withOpacity(
+                                                                      0.2),
+                                                              width: 1,
+                                                            ),
+                                                            boxShadow: [
+                                                              BoxShadow(
+                                                                color: Colors
+                                                                    .black12,
+                                                                blurRadius: 8,
+                                                                spreadRadius: 0,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          child: Row(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              Text(
+                                                                '${bank.soalCount} Soal',
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  fontSize: 14,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+
+                                                  // Three-dots menu button
+                                                  _buildMoreOptionsButton(
+                                                    bank: bank,
+                                                    banks: displayBanks,
+                                                    index: index,
+                                                    isHovered: isHovered,
+                                                    neonGlowColor:
+                                                        neonGlowColor,
+                                                  ),
+                                                ],
+                                              ),
+
+                                              SizedBox(height: 0),
+
+                                              // Arrow button repositioned at bottom right for better layout
+                                              Align(
+                                                alignment:
+                                                    Alignment.centerRight,
+                                                child: AnimatedBuilder(
+                                                  animation: _pulseAnimation,
+                                                  builder: (context, child) {
+                                                    return Container(
+                                                      width: 42,
+                                                      height: 42,
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: Colors.white
+                                                            .withOpacity(
+                                                                isHovered
+                                                                    ? 0.2
+                                                                    : 0.15),
+                                                        border: Border.all(
+                                                          color: Colors.white
+                                                              .withOpacity(
+                                                                  isHovered
+                                                                      ? 0.3
+                                                                      : 0.2),
+                                                          width: 1.5,
+                                                        ),
+                                                        boxShadow: isHovered
+                                                            ? [
+                                                                BoxShadow(
+                                                                  color: neonGlowColor
+                                                                      .withOpacity(0.2 +
+                                                                          0.1 *
+                                                                              _pulseAnimation.value),
+                                                                  blurRadius:
+                                                                      10,
+                                                                  spreadRadius: 1 *
+                                                                      _pulseAnimation
+                                                                          .value,
+                                                                )
+                                                              ]
+                                                            : [],
+                                                      ),
+                                                      child: Center(
+                                                        child: Transform.scale(
+                                                          scale: isHovered
+                                                              ? 1.0 +
+                                                                  0.15 *
+                                                                      _pulseAnimation
+                                                                          .value
+                                                              : 1.0,
+                                                          child: Icon(
+                                                            Icons
+                                                                .arrow_forward_rounded,
+                                                            color: Colors.white,
+                                                            size: 22,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
-                                    ],
+                                    ),
                                   ),
 
-                                  SizedBox(height: 0),
-
-                                  // Arrow button repositioned at bottom right for better layout
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: AnimatedBuilder(
-                                      animation: _pulseAnimation,
-                                      builder: (context, child) {
-                                        return Container(
-                                          width: 42,
-                                          height: 42,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.white.withOpacity(
-                                                isHovered ? 0.2 : 0.15),
-                                            border: Border.all(
-                                              color: Colors.white.withOpacity(
-                                                  isHovered ? 0.3 : 0.2),
-                                              width: 1.5,
-                                            ),
-                                            boxShadow: isHovered
-                                                ? [
-                                                    BoxShadow(
-                                                      color: neonGlowColor
-                                                          .withOpacity(0.2 +
-                                                              0.1 *
-                                                                  _pulseAnimation
-                                                                      .value),
-                                                      blurRadius: 10,
-                                                      spreadRadius: 1 *
-                                                          _pulseAnimation.value,
-                                                    )
-                                                  ]
-                                                : [],
-                                          ),
-                                          child: Center(
-                                            child: Transform.scale(
-                                              scale: isHovered
-                                                  ? 1.0 +
-                                                      0.15 *
-                                                          _pulseAnimation.value
-                                                  : 1.0,
-                                              child: Icon(
-                                                Icons.arrow_forward_rounded,
-                                                color: Colors.white,
-                                                size: 22,
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
+                                  // Decorative elements
+                                  Positioned(
+                                    right: 20,
+                                    top: -10,
+                                    child: Container(
+                                      width: 30,
+                                      height: 30,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: neonGlowColor.withOpacity(0.1),
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
-
-                      // Decorative elements
-                      Positioned(
-                        right: 20,
-                        top: -10,
-                        child: Container(
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: neonGlowColor.withOpacity(0.1),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
-            );
-          },
+          ],
         ),
-      ],
-    );
+      )
+    ]);
   }
 
   Widget _buildMoreOptionsButton({

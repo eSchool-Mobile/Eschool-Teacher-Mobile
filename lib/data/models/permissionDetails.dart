@@ -123,7 +123,7 @@ class PermissionDetails {
         userId = json['user_id'] as int?,
         classSectionId = json['class_section_id'] as int?,
         admissionNo = null,
-        rollNumber = null,
+        rollNumber = json['roll_number'] as int?,
         admissionDate = null,
         schoolId = json['school_id'] as int?,
         guardianId = null,

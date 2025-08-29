@@ -12,6 +12,7 @@ import 'package:lottie/lottie.dart';
 import '../../../cubits/teacherAcademics/assignment/questionBankCubit.dart';
 import '../../../data/models/subjectQuestion.dart';
 import '../../../ui/widgets/customModernAppBar.dart';
+import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 
 class QuestionSubjectController extends GetxController {
   final BuildContext context;
@@ -96,8 +97,6 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
   late AnimationController _waveAnimationController;
   late AnimationController _floatingIconsController;
   late AnimationController _cardHoverController;
-  late AnimationController _breathingController;
-  late AnimationController _rotationController;
   late AnimationController _pulseController;
   late AnimationController _loadingController;
   late AnimationController _tabTransitionController;
@@ -105,13 +104,15 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
   // Animations
   late Animation<double> _backgroundAnimation;
   late Animation<double> _waveAnimation;
-  late Animation<double> _breathingAnimation;
-  late Animation<double> _rotationAnimation;
   late Animation<double> _pulseAnimation;
 
   int _selectedTabIndex = 0;
   int _hoveredCardIndex = -1;
   double _dragPosition = 0;
+
+  // Search functionality
+  final TextEditingController _searchController = TextEditingController();
+  List<SubjectQuestion> _filteredSubjects = [];
 
   // // Particles
   // final List<ParticleModel> _particles = [];
@@ -168,16 +169,6 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
       duration: Duration(milliseconds: 200),
     );
 
-    _breathingController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 3000),
-    )..repeat(reverse: true);
-
-    _rotationController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 10000),
-    )..repeat();
-
     _pulseController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 1200),
@@ -203,15 +194,6 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
       curve: Curves.easeInOut,
     );
 
-    _breathingAnimation = CurvedAnimation(
-      parent: _breathingController,
-      curve: Curves.easeInOut,
-    );
-
-    _rotationAnimation = CurvedAnimation(
-      parent: _rotationController,
-      curve: Curves.linear,
-    );
     _pulseAnimation = CurvedAnimation(
       parent: _pulseController,
       curve: Curves.easeInOut,
@@ -251,11 +233,10 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
     _waveAnimationController.dispose();
     _floatingIconsController.dispose();
     _cardHoverController.dispose();
-    _breathingController.dispose();
-    _rotationController.dispose();
     _pulseController.dispose();
     _loadingController.dispose();
     _tabTransitionController.dispose();
+    _searchController.dispose();
     Get.delete<QuestionSubjectController>();
     super.dispose();
   }
@@ -264,6 +245,53 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
     context
         .read<QuestionBankCubit>()
         .fetchTeacherSubjects(isStaffView: widget.isStaffView);
+  }
+
+  void _filterSubjects(String query, List<SubjectQuestion> subjects) {
+    print(
+        '_filterSubjects called with query: "$query", total subjects: ${subjects.length}');
+
+    // Defer setState to avoid calling it during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      setState(() {
+        if (query.isEmpty) {
+          _filteredSubjects = List.from(subjects);
+          print(
+              'Query empty, showing all ${_filteredSubjects.length} subjects');
+        } else {
+          _filteredSubjects = subjects.where((subject) {
+            final subjectNameMatch = subject.subject.name
+                .toLowerCase()
+                .contains(query.toLowerCase());
+            // Subject does not have a 'code' getter; use the combined display name instead
+            final subjectCombinedMatch = subject.subjectWithName
+                .toLowerCase()
+                .contains(query.toLowerCase());
+
+            final isMatch = subjectNameMatch || subjectCombinedMatch;
+
+            return isMatch;
+          }).toList();
+
+          // Debug: Print hasil filter
+          print(
+              'Search query: "$query", Found: ${_filteredSubjects.length} results from ${subjects.length} total subjects');
+        }
+      });
+    });
+  }
+
+  void _clearSearch(List<SubjectQuestion> subjects) {
+    // Defer setState to avoid calling it during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() {
+        _searchController.clear();
+        _filteredSubjects = List.from(subjects);
+      });
+    });
   }
 
   @override
@@ -276,7 +304,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
         appBar: CustomModernAppBar(
           title: 'Bank Soal',
           icon: Icons.book,
-          fabAnimationController: _breathingController,
+          fabAnimationController: _pulseController,
           primaryColor: _primaryColor,
           lightColor: _energyColor,
           onBackPressed: () => Navigator.pop(context),
@@ -339,129 +367,6 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
     );
   }
 
-  Widget _buildAnimatedBackground() {
-    return Stack(
-      children: [
-        // Base gradient with softer maroon colors
-        Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              colors: [
-                _primaryColor,
-                Color(0xFF5A2223), // Softer deeper maroon (was 0xFF230000)
-              ],
-            ),
-          ),
-        ),
-
-        // Glowing orbs and decorative elements
-        Positioned(
-          top: -60,
-          right: -40,
-          child: AnimatedBuilder(
-            animation: _breathingAnimation,
-            builder: (context, child) {
-              final scale = 1.0 + 0.1 * _breathingAnimation.value;
-              return Transform.scale(
-                scale: scale,
-                child: Container(
-                  width: 180,
-                  height: 180,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        _glowColor.withOpacity(0.4),
-                        _glowColor.withOpacity(0.0),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-        Positioned(
-          bottom: Get.height * 0.35,
-          left: -50,
-          child: AnimatedBuilder(
-            animation: _pulseAnimation,
-            builder: (context, child) {
-              final opacity = 0.15 + 0.1 * _pulseAnimation.value;
-              return Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      _energyColor.withOpacity(opacity),
-                      _energyColor.withOpacity(0.0),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-
-        // Dynamic light rays effect
-        Positioned.fill(
-          child: AnimatedBuilder(
-            animation: _rotationAnimation,
-            builder: (context, child) {
-              return Transform.rotate(
-                angle: _rotationAnimation.value * math.pi * 2,
-                child: CustomPaint(
-                  painter: LightRaysPainter(_highlightColor.withOpacity(0.03)),
-                  size: Size(Get.width, Get.height),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.12),
-              boxShadow: [
-                BoxShadow(
-                  color: _highlightColor
-                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                  blurRadius: 12 * (1 + _pulseAnimation.value),
-                  spreadRadius: 2 * _pulseAnimation.value,
-                )
-              ],
-              border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildContentArea(QuestionBankState state) {
     if (state is QuestionBankLoading) {
       return _buildLoadingView();
@@ -494,44 +399,82 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Use shimmer loading animation instead of Lottie for a more modern look
-            Shimmer.fromColors(
-              baseColor: _accentColor.withOpacity(0.4),
-              highlightColor: _highlightColor.withOpacity(0.7),
-              period: Duration(milliseconds: 1500),
-              child: Container(
-                width: 160,
-                height: 160,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.auto_stories_rounded,
-                  size: 80,
-                  color: Colors.white,
-                ),
-              ),
+            // Enhanced shimmer loading with modern design
+            AnimatedBuilder(
+              animation: _pulseController,
+              builder: (context, child) {
+                final scale = 1.0 + 0.05 * _pulseController.value;
+                return Transform.scale(
+                  scale: scale,
+                  child: Container(
+                    padding: EdgeInsets.all(25),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          _primaryColor.withOpacity(0.1),
+                          _accentColor.withOpacity(0.05),
+                        ],
+                      ),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: _primaryColor.withOpacity(0.1),
+                        width: 2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _primaryColor.withOpacity(0.08),
+                          blurRadius: 20,
+                          spreadRadius: 0,
+                          offset: Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Shimmer.fromColors(
+                      baseColor: _primaryColor.withOpacity(0.3),
+                      highlightColor: _accentColor.withOpacity(0.6),
+                      period: Duration(milliseconds: 1500),
+                      child: Icon(
+                        Icons.auto_stories_rounded,
+                        size: 70,
+                        color: _primaryColor.withOpacity(0.7),
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
-            SizedBox(height: 25),
+            SizedBox(height: 30),
             Text(
               'Memuat Mata Pelajaran',
               style: TextStyle(
                 color: _primaryColor,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
               ),
             ),
-            SizedBox(height: 10),
-            // Animated loading indicator
+            SizedBox(height: 16),
+            // Enhanced loading indicator
             Container(
-              width: 150,
+              width: 180,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
                 child: LinearProgressIndicator(
                   backgroundColor: _accentColor.withOpacity(0.2),
-                  valueColor: AlwaysStoppedAnimation<Color>(_accentColor),
+                  valueColor: AlwaysStoppedAnimation<Color>(_primaryColor),
                   minHeight: 6,
                 ),
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Mohon tunggu sebentar...',
+              style: TextStyle(
+                color: _accentColor.withOpacity(0.7),
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
               ),
             ),
           ],
@@ -551,7 +494,8 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
       },
       retryButtonText: "Coba Lagi",
       primaryColor: _accentColor,
-      title: "Tidak dapat terhubung ke server, mohon periksa koneksi internet Anda dan coba lagi.",
+      title:
+          "Tidak dapat terhubung ke server, mohon periksa koneksi internet Anda dan coba lagi.",
     );
   }
 
@@ -586,375 +530,551 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
     );
   }
 
+  Widget _buildNoSearchResultsWidget() {
+    return NoSearchResultsWidget(
+      searchQuery: _searchController.text,
+      onClearSearch: () {
+        // Defer setState to avoid calling it during build
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          setState(() {
+            _searchController.clear();
+            _filteredSubjects = [];
+          });
+        });
+      },
+      primaryColor: _primaryColor,
+      accentColor: _highlightColor,
+      title: 'Tidak Ada Mata Pelajaran',
+      description:
+          'Tidak ditemukan mata pelajaran yang sesuai dengan pencarian Anda. Coba gunakan kata kunci yang berbeda.',
+      clearButtonText: 'Hapus Pencarian',
+      icon: Icons.subject_outlined,
+    );
+  }
+
   Widget _buildSubjectsList(List<SubjectQuestion> subjects) {
     if (subjects.isEmpty) {
       return _buildEmptyView();
     }
 
-    return Stack(
-      children: [
-        // Holographic background effect
-        Positioned.fill(
-          child: AnimatedBuilder(
-            animation: _backgroundAnimationController,
-            builder: (context, child) {
-              return Transform.rotate(
-                angle: _backgroundAnimation.value * 0.05,
-                child: ShaderMask(
-                  blendMode: BlendMode.srcATop,
-                  shaderCallback: (bounds) => RadialGradient(
-                    center: Alignment(
-                      math.sin(_backgroundAnimation.value * math.pi * 2) * 0.5,
-                      math.cos(_backgroundAnimation.value * math.pi * 2) * 0.5,
-                    ),
-                    colors: [
-                      Colors.transparent,
-                      _highlightColor.withOpacity(0.01),
-                      _accentColor.withOpacity(0.02),
-                      Colors.transparent,
-                    ],
-                    radius: 1.0,
-                  ).createShader(bounds),
-                  child: Container(
-                    color: Colors.white,
-                  ),
+    // Determine if search should be shown (more than 5 subjects)
+    final bool shouldShowSearch = subjects.length > 5;
+
+    // Update filtered subjects only if search is not active or if subjects changed
+    if (_searchController.text.isEmpty) {
+      _filteredSubjects = List.from(subjects);
+    } else if (_filteredSubjects.isEmpty ||
+        _filteredSubjects.length > subjects.length) {
+      // Re-filter if subjects list changed
+      _filterSubjects(_searchController.text, subjects);
+    }
+
+    // Use filtered subjects if search is active, otherwise use all subjects
+    final displaySubjects =
+        _searchController.text.isNotEmpty ? _filteredSubjects : subjects;
+
+    return Column(children: [
+      // Search bar if needed
+      if (shouldShowSearch)
+        FadeInDown(
+          duration: Duration(milliseconds: 600),
+          child: Container(
+            margin: EdgeInsets.fromLTRB(20, 25, 20, 20),
+            height: 55,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10,
+                  offset: Offset(0, 5),
                 ),
-              );
-            },
+              ],
+            ),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Cari mata pelajaran...',
+                prefixIcon: Icon(Icons.search, color: _primaryColor),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(Icons.clear, color: _primaryColor),
+                        onPressed: () {
+                          _clearSearch(subjects);
+                        },
+                      )
+                    : null,
+                border: InputBorder.none,
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              ),
+              onChanged: (value) {
+                _filterSubjects(value, subjects);
+              },
+            ),
           ),
         ),
 
-        // Interactive card list with 3D effects
-        ListView.builder(
-          padding: EdgeInsets.fromLTRB(20, 25, 20, 100),
-          physics: BouncingScrollPhysics(),
-          itemCount: subjects.length,
-          itemBuilder: (context, index) {
-            final subject = subjects[index];
-            final Color cardBaseColor =
-                _cardGradients[index % _cardGradients.length];
-            // Generate subject-specific neon colors for glow effects
-            final neonGlowColor = HSLColor.fromColor(cardBaseColor)
-                .withLightness(0.7)
-                .withSaturation(0.9)
-                .toColor();
+      // Subjects list
+      Expanded(
+        child: Stack(
+          children: [
+            // Show no search results if search is active and no results found
+            if (_searchController.text.isNotEmpty && _filteredSubjects.isEmpty)
+              _buildNoSearchResultsWidget(),
 
-            final bool isHovered = _hoveredCardIndex == index;
-
-            return GestureDetector(
-              onTap: () async {
-                if (subject.subject.id != 0) {
-                  // Add spectacular tap effect
-                  setState(() {
-                    _hoveredCardIndex = index;
-                  });
-
-                  // Elaborate haptic pattern
-                  HapticFeedback.mediumImpact();
-                  await Future.delayed(Duration(milliseconds: 50));
-                  HapticFeedback.lightImpact();
-
-                  // Exaggerated scale animation on tap
-                  _cardHoverController.forward().then((_) {
-                    _cardHoverController.reverse();
-                  });
-
-                  await Get.toNamed(Routes.questionBankScreen,
-                      arguments: subject);
-                  _reloadData();
-                }
-              },
-              onTapDown: (_) {
-                setState(() {
-                  _hoveredCardIndex = index;
-                });
-                HapticFeedback.selectionClick();
-              },
-              onTapCancel: () {
-                setState(() {
-                  _hoveredCardIndex = -1;
-                });
-              },
-              onTapUp: (_) {
-                Future.delayed(Duration(milliseconds: 300), () {
-                  if (mounted) {
-                    setState(() {
-                      _hoveredCardIndex = -1;
-                    });
-                  }
-                });
-              },
-              child: Transform.translate(
-                offset: Offset(0, index == _hoveredCardIndex ? -5 : 0),
-                child: AnimatedContainer(
-                  duration: Duration(milliseconds: 300),
-                  curve: Curves.easeOutCubic,
-                  margin: EdgeInsets.only(bottom: 24),
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      // 3D Card Background with "holographic" effect
-                      Transform(
-                        alignment: Alignment.center,
-                        transform: Matrix4.identity()
-                          ..setEntry(3, 2, 0.001) // Perspective
-                          ..rotateX(isHovered ? 0.05 : 0.0)
-                          ..rotateY(isHovered ? -0.05 : 0.0),
-                        child: Container(
-                          padding: EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                cardBaseColor
-                                    .withOpacity(isHovered ? 1.0 : 0.85),
-                                HSLColor.fromColor(cardBaseColor)
-                                    .withLightness(
-                                      HSLColor.fromColor(cardBaseColor)
-                                              .lightness *
-                                          0.7,
-                                    )
-                                    .toColor()
-                                    .withOpacity(isHovered ? 0.95 : 0.8),
-                              ],
-                              stops: [0.3, 1.0],
+            // Subjects list
+            if (_searchController.text.isEmpty || _filteredSubjects.isNotEmpty)
+              Positioned.fill(
+                child: Stack(
+                  children: [
+                    // Holographic background effect
+                    Positioned.fill(
+                      child: AnimatedBuilder(
+                        animation: _backgroundAnimationController,
+                        builder: (context, child) {
+                          return Transform.rotate(
+                            angle: _backgroundAnimation.value * 0.05,
+                            child: ShaderMask(
+                              blendMode: BlendMode.srcATop,
+                              shaderCallback: (bounds) => RadialGradient(
+                                center: Alignment(
+                                  math.sin(_backgroundAnimation.value *
+                                          math.pi *
+                                          2) *
+                                      0.5,
+                                  math.cos(_backgroundAnimation.value *
+                                          math.pi *
+                                          2) *
+                                      0.5,
+                                ),
+                                colors: [
+                                  Colors.transparent,
+                                  _highlightColor.withOpacity(0.01),
+                                  _accentColor.withOpacity(0.02),
+                                  Colors.transparent,
+                                ],
+                                radius: 1.0,
+                              ).createShader(bounds),
+                              child: Container(
+                                color: Colors.white,
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(28),
-                            boxShadow: [
-                              // Outer glow shadow
-                              BoxShadow(
-                                color: neonGlowColor
-                                    .withOpacity(isHovered ? 0.35 : 0.15),
-                                blurRadius: isHovered ? 25 : 15,
-                                spreadRadius: isHovered ? 2 : 0,
-                              ),
-                              // Inner depth shadow
-                              BoxShadow(
-                                color: cardBaseColor.withOpacity(0.5),
-                                blurRadius: 15,
-                                spreadRadius: -3,
-                                offset: Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: Stack(
-                            children: [
-                              // Holographic overlay
+                          );
+                        },
+                      ),
+                    ),
 
-                              // Content layout
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                    // Interactive card list with 3D effects
+                    ListView.builder(
+                      padding: EdgeInsets.fromLTRB(
+                          20, shouldShowSearch ? 15 : 25, 20, 100),
+                      physics: BouncingScrollPhysics(),
+                      itemCount: displaySubjects.length,
+                      itemBuilder: (context, index) {
+                        final subject = displaySubjects[index];
+                        final Color cardBaseColor =
+                            _cardGradients[index % _cardGradients.length];
+                        // Generate subject-specific neon colors for glow effects
+                        final neonGlowColor = HSLColor.fromColor(cardBaseColor)
+                            .withLightness(0.7)
+                            .withSaturation(0.9)
+                            .toColor();
+
+                        final bool isHovered = _hoveredCardIndex == index;
+
+                        return GestureDetector(
+                          onTap: () async {
+                            if (subject.subject.id != 0) {
+                              // Add spectacular tap effect
+                              setState(() {
+                                _hoveredCardIndex = index;
+                              });
+
+                              // Elaborate haptic pattern
+                              HapticFeedback.mediumImpact();
+                              await Future.delayed(Duration(milliseconds: 50));
+                              HapticFeedback.lightImpact();
+
+                              // Exaggerated scale animation on tap
+                              _cardHoverController.forward().then((_) {
+                                _cardHoverController.reverse();
+                              });
+
+                              await Get.toNamed(Routes.questionBankScreen,
+                                  arguments: subject);
+                              _reloadData();
+                            }
+                          },
+                          onTapDown: (_) {
+                            setState(() {
+                              _hoveredCardIndex = index;
+                            });
+                            HapticFeedback.selectionClick();
+                          },
+                          onTapCancel: () {
+                            setState(() {
+                              _hoveredCardIndex = -1;
+                            });
+                          },
+                          onTapUp: (_) {
+                            Future.delayed(Duration(milliseconds: 300), () {
+                              if (mounted) {
+                                setState(() {
+                                  _hoveredCardIndex = -1;
+                                });
+                              }
+                            });
+                          },
+                          child: Transform.translate(
+                            offset:
+                                Offset(0, index == _hoveredCardIndex ? -5 : 0),
+                            child: AnimatedContainer(
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.easeOutCubic,
+                              margin: EdgeInsets.only(bottom: 24),
+                              child: Stack(
+                                clipBehavior: Clip.none,
                                 children: [
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // Subject text & details with advanced effects
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            // Elaborated subject title with glow
-                                            ShaderMask(
-                                              blendMode: BlendMode.srcIn,
-                                              shaderCallback: (bounds) =>
-                                                  LinearGradient(
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                                colors: [
-                                                  Colors.white.withOpacity(1.0),
-                                                  Colors.white.withOpacity(0.9),
-                                                  Colors.white.withOpacity(1.0),
-                                                ],
-                                              ).createShader(bounds),
-                                              child: Text(
-                                                subject.subjectWithName,
-                                                style: TextStyle(
-                                                  fontSize: 20,
-                                                  height: 1.2,
-                                                  fontWeight: FontWeight.bold,
-                                                  letterSpacing: 0.5,
-                                                  shadows: [
-                                                    Shadow(
-                                                      color: Colors.black26,
-                                                      blurRadius: 3,
-                                                      offset: Offset(1, 1),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-
-                                            SizedBox(height: 4),
-
-                                            // Divider with animation
-                                            AnimatedContainer(
-                                              duration:
-                                                  Duration(milliseconds: 400),
-                                              margin: EdgeInsets.symmetric(
-                                                  vertical: 8),
-                                              height: 2,
-                                              width: isHovered ? 180 : 80,
-                                              decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  begin: Alignment.centerLeft,
-                                                  end: Alignment.centerRight,
-                                                  colors: [
-                                                    Colors.white
-                                                        .withOpacity(0.8),
-                                                    Colors.white
-                                                        .withOpacity(0.2),
-                                                  ],
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(2),
-                                              ),
-                                            ),
-
-                                            SizedBox(height: 4),
-
-                                            // Question count chip with advanced styling
-                                            Row(
-                                              children: [
-                                                Container(
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 12,
-                                                      vertical: 7),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white
-                                                        .withOpacity(0.15),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            30),
-                                                    border: Border.all(
-                                                      color: Colors.white
-                                                          .withOpacity(0.2),
-                                                      width: 1,
-                                                    ),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.black12,
-                                                        blurRadius: 8,
-                                                        spreadRadius: 0,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  child: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      Text(
-                                                        '${subject.bankSoalCount} Bank Soal',
-                                                        style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          fontSize: 14,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                  // 3D Card Background with "holographic" effect
+                                  Transform(
+                                    alignment: Alignment.center,
+                                    transform: Matrix4.identity()
+                                      ..setEntry(3, 2, 0.001) // Perspective
+                                      ..rotateX(isHovered ? 0.05 : 0.0)
+                                      ..rotateY(isHovered ? -0.05 : 0.0),
+                                    child: Container(
+                                      padding: EdgeInsets.all(20),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            cardBaseColor.withOpacity(
+                                                isHovered ? 1.0 : 0.85),
+                                            HSLColor.fromColor(cardBaseColor)
+                                                .withLightness(
+                                                  HSLColor.fromColor(
+                                                              cardBaseColor)
+                                                          .lightness *
+                                                      0.7,
+                                                )
+                                                .toColor()
+                                                .withOpacity(
+                                                    isHovered ? 0.95 : 0.8),
                                           ],
+                                          stops: [0.3, 1.0],
                                         ),
-                                      ),
-
-                                      // Arrow button with animations and effects
-                                      AnimatedContainer(
-                                        duration: Duration(milliseconds: 300),
-                                        width: isHovered ? 50 : 45,
-                                        height: isHovered ? 50 : 45,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          gradient: LinearGradient(
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                            colors: isHovered
-                                                ? [
-                                                    Colors.white
-                                                        .withOpacity(0.3),
-                                                    Colors.white
-                                                        .withOpacity(0.1)
-                                                  ]
-                                                : [
-                                                    Colors.white
-                                                        .withOpacity(0.2),
-                                                    Colors.white
-                                                        .withOpacity(0.05)
-                                                  ],
+                                        borderRadius: BorderRadius.circular(28),
+                                        boxShadow: [
+                                          // Outer glow shadow
+                                          BoxShadow(
+                                            color: neonGlowColor.withOpacity(
+                                                isHovered ? 0.35 : 0.15),
+                                            blurRadius: isHovered ? 25 : 15,
+                                            spreadRadius: isHovered ? 2 : 0,
                                           ),
-                                          boxShadow: isHovered
-                                              ? [
-                                                  BoxShadow(
-                                                    color: neonGlowColor
-                                                        .withOpacity(0.4),
-                                                    blurRadius: 15,
-                                                    spreadRadius: 1,
-                                                  ),
-                                                ]
-                                              : [],
-                                          border: Border.all(
+                                          // Inner depth shadow
+                                          BoxShadow(
                                             color:
-                                                Colors.white.withOpacity(0.3),
-                                            width: 1,
+                                                cardBaseColor.withOpacity(0.5),
+                                            blurRadius: 15,
+                                            spreadRadius: -3,
+                                            offset: Offset(0, 8),
                                           ),
-                                        ),
-                                        child: AnimatedBuilder(
-                                          animation: _pulseAnimation,
-                                          builder: (context, child) {
-                                            return Transform.rotate(
-                                              angle: isHovered ? 0.1 : 0,
-                                              child: Transform.scale(
-                                                scale: isHovered
-                                                    ? 1.0 +
-                                                        0.15 *
-                                                            _pulseAnimation
-                                                                .value
-                                                    : 1.0,
-                                                child: Icon(
-                                                  Icons.arrow_forward_rounded,
-                                                  color: Colors.white,
-                                                  size: isHovered ? 25 : 22,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
+                                        ],
                                       ),
-                                    ],
+                                      child: Stack(
+                                        children: [
+                                          // Holographic overlay
+
+                                          // Content layout
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  // Subject text & details with advanced effects
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        // Elaborated subject title with glow
+                                                        ShaderMask(
+                                                          blendMode:
+                                                              BlendMode.srcIn,
+                                                          shaderCallback:
+                                                              (bounds) =>
+                                                                  LinearGradient(
+                                                            begin: Alignment
+                                                                .topLeft,
+                                                            end: Alignment
+                                                                .bottomRight,
+                                                            colors: [
+                                                              Colors.white
+                                                                  .withOpacity(
+                                                                      1.0),
+                                                              Colors.white
+                                                                  .withOpacity(
+                                                                      0.9),
+                                                              Colors.white
+                                                                  .withOpacity(
+                                                                      1.0),
+                                                            ],
+                                                          ).createShader(
+                                                                      bounds),
+                                                          child: Text(
+                                                            subject
+                                                                .subjectWithName,
+                                                            style: TextStyle(
+                                                              fontSize: 20,
+                                                              height: 1.2,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              letterSpacing:
+                                                                  0.5,
+                                                              shadows: [
+                                                                Shadow(
+                                                                  color: Colors
+                                                                      .black26,
+                                                                  blurRadius: 3,
+                                                                  offset:
+                                                                      Offset(
+                                                                          1, 1),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+
+                                                        SizedBox(height: 4),
+
+                                                        // Divider with animation
+                                                        AnimatedContainer(
+                                                          duration: Duration(
+                                                              milliseconds:
+                                                                  400),
+                                                          margin: EdgeInsets
+                                                              .symmetric(
+                                                                  vertical: 8),
+                                                          height: 2,
+                                                          width: isHovered
+                                                              ? 180
+                                                              : 80,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            gradient:
+                                                                LinearGradient(
+                                                              begin: Alignment
+                                                                  .centerLeft,
+                                                              end: Alignment
+                                                                  .centerRight,
+                                                              colors: [
+                                                                Colors.white
+                                                                    .withOpacity(
+                                                                        0.8),
+                                                                Colors.white
+                                                                    .withOpacity(
+                                                                        0.2),
+                                                              ],
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        2),
+                                                          ),
+                                                        ),
+
+                                                        SizedBox(height: 4),
+
+                                                        // Question count chip with advanced styling
+                                                        Row(
+                                                          children: [
+                                                            Container(
+                                                              padding: EdgeInsets
+                                                                  .symmetric(
+                                                                      horizontal:
+                                                                          12,
+                                                                      vertical:
+                                                                          7),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Colors
+                                                                    .white
+                                                                    .withOpacity(
+                                                                        0.15),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            30),
+                                                                border:
+                                                                    Border.all(
+                                                                  color: Colors
+                                                                      .white
+                                                                      .withOpacity(
+                                                                          0.2),
+                                                                  width: 1,
+                                                                ),
+                                                                boxShadow: [
+                                                                  BoxShadow(
+                                                                    color: Colors
+                                                                        .black12,
+                                                                    blurRadius:
+                                                                        8,
+                                                                    spreadRadius:
+                                                                        0,
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              child: Row(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .min,
+                                                                children: [
+                                                                  Text(
+                                                                    '${subject.bankSoalCount} Bank Soal',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                      fontSize:
+                                                                          14,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+
+                                                  // Arrow button with animations and effects
+                                                  AnimatedContainer(
+                                                    duration: Duration(
+                                                        milliseconds: 300),
+                                                    width: isHovered ? 50 : 45,
+                                                    height: isHovered ? 50 : 45,
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      gradient: LinearGradient(
+                                                        begin:
+                                                            Alignment.topLeft,
+                                                        end: Alignment
+                                                            .bottomRight,
+                                                        colors: isHovered
+                                                            ? [
+                                                                Colors.white
+                                                                    .withOpacity(
+                                                                        0.3),
+                                                                Colors.white
+                                                                    .withOpacity(
+                                                                        0.1)
+                                                              ]
+                                                            : [
+                                                                Colors.white
+                                                                    .withOpacity(
+                                                                        0.2),
+                                                                Colors.white
+                                                                    .withOpacity(
+                                                                        0.05)
+                                                              ],
+                                                      ),
+                                                      boxShadow: isHovered
+                                                          ? [
+                                                              BoxShadow(
+                                                                color: neonGlowColor
+                                                                    .withOpacity(
+                                                                        0.4),
+                                                                blurRadius: 15,
+                                                                spreadRadius: 1,
+                                                              ),
+                                                            ]
+                                                          : [],
+                                                      border: Border.all(
+                                                        color: Colors.white
+                                                            .withOpacity(0.3),
+                                                        width: 1,
+                                                      ),
+                                                    ),
+                                                    child: AnimatedBuilder(
+                                                      animation:
+                                                          _pulseAnimation,
+                                                      builder:
+                                                          (context, child) {
+                                                        return Transform.rotate(
+                                                          angle: isHovered
+                                                              ? 0.1
+                                                              : 0,
+                                                          child:
+                                                              Transform.scale(
+                                                            scale: isHovered
+                                                                ? 1.0 +
+                                                                    0.15 *
+                                                                        _pulseAnimation
+                                                                            .value
+                                                                : 1.0,
+                                                            child: Icon(
+                                                              Icons
+                                                                  .arrow_forward_rounded,
+                                                              color:
+                                                                  Colors.white,
+                                                              size: isHovered
+                                                                  ? 25
+                                                                  : 22,
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+
+                                  // Decorative elements
+                                  Positioned(
+                                    right: 20,
+                                    top: -10,
+                                    child: Container(
+                                      width: 30,
+                                      height: 30,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: neonGlowColor.withOpacity(0.1),
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
-
-                      // Decorative elements
-                      Positioned(
-                        right: 20,
-                        top: -10,
-                        child: Container(
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: neonGlowColor.withOpacity(0.1),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
-            );
-          },
+          ],
         ),
-      ],
-    );
+      )
+    ]);
   }
 }

@@ -1,3 +1,5 @@
+import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
+import 'package:eschool_saas_staff/data/models/gradeLevel.dart';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/studentsByClassSectionCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/exam/examCubit.dart';
@@ -41,6 +43,9 @@ class TeacherExamResultScreen extends StatefulWidget {
         ),
         BlocProvider(
           create: (context) => SubmitExamMarksCubit(),
+        ),
+        BlocProvider(
+          create: (context) => GradeLevelCubit(),
         ),
       ],
       child: const TeacherExamResultScreen(),
@@ -112,6 +117,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
   ClassSection? _selectedClassSection;
   ExamTimeTable? _selectedExamTimetableSubject;
   Exam? _selectedExam;
+  GradeLevel? _selectedGradeLevel;
 
   List<TextEditingController> marksControllers = [];
   late TextEditingController bulkMarksController;
@@ -168,6 +174,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
     Future.delayed(Duration.zero, () {
       if (mounted) {
         context.read<ClassesCubit>().getClasses();
+        context.read<GradeLevelCubit>().getGradeLevels();
       }
     });
     super.initState();
@@ -191,6 +198,19 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
     if (_selectedClassSection != classSection) {
       _selectedClassSection = classSection;
       getExams();
+      setState(() {});
+    }
+  }
+
+  void changeSelectedGradeLevel(GradeLevel? gradeLevel) {
+    if (_selectedGradeLevel != gradeLevel) {
+      _selectedGradeLevel = gradeLevel;
+      // Reset selections when grade level changes
+      _selectedClassSection = null;
+      _selectedExam = null;
+      _selectedExamTimetableSubject = null;
+      // Re-fetch classes - filter will be applied in UI
+      context.read<ClassesCubit>().getClasses();
       setState(() {});
     }
   }
@@ -464,14 +484,12 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                     TextButton(
                       onPressed: () {
                         setState(() {
-                          if (state is ClassesFetchSuccess) {
-                            changeSelectedClassSection(
-                                context
-                                    .read<ClassesCubit>()
-                                    .getAllClasses()
-                                    .firstOrNull,
-                                fetchNewSubjects: true);
-                          }
+                          _selectedGradeLevel = null;
+                          _selectedClassSection = null;
+                          _selectedExam = null;
+                          _selectedExamTimetableSubject = null;
+                          // Re-fetch all data
+                          context.read<ClassesCubit>().getClasses();
                         });
                       },
                       child: Text(
@@ -483,12 +501,47 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                 ),
                 SizedBox(height: 15),
 
+                // Grade Level Dropdown
+                BlocBuilder<GradeLevelCubit, GradeLevelState>(
+                  builder: (context, gradeLevelState) {
+                    if (gradeLevelState is GradeLevelFetchSuccess) {
+                      return _buildDropdown(
+                        value: _selectedGradeLevel,
+                        items: gradeLevelState.gradeLevels
+                            .map((gradeLevel) => DropdownMenuItem<GradeLevel>(
+                                  value: gradeLevel,
+                                  child: Text(gradeLevel.name ?? ""),
+                                ))
+                            .toList(),
+                        onChanged: (value) {
+                          changeSelectedGradeLevel(value);
+                        },
+                        icon: Icons.layers_rounded,
+                        label: 'Pilih Tingkatan',
+                      );
+                    }
+                    return Container();
+                  },
+                ),
+
+                SizedBox(height: 15),
+
                 // Class Section Dropdown
                 BlocBuilder<ClassesCubit, ClassesState>(
                   builder: (context, state) {
                     if (state is ClassesFetchSuccess) {
                       List<ClassSection> classes =
                           context.read<ClassesCubit>().getAllClasses();
+
+                      // Filter classes based on selected grade level
+                      if (_selectedGradeLevel != null) {
+                        classes = classes
+                            .where((classSection) =>
+                                classSection.gradeLevelId ==
+                                _selectedGradeLevel!.id)
+                            .toList();
+                      }
+
                       return _buildDropdown(
                         value: _selectedClassSection,
                         items: classes
@@ -1011,10 +1064,6 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                   // Show custom success toast
                   OverlayEntry? overlayEntry;
 
-                  // Remove existing overlay if any
-                  overlayEntry?.remove();
-                  overlayEntry = null;
-
                   overlayEntry = OverlayEntry(
                     builder: (context) => Positioned(
                       bottom: 70,
@@ -1084,7 +1133,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                   );
 
                   // Show the toast
-                  Overlay.of(context).insert(overlayEntry!);
+                  Overlay.of(context).insert(overlayEntry);
 
                   // Auto-dismiss after 3 seconds
                   Future.delayed(Duration(seconds: 3), () {
