@@ -1111,7 +1111,7 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomBottomsheet(
-      titleLabelKey: classSubjectsKey,
+      // removed
       child: Column(
         children: [
           // Elegant header with subtle gradient

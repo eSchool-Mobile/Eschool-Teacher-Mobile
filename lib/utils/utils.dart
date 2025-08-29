@@ -331,9 +331,26 @@ class Utils {
   static Future<void> openLinkInBrowser(
       {required String url, required BuildContext context}) async {
     try {
-      final canLaunch = await canLaunchUrl(Uri.parse(url));
-      if (canLaunch) {
-        launchUrl(Uri.parse(url));
+      final uri = Uri.parse(url);
+
+      // For mailto: and tel: links prefer launching externally so native apps handle them
+      if (uri.scheme == 'mailto' || uri.scheme == 'tel') {
+        final launched =
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+        if (!launched) {
+          Utils.showSnackBar(message: defaultErrorMessageKey, context: context);
+        }
+        return;
+      }
+
+      // For http/https and other links, open in external browser
+      final canLaunchFlag = await canLaunchUrl(uri);
+      if (canLaunchFlag) {
+        final launched =
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+        if (!launched) {
+          Utils.showSnackBar(message: defaultErrorMessageKey, context: context);
+        }
       } else {
         Utils.showSnackBar(message: defaultErrorMessageKey, context: context);
       }

@@ -1403,52 +1403,61 @@ class _StudentPaidFeeDetailsContainerState
                                       MediaQuery.of(Get.context!).size.width *
                                           0.8,
                                 ),
+                                // ClipRRect kept for rounded corners while
+                                // InteractiveViewer enables pinch-zoom & pan
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.vertical(
                                     bottom: Radius.circular(16),
                                   ),
-                                  child: Image.network(
-                                    payment.proofImage!,
-                                    fit: BoxFit.contain,
-                                    loadingBuilder:
-                                        (context, child, loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return Container(
+                                  child: InteractiveViewer(
+                                    panEnabled: true,
+                                    scaleEnabled: true,
+                                    minScale: 1.0,
+                                    maxScale: 4.0,
+                                    child: Image.network(
+                                      payment.proofImage!,
+                                      fit: BoxFit.contain,
+                                      loadingBuilder:
+                                          (context, child, loadingProgress) {
+                                        if (loadingProgress == null)
+                                          return child;
+                                        return Container(
+                                          height: 300,
+                                          child: Center(
+                                            child: CircularProgressIndicator(
+                                              value: loadingProgress
+                                                          .expectedTotalBytes !=
+                                                      null
+                                                  ? loadingProgress
+                                                          .cumulativeBytesLoaded /
+                                                      loadingProgress
+                                                          .expectedTotalBytes!
+                                                  : null,
+                                              color: widget.maroonPrimary,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Container(
                                         height: 300,
                                         child: Center(
-                                          child: CircularProgressIndicator(
-                                            value: loadingProgress
-                                                        .expectedTotalBytes !=
-                                                    null
-                                                ? loadingProgress
-                                                        .cumulativeBytesLoaded /
-                                                    loadingProgress
-                                                        .expectedTotalBytes!
-                                                : null,
-                                            color: widget.maroonPrimary,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            Container(
-                                      height: 300,
-                                      child: Center(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(Icons.error_outline,
-                                                color: Colors.red, size: 48),
-                                            SizedBox(height: 16),
-                                            Text(
-                                              "Gagal memuat gambar",
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 14,
-                                                color: Colors.grey[700],
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(Icons.error_outline,
+                                                  color: Colors.red, size: 48),
+                                              SizedBox(height: 16),
+                                              Text(
+                                                "Gagal memuat gambar",
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 14,
+                                                  color: Colors.grey[700],
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),

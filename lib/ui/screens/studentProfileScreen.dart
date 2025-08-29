@@ -238,11 +238,90 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildStudentDetailsTitleAndValueContainer(
-                titleKey: emailKey,
-                valueKey: guardian?.email ?? "-",
-                isHighlighted: true,
-                icon: FontAwesomeIcons.envelope,
+              // Email row: tappable to open mail app
+              Container(
+                margin: EdgeInsets.only(bottom: 16),
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 18),
+                decoration: BoxDecoration(
+                  color: maroonPrimary.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
+                      spreadRadius: 0,
+                    ),
+                  ],
+                  border: Border.all(color: maroonPrimary.withOpacity(0.2)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: maroonPrimary.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        FontAwesomeIcons.envelope,
+                        size: 18,
+                        color: maroonPrimary,
+                      ),
+                    ),
+                    SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            emailKey.tr,
+                            style: TextStyle(
+                              color: textMediumColor,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'Poppins',
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          InkWell(
+                            onTap: (guardian?.email ?? "").isNotEmpty &&
+                                    (guardian?.email ?? "-") != "-"
+                                ? () {
+                                    final email = guardian!.email!;
+                                    Utils.openLinkInBrowser(
+                                        url: 'mailto:$email', context: context);
+                                  }
+                                : null,
+                            child: Text(
+                              guardian?.email ?? "-",
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w600,
+                                color: guardian?.email != null &&
+                                        guardian!.email!.isNotEmpty &&
+                                        guardian.email! != "-"
+                                    ? maroonPrimary
+                                    : textDarkColor,
+                                fontFamily: 'Poppins',
+                                letterSpacing: 0.2,
+                                decoration: guardian?.email != null &&
+                                        guardian!.email!.isNotEmpty &&
+                                        guardian.email! != "-"
+                                    ? TextDecoration.underline
+                                    : TextDecoration.none,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // no phone icon next to email
+                  ],
+                ),
               ),
               _buildStudentDetailsTitleAndValueContainer(
                 titleKey: genderKey,
@@ -350,17 +429,60 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                           ],
                         ),
                         SizedBox(height: 6),
-                        Text(
-                          "No. Pendaftaran: ${widget.studentDetails.student?.admissionNo ?? '-'}",
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: textMediumColor,
-                            fontFamily: 'Poppins',
-                          ),
-                          // Removing ellipsis to show full registration number
-                          overflow: TextOverflow.visible,
-                          softWrap: true,
-                        ),
+                        // Admission / registration number with copy-to-clipboard
+                        Builder(builder: (context) {
+                          final admissionNo =
+                              widget.studentDetails.student?.admissionNo ?? '-';
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  "No. Pendaftaran: $admissionNo",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: textMediumColor,
+                                    fontFamily: 'Poppins',
+                                  ),
+                                  // Ensure full text is visible/wraps
+                                  overflow: TextOverflow.visible,
+                                  softWrap: true,
+                                ),
+                              ),
+                              if (admissionNo != '-')
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8.0),
+                                  child: InkWell(
+                                    onTap: () {
+                                      Clipboard.setData(
+                                          ClipboardData(text: admissionNo));
+                                      ScaffoldMessenger.of(context)
+                                          .removeCurrentSnackBar();
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                        content: Text(
+                                            'No. Pendaftaran disalin ke clipboard'),
+                                        backgroundColor: maroonPrimary,
+                                        duration: Duration(seconds: 2),
+                                      ));
+                                    },
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Container(
+                                      padding: EdgeInsets.all(6),
+                                      decoration: BoxDecoration(
+                                        color: maroonPrimary.withOpacity(0.08),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Icon(
+                                        Icons.copy,
+                                        size: 18,
+                                        color: maroonPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          );
+                        }),
                       ],
                     ),
                   ),

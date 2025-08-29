@@ -37,9 +37,14 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
   // Animation controller for app bar effects
   late AnimationController _fabAnimationController;
   final ScrollController _scrollController = ScrollController();
+  // Controller for horizontal day selector
+  final ScrollController _dayScrollController = ScrollController();
+  // Keys for each day pill to allow ensureVisible
+  final List<GlobalKey> _dayKeys = List.generate(7, (_) => GlobalKey());
 
   // Theme colors
   final Color _maroonPrimary = const Color(0xFF800020);
+  bool _focusedOnce = false;
 
   @override
   void initState() {
@@ -47,6 +52,7 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
     _fabAnimationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 300));
     _scrollController.addListener(_scrollListener);
+    print('TeacherMyTimetableScreen init - selected day: $_selectedDayKey');
 
     Future.delayed(Duration.zero, () {
       if (mounted) {
@@ -56,6 +62,11 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
             );
         context.read<ClassesCubit>().getAllClasses();
       }
+      // After first frame, ensure the selected day pill is visible and
+      // trigger a rebuild so its selected styling/animation runs.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _focusSelectedDay();
+      });
     });
   }
 
@@ -71,39 +82,88 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
   void dispose() {
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
+    _dayScrollController.dispose();
     _fabAnimationController.dispose();
-    
+
     // Reset the timetable to show all days when leaving the screen
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<TeacherMyTimetableCubit>().getTeacherMyTimetable();
       }
     });
-    
+
     super.dispose();
   }
 
+  void _focusSelectedDay() {
+    try {
+      final int index = Utils.weekDays.indexOf(_selectedDayKey);
+      if (index >= 0 && index < _dayKeys.length) {
+        final ctx = _dayKeys[index].currentContext;
+        if (ctx != null) {
+          Scrollable.ensureVisible(
+            ctx,
+            alignment: 0.5,
+            duration: const Duration(milliseconds: 300),
+          );
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+    // Force rebuild so animation/selection appears
+    if (mounted) setState(() {});
+  }
+
   Widget _buildDaySelector(BuildContext context) {
-    List<Map<String, String>> weekDays = [
-      {'key': 'monday', 'short': 'SEN', 'long': 'Senin'},
-      {'key': 'tuesday', 'short': 'SEL', 'long': 'Selasa'},
-      {'key': 'wednesday', 'short': 'RAB', 'long': 'Rabu'},
-      {'key': 'thursday', 'short': 'KAM', 'long': 'Kamis'},
-      {'key': 'friday', 'short': 'JUM', 'long': 'Jumat'},
-      {'key': 'saturday', 'short': 'SAB', 'long': 'Sabtu'},
-      {'key': 'sunday', 'short': 'MIN', 'long': 'Minggu'},
+    // Use canonical weekday keys from Utils.weekDays (e.g. "mon","tue")
+    // to ensure comparisons with _selectedDayKey succeed.
+    final List<String> shortLabels = [
+      'SEN',
+      'SEL',
+      'RAB',
+      'KAM',
+      'JUM',
+      'SAB',
+      'MIN'
+    ];
+    final List<String> longLabels = [
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu',
+      'Minggu'
     ];
 
+    final List<Map<String, String>> weekDays = List.generate(7, (i) {
+      final key = Utils.weekDays.length > i ? Utils.weekDays[i] : '';
+      return {
+        'key': key,
+        'short': shortLabels[i],
+        'long': longLabels[i],
+      };
+    });
+
     return SingleChildScrollView(
+      controller: _dayScrollController,
       scrollDirection: Axis.horizontal,
       physics: BouncingScrollPhysics(),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: weekDays.map((day) {
+          children: weekDays.asMap().entries.map((entry) {
+            final int idx = entry.key;
+            final day = entry.value;
             bool isSelected = _selectedDayKey == day['key'];
+            // Debug: show which day is being built and whether it's selected
+            // ignore: avoid_print
+            print(
+                'Building day selector item: ${day['key']} index:$idx isSelected:$isSelected');
             return Padding(
+              key: _dayKeys[idx],
               padding: const EdgeInsets.symmetric(horizontal: 4.0),
               child: Material(
                 color: Colors.transparent,
@@ -125,17 +185,28 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
                     padding: EdgeInsets.symmetric(vertical: 8, horizontal: 14),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
+                      // Selected pill appears white with maroon text for high contrast
                       color: isSelected ? Colors.white : Colors.transparent,
                       border: Border.all(
                         color: isSelected
-                            ? Colors.white.withOpacity(0.9)
-                            : Colors.white.withOpacity(0.3),
+                            ? _maroonPrimary.withOpacity(0.15)
+                            : Colors.white.withOpacity(0.22),
                         width: isSelected ? 1 : 0.5,
                       ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: _maroonPrimary.withOpacity(0.08),
+                                blurRadius: 6,
+                                offset: Offset(0, 2),
+                              )
+                            ]
+                          : null,
                     ),
                     child: Text(
                       day['short']!,
                       style: GoogleFonts.poppins(
+                        // Maroon text when selected, otherwise white
                         color: isSelected ? _maroonPrimary : Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
@@ -146,7 +217,7 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
               ),
             )
                 .animate(
-                  autoPlay: false,
+                  autoPlay: true,
                   target: isSelected ? 1 : 0,
                 )
                 .scale(
@@ -169,6 +240,13 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
       print("Total slots in state: ${state.timeTableSlots.length}");
       print("Selected day: $_selectedDayKey");
       print("Days in data: ${state.timeTableSlots.map((s) => s.day).toSet()}");
+      // Ensure we focus the selected day once after data has arrived
+      if (!_focusedOnce) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _focusSelectedDay();
+        });
+        _focusedOnce = true;
+      }
     }
 
     return Scaffold(
@@ -179,6 +257,8 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
         primaryColor: _maroonPrimary,
         onBackPressed: () => Navigator.of(context).pop(),
         height: 140, // Increased height for tab content
+        showFilterButton: true,
+        filterActive: true,
         tabBuilder: _buildDaySelector,
       ),
       body: BlocBuilder<TeacherMyTimetableCubit, TeacherMyTimetableState>(

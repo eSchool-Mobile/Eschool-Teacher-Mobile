@@ -7,7 +7,7 @@ class CustomBottomsheet extends StatelessWidget {
   final String titleLabelKey;
 
   const CustomBottomsheet(
-      {super.key, required this.child, required this.titleLabelKey});
+      {super.key, required this.child, this.titleLabelKey = ''});
 
   Widget _buildContent({required BuildContext context}) {
     return Column(

@@ -22,6 +22,7 @@ class CustomModernAppBar extends StatefulWidget implements PreferredSizeWidget {
   final bool
       showFilterButton; // New parameter to control filter button visibility
   final VoidCallback? onFilterPressed; // New parameter for filter button action
+  final bool filterActive; // Whether the filter button should show active state
   final bool
       showSearchButton; // New parameter to control search button visibility
   final VoidCallback? onSearchPressed; // New parameter for search button action
@@ -48,6 +49,7 @@ class CustomModernAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.archiveIcon, // Default will be handled in build method
     this.showFilterButton = false, // Default to hidden
     this.onFilterPressed,
+    this.filterActive = false,
     this.showSearchButton = false, // Default to hidden
     this.onSearchPressed,
     this.showHelperButton = false, // Default to hidden
@@ -888,115 +890,156 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                         child: Container(
                                           width: 40,
                                           height: 40,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withOpacity(
-                                                    0.12 +
-                                                        (_glowAnimation.value *
-                                                            0.02)),
-                                                blurRadius: 4 +
-                                                    (_glowAnimation.value *
-                                                        1.2),
-                                                offset: const Offset(0, 2),
-                                                spreadRadius: 0.3 +
-                                                    (_glowAnimation.value *
-                                                        0.12),
-                                              ),
-                                              // Subtle glow shadow
-                                              BoxShadow(
-                                                color: widget.lightColor
-                                                    .withOpacity(0.1 *
-                                                        _glowAnimation.value),
-                                                blurRadius: 5 +
-                                                    (_glowAnimation.value *
-                                                        1.5),
-                                                offset: const Offset(0, 0),
-                                                spreadRadius:
-                                                    _glowAnimation.value * 0.6,
-                                              ),
-                                            ],
-                                            border: Border.all(
-                                              color: Colors.white.withOpacity(
-                                                  0.4 +
-                                                      (_glowAnimation.value *
-                                                          0.06)),
-                                              width: 1.5,
-                                            ),
-                                            gradient: LinearGradient(
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                              colors: [
-                                                widget.lightColor.withOpacity(
-                                                    0.75 +
-                                                        (_glowAnimation.value *
-                                                            0.03)),
-                                                widget.primaryColor.withOpacity(
-                                                    0.75 +
-                                                        (_glowAnimation.value *
-                                                            0.03)),
-                                              ],
-                                            ),
-                                          ),
-                                          child: Stack(
-                                            alignment: Alignment.center,
-                                            children: [
-                                              // Refined glow effect
-                                              Container(
-                                                width: 22 +
-                                                    (math.sin(_pulseAnimation
-                                                                    .value *
-                                                                math.pi +
-                                                            1) *
-                                                        1),
-                                                height: 22 +
-                                                    (math.sin(_pulseAnimation
-                                                                    .value *
-                                                                math.pi +
-                                                            1) *
-                                                        1),
-                                                decoration: BoxDecoration(
+                                          decoration: widget.filterActive
+                                              ? BoxDecoration(
+                                                  color: Colors.white,
                                                   shape: BoxShape.circle,
-                                                  gradient: RadialGradient(
-                                                    colors: [
-                                                      Colors.white.withOpacity(
-                                                          0.25 +
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.black
+                                                          .withOpacity(0.12),
+                                                      blurRadius: 6,
+                                                      offset:
+                                                          const Offset(0, 2),
+                                                    ),
+                                                  ],
+                                                  border: Border.all(
+                                                      color: widget.primaryColor
+                                                          .withOpacity(0.12),
+                                                      width: 1.0),
+                                                )
+                                              : BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.black
+                                                          .withOpacity(0.12 +
                                                               (_glowAnimation
                                                                       .value *
-                                                                  0.06)),
-                                                      Colors.white
-                                                          .withOpacity(0.0),
+                                                                  0.02)),
+                                                      blurRadius: 4 +
+                                                          (_glowAnimation
+                                                                  .value *
+                                                              1.2),
+                                                      offset:
+                                                          const Offset(0, 2),
+                                                      spreadRadius: 0.3 +
+                                                          (_glowAnimation
+                                                                  .value *
+                                                              0.12),
+                                                    ),
+                                                    // Subtle glow shadow
+                                                    BoxShadow(
+                                                      color: widget.lightColor
+                                                          .withOpacity(0.1 *
+                                                              _glowAnimation
+                                                                  .value),
+                                                      blurRadius: 5 +
+                                                          (_glowAnimation
+                                                                  .value *
+                                                              1.5),
+                                                      offset:
+                                                          const Offset(0, 0),
+                                                      spreadRadius:
+                                                          _glowAnimation.value *
+                                                              0.6,
+                                                    ),
+                                                  ],
+                                                  border: Border.all(
+                                                    color: Colors.white
+                                                        .withOpacity(0.4 +
+                                                            (_glowAnimation
+                                                                    .value *
+                                                                0.06)),
+                                                    width: 1.5,
+                                                  ),
+                                                  gradient: LinearGradient(
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                    colors: [
+                                                      widget.lightColor
+                                                          .withOpacity(0.75 +
+                                                              (_glowAnimation
+                                                                      .value *
+                                                                  0.03)),
+                                                      widget.primaryColor
+                                                          .withOpacity(0.75 +
+                                                              (_glowAnimation
+                                                                      .value *
+                                                                  0.03)),
                                                     ],
                                                   ),
                                                 ),
-                                              ),
-                                              // Icon with gentle floating animation
-                                              Transform.translate(
-                                                offset: Offset(
-                                                    0,
-                                                    math.sin(_glowAnimation
-                                                                    .value *
-                                                                2 *
-                                                                math.pi +
-                                                            2) *
-                                                        0.5),
-                                                child: Icon(
-                                                  Icons.filter_list,
-                                                  color: Colors.white,
-                                                  size: 24,
-                                                  shadows: [
-                                                    Shadow(
-                                                      color: Colors.black
-                                                          .withOpacity(0.3),
-                                                      offset: Offset(0, 1),
-                                                      blurRadius: 2,
+                                          child: widget.filterActive
+                                              ? Center(
+                                                  child: Icon(
+                                                    Icons.filter_list,
+                                                    color: widget.primaryColor,
+                                                    size: 24,
+                                                  ),
+                                                )
+                                              : Stack(
+                                                  alignment: Alignment.center,
+                                                  children: [
+                                                    // Refined glow effect
+                                                    Container(
+                                                      width: 22 +
+                                                          (math.sin(_pulseAnimation
+                                                                          .value *
+                                                                      math.pi +
+                                                                  1) *
+                                                              1),
+                                                      height: 22 +
+                                                          (math.sin(_pulseAnimation
+                                                                          .value *
+                                                                      math.pi +
+                                                                  1) *
+                                                              1),
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        gradient:
+                                                            RadialGradient(
+                                                          colors: [
+                                                            Colors.white
+                                                                .withOpacity(0.25 +
+                                                                    (_glowAnimation
+                                                                            .value *
+                                                                        0.06)),
+                                                            Colors.white
+                                                                .withOpacity(
+                                                                    0.0),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    // Icon with gentle floating animation
+                                                    Transform.translate(
+                                                      offset: Offset(
+                                                          0,
+                                                          math.sin(_glowAnimation
+                                                                          .value *
+                                                                      2 *
+                                                                      math.pi +
+                                                                  2) *
+                                                              0.5),
+                                                      child: Icon(
+                                                        Icons.filter_list,
+                                                        color: Colors.white,
+                                                        size: 24,
+                                                        shadows: [
+                                                          Shadow(
+                                                            color: Colors.black
+                                                                .withOpacity(
+                                                                    0.3),
+                                                            offset:
+                                                                Offset(0, 1),
+                                                            blurRadius: 2,
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
-                                              ),
-                                            ],
-                                          ),
                                         ),
                                       ),
                                     ),

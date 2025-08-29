@@ -4,6 +4,7 @@ import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/route_manager.dart';
@@ -182,7 +183,10 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen>
   }
 
   Widget _buildTeacherDetailCard(
-      {required String titleKey, required String valueKey, IconData? icon}) {
+      {required String titleKey,
+      required String valueKey,
+      IconData? icon,
+      Widget? actionWidget}) {
     return Container(
       margin: EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
@@ -285,6 +289,10 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen>
                       ],
                     ),
                   ),
+                  if (actionWidget != null) ...[
+                    SizedBox(width: 12),
+                    actionWidget,
+                  ],
                 ],
               ),
             ),
@@ -688,11 +696,81 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen>
                                 titleKey: emailKey,
                                 valueKey: widget.teacher.email ?? "-",
                                 icon: _detailIcons[emailKey],
+                                actionWidget: (widget.teacher.email != null &&
+                                        widget.teacher.email!.isNotEmpty &&
+                                        widget.teacher.email! != "-")
+                                    ? InkWell(
+                                        onTap: () {
+                                          final email = widget.teacher.email!;
+                                          Clipboard.setData(
+                                              ClipboardData(text: email));
+                                          ScaffoldMessenger.of(context)
+                                              .removeCurrentSnackBar();
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                            content: Text(
+                                                'Email disalin ke clipboard'),
+                                            backgroundColor: primaryMaroonColor,
+                                            duration: Duration(seconds: 2),
+                                          ));
+                                        },
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Container(
+                                          padding: EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: primaryMaroonColor
+                                                .withOpacity(0.08),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: Icon(
+                                            Icons.copy,
+                                            size: 18,
+                                            color: primaryMaroonColor,
+                                          ),
+                                        ),
+                                      )
+                                    : null,
                               ),
                               _buildTeacherDetailCard(
                                 titleKey: phoneKey,
                                 valueKey: widget.teacher.mobile ?? "-",
                                 icon: _detailIcons[phoneKey],
+                                actionWidget: (widget.teacher.mobile != null &&
+                                        widget.teacher.mobile!.isNotEmpty &&
+                                        widget.teacher.mobile! != "-")
+                                    ? InkWell(
+                                        onTap: () {
+                                          final mobile = widget.teacher.mobile!;
+                                          Clipboard.setData(
+                                              ClipboardData(text: mobile));
+                                          ScaffoldMessenger.of(context)
+                                              .removeCurrentSnackBar();
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                            content: Text(
+                                                'Nomor telepon disalin ke clipboard'),
+                                            backgroundColor: primaryMaroonColor,
+                                            duration: Duration(seconds: 2),
+                                          ));
+                                        },
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Container(
+                                          padding: EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: lightMaroonColor
+                                                .withOpacity(0.08),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: Icon(
+                                            Icons.copy,
+                                            size: 18,
+                                            color: lightMaroonColor,
+                                          ),
+                                        ),
+                                      )
+                                    : null,
                               ),
                               _buildTeacherDetailCard(
                                 titleKey: dateOfBirthKey,

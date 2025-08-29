@@ -4,6 +4,7 @@ import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/route_manager.dart';
@@ -166,7 +167,10 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
   }
 
   Widget _buildStaffDetailCard(
-      {required String titleKey, required String valueKey, IconData? icon}) {
+      {required String titleKey,
+      required String valueKey,
+      IconData? icon,
+      Widget? actionWidget}) {
     return Container(
       margin: EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
@@ -269,6 +273,10 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                       ],
                     ),
                   ),
+                  if (actionWidget != null) ...[
+                    SizedBox(width: 12),
+                    actionWidget,
+                  ],
                 ],
               ),
             ),
@@ -342,7 +350,8 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                               Row(
                                 children: [
                                   Hero(
-                                    tag: 'staff_image_${widget.staffDetails.id}',
+                                    tag:
+                                        'staff_image_${widget.staffDetails.id}',
                                     child: Container(
                                       width: 90,
                                       height: 90,
@@ -364,7 +373,8 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                                       ),
                                       child: ClipOval(
                                         child: ProfileImageContainer(
-                                          imageUrl: widget.staffDetails.image ?? "",
+                                          imageUrl:
+                                              widget.staffDetails.image ?? "",
                                         ),
                                       ),
                                     ),
@@ -406,7 +416,8 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                                               padding: EdgeInsets.symmetric(
                                                   horizontal: 8, vertical: 4),
                                               decoration: BoxDecoration(
-                                                color: widget.staffDetails.isActive()
+                                                color: widget.staffDetails
+                                                        .isActive()
                                                     ? Colors.green
                                                         .withOpacity(0.1)
                                                     : Colors.red
@@ -418,7 +429,8 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
                                                   Icon(
-                                                    widget.staffDetails.isActive()
+                                                    widget.staffDetails
+                                                            .isActive()
                                                         ? Icons.check_circle
                                                         : Icons.cancel,
                                                     color: widget.staffDetails
@@ -429,7 +441,8 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                                                   ),
                                                   const SizedBox(width: 4),
                                                   Text(
-                                                    widget.staffDetails.isActive()
+                                                    widget.staffDetails
+                                                            .isActive()
                                                         ? _getIndonesianTitle(
                                                             activeKey)
                                                         : _getIndonesianTitle(
@@ -662,7 +675,8 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                             children: [
                               _buildStaffDetailCard(
                                 titleKey: joiningDateKey,
-                                valueKey: (widget.staffDetails.createdAt ?? "").isEmpty
+                                valueKey: (widget.staffDetails.createdAt ?? "")
+                                        .isEmpty
                                     ? "-"
                                     : Utils.formatDate(DateTime.parse(
                                         widget.staffDetails.createdAt!)),
@@ -672,18 +686,94 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                                 titleKey: emailKey,
                                 valueKey: widget.staffDetails.email ?? "-",
                                 icon: _detailIcons[emailKey],
+                                actionWidget: (widget.staffDetails.email !=
+                                            null &&
+                                        widget.staffDetails.email!.isNotEmpty &&
+                                        widget.staffDetails.email! != "-")
+                                    ? InkWell(
+                                        onTap: () {
+                                          final email =
+                                              widget.staffDetails.email!;
+                                          Clipboard.setData(
+                                              ClipboardData(text: email));
+                                          ScaffoldMessenger.of(context)
+                                              .removeCurrentSnackBar();
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                            content: Text(
+                                                'Email disalin ke clipboard'),
+                                            backgroundColor: primaryMaroonColor,
+                                            duration: Duration(seconds: 2),
+                                          ));
+                                        },
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Container(
+                                          padding: EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: primaryMaroonColor
+                                                .withOpacity(0.08),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: Icon(
+                                            Icons.copy,
+                                            size: 18,
+                                            color: primaryMaroonColor,
+                                          ),
+                                        ),
+                                      )
+                                    : null,
                               ),
                               _buildStaffDetailCard(
                                 titleKey: phoneKey,
                                 valueKey: widget.staffDetails.mobile ?? "-",
                                 icon: _detailIcons[phoneKey],
+                                actionWidget: (widget.staffDetails.mobile !=
+                                            null &&
+                                        widget
+                                            .staffDetails.mobile!.isNotEmpty &&
+                                        widget.staffDetails.mobile! != "-")
+                                    ? InkWell(
+                                        onTap: () {
+                                          final mobile =
+                                              widget.staffDetails.mobile!;
+                                          Clipboard.setData(
+                                              ClipboardData(text: mobile));
+                                          ScaffoldMessenger.of(context)
+                                              .removeCurrentSnackBar();
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                            content: Text(
+                                                'Nomor telepon disalin ke clipboard'),
+                                            backgroundColor: primaryMaroonColor,
+                                            duration: Duration(seconds: 2),
+                                          ));
+                                        },
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Container(
+                                          padding: EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: lightMaroonColor
+                                                .withOpacity(0.08),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: Icon(
+                                            Icons.copy,
+                                            size: 18,
+                                            color: lightMaroonColor,
+                                          ),
+                                        ),
+                                      )
+                                    : null,
                               ),
                               _buildStaffDetailCard(
                                 titleKey: dateOfBirthKey,
-                                valueKey: (widget.staffDetails.dob ?? "").isEmpty
-                                    ? "-"
-                                    : Utils.formatDate(
-                                        DateTime.parse(widget.staffDetails.dob!)),
+                                valueKey:
+                                    (widget.staffDetails.dob ?? "").isEmpty
+                                        ? "-"
+                                        : Utils.formatDate(DateTime.parse(
+                                            widget.staffDetails.dob!)),
                                 icon: _detailIcons[dateOfBirthKey],
                               ),
                               _buildStaffDetailCard(
