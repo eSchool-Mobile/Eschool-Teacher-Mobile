@@ -12,13 +12,13 @@ class TeacherAcademicsRepository {
       if (dayKey != null) {
         // Convert from abbreviated to full day name
         Map<String, String> dayMapping = {
-          'mon': 'Monday',
-          'tue': 'Tuesday',
-          'wed': 'Wednesday',
-          'thu': 'Thursday',
-          'fri': 'Friday',
-          'sat': 'Saturday',
-          'sun': 'Sunday',
+          'mon': 'monday',
+          'tue': 'tuesday',
+          'wed': 'wednesday',
+          'thu': 'thursday',
+          'fri': 'friday',
+          'sat': 'saturday',
+          'sun': 'sunday',
         };
         fullDayName = dayMapping[dayKey.toLowerCase()] ?? dayKey;
       }

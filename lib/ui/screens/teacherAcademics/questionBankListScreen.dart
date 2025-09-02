@@ -1214,7 +1214,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
               ),
               SizedBox(width: 12),
               Text(
-                'Edit Bank Soal',
+                'Bank Soal',
                 style: TextStyle(
                   color: Colors.black87,
                   fontWeight: FontWeight.w500,
