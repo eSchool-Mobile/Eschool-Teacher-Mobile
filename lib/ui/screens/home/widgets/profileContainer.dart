@@ -963,42 +963,120 @@ class _ProfileContainerState extends State<ProfileContainer>
   Widget _buildProfileInfo(BuildContext context) {
     return Row(
       children: [
-        // Profile image with elegant gradient border
-        Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [maroonPrimary, maroonDark],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: maroonPrimary.withOpacity(0.3),
-                blurRadius: 8,
-                spreadRadius: 1,
+        // Profile image with tap to zoom
+        GestureDetector(
+          onTap: () {
+            final profileImage =
+                context.read<AuthCubit>().getUserDetails().image ?? "";
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return Dialog(
+                  backgroundColor: Colors.transparent,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    height: MediaQuery.of(context).size.height * 0.7,
+                    child: Stack(
+                      children: [
+                        InteractiveViewer(
+                          minScale: 0.5,
+                          maxScale: 4.0,
+                          child: profileImage.isNotEmpty
+                              ? CachedNetworkImage(
+                                  imageUrl: profileImage,
+                                  fit: BoxFit.contain,
+                                  placeholder: (context, url) => Center(
+                                    child: CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          maroonPrimary),
+                                    ),
+                                  ),
+                                  errorWidget: (context, url, error) => Center(
+                                    child: Icon(
+                                      Icons.error,
+                                      color: maroonPrimary,
+                                      size: 50,
+                                    ),
+                                  ),
+                                )
+                              : Center(
+                                  child: Icon(
+                                    Icons.person,
+                                    color: maroonPrimary,
+                                    size: 100,
+                                  ),
+                                ),
+                        ),
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: Material(
+                            color: Colors.black.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(20),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(20),
+                              onTap: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [maroonPrimary, maroonDark],
               ),
-            ],
-          ),
-          padding: const EdgeInsets.all(2),
-          child: CircleAvatar(
-            backgroundColor: Colors.white,
-            radius: 35,
-            backgroundImage:
-                (context.read<AuthCubit>().getUserDetails().image ?? "")
-                        .isNotEmpty
-                    ? CachedNetworkImageProvider(
-                        context.read<AuthCubit>().getUserDetails().image ?? "",
-                      )
-                    : null,
-            child:
-                (context.read<AuthCubit>().getUserDetails().image ?? "").isEmpty
-                    ? Icon(
-                        Icons.person,
-                        color: maroonPrimary,
-                        size: 38,
-                      )
-                    : null,
+              boxShadow: [
+                BoxShadow(
+                  color: maroonPrimary.withOpacity(0.3),
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(2),
+            child: CircleAvatar(
+              backgroundColor: Colors.white,
+              radius: 35,
+              backgroundImage:
+                  (context.read<AuthCubit>().getUserDetails().image ?? "")
+                          .isNotEmpty
+                      ? CachedNetworkImageProvider(
+                          context.read<AuthCubit>().getUserDetails().image ??
+                              "",
+                        )
+                      : null,
+              child: (context.read<AuthCubit>().getUserDetails().image ?? "")
+                      .isEmpty
+                  ? Icon(
+                      Icons.person,
+                      color: maroonPrimary,
+                      size: 38,
+                    )
+                  : null,
+            ),
           ),
         ),
         const SizedBox(width: 16),
@@ -1008,23 +1086,24 @@ class _ProfileContainerState extends State<ProfileContainer>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
 // User Name
-Builder(
-  builder: (context) {
-    final userDetails = context.read<AuthCubit>().getUserDetails();
-    final fullName = "${userDetails.firstName ?? ""}".trim();
-    return Text(
-      fullName.isEmpty ? "Pengguna" : fullName,
-      style: GoogleFonts.poppins(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: maroonPrimary,
-        height: 1.3,
-      ),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-    );
-  },
-),
+              Builder(
+                builder: (context) {
+                  final userDetails =
+                      context.read<AuthCubit>().getUserDetails();
+                  final fullName = "${userDetails.firstName ?? ""}".trim();
+                  return Text(
+                    fullName.isEmpty ? "Pengguna" : fullName,
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: maroonPrimary,
+                      height: 1.3,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  );
+                },
+              ),
               const SizedBox(height: 4),
 
               // School Info

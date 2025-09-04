@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/sessionYear.dart';
 import 'package:eschool_saas_staff/data/models/studentDetails.dart';
@@ -203,11 +204,92 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
             children: [
               Row(
                 children: [
-                  _buildProfileImage(
-                    imageUrl: guardian?.image ?? "",
-                    nameInitials: guardian?.firstName?.isNotEmpty == true
-                        ? guardian!.firstName!.substring(0, 1).toUpperCase()
-                        : "G",
+                  // Guardian profile image with tap to zoom
+                  GestureDetector(
+                    onTap: () {
+                      final profileImage = guardian?.image ?? "";
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Dialog(
+                            backgroundColor: Colors.transparent,
+                            child: Container(
+                              width: MediaQuery.of(context).size.width * 0.9,
+                              height: MediaQuery.of(context).size.height * 0.7,
+                              child: Stack(
+                                children: [
+                                  InteractiveViewer(
+                                    minScale: 0.5,
+                                    maxScale: 4.0,
+                                    child: profileImage.isNotEmpty
+                                        ? CachedNetworkImage(
+                                            imageUrl: profileImage,
+                                            fit: BoxFit.contain,
+                                            placeholder: (context, url) =>
+                                                Center(
+                                              child: CircularProgressIndicator(
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                        Color>(maroonPrimary),
+                                              ),
+                                            ),
+                                            errorWidget:
+                                                (context, url, error) => Center(
+                                              child: Icon(
+                                                Icons.error,
+                                                color: maroonPrimary,
+                                                size: 50,
+                                              ),
+                                            ),
+                                          )
+                                        : Center(
+                                            child: Icon(
+                                              Icons.person,
+                                              color: maroonPrimary,
+                                              size: 100,
+                                            ),
+                                          ),
+                                  ),
+                                  Positioned(
+                                    top: 10,
+                                    right: 10,
+                                    child: Material(
+                                      color: Colors.black.withOpacity(0.5),
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(20),
+                                        onTap: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Container(
+                                          width: 40,
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          child: const Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                            size: 24,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    child: _buildProfileImage(
+                      imageUrl: guardian?.image ?? "",
+                      nameInitials: guardian?.firstName?.isNotEmpty == true
+                          ? guardian!.firstName!.substring(0, 1).toUpperCase()
+                          : "G",
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -399,14 +481,95 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
             children: [
               Row(
                 children: [
-                  _buildProfileImage(
-                    imageUrl: widget.studentDetails.image ?? "",
-                    nameInitials:
-                        widget.studentDetails.firstName?.isNotEmpty == true
-                            ? widget.studentDetails.firstName!
-                                .substring(0, 1)
-                                .toUpperCase()
-                            : "S",
+                  // Profile image with tap to zoom
+                  GestureDetector(
+                    onTap: () {
+                      final profileImage = widget.studentDetails.image ?? "";
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Dialog(
+                            backgroundColor: Colors.transparent,
+                            child: Container(
+                              width: MediaQuery.of(context).size.width * 0.9,
+                              height: MediaQuery.of(context).size.height * 0.7,
+                              child: Stack(
+                                children: [
+                                  InteractiveViewer(
+                                    minScale: 0.5,
+                                    maxScale: 4.0,
+                                    child: profileImage.isNotEmpty
+                                        ? CachedNetworkImage(
+                                            imageUrl: profileImage,
+                                            fit: BoxFit.contain,
+                                            placeholder: (context, url) =>
+                                                Center(
+                                              child: CircularProgressIndicator(
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                        Color>(maroonPrimary),
+                                              ),
+                                            ),
+                                            errorWidget:
+                                                (context, url, error) => Center(
+                                              child: Icon(
+                                                Icons.error,
+                                                color: maroonPrimary,
+                                                size: 50,
+                                              ),
+                                            ),
+                                          )
+                                        : Center(
+                                            child: Icon(
+                                              Icons.person,
+                                              color: maroonPrimary,
+                                              size: 100,
+                                            ),
+                                          ),
+                                  ),
+                                  Positioned(
+                                    top: 10,
+                                    right: 10,
+                                    child: Material(
+                                      color: Colors.black.withOpacity(0.5),
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(20),
+                                        onTap: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Container(
+                                          width: 40,
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          child: const Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                            size: 24,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    child: _buildProfileImage(
+                      imageUrl: widget.studentDetails.image ?? "",
+                      nameInitials:
+                          widget.studentDetails.firstName?.isNotEmpty == true
+                              ? widget.studentDetails.firstName!
+                                  .substring(0, 1)
+                                  .toUpperCase()
+                              : "S",
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(

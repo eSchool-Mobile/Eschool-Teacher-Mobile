@@ -16,6 +16,7 @@ import '../../../data/models/subjectQuestion.dart';
 import 'package:eschool_saas_staff/data/repositories/questionBankRepository.dart';
 import '../../widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 // Controller GetX untuk lifecycle
 class QuestionBankListController extends GetxController {
@@ -1180,13 +1181,12 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     required Color neonGlowColor,
   }) {
     return PopupMenuButton<String>(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      elevation: 12,
       offset: Offset(0, 50),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      position: PopupMenuPosition.under,
-      elevation: 8,
-      tooltip: "Opsi",
-      color: Colors.white.withOpacity(0.95),
-      splashRadius: 24,
+      color: Colors.white,
       onSelected: (value) {
         if (value == 'edit') {
           _showEditBankDialog(banks, index);
@@ -1194,98 +1194,164 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
           _showDeleteConfirmation(context, bank);
         }
       },
-      itemBuilder: (BuildContext context) => [
+      itemBuilder: (context) => [
+        // Enhanced Edit button
         PopupMenuItem<String>(
           value: 'edit',
-          height: 50,
-          child: Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: _accentColor.withOpacity(0.1),
-                  shape: BoxShape.circle,
+          height: 64,
+          child: TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0.9, end: 1.0),
+            duration: Duration(milliseconds: 200),
+            builder: (context, value, child) {
+              return Transform.scale(
+                scale: value,
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.blue.shade400, Colors.blue.shade600],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blue.shade500.withOpacity(0.3),
+                        blurRadius: 12,
+                        offset: Offset(0, 4),
+                        spreadRadius: -2,
+                      )
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.25),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          Icons.edit_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Edit',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Icon(
-                  Icons.edit_outlined,
-                  color: _accentColor,
-                  size: 18,
-                ),
-              ),
-              SizedBox(width: 12),
-              Text(
-                'Bank Soal',
-                style: TextStyle(
-                  color: Colors.black87,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 15,
-                ),
-              ),
-            ],
+              );
+            },
           ),
         ),
+
+        // Enhanced Delete button
         PopupMenuItem<String>(
           value: 'delete',
-          height: 50,
-          child: Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
-                  shape: BoxShape.circle,
+          height: 64,
+          child: TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0.9, end: 1.0),
+            duration: Duration(milliseconds: 300),
+            builder: (context, value, child) {
+              return Transform.scale(
+                scale: value,
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.red.shade400, Colors.red.shade700],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.red.shade500.withOpacity(0.3),
+                        blurRadius: 12,
+                        offset: Offset(0, 4),
+                        spreadRadius: -2,
+                      )
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.25),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          Icons.delete_outline_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Hapus',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Icon(
-                  Icons.delete_outline,
-                  color: Colors.red,
-                  size: 18,
-                ),
-              ),
-              SizedBox(width: 12),
-              Text(
-                'Bank Soal',
-                style: TextStyle(
-                  color: Colors.red.shade700,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 15,
-                ),
-              ),
-            ],
+              );
+            },
           ),
         ),
       ],
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(isHovered ? 0.2 : 0.15),
-              border: Border.all(
-                color: Colors.white.withOpacity(isHovered ? 0.3 : 0.2),
-                width: 1.5,
-              ),
-              boxShadow: isHovered
-                  ? [
-                      BoxShadow(
-                        color: neonGlowColor
-                            .withOpacity(0.2 + 0.1 * _pulseAnimation.value),
-                        blurRadius: 10,
-                        spreadRadius: 1 * _pulseAnimation.value,
-                      )
-                    ]
-                  : [],
-            ),
-            child: Center(
-              child: Transform.scale(
-                scale: isHovered ? 1.0 + 0.15 * _pulseAnimation.value : 1.0,
-                child: Icon(
-                  Icons.more_vert_rounded,
-                  color: Colors.white,
-                  size: 22,
+      child: TweenAnimationBuilder<double>(
+        tween: Tween<double>(begin: 0.8, end: 1.0),
+        duration: Duration(milliseconds: 300),
+        builder: (context, value, child) {
+          return Transform.scale(
+            scale: value,
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.white, Colors.grey.shade100],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(
+                  color: Colors.grey.shade300,
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: _primaryColor.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                    spreadRadius: -2,
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.more_vert_rounded,
+                color: _primaryColor,
+                size: 22,
               ),
             ),
           );

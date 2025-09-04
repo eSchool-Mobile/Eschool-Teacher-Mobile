@@ -1142,7 +1142,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                   });
                 } else if (state is SubmitExamMarksSubmitFailure) {
                   Utils.showSnackBar(
-                      message: state.errorMessage, context: context);
+                     message: "Anda harus mengisi penilaian", context: context);
                 }
               },
               builder: (context, state) {

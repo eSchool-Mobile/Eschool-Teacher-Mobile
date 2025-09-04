@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eschool_saas_staff/cubits/teacher/timeTableOfTeacherCubit.dart';
 import 'package:eschool_saas_staff/data/models/userDetails.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
@@ -398,74 +399,163 @@ class _TeacherTimeTableDetailsScreenState
                     child: Row(
                       children: [
                         const SizedBox(width: 16),
-                        // Upgraded profile image with elegant border
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                Colors.white.withOpacity(0.9),
-                                Colors.white.withOpacity(0.5)
+                        // Upgraded profile image with tap to zoom
+                        GestureDetector(
+                          onTap: () {
+                            final profileImage =
+                                widget.teacherDetails.image ?? "";
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Dialog(
+                                  backgroundColor: Colors.transparent,
+                                  child: Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.9,
+                                    height: MediaQuery.of(context).size.height *
+                                        0.7,
+                                    child: Stack(
+                                      children: [
+                                        InteractiveViewer(
+                                          minScale: 0.5,
+                                          maxScale: 4.0,
+                                          child: profileImage.isNotEmpty
+                                              ? CachedNetworkImage(
+                                                  imageUrl: profileImage,
+                                                  fit: BoxFit.contain,
+                                                  placeholder: (context, url) =>
+                                                      Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      valueColor:
+                                                          AlwaysStoppedAnimation<
+                                                                  Color>(
+                                                              _maroonPrimary),
+                                                    ),
+                                                  ),
+                                                  errorWidget:
+                                                      (context, url, error) =>
+                                                          Center(
+                                                    child: Icon(
+                                                      Icons.error,
+                                                      color: _maroonPrimary,
+                                                      size: 50,
+                                                    ),
+                                                  ),
+                                                )
+                                              : Center(
+                                                  child: Icon(
+                                                    Icons.person,
+                                                    color: _maroonPrimary,
+                                                    size: 100,
+                                                  ),
+                                                ),
+                                        ),
+                                        Positioned(
+                                          top: 10,
+                                          right: 10,
+                                          child: Material(
+                                            color:
+                                                Colors.black.withOpacity(0.5),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            child: InkWell(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                              onTap: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Container(
+                                                width: 40,
+                                                height: 40,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                ),
+                                                child: const Icon(
+                                                  Icons.close,
+                                                  color: Colors.white,
+                                                  size: 24,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Colors.white.withOpacity(0.9),
+                                  Colors.white.withOpacity(0.5)
+                                ],
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: _maroonPrimary.withOpacity(0.4),
+                                  blurRadius: 8,
+                                  offset: Offset(0, 2),
+                                ),
                               ],
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: _maroonPrimary.withOpacity(0.4),
-                                blurRadius: 8,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          padding: const EdgeInsets.all(2.5),
-                          child: Hero(
-                            tag:
-                                "teacherProfileImage_${widget.teacherDetails.id}",
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(50),
-                              child: Container(
-                                width: 50,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  color: _maroonPrimary.withOpacity(0.2),
+                            padding: const EdgeInsets.all(2.5),
+                            child: Hero(
+                              tag:
+                                  "teacherProfileImage_${widget.teacherDetails.id}",
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(50),
+                                child: Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: _maroonPrimary.withOpacity(0.2),
+                                  ),
+                                  child: (widget.teacherDetails.image ?? "")
+                                          .isNotEmpty
+                                      ? Image.network(
+                                          widget.teacherDetails.image ?? "",
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  Icon(Icons.person,
+                                                      color: _maroonPrimary,
+                                                      size: 30),
+                                          loadingBuilder: (context, child,
+                                              loadingProgress) {
+                                            if (loadingProgress == null)
+                                              return child;
+                                            return Center(
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: Colors.white,
+                                                value: loadingProgress
+                                                            .expectedTotalBytes !=
+                                                        null
+                                                    ? loadingProgress
+                                                            .cumulativeBytesLoaded /
+                                                        (loadingProgress
+                                                                .expectedTotalBytes ??
+                                                            1)
+                                                    : null,
+                                              ),
+                                            );
+                                          },
+                                        )
+                                      : Icon(
+                                          Icons.person,
+                                          color: Colors.white,
+                                          size: 30,
+                                        ),
                                 ),
-                                child: (widget.teacherDetails.image ?? "")
-                                        .isNotEmpty
-                                    ? Image.network(
-                                        widget.teacherDetails.image ?? "",
-                                        fit: BoxFit.cover,
-                                        errorBuilder:
-                                            (context, error, stackTrace) =>
-                                                Icon(Icons.person,
-                                                    color: _maroonPrimary,
-                                                    size: 30),
-                                        loadingBuilder:
-                                            (context, child, loadingProgress) {
-                                          if (loadingProgress == null)
-                                            return child;
-                                          return Center(
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: Colors.white,
-                                              value: loadingProgress
-                                                          .expectedTotalBytes !=
-                                                      null
-                                                  ? loadingProgress
-                                                          .cumulativeBytesLoaded /
-                                                      (loadingProgress
-                                                              .expectedTotalBytes ??
-                                                          1)
-                                                  : null,
-                                            ),
-                                          );
-                                        },
-                                      )
-                                    : Icon(
-                                        Icons.person,
-                                        color: Colors.white,
-                                        size: 30,
-                                      ),
                               ),
                             ),
                           ),

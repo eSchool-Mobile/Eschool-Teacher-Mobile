@@ -347,39 +347,122 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                 ),
                 child: Row(
                   children: [
-                    // Profile image without animations
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [maroonPrimary, maroonDark],
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: maroonPrimary.withOpacity(0.3),
-                            blurRadius: 8,
-                            spreadRadius: 1,
+                    // Profile image with tap to zoom
+                    GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Dialog(
+                              backgroundColor: Colors.transparent,
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.9,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.7,
+                                child: Stack(
+                                  children: [
+                                    InteractiveViewer(
+                                      minScale: 0.5,
+                                      maxScale: 4.0,
+                                      child: widget.profileImage.isNotEmpty
+                                          ? CachedNetworkImage(
+                                              imageUrl: widget.profileImage,
+                                              fit: BoxFit.contain,
+                                              placeholder: (context, url) =>
+                                                  Center(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                          Color>(maroonPrimary),
+                                                ),
+                                              ),
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      Center(
+                                                child: Icon(
+                                                  Icons.error,
+                                                  color: maroonPrimary,
+                                                  size: 50,
+                                                ),
+                                              ),
+                                            )
+                                          : Center(
+                                              child: Icon(
+                                                Icons.person,
+                                                color: maroonPrimary,
+                                                size: 100,
+                                              ),
+                                            ),
+                                    ),
+                                    Positioned(
+                                      top: 10,
+                                      right: 10,
+                                      child: Material(
+                                        color: Colors.black.withOpacity(0.5),
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: InkWell(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          onTap: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Container(
+                                            width: 40,
+                                            height: 40,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            child: const Icon(
+                                              Icons.close,
+                                              color: Colors.white,
+                                              size: 24,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [maroonPrimary, maroonDark],
                           ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(2),
-                      child: CircleAvatar(
-                        backgroundColor: Colors.white,
-                        radius: 25,
-                        backgroundImage: widget.profileImage.isNotEmpty
-                            ? CachedNetworkImageProvider(
-                                widget.profileImage,
-                              )
-                            : null,
-                        child: widget.profileImage.isEmpty
-                            ? Icon(
-                                Icons.person,
-                                color: maroonPrimary,
-                                size: 30,
-                              )
-                            : null,
+                          boxShadow: [
+                            BoxShadow(
+                              color: maroonPrimary.withOpacity(0.3),
+                              blurRadius: 8,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.all(2),
+                        child: CircleAvatar(
+                          backgroundColor: Colors.white,
+                          radius: 25,
+                          backgroundImage: widget.profileImage.isNotEmpty
+                              ? CachedNetworkImageProvider(
+                                  widget.profileImage,
+                                )
+                              : null,
+                          child: widget.profileImage.isEmpty
+                              ? Icon(
+                                  Icons.person,
+                                  color: maroonPrimary,
+                                  size: 30,
+                                )
+                              : null,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 15.0),

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eschool_saas_staff/data/models/userDetails.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
@@ -349,32 +350,139 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                             children: [
                               Row(
                                 children: [
-                                  Hero(
-                                    tag:
-                                        'staff_image_${widget.staffDetails.id}',
-                                    child: Container(
-                                      width: 90,
-                                      height: 90,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: primaryMaroonColor
-                                              .withOpacity(0.2),
-                                          width: 3,
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
+                                  // Profile image with tap to zoom
+                                  GestureDetector(
+                                    onTap: () {
+                                      final profileImage =
+                                          widget.staffDetails.image ?? "";
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return Dialog(
+                                            backgroundColor: Colors.transparent,
+                                            child: Container(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.9,
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.7,
+                                              child: Stack(
+                                                children: [
+                                                  InteractiveViewer(
+                                                    minScale: 0.5,
+                                                    maxScale: 4.0,
+                                                    child: profileImage
+                                                            .isNotEmpty
+                                                        ? CachedNetworkImage(
+                                                            imageUrl:
+                                                                profileImage,
+                                                            fit: BoxFit.contain,
+                                                            placeholder:
+                                                                (context,
+                                                                        url) =>
+                                                                    Center(
+                                                              child:
+                                                                  CircularProgressIndicator(
+                                                                valueColor:
+                                                                    AlwaysStoppedAnimation<
+                                                                            Color>(
+                                                                        primaryMaroonColor),
+                                                              ),
+                                                            ),
+                                                            errorWidget:
+                                                                (context, url,
+                                                                        error) =>
+                                                                    Center(
+                                                              child: Icon(
+                                                                Icons.error,
+                                                                color:
+                                                                    primaryMaroonColor,
+                                                                size: 50,
+                                                              ),
+                                                            ),
+                                                          )
+                                                        : Center(
+                                                            child: Icon(
+                                                              Icons.person,
+                                                              color:
+                                                                  primaryMaroonColor,
+                                                              size: 100,
+                                                            ),
+                                                          ),
+                                                  ),
+                                                  Positioned(
+                                                    top: 10,
+                                                    right: 10,
+                                                    child: Material(
+                                                      color: Colors.black
+                                                          .withOpacity(0.5),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                      child: InkWell(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(20),
+                                                        onTap: () {
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        },
+                                                        child: Container(
+                                                          width: 40,
+                                                          height: 40,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        20),
+                                                          ),
+                                                          child: const Icon(
+                                                            Icons.close,
+                                                            color: Colors.white,
+                                                            size: 24,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Hero(
+                                      tag:
+                                          'staff_image_${widget.staffDetails.id}',
+                                      child: Container(
+                                        width: 90,
+                                        height: 90,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
                                             color: primaryMaroonColor
-                                                .withOpacity(0.15),
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 5),
+                                                .withOpacity(0.2),
+                                            width: 3,
                                           ),
-                                        ],
-                                      ),
-                                      child: ClipOval(
-                                        child: ProfileImageContainer(
-                                          imageUrl:
-                                              widget.staffDetails.image ?? "",
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: primaryMaroonColor
+                                                  .withOpacity(0.15),
+                                              blurRadius: 10,
+                                              offset: const Offset(0, 5),
+                                            ),
+                                          ],
+                                        ),
+                                        child: ClipOval(
+                                          child: ProfileImageContainer(
+                                            imageUrl:
+                                                widget.staffDetails.image ?? "",
+                                          ),
                                         ),
                                       ),
                                     ),
