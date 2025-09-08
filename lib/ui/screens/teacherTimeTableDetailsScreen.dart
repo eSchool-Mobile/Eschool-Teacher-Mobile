@@ -85,26 +85,50 @@ class AppBarDecorationPainter extends CustomPainter {
 
 class _TeacherTimeTableDetailsScreenState
     extends State<TeacherTimeTableDetailsScreen> with TickerProviderStateMixin {
-  late String _selectedDayKey = Utils.weekDays.first;
+  late String _selectedDayKey = Utils.weekDays[DateTime.now().weekday - 1];
 
   // Animation controller for app bar effects
   late AnimationController _fabAnimationController;
   final ScrollController _scrollController = ScrollController();
+  // Controller for horizontal day selector so we can ensure selected is visible
+  final ScrollController _dayScrollController = ScrollController();
+  // Keys for each day pill to allow ensureVisible
+  final List<GlobalKey> _dayKeys = List.generate(7, (_) => GlobalKey());
 
   // Theme colors
   final Color _maroonPrimary = const Color(0xFF800020);
   final Color _maroonLight = const Color(0xFFAA6976);
 
-  // Day mapping for the UI and backend
-  final List<Map<String, String>> _weekDays = [
-    {'key': 'monday', 'short': 'SEN', 'long': 'Senin'},
-    {'key': 'tuesday', 'short': 'SEL', 'long': 'Selasa'},
-    {'key': 'wednesday', 'short': 'RAB', 'long': 'Rabu'},
-    {'key': 'thursday', 'short': 'KAM', 'long': 'Kamis'},
-    {'key': 'friday', 'short': 'JUM', 'long': 'Jumat'},
-    {'key': 'saturday', 'short': 'SAB', 'long': 'Sabtu'},
-    {'key': 'sunday', 'short': 'MIN', 'long': 'Minggu'},
-  ];
+  // Day mapping for the UI and backend (keys taken from Utils.weekDays for consistency)
+  List<Map<String, String>> get _weekDays {
+    final List<String> shortLabels = [
+      'SEN',
+      'SEL',
+      'RAB',
+      'KAM',
+      'JUM',
+      'SAB',
+      'MIN'
+    ];
+    final List<String> longLabels = [
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu',
+      'Minggu'
+    ];
+
+    return List.generate(7, (i) {
+      final key = Utils.weekDays.length > i ? Utils.weekDays[i] : '';
+      return {
+        'key': key,
+        'short': shortLabels[i],
+        'long': longLabels[i],
+      };
+    });
+  }
 
   @override
   void initState() {
@@ -115,10 +139,16 @@ class _TeacherTimeTableDetailsScreenState
 
     Future.delayed(Duration.zero, () {
       if (mounted) {
+        // Fetch timetable for teacher for the current day by default
         context
             .read<TimeTableOfTeacherCubit>()
             .getTimeTableOfTeacher(teacherId: widget.teacherDetails.id ?? 0);
       }
+
+      // After first frame, ensure the selected day pill is visible
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _focusSelectedDay();
+      });
     });
   }
 
@@ -134,22 +164,46 @@ class _TeacherTimeTableDetailsScreenState
   void dispose() {
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
+    _dayScrollController.dispose();
     _fabAnimationController.dispose();
     super.dispose();
+  }
+
+  void _focusSelectedDay() {
+    try {
+      final int index = Utils.weekDays.indexOf(_selectedDayKey);
+      if (index >= 0 && index < _dayKeys.length) {
+        final ctx = _dayKeys[index].currentContext;
+        if (ctx != null) {
+          Scrollable.ensureVisible(
+            ctx,
+            alignment: 0.5,
+            duration: const Duration(milliseconds: 300),
+          );
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+    if (mounted) setState(() {});
   }
 
   // New horizontal day selector
   Widget _buildHorizontalDaySelector() {
     return SingleChildScrollView(
+      controller: _dayScrollController,
       scrollDirection: Axis.horizontal,
       physics: BouncingScrollPhysics(),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: _weekDays.map((day) {
+          children: _weekDays.asMap().entries.map((entry) {
+            final idx = entry.key;
+            final day = entry.value;
             bool isSelected = _selectedDayKey == day['key'];
             return Padding(
+                key: _dayKeys[idx],
                 padding: const EdgeInsets.symmetric(horizontal: 4.0),
                 child: Material(
                   color: Colors.transparent,
@@ -159,6 +213,16 @@ class _TeacherTimeTableDetailsScreenState
                     onTap: () {
                       setState(() {
                         _selectedDayKey = day['key']!;
+                      });
+
+                      // Trigger a refresh/fetch if needed - keep consistency with teacherMyTimetableScreen
+                      context
+                          .read<TimeTableOfTeacherCubit>()
+                          .getTimeTableOfTeacher(
+                              teacherId: widget.teacherDetails.id ?? 0);
+                      // Ensure the tapped pill becomes visible
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _focusSelectedDay();
                       });
                     },
                     highlightColor: Colors.white.withOpacity(0.1),
@@ -658,11 +722,17 @@ class _TeacherTimeTableDetailsScreenState
           BlocBuilder<TimeTableOfTeacherCubit, TimeTableOfTeacherState>(
             builder: (context, state) {
               if (state is TimeTableOfTeacherFetchSuccess) {
-                // Map the UI day key to the backend format
-                // Convert from 'monday' to 'Monday' format as used in the backend
-                String selectedDay =
-                    _selectedDayKey.substring(0, 1).toUpperCase() +
-                        _selectedDayKey.substring(1);
+                // Map the UI day key (e.g. 'mon') to the backend/full name
+                // (e.g. 'Monday') using constants.weekDays for consistency.
+                String selectedDay;
+                final int dayIndex = Utils.weekDays.indexOf(_selectedDayKey);
+                if (dayIndex >= 0 && dayIndex < constants.weekDays.length) {
+                  selectedDay = constants.weekDays[dayIndex];
+                } else {
+                  // Fallback: capitalize first letter (for older keys like 'monday')
+                  selectedDay = _selectedDayKey.substring(0, 1).toUpperCase() +
+                      _selectedDayKey.substring(1);
+                }
 
                 // Filter slots directly with the properly formatted day
                 final slots = state.timeTableSlots
