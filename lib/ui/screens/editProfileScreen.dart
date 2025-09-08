@@ -18,7 +18,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -132,78 +131,12 @@ class _EditProfileScreenState extends State<EditProfileScreen>
 
   Future<void> _addFiles() async {
     HapticFeedback.mediumImpact();
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(
-            'Pilih Sumber Gambar',
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: primaryMaroon,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: Icon(Icons.photo_library, color: primaryMaroon),
-                title: Text(
-                  'Galeri',
-                  style: GoogleFonts.poppins(fontSize: 16),
-                ),
-                onTap: () async {
-                  Navigator.of(context).pop();
-                  final result = await Utils.openFilePicker(
-                      context: context,
-                      allowMultiple: false,
-                      type: FileType.image);
-                  if (result != null) {
-                    uploadedPicture = result.files.first.path;
-                    setState(() {});
-                  }
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.camera_alt, color: primaryMaroon),
-                title: Text(
-                  'Kamera',
-                  style: GoogleFonts.poppins(fontSize: 16),
-                ),
-                onTap: () async {
-                  Navigator.of(context).pop();
-                  final ImagePicker picker = ImagePicker();
-                  final XFile? image =
-                      await picker.pickImage(source: ImageSource.camera);
-                  if (image != null) {
-                    uploadedPicture = image.path;
-                    setState(() {});
-                  }
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'Batal',
-                style: GoogleFonts.poppins(
-                  color: primaryMaroon,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
+    final result = await Utils.openFilePicker(
+        context: context, allowMultiple: false, type: FileType.image);
+    if (result != null) {
+      uploadedPicture = result.files.first.path;
+      setState(() {});
+    }
   }
 
   Widget _buildLabelWithTextEditingController(
@@ -211,6 +144,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
       required String textFieldHintTextKey,
       required TextEditingController textEditingController,
       IconData? prefixIcon}) {
+    final screenWidth = MediaQuery.of(context).size.width;
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -289,6 +223,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
   }
 
   Widget _buildDateOfBirthContainer() {
+    final screenWidth = MediaQuery.of(context).size.width;
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -399,6 +334,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
   }
 
   Widget _buildGenderSelector() {
+    final screenWidth = MediaQuery.of(context).size.width;
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8),
       child: Column(
