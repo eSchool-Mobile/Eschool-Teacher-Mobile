@@ -58,11 +58,28 @@ class LeaveRepository {
   }
 
   Future<void> approveOrRejectLeaveRequest(
-      {required int leaveRequestId, required int status}) async {
+      {required int leaveRequestId,
+      required int status,
+      String? rejectReason}) async {
     try {
-      await Api.post(
-          url: Api.approveOrRejectLeaveRequest,
-          body: {"leave_id": leaveRequestId, "status": status});
+      // Validasi: reject_reason wajib diisi jika status = 2 (rejected)
+      if (status == 2 &&
+          (rejectReason == null || rejectReason.trim().isEmpty)) {
+        throw ApiException(
+            "Alasan penolakan wajib diisi saat menolak permohonan cuti");
+      }
+
+      Map<String, dynamic> body = {
+        "leave_id": leaveRequestId,
+        "status": status
+      };
+
+      // Tambahkan reject_reason ke body jika status = rejected
+      if (status == 2 && rejectReason != null) {
+        body["reject_reason"] = rejectReason.trim();
+      }
+
+      await Api.post(url: Api.approveOrRejectLeaveRequest, body: body);
     } catch (e) {
       throw ApiException(e.toString());
     }

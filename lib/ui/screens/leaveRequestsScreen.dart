@@ -10,6 +10,7 @@ import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.da
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/rejectReasonDialog.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
@@ -62,12 +63,45 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
 
   void rejectOrApproveLeave(
       {required LeaveRequest leaveRequest, required bool approveLeave}) {
+    if (!approveLeave) {
+      // Tampilkan dialog untuk input alasan penolakan
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => RejectReasonDialog(
+          onReject: (String rejectReason) {
+            Navigator.of(context).pop(); // Tutup dialog
+            // Tampilkan bottomsheet dengan alasan penolakan
+            _showApprovalBottomsheet(
+              leaveRequest: leaveRequest,
+              approveLeave: false,
+              rejectReason: rejectReason,
+            );
+          },
+          onCancel: () => Navigator.of(context).pop(),
+        ),
+      );
+    } else {
+      // Untuk approval, langsung tampilkan bottomsheet
+      _showApprovalBottomsheet(
+        leaveRequest: leaveRequest,
+        approveLeave: true,
+      );
+    }
+  }
+
+  void _showApprovalBottomsheet({
+    required LeaveRequest leaveRequest,
+    required bool approveLeave,
+    String? rejectReason,
+  }) {
     Utils.showBottomSheet(
             child: BlocProvider(
               create: (context) => ApproveOrRejectLeaveRequestCubit(),
               child: LeaveRequestDetailsBottomsheet(
                 approveLeave: approveLeave,
                 leaveRequest: leaveRequest,
+                rejectReason: rejectReason,
               ),
             ),
             context: context)
@@ -399,6 +433,62 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                           duration: const Duration(milliseconds: 400))
                       .slideY(begin: 0.2, end: 0),
 
+                  // Tampilkan alasan penolakan jika status = rejected dan ada reject_reason
+                  if (leaveRequest.status == 2 &&
+                      leaveRequest.rejectReason != null &&
+                      leaveRequest.rejectReason!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.03),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.red.withOpacity(0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.cancel_outlined,
+                                  color: Colors.red[700],
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "Alasan Penolakan",
+                                  style: titleTextStyle.copyWith(
+                                    color: Colors.red[700],
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            CustomTextContainer(
+                              textKey: leaveRequest.rejectReason ?? "",
+                              style: dateTextStyle.copyWith(
+                                color: Colors.red[800],
+                              ),
+                              maxLines: 5,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                        .animate()
+                        .fadeIn(
+                            delay: const Duration(milliseconds: 250),
+                            duration: const Duration(milliseconds: 400))
+                        .slideY(begin: 0.2, end: 0),
+
                   const SizedBox(height: 20),
 
                   // Action buttons with improved styling
@@ -620,8 +710,14 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
 class LeaveRequestDetailsBottomsheet extends StatelessWidget {
   final bool approveLeave;
   final LeaveRequest leaveRequest;
-  const LeaveRequestDetailsBottomsheet(
-      {super.key, required this.approveLeave, required this.leaveRequest});
+  final String? rejectReason;
+
+  const LeaveRequestDetailsBottomsheet({
+    super.key,
+    required this.approveLeave,
+    required this.leaveRequest,
+    this.rejectReason,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -765,7 +861,8 @@ class LeaveRequestDetailsBottomsheet extends StatelessWidget {
                                     .read<ApproveOrRejectLeaveRequestCubit>()
                                     .approveOrRejectLeaveRequest(
                                         leaveRequestId: leaveRequest.id ?? 0,
-                                        approveLeave: approveLeave);
+                                        approveLeave: approveLeave,
+                                        rejectReason: rejectReason);
                               },
                             ),
                           ),

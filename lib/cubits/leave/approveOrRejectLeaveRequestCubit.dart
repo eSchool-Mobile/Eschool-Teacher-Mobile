@@ -28,11 +28,23 @@ class ApproveOrRejectLeaveRequestCubit
       : super(ApproveOrRejectLeaveRequestInitial());
 
   void approveOrRejectLeaveRequest(
-      {required int leaveRequestId, required bool approveLeave}) async {
+      {required int leaveRequestId,
+      required bool approveLeave,
+      String? rejectReason}) async {
     try {
+      // Validasi tambahan: jika menolak, reject_reason harus ada
+      if (!approveLeave &&
+          (rejectReason == null || rejectReason.trim().isEmpty)) {
+        emit(ApproveOrRejectLeaveRequestFailure(
+            "Alasan penolakan wajib diisi saat menolak permohonan cuti"));
+        return;
+      }
+
       emit(ApproveOrRejectLeaveRequestInProgress());
       await _leaveRepository.approveOrRejectLeaveRequest(
-          leaveRequestId: leaveRequestId, status: approveLeave ? 1 : 2);
+          leaveRequestId: leaveRequestId,
+          status: approveLeave ? 1 : 2,
+          rejectReason: rejectReason);
       //// 0 -> Pending, 1 -> Approved, 2 -> Rejected
       emit(ApproveOrRejectLeaveRequestSuccess());
     } catch (e) {
