@@ -77,6 +77,11 @@ class _TeacherAddAttendanceScreenSubjectState
   String _selectedMateri = '';
   String? _selectedLampiran;
 
+  // Search functionality
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  bool _isSearchVisible = false;
+
   // Color scheme for maroon theme
   final Color _maroonPrimary = const Color(0xFF800020);
   final Color _maroonLight = const Color(0xFFAA6976);
@@ -89,6 +94,7 @@ class _TeacherAddAttendanceScreenSubjectState
   @override
   void dispose() {
     _materiController.dispose();
+    _searchController.dispose();
     _scrollController.removeListener(scrollListener);
     _scrollController.dispose();
     _fabAnimationController.dispose();
@@ -312,9 +318,31 @@ class _TeacherAddAttendanceScreenSubjectState
           }
 
           final allStudents = state.studentDetailsList;
+
+          // Filter students based on search query
+          final filteredStudents = _searchQuery.isEmpty
+              ? allStudents
+              : allStudents.where((student) {
+                  final fullName = (student.fullName ??
+                          '${student.firstName ?? ''} ${student.lastName ?? ''}')
+                      .toLowerCase();
+                  return fullName.contains(_searchQuery);
+                }).toList();
+
           return StudentAttendanceContainer(
-            studentAttendances: allStudents.map((e) {
+            studentAttendances: filteredStudents.map((e) {
               // Find matching attendance from previous submission
+              final matchedAttendance = attendance
+                  .firstWhereOrNull((element) => element.studentId == e.id);
+
+              return StudentAttendance.fromStudentDetails(
+                studentDetails: e,
+                type: matchedAttendance?.type ??
+                    1, // Use stored type or default to present (1)
+              );
+            }).toList(),
+            allStudentAttendances: allStudents.map((e) {
+              // Find matching attendance from previous submission for all students
               final matchedAttendance = attendance
                   .firstWhereOrNull((element) => element.studentId == e.id);
 
@@ -1294,10 +1322,79 @@ class _TeacherAddAttendanceScreenSubjectState
       fabAnimationController: _fabAnimationController,
       primaryColor: _maroonPrimary,
       lightColor: _maroonLight,
-      height: 150, // Decreased height to match TeacherAddAttendanceScreen
+      height: 160, // Decreased height to match TeacherAddAttendanceScreen
+      showSearchButton: true,
+      onSearchPressed: () {
+        setState(() {
+          _isSearchVisible = !_isSearchVisible;
+          if (!_isSearchVisible) {
+            _searchQuery = '';
+            _searchController.clear();
+          }
+        });
+      },
       onBackPressed: () => Navigator.of(context).pop(),
       tabBuilder: (context) {
-        // Custom tab content for filters like in TeacherAddAttendanceScreen
+        // Show search input if search is active
+        if (_isSearchVisible) {
+          return Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: TextField(
+                controller: _searchController,
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value.toLowerCase();
+                  });
+                },
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Cari nama siswa...',
+                  hintStyle: GoogleFonts.poppins(
+                    color: Colors.white.withOpacity(0.7),
+                    fontSize: 14,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search_rounded,
+                    color: Colors.white.withOpacity(0.8),
+                    size: 20,
+                  ),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: Icon(
+                            Icons.clear_rounded,
+                            color: Colors.white.withOpacity(0.8),
+                            size: 20,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _searchQuery = '';
+                              _searchController.clear();
+                            });
+                          },
+                        )
+                      : null,
+                  border: InputBorder.none,
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+              ),
+            ),
+          );
+        }
+
+        // Default tab content for filters
         return Row(
           children: [
             // Date filter

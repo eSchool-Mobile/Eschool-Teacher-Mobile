@@ -11,6 +11,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 class StudentAttendanceContainer extends StatefulWidget {
   final List<StudentAttendance> studentAttendances;
+  final List<StudentAttendance>?
+      allStudentAttendances; // New parameter for all students (for accurate statistics)
   final bool isForAddAttendance;
   final bool isReadOnly;
   final bool showSummary; // New parameter to control summary visibility
@@ -22,6 +24,7 @@ class StudentAttendanceContainer extends StatefulWidget {
     super.key,
     required this.isForAddAttendance,
     required this.studentAttendances,
+    this.allStudentAttendances, // Optional, defaults to studentAttendances
     this.onStatusChanged,
     this.isReadOnly = false,
     this.showSummary = true, // Default to showing summary
@@ -35,7 +38,7 @@ class StudentAttendanceContainer extends StatefulWidget {
 class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
     with SingleTickerProviderStateMixin {
   late List<StudentAttendanceStatus> allAttendanceStatuses =
-      widget.studentAttendances.map((e) {
+      (widget.allStudentAttendances ?? widget.studentAttendances).map((e) {
     if (e.isPresent()) {
       return StudentAttendanceStatus.present;
     } else if (e.isAbsent()) {
@@ -118,8 +121,9 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
     // Update stats when building
     _updateAttendanceStats();
 
-    // Calculate percentages for present students
-    int totalStudents = widget.studentAttendances.length;
+    // Calculate percentages for present students using all students for accurate statistics
+    int totalStudents =
+        (widget.allStudentAttendances ?? widget.studentAttendances).length;
     double presentPercentage = totalStudents > 0
         ? (_attendanceStats[StudentAttendanceStatus.present] ?? 0) /
             totalStudents *
@@ -142,7 +146,9 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
       child: Column(
         children: [
           // Attendance Summary Card - New Addition
-          if (widget.studentAttendances.isNotEmpty && widget.showSummary)
+          if ((widget.allStudentAttendances ?? widget.studentAttendances)
+                  .isNotEmpty &&
+              widget.showSummary)
             Container(
               margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               padding: const EdgeInsets.all(16),
