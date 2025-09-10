@@ -245,7 +245,8 @@ class _TeacherViewAttendanceSubjectScreenState
       context.read<SubjectAttendanceCubit>().fetchSubjectAttendance(
             date: _selectedDateTime,
             classSectionId: _selectedClassSection!.id!,
-            timetableId: _selectedTimetableId,
+            timetableId:
+                _selectedTimetableId == 0 ? null : _selectedTimetableId,
             gradeLevelId: _selectedClassSection!.classId!,
           );
     }

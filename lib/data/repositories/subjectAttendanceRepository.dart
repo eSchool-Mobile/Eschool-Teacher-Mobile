@@ -16,7 +16,7 @@ class SubjectAttendanceRepository {
       })> getAttendance({
     required int classSectionId,
     required String date,
-    required int timetableId,
+    int? timetableId,
     required int gradeLevelId,
   }) async {
     const scope = 'SubjectAttendanceRepository.getAttendance';
@@ -27,14 +27,27 @@ class SubjectAttendanceRepository {
         'timetable_id': timetableId,
         'grade_level_id': gradeLevelId,
       });
+
+      if (timetableId == null) {
+        // No timetable available, return empty data
+        AppLogger.debug(scope, 'No timetable available, returning empty data');
+        return Future.value((
+          attendance: <AttendanceStudent>[],
+          isHoliday: false,
+          holidayDetails: Holiday(),
+          materi: null,
+          lampiran: null,
+        ));
+      }
+
       final result = await Api.get(
         url: Api.getSubjectAttendance,
         useAuthToken: true,
         queryParameters: {
           "class_section_id": classSectionId,
           "date": date,
-          "timetable_id": timetableId,
           "grade_level_id": gradeLevelId,
+          if (timetableId != 0) "timetable_id": timetableId,
         },
       );
 

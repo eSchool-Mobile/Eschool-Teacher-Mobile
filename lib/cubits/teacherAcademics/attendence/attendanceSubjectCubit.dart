@@ -47,7 +47,7 @@ class SubjectAttendanceCubit extends Cubit<SubjectAttendanceState> {
   Future<void> fetchSubjectAttendance({
     required int classSectionId,
     required DateTime date,
-    required int timetableId,
+    int? timetableId,
     required int gradeLevelId,
   }) async {
     const scope = 'SubjectAttendanceCubit.fetchSubjectAttendance';
@@ -59,6 +59,20 @@ class SubjectAttendanceCubit extends Cubit<SubjectAttendanceState> {
         'timetable_id': timetableId,
         'grade_level_id': gradeLevelId,
       });
+
+      if (timetableId == null) {
+        // No timetable available, emit success with empty data
+        AppLogger.debug(
+            scope, 'No timetable available, emitting empty success');
+        emit(SubjectAttendanceFetchSuccess(
+          attendance: [],
+          isHoliday: false,
+          holidayDetails: Holiday(),
+          materi: null,
+          lampiran: null,
+        ));
+        return;
+      }
 
       final result = await _subjectAttendanceRepository.getAttendance(
         classSectionId: classSectionId,
