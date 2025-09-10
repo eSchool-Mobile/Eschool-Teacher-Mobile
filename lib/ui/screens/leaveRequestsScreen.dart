@@ -37,6 +37,17 @@ class LeaveRequestsScreen extends StatefulWidget {
 class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
     with TickerProviderStateMixin {
   late AnimationController _fabAnimationController;
+  late AnimationController _slideAnimationController;
+  final PageController _pageController = PageController();
+  int _currentPageIndex = 0;
+
+  // Fresh Soft Maroon Palette - Consistent with allowancesAndDeductionsScreen
+  final Color _maroonPrimary = const Color(0xFF8B4A5B);
+  final Color _maroonLight = const Color(0xFFA6677A);
+  final Color _maroonSoft = const Color(0xFFE8D5DA);
+  final Color _maroonDeep = const Color(0xFF6B3A47);
+  final Color _neutralBg = const Color(0xFFFBFAFA);
+  final Color _cardBg = const Color(0xFFFFFFFF);
 
   @override
   void initState() {
@@ -45,6 +56,13 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
       vsync: this,
       duration: const Duration(milliseconds: 2000),
     );
+    _slideAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+
+    // Start animations
+    _slideAnimationController.forward();
     _fabAnimationController.repeat(reverse: true);
 
     // Note: Leave requests are now fetched when BlocProvider is created
@@ -53,6 +71,8 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
   @override
   void dispose() {
     _fabAnimationController.dispose();
+    _slideAnimationController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -131,12 +151,116 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
     });
   }
 
+  Widget _buildFloatingTabBar() {
+    return AnimatedBuilder(
+      animation: _slideAnimationController,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(
+              0,
+              Tween<double>(
+                begin: -50.0,
+                end: 0.0,
+              )
+                  .animate(CurvedAnimation(
+                    parent: _slideAnimationController,
+                    curve: Curves.elasticOut,
+                  ))
+                  .value),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: _cardBg,
+              borderRadius: BorderRadius.circular(25),
+              boxShadow: [
+                BoxShadow(
+                  color: _maroonPrimary.withOpacity(0.15),
+                  blurRadius: 25,
+                  offset: const Offset(0, 10),
+                  spreadRadius: 0,
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _buildTabButton(
+                    title: 'Cuti Staff',
+                    icon: Icons.person,
+                    isSelected: _currentPageIndex == 0,
+                    onTap: () => _switchTab(0),
+                  ),
+                ),
+                Expanded(
+                  child: _buildTabButton(
+                    title: 'Izin Siswa',
+                    icon: Icons.school,
+                    isSelected: _currentPageIndex == 1,
+                    onTap: () => _switchTab(1),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTabButton({
+    required String title,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? _maroonPrimary : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? Colors.white : _maroonPrimary,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.white : _maroonPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _switchTab(int index) {
+    setState(() {
+      _currentPageIndex = index;
+    });
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
   // Modern card with soft shadows for leave request details
   Widget _buildLeaveRequestDetails(
       {required LeaveRequest leaveRequest, required bool isStaffLeave}) {
-    final Color maroonPrimary = const Color(0xFF800020);
-    final Color maroonLight = const Color(0xFFAA6976);
-
     final titleTextStyle = TextStyle(
         fontSize: Utils.getScaledValue(context, 13),
         fontFamily: GoogleFonts.poppins().fontFamily,
@@ -154,7 +278,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: maroonPrimary.withOpacity(0.1),
+            color: _maroonPrimary.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -176,8 +300,8 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      maroonPrimary,
-                      maroonLight,
+                      _maroonPrimary,
+                      _maroonLight,
                     ],
                   ),
                 ),
@@ -193,7 +317,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                 height: 60,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: maroonPrimary.withOpacity(0.05),
+                  color: _maroonPrimary.withOpacity(0.05),
                 ),
               ),
             ),
@@ -218,11 +342,11 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                               shape: BoxShape.circle,
                               gradient: SweepGradient(
                                 colors: [
-                                  maroonPrimary.withOpacity(0.2),
-                                  maroonPrimary.withOpacity(0.6),
-                                  maroonPrimary,
-                                  maroonLight,
-                                  maroonPrimary.withOpacity(0.2),
+                                  _maroonPrimary.withOpacity(0.2),
+                                  _maroonPrimary.withOpacity(0.6),
+                                  _maroonPrimary,
+                                  _maroonLight,
+                                  _maroonPrimary.withOpacity(0.2),
                                 ],
                               ),
                             ),
@@ -285,14 +409,14 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16.0, vertical: 8.0),
                             decoration: BoxDecoration(
-                              color: maroonPrimary.withOpacity(0.1),
+                              color: _maroonPrimary.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: CustomTextContainer(
                               textKey: (leaveRequest.leaveDetail?.length ?? 1)
                                   .toString(),
                               style: TextStyle(
-                                color: maroonPrimary,
+                                color: _maroonPrimary,
                                 fontFamily: GoogleFonts.poppins().fontFamily,
                                 fontSize: Utils.getScaledValue(context, 20),
                                 fontWeight: FontWeight.bold,
@@ -333,9 +457,9 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                       gradient: LinearGradient(
                         colors: [
                           Colors.transparent,
-                          maroonLight.withOpacity(0.3),
-                          maroonPrimary.withOpacity(0.5),
-                          maroonLight.withOpacity(0.3),
+                          _maroonLight.withOpacity(0.3),
+                          _maroonPrimary.withOpacity(0.5),
+                          _maroonLight.withOpacity(0.3),
                           Colors.transparent,
                         ],
                       ),
@@ -351,10 +475,10 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: maroonPrimary.withOpacity(0.03),
+                            color: _maroonPrimary.withOpacity(0.03),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: maroonPrimary.withOpacity(0.1),
+                              color: _maroonPrimary.withOpacity(0.1),
                               width: 1,
                             ),
                           ),
@@ -364,7 +488,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                               CustomTextContainer(
                                 textKey: fromDateKey,
                                 style: titleTextStyle.copyWith(
-                                  color: maroonPrimary.withOpacity(0.7),
+                                  color: _maroonPrimary.withOpacity(0.7),
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -383,10 +507,10 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: maroonPrimary.withOpacity(0.03),
+                            color: _maroonPrimary.withOpacity(0.03),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: maroonPrimary.withOpacity(0.1),
+                              color: _maroonPrimary.withOpacity(0.1),
                               width: 1,
                             ),
                           ),
@@ -396,7 +520,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                               CustomTextContainer(
                                 textKey: toDateKey,
                                 style: titleTextStyle.copyWith(
-                                  color: maroonPrimary.withOpacity(0.7),
+                                  color: _maroonPrimary.withOpacity(0.7),
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -425,10 +549,10 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: maroonPrimary.withOpacity(0.03),
+                      color: _maroonPrimary.withOpacity(0.03),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: maroonPrimary.withOpacity(0.1),
+                        color: _maroonPrimary.withOpacity(0.1),
                         width: 1,
                       ),
                     ),
@@ -438,7 +562,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                         CustomTextContainer(
                           textKey: leaveReasonKey,
                           style: titleTextStyle.copyWith(
-                            color: maroonPrimary.withOpacity(0.7),
+                            color: _maroonPrimary.withOpacity(0.7),
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -530,8 +654,8 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                               widthPercentage: 1.0,
                               backgroundColor: Colors.white,
                               buttonTitle: rejectKey,
-                              borderColor: maroonPrimary,
-                              titleColor: maroonPrimary,
+                              borderColor: _maroonPrimary,
+                              titleColor: _maroonPrimary,
                               showBorder: true,
                               onTap: () {
                                 rejectOrApproveLeave(
@@ -550,7 +674,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                               radius: 12,
                               height: 45,
                               widthPercentage: 1.0,
-                              backgroundColor: maroonPrimary,
+                              backgroundColor: _maroonPrimary,
                               buttonTitle: approveKey,
                               showBorder: false,
                               onTap: () {
@@ -585,116 +709,84 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Define our custom maroon colors for the design
-    const Color maroonPrimary = Color(0xFF800020);
-    const Color maroonLight = Color(0xFFAA6976);
-
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor:
-            Colors.grey[50], // Light background for better contrast
-        body: Stack(
-          children: [
-            // Subtle background pattern for visual interest
-            Positioned.fill(
-              child: Opacity(
-                opacity: 0.03,
-                child: Image.network(
-                  'https://www.transparenttextures.com/patterns/cubes.png',
-                  repeat: ImageRepeat.repeat,
-                ),
+    return Scaffold(
+      backgroundColor: _neutralBg,
+      extendBodyBehindAppBar: false,
+      body: Stack(
+        children: [
+          // Subtle background pattern for visual interest
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.03,
+              child: Image.network(
+                'https://www.transparenttextures.com/patterns/cubes.png',
+                repeat: ImageRepeat.repeat,
               ),
             ),
+          ),
 
-            // Main content with tabs
-            Column(
-              children: [
-                // Tab Bar
-                Container(
-                  margin: EdgeInsets.only(
-                    top:
-                        Utils.appContentTopScrollPadding(context: context) + 10,
-                    left: appContentHorizontalPadding,
-                    right: appContentHorizontalPadding,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: maroonPrimary.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: TabBar(
-                    indicator: BoxDecoration(
-                      color: maroonPrimary,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    labelColor: Colors.white,
-                    unselectedLabelColor: maroonPrimary,
-                    tabs: const [
-                      Tab(text: "Cuti Staff"),
-                      Tab(text: "Izin Siswa"),
-                    ],
-                  ),
-                ),
-
-                // Tab Bar View
-                Expanded(
-                  child: TabBarView(
-                    children: [
-                      // Staff Leave Tab
-                      BlocProvider(
-                        create: (context) {
-                          final cubit = LeaveRequestsCubit();
-                          // Fetch leave requests when cubit is created
-                          Future.microtask(() => cubit.getLeaveRequests());
-                          return cubit;
-                        },
-                        child: _buildLeaveRequestsTab(isStaffLeave: true),
-                      ),
-                      // Student Leave Tab
-                      BlocProvider(
-                        create: (context) {
-                          final cubit = StudentLeaveRequestsCubit();
-                          // Fetch student leave requests when cubit is created
-                          Future.microtask(
-                              () => cubit.getStudentLeaveRequests());
-                          return cubit;
-                        },
-                        child: _buildLeaveRequestsTab(isStaffLeave: false),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            // Modern App Bar replacement
-            Align(
-              alignment: Alignment.topCenter,
-              child: CustomModernAppBar(
+          // Main content
+          Column(
+            children: [
+              // Modern App Bar
+              CustomModernAppBar(
                 title: leaveRequestKey.tr,
                 icon: Icons.pending_actions_rounded,
                 fabAnimationController: _fabAnimationController,
-                primaryColor: maroonPrimary,
-                lightColor: maroonLight,
+                primaryColor: _maroonPrimary,
+                lightColor: _maroonLight,
                 onBackPressed: () => Navigator.of(context).pop(),
               ),
-            ),
-          ],
-        ),
+
+              // Floating Tab Bar
+              Container(
+                margin: const EdgeInsets.only(top: 0),
+                child: _buildFloatingTabBar(),
+              ),
+
+              // Page Content
+              Expanded(
+                child: PageView(
+                  controller: _pageController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentPageIndex = index;
+                    });
+                  },
+                  children: [
+                    // Staff Leave Tab
+                    BlocProvider(
+                      create: (context) {
+                        final cubit = LeaveRequestsCubit();
+                        // Fetch leave requests when cubit is created
+                        Future.microtask(() => cubit.getLeaveRequests());
+                        return cubit;
+                      },
+                      child: _buildLeaveRequestsTab(isStaffLeave: true),
+                    ),
+
+                    // Student Leave Tab
+                    BlocProvider(
+                      create: (context) {
+                        final cubit = StudentLeaveRequestsCubit();
+                        // Fetch student leave requests when cubit is created
+                        Future.microtask(() => cubit.getStudentLeaveRequests());
+                        return cubit;
+                      },
+                      child: _buildLeaveRequestsTab(isStaffLeave: false),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildLeaveRequestsTab({required bool isStaffLeave}) {
-    const Color maroonPrimary = Color(0xFF800020);
-
     if (isStaffLeave) {
       return BlocConsumer<LeaveRequestsCubit, LeaveRequestsState>(
         listener: (context, state) {
@@ -722,7 +814,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                         children: [
                           Icon(
                             Icons.person,
-                            color: maroonPrimary,
+                            color: _maroonPrimary,
                             size: 20,
                           ),
                           const SizedBox(width: 8),
@@ -740,7 +832,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
-                              color: maroonPrimary.withOpacity(0.1),
+                              color: _maroonPrimary.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -749,7 +841,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                                 fontFamily: GoogleFonts.poppins().fontFamily,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: maroonPrimary,
+                                color: _maroonPrimary,
                               ),
                             ),
                           ),
@@ -777,7 +869,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                 onRetry: () {
                   context.read<LeaveRequestsCubit>().getLeaveRequests();
                 },
-                primaryColor: maroonPrimary,
+                primaryColor: _maroonPrimary,
               ),
             ).animate().fadeIn(duration: const Duration(milliseconds: 400));
           }
@@ -787,7 +879,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               CustomCircularProgressIndicator(
-                indicatorColor: maroonPrimary,
+                indicatorColor: _maroonPrimary,
               ),
               const SizedBox(height: 20),
               Text(
@@ -827,7 +919,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                         children: [
                           Icon(
                             Icons.school,
-                            color: maroonPrimary,
+                            color: _maroonPrimary,
                             size: 20,
                           ),
                           const SizedBox(width: 8),
@@ -845,7 +937,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
-                              color: maroonPrimary.withOpacity(0.1),
+                              color: _maroonPrimary.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -854,7 +946,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                                 fontFamily: GoogleFonts.poppins().fontFamily,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: maroonPrimary,
+                                color: _maroonPrimary,
                               ),
                             ),
                           ),
@@ -884,7 +976,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                       .read<StudentLeaveRequestsCubit>()
                       .getStudentLeaveRequests();
                 },
-                primaryColor: maroonPrimary,
+                primaryColor: _maroonPrimary,
               ),
             ).animate().fadeIn(duration: const Duration(milliseconds: 400));
           }
@@ -894,7 +986,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               CustomCircularProgressIndicator(
-                indicatorColor: maroonPrimary,
+                indicatorColor: _maroonPrimary,
               ),
               const SizedBox(height: 20),
               Text(
@@ -930,7 +1022,7 @@ class LeaveRequestDetailsBottomsheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasAttachments = leaveRequest.attachments?.isNotEmpty ?? false;
-    final Color maroonPrimary = const Color(0xFF800020);
+    final Color maroonPrimary = const Color(0xFF8B4A5B);
 
     return CustomBottomsheet(
         titleLabelKey: leaveDetailsKey,
@@ -1109,7 +1201,7 @@ class LeaveRequestDetailsBottomsheet extends StatelessWidget {
       bool isStaffLeave,
       BoxConstraints boxConstraints,
       bool hasAttachments) {
-    final Color maroonPrimary = const Color(0xFF800020);
+    final Color maroonPrimary = const Color(0xFF8B4A5B);
     final bool isInProgress =
         (isStaffLeave && state is ApproveOrRejectLeaveRequestInProgress) ||
             (!isStaffLeave &&
