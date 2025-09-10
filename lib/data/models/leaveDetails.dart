@@ -9,6 +9,11 @@ class LeaveDetails {
   final int? schoolId;
   final String? leaveDate;
   final Leave? leave;
+  final int? status;
+  final String? statusLabel;
+  final String? rejectionReason;
+  final String? decidedAt;
+  final String? requestedAt;
 
   LeaveDetails({
     this.id,
@@ -18,6 +23,11 @@ class LeaveDetails {
     this.schoolId,
     this.leaveDate,
     this.leave,
+    this.status,
+    this.statusLabel,
+    this.rejectionReason,
+    this.decidedAt,
+    this.requestedAt,
   });
 
   LeaveDetails copyWith({
@@ -28,6 +38,11 @@ class LeaveDetails {
     int? schoolId,
     String? leaveDate,
     Leave? leave,
+    int? status,
+    String? statusLabel,
+    String? rejectionReason,
+    String? decidedAt,
+    String? requestedAt,
   }) {
     return LeaveDetails(
       id: id ?? this.id,
@@ -37,6 +52,11 @@ class LeaveDetails {
       schoolId: schoolId ?? this.schoolId,
       leaveDate: leaveDate ?? this.leaveDate,
       leave: leave ?? this.leave,
+      status: status ?? this.status,
+      statusLabel: statusLabel ?? this.statusLabel,
+      rejectionReason: rejectionReason ?? this.rejectionReason,
+      decidedAt: decidedAt ?? this.decidedAt,
+      requestedAt: requestedAt ?? this.requestedAt,
     );
   }
 
@@ -49,7 +69,12 @@ class LeaveDetails {
         leaveDate = json['leave_date'] as String?,
         leave = (json['leave'] as Map<String, dynamic>?) != null
             ? Leave.fromJson(json['leave'] as Map<String, dynamic>)
-            : null {
+            : null,
+        status = json['status'] as int?,
+        statusLabel = json['status_label'] as String?,
+        rejectionReason = json['rejection_reason'] as String?,
+        decidedAt = json['decided_at'] as String?,
+        requestedAt = json['requested_at'] as String? {
     print('\n=== DEBUG: LeaveDetails.fromJson() ===');
     print('Parsing JSON:');
     print(JsonEncoder.withIndent('  ').convert(json));
@@ -60,6 +85,11 @@ class LeaveDetails {
     print('type: $type');
     print('schoolId: $schoolId');
     print('leaveDate: $leaveDate');
+    print('status: $status');
+    print('statusLabel: $statusLabel');
+    print('rejectionReason: $rejectionReason');
+    print('decidedAt: $decidedAt');
+    print('requestedAt: $requestedAt');
     print('leave: ${leave?.toJson()}');
     print('=== DEBUG: End LeaveDetails.fromJson() ===\n');
   }
@@ -71,7 +101,12 @@ class LeaveDetails {
         'type': type,
         'school_id': schoolId,
         'leave_date': leaveDate,
-        'leave': leave?.toJson()
+        'leave': leave?.toJson(),
+        'status': status,
+        'status_label': statusLabel,
+        'rejection_reason': rejectionReason,
+        'decided_at': decidedAt,
+        'requested_at': requestedAt,
       };
 }
 
@@ -82,6 +117,9 @@ class Leave {
   final String? fromDate;
   final String? toDate;
   final int? status;
+  final String? rejectionReason;
+  final String? updatedAt;
+  final String? createdAt;
   final User? user;
   final List<LeaveFile>? file;
 
@@ -92,6 +130,9 @@ class Leave {
     this.fromDate,
     this.toDate,
     this.status,
+    this.rejectionReason,
+    this.updatedAt,
+    this.createdAt,
     this.user,
     this.file,
   });
@@ -103,6 +144,9 @@ class Leave {
     String? fromDate,
     String? toDate,
     int? status,
+    String? rejectionReason,
+    String? updatedAt,
+    String? createdAt,
     User? user,
     List<LeaveFile>? file,
   }) {
@@ -113,6 +157,9 @@ class Leave {
       fromDate: fromDate ?? this.fromDate,
       toDate: toDate ?? this.toDate,
       status: status ?? this.status,
+      rejectionReason: rejectionReason ?? this.rejectionReason,
+      updatedAt: updatedAt ?? this.updatedAt,
+      createdAt: createdAt ?? this.createdAt,
       user: user ?? this.user,
       file: file ?? this.file,
     );
@@ -125,6 +172,9 @@ class Leave {
         fromDate = json['from_date'] as String?,
         toDate = json['to_date'] as String?,
         status = json['status'] as int?,
+        rejectionReason = json['rejection_reason'] as String?,
+        updatedAt = json['updated_at'] as String?,
+        createdAt = json['created_at'] as String?,
         user = (json['user'] as Map<String, dynamic>?) != null
             ? User.fromJson(json['user'] as Map<String, dynamic>)
             : null,
@@ -139,6 +189,9 @@ class Leave {
         'from_date': fromDate,
         'to_date': toDate,
         'status': status,
+        'rejection_reason': rejectionReason,
+        'updated_at': updatedAt,
+        'created_at': createdAt,
         'user': user?.toJson(),
         'file': file?.map((f) => f.toJson()).toList(),
       };

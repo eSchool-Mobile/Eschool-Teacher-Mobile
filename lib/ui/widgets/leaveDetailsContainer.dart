@@ -94,8 +94,8 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
   String translateLeaveType(String type) {
     final Map<String, String> leaveTranslations = {
       "Full": "Sehari Penuh",
-      "First Half": "Setengah Pertama",
-      "Second Half": "Setengah Kedua",
+      "First Half": "Paruh Pagi",
+      "Second Half": "Paruh Sore",
       "sick": "Sakit",
     };
     return leaveTranslations[type] ?? type;
@@ -309,6 +309,71 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
     );
   }
 
+  Widget _buildStatusChip(String statusText, Color statusColor) {
+    IconData statusIcon;
+    Color backgroundColor;
+
+    // Set icon and background based on status
+    switch (statusText) {
+      case 'Ditolak':
+        statusIcon = Icons.cancel_rounded;
+        backgroundColor = statusColor.withOpacity(0.15);
+        break;
+      case 'Disetujui':
+        statusIcon = Icons.check_circle_rounded;
+        backgroundColor = statusColor.withOpacity(0.15);
+        break;
+      case 'Menunggu':
+        statusIcon = Icons.schedule_rounded;
+        backgroundColor = statusColor.withOpacity(0.15);
+        break;
+      default:
+        statusIcon = Icons.info_rounded;
+        backgroundColor = statusColor.withOpacity(0.15);
+    }
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: statusColor.withOpacity(0.4),
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: statusColor.withOpacity(0.3),
+            blurRadius: 8,
+            spreadRadius: 1,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            statusIcon,
+            color: statusColor,
+            size: 20,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            statusText,
+            style: TextStyle(
+              color: statusColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ClassesCubit, ClassesState>(
@@ -471,15 +536,41 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                               ),
                               const SizedBox(height: 8),
 
+                              // Status chip - placed prominently at the top
+                              if (widget.leaveDetails.status == 2 ||
+                                  widget.leaveDetails.leave?.status == 2)
+                                Container(
+                                  margin: const EdgeInsets.only(bottom: 8),
+                                  child:
+                                      _buildStatusChip('Ditolak', Colors.red),
+                                )
+                              else if (widget.leaveDetails.status == 1 ||
+                                  widget.leaveDetails.leave?.status == 1)
+                                Container(
+                                  margin: const EdgeInsets.only(bottom: 8),
+                                  child: _buildStatusChip(
+                                      'Disetujui', Colors.green),
+                                )
+                              else if (widget.leaveDetails.status == 0 ||
+                                  widget.leaveDetails.leave?.status == 0)
+                                Container(
+                                  margin: const EdgeInsets.only(bottom: 8),
+                                  child: _buildStatusChip(
+                                      'Menunggu', Colors.orange),
+                                ),
+
                               // Leave type and status chips
-                              Row(
-                                children: [
-                                  if (widget.leaveDetails.type != null)
-                                    _buildLeaveTypeChip(
-                                        widget.leaveDetails.type!),
-                                  const SizedBox(width: 8),
-                                  // Status chip code removed
-                                ],
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [
+                                    if (widget.leaveDetails.type != null)
+                                      _buildLeaveTypeChip(
+                                          widget.leaveDetails.type!),
+                                    const SizedBox(width: 8),
+                                    // Status chip code removed
+                                  ],
+                                ),
                               ),
 
                               const SizedBox(height: 8),
@@ -543,6 +634,81 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                             ),
                           ),
                         ],
+                      ),
+
+                    // Rejection reason section if status is rejected
+                    if ((widget.leaveDetails.status == 2 ||
+                            widget.leaveDetails.leave?.status == 2) &&
+                        ((widget.leaveDetails.rejectionReason != null &&
+                                widget.leaveDetails.rejectionReason!
+                                    .isNotEmpty) ||
+                            (widget.leaveDetails.leave?.rejectionReason !=
+                                    null &&
+                                widget.leaveDetails.leave!.rejectionReason!
+                                    .isNotEmpty)))
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.error_outline_rounded,
+                                  color: Colors.red.shade600,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Alasan Penolakan',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red.shade700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.red.shade50,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.red.shade200,
+                                  width: 1,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.red.shade100.withOpacity(0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      widget.leaveDetails.rejectionReason ??
+                                          widget.leaveDetails.leave
+                                              ?.rejectionReason ??
+                                          'Alasan penolakan tidak tersedia',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.red.shade800,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
 
                     // Date range section if available
@@ -1173,224 +1339,6 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                 color: Colors.white.withOpacity(0.4),
                 borderRadius: BorderRadius.circular(4),
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFileAttachments() {
-    final files = widget.leaveDetails.leave?.file;
-    if (files == null || files.isEmpty) return const SizedBox.shrink();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Icon(
-              Icons.attach_file,
-              color: _maroonDark,
-              size: 20,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'Lampiran (${files.length})',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: _maroonDark,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: files.asMap().entries.map((entry) {
-            final index = entry.key;
-            final file = entry.value;
-            return TweenAnimationBuilder<double>(
-              duration: Duration(milliseconds: 300 + (index * 100)),
-              tween: Tween<double>(begin: 0.0, end: 1.0),
-              curve: Curves.easeOutQuart,
-              builder: (context, value, child) {
-                return Transform.scale(
-                  scale: value,
-                  child: Opacity(
-                    opacity: value.clamp(0.0, 1.0),
-                    child: _buildFileCard(file),
-                  ),
-                );
-              },
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFileCard(LeaveFile file) {
-    final isImage = file.isImage;
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      width: isImage ? 120 : 220,
-      height: isImage ? 120 : 70,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: _maroonLight.withOpacity(0.3),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () => _openFile(file),
-          splashColor: _maroonPrimary.withOpacity(0.1),
-          highlightColor: _maroonPrimary.withOpacity(0.05),
-          child: isImage ? _buildImagePreview(file) : _buildFilePreview(file),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImagePreview(LeaveFile file) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: Stack(
-        children: [
-          Image.network(
-            file.fileUrl ?? '',
-            width: double.infinity,
-            height: double.infinity,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                color: Colors.grey[200],
-                child: Icon(
-                  Icons.broken_image,
-                  color: Colors.grey[400],
-                  size: 30,
-                ),
-              );
-            },
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return Container(
-                color: Colors.grey[200],
-                child: Center(
-                  child: CircularProgressIndicator(
-                    value: loadingProgress.expectedTotalBytes != null
-                        ? loadingProgress.cumulativeBytesLoaded /
-                            loadingProgress.expectedTotalBytes!
-                        : null,
-                    color: _maroonPrimary,
-                    strokeWidth: 2,
-                  ),
-                ),
-              );
-            },
-          ),
-          Positioned(
-            bottom: 6,
-            right: 6,
-            child: Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.7),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.zoom_in,
-                color: Colors.white,
-                size: 16,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilePreview(LeaveFile file) {
-    IconData iconData;
-    Color iconColor;
-
-    switch (file.fileExtension?.toLowerCase()) {
-      case 'pdf':
-        iconData = Icons.picture_as_pdf;
-        iconColor = Colors.red;
-        break;
-      case 'doc':
-      case 'docx':
-        iconData = Icons.description;
-        iconColor = Colors.blue;
-        break;
-      case 'xls':
-      case 'xlsx':
-        iconData = Icons.table_chart;
-        iconColor = Colors.green;
-        break;
-      default:
-        iconData = Icons.attach_file;
-        iconColor = _maroonPrimary;
-    }
-
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              iconData,
-              color: iconColor,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  file.fileName ?? 'File tidak diketahui',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: _maroonDark,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  file.fileExtension?.toUpperCase() ?? '',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
             ),
           ),
         ],
