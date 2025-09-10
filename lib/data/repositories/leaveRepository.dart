@@ -98,13 +98,26 @@ class LeaveRepository {
         "status": status
       };
 
-      // Tambahkan reject_reason ke body jika status = rejected
+      // Tambahkan rejection_reason ke body jika status = rejected
       if (status == 2 && rejectReason != null) {
-        body["reject_reason"] = rejectReason.trim();
+        body["reason"] = rejectReason.trim(); // Coba field 'reason'
+        body["rejection_reason"] =
+            rejectReason.trim(); // Backup dengan rejection_reason
       }
 
-      await Api.post(url: Api.approveOrRejectLeaveRequest, body: body);
+      print("DEBUG: Staff Leave Approve Request Body: $body");
+      print(
+          "DEBUG: Staff Leave Approve URL: ${Api.approveOrRejectLeaveRequest}");
+      print("DEBUG: Staff Leave Approve Request Method: POST JSON");
+
+      await Api.postJson(url: Api.approveOrRejectLeaveRequest, body: body);
     } catch (e) {
+      print("DEBUG: Staff Leave Approve Error: $e");
+      print("DEBUG: Staff Leave Approve Error Type: ${e.runtimeType}");
+      if (e is ApiException) {
+        print(
+            "DEBUG: Staff Leave Approve ApiException Message: ${e.errorMessage}");
+      }
       throw ApiException(e.toString());
     }
   }
@@ -126,13 +139,26 @@ class LeaveRepository {
         "status": status
       };
 
-      // Tambahkan reject_reason ke body jika status = rejected
+      // Tambahkan rejection_reason ke body jika status = rejected (untuk student leave)
       if (status == 2 && rejectReason != null) {
-        body["reject_reason"] = rejectReason.trim();
+        body["reason"] = rejectReason.trim(); // Coba field 'reason'
+        body["rejection_reason"] =
+            rejectReason.trim(); // Backup dengan rejection_reason
       }
 
-      await Api.post(url: Api.submitLeaveStudentRequests, body: body);
+      print("DEBUG: Student Leave Approve Request Body: $body");
+      print(
+          "DEBUG: Student Leave Approve URL: ${Api.submitLeaveStudentRequests}");
+      print("DEBUG: Student Leave Approve Request Method: POST JSON");
+
+      await Api.postJson(url: Api.submitLeaveStudentRequests, body: body);
     } catch (e) {
+      print("DEBUG: Student Leave Approve Error: $e");
+      print("DEBUG: Student Leave Approve Error Type: ${e.runtimeType}");
+      if (e is ApiException) {
+        print(
+            "DEBUG: Student Leave Approve ApiException Message: ${e.errorMessage}");
+      }
       throw ApiException(e.toString());
     }
   }
