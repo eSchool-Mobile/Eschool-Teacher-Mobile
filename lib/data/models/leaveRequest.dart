@@ -97,7 +97,8 @@ class LeaveRequest {
         days = double.parse((json['days'] ?? 0).toString()),
         fullLeave = json['full_leave'] as int?,
         halfLeave = json['half_leave'] as int?,
-        rejectReason = json['reject_reason'] as String?,
+        rejectReason = json['reject_reason'] as String? ??
+            json['rejection_reason'] as String?,
         leaveDetail = (json['leave_detail'] as List?)
             ?.map(
                 (dynamic e) => LeaveDetail.fromJson(e as Map<String, dynamic>))

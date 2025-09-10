@@ -38,6 +38,8 @@ class Api {
   static String getSettings = "${databaseUrl}settings";
   static String getHolidays = "${databaseUrl}holidays";
   static String getLeaveRequests = "${databaseUrl}staff/leave-request";
+  static String submitLeaveStudentRequests = "${databaseUrl}staff/student-leave-approve";
+  static String getLeaveStudentRequests = "${databaseUrl}staff/student-leave-request";
   static String getPermission = "${databaseUrl}teacher/student-leaves";
   static String approveOrRejectLeaveRequest =
       "${databaseUrl}staff/leave-approve";

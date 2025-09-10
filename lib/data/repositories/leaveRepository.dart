@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/leaveDetails.dart';
 import 'package:eschool_saas_staff/data/models/leaveRequest.dart';
 import 'package:eschool_saas_staff/data/models/leaveSettings.dart';
+import 'package:eschool_saas_staff/data/models/user.dart' as user_model;
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 
@@ -57,6 +58,29 @@ class LeaveRepository {
     }
   }
 
+  Future<List<LeaveRequest>> getStudentLeaveRequests() async {
+    try {
+      final result = await Api.get(url: Api.getLeaveStudentRequests);
+
+      // Handle pagination structure: result['data']['data'] contains the actual list
+      final data = result['data'];
+      if (data is Map && data.containsKey('data')) {
+        return ((data['data'] ?? []) as List)
+            .map((leaveRequest) =>
+                LeaveRequest.fromJson(Map.from(leaveRequest ?? {})))
+            .toList();
+      } else {
+        // Fallback for direct list structure if pagination is not used
+        return ((result['data'] ?? []) as List)
+            .map((leaveRequest) =>
+                LeaveRequest.fromJson(Map.from(leaveRequest ?? {})))
+            .toList();
+      }
+    } catch (e) {
+      throw ApiException(e.toString());
+    }
+  }
+
   Future<void> approveOrRejectLeaveRequest(
       {required int leaveRequestId,
       required int status,
@@ -80,6 +104,34 @@ class LeaveRepository {
       }
 
       await Api.post(url: Api.approveOrRejectLeaveRequest, body: body);
+    } catch (e) {
+      throw ApiException(e.toString());
+    }
+  }
+
+  Future<void> approveOrRejectStudentLeaveRequest(
+      {required int leaveRequestId,
+      required int status,
+      String? rejectReason}) async {
+    try {
+      // Validasi: reject_reason wajib diisi jika status = 2 (rejected)
+      if (status == 2 &&
+          (rejectReason == null || rejectReason.trim().isEmpty)) {
+        throw ApiException(
+            "Alasan penolakan wajib diisi saat menolak permohonan izin siswa");
+      }
+
+      Map<String, dynamic> body = {
+        "leave_id": leaveRequestId,
+        "status": status
+      };
+
+      // Tambahkan reject_reason ke body jika status = rejected
+      if (status == 2 && rejectReason != null) {
+        body["reject_reason"] = rejectReason.trim();
+      }
+
+      await Api.post(url: Api.submitLeaveStudentRequests, body: body);
     } catch (e) {
       throw ApiException(e.toString());
     }
@@ -156,6 +208,23 @@ class LeaveRepository {
           ? LeaveSettings.fromJson({})
           : LeaveSettings.fromJson(Map.from(dataList.first ?? {}));
     } catch (e, _) {
+      throw ApiException(e.toString());
+    }
+  }
+
+  Future<user_model.User?> getStudentInfo({required int studentId}) async {
+    try {
+      final result = await Api.get(url: Api.getStudents, queryParameters: {
+        "student_id": studentId,
+      });
+
+      final data = result['data'];
+      if (data is Map<String, dynamic>) {
+        // API returns single student object, not a list
+        return user_model.User.fromJson(data);
+      }
+      return null;
+    } catch (e) {
       throw ApiException(e.toString());
     }
   }

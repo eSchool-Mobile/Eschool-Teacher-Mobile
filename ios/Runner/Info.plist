@@ -35,6 +35,8 @@
 	<string>Teachers may upload the images/files to create study materials</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Teachers may upload the images/files to create study materials</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Teachers may take photos to update their profile picture</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

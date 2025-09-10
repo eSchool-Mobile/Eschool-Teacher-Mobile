@@ -1,6 +1,8 @@
 // filepath: d:\UBIG\eSchool\eschool_saas_staff\lib\ui\screens\leaveRequestsScreen.dart
 import 'package:eschool_saas_staff/cubits/leave/approveOrRejectLeaveRequestCubit.dart';
+import 'package:eschool_saas_staff/cubits/leave/approveOrRejectStudentLeaveRequestCubit.dart';
 import 'package:eschool_saas_staff/cubits/leave/leaveRequestsCubit.dart';
+import 'package:eschool_saas_staff/cubits/leave/studentLeaveRequestsCubit.dart';
 import 'package:eschool_saas_staff/data/models/leaveRequest.dart';
 import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/homeContainer.dart';
@@ -26,10 +28,7 @@ import 'dart:ui';
 class LeaveRequestsScreen extends StatefulWidget {
   const LeaveRequestsScreen({super.key});
 
-  static Widget getRouteInstance() => BlocProvider(
-        create: (context) => LeaveRequestsCubit(),
-        child: const LeaveRequestsScreen(),
-      );
+  static Widget getRouteInstance() => const LeaveRequestsScreen();
 
   @override
   State<LeaveRequestsScreen> createState() => _LeaveRequestsScreenState();
@@ -48,11 +47,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
     );
     _fabAnimationController.repeat(reverse: true);
 
-    Future.delayed(Duration.zero, () {
-      if (mounted) {
-        context.read<LeaveRequestsCubit>().getLeaveRequests();
-      }
-    });
+    // Note: Leave requests are now fetched when BlocProvider is created
   }
 
   @override
@@ -62,7 +57,9 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
   }
 
   void rejectOrApproveLeave(
-      {required LeaveRequest leaveRequest, required bool approveLeave}) {
+      {required LeaveRequest leaveRequest,
+      required bool approveLeave,
+      required bool isStaffLeave}) {
     if (!approveLeave) {
       // Tampilkan dialog untuk input alasan penolakan
       showDialog(
@@ -76,6 +73,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
               leaveRequest: leaveRequest,
               approveLeave: false,
               rejectReason: rejectReason,
+              isStaffLeave: isStaffLeave,
             );
           },
           onCancel: () => Navigator.of(context).pop(),
@@ -86,6 +84,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
       _showApprovalBottomsheet(
         leaveRequest: leaveRequest,
         approveLeave: true,
+        isStaffLeave: isStaffLeave,
       );
     }
   }
@@ -94,29 +93,47 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
     required LeaveRequest leaveRequest,
     required bool approveLeave,
     String? rejectReason,
+    required bool isStaffLeave,
   }) {
     Utils.showBottomSheet(
-            child: BlocProvider(
-              create: (context) => ApproveOrRejectLeaveRequestCubit(),
-              child: LeaveRequestDetailsBottomsheet(
-                approveLeave: approveLeave,
-                leaveRequest: leaveRequest,
-                rejectReason: rejectReason,
-              ),
-            ),
+            child: isStaffLeave
+                ? BlocProvider<ApproveOrRejectLeaveRequestCubit>(
+                    create: (context) => ApproveOrRejectLeaveRequestCubit(),
+                    child: LeaveRequestDetailsBottomsheet(
+                      approveLeave: approveLeave,
+                      leaveRequest: leaveRequest,
+                      rejectReason: rejectReason,
+                      isStaffLeave: isStaffLeave,
+                    ),
+                  )
+                : BlocProvider<ApproveOrRejectStudentLeaveRequestCubit>(
+                    create: (context) =>
+                        ApproveOrRejectStudentLeaveRequestCubit(),
+                    child: LeaveRequestDetailsBottomsheet(
+                      approveLeave: approveLeave,
+                      leaveRequest: leaveRequest,
+                      rejectReason: rejectReason,
+                      isStaffLeave: isStaffLeave,
+                    ),
+                  ),
             context: context)
         .then((value) {
       final refreshLeaveRequests = (value as bool?) ?? false;
       if (refreshLeaveRequests) {
         if (mounted) {
-          context.read<LeaveRequestsCubit>().getLeaveRequests();
+          if (isStaffLeave) {
+            context.read<LeaveRequestsCubit>().getLeaveRequests();
+          } else {
+            context.read<StudentLeaveRequestsCubit>().getStudentLeaveRequests();
+          }
         }
       }
     });
   }
 
   // Modern card with soft shadows for leave request details
-  Widget _buildLeaveRequestDetails({required LeaveRequest leaveRequest}) {
+  Widget _buildLeaveRequestDetails(
+      {required LeaveRequest leaveRequest, required bool isStaffLeave}) {
     final Color maroonPrimary = const Color(0xFF800020);
     final Color maroonLight = const Color(0xFFAA6976);
 
@@ -241,7 +258,14 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             CustomTextContainer(
-                              textKey: leaveRequest.user?.firstName ?? "",
+                              textKey: leaveRequest.user?.fullName ??
+                                  (leaveRequest.user?.firstName != null &&
+                                          leaveRequest.user?.lastName != null
+                                      ? "${leaveRequest.user?.firstName} ${leaveRequest.user?.lastName}"
+                                      : leaveRequest.user?.firstName ??
+                                          (leaveRequest.userId != null
+                                              ? "Siswa ID: ${leaveRequest.userId}"
+                                              : "Nama tidak tersedia")),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -513,6 +537,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                                 rejectOrApproveLeave(
                                   leaveRequest: leaveRequest,
                                   approveLeave: false,
+                                  isStaffLeave: isStaffLeave,
                                 );
                               },
                             ),
@@ -532,6 +557,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                                 rejectOrApproveLeave(
                                   leaveRequest: leaveRequest,
                                   approveLeave: true,
+                                  isStaffLeave: isStaffLeave,
                                 );
                               },
                             ),
@@ -563,147 +589,327 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
     const Color maroonPrimary = Color(0xFF800020);
     const Color maroonLight = Color(0xFFAA6976);
 
-    return Scaffold(
-      backgroundColor: Colors.grey[50], // Light background for better contrast
-      body: Stack(
-        children: [
-          // Subtle background pattern for visual interest
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.03,
-              child: Image.network(
-                'https://www.transparenttextures.com/patterns/cubes.png',
-                repeat: ImageRepeat.repeat,
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor:
+            Colors.grey[50], // Light background for better contrast
+        body: Stack(
+          children: [
+            // Subtle background pattern for visual interest
+            Positioned.fill(
+              child: Opacity(
+                opacity: 0.03,
+                child: Image.network(
+                  'https://www.transparenttextures.com/patterns/cubes.png',
+                  repeat: ImageRepeat.repeat,
+                ),
               ),
             ),
-          ),
 
-          // Main content
-          BlocConsumer<LeaveRequestsCubit, LeaveRequestsState>(
-            listener: (context, state) {
-              if (state is LeaveRequestsFetchSuccess) {
-                HomeContainer.widgetKey.currentState?.updateLeaveRequestCount(
-                    totalLeaveRequests: state.leaveRequests.length);
-              }
-            },
-            builder: (context, state) {
-              if (state is LeaveRequestsFetchSuccess) {
-                return Align(
-                  alignment: Alignment.topCenter,
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.only(
-                        left: appContentHorizontalPadding,
-                        right: appContentHorizontalPadding,
-                        top:
-                            Utils.appContentTopScrollPadding(context: context) +
-                                25,
-                        bottom: 30),
-                    child: Column(
-                      children: [
-                        // Animated intro text
-                        Padding(
-                          padding: const EdgeInsets.only(top: 30, bottom: 20),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.calendar_today_rounded,
-                                color: maroonPrimary,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                "Permintaan Cuti Staff",
-                                style: TextStyle(
-                                  fontFamily: GoogleFonts.poppins().fontFamily,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                              const Spacer(),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 5),
-                                decoration: BoxDecoration(
-                                  color: maroonPrimary.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  "${state.leaveRequests.length} Permintaan",
-                                  style: TextStyle(
-                                    fontFamily:
-                                        GoogleFonts.poppins().fontFamily,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: maroonPrimary,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                            .animate()
-                            .fadeIn(duration: const Duration(milliseconds: 400))
-                            .slideY(begin: -0.2, end: 0),
-
-                        // Leave request cards
-                        ...state.leaveRequests
-                            .map((leaveRequest) => _buildLeaveRequestDetails(
-                                leaveRequest: leaveRequest))
-                            .toList(),
-                      ],
+            // Main content with tabs
+            Column(
+              children: [
+                // Tab Bar
+                Container(
+                  margin: EdgeInsets.only(
+                    top:
+                        Utils.appContentTopScrollPadding(context: context) + 10,
+                    left: appContentHorizontalPadding,
+                    right: appContentHorizontalPadding,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: maroonPrimary.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: TabBar(
+                    indicator: BoxDecoration(
+                      color: maroonPrimary,
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                    labelColor: Colors.white,
+                    unselectedLabelColor: maroonPrimary,
+                    tabs: const [
+                      Tab(text: "Cuti Staff"),
+                      Tab(text: "Izin Siswa"),
+                    ],
                   ),
-                );
-              }
-              if (state is LeaveRequestsFetchFailure) {
-                return Center(
-                  child: CustomErrorWidget(
-                    message: state.errorMessage,
-                    onRetry: () {
-                      context.read<LeaveRequestsCubit>().getLeaveRequests();
-                    },
-                    primaryColor: maroonPrimary,
-                  ),
-                ).animate().fadeIn(duration: const Duration(milliseconds: 400));
-              }
+                ),
 
-              return Center(
-                  child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CustomCircularProgressIndicator(
-                    indicatorColor: maroonPrimary,
+                // Tab Bar View
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      // Staff Leave Tab
+                      BlocProvider(
+                        create: (context) {
+                          final cubit = LeaveRequestsCubit();
+                          // Fetch leave requests when cubit is created
+                          Future.microtask(() => cubit.getLeaveRequests());
+                          return cubit;
+                        },
+                        child: _buildLeaveRequestsTab(isStaffLeave: true),
+                      ),
+                      // Student Leave Tab
+                      BlocProvider(
+                        create: (context) {
+                          final cubit = StudentLeaveRequestsCubit();
+                          // Fetch student leave requests when cubit is created
+                          Future.microtask(
+                              () => cubit.getStudentLeaveRequests());
+                          return cubit;
+                        },
+                        child: _buildLeaveRequestsTab(isStaffLeave: false),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 20),
-                  Text(
-                    "Memuat permintaan...",
-                    style: TextStyle(
-                      fontFamily: GoogleFonts.poppins().fontFamily,
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ).animate().fadeIn(duration: const Duration(milliseconds: 400)));
-            },
-          ),
-
-          // Modern App Bar replacement
-          Align(
-            alignment: Alignment.topCenter,
-            child: CustomModernAppBar(
-              title: leaveRequestKey.tr,
-              icon: Icons.pending_actions_rounded,
-              fabAnimationController: _fabAnimationController,
-              primaryColor: maroonPrimary,
-              lightColor: maroonLight,
-              onBackPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
             ),
-          ),
-        ],
+
+            // Modern App Bar replacement
+            Align(
+              alignment: Alignment.topCenter,
+              child: CustomModernAppBar(
+                title: leaveRequestKey.tr,
+                icon: Icons.pending_actions_rounded,
+                fabAnimationController: _fabAnimationController,
+                primaryColor: maroonPrimary,
+                lightColor: maroonLight,
+                onBackPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  Widget _buildLeaveRequestsTab({required bool isStaffLeave}) {
+    const Color maroonPrimary = Color(0xFF800020);
+
+    if (isStaffLeave) {
+      return BlocConsumer<LeaveRequestsCubit, LeaveRequestsState>(
+        listener: (context, state) {
+          if (state is LeaveRequestsFetchSuccess) {
+            HomeContainer.widgetKey.currentState?.updateLeaveRequestCount(
+                totalLeaveRequests: state.leaveRequests.length);
+          }
+        },
+        builder: (context, state) {
+          if (state is LeaveRequestsFetchSuccess) {
+            return Align(
+              alignment: Alignment.topCenter,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(
+                    left: appContentHorizontalPadding,
+                    right: appContentHorizontalPadding,
+                    top: 20,
+                    bottom: 30),
+                child: Column(
+                  children: [
+                    // Animated intro text
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.person,
+                            color: maroonPrimary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Permintaan Cuti Staff",
+                            style: TextStyle(
+                              fontFamily: GoogleFonts.poppins().fontFamily,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: maroonPrimary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              "${state.leaveRequests.length} Permintaan",
+                              style: TextStyle(
+                                fontFamily: GoogleFonts.poppins().fontFamily,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: maroonPrimary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                        .animate()
+                        .fadeIn(duration: const Duration(milliseconds: 400))
+                        .slideY(begin: -0.2, end: 0),
+
+                    // Leave request cards
+                    ...state.leaveRequests
+                        .map((leaveRequest) => _buildLeaveRequestDetails(
+                            leaveRequest: leaveRequest, isStaffLeave: true))
+                        .toList(),
+                  ],
+                ),
+              ),
+            );
+          }
+          if (state is LeaveRequestsFetchFailure) {
+            return Center(
+              child: CustomErrorWidget(
+                message: state.errorMessage,
+                onRetry: () {
+                  context.read<LeaveRequestsCubit>().getLeaveRequests();
+                },
+                primaryColor: maroonPrimary,
+              ),
+            ).animate().fadeIn(duration: const Duration(milliseconds: 400));
+          }
+
+          return Center(
+              child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomCircularProgressIndicator(
+                indicatorColor: maroonPrimary,
+              ),
+              const SizedBox(height: 20),
+              Text(
+                "Memuat permintaan...",
+                style: TextStyle(
+                  fontFamily: GoogleFonts.poppins().fontFamily,
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ).animate().fadeIn(duration: const Duration(milliseconds: 400)));
+        },
+      );
+    } else {
+      // Student Leave Tab
+      return BlocConsumer<StudentLeaveRequestsCubit, StudentLeaveRequestsState>(
+        listener: (context, state) {
+          // Handle student leave state changes if needed
+        },
+        builder: (context, state) {
+          if (state is StudentLeaveRequestsFetchSuccess) {
+            return Align(
+              alignment: Alignment.topCenter,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(
+                    left: appContentHorizontalPadding,
+                    right: appContentHorizontalPadding,
+                    top: 20,
+                    bottom: 30),
+                child: Column(
+                  children: [
+                    // Animated intro text
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.school,
+                            color: maroonPrimary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Permintaan Izin Siswa",
+                            style: TextStyle(
+                              fontFamily: GoogleFonts.poppins().fontFamily,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: maroonPrimary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              "${state.leaveRequests.length} Permintaan",
+                              style: TextStyle(
+                                fontFamily: GoogleFonts.poppins().fontFamily,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: maroonPrimary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                        .animate()
+                        .fadeIn(duration: const Duration(milliseconds: 400))
+                        .slideY(begin: -0.2, end: 0),
+
+                    // Leave request cards
+                    ...state.leaveRequests
+                        .map((leaveRequest) => _buildLeaveRequestDetails(
+                            leaveRequest: leaveRequest, isStaffLeave: false))
+                        .toList(),
+                  ],
+                ),
+              ),
+            );
+          }
+          if (state is StudentLeaveRequestsFetchFailure) {
+            return Center(
+              child: CustomErrorWidget(
+                message: state.errorMessage,
+                onRetry: () {
+                  context
+                      .read<StudentLeaveRequestsCubit>()
+                      .getStudentLeaveRequests();
+                },
+                primaryColor: maroonPrimary,
+              ),
+            ).animate().fadeIn(duration: const Duration(milliseconds: 400));
+          }
+
+          return Center(
+              child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomCircularProgressIndicator(
+                indicatorColor: maroonPrimary,
+              ),
+              const SizedBox(height: 20),
+              Text(
+                "Memuat permintaan...",
+                style: TextStyle(
+                  fontFamily: GoogleFonts.poppins().fontFamily,
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ).animate().fadeIn(duration: const Duration(milliseconds: 400)));
+        },
+      );
+    }
   }
 }
 
@@ -711,12 +917,14 @@ class LeaveRequestDetailsBottomsheet extends StatelessWidget {
   final bool approveLeave;
   final LeaveRequest leaveRequest;
   final String? rejectReason;
+  final bool isStaffLeave;
 
   const LeaveRequestDetailsBottomsheet({
     super.key,
     required this.approveLeave,
     required this.leaveRequest,
     this.rejectReason,
+    required this.isStaffLeave,
   });
 
   @override
@@ -810,71 +1018,138 @@ class LeaveRequestDetailsBottomsheet extends StatelessWidget {
                           )
                         : const SizedBox(),
                     hasAttachments ? const Spacer() : const SizedBox(),
-                    BlocConsumer<ApproveOrRejectLeaveRequestCubit,
-                        ApproveOrRejectLeaveRequestState>(
-                      listener: (context, state) {
-                        if (state is ApproveOrRejectLeaveRequestSuccess) {
-                          Get.back(result: true);
-                          Get.snackbar(
-                            'Sukses',
-                            approveLeave
-                                ? 'Cuti berhasil disetujui.'
-                                : 'Cuti berhasil ditolak.',
-                            backgroundColor: approveLeave
-                                ? Colors.green[50]
-                                : Colors.red[50],
-                            colorText: approveLeave
-                                ? Colors.green[900]
-                                : Colors.red[900],
-                          );
-                        } else if (state
-                            is ApproveOrRejectLeaveRequestFailure) {
-                          Utils.showSnackBar(
-                              message: state.errorMessage, context: context);
-                        }
-                      },
-                      builder: (context, state) {
-                        return PopScope(
-                          canPop:
-                              state is! ApproveOrRejectLeaveRequestInProgress,
-                          child: SizedBox(
-                            width: boxConstraints.maxWidth *
-                                (hasAttachments ? 0.475 : 1.0),
-                            child: CustomRoundedButton(
-                              radius: 12,
-                              height: 45,
-                              widthPercentage: 1.0,
-                              backgroundColor: maroonPrimary,
-                              buttonTitle:
-                                  approveLeave ? approveKey : rejectKey,
-                              showBorder: false,
-                              child:
-                                  state is ApproveOrRejectLeaveRequestInProgress
-                                      ? const CustomCircularProgressIndicator()
-                                      : null,
-                              onTap: () {
-                                if (state
-                                    is ApproveOrRejectLeaveRequestInProgress) {
-                                  return;
-                                }
-                                context
-                                    .read<ApproveOrRejectLeaveRequestCubit>()
-                                    .approveOrRejectLeaveRequest(
-                                        leaveRequestId: leaveRequest.id ?? 0,
-                                        approveLeave: approveLeave,
-                                        rejectReason: rejectReason);
-                              },
-                            ),
+                    isStaffLeave
+                        ? BlocConsumer<ApproveOrRejectLeaveRequestCubit,
+                            ApproveOrRejectLeaveRequestState>(
+                            listener: (context, state) {
+                              if (state is ApproveOrRejectLeaveRequestSuccess) {
+                                Get.back(result: true);
+                                Get.snackbar(
+                                  'Sukses',
+                                  approveLeave
+                                      ? 'Cuti berhasil disetujui.'
+                                      : 'Cuti berhasil ditolak.',
+                                  backgroundColor: approveLeave
+                                      ? Colors.green[50]
+                                      : Colors.red[50],
+                                  colorText: approveLeave
+                                      ? Colors.green[900]
+                                      : Colors.red[900],
+                                );
+                              } else if (state
+                                  is ApproveOrRejectLeaveRequestFailure) {
+                                Utils.showSnackBar(
+                                    message: state.errorMessage,
+                                    context: context);
+                              }
+                            },
+                            builder: (context, state) {
+                              return _buildApprovalButton(
+                                  context,
+                                  state,
+                                  leaveRequest,
+                                  approveLeave,
+                                  rejectReason,
+                                  isStaffLeave,
+                                  boxConstraints,
+                                  hasAttachments);
+                            },
+                          )
+                        : BlocConsumer<ApproveOrRejectStudentLeaveRequestCubit,
+                            ApproveOrRejectStudentLeaveRequestState>(
+                            listener: (context, state) {
+                              if (state
+                                  is ApproveOrRejectStudentLeaveRequestSuccess) {
+                                Get.back(result: true);
+                                Get.snackbar(
+                                  'Sukses',
+                                  approveLeave
+                                      ? 'Izin siswa berhasil disetujui.'
+                                      : 'Izin siswa berhasil ditolak.',
+                                  backgroundColor: approveLeave
+                                      ? Colors.green[50]
+                                      : Colors.red[50],
+                                  colorText: approveLeave
+                                      ? Colors.green[900]
+                                      : Colors.red[900],
+                                );
+                              } else if (state
+                                  is ApproveOrRejectStudentLeaveRequestFailure) {
+                                Utils.showSnackBar(
+                                    message: state.errorMessage,
+                                    context: context);
+                              }
+                            },
+                            builder: (context, state) {
+                              return _buildApprovalButton(
+                                  context,
+                                  state,
+                                  leaveRequest,
+                                  approveLeave,
+                                  rejectReason,
+                                  isStaffLeave,
+                                  boxConstraints,
+                                  hasAttachments);
+                            },
                           ),
-                        );
-                      },
-                    ),
                   ],
                 );
               }),
             )
           ],
         ));
+  }
+
+  Widget _buildApprovalButton(
+      BuildContext context,
+      dynamic state,
+      LeaveRequest leaveRequest,
+      bool approveLeave,
+      String? rejectReason,
+      bool isStaffLeave,
+      BoxConstraints boxConstraints,
+      bool hasAttachments) {
+    final Color maroonPrimary = const Color(0xFF800020);
+    final bool isInProgress =
+        (isStaffLeave && state is ApproveOrRejectLeaveRequestInProgress) ||
+            (!isStaffLeave &&
+                state is ApproveOrRejectStudentLeaveRequestInProgress);
+
+    return PopScope(
+      canPop: !isInProgress,
+      child: SizedBox(
+        width: boxConstraints.maxWidth * (hasAttachments ? 0.475 : 1.0),
+        child: CustomRoundedButton(
+          radius: 12,
+          height: 45,
+          widthPercentage: 1.0,
+          backgroundColor: maroonPrimary,
+          buttonTitle: approveLeave ? approveKey : rejectKey,
+          showBorder: false,
+          child: isInProgress ? const CustomCircularProgressIndicator() : null,
+          onTap: () {
+            if (isInProgress) {
+              return;
+            }
+            if (isStaffLeave) {
+              context
+                  .read<ApproveOrRejectLeaveRequestCubit>()
+                  .approveOrRejectLeaveRequest(
+                      leaveRequestId: leaveRequest.id ?? 0,
+                      approveLeave: approveLeave,
+                      rejectReason: rejectReason);
+            } else {
+              context
+                  .read<ApproveOrRejectStudentLeaveRequestCubit>()
+                  .approveOrRejectStudentLeaveRequest(
+                      leaveRequestId: leaveRequest.id ?? 0,
+                      approveLeave: approveLeave,
+                      rejectReason: rejectReason);
+            }
+          },
+        ),
+      ),
+    );
   }
 }
 
