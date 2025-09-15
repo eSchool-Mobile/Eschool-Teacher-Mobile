@@ -1,8 +1,6 @@
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/leave/approveOrRejectStudentPermissionCubit.dart';
 import 'package:eschool_saas_staff/data/models/permissionDetails.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/rejectReasonDialog.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
@@ -14,11 +12,13 @@ import 'dart:ui';
 class PermissionDetailsContainer extends StatefulWidget {
   final PermissionDetails permissionDetails;
   final bool? overflow;
+  final VoidCallback? onPermissionUpdated;
 
   const PermissionDetailsContainer({
     super.key,
     required this.permissionDetails,
     this.overflow,
+    this.onPermissionUpdated,
   });
 
   @override
@@ -172,6 +172,78 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
       ),
     );
   }
+
+  // Commented out to prevent overflow in header
+  // Widget _buildHeaderStatusBadge() {
+  //   final lastLeave = safeLastLeave;
+  //   if (lastLeave == null) return const SizedBox.shrink();
+
+  //   // Get current status (use optimistic status if available)
+  //   final int status = _optimisticStatus ?? lastLeave.status ?? 0;
+
+  //   // Only show status badge if it's approved or rejected
+  //   if (status == 0) return const SizedBox.shrink(); // Don't show for pending
+
+  //   String statusText;
+  //   Color statusColor;
+  //   IconData statusIcon;
+
+  //   switch (status) {
+  //     case 1: // Approved
+  //       statusText = "Disetujui";
+  //       statusColor = Colors.green.shade600;
+  //       statusIcon = Icons.check_circle_rounded;
+  //       break;
+  //     case 2: // Rejected
+  //       statusText = "Ditolak";
+  //       statusColor = Colors.red.shade600;
+  //       statusIcon = Icons.cancel_rounded;
+  //       break;
+  //     default:
+  //       return const SizedBox.shrink();
+  //   }
+
+  //   return AnimatedContainer(
+  //     duration: const Duration(milliseconds: 300),
+  //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  //     decoration: BoxDecoration(
+  //       color: statusColor.withOpacity(0.15),
+  //       borderRadius: BorderRadius.circular(20),
+  //       border: Border.all(
+  //         color: statusColor.withOpacity(0.4),
+  //         width: 2,
+  //       ),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: statusColor.withOpacity(0.3),
+  //           blurRadius: 8,
+  //           spreadRadius: 1,
+  //           offset: const Offset(0, 3),
+  //         ),
+  //       ],
+  //     ),
+  //     child: Row(
+  //       mainAxisSize: MainAxisSize.min,
+  //       children: [
+  //         Icon(
+  //           statusIcon,
+  //           color: statusColor,
+  //           size: 18,
+  //         ),
+  //         const SizedBox(width: 6),
+  //         Text(
+  //           statusText,
+  //           style: TextStyle(
+  //             color: statusColor,
+  //             fontWeight: FontWeight.bold,
+  //             fontSize: 13,
+  //             letterSpacing: 0.5,
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   void _showAttachments(BuildContext context) {
     final lastLeave = safeLastLeave;
@@ -692,6 +764,14 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         _buildLeaveTypeChip(getSafeLeaveType()),
+                        // Commented out status badge to prevent overflow
+                        // Row(
+                        //   children: [
+                        //     _buildLeaveTypeChip(getSafeLeaveType()),
+                        //     const SizedBox(width: 12),
+                        //     _buildHeaderStatusBadge(),
+                        //   ],
+                        // ),
                         Material(
                           color: Colors.transparent,
                           child: InkWell(
@@ -1294,8 +1374,158 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
     // Check if leave is already approved or rejected (use optimistic status if available)
     final int status = _optimisticStatus ?? lastLeave.status ?? 0;
     if (status == 1 || status == 2) {
-      return _buildStatusBadge(status);
+      return _buildStatusSection(status);
     }
+
+    return BlocProvider(
+      create: (context) => ApproveOrRejectStudentPermissionCubit(),
+      child: BlocConsumer<ApproveOrRejectStudentPermissionCubit,
+          ApproveOrRejectStudentPermissionState>(
+        listener: (context, state) {
+          if (state is ApproveOrRejectStudentPermissionSuccess) {
+            Utils.showSnackBar(
+              message: "Izin berhasil diperbarui",
+              context: context,
+            );
+            widget.onPermissionUpdated?.call();
+          } else if (state is ApproveOrRejectStudentPermissionFailure) {
+            setState(() {
+              _optimisticStatus = null;
+              _optimisticRejectionReason = null;
+            });
+            Utils.showSnackBar(
+              message: state.errorMessage,
+              context: context,
+            );
+          }
+        },
+        builder: (context, state) {
+          final bool isInProgress =
+              state is ApproveOrRejectStudentPermissionInProgress;
+          return Container(
+            margin: const EdgeInsets.only(top: 20),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _buildPrimaryButton(
+                    onTap: isInProgress
+                        ? null
+                        : () => _approveLeave(context, lastLeave.id ?? 0),
+                    label: "Setujui",
+                    icon: Icons.check_circle_outline_rounded,
+                    primaryColor: Colors.green.shade600,
+                    isLoading: isInProgress,
+                    isApprove: true,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildPrimaryButton(
+                    onTap: isInProgress
+                        ? null
+                        : () => _rejectLeave(context, lastLeave.id ?? 0),
+                    label: "Tolak",
+                    icon: Icons.highlight_remove_rounded,
+                    primaryColor: Colors.red.shade600,
+                    isLoading: isInProgress,
+                    isApprove: false,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildStatusSection(int status) {
+    return Container(
+      margin: const EdgeInsets.only(top: 20),
+      child: Column(
+        children: [
+          // Show rejection reason if available
+          if (status == 2) ...[
+            Builder(
+              builder: (context) {
+                final rejectionReason = _optimisticRejectionReason ??
+                    safeLastLeave?.rejectionReason;
+                if (rejectionReason != null && rejectionReason.isNotEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.error_outline_rounded,
+                              color: Colors.red.shade600,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Alasan Penolakan',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.red.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.red.shade200,
+                              width: 1,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.red.shade100.withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  rejectionReason,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.red.shade800,
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+          ],
+          _buildEditButtons(status),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEditButtons(int currentStatus) {
+    final lastLeave = safeLastLeave;
+    if (lastLeave == null) return const SizedBox.shrink();
 
     return BlocProvider(
       create: (context) => ApproveOrRejectStudentPermissionCubit(),
@@ -1305,10 +1535,12 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
           if (state is ApproveOrRejectStudentPermissionSuccess) {
             // Show success message
             Utils.showSnackBar(
-              message: "Izin berhasil diperbarui",
+              message: "Keputusan izin berhasil diperbarui",
               context: context,
             );
             // Keep the optimistic state as it succeeded
+            // Refresh parent data
+            widget.onPermissionUpdated?.call();
           } else if (state is ApproveOrRejectStudentPermissionFailure) {
             // Rollback optimistic state on failure
             setState(() {
@@ -1328,46 +1560,40 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
               state is ApproveOrRejectStudentPermissionInProgress;
 
           return Container(
-            margin: const EdgeInsets.only(top: 20),
+            margin: const EdgeInsets.only(top: 16),
             child: Row(
               children: [
-                Expanded(
-                  child: CustomRoundedButton(
-                    onTap: isInProgress
-                        ? null
-                        : () => _approveLeave(context, lastLeave.id ?? 0),
-                    backgroundColor: Colors.green.shade600,
-                    buttonTitle: approveKey,
-                    showBorder: false,
-                    radius: 12,
-                    height: 45,
-                    widthPercentage: 1.0,
-                    child: isInProgress
-                        ? const CustomCircularProgressIndicator(
-                            strokeWidth: 2,
-                          )
-                        : null,
+                // Show "Change to Approve" button if currently rejected
+                if (currentStatus == 2) ...[
+                  Expanded(
+                    child: _buildModernButton(
+                      onTap: isInProgress
+                          ? null
+                          : () => _changeToApprove(context, lastLeave.id ?? 0),
+                      label: "Ubah ke Setujui",
+                      icon: Icons.check_circle_outline_rounded,
+                      primaryColor: Colors.green.shade600,
+                      backgroundColor: Colors.green.shade50,
+                      isLoading: isInProgress,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: CustomRoundedButton(
-                    onTap: isInProgress
-                        ? null
-                        : () => _rejectLeave(context, lastLeave.id ?? 0),
-                    backgroundColor: Colors.red.shade600,
-                    buttonTitle: rejectKey,
-                    showBorder: false,
-                    radius: 12,
-                    height: 45,
-                    widthPercentage: 1.0,
-                    child: isInProgress
-                        ? const CustomCircularProgressIndicator(
-                            strokeWidth: 2,
-                          )
-                        : null,
+                ],
+
+                // Show "Change to Reject" button if currently approved
+                if (currentStatus == 1) ...[
+                  Expanded(
+                    child: _buildModernButton(
+                      onTap: isInProgress
+                          ? null
+                          : () => _changeToReject(context, lastLeave.id ?? 0),
+                      label: "Ubah ke Tolak",
+                      icon: Icons.highlight_remove_rounded,
+                      primaryColor: Colors.red.shade600,
+                      backgroundColor: Colors.red.shade50,
+                      isLoading: isInProgress,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           );
@@ -1376,87 +1602,190 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
     );
   }
 
-  Widget _buildStatusBadge(int status) {
-    String text;
-    Color backgroundColor;
-    Color textColor;
-    IconData icon;
-
-    switch (status) {
-      case 1: // Approved
-        text = "Disetujui";
-        backgroundColor = Colors.green.shade100;
-        textColor = Colors.green.shade700;
-        icon = Icons.check_circle;
-        break;
-      case 2: // Rejected
-        text = "Ditolak";
-        backgroundColor = Colors.red.shade100;
-        textColor = Colors.red.shade700;
-        icon = Icons.cancel;
-        break;
-      default:
-        text = "Menunggu";
-        backgroundColor = Colors.orange.shade100;
-        textColor = Colors.orange.shade700;
-        icon = Icons.pending;
-    }
-
-    return Container(
-      margin: const EdgeInsets.only(top: 20),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: textColor.withOpacity(0.3)),
+  Widget _buildModernButton({
+    required VoidCallback? onTap,
+    required String label,
+    required IconData icon,
+    required Color primaryColor,
+    required Color backgroundColor,
+    required bool isLoading,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        splashColor: primaryColor.withOpacity(0.1),
+        highlightColor: primaryColor.withOpacity(0.05),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: primaryColor.withOpacity(0.3),
+              width: 1.5,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: textColor, size: 20),
-                const SizedBox(width: 8),
+            boxShadow: [
+              BoxShadow(
+                color: primaryColor.withOpacity(0.15),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+                spreadRadius: 0,
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (isLoading) ...[
+                SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                  ),
+                ),
+                const SizedBox(width: 12),
                 Text(
-                  text,
+                  "Memproses...",
                   style: TextStyle(
-                    color: textColor,
+                    color: primaryColor,
                     fontWeight: FontWeight.w600,
-                    fontSize: 16,
+                    fontSize: 15,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ] else ...[
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: primaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: primaryColor,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: primaryColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    letterSpacing: 0.3,
                   ),
                 ),
               ],
-            ),
+            ],
           ),
-          // Show rejection reason if available
-          if (status == 2 && _optimisticRejectionReason != null)
-            Container(
-              margin: const EdgeInsets.only(top: 8),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.red.shade200),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.info_outline,
-                      color: Colors.red.shade700, size: 16),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      "Alasan: ${_optimisticRejectionReason}",
-                      style: TextStyle(
-                        color: Colors.red.shade700,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPrimaryButton({
+    required VoidCallback? onTap,
+    required String label,
+    required IconData icon,
+    required Color primaryColor,
+    required bool isLoading,
+    required bool isApprove,
+  }) {
+    // Define gradient colors based on approve/reject
+    final List<Color> gradientColors = isApprove
+        ? [
+            primaryColor.withOpacity(0.9),
+            primaryColor,
+          ]
+        : [
+            primaryColor.withOpacity(0.9),
+            primaryColor,
+          ];
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        splashColor: Colors.white.withOpacity(0.2),
+        highlightColor: Colors.white.withOpacity(0.1),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: 52,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: gradientColors,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-        ],
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: primaryColor.withOpacity(0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (isLoading) ...[
+                SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    valueColor:
+                        const AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  "Memproses...",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ] else ...[
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -1498,6 +1827,71 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
   }
 
   void _rejectLeave(BuildContext context, int leaveId) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => RejectReasonDialog(
+        onReject: (String rejectReason) {
+          Navigator.of(dialogContext).pop();
+
+          // Optimistic update
+          setState(() {
+            _optimisticStatus = 2; // Rejected
+            _optimisticRejectionReason = rejectReason;
+          });
+
+          // Make API call
+          context
+              .read<ApproveOrRejectStudentPermissionCubit>()
+              .approveOrRejectStudentPermission(
+                leaveId: leaveId,
+                approveLeave: false,
+                rejectReason: rejectReason,
+              );
+        },
+        onCancel: () => Navigator.of(dialogContext).pop(),
+      ),
+    );
+  }
+
+  void _changeToApprove(BuildContext context, int leaveId) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text("Ubah Keputusan"),
+        content: const Text(
+            "Apakah Anda yakin ingin mengubah keputusan menjadi 'Disetujui'?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text("Batal"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+
+              // Optimistic update
+              setState(() {
+                _optimisticStatus = 1; // Approved
+                _optimisticRejectionReason = null; // Clear rejection reason
+              });
+
+              // Make API call
+              context
+                  .read<ApproveOrRejectStudentPermissionCubit>()
+                  .approveOrRejectStudentPermission(
+                    leaveId: leaveId,
+                    approveLeave: true,
+                  );
+            },
+            child: const Text("Ya, Ubah"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _changeToReject(BuildContext context, int leaveId) {
     showDialog(
       context: context,
       barrierDismissible: false,

@@ -12,6 +12,7 @@ class Leave {
   final int? leaveMasterId;
   final String? createdAt;
   final String? updatedAt;
+  final String? rejectionReason;
   final List<File>? file;
   final List<LeaveDetail>? leaveDetail;
 
@@ -26,6 +27,7 @@ class Leave {
       this.leaveMasterId,
       this.createdAt,
       this.updatedAt,
+      this.rejectionReason,
       this.file,
       this.leaveDetail});
 
@@ -40,6 +42,7 @@ class Leave {
       int? leaveMasterId,
       String? createdAt,
       String? updatedAt,
+      String? rejectionReason,
       List<File>? file,
       List<LeaveDetail>? leaveDetail}) {
     return Leave(
@@ -53,6 +56,7 @@ class Leave {
         leaveMasterId: leaveMasterId ?? this.leaveMasterId,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
+        rejectionReason: rejectionReason ?? this.rejectionReason,
         file: file ?? this.file,
         leaveDetail: leaveDetail ?? this.leaveDetail);
   }
@@ -68,6 +72,7 @@ class Leave {
         leaveMasterId = json['leave_master_id'] as int?,
         createdAt = json['created_at'] as String?,
         updatedAt = json['updated_at'] as String?,
+        rejectionReason = json['rejection_reason'] as String?,
         file = (json['file'] as List<dynamic>?)
             ?.map((e) => File.fromJson(e as Map<String, dynamic>))
             .toList(),
@@ -85,6 +90,7 @@ class Leave {
         'school_id': schoolId,
         'leave_master_id': leaveMasterId,
         'created_at': createdAt,
-        'updated_at': updatedAt
+        'updated_at': updatedAt,
+        'rejection_reason': rejectionReason
       };
 }

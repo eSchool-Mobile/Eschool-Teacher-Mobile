@@ -342,7 +342,8 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                     .map((permissionDetails) =>
                                         PermissionDetailsContainer(
                                             permissionDetails:
-                                                permissionDetails))
+                                                permissionDetails,
+                                            onPermissionUpdated: getLeaves))
                                     .toList(),
                               ).animate().fadeIn(duration: 500.ms).slideY(
                                   begin: 0.05,
