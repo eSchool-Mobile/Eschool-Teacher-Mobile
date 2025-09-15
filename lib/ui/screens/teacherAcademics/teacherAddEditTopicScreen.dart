@@ -18,6 +18,8 @@ import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
+import 'package:eschool_saas_staff/utils/optimized_file_compression_mixin.dart';
+import 'package:eschool_saas_staff/utils/optimized_file_compression_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -84,7 +86,7 @@ class TeacherAddEditTopicScreen extends StatefulWidget {
 }
 
 class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, OptimizedFileCompressionMixin {
   late ClassSection? _selectedClassSection = widget.selectedClassSection;
   late TeacherSubject? _selectedSubject = widget.selectedSubject;
   late Lesson? _selectedLesson = widget.selectedLesson;

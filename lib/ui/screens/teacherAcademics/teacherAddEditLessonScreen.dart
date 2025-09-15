@@ -20,6 +20,8 @@ import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
+import 'package:eschool_saas_staff/utils/optimized_file_compression_mixin.dart';
+import 'package:eschool_saas_staff/utils/optimized_file_compression_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -78,7 +80,7 @@ class TeacherAddEditLessonScreen extends StatefulWidget {
 }
 
 class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, OptimizedFileCompressionMixin {
   late ClassSection? _selectedClassSection = widget.selectedClassSection;
   late TeacherSubject? _selectedSubject = widget.selectedSubject;
   GradeLevel? _selectedGradeLevel;
@@ -195,7 +197,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
   void changeSelectedGradeLevel(GradeLevel? gradeLevel) {
     if (_selectedGradeLevel != gradeLevel) {
       _selectedGradeLevel = gradeLevel;
-      
+
       // Reset selected class and subject when grade level changes
       _selectedClassSection = null;
       _selectedSubject = null;
@@ -222,7 +224,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
       _selectedClassSection = classSection;
       // Reset subject when changing class
       _selectedSubject = null;
-      
+
       //fetching new subjects after user changes the selected class
       if (fetchNewSubjects && _selectedClassSection != null) {
         context
@@ -304,12 +306,12 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
       showErrorMessage(noSubjectSelectedKey);
       return;
     }
-    
+
     if (_selectedClassSection == null) {
       showErrorMessage(noClassSectionSelectedKey);
       return;
     }
-    
+
     if (_lessonNameTextEditingController.text.trim().isEmpty) {
       showErrorMessage(pleaseEnterLessonNameKey);
       return;
@@ -584,7 +586,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
             ),
           );
         }
-        
+
         return state is ClassSectionsAndSubjectsFetchFailure
             ? Center(
                 child: ErrorContainer(
@@ -629,20 +631,23 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                         if (gradeLevelState is GradeLevelFetchSuccess)
                           _buildAnimatedTextField(
                             controller: TextEditingController(
-                                text: _selectedGradeLevel?.name ?? 'Pilih Tingkatan'),
+                                text: _selectedGradeLevel?.name ??
+                                    'Pilih Tingkatan'),
                             label: 'Tingkatan',
                             icon: Icons.school_rounded,
                             readOnly: true,
                             onTap: () {
                               if (gradeLevelState.gradeLevels.isNotEmpty) {
                                 Utils.showBottomSheet(
-                                    child: FilterSelectionBottomsheet<GradeLevel>(
+                                    child:
+                                        FilterSelectionBottomsheet<GradeLevel>(
                                       showFilterByLabel: false,
                                       onSelection: (value) {
                                         changeSelectedGradeLevel(value);
                                         Get.back();
                                       },
-                                      selectedValue: _selectedGradeLevel ?? gradeLevelState.gradeLevels.first,
+                                      selectedValue: _selectedGradeLevel ??
+                                          gradeLevelState.gradeLevels.first,
                                       titleKey: "Pilih Tingkatan",
                                       values: gradeLevelState.gradeLevels,
                                     ),
@@ -650,35 +655,41 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                               }
                             },
                           ),
-                        if (gradeLevelState is GradeLevelFetchSuccess) SizedBox(height: 15),
+                        if (gradeLevelState is GradeLevelFetchSuccess)
+                          SizedBox(height: 15),
 
                         // Class Selection - Filter based on grade level
                         _buildAnimatedTextField(
                           controller: TextEditingController(
-                              text: _selectedClassSection?.fullName ?? 'Pilih Kelas'),
+                              text: _selectedClassSection?.fullName ??
+                                  'Pilih Kelas'),
                           label: 'Bagian Kelas',
                           icon: Icons.class_,
                           readOnly: true,
                           onTap: () {
                             if (state is ClassSectionsAndSubjectsFetchSuccess) {
                               // Filter classes based on selected grade level
-                              List<ClassSection> availableClasses = state.classSections;
+                              List<ClassSection> availableClasses =
+                                  state.classSections;
                               if (_selectedGradeLevel != null) {
                                 availableClasses = state.classSections
-                                    .where((classSection) => 
-                                        classSection.gradeLevelId == _selectedGradeLevel!.id)
+                                    .where((classSection) =>
+                                        classSection.gradeLevelId ==
+                                        _selectedGradeLevel!.id)
                                     .toList();
                               }
 
                               if (availableClasses.isNotEmpty) {
                                 Utils.showBottomSheet(
-                                    child: FilterSelectionBottomsheet<ClassSection>(
+                                    child: FilterSelectionBottomsheet<
+                                        ClassSection>(
                                       showFilterByLabel: false,
                                       onSelection: (value) {
                                         changeSelectedClassSection(value);
                                         Get.back();
                                       },
-                                      selectedValue: _selectedClassSection ?? availableClasses.first,
+                                      selectedValue: _selectedClassSection ??
+                                          availableClasses.first,
                                       titleKey: classKey,
                                       values: availableClasses,
                                     ),
@@ -686,7 +697,8 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                               } else {
                                 Utils.showSnackBar(
                                   context: context,
-                                  message: "Tidak ada kelas untuk tingkatan yang dipilih",
+                                  message:
+                                      "Tidak ada kelas untuk tingkatan yang dipilih",
                                 );
                               }
                             }
@@ -704,12 +716,14 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                           icon: Icons.subject,
                           readOnly: true,
                           onTap: () {
-                            if (state is ClassSectionsAndSubjectsFetchSuccess && 
+                            if (state is ClassSectionsAndSubjectsFetchSuccess &&
                                 state.subjects.isNotEmpty) {
                               Utils.showBottomSheet(
-                                  child: FilterSelectionBottomsheet<TeacherSubject>(
+                                  child: FilterSelectionBottomsheet<
+                                      TeacherSubject>(
                                     showFilterByLabel: false,
-                                    selectedValue: _selectedSubject ?? state.subjects.first,
+                                    selectedValue: _selectedSubject ??
+                                        state.subjects.first,
                                     titleKey: subjectKey,
                                     values: state.subjects,
                                     onSelection: (value) {
@@ -725,277 +739,292 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                     ),
                   ),
 
-              SizedBox(height: 20),
+                  SizedBox(height: 20),
 
-              // Lesson Details Section
-              Container(
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 5,
-                      blurRadius: 10,
-                      offset: Offset(0, 3),
+                  // Lesson Details Section
+                  Container(
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.1),
+                          spreadRadius: 5,
+                          blurRadius: 10,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Detail Pelajaran',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    _buildAnimatedTextField(
-                      controller: _lessonNameTextEditingController,
-                      label: 'Nama Pelajaran',
-                      icon: Icons.book,
-                    ),
-                    SizedBox(height: 15),
-                    _buildAnimatedTextField(
-                      controller: _lessonDescriptionTextEditingController,
-                      label: 'Deskripsi',
-                      icon: Icons.description,
-                    ),
-                  ],
-                ),
-              ),
-
-              SizedBox(height: 20),              // Study Materials Section - Clean & Minimalist Design
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 12,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Clean Header
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Icon(
-                              Icons.folder_copy_outlined,
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 20,
-                            ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Detail Pelajaran',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
-                          SizedBox(width: 12),
-                          Text(
-                            'Materi Pembelajaran',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey.shade800,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                        SizedBox(height: 20),
+                        _buildAnimatedTextField(
+                          controller: _lessonNameTextEditingController,
+                          label: 'Nama Pelajaran',
+                          icon: Icons.book,
+                        ),
+                        SizedBox(height: 15),
+                        _buildAnimatedTextField(
+                          controller: _lessonDescriptionTextEditingController,
+                          label: 'Deskripsi',
+                          icon: Icons.description,
+                        ),
+                      ],
                     ),
+                  ),
 
-                    // Minimalist Info Card
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 20),
-                      padding: EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade200),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                  SizedBox(
+                      height:
+                          20), // Study Materials Section - Clean & Minimalist Design
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 12,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Clean Header
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+                          child: Row(
                             children: [
-                              Icon(
-                                Icons.info_outline,
-                                size: 16,
-                                color: Colors.grey.shade600,
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primary
+                                      .withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Icon(
+                                  Icons.folder_copy_outlined,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  size: 20,
+                                ),
                               ),
-                              SizedBox(width: 6),
+                              SizedBox(width: 12),
                               Text(
-                                'Format yang didukung',
+                                'Materi Pembelajaran',
                                 style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey.shade700,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey.shade800,
                                 ),
                               ),
                             ],
                           ),
-                          SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 4,
-                            children: [
-                              _buildFormatChip('PDF'),
-                              _buildFormatChip('JPEG'),
-                              _buildFormatChip('PNG'),
-                              _buildFormatChip('CSV'),
-                              _buildFormatChip('MS Word'),
-                              _buildFormatChip('MP4'),
-                              _buildFormatChip('AVI'),
-                              _buildFormatChip('YouTube'),
-                            ],
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Batasan ukuran file adalah 2 MB',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade600,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                        ),
 
-                    SizedBox(height: 20),
-
-                    // Content Area
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Existing study materials
-                          if (widget.lesson != null && studyMaterials.isNotEmpty) ...[
-                            Text(
-                              'Materi Saat Ini',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade700,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            ...studyMaterials.map(
-                              (studyMaterial) => Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: StudyMaterialContainer(
-                                  onDeleteStudyMaterial: deleteStudyMaterial,
-                                  onEditStudyMaterial: updateStudyMaterials,
-                                  showEditAndDeleteButton: true,
-                                  studyMaterial: studyMaterial,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 16),
-                          ],
-
-                          // Added study materials
-                          if (_addedStudyMaterials.isNotEmpty) ...[
-                            Text(
-                              'Materi Baru',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade700,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            ..._addedStudyMaterials.asMap().entries.map(
-                              (entry) => Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: AddedStudyMaterialContainer(
-                                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                                  onDelete: (index) {
-                                    _addedStudyMaterials.removeAt(index);
-                                    setState(() {});
-                                  },
-                                  onEdit: (index, file) {
-                                    _addedStudyMaterials[index] = file;
-                                    setState(() {});
-                                  },
-                                  file: entry.value,
-                                  fileIndex: entry.key,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 16),
-                          ],
-
-                          // Clean Add Button
-                          InkWell(
-                            onTap: () {
-                              FocusScope.of(context).unfocus();
-                              Utils.showBottomSheet(
-                                child: AddStudyMaterialBottomsheet(
-                                  editFileDetails: false,
-                                  onTapSubmit: _addStudyMaterial,
-                                ),
-                                context: context,
-                              );
-                            },
+                        // Minimalist Info Card
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: 20),
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
                             borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              height: 48,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                                  width: 1.5,
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
                                 children: [
                                   Icon(
-                                    Icons.add_circle_outline,
-                                    color: Theme.of(context).colorScheme.primary,
-                                    size: 20,
+                                    Icons.info_outline,
+                                    size: 16,
+                                    color: Colors.grey.shade600,
                                   ),
-                                  SizedBox(width: 8),
+                                  SizedBox(width: 6),
                                   Text(
-                                    'Tambah Materi',
+                                    'Format yang didukung',
                                     style: TextStyle(
-                                      fontSize: 14,
+                                      fontSize: 13,
                                       fontWeight: FontWeight.w500,
-                                      color: Theme.of(context).colorScheme.primary,
+                                      color: Colors.grey.shade700,
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
+                              SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 4,
+                                children: [
+                                  _buildFormatChip('PDF'),
+                                  _buildFormatChip('JPEG'),
+                                  _buildFormatChip('PNG'),
+                                  _buildFormatChip('CSV'),
+                                  _buildFormatChip('MS Word'),
+                                  _buildFormatChip('MP4'),
+                                  _buildFormatChip('AVI'),
+                                  _buildFormatChip('YouTube'),
+                                ],
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Batasan ukuran file adalah 2 MB',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade600,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
 
-                    SizedBox(height: 20),
-                  ],
-                ),
-              )
+                        SizedBox(height: 20),
+
+                        // Content Area
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Existing study materials
+                              if (widget.lesson != null &&
+                                  studyMaterials.isNotEmpty) ...[
+                                Text(
+                                  'Materi Saat Ini',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey.shade700,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                ...studyMaterials.map(
+                                  (studyMaterial) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: StudyMaterialContainer(
+                                      onDeleteStudyMaterial:
+                                          deleteStudyMaterial,
+                                      onEditStudyMaterial: updateStudyMaterials,
+                                      showEditAndDeleteButton: true,
+                                      studyMaterial: studyMaterial,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 16),
+                              ],
+
+                              // Added study materials
+                              if (_addedStudyMaterials.isNotEmpty) ...[
+                                Text(
+                                  'Materi Baru',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey.shade700,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                ..._addedStudyMaterials.asMap().entries.map(
+                                      (entry) => Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 8),
+                                        child: AddedStudyMaterialContainer(
+                                          backgroundColor: Theme.of(context)
+                                              .scaffoldBackgroundColor,
+                                          onDelete: (index) {
+                                            _addedStudyMaterials
+                                                .removeAt(index);
+                                            setState(() {});
+                                          },
+                                          onEdit: (index, file) {
+                                            _addedStudyMaterials[index] = file;
+                                            setState(() {});
+                                          },
+                                          file: entry.value,
+                                          fileIndex: entry.key,
+                                        ),
+                                      ),
+                                    ),
+                                SizedBox(height: 16),
+                              ],
+
+                              // Clean Add Button
+                              InkWell(
+                                onTap: () {
+                                  FocusScope.of(context).unfocus();
+                                  Utils.showBottomSheet(
+                                    child: AddStudyMaterialBottomsheet(
+                                      editFileDetails: false,
+                                      onTapSubmit: _addStudyMaterial,
+                                    ),
+                                    context: context,
+                                  );
+                                },
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withOpacity(0.3),
+                                      width: 1.5,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.add_circle_outline,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Tambah Materi',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: 20),
+                      ],
+                    ),
+                  )
                 ],
               );
-          },
-        );
-      
-    
+      },
+    );
   }
 
   // Add this helper method for consistent text field styling

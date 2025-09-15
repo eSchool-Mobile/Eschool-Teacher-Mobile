@@ -19,6 +19,8 @@ import 'package:eschool_saas_staff/ui/widgets/uploadImageOrFileButton.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
+import 'package:eschool_saas_staff/utils/optimized_file_compression_mixin.dart';
+import 'package:eschool_saas_staff/utils/optimized_file_compression_utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -61,7 +63,7 @@ class AddNotificationScreen extends StatefulWidget {
 }
 
 class _AddNotificationScreenState extends State<AddNotificationScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, OptimizedFileCompressionMixin {
   String _sendToUserValue = "";
 
   final TextEditingController _titleTextEditingController =
@@ -152,11 +154,37 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
   }
 
   Future<void> _pickFiles() async {
-    final result = await Utils.openFilePicker(
-        context: context, allowMultiple: false, type: FileType.image);
-    if (result != null) {
-      _pickedFile = result.files.first;
+    print(
+        '🎯 [NOTIFICATION SCREEN] Memulai upload file dengan kompresi otomatis');
+
+    // Gunakan mixin untuk pick dan kompres otomatis dengan loading dialog
+    final compressedFiles = await pickAndCompressFiles(
+      allowMultiple: false,
+      fileType: FileType.image,
+      maxSizeInMB: 0.5, // Target 500KB
+      forceCompress: true,
+      context: context,
+    );
+
+    if (compressedFiles != null && compressedFiles.isNotEmpty) {
+      final file = compressedFiles.first;
+      final fileSize = await file.length();
+      final fileName = file.path.split('/').last;
+
+      print('✅ [NOTIFICATION SCREEN] File berhasil diproses: $fileName');
+      print(
+          '   📊 Ukuran final: ${OptimizedFileCompressionUtils.formatFileSize(fileSize)}');
+
+      // Convert File to PlatformFile for compatibility
+      _pickedFile = PlatformFile(
+        name: fileName,
+        size: fileSize,
+        path: file.path,
+      );
       setState(() {});
+    } else {
+      print(
+          '❌ [NOTIFICATION SCREEN] Tidak ada file yang dipilih atau diproses');
     }
   }
 
@@ -543,7 +571,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                   "Pilih Peran",
+                    "Pilih Peran",
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[800],

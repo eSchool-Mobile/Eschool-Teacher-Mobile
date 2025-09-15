@@ -13,6 +13,8 @@ import 'package:eschool_saas_staff/ui/widgets/uploadImageOrFileButton.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
+import 'package:eschool_saas_staff/utils/optimized_file_compression_mixin.dart';
+import 'package:eschool_saas_staff/utils/optimized_file_compression_utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -54,7 +56,7 @@ class ApplyLeaveScreen extends StatefulWidget {
 }
 
 class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, OptimizedFileCompressionMixin {
   late final TextEditingController _textEditingController =
       TextEditingController();
   late final AnimationController _animationController;
@@ -170,16 +172,41 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
 
   Future<void> _addFiles() async {
     HapticFeedback.mediumImpact();
-    final result = await Utils.openFilePicker(
+    print('🎯 [LEAVE SCREEN] Memulai upload file dengan kompresi otomatis');
+
+    // Gunakan mixin untuk pick dan kompres otomatis dengan loading dialog
+    final compressedFiles = await pickAndCompressFiles(
+      allowMultiple: true,
+      maxSizeInMB: 0.5, // Target 500KB
+      forceCompress: true,
       context: context,
     );
-    if (result != null) {
-      _uploadedFiles.addAll(result.files);
+
+    if (compressedFiles != null && compressedFiles.isNotEmpty) {
+      // Convert File to PlatformFile for compatibility
+      for (final file in compressedFiles) {
+        final fileSize = await file.length();
+        final fileName = file.path.split('/').last;
+
+        print('✅ [LEAVE SCREEN] File berhasil diproses: $fileName');
+        print(
+            '   📊 Ukuran final: ${OptimizedFileCompressionUtils.formatFileSize(fileSize)}');
+
+        final platformFile = PlatformFile(
+          name: fileName,
+          size: fileSize,
+          path: file.path,
+        );
+
+        _uploadedFiles.add(platformFile);
+      }
       setState(() {});
 
       // Show a subtle animation when files are added
       _pulseController.reset();
       _pulseController.forward();
+    } else {
+      print('❌ [LEAVE SCREEN] Tidak ada file yang dipilih atau diproses');
     }
   }
 

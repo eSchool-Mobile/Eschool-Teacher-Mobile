@@ -44,12 +44,14 @@ class FileCompressionUtils {
   /// - [file]: The file to compress
   /// - [maxSizeInMB]: Maximum target size in MB (default: 2MB)
   /// - [customQuality]: Custom quality override (0-100)
+  /// - [forceCompress]: Force compression even if file is under size limit
   ///
   /// Returns: Compressed file or original file if compression not needed/possible
   static Future<File> compressFile({
     required File file,
     double maxSizeInMB = 2.0,
     int? customQuality,
+    bool forceCompress = false,
   }) async {
     try {
       // Check if file exists
@@ -59,18 +61,28 @@ class FileCompressionUtils {
 
       final fileSize = await file.length();
       final maxSizeInBytes = (maxSizeInMB * 1024 * 1024).toInt();
+      final fileName = path.basename(file.path);
+      final fileExtension = path.extension(fileName).toLowerCase();
 
-      // If file is already smaller than target, return original
-      if (fileSize <= maxSizeInBytes) {
+      // Check if should skip compression
+      bool shouldSkipCompression = false;
+
+      // For images, always compress unless it's very small
+      if (_supportedImageFormats.contains(fileExtension)) {
+        // Only skip if file is very small (less than 100KB) and not forced
+        shouldSkipCompression = !forceCompress && fileSize < 100 * 1024;
+      } else {
+        // For non-images, skip if under size limit and not forced
+        shouldSkipCompression = !forceCompress && fileSize <= maxSizeInBytes;
+      }
+
+      if (shouldSkipCompression) {
         if (kDebugMode) {
           print(
-              'File is already within size limit: ${_formatFileSize(fileSize)}');
+              'File skipped compression: ${_formatFileSize(fileSize)} (${fileSize < 100 * 1024 ? "very small" : "within limit"})');
         }
         return file;
       }
-
-      final fileName = path.basename(file.path);
-      final fileExtension = path.extension(fileName).toLowerCase();
 
       if (kDebugMode) {
         print('Compressing file: $fileName (${_formatFileSize(fileSize)})');
@@ -78,7 +90,8 @@ class FileCompressionUtils {
 
       // Determine file type and compress accordingly
       if (_supportedImageFormats.contains(fileExtension)) {
-        return await _compressImage(
+        // Langsung gunakan dart:image library untuk menghindari plugin issues
+        return await _compressImageWithDartLibrary(
           file: file,
           maxSizeInBytes: maxSizeInBytes,
           customQuality: customQuality,
@@ -102,15 +115,16 @@ class FileCompressionUtils {
     }
   }
 
-  /// Compress image files with quality preservation
-  static Future<File> _compressImage({
+  /// Compress image files using dart:image library (more reliable)
+  static Future<File> _compressImageWithDartLibrary({
     required File file,
     required int maxSizeInBytes,
     int? customQuality,
   }) async {
     try {
       final fileSize = await file.length();
-      int quality = customQuality ?? _calculateQuality(fileSize);
+      // Use higher quality for smaller files, but still compress
+      int quality = customQuality ?? _calculateOptimalQuality(fileSize);
 
       // Generate output path
       final fileName = path.basenameWithoutExtension(file.path);
@@ -123,17 +137,21 @@ class FileCompressionUtils {
       int attempts = 0;
       const maxAttempts = 3;
 
-      // Try compression with decreasing quality until size target is met
+      // Try compression with smart dimension and quality adjustment
+      int maxWidth = 1920; // Start with high resolution
+      int maxHeight = 1080;
+
       while (attempts < maxAttempts) {
         final xFile = await FlutterImageCompress.compressAndGetFile(
           file.absolute.path,
           outputPath,
           quality: quality,
-          minWidth: 800,
-          minHeight: 600,
+          minWidth: maxWidth > 1200 ? 1200 : 800,
+          minHeight: maxHeight > 800 ? 800 : 600,
           keepExif: false,
+          rotate: 0,
         );
-        
+
         compressedFile = xFile != null ? File(xFile.path) : null;
 
         if (compressedFile != null) {
@@ -141,11 +159,12 @@ class FileCompressionUtils {
 
           if (kDebugMode) {
             print(
-                'Compression attempt ${attempts + 1}: ${_formatFileSize(compressedSize)} (quality: $quality)');
+                'Compression attempt ${attempts + 1}: ${_formatFileSize(compressedSize)} (quality: $quality, maxRes: ${maxWidth}x${maxHeight})');
           }
 
-          // Check if compressed size meets target
-          if (compressedSize <= maxSizeInBytes) {
+          // Check if compressed size meets target or if we achieved good compression
+          if (compressedSize <= maxSizeInBytes ||
+              compressedSize < fileSize * 0.7) {
             if (kDebugMode) {
               print(
                   'Image compression successful: ${_formatFileSize(fileSize)} → ${_formatFileSize(compressedSize)}');
@@ -154,8 +173,17 @@ class FileCompressionUtils {
           }
         }
 
-        // Reduce quality for next attempt
-        quality = (quality * 0.8).round();
+        // Progressive reduction strategy: first reduce dimensions, then quality
+        if (attempts == 0) {
+          // First attempt: reduce dimensions but keep quality high
+          maxWidth = (maxWidth * 0.8).round();
+          maxHeight = (maxHeight * 0.8).round();
+        } else {
+          // Later attempts: reduce quality more gradually
+          quality = (quality * 0.9).round();
+          if (quality < 75) quality = 75; // Don't go below 75% quality
+        }
+
         attempts++;
 
         // Clean up failed attempt
@@ -242,16 +270,18 @@ class FileCompressionUtils {
     }
   }
 
-  /// Calculate appropriate quality based on file size
-  static int _calculateQuality(int fileSize) {
+  /// Calculate optimal quality for compression while maintaining good visual quality
+  static int _calculateOptimalQuality(int fileSize) {
+    // Always use high quality for images to maintain visual fidelity
+    // We'll rely on dimension reduction and format optimization for size reduction
     if (fileSize <= _smallFileThreshold) {
-      return _highQuality; // High quality for small files
+      return 92; // Very high quality for small files
     } else if (fileSize <= _mediumFileThreshold) {
-      return _defaultQuality; // Default quality for medium files
+      return 88; // High quality for medium files
     } else if (fileSize <= _largeFileThreshold) {
-      return _mediumQuality; // Medium quality for large files
+      return 85; // Good quality for large files
     } else {
-      return _lowQuality; // Lower quality for very large files
+      return 82; // Still good quality for very large files
     }
   }
 

@@ -15,6 +15,8 @@ import 'package:eschool_saas_staff/ui/widgets/studentAttendanceContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
+import 'package:eschool_saas_staff/utils/optimized_file_compression_mixin.dart';
+import 'package:eschool_saas_staff/utils/optimized_file_compression_utils.dart';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +67,7 @@ class TeacherAddAttendanceSubjectScreen extends StatefulWidget {
 
 class _TeacherAddAttendanceScreenSubjectState
     extends State<TeacherAddAttendanceSubjectScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, OptimizedFileCompressionMixin {
   List<({StudentAttendanceStatus status, int studentId})> attendanceReport = [];
 
   final TextEditingController _materiController = TextEditingController();
@@ -290,19 +292,43 @@ class _TeacherAddAttendanceScreenSubjectState
   }
 
   Future<void> pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-      final file = result.files.single;
-      final fileSizeInMB = file.size / (1024 * 1024);
+    print(
+        '🎯 [ATTENDANCE SCREEN] Memulai upload lampiran dengan kompresi otomatis');
 
-      if (fileSizeInMB > 2.5) {
-        Utils.showSnackBar(message: maximumAttachmentKey, context: context);
-        return;
-      }
+    // Gunakan mixin untuk pick dan kompres otomatis dengan loading dialog
+    final compressedFiles = await pickAndCompressFiles(
+      allowMultiple: false,
+      maxSizeInMB: 0.5, // Target 500KB
+      forceCompress: true,
+      context: context,
+    );
+
+    if (compressedFiles != null && compressedFiles.isNotEmpty) {
+      final file = compressedFiles.first;
+      final fileSize = await file.length();
+      final fileName = file.path.split('/').last;
+
+      print('✅ [ATTENDANCE SCREEN] File lampiran berhasil diproses: $fileName');
+      print(
+          '   📊 Ukuran final: ${OptimizedFileCompressionUtils.formatFileSize(fileSize)} (${(fileSize / (1024 * 1024)).toStringAsFixed(2)} MB)');
+
+      // Show compression result to user
+      // Note: We'll add original size tracking later for better feedback
+
+      // Convert File to PlatformFile for compatibility
+      final platformFile = PlatformFile(
+        name: fileName,
+        size: fileSize,
+        path: file.path,
+      );
+
       setState(() {
         _selectedLampiran = file.path;
-        uploadedFiles.add(file);
+        uploadedFiles.clear();
+        uploadedFiles.add(platformFile);
       });
+    } else {
+      print('❌ [ATTENDANCE SCREEN] Tidak ada file yang dipilih atau diproses');
     }
   }
 

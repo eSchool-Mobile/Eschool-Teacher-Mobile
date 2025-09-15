@@ -13,6 +13,8 @@ import 'package:eschool_saas_staff/ui/widgets/uploadImageOrFileButton.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
+import 'package:eschool_saas_staff/utils/optimized_file_compression_mixin.dart';
+import 'package:eschool_saas_staff/utils/optimized_file_compression_utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -51,7 +53,7 @@ class AddAnnouncementScreen extends StatefulWidget {
 }
 
 class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, OptimizedFileCompressionMixin {
   final _formKey = GlobalKey<FormState>();
 
   List<ClassSection> _selectedClassSections = [];
@@ -199,7 +201,7 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                   ),
               ],
             );
-              },
+          },
         );
       },
     );
@@ -524,21 +526,44 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
       ),
     );
   }
-        
-        
 
   Future<void> _pickFiles() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      print(
+          '🎯 [ANNOUNCEMENT SCREEN] Memulai upload file dengan kompresi otomatis');
+
+      // Gunakan mixin untuk pick dan kompres otomatis dengan loading dialog
+      final compressedFiles = await pickAndCompressFiles(
         allowMultiple: true,
-        type: FileType.custom,
+        fileType: FileType.custom,
         allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'],
+        maxSizeInMB: 0.5, // Target 500KB
+        forceCompress: true,
+        context: context,
       );
 
-      if (result != null) {
-        setState(() {
-          _pickedFiles.addAll(result.files);
-        });
+      if (compressedFiles != null && compressedFiles.isNotEmpty) {
+        // Convert File to PlatformFile for compatibility
+        for (final file in compressedFiles) {
+          final fileSize = await file.length();
+          final fileName = file.path.split('/').last;
+
+          print('✅ [ANNOUNCEMENT SCREEN] File berhasil diproses: $fileName');
+          print(
+              '   📊 Ukuran final: ${OptimizedFileCompressionUtils.formatFileSize(fileSize)}');
+
+          final platformFile = PlatformFile(
+            name: fileName,
+            size: fileSize,
+            path: file.path,
+          );
+
+          _pickedFiles.add(platformFile);
+        }
+        setState(() {});
+      } else {
+        print(
+            '❌ [ANNOUNCEMENT SCREEN] Tidak ada file yang dipilih atau diproses');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -567,69 +592,64 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Lampiran',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.secondary,
-              ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(
+            'Lampiran',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.secondary,
             ),
-            SizedBox(height: 20),
-            UploadImageOrFileButton(
-              uploadFile: true,
-              includeImageFileOnlyAllowedNote: true,
-              onTap: _pickFiles,
-            ),
-            SizedBox(height: 15),
-            ..._pickedFiles.map(
-              (file) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Container(
-                  decoration: BoxDecoration(
+          ),
+          SizedBox(height: 20),
+          UploadImageOrFileButton(
+            uploadFile: true,
+            includeImageFileOnlyAllowedNote: true,
+            onTap: _pickFiles,
+          ),
+          SizedBox(height: 15),
+          ..._pickedFiles.map(
+            (file) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Container(
+                decoration: BoxDecoration(
                   color: Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: ListTile(
+                ),
+                child: ListTile(
                   leading: Icon(
                     file.extension == 'pdf'
-                      ? Icons.picture_as_pdf
-                      : file.extension == 'doc' || file.extension == 'docx'
-                        ? Icons.description
-                        : Icons.image,
+                        ? Icons.picture_as_pdf
+                        : file.extension == 'doc' || file.extension == 'docx'
+                            ? Icons.description
+                            : Icons.image,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   title: Text(
                     file.name,
                     style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
                   trailing: IconButton(
                     icon: Icon(Icons.close, color: Colors.red),
                     onPressed: () {
-                    setState(() {
-                      _pickedFiles.remove(file);
-                    });
+                      setState(() {
+                        _pickedFiles.remove(file);
+                      });
                     },
                   ),
-                  ),
-                ),
                 ),
               ),
-          ]
             ),
-          
-        ),
-      );
-  
+          ),
+        ]),
+      ),
+    );
   }
 
   Widget _buildBasicInfoSection() {
@@ -721,8 +741,6 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
             _descController.clear();
             _selectedClassSections.clear();
             _pickedFiles.clear();
-
-         
           } else if (state is SendGeneralAnnouncementFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -827,14 +845,15 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
         return;
       }
       try {
-        context
-            .read<SendGeneralAnnouncementCubit>()
-            .sendGeneralAnnouncement(
+        context.read<SendGeneralAnnouncementCubit>().sendGeneralAnnouncement(
               title: _titleController.text,
               description: _descController.text,
               classSectionIds:
                   _selectedClassSections.map((e) => e.id ?? 0).toList(),
-              filePaths: _pickedFiles.map((file) => file.path ?? '').where((path) => path.isNotEmpty).toList(),
+              filePaths: _pickedFiles
+                  .map((file) => file.path ?? '')
+                  .where((path) => path.isNotEmpty)
+                  .toList(),
             );
       } catch (error) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -10,6 +10,7 @@ import 'package:eschool_saas_staff/ui/widgets/uploadImageOrFileButton.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
+import 'package:eschool_saas_staff/utils/file_compression_mixin.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -32,7 +33,7 @@ class AddStudyMaterialBottomsheet extends StatefulWidget {
 }
 
 class _AddStudyMaterialBottomsheetState
-    extends State<AddStudyMaterialBottomsheet> {
+    extends State<AddStudyMaterialBottomsheet> with FileCompressionMixin {
   StudyMaterialTypeItem _selectedStudyMaterial =
       allStudyMaterialTypeItems.first;
 
@@ -248,24 +249,27 @@ class _AddStudyMaterialBottomsheetState
                                   ? selectFileKey
                                   : selectThumbnailKey,
                           onTap: () async {
-                            final pickedFile = await Utils.openFilePicker(
-                                context: context,
-                                type:
-                                    _selectedStudyMaterial.studyMaterialType ==
-                                            StudyMaterialType.file
-                                        ? FileType.any
-                                        : FileType.image,
-                                allowMultiple: false);
+                            // Gunakan mixin untuk pick dan kompres otomatis
+                            final compressedFiles = await pickAndCompressFiles(
+                              allowMultiple: false,
+                              type: _selectedStudyMaterial.studyMaterialType ==
+                                      StudyMaterialType.file
+                                  ? FileType.any
+                                  : FileType.image,
+                              maxSizeInMB: 2.0,
+                              showProgressDialog: true,
+                              context: context,
+                            );
 
-                            if (pickedFile != null) {
+                            if (compressedFiles != null &&
+                                compressedFiles.isNotEmpty) {
                               //if current selected study material type is file
                               if (context.mounted &&
                                   _selectedStudyMaterial.studyMaterialType ==
                                       StudyMaterialType.file) {
-                                addedFile = pickedFile.files.first;
+                                addedFile = compressedFiles.first;
                               } else {
-                                addedVideoThumbnailFile =
-                                    pickedFile.files.first;
+                                addedVideoThumbnailFile = compressedFiles.first;
                               }
                               setState(() {});
                             }
@@ -302,13 +306,20 @@ class _AddStudyMaterialBottomsheetState
                                       ? selectFileKey
                                       : selectVideoKey,
                               onTap: () async {
-                                final pickedFile = await Utils.openFilePicker(
-                                    context: context,
-                                    type: FileType.video,
-                                    allowMultiple: false);
+                                // Gunakan mixin untuk pick dan kompres otomatis
+                                final compressedFiles =
+                                    await pickAndCompressFiles(
+                                  allowMultiple: false,
+                                  type: FileType.video,
+                                  maxSizeInMB:
+                                      5.0, // Video biasanya lebih besar
+                                  showProgressDialog: true,
+                                  context: context,
+                                );
 
-                                if (pickedFile != null) {
-                                  addedVideoFile = pickedFile.files.first;
+                                if (compressedFiles != null &&
+                                    compressedFiles.isNotEmpty) {
+                                  addedVideoFile = compressedFiles.first;
                                   setState(() {});
                                 }
                               },
