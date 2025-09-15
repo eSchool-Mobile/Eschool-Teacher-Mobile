@@ -257,7 +257,6 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
         primaryColor: _maroonPrimary,
         onBackPressed: () => Navigator.of(context).pop(),
         height: 140, // Increased height for tab content
-        showFilterButton: true,
         filterActive: true,
         tabBuilder: _buildDaySelector,
       ),

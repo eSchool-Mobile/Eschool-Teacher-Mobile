@@ -41,6 +41,7 @@ class Api {
   static String submitLeaveStudentRequests = "${databaseUrl}staff/student-leave-approve";
   static String getLeaveStudentRequests = "${databaseUrl}staff/student-leave-request";
   static String getPermission = "${databaseUrl}teacher/student-leaves";
+  static String submitStudentPermission = "${databaseUrl}teacher/student-leave-approve";
   static String approveOrRejectLeaveRequest =
       "${databaseUrl}staff/leave-approve";
   static String getClasses = "${databaseUrl}classes";

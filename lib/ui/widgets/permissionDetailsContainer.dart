@@ -1,5 +1,9 @@
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
+import 'package:eschool_saas_staff/cubits/leave/approveOrRejectStudentPermissionCubit.dart';
 import 'package:eschool_saas_staff/data/models/permissionDetails.dart';
+import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
+import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
+import 'package:eschool_saas_staff/ui/widgets/rejectReasonDialog.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -28,6 +32,10 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
   bool _isHovering = false;
+
+  // Optimistic UI state
+  int? _optimisticStatus;
+  String? _optimisticRejectionReason;
 
   // Refined maroon color palette with added accent colors
   final Color _maroonPrimary = const Color(0xFF7D2027);
@@ -1000,6 +1008,9 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                           ],
                         ),
                       ),
+
+                    // Action buttons section
+                    _buildActionButtons(),
                   ],
                 ),
               ),
@@ -1271,6 +1282,245 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // Action buttons for approve/reject
+  Widget _buildActionButtons() {
+    final lastLeave = safeLastLeave;
+    if (lastLeave == null) return const SizedBox.shrink();
+
+    // Check if leave is already approved or rejected (use optimistic status if available)
+    final int status = _optimisticStatus ?? lastLeave.status ?? 0;
+    if (status == 1 || status == 2) {
+      return _buildStatusBadge(status);
+    }
+
+    return BlocProvider(
+      create: (context) => ApproveOrRejectStudentPermissionCubit(),
+      child: BlocConsumer<ApproveOrRejectStudentPermissionCubit,
+          ApproveOrRejectStudentPermissionState>(
+        listener: (context, state) {
+          if (state is ApproveOrRejectStudentPermissionSuccess) {
+            // Show success message
+            Utils.showSnackBar(
+              message: "Izin berhasil diperbarui",
+              context: context,
+            );
+            // Keep the optimistic state as it succeeded
+          } else if (state is ApproveOrRejectStudentPermissionFailure) {
+            // Rollback optimistic state on failure
+            setState(() {
+              _optimisticStatus = null;
+              _optimisticRejectionReason = null;
+            });
+
+            // Show error message
+            Utils.showSnackBar(
+              message: state.errorMessage,
+              context: context,
+            );
+          }
+        },
+        builder: (context, state) {
+          final bool isInProgress =
+              state is ApproveOrRejectStudentPermissionInProgress;
+
+          return Container(
+            margin: const EdgeInsets.only(top: 20),
+            child: Row(
+              children: [
+                Expanded(
+                  child: CustomRoundedButton(
+                    onTap: isInProgress
+                        ? null
+                        : () => _approveLeave(context, lastLeave.id ?? 0),
+                    backgroundColor: Colors.green.shade600,
+                    buttonTitle: approveKey,
+                    showBorder: false,
+                    radius: 12,
+                    height: 45,
+                    widthPercentage: 1.0,
+                    child: isInProgress
+                        ? const CustomCircularProgressIndicator(
+                            strokeWidth: 2,
+                          )
+                        : null,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: CustomRoundedButton(
+                    onTap: isInProgress
+                        ? null
+                        : () => _rejectLeave(context, lastLeave.id ?? 0),
+                    backgroundColor: Colors.red.shade600,
+                    buttonTitle: rejectKey,
+                    showBorder: false,
+                    radius: 12,
+                    height: 45,
+                    widthPercentage: 1.0,
+                    child: isInProgress
+                        ? const CustomCircularProgressIndicator(
+                            strokeWidth: 2,
+                          )
+                        : null,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(int status) {
+    String text;
+    Color backgroundColor;
+    Color textColor;
+    IconData icon;
+
+    switch (status) {
+      case 1: // Approved
+        text = "Disetujui";
+        backgroundColor = Colors.green.shade100;
+        textColor = Colors.green.shade700;
+        icon = Icons.check_circle;
+        break;
+      case 2: // Rejected
+        text = "Ditolak";
+        backgroundColor = Colors.red.shade100;
+        textColor = Colors.red.shade700;
+        icon = Icons.cancel;
+        break;
+      default:
+        text = "Menunggu";
+        backgroundColor = Colors.orange.shade100;
+        textColor = Colors.orange.shade700;
+        icon = Icons.pending;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(top: 20),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: textColor.withOpacity(0.3)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: textColor, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  text,
+                  style: TextStyle(
+                    color: textColor,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Show rejection reason if available
+          if (status == 2 && _optimisticRejectionReason != null)
+            Container(
+              margin: const EdgeInsets.only(top: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.red.shade200),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline,
+                      color: Colors.red.shade700, size: 16),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      "Alasan: ${_optimisticRejectionReason}",
+                      style: TextStyle(
+                        color: Colors.red.shade700,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _approveLeave(BuildContext context, int leaveId) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text("Konfirmasi"),
+        content: const Text("Apakah Anda yakin ingin menyetujui izin ini?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text("Batal"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+
+              // Optimistic update
+              setState(() {
+                _optimisticStatus = 1; // Approved
+                _optimisticRejectionReason = null;
+              });
+
+              // Make API call
+              context
+                  .read<ApproveOrRejectStudentPermissionCubit>()
+                  .approveOrRejectStudentPermission(
+                    leaveId: leaveId,
+                    approveLeave: true,
+                  );
+            },
+            child: const Text("Setujui"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _rejectLeave(BuildContext context, int leaveId) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => RejectReasonDialog(
+        onReject: (String rejectReason) {
+          Navigator.of(dialogContext).pop();
+
+          // Optimistic update
+          setState(() {
+            _optimisticStatus = 2; // Rejected
+            _optimisticRejectionReason = rejectReason;
+          });
+
+          // Make API call
+          context
+              .read<ApproveOrRejectStudentPermissionCubit>()
+              .approveOrRejectStudentPermission(
+                leaveId: leaveId,
+                approveLeave: false,
+                rejectReason: rejectReason,
+              );
+        },
+        onCancel: () => Navigator.of(dialogContext).pop(),
       ),
     );
   }

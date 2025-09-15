@@ -33,4 +33,41 @@ class PermissionRepository {
       throw ApiException(e.toString());
     }
   }
+
+  Future<void> approveOrRejectStudentPermission({
+    required int leaveId,
+    required int status,
+    String? rejectionReason,
+  }) async {
+    try {
+      // Validation: rejection_reason is required when status = 2 (rejected)
+      if (status == 2 &&
+          (rejectionReason == null || rejectionReason.trim().isEmpty)) {
+        throw ApiException(
+            "Alasan penolakan wajib diisi saat menolak izin siswa");
+      }
+
+      Map<String, dynamic> body = {"leave_id": leaveId, "status": status};
+
+      // Add rejection_reason to body if status = rejected
+      if (status == 2 && rejectionReason != null) {
+        body["rejection_reason"] = rejectionReason.trim();
+      }
+
+      print("DEBUG: Student Permission Approve Request Body: $body");
+      print(
+          "DEBUG: Student Permission Approve URL: ${Api.submitStudentPermission}");
+      print("DEBUG: Student Permission Approve Request Method: POST JSON");
+
+      await Api.postJson(url: Api.submitStudentPermission, body: body);
+    } catch (e) {
+      print("DEBUG: Student Permission Approve Error: $e");
+      print("DEBUG: Student Permission Approve Error Type: ${e.runtimeType}");
+      if (e is ApiException) {
+        print(
+            "DEBUG: Student Permission Approve ApiException Message: ${e.errorMessage}");
+      }
+      throw ApiException(e.toString());
+    }
+  }
 }
