@@ -7,20 +7,16 @@ import 'package:flutter/foundation.dart'
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
 /// Example:
-/// ```dart
-/// import 'firebase_options.dart';
+/// /// import 'firebase_options.dart';
 /// // ...
 /// await Firebase.initializeApp(
 ///   options: DefaultFirebaseOptions.currentPlatform,
 /// );
-/// ```
+/// 
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -50,19 +46,27 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCpb7FV7ftE4RUASyGgoQVoi4I_AAcntcc',
-    appId: '1:539033120705:android:a1b82fa3121c43a2d8c940',
-    messagingSenderId: '539033120705',
-    projectId: 'e-school-saas',
-    storageBucket: 'e-school-saas.appspot.com',
+    apiKey: 'AIzaSyCSc7noYXWSgn1_wspRVbTHYFlnxo87CX8',
+    appId: '1:919419641844:android:af9f0822e4e636f7cfa3a1',
+    messagingSenderId: '919419641844',
+    projectId: 'eschool-mobile-fe51a',
+    storageBucket: 'eschool-mobile-fe51a.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDGi2fMwfpdcA5jTbB6b97n8EoL_Ag9-2M',
-    appId: '1:539033120705:ios:c20d96f12c47349cd8c940',
-    messagingSenderId: '539033120705',
-    projectId: 'e-school-saas',
-    storageBucket: 'e-school-saas.appspot.com',
-    iosBundleId: 'com.wrteam.saas.staff',
+    apiKey: 'AIzaSyCSc7noYXWSgn1_wspRVbTHYFlnxo87CX8',
+    appId: '1:919419641844:ios:c20d96f12c47349cd8c940',
+    messagingSenderId: '919419641844',
+    projectId: 'eschool-mobile-fe51a',
+    storageBucket: 'eschool-mobile-fe51a.firebasestorage.app',
+    iosBundleId: 'id.ac.eschool.teacherstaff.android',
+  );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyCSc7noYXWSgn1_wspRVbTHYFlnxo87CX8',
+    appId: '1:919419641844:web:c20d96f12c47349cd8c940',
+    messagingSenderId: '919419641844',
+    projectId: 'eschool-mobile-fe51a',
+    storageBucket: 'eschool-mobile-fe51a.firebasestorage.app',
   );
 }

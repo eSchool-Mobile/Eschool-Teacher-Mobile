@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "539033120705",
-    "project_id": "e-school-saas",
-    "storage_bucket": "e-school-saas.appspot.com"
+    "project_number": "919419641844",
+    "project_id": "eschool-mobile-fe51a",
+    "storage_bucket": "eschool-mobile-fe51a.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:539033120705:android:10f3b01274c5d641d8c940",
+        "mobilesdk_app_id": "1:919419641844:android:af9f0822e4e636f7cfa3a1",
         "android_client_info": {
-          "package_name": "com.wrteam.saas.school"
+          "package_name": "id.ac.eschool.guru"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCpb7FV7ftE4RUASyGgoQVoi4I_AAcntcc"
+          "current_key": "AIzaSyCSc7noYXWSgn1_wspRVbTHYFlnxo87CX8"
         }
       ],
       "services": {
@@ -26,15 +26,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:539033120705:android:a1b82fa3121c43a2d8c940",
+        "mobilesdk_app_id": "1:919419641844:android:eb5e62aaba62f526cfa3a1",
         "android_client_info": {
-          "package_name": "com.wrteam.saas.staff"
+          "package_name": "id.ac.eschool.student"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCpb7FV7ftE4RUASyGgoQVoi4I_AAcntcc"
+          "current_key": "AIzaSyCSc7noYXWSgn1_wspRVbTHYFlnxo87CX8"
         }
       ],
       "services": {
