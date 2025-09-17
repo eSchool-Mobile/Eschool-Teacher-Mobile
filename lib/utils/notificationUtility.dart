@@ -74,9 +74,9 @@ class NotificationUtility {
   //Ask notification permission here
   static Future<NotificationSettings> _getNotificationPermission() async {
     return await FirebaseMessaging.instance.requestPermission(
-      alert: false,
+      alert: true,
       announcement: false,
-      badge: false,
+      badge: true,
       carPlay: false,
       criticalAlert: false,
       provisional: false,
@@ -84,6 +84,9 @@ class NotificationUtility {
   }
 
   static Future<void> setUpNotificationService() async {
+    if (kDebugMode) {
+      print("Setting up notification service...");
+    }
     NotificationSettings notificationSettings =
         await FirebaseMessaging.instance.getNotificationSettings();
 
@@ -124,9 +127,9 @@ class NotificationUtility {
       }
     });
     FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-      alert: false, // Required to display a heads up notification
-      badge: false,
-      sound: false,
+      alert: true, // Required to display a heads up notification
+      badge: true,
+      sound: true,
     );
     FirebaseMessaging.onMessage.listen(foregroundMessageListener);
     FirebaseMessaging.onBackgroundMessage(onBackgroundMessage);
