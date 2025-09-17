@@ -117,6 +117,12 @@ class NotificationUtility {
     if (kDebugMode) {
       print("Notification setup done");
     }
+    // Log FCM Token for debugging
+    FirebaseMessaging.instance.getToken().then((token) {
+      if (kDebugMode) {
+        print('FCM Token: $token');
+      }
+    });
     FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
       alert: false, // Required to display a heads up notification
       badge: false,
