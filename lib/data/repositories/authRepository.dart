@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -100,10 +101,9 @@ class AuthRepository {
       final result = await Api.post(body: {
         "email": email,
         "password": password,
-        "fcm_id": await getFcmToken(),
+        "device_id": await getFcmToken(),
       }, url: Api.login, useAuthToken: false);
 
-     
       JsonEncoder.withIndent('  ').convert(result).split('\n').forEach(print);
 
       return (
@@ -114,7 +114,6 @@ class AuthRepository {
     } on ApiException catch (e) {
       throw ApiException(e.toString());
     } catch (e) {
-      
       print(e);
       throw ApiException(defaultErrorMessageKey);
     }
