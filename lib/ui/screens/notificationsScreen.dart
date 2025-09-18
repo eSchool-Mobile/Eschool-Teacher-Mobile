@@ -1,6 +1,6 @@
 import 'package:eschool_saas_staff/cubits/announcement/localNotificationsCubit.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/notificationItemContainer.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
@@ -27,10 +27,19 @@ class NotificationsScreen extends StatefulWidget {
   State<NotificationsScreen> createState() => _NotificationsScreenState();
 }
 
-class _NotificationsScreenState extends State<NotificationsScreen> {
+class _NotificationsScreenState extends State<NotificationsScreen>
+    with TickerProviderStateMixin {
+  late AnimationController _fabAnimationController;
+
   @override
   void initState() {
     super.initState();
+
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300),
+    )..forward();
+
     Future.delayed(Duration.zero, () {
       if (mounted) {
         context.read<LocalNotificationsCubit>().getLocalNotifications();
@@ -39,56 +48,57 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   @override
+  void dispose() {
+    _fabAnimationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Stack(
-      children: [
-        Align(
-          alignment: Alignment.topCenter,
-          child: BlocBuilder<LocalNotificationsCubit, LocalNotificationsState>(
-            builder: (context, state) {
-              if (state is LocalNotificationsFetchSuccess) {
-                return SingleChildScrollView(
-                  padding: EdgeInsets.only(
-                    top:
-                        Utils.appContentTopScrollPadding(context: context) + 25,
-                  ),
-                  child: Column(
-                    children: state.notifications
-                        .map((notificationDetails) => NotificationItemContainer(
-                              notificationDetails: notificationDetails,
-                            ))
-                        .toList(),
-                  ),
-                );
-              }
+      appBar: CustomModernAppBar(
+        title: Utils.getTranslatedLabel(notificationsKey),
+        icon: Icons.notifications,
+        fabAnimationController: _fabAnimationController,
+        onBackPressed: () => Navigator.of(context).pop(),
+      ),
+      body: BlocBuilder<LocalNotificationsCubit, LocalNotificationsState>(
+        builder: (context, state) {
+          if (state is LocalNotificationsFetchSuccess) {
+            return SingleChildScrollView(
+              padding: EdgeInsets.only(
+                top: 25,
+              ),
+              child: Column(
+                children: state.notifications
+                    .map((notificationDetails) => NotificationItemContainer(
+                          notificationDetails: notificationDetails,
+                        ))
+                    .toList(),
+              ),
+            );
+          }
 
-              if (state is LocalNotificationsFetchFailure) {
-                return Center(
-                  child: ErrorContainer(
-                    errorMessage: state.errorMessage,
-                    onTapRetry: () {
-                      context
-                          .read<LocalNotificationsCubit>()
-                          .getLocalNotifications();
-                    },
-                  ),
-                );
-              }
+          if (state is LocalNotificationsFetchFailure) {
+            return Center(
+              child: ErrorContainer(
+                errorMessage: state.errorMessage,
+                onTapRetry: () {
+                  context
+                      .read<LocalNotificationsCubit>()
+                      .getLocalNotifications();
+                },
+              ),
+            );
+          }
 
-              return Center(
-                child: CustomCircularProgressIndicator(
-                  indicatorColor: Theme.of(context).colorScheme.primary,
-                ),
-              );
-            },
-          ),
-        ),
-        const Align(
-          alignment: Alignment.topCenter,
-          child: CustomAppbar(titleKey: notificationsKey),
-        ),
-      ],
-    ));
+          return Center(
+            child: CustomCircularProgressIndicator(
+              indicatorColor: Theme.of(context).colorScheme.primary,
+            ),
+          );
+        },
+      ),
+    );
   }
 }
