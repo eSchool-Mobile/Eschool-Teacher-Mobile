@@ -605,15 +605,15 @@ class _TeacherAddEditAnnouncementScreenState
                         _buildFormatChip('YouTube'),
                       ],
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Batasan ukuran file adalah 2 MB',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
+                    // SizedBox(height: 8),
+                    // // Text(
+                    //   'Batasan ukuran file adalah 2 MB',
+                    //   style: TextStyle(
+                    //     fontSize: 12,
+                    //     color: Colors.grey.shade600,
+                    //     fontStyle: FontStyle.italic,
+                    //   ),
+                    // ),
                   ],
                 ),
               ),

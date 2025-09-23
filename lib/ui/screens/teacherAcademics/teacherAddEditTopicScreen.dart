@@ -139,11 +139,22 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
 
     Future.delayed(Duration.zero, () {
       if (mounted) {
+        print("=== Init Fetch Debug ===");
+        print("Selected class section: ${_selectedClassSection?.fullName}");
+        print("Selected class section ID: ${_selectedClassSection?.id}");
+        print(
+            "Selected subject: ${_selectedSubject?.subject.getSybjectNameWithType()}");
+        print("Selected lesson: ${_selectedLesson?.name}");
+        print("========================");
         context.read<GradeLevelCubit>().getGradeLevels();
         context
             .read<ClassSectionsAndSubjectsCubit>()
             .getClassSectionsAndSubjects(
                 classSectionId: _selectedClassSection?.id);
+        // Fetch lessons if subject is already selected
+        if (_selectedSubject != null && _selectedClassSection != null) {
+          getLessons();
+        }
       }
     }); // Add animation controllers initialization
     _animationController = AnimationController(
@@ -1147,15 +1158,15 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                               _buildFormatChip('YouTube'),
                             ],
                           ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Batasan ukuran file adalah 2 MB',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade600,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
+                          // SizedBox(height: 8),
+                          // Text(
+                          //   'Batasan ukuran file adalah 2 MB',
+                          //   style: TextStyle(
+                          //     fontSize: 12,
+                          //     color: Colors.grey.shade600,
+                          //     fontStyle: FontStyle.italic,
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),
@@ -1354,73 +1365,133 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (didPop) {
-        if (didPop) {
-          return;
-        }
-        Get.back(result: refreshTopicsInPreviousPage);
-      },
-      child: Scaffold(
-        extendBodyBehindAppBar: true, // Allow content behind status bar
-        appBar: CustomModernAppBar(
-          title: widget.topic != null ? "Edit Topik" : "Tambah Topik",
-          icon: Icons.topic_rounded,
-          fabAnimationController: _fabAnimationController,
-          onBackPressed: () {
-            Get.back(result: refreshTopicsInPreviousPage);
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<GradeLevelCubit, GradeLevelState>(
+          listener: (context, state) {
+            if (state is GradeLevelFetchSuccess &&
+                _selectedClassSection != null &&
+                _selectedGradeLevel == null) {
+              GradeLevel? gradeLevel;
+              for (var g in state.gradeLevels) {
+                if (g.id == _selectedClassSection!.gradeLevelId) {
+                  gradeLevel = g;
+                  break;
+                }
+              }
+              if (gradeLevel != null) {
+                _selectedGradeLevel = gradeLevel;
+                setState(() {});
+                // Fetch classes filtered by grade level, but keep subjects for selected class section
+                context
+                    .read<ClassSectionsAndSubjectsCubit>()
+                    .getClassSectionsAndSubjects(
+                        gradeLevelId: gradeLevel.id,
+                        classSectionId: _selectedClassSection?.id);
+              }
+            }
           },
-          primaryColor: _primaryColor,
-          lightColor: _accentColor,
-          height: 80,
         ),
-        body: Container(
-          color: Colors.grey[50], // White background for the entire screen
-          child: Column(
-            children: [
-              SizedBox(
-                  height: 80 +
-                      MediaQuery.of(context).padding.top), // Space for app bar
+        BlocListener<LessonsCubit, LessonsState>(
+          listener: (context, lessonState) {
+            if (lessonState is LessonsFetchSuccess &&
+                widget.topic != null &&
+                _selectedLesson == null) {
+              Lesson? lesson;
+              for (var l in lessonState.lessons) {
+                if (l.id == widget.topic!.lessonId) {
+                  lesson = l;
+                  break;
+                }
+              }
+              if (lesson != null) {
+                _selectedLesson = lesson;
+                setState(() {});
+              }
+            }
+          },
+        ),
+      ],
+      child: PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) {
+          if (didPop) {
+            return;
+          }
+          Get.back(result: refreshTopicsInPreviousPage);
+        },
+        child: Scaffold(
+          extendBodyBehindAppBar: true, // Allow content behind status bar
+          appBar: CustomModernAppBar(
+            title: widget.topic != null ? "Edit Topik" : "Tambah Topik",
+            icon: Icons.topic_rounded,
+            fabAnimationController: _fabAnimationController,
+            onBackPressed: () {
+              Get.back(result: refreshTopicsInPreviousPage);
+            },
+            primaryColor: _primaryColor,
+            lightColor: _accentColor,
+            height: 80,
+          ),
+          body: Container(
+            color: Colors.grey[50], // White background for the entire screen
+            child: Column(
+              children: [
+                SizedBox(
+                    height: 80 +
+                        MediaQuery.of(context)
+                            .padding
+                            .top), // Space for app bar
 
-              // Main content section
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(20),
-                  physics: BouncingScrollPhysics(),
-                  child: Column(
-                    children: [
-                      // Form Content
-                      BlocConsumer<ClassSectionsAndSubjectsCubit,
-                          ClassSectionsAndSubjectsState>(
-                        listener: (context, state) {
-                          // Remove auto-selection to let user choose manually
-                          // Only auto-select if we're editing an existing topic and have predefined selections
-                          if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                            // Only auto-select subjects if we already have a selected class section
-                            // and we're editing an existing topic (not creating new)
-                            if (_selectedClassSection != null &&
-                                _selectedSubject == null &&
-                                widget.topic != null) {
-                              changeSelectedTeacherSubject(
-                                  state.subjects.firstOrNull);
+                // Main content section
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.all(20),
+                    physics: BouncingScrollPhysics(),
+                    child: Column(
+                      children: [
+                        // Form Content
+                        BlocConsumer<ClassSectionsAndSubjectsCubit,
+                            ClassSectionsAndSubjectsState>(
+                          listener: (context, state) {
+                            // Remove auto-selection to let user choose manually
+                            // Only auto-select if we're editing an existing topic and have predefined selections
+                            if (state is ClassSectionsAndSubjectsFetchSuccess) {
+                              print(
+                                  "=== ClassSectionsAndSubjectsFetchSuccess ===");
+                              print(
+                                  "Class sections count: ${state.classSections.length}");
+                              print("Subjects count: ${state.subjects.length}");
+                              state.subjects.forEach((subject) {
+                                print(
+                                    "Subject: ${subject.subject.getSybjectNameWithType()}");
+                              });
+                              print("=====================================");
+                              // Only auto-select subjects if we already have a selected class section
+                              // and we're editing an existing topic (not creating new)
+                              if (_selectedClassSection != null &&
+                                  _selectedSubject == null &&
+                                  widget.topic != null) {
+                                changeSelectedTeacherSubject(
+                                    state.subjects.firstOrNull);
+                              }
                             }
-                          }
-                        },
-                        builder: (context, state) {
-                          return _buildFormContent(state);
-                        },
-                      ),
+                          },
+                          builder: (context, state) {
+                            return _buildFormContent(state);
+                          },
+                        ),
 
-                      SizedBox(height: 30),
+                        SizedBox(height: 30),
 
-                      // Submit Button
-                      _buildSubmitButton(),
-                    ],
+                        // Submit Button
+                        _buildSubmitButton(),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
