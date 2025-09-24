@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 class FilterSelectionBottomsheet<T> extends StatelessWidget {
   final List<T> values;
   final Function(T? value) onSelection;
-  final T selectedValue;
+  final T? selectedValue;
   final String titleKey;
   final bool showFilterByLabel;
   final String Function(T)? displayFunction;
@@ -43,7 +43,7 @@ class FilterSelectionBottomsheet<T> extends StatelessWidget {
                       onSelection.call(value);
                     }
                   },
-                  isSelected: value == selectedValue,
+                  isSelected: selectedValue != null && value == selectedValue,
                   title: displayFunction != null
                       ? Utils().cleanClassName(displayFunction!(value))
                       : Utils().cleanClassName(value.toString()),

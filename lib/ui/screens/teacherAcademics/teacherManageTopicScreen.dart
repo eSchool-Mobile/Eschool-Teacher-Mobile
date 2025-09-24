@@ -1439,7 +1439,13 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                               values: gradeLevelState.gradeLevels,
                             ),
                             context: context,
-                          );
+                          ).then((result) {
+                            if (result == null && _selectedGradeLevel == null) {
+                              // Dialog closed without selection, auto-select first grade level
+                              changeSelectedGradeLevel(
+                                  gradeLevelState.gradeLevels.first);
+                            }
+                          });
                         }
                       },
                     );
@@ -1492,7 +1498,14 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                               titleKey: classKey,
                             ),
                             context: context,
-                          );
+                          ).then((result) {
+                            if (result == null &&
+                                _selectedClassSection == null) {
+                              // Dialog closed without selection, auto-select first class section
+                              changeSelectedClassSection(
+                                  availableClasses.first);
+                            }
+                          });
                         }
                       },
                     );
@@ -1540,7 +1553,13 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                               titleKey: subjectKey,
                             ),
                             context: context,
-                          );
+                          ).then((result) {
+                            if (result == null && _selectedSubject == null) {
+                              // Dialog closed without selection, auto-select first subject
+                              changeSelectedTeacherSubject(
+                                  state.subjects.first);
+                            }
+                          });
                         }
                       },
                     );
@@ -1591,7 +1610,14 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                               titleKey: "Bab",
                             ),
                             context: context,
-                          );
+                          ).then((result) {
+                            if (result == null && _selectedLesson == null) {
+                              // Dialog closed without selection, auto-select first lesson
+                              _selectedLesson = state.lessons.first;
+                              getTopics();
+                              setState(() {});
+                            }
+                          });
                         }
                       },
                     );

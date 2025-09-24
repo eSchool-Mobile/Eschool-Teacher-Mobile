@@ -1766,7 +1766,13 @@ class _TeacherManageAssignmentScreenState
                       values: gradeLevelState.gradeLevels,
                     ),
                     context: context,
-                  );
+                  ).then((result) {
+                    if (result == null && _selectedGradeLevel == null) {
+                      // Dialog closed without selection, auto-select first grade level
+                      changeSelectedGradeLevel(
+                          gradeLevelState.gradeLevels.first);
+                    }
+                  });
                 },
               );
             }
@@ -1805,7 +1811,12 @@ class _TeacherManageAssignmentScreenState
                         values: availableClasses, // Use filtered classes
                       ),
                       context: context,
-                    );
+                    ).then((result) {
+                      if (result == null && _selectedClassSection == null) {
+                        // Dialog closed without selection, auto-select first class section
+                        changeSelectedClassSection(availableClasses.first);
+                      }
+                    });
                   },
                 );
               }
@@ -1837,7 +1848,13 @@ class _TeacherManageAssignmentScreenState
                         titleKey: subjectKey,
                       ),
                       context: context,
-                    );
+                    ).then((result) {
+                      if (result == null && _selectedSubject == null) {
+                        // Dialog closed without selection, auto-select first subject
+                        changeSelectedTeacherSubject(
+                            classSectionState.subjects.first);
+                      }
+                    });
                   },
                 );
               }
