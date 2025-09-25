@@ -127,6 +127,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
     super.initState();
     Future.delayed(Duration.zero, () {
       if (mounted) {
+        print('🔄 [NOTIFICATION INIT] Fetching roles...');
         context.read<RolesCubit>().getRoles();
       }
     });
@@ -189,29 +190,48 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
   }
 
   void onTapSubmitButton() {
+    print('🔍 [NOTIFICATION SUBMIT] Starting submit validation...');
+    print('   📝 Title: "${_titleTextEditingController.text.trim()}"');
+    print('   💬 Message: "${_messageTextEditingController.text.trim()}"');
+    print('   👥 Send To: "$_sendToUserValue"');
+    print('   🎭 Selected Roles: $_selectedRoles');
+    print(
+        '   👤 Selected Users: ${_selectedUsers.map((u) => u.fullName).toList()}');
+    print('   📎 File: ${_pickedFile?.name ?? "No file"}');
+
     if (_titleTextEditingController.text.trim().isEmpty) {
+      print('❌ [NOTIFICATION SUBMIT] Validation failed: Title is empty');
       Utils.showSnackBar(message: pleaseEnterTitleKey, context: context);
       return;
     }
     if (_messageTextEditingController.text.trim().isEmpty) {
+      print('❌ [NOTIFICATION SUBMIT] Validation failed: Message is empty');
       Utils.showSnackBar(message: pleaseEnterMessageKey, context: context);
       return;
     }
     if (_sendToUserValue.isEmpty) {
+      print(
+          '❌ [NOTIFICATION SUBMIT] Validation failed: Send to value is empty');
       Utils.showSnackBar(message: pleaseSelectSendToKey, context: context);
       return;
     }
 
     if (_sendToUserValue == specificRolesKey && _selectedRoles.isEmpty) {
+      print(
+          '❌ [NOTIFICATION SUBMIT] Validation failed: Specific roles selected but no roles chosen');
       Utils.showSnackBar(message: pleaseSelectSendToKey, context: context);
       return;
     }
 
     if (_sendToUserValue == specificUsersKey && _selectedUsers.isEmpty) {
+      print(
+          '❌ [NOTIFICATION SUBMIT] Validation failed: Specific users selected but no users chosen');
       Utils.showSnackBar(message: pleaseSelectUserKey, context: context);
       return;
     }
 
+    print(
+        '✅ [NOTIFICATION SUBMIT] All validations passed, sending notification...');
     context.read<SendNotificationCubit>().sendNotification(
         title: _titleTextEditingController.text.trim(),
         userIds: _selectedUsers.map((e) => e.id ?? 0).toList(),
@@ -886,7 +906,11 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
             color: Colors.transparent,
             child: BlocConsumer<SendNotificationCubit, SendNotificationState>(
               listener: (context, sendNotificationState) {
+                print(
+                    '📡 [NOTIFICATION STATE] State changed: ${sendNotificationState.runtimeType}');
                 if (sendNotificationState is SendNotificationFailure) {
+                  print(
+                      '❌ [NOTIFICATION ERROR] SendNotificationFailure: ${sendNotificationState.errorMessage}');
                   Utils.showSnackBar(
                     message: sendNotificationState.errorMessage,
                     context: context,
@@ -962,9 +986,15 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                   canPop: sendNotificationState is! SendNotificationInProgress,
                   child: InkWell(
                     onTap: () {
+                      print(
+                          '🔘 [NOTIFICATION BUTTON] Submit button tapped, current state: ${sendNotificationState.runtimeType}');
                       if (sendNotificationState is SendNotificationInProgress) {
+                        print(
+                            '⏳ [NOTIFICATION BUTTON] Ignoring tap - already in progress');
                         return;
                       }
+                      print(
+                          '🚀 [NOTIFICATION BUTTON] Calling onTapSubmitButton');
                       onTapSubmitButton();
                     },
                     borderRadius: BorderRadius.circular(15),

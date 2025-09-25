@@ -12,6 +12,7 @@ import 'package:eschool_saas_staff/data/repositories/announcementRepository.dart
 import 'package:eschool_saas_staff/data/repositories/authRepository.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:eschool_saas_staff/utils/hiveBoxKeys.dart';
+import 'package:eschool_saas_staff/utils/logger.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -27,6 +28,9 @@ class NotificationUtility {
   //
   @pragma('vm:entry-point')
   static Future<void> onBackgroundMessage(RemoteMessage remoteMessage) async {
+    // Log semua notifikasi yang masuk di background
+    logRemoteMessageAndroid(remoteMessage, tag: 'FCM-UTILITY-BACKGROUND');
+
     final additionalData = remoteMessage.data;
     final type = (additionalData['type'] ?? "").toString();
 
@@ -136,6 +140,10 @@ class NotificationUtility {
     FirebaseMessaging.onMessageOpenedApp.listen(onMessageOpenedAppListener);
 
     FirebaseMessaging.instance.getInitialMessage().then((value) {
+      if (value != null) {
+        // Log initial message ketika app dibuka dari terminated state
+        logRemoteMessageAndroid(value, tag: 'FCM-UTILITY-INITIAL');
+      }
       if (kDebugMode) {
         print("Initial notification");
         print(value?.toMap());
@@ -151,6 +159,9 @@ class NotificationUtility {
   }
 
   static void foregroundMessageListener(RemoteMessage remoteMessage) async {
+    // Log semua notifikasi yang masuk
+    logRemoteMessageAndroid(remoteMessage, tag: 'FCM-UTILITY-FOREGROUND');
+
     //await FirebaseMessaging.instance.getToken();
 
     final additionalData = remoteMessage.data;
@@ -177,6 +188,9 @@ class NotificationUtility {
   }
 
   static void onMessageOpenedAppListener(RemoteMessage remoteMessage) {
+    // Log notifikasi yang dibuka dari background/terminated
+    logRemoteMessageAndroid(remoteMessage, tag: 'FCM-UTILITY-OPENED');
+
     _onTapNotificationScreenNavigateCallback(
         notificationData: remoteMessage.data);
   }

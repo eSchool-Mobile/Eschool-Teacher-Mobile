@@ -25,6 +25,42 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import 'dart:ui';
 
+/// Safely parse date string with multiple format support
+DateTime? _safeParseDate(String? dateString) {
+  if (dateString == null || dateString.isEmpty) return null;
+
+  try {
+    // Try standard ISO format first
+    return DateTime.parse(dateString);
+  } catch (e) {
+    try {
+      // Try dd-MM-yyyy format (common in Indonesian systems)
+      if (dateString.contains('-') && dateString.length == 10) {
+        final parts = dateString.split('-');
+        if (parts.length == 3) {
+          final day = int.parse(parts[0]);
+          final month = int.parse(parts[1]);
+          final year = int.parse(parts[2]);
+          return DateTime(year, month, day);
+        }
+      }
+      // Try dd/MM/yyyy format
+      if (dateString.contains('/') && dateString.length == 10) {
+        final parts = dateString.split('/');
+        if (parts.length == 3) {
+          final day = int.parse(parts[0]);
+          final month = int.parse(parts[1]);
+          final year = int.parse(parts[2]);
+          return DateTime(year, month, day);
+        }
+      }
+    } catch (parseError) {
+      print('Error parsing date: $dateString - $parseError');
+    }
+    return null;
+  }
+}
+
 class LeaveRequestsScreen extends StatefulWidget {
   const LeaveRequestsScreen({super.key});
 
@@ -44,10 +80,44 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
   // Fresh Soft Maroon Palette - Consistent with allowancesAndDeductionsScreen
   final Color _maroonPrimary = const Color(0xFF8B4A5B);
   final Color _maroonLight = const Color(0xFFA6677A);
-  final Color _maroonSoft = const Color(0xFFE8D5DA);
-  final Color _maroonDeep = const Color(0xFF6B3A47);
   final Color _neutralBg = const Color(0xFFFBFAFA);
   final Color _cardBg = const Color(0xFFFFFFFF);
+
+  /// Safely parse date string with multiple format support
+  DateTime? _parseDate(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return null;
+
+    try {
+      // Try standard ISO format first
+      return DateTime.parse(dateString);
+    } catch (e) {
+      try {
+        // Try dd-MM-yyyy format (common in Indonesian systems)
+        if (dateString.contains('-') && dateString.length == 10) {
+          final parts = dateString.split('-');
+          if (parts.length == 3) {
+            final day = int.parse(parts[0]);
+            final month = int.parse(parts[1]);
+            final year = int.parse(parts[2]);
+            return DateTime(year, month, day);
+          }
+        }
+        // Try dd/MM/yyyy format
+        if (dateString.contains('/') && dateString.length == 10) {
+          final parts = dateString.split('/');
+          if (parts.length == 3) {
+            final day = int.parse(parts[0]);
+            final month = int.parse(parts[1]);
+            final year = int.parse(parts[2]);
+            return DateTime(year, month, day);
+          }
+        }
+      } catch (parseError) {
+        print('Error parsing date: $dateString - $parseError');
+      }
+      return null;
+    }
+  }
 
   @override
   void initState() {
@@ -493,9 +563,12 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                               ),
                               const SizedBox(height: 4),
                               CustomTextContainer(
-                                textKey: Utils.formatDate(
-                                  DateTime.parse(leaveRequest.fromDate ?? ""),
-                                ),
+                                textKey:
+                                    _parseDate(leaveRequest.fromDate) != null
+                                        ? Utils.formatDate(
+                                            _parseDate(leaveRequest.fromDate)!)
+                                        : (leaveRequest.fromDate ??
+                                            "Tanggal tidak tersedia"),
                                 style: dateTextStyle,
                               ),
                             ],
@@ -525,9 +598,11 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                               ),
                               const SizedBox(height: 4),
                               CustomTextContainer(
-                                textKey: Utils.formatDate(
-                                  DateTime.parse(leaveRequest.toDate ?? ""),
-                                ),
+                                textKey: _parseDate(leaveRequest.toDate) != null
+                                    ? Utils.formatDate(
+                                        _parseDate(leaveRequest.toDate)!)
+                                    : (leaveRequest.toDate ??
+                                        "Tanggal tidak tersedia"),
                                 style: dateTextStyle,
                               ),
                             ],
@@ -1053,9 +1128,10 @@ class LeaveRequestDetailsBottomsheet extends StatelessWidget {
                               ),
                               child: Center(
                                 child: Text(
-                                  DateTime.parse(leaveDetail.date!)
-                                      .day
-                                      .toString(),
+                                  _safeParseDate(leaveDetail.date)
+                                          ?.day
+                                          .toString() ??
+                                      "?",
                                   style: TextStyle(
                                     fontFamily:
                                         GoogleFonts.poppins().fontFamily,
@@ -1066,8 +1142,10 @@ class LeaveRequestDetailsBottomsheet extends StatelessWidget {
                               ),
                             ),
                             title: CustomTextContainer(
-                                textKey:
-                                    "${Utils.formatDate(DateTime.parse(leaveDetail.date!))}, ${Utils.weekDays[DateTime.parse(leaveDetail.date!).weekday - 1].tr}"),
+                                textKey: _safeParseDate(leaveDetail.date) !=
+                                        null
+                                    ? "${Utils.formatDate(_safeParseDate(leaveDetail.date)!)}, ${Utils.weekDays[_safeParseDate(leaveDetail.date)!.weekday - 1].tr}"
+                                    : "${leaveDetail.date ?? 'Tanggal tidak tersedia'}, -"),
                             subtitle: CustomTextContainer(
                                 textKey: leaveDetail.type ?? ""),
                           ),

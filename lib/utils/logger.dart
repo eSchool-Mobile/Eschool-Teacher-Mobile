@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 /// Simple structured logger to standardize application logs.
 /// Each log is a single JSON line to ease searching / parsing.
@@ -88,4 +89,65 @@ class AppLogger {
           data: data,
           error: error,
           stack: stack);
+}
+
+/// Khusus untuk logging Firebase Cloud Messaging
+/// Memformat log RemoteMessage dengan informasi lengkap untuk debugging
+void logRemoteMessageAndroid(RemoteMessage message, {String tag = 'FCM'}) {
+  if (!kDebugMode) return;
+
+  final messageData = <String, dynamic>{
+    'messageId': message.messageId,
+    'from': message.from,
+    'collapseKey': message.collapseKey,
+    'category': message.category,
+    'messageType': message.messageType,
+    'ttl': message.ttl,
+    'sentTime': message.sentTime?.toIso8601String(),
+    'data': message.data,
+  };
+
+  // Notification payload
+  if (message.notification != null) {
+    messageData['notification'] = {
+      'title': message.notification?.title,
+      'body': message.notification?.body,
+      'android': message.notification?.android != null
+          ? {
+              'channelId': message.notification?.android?.channelId,
+              'clickAction': message.notification?.android?.clickAction,
+              'color': message.notification?.android?.color,
+              'count': message.notification?.android?.count,
+              'imageUrl': message.notification?.android?.imageUrl,
+              'priority': message.notification?.android?.priority.toString(),
+              'smallIcon': message.notification?.android?.smallIcon,
+              'sound': message.notification?.android?.sound,
+              'tag': message.notification?.android?.tag,
+              'ticker': message.notification?.android?.ticker,
+              'visibility':
+                  message.notification?.android?.visibility.toString(),
+            }
+          : null,
+      'apple': message.notification?.apple != null
+          ? {
+              'badge': message.notification?.apple?.badge,
+              'subtitle': message.notification?.apple?.subtitle,
+              'imageUrl': message.notification?.apple?.imageUrl,
+              'sound': message.notification?.apple?.sound != null
+                  ? {
+                      'critical': message.notification?.apple?.sound?.critical,
+                      'name': message.notification?.apple?.sound?.name,
+                      'volume': message.notification?.apple?.sound?.volume,
+                    }
+                  : null,
+            }
+          : null,
+    };
+  }
+
+  AppLogger.info(
+    tag,
+    'Firebase Cloud Messaging received',
+    data: messageData,
+  );
 }

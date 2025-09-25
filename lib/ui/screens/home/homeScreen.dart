@@ -18,7 +18,6 @@ import 'package:eschool_saas_staff/ui/screens/home/widgets/profileContainer.dart
 import 'package:eschool_saas_staff/ui/screens/home/widgets/teacherHomeContainer/teacherHomeContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/animatedBottomNavigation.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/notificationUtility.dart';
 import 'package:eschool_saas_staff/utils/systemModulesAndPermissions.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +46,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     loadTemporarilyStoredNotifications();
     Future.delayed(Duration.zero, () {
       if (mounted) {
-        NotificationUtility.setUpNotificationService();
+        // Commented out: Using centralized FCM setup in main.dart instead
+        // NotificationUtility.setUpNotificationService();
         context
             .read<StaffAllowedPermissionsAndModulesCubit>()
             .getPermissionAndAllowedModules();

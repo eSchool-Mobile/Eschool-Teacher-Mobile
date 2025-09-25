@@ -101,7 +101,7 @@ class AuthRepository {
       final result = await Api.post(body: {
         "email": email,
         "password": password,
-        "device_id": await getFcmToken(),
+        "fcm_id": await getFcmToken(),
       }, url: Api.login, useAuthToken: false);
 
       JsonEncoder.withIndent('  ').convert(result).split('\n').forEach(print);
