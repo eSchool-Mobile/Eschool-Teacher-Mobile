@@ -415,51 +415,11 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
           setState(() {});
           Navigator.pop(context);
 
-          // Show success animation with confetti effect
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Container(
-                padding: EdgeInsets.symmetric(vertical: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.check_circle,
-                        color: Colors.green.shade600,
-                        size: 30,
-                      ),
-                    ),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: Text(
-                        'Perizinan berhasil diajukan!',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              backgroundColor: Colors.green.shade600,
-              duration: Duration(seconds: 3),
-              behavior: SnackBarBehavior.floating,
-              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              elevation: 6,
-            ),
+          CustomSuccessMessage.show(
+            context: context,
+            message: "Perizinan berhasil diajukan!",
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
           );
         } else if (state is ApplyLeaveFailure) {
           _showAnimatedSnackBar(message: state.errorMessage);
@@ -1826,4 +1786,91 @@ class AppBarDecorationPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class CustomSuccessMessage {
+  static void show({
+    required BuildContext context,
+    required String message,
+    Duration duration = const Duration(seconds: 2),
+    Color backgroundColor = Colors.green,
+    Color textColor = Colors.white,
+    VoidCallback? onDismiss,
+  }) {
+    // Add haptic feedback for better UX
+    HapticFeedback.mediumImpact();
+
+    // Create overlay entry
+    OverlayState? overlayState = Overlay.of(context);
+    OverlayEntry overlayEntry;
+
+    overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: 30,
+        left: 20,
+        right: 20,
+        child: Material(
+          color: Colors.transparent,
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 300),
+            builder: (context, value, child) {
+              return Opacity(
+                opacity: value,
+                child: Transform.translate(
+                  offset: Offset(0, 20 * (1 - value)),
+                  child: child,
+                ),
+              );
+            },
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.check_circle, color: textColor, size: 24),
+                  SizedBox(width: 12),
+                  Flexible(
+                    child: Text(
+                      message,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Add to overlay
+    overlayState.insert(overlayEntry);
+
+    // Remove after duration
+    Future.delayed(duration, () {
+      if (overlayEntry.mounted) {
+        overlayEntry.remove();
+        if (onDismiss != null) {
+          onDismiss();
+        }
+      }
+    });
+  }
 }

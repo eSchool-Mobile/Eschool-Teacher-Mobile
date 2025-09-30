@@ -80,6 +80,21 @@ class _LeavesScreenState extends State<LeavesScreen>
   final Color cardShadowColor = Color(0x0F000000);
   final Color surfaceColor = Color(0xFFFFFAFB);
 
+  DateTime _parseDate(String dateStr) {
+    try {
+      List<String> parts = dateStr.split('-');
+      if (parts.length == 3) {
+        int day = int.parse(parts[0]);
+        int month = int.parse(parts[1]);
+        int year = int.parse(parts[2]);
+        return DateTime(year, month, day);
+      }
+    } catch (e) {
+      print('Error parsing date: $dateStr, error: $e');
+    }
+    throw FormatException('Invalid date format: $dateStr');
+  }
+
   @override
   void initState() {
     super.initState();
@@ -603,7 +618,7 @@ class _LeavesScreenState extends State<LeavesScreen>
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "${leave.fromDate != null ? Utils.formatDate(DateTime.parse(leave.fromDate!)) : ''}",
+                                        "${leave.fromDate != null ? Utils.formatDate(_parseDate(leave.fromDate!)) : ''}",
                                         style: TextStyle(
                                           fontFamily: 'Poppins',
                                           fontWeight: FontWeight.w600,
@@ -613,7 +628,7 @@ class _LeavesScreenState extends State<LeavesScreen>
                                       ),
                                       if (leave.fromDate != leave.toDate)
                                         Text(
-                                          "s/d ${leave.toDate != null ? Utils.formatDate(DateTime.parse(leave.toDate!)) : ''}",
+                                          "s/d ${leave.toDate != null ? Utils.formatDate(_parseDate(leave.toDate!)) : ''}",
                                           style: TextStyle(
                                             fontFamily: 'Poppins',
                                             fontSize: 12,
@@ -680,7 +695,7 @@ class _LeavesScreenState extends State<LeavesScreen>
 
   PreferredSizeWidget _buildHeaderSection() {
     return CustomFilterModernAppBar(
-      title:"Detail Cuti",
+      title: "Detail Cuti",
       titleIcon: Icons.event_available_rounded,
       primaryColor: maroonPrimary,
       secondaryColor: maroonLight,

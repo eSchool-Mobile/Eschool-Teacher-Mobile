@@ -79,6 +79,8 @@ class _TeacherAddAttendanceScreenSubjectState
   String _selectedMateri = '';
   String? _selectedLampiran;
 
+  TimeTableSlot? _selectedTimeTableSlot;
+
   // Search functionality
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -147,6 +149,7 @@ class _TeacherAddAttendanceScreenSubjectState
         if (timeTableSlot != null) {
           _selectedTimeTableId = timeTableSlot.id!;
         }
+        _selectedTimeTableSlot = timeTableSlot;
         // Extract grade level from class section if available
         if (_selectedClassSection != null) {
           _selectedGradeLevelId = _selectedClassSection!.gradeLevelId;
@@ -1187,6 +1190,32 @@ class _TeacherAddAttendanceScreenSubjectState
                         }
 
                         // Validasi data sebelum submit
+                        // Validasi waktu pelajaran
+                        if (_selectedTimeTableSlot != null &&
+                            _selectedTimeTableSlot!.startTime != null) {
+                          final now = DateTime.now();
+                          final today = DateTime(now.year, now.month, now.day);
+                          final selectedDate = DateTime(_selectedDateTime.year,
+                              _selectedDateTime.month, _selectedDateTime.day);
+
+                          if (selectedDate.isAtSameMomentAs(today)) {
+                            final startTimeParts =
+                                _selectedTimeTableSlot!.startTime!.split(':');
+                            final startHour = int.parse(startTimeParts[0]);
+                            final startMinute = int.parse(startTimeParts[1]);
+                            final lessonStartTime = DateTime(now.year,
+                                now.month, now.day, startHour, startMinute);
+
+                            if (now.isBefore(lessonStartTime)) {
+                              Utils.showSnackBar(
+                                message: "Belum memasuki jam pelajaran.",
+                                context: context,
+                              );
+                              return;
+                            }
+                          }
+                        }
+
                         if (_selectedClassSection == null ||
                             _selectedClassSection!.id == null) {
                           Utils.showSnackBar(

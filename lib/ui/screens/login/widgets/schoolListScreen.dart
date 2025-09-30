@@ -9,7 +9,6 @@ import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 class SchoolListScreen extends StatefulWidget {
   final Map<String, dynamic> userData;
@@ -866,40 +865,48 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(44),
-                              child: CachedNetworkImage(
-                                imageUrl:
-                                    school['user']['school']['logo'] ?? '',
+                              child: Image.network(
+                                school['user']['school']?['logo'] ??
+                                    school['user']['image'] ??
+                                    '',
                                 fit: BoxFit.cover,
-                                placeholder: (context, url) => Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        softMaroon.withOpacity(0.1),
-                                        primaryMaroon.withOpacity(0.05),
-                                      ],
+                                errorBuilder: (context, error, stackTrace) {
+                                  print('Error loading image: $error');
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          softMaroon.withOpacity(0.1),
+                                          primaryMaroon.withOpacity(0.05),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  child: Icon(
-                                    Icons.school_rounded,
-                                    color: primaryMaroon,
-                                    size: 44,
-                                  ),
-                                ),
-                                errorWidget: (context, url, error) => Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        softMaroon.withOpacity(0.1),
-                                        primaryMaroon.withOpacity(0.05),
-                                      ],
+                                    child: Icon(
+                                      Icons.school_rounded,
+                                      color: primaryMaroon,
+                                      size: 44,
                                     ),
-                                  ),
-                                  child: Icon(
-                                    Icons.school_rounded,
-                                    color: primaryMaroon,
-                                    size: 44,
-                                  ),
-                                ),
+                                  );
+                                },
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          softMaroon.withOpacity(0.1),
+                                          primaryMaroon.withOpacity(0.05),
+                                        ],
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      Icons.school_rounded,
+                                      color: primaryMaroon,
+                                      size: 44,
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           ),
@@ -1151,6 +1158,8 @@ class _SchoolListScreenState extends State<SchoolListScreen>
         delegate: SliverChildBuilderDelegate(
           (context, index) {
             final school = filteredSchools[index];
+            print(
+                'Image URL for school ${school['school_name']}: ${school['user']['school']?['logo'] ?? school['user']['image'] ?? ''}');
             return Container(
               margin: const EdgeInsets.only(bottom: 18),
               child: Material(
@@ -1254,41 +1263,48 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                 ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(28),
-                                  child: CachedNetworkImage(
-                                    imageUrl:
-                                        school['user']['school']['logo'] ?? '',
+                                  child: Image.network(
+                                    school['user']['school']?['logo'] ??
+                                        school['user']['image'] ??
+                                        '',
                                     fit: BoxFit.cover,
-                                    placeholder: (context, url) => Container(
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            softMaroon.withOpacity(0.1),
-                                            primaryMaroon.withOpacity(0.05),
-                                          ],
+                                    errorBuilder: (context, error, stackTrace) {
+                                      print('Error loading image: $error');
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              softMaroon.withOpacity(0.1),
+                                              primaryMaroon.withOpacity(0.05),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      child: Icon(
-                                        Icons.school_rounded,
-                                        color: primaryMaroon,
-                                        size: 26,
-                                      ),
-                                    ),
-                                    errorWidget: (context, url, error) =>
-                                        Container(
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            softMaroon.withOpacity(0.1),
-                                            primaryMaroon.withOpacity(0.05),
-                                          ],
+                                        child: Icon(
+                                          Icons.school_rounded,
+                                          color: primaryMaroon,
+                                          size: 26,
                                         ),
-                                      ),
-                                      child: Icon(
-                                        Icons.school_rounded,
-                                        color: primaryMaroon,
-                                        size: 26,
-                                      ),
-                                    ),
+                                      );
+                                    },
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              softMaroon.withOpacity(0.1),
+                                              primaryMaroon.withOpacity(0.05),
+                                            ],
+                                          ),
+                                        ),
+                                        child: Icon(
+                                          Icons.school_rounded,
+                                          color: primaryMaroon,
+                                          size: 26,
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
                               ),
