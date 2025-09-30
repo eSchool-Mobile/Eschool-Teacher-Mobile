@@ -129,13 +129,71 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
 
   @override
   void initState() {
-    Future.delayed(Duration.zero, () {
+    Future.delayed(Duration.zero, () async {
       if (mounted) {
+        // Start fetching data
         context.read<GradeLevelCubit>().getGradeLevels();
         context
             .read<ClassSectionsAndSubjectsCubit>()
             .getClassSectionsAndSubjects(
                 classSectionId: _selectedClassSection?.id);
+
+        // Auto-load grade level and class section for edit mode
+        if (widget.lesson != null && mounted) {
+          // Wait for both cubits to complete fetching
+          await Future.wait([
+            // Wait for grade levels to load
+            Future.doWhile(() async {
+              await Future.delayed(Duration(milliseconds: 50));
+              final state = context.read<GradeLevelCubit>().state;
+              return !(state is GradeLevelFetchSuccess ||
+                  state is GradeLevelFetchFailure);
+            }),
+            // Wait for class sections to load
+            Future.doWhile(() async {
+              await Future.delayed(Duration(milliseconds: 50));
+              final state = context.read<ClassSectionsAndSubjectsCubit>().state;
+              return !(state is ClassSectionsAndSubjectsFetchSuccess ||
+                  state is ClassSectionsAndSubjectsFetchFailure);
+            }),
+          ]);
+
+          if (mounted) {
+            final gradeLevelState = context.read<GradeLevelCubit>().state;
+            final classSectionState =
+                context.read<ClassSectionsAndSubjectsCubit>().state;
+
+            if (gradeLevelState is GradeLevelFetchSuccess &&
+                classSectionState is ClassSectionsAndSubjectsFetchSuccess) {
+              try {
+                // Find the class section that matches the lesson's classSectionId
+                final matchingClassSection = classSectionState.classSections
+                    .where((classSection) =>
+                        classSection.id == widget.lesson!.classSectionId)
+                    .toList();
+
+                if (matchingClassSection.isNotEmpty) {
+                  final classSection = matchingClassSection.first;
+
+                  // Find the grade level that matches the class section's gradeLevelId
+                  final matchingGradeLevel = gradeLevelState.gradeLevels
+                      .where((gradeLevel) =>
+                          gradeLevel.id == classSection.gradeLevelId)
+                      .toList();
+
+                  setState(() {
+                    _selectedClassSection = classSection;
+                    if (matchingGradeLevel.isNotEmpty) {
+                      _selectedGradeLevel = matchingGradeLevel.first;
+                    }
+                  });
+                }
+              } catch (err) {
+                // Handle error silently
+              }
+            }
+          }
+        }
       }
     });
 
@@ -551,9 +609,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
               return state is ClassSectionsAndSubjectsFetchFailure
                   ? Center(
                       child: ErrorContainer(
-                      errorMessage:
-                          (state as ClassSectionsAndSubjectsFetchFailure)
-                              .errorMessage,
+                      errorMessage: state.errorMessage,
                       onTapRetry: () {
                         context
                             .read<ClassSectionsAndSubjectsCubit>()

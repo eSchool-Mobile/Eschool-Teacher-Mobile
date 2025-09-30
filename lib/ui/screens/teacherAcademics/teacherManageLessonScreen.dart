@@ -87,7 +87,6 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
       vsync: this,
       duration: Duration(milliseconds: 800),
     );
-
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _fadeController,
