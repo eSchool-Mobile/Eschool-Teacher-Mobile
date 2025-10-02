@@ -2026,14 +2026,7 @@ class _TeacherAddEditAssignmentScreenState
                         color: _deepMaroon,
                       ),
                     ),
-                    Text(
-                      "Maksimal 2 MB per file",
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                        color: _dustyRose,
-                      ),
-                    ),
+               
                   ],
                 ),
               ),

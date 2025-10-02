@@ -607,7 +607,7 @@ class _TeacherAddEditAnnouncementScreenState
                     ),
                     // SizedBox(height: 8),
                     // // Text(
-                    //   'Batasan ukuran file adalah 2 MB',
+                    //   'Batasan ukuran file adalah 2                                                                                                                                                                                                                                                                                                                                                             MB',
                     //   style: TextStyle(
                     //     fontSize: 12,
                     //     color: Colors.grey.shade600,
@@ -617,7 +617,6 @@ class _TeacherAddEditAnnouncementScreenState
                   ],
                 ),
               ),
-
               SizedBox(height: 20),
 
               // Content Area

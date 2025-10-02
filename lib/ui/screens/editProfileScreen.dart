@@ -4,11 +4,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/editProfileCubit.dart';
 import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
+import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -39,7 +36,7 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   TextEditingController firstName = TextEditingController();
   TextEditingController lastName = TextEditingController();
   TextEditingController mobileNumber = TextEditingController();
@@ -54,6 +51,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
 
   // Animation controllers
   late AnimationController _animationController;
+  late AnimationController _fabAnimationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
@@ -65,10 +63,15 @@ class _EditProfileScreenState extends State<EditProfileScreen>
 
   @override
   void initState() {
-    // Initialize animation controller
+    // Initialize animation controllers
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
+    );
+
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -80,8 +83,9 @@ class _EditProfileScreenState extends State<EditProfileScreen>
       CurvedAnimation(parent: _animationController, curve: Curves.easeOutQuint),
     );
 
-    // Start animation
+    // Start animations
     _animationController.forward();
+    _fabAnimationController.repeat();
 
     firstName = TextEditingController(
         text: context.read<AuthCubit>().getUserDetails().firstName ?? "");
@@ -127,12 +131,13 @@ class _EditProfileScreenState extends State<EditProfileScreen>
     currentAddress.dispose();
     permanentAddress.dispose();
     _animationController.dispose();
+    _fabAnimationController.dispose();
     super.dispose();
   }
 
   Future<void> _addFiles() async {
     HapticFeedback.mediumImpact();
-   await showDialog(
+    await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -211,7 +216,6 @@ class _EditProfileScreenState extends State<EditProfileScreen>
       required String textFieldHintTextKey,
       required TextEditingController textEditingController,
       IconData? prefixIcon}) {
-    final screenWidth = MediaQuery.of(context).size.width;
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -290,7 +294,6 @@ class _EditProfileScreenState extends State<EditProfileScreen>
   }
 
   Widget _buildDateOfBirthContainer() {
-    final screenWidth = MediaQuery.of(context).size.width;
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -401,7 +404,6 @@ class _EditProfileScreenState extends State<EditProfileScreen>
   }
 
   Widget _buildGenderSelector() {
-    final screenWidth = MediaQuery.of(context).size.width;
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -606,6 +608,19 @@ class _EditProfileScreenState extends State<EditProfileScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundMaroon,
+      appBar: CustomModernAppBar(
+        title: editProfileKey.tr,
+        icon: Icons.person_outline,
+        fabAnimationController: _fabAnimationController,
+        primaryColor: primaryMaroon,
+        lightColor: lightMaroon,
+        onBackPressed: () {
+          if (context.read<EditProfileCubit>().state is EditProfileProgress) {
+            return;
+          }
+          Navigator.pop(context);
+        },
+      ),
       body: BlocConsumer<EditProfileCubit, EditProfileState>(
           listener: (context, state) {
         if (state is EditProfileSuccess) {
@@ -649,291 +664,220 @@ class _EditProfileScreenState extends State<EditProfileScreen>
           canPop: state is! EditProfileProgress,
           child: Stack(
             children: [
-              // Custom app bar with elegant design
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [primaryMaroon, primaryMaroon.withOpacity(0.8)],
-                    ),
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(30),
-                      bottomRight: Radius.circular(30),
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      // Title and back button at the very top
-                      Container(
-                        padding: EdgeInsets.only(
-                            top: MediaQuery.of(context).padding.top,
-                            left: 8.0,
-                            right: 8.0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.arrow_back_ios,
-                                  color: Colors.white),
-                              padding: EdgeInsets.zero,
-                              constraints: BoxConstraints(),
-                              onPressed: () {
-                                if (state is EditProfileProgress) {
-                                  return;
-                                }
-                                Get.back();
-                              },
-                            ),
-                            Text(
-                              editProfileKey.tr,
-                              style: GoogleFonts.poppins(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Empty space for the profile image that will overlap
-                      Expanded(child: Container()),
-                    ],
+              // Background container dengan rounded corners
+              Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFDF6F8),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
                   ),
                 ),
               ),
-              // Loading indicator
-              if (state is EditProfileProgress)
-                const Center(
-                  child: CustomCircularProgressIndicator(),
-                ),
-              // Background gradient
-              Positioned.fill(
-                top: 200,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        backgroundMaroon,
-                        backgroundMaroon.withOpacity(0.8),
+              // Main scrollable content
+              SlideTransition(
+                position: _slideAnimation,
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.only(
+                        top: 40, bottom: 40, left: 24, right: 24),
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Profile Image Section
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 32.0),
+                            child: Hero(
+                              tag: "profileImage",
+                              child: Container(
+                                width: 120,
+                                height: 120,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 15,
+                                      spreadRadius: 5,
+                                    ),
+                                  ],
+                                ),
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: Stack(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(60),
+                                        child: uploadedPicture != null
+                                            ? Image.file(
+                                                File(uploadedPicture!),
+                                                width: 120,
+                                                height: 120,
+                                                fit: BoxFit.cover,
+                                              )
+                                            : profileImage.isNotEmpty
+                                                ? CachedNetworkImage(
+                                                    imageUrl: profileImage,
+                                                    width: 120,
+                                                    height: 120,
+                                                    fit: BoxFit.cover,
+                                                    placeholder:
+                                                        (context, url) =>
+                                                            Container(
+                                                      color: lightMaroon
+                                                          .withOpacity(0.3),
+                                                      child: const Center(
+                                                        child:
+                                                            CircularProgressIndicator(),
+                                                      ),
+                                                    ),
+                                                    errorWidget:
+                                                        (context, url, error) =>
+                                                            Container(
+                                                      color: lightMaroon
+                                                          .withOpacity(0.3),
+                                                      child: const Icon(
+                                                        Icons.person,
+                                                        size: 60,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  )
+                                                : Container(
+                                                    color: lightMaroon
+                                                        .withOpacity(0.3),
+                                                    child: const Icon(
+                                                      Icons.person,
+                                                      size: 60,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                      ),
+                                      Positioned(
+                                        bottom: 0,
+                                        right: 0,
+                                        child: GestureDetector(
+                                          onTap: _addFiles,
+                                          child: Container(
+                                            width: 40,
+                                            height: 40,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              gradient: LinearGradient(
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                                colors: [
+                                                  primaryMaroon,
+                                                  accentMaroon
+                                                ],
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: primaryMaroon
+                                                      .withOpacity(0.3),
+                                                  blurRadius: 8,
+                                                  spreadRadius: 2,
+                                                ),
+                                              ],
+                                            ),
+                                            child: const Icon(
+                                              Icons.camera_alt,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 24.0),
+                          child: Text(
+                            "Informasi Pribadi",
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: accentMaroon,
+                            ),
+                          ),
+                        ),
+                        _buildLabelWithTextEditingController(
+                          labelTitle: firstNameKey,
+                          textFieldHintTextKey: firstNameKey,
+                          textEditingController: firstName,
+                          prefixIcon: Icons.person_outline,
+                        ),
+                        _buildLabelWithTextEditingController(
+                          labelTitle: lastNameKey,
+                          textFieldHintTextKey: lastNameKey,
+                          textEditingController: lastName,
+                          prefixIcon: Icons.person_outline,
+                        ),
+                        _buildLabelWithTextEditingController(
+                          labelTitle: emailKey,
+                          textFieldHintTextKey: emailKey,
+                          textEditingController: email,
+                          prefixIcon: Icons.email_outlined,
+                        ),
+                        _buildLabelWithTextEditingController(
+                          labelTitle: mobileNumberKey,
+                          textFieldHintTextKey: mobileNumberKey,
+                          textEditingController: mobileNumber,
+                          prefixIcon: Icons.phone_outlined,
+                        ),
+                        _buildDateOfBirthContainer(),
+                        _buildGenderSelector(),
+                        if (context.read<AuthCubit>().isTeacher()) ...[
+                          const SizedBox(height: 24),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: Text(
+                              "Address Information",
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: accentMaroon,
+                              ),
+                            ),
+                          ),
+                          _buildLabelWithTextEditingController(
+                            labelTitle: currentAddressKey,
+                            textFieldHintTextKey: currentAddressKey,
+                            textEditingController: currentAddress,
+                            prefixIcon: Icons.home_outlined,
+                          ),
+                          _buildLabelWithTextEditingController(
+                            labelTitle: permanentAddressKey,
+                            textFieldHintTextKey: permanentAddressKey,
+                            textEditingController: permanentAddress,
+                            prefixIcon: Icons.location_on_outlined,
+                          ),
+                        ],
+                        const SizedBox(height: 24),
+                        _buildUpdateProfileButton(state),
                       ],
                     ),
                   ),
                 ),
               ),
-              // Top shadow
-
-              // Bottom shadow
-
-              // Main content
-              Positioned.fill(
-                top: 150,
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFDF6F8),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                  ),
-                  child: SlideTransition(
-                    position: _slideAnimation,
-                    child: FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.only(
-                            top: 80, bottom: 40, left: 24, right: 24),
-                        physics: const BouncingScrollPhysics(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 24.0),
-                              child: Text(
-                                "Informasi Pribadi",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  color: accentMaroon,
-                                ),
-                              ),
-                            ),
-                            _buildLabelWithTextEditingController(
-                              labelTitle: firstNameKey,
-                              textFieldHintTextKey: firstNameKey,
-                              textEditingController: firstName,
-                              prefixIcon: Icons.person_outline,
-                            ),
-                            _buildLabelWithTextEditingController(
-                              labelTitle: lastNameKey,
-                              textFieldHintTextKey: lastNameKey,
-                              textEditingController: lastName,
-                              prefixIcon: Icons.person_outline,
-                            ),
-                            _buildLabelWithTextEditingController(
-                              labelTitle: emailKey,
-                              textFieldHintTextKey: emailKey,
-                              textEditingController: email,
-                              prefixIcon: Icons.email_outlined,
-                            ),
-                            _buildLabelWithTextEditingController(
-                              labelTitle: mobileNumberKey,
-                              textFieldHintTextKey: mobileNumberKey,
-                              textEditingController: mobileNumber,
-                              prefixIcon: Icons.phone_outlined,
-                            ),
-                            _buildDateOfBirthContainer(),
-                            _buildGenderSelector(),
-                            if (context.read<AuthCubit>().isTeacher()) ...[
-                              const SizedBox(height: 24),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 16.0),
-                                child: Text(
-                                  "Address Information",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: accentMaroon,
-                                  ),
-                                ),
-                              ),
-                              _buildLabelWithTextEditingController(
-                                labelTitle: currentAddressKey,
-                                textFieldHintTextKey: currentAddressKey,
-                                textEditingController: currentAddress,
-                                prefixIcon: Icons.home_outlined,
-                              ),
-                              _buildLabelWithTextEditingController(
-                                labelTitle: permanentAddressKey,
-                                textFieldHintTextKey: permanentAddressKey,
-                                textEditingController: permanentAddress,
-                                prefixIcon: Icons.location_on_outlined,
-                              ),
-                            ],
-                            const SizedBox(height: 24),
-                            _buildUpdateProfileButton(state),
-                          ],
-                        ),
-                      ),
-                    ),
+              // Profile image - COMPLETELY SEPARATE dari scrollable area
+              // Loading indicator overlay
+              if (state is EditProfileProgress)
+                Container(
+                  color: Colors.black.withOpacity(0.3),
+                  child: const Center(
+                    child: CustomCircularProgressIndicator(),
                   ),
                 ),
-              ),
-
-              // Profile image with hero animation
-              Positioned(
-                top: 100,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Hero(
-                    tag: "profileImage",
-                    child: Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 15,
-                            spreadRadius: 5,
-                          ),
-                        ],
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(60),
-                              child: uploadedPicture != null
-                                  ? Image.file(
-                                      File(uploadedPicture!),
-                                      width: 120,
-                                      height: 120,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : profileImage.isNotEmpty
-                                      ? CachedNetworkImage(
-                                          imageUrl: profileImage,
-                                          width: 120,
-                                          height: 120,
-                                          fit: BoxFit.cover,
-                                          placeholder: (context, url) =>
-                                              Container(
-                                            color: lightMaroon.withOpacity(0.3),
-                                            child: const Center(
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            ),
-                                          ),
-                                          errorWidget: (context, url, error) =>
-                                              Container(
-                                            color: lightMaroon.withOpacity(0.3),
-                                            child: const Icon(
-                                              Icons.person,
-                                              size: 60,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        )
-                                      : Container(
-                                          color: lightMaroon.withOpacity(0.3),
-                                          child: const Icon(
-                                            Icons.person,
-                                            size: 60,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: GestureDetector(
-                                onTap: _addFiles,
-                                child: Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [primaryMaroon, accentMaroon],
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: primaryMaroon.withOpacity(0.3),
-                                        blurRadius: 8,
-                                        spreadRadius: 2,
-                                      ),
-                                    ],
-                                  ),
-                                  child: const Icon(
-                                    Icons.camera_alt,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
             ],
           ),
         );

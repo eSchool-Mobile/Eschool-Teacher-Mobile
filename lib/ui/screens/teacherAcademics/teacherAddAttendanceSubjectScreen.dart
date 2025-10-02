@@ -719,15 +719,7 @@ class _TeacherAddAttendanceScreenSubjectState
                                           ),
                                           textAlign: TextAlign.center,
                                         ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          'Maksimal 2.5 MB',
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 12,
-                                            color: Colors.grey[400],
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
+                                  
                                       ] else ...[
                                         Row(
                                           children: [
