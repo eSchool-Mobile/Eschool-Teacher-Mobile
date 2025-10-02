@@ -355,14 +355,14 @@ class _CompressionDialogState extends State<_CompressionDialog> {
                 height: 60,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Colors.blue[400]!, Colors.blue[600]!],
+                    colors: [Color(0xFFAA6976), Color(0xFF800020)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.blue.withOpacity(0.3),
+                      color: Color(0xFF800020).withOpacity(0.3),
                       blurRadius: 15,
                       spreadRadius: 2,
                     ),
@@ -401,7 +401,7 @@ class _CompressionDialogState extends State<_CompressionDialog> {
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Colors.blue[400]!, Colors.blue[600]!],
+                        colors: [Color(0xFFAA6976), Color(0xFF800020)],
                       ),
                       borderRadius: BorderRadius.circular(4),
                     ),
@@ -443,7 +443,7 @@ class _CompressionDialogState extends State<_CompressionDialog> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.blue[600],
+                  color: Color(0xFF800020),
                 ),
               ),
             ],

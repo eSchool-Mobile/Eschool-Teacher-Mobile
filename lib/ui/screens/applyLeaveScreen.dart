@@ -1,15 +1,9 @@
 import 'dart:ui';
 import 'package:eschool_saas_staff/cubits/leave/applyLeaveCubit.dart';
 import 'package:eschool_saas_staff/cubits/leave/leaveSettingsCubit.dart';
-import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
-import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
-import 'package:eschool_saas_staff/ui/widgets/textWithFadedBackgroundContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/uploadImageOrFileButton.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -19,11 +13,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:lottie/lottie.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 // Define our theme colors
 final Color maroonPrimary = Color(0xFF8B1F41);
@@ -61,8 +53,6 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
       TextEditingController();
   late final AnimationController _animationController;
   late final Animation<double> _fadeAnimation;
-  late final AnimationController _pulseController;
-  late final Animation<double> _pulseAnimation;
   late final AnimationController _slideController;
   late final Animation<Offset> _slideAnimation;
   late final AnimationController _appBarAnimationController;
@@ -74,7 +64,6 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
   DateTime? _selectedToDate;
   Map<DateTime, String> _leaveDays = {};
   List<PlatformFile> _uploadedFiles = [];
-  bool _isExpanded = true;
   bool _isAttachmentExpanded = false;
   bool _isReasonExpanded = true;
   bool _showDateSelection = false;
@@ -93,19 +82,6 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
-
-    // Pulse animation for interactive elements
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1500),
-    )..repeat(reverse: true);
-
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.08).animate(
-      CurvedAnimation(
-        parent: _pulseController,
         curve: Curves.easeInOut,
       ),
     );
@@ -163,7 +139,6 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
   void dispose() {
     _textEditingController.dispose();
     _animationController.dispose();
-    _pulseController.dispose();
     _slideController.dispose();
     _scrollController.dispose();
     _appBarAnimationController.dispose();
@@ -202,9 +177,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
       }
       setState(() {});
 
-      // Show a subtle animation when files are added
-      _pulseController.reset();
-      _pulseController.forward();
+      // File berhasil ditambahkan
     } else {
       print('❌ [LEAVE SCREEN] Tidak ada file yang dipilih atau diproses');
     }
@@ -293,7 +266,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
 
   void onTapToDate() async {
     if (_selectedFromDate == null) {
-      _showAnimatedSnackBar(message: pleaseSelectFromDateKey);
+      _showValidationSnackBar(message: pleaseSelectFromDateKey);
       return;
     }
 
@@ -345,61 +318,510 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     }
   }
 
-  void _showAnimatedSnackBar({required String message}) {
+  void _showAnimatedErrorDialog({required String message}) {
     HapticFeedback.mediumImpact();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Container(
-          padding: EdgeInsets.symmetric(vertical: 8),
-          child: Row(
-            children: [
-              Icon(Icons.info_outline, color: Colors.white),
-              SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  message.tr,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
+
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: '',
+      barrierColor: Colors.black.withOpacity(0.6),
+      transitionDuration: Duration(milliseconds: 500),
+      pageBuilder: (context, animation1, animation2) => Container(),
+      transitionBuilder: (context, animation1, animation2, child) {
+        final curvedAnimation = CurvedAnimation(
+          parent: animation1,
+          curve: Curves.easeOutQuint,
+          reverseCurve: Curves.easeInQuint,
+        );
+
+        return ScaleTransition(
+          scale: Tween<double>(begin: 0.85, end: 1.0).animate(curvedAnimation),
+          child: FadeTransition(
+            opacity: curvedAnimation,
+            child: Dialog(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              insetPadding: EdgeInsets.symmetric(horizontal: 20),
+              child: Container(
+                constraints: BoxConstraints(maxWidth: 420),
+                decoration: BoxDecoration(
+                  color: cardColor,
+                  borderRadius: BorderRadius.circular(32),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 30,
+                      offset: Offset(0, 20),
+                      spreadRadius: -5,
+                    ),
+                    BoxShadow(
+                      color: Colors.red.shade100.withOpacity(0.3),
+                      blurRadius: 40,
+                      offset: Offset(0, 10),
+                      spreadRadius: 5,
+                    ),
+                  ],
+                  border: Border.all(
+                    color: Colors.red.shade100.withOpacity(0.5),
+                    width: 1.5,
                   ),
                 ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Enhanced header with gradient and glow effect
+                    Container(
+                      padding: EdgeInsets.all(32),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.red.shade50,
+                            Colors.red.shade100,
+                            Colors.red.shade200.withOpacity(0.3),
+                          ],
+                          stops: [0.0, 0.6, 1.0],
+                        ),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(32),
+                          topRight: Radius.circular(32),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.red.shade200.withOpacity(0.2),
+                            blurRadius: 15,
+                            offset: Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          // Enhanced animated error icon with glow
+                          TweenAnimationBuilder<double>(
+                            tween: Tween<double>(begin: 0.0, end: 1.0),
+                            duration: Duration(milliseconds: 800),
+                            builder: (context, value, child) {
+                              return Transform.scale(
+                                scale: 0.8 + (value * 0.2),
+                                child: Container(
+                                  padding: EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.red.shade300
+                                            .withOpacity(0.4 * value),
+                                        blurRadius: 20 + (value * 10),
+                                        offset: Offset(0, 8),
+                                        spreadRadius: value * 2,
+                                      ),
+                                      BoxShadow(
+                                        color: Colors.red.shade200
+                                            .withOpacity(0.2 * value),
+                                        blurRadius: 30 + (value * 15),
+                                        offset: Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Icon(
+                                    Icons.error_outline_rounded,
+                                    color: Colors.red.shade600,
+                                    size: 56,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          SizedBox(height: 20),
+                          Text(
+                            'Pengajuan Gagal',
+                            style: GoogleFonts.poppins(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red.shade800,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.red.shade200.withOpacity(0.3),
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Container(
+                            width: 40,
+                            height: 3,
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade300.withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Enhanced content area
+                    Container(
+                      padding: EdgeInsets.all(32),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50.withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Colors.red.shade100,
+                                width: 1,
+                              ),
+                            ),
+                            child: Text(
+                              message,
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                color: textDarkColor,
+                                height: 1.6,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          SizedBox(height: 32),
+
+                          // Enhanced action buttons
+                          Row(
+                            children: [
+                              // Cancel button - more elegant
+                              Expanded(
+                                child: Container(
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: Colors.grey.shade300,
+                                      width: 1.5,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.shade200
+                                            .withOpacity(0.3),
+                                        blurRadius: 8,
+                                        offset: Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                    style: TextButton.styleFrom(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Tutup',
+                                      style: GoogleFonts.poppins(
+                                        color: textMediumColor,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 20),
+
+                              // Try again button - more prominent with enhanced gradient
+                              Expanded(
+                                child: Container(
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        maroonPrimary,
+                                        maroonPrimary.withOpacity(0.9),
+                                        maroonLight,
+                                      ],
+                                      stops: [0.0, 0.6, 1.0],
+                                    ),
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: maroonPrimary.withOpacity(0.4),
+                                        blurRadius: 15,
+                                        offset: Offset(0, 6),
+                                      ),
+                                      BoxShadow(
+                                        color: maroonLight.withOpacity(0.2),
+                                        blurRadius: 25,
+                                        offset: Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.transparent,
+                                      foregroundColor: Colors.white,
+                                      elevation: 0,
+                                      shadowColor: Colors.transparent,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Ulangi',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ],
+            ),
           ),
-        ),
-        backgroundColor: maroonPrimary,
-        duration: Duration(seconds: 3),
-        behavior: SnackBarBehavior.floating,
-        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        elevation: 6,
-        action: SnackBarAction(
-          label: 'OK',
-          textColor: Colors.white,
-          onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          },
-        ),
-      ),
+        );
+      },
     );
   }
 
-  // Helper functions for color manipulation
-  Color _getLightenedColor(Color baseColor, double factor) {
-    HSLColor hsl = HSLColor.fromColor(baseColor);
-    return hsl
-        .withLightness((hsl.lightness + factor).clamp(0.0, 1.0))
-        .toColor();
+  void _showValidationSnackBar({required String message}) {
+    HapticFeedback.lightImpact();
+
+    // Create overlay entry for custom animated snackbar
+    OverlayState? overlayState = Overlay.of(context);
+    OverlayEntry? overlayEntry;
+
+    overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: 30,
+        left: 20,
+        right: 20,
+        child: Material(
+          color: Colors.transparent,
+          child: TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0.0, end: 1.0),
+            duration: Duration(milliseconds: 600),
+            curve: Curves.elasticOut,
+            builder: (context, value, child) {
+              return Transform.scale(
+                scale: 0.85 + (value * 0.15),
+                child: Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(0, 40 * (1 - value)),
+                    child: child,
+                  ),
+                ),
+              );
+            },
+            child: GestureDetector(
+              onTap: () {
+                if (overlayEntry != null && overlayEntry.mounted) {
+                  overlayEntry.remove();
+                }
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.orange.shade500,
+                      Colors.orange.shade600,
+                      Colors.orange.shade700,
+                      Colors.orange.shade800,
+                    ],
+                    stops: [0.0, 0.3, 0.7, 1.0],
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.orange.shade900.withOpacity(0.5),
+                      blurRadius: 30,
+                      offset: Offset(0, 15),
+                      spreadRadius: -5,
+                    ),
+                    BoxShadow(
+                      color: Colors.orange.shade400.withOpacity(0.3),
+                      blurRadius: 50,
+                      offset: Offset(0, 8),
+                      spreadRadius: 2,
+                    ),
+                  ],
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.15),
+                    width: 1.5,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    // Animated warning icon with pulse effect
+                    TweenAnimationBuilder<double>(
+                      tween: Tween<double>(begin: 0.0, end: 1.0),
+                      duration: Duration(milliseconds: 800),
+                      builder: (context, value, child) {
+                        return Transform.scale(
+                          scale: 0.9 + (value * 0.1),
+                          child: Container(
+                            padding: EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.25),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.white.withOpacity(0.2),
+                                  blurRadius: 12,
+                                  offset: Offset(0, 4),
+                                ),
+                              ],
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.warning_amber_rounded,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    SizedBox(width: 18),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Perhatian!',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black.withOpacity(0.3),
+                                  offset: Offset(0, 1),
+                                  blurRadius: 3,
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            message,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Colors.white.withOpacity(0.95),
+                              fontWeight: FontWeight.w500,
+                              height: 1.4,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    // Enhanced close button
+                    Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.close_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Insert overlay
+    overlayState.insert(overlayEntry);
+
+    // Auto dismiss after duration
+    Future.delayed(Duration(seconds: 4), () {
+      if (overlayEntry != null && overlayEntry.mounted) {
+        overlayEntry.remove();
+      }
+    });
+  }
+
+  String _translateErrorMessage(String errorMessage) {
+    // Map of English error messages to Indonesian translations
+    final Map<String, String> errorTranslations = {
+      'You already have a leave request for this period. Please check your existing leave requests.':
+          'Anda sudah memiliki pengajuan cuti untuk periode ini. Silakan periksa pengajuan cuti yang sudah ada.',
+      'You already have a leave request for this period. Please check your existing leave requests':
+          'Anda sudah memiliki pengajuan cuti untuk periode ini. Silakan periksa pengajuan cuti yang sudah ada.',
+      'you already have a leave request for this period. please check your existing leave requests.':
+          'Anda sudah memiliki pengajuan cuti untuk periode ini. Silakan periksa pengajuan cuti yang sudah ada.',
+      'Leave request failed': 'Pengajuan cuti gagal',
+      'Invalid date range': 'Rentang tanggal tidak valid',
+      'Insufficient leave balance': 'Saldo cuti tidak mencukupi',
+      'Technical error occurred': 'Terjadi kesalahan teknis',
+      'Network error': 'Kesalahan jaringan',
+      'Please fill all required fields':
+          'Harap isi semua field yang diperlukan',
+      'Invalid file format': 'Format file tidak valid',
+      'File size too large': 'Ukuran file terlalu besar',
+    };
+
+    // Try to find translation (case insensitive)
+    for (final entry in errorTranslations.entries) {
+      if (entry.key.toLowerCase() == errorMessage.toLowerCase()) {
+        return entry.value;
+      }
+    }
+
+    // Return translated message if exists, otherwise return original message
+    return errorTranslations[errorMessage] ?? errorMessage;
   }
 
   Color _getDarkenedColor(Color baseColor, double factor) {
     HSLColor hsl = HSLColor.fromColor(baseColor);
     return hsl
         .withLightness((hsl.lightness - factor).clamp(0.0, 1.0))
+        .toColor();
+  }
+
+  Color _getLightenedColor(Color baseColor, double factor) {
+    HSLColor hsl = HSLColor.fromColor(baseColor);
+    return hsl
+        .withLightness((hsl.lightness + factor).clamp(0.0, 1.0))
         .toColor();
   }
 
@@ -422,7 +844,8 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
             textColor: Colors.white,
           );
         } else if (state is ApplyLeaveFailure) {
-          _showAnimatedSnackBar(message: state.errorMessage);
+          final translatedMessage = _translateErrorMessage(state.errorMessage);
+          _showAnimatedErrorDialog(message: translatedMessage);
         }
       },
       builder: (context, state) {
@@ -528,19 +951,19 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                     if (_textEditingController.text
                                         .trim()
                                         .isEmpty) {
-                                      _showAnimatedSnackBar(
+                                      _showValidationSnackBar(
                                           message: pleaseAddReasonKey);
                                       return;
                                     }
 
                                     if (_selectedFromDate == null) {
-                                      _showAnimatedSnackBar(
+                                      _showValidationSnackBar(
                                           message: pleaseSelectFromDateKey);
                                       return;
                                     }
 
                                     if (_selectedToDate == null) {
-                                      _showAnimatedSnackBar(
+                                      _showValidationSnackBar(
                                           message: pleaseSelectToDateKey);
                                       return;
                                     }
@@ -1792,17 +2215,14 @@ class CustomSuccessMessage {
   static void show({
     required BuildContext context,
     required String message,
-    Duration duration = const Duration(seconds: 2),
+    Duration duration = const Duration(seconds: 4),
     Color backgroundColor = Colors.green,
     Color textColor = Colors.white,
     VoidCallback? onDismiss,
   }) {
-    // Add haptic feedback for better UX
-    HapticFeedback.mediumImpact();
-
     // Create overlay entry
     OverlayState? overlayState = Overlay.of(context);
-    OverlayEntry overlayEntry;
+    late OverlayEntry overlayEntry;
 
     overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
@@ -1812,47 +2232,182 @@ class CustomSuccessMessage {
         child: Material(
           color: Colors.transparent,
           child: TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0.0, end: 1.0),
-            duration: const Duration(milliseconds: 300),
+            tween: Tween<double>(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 700),
+            curve: Curves.elasticOut,
             builder: (context, value, child) {
-              return Opacity(
-                opacity: value,
-                child: Transform.translate(
-                  offset: Offset(0, 20 * (1 - value)),
-                  child: child,
+              return Transform.scale(
+                scale: 0.8 + (value * 0.2),
+                child: Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(0, 50 * (1 - value)),
+                    child: child,
+                  ),
                 ),
               );
             },
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-              decoration: BoxDecoration(
-                color: backgroundColor,
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 8,
-                    offset: Offset(0, 4),
+            child: GestureDetector(
+              onTap: () {
+                if (overlayEntry.mounted) {
+                  overlayEntry.remove();
+                  if (onDismiss != null) {
+                    onDismiss();
+                  }
+                }
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 22, horizontal: 26),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.green.shade400,
+                      Colors.green.shade500,
+                      Colors.green.shade600,
+                      Colors.green.shade700,
+                    ],
+                    stops: [0.0, 0.3, 0.7, 1.0],
                   ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.check_circle, color: textColor, size: 24),
-                  SizedBox(width: 12),
-                  Flexible(
-                    child: Text(
-                      message,
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      textAlign: TextAlign.center,
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.green.shade900.withOpacity(0.5),
+                      blurRadius: 35,
+                      offset: Offset(0, 18),
+                      spreadRadius: -5,
                     ),
+                    BoxShadow(
+                      color: Colors.green.shade300.withOpacity(0.3),
+                      blurRadius: 60,
+                      offset: Offset(0, 10),
+                      spreadRadius: 3,
+                    ),
+                  ],
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.25),
+                    width: 1.5,
                   ),
-                ],
+                ),
+                child: Row(
+                  children: [
+                    // Animated success icon with bounce effect
+                    TweenAnimationBuilder<double>(
+                      tween: Tween<double>(begin: 0.0, end: 1.0),
+                      duration: Duration(milliseconds: 1000),
+                      curve: Curves.elasticOut,
+                      builder: (context, value, child) {
+                        return Transform.scale(
+                          scale: 0.8 + (value * 0.2),
+                          child: Container(
+                            padding: EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.25),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.white.withOpacity(0.2),
+                                  blurRadius: 15,
+                                  offset: Offset(0, 5),
+                                ),
+                              ],
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.4),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.check_circle_rounded,
+                              color: Colors.white,
+                              size: 32,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    SizedBox(width: 20),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Animated title with glow effect
+                          TweenAnimationBuilder<double>(
+                            tween: Tween<double>(begin: 0.0, end: 1.0),
+                            duration: Duration(milliseconds: 800),
+                            builder: (context, value, child) {
+                              return Opacity(
+                                opacity: value,
+                                child: Transform.translate(
+                                  offset: Offset(0, 10 * (1 - value)),
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: Text(
+                              'Berhasil!',
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                shadows: [
+                                  Shadow(
+                                    color: Colors.black.withOpacity(0.4),
+                                    offset: Offset(0, 2),
+                                    blurRadius: 4,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 6),
+                          // Animated message
+                          TweenAnimationBuilder<double>(
+                            tween: Tween<double>(begin: 0.0, end: 1.0),
+                            duration: Duration(milliseconds: 1000),
+                            builder: (context, value, child) {
+                              return Opacity(
+                                opacity: value,
+                                child: Transform.translate(
+                                  offset: Offset(0, 15 * (1 - value)),
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: Text(
+                              message,
+                              style: GoogleFonts.poppins(
+                                fontSize: 15,
+                                color: Colors.white.withOpacity(0.95),
+                                fontWeight: FontWeight.w500,
+                                height: 1.4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    // Enhanced close button with hover effect
+                    Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.4),
+                          width: 1,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.close_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -1863,7 +2418,7 @@ class CustomSuccessMessage {
     // Add to overlay
     overlayState.insert(overlayEntry);
 
-    // Remove after duration
+    // Auto dismiss after duration
     Future.delayed(duration, () {
       if (overlayEntry.mounted) {
         overlayEntry.remove();
