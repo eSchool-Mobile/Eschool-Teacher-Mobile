@@ -16,6 +16,7 @@ import 'dart:ui';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
+import 'package:intl/intl.dart';
 
 class GeneralPermissionScreen extends StatefulWidget {
   const GeneralPermissionScreen({super.key});
@@ -226,7 +227,9 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                             // Parse date with more flexible approach
                             DateTime leaveDate;
                             try {
-                              leaveDate = DateTime.parse(leave.fromDate!);
+                              // Parse dd-MM-yyyy format (e.g., "02-10-2025")
+                              leaveDate = DateFormat('dd-MM-yyyy')
+                                  .parse(leave.fromDate!);
                             } catch (e) {
                               print("Error parsing date ${leave.fromDate}: $e");
                               return false;
