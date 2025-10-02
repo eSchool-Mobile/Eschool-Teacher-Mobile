@@ -226,7 +226,22 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                             // Parse date with more flexible approach
                             DateTime leaveDate;
                             try {
-                              leaveDate = DateTime.parse(leave.fromDate!);
+                              // Handle different date formats
+                              if (leave.fromDate!.contains('-')) {
+                                // Handle format like "02-10-2025" (dd-MM-yyyy)
+                                final parts = leave.fromDate!.split('-');
+                                if (parts.length == 3) {
+                                  final day = int.parse(parts[0]);
+                                  final month = int.parse(parts[1]);
+                                  final year = int.parse(parts[2]);
+                                  leaveDate = DateTime(year, month, day);
+                                } else {
+                                  // Try ISO format like "2025-10-02"
+                                  leaveDate = DateTime.parse(leave.fromDate!);
+                                }
+                              } else {
+                                leaveDate = DateTime.parse(leave.fromDate!);
+                              }
                             } catch (e) {
                               print("Error parsing date ${leave.fromDate}: $e");
                               return false;
