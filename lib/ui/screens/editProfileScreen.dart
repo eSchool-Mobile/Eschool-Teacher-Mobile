@@ -686,117 +686,329 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Profile Image Section
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 32.0),
-                            child: Hero(
-                              tag: "profileImage",
-                              child: Container(
-                                width: 120,
-                                height: 120,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
-                                      blurRadius: 15,
-                                      spreadRadius: 5,
+                        // Profile Image Section with Decorative Elements
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.only(bottom: 32.0),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Decorative Background Circle 1
+                              Positioned(
+                                left: 50,
+                                top: 20,
+                                child: Container(
+                                  width: 80,
+                                  height: 80,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        primaryMaroon.withOpacity(0.1),
+                                        lightMaroon.withOpacity(0.05),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: Stack(
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(60),
-                                        child: uploadedPicture != null
-                                            ? Image.file(
-                                                File(uploadedPicture!),
-                                                width: 120,
-                                                height: 120,
-                                                fit: BoxFit.cover,
-                                              )
-                                            : profileImage.isNotEmpty
-                                                ? CachedNetworkImage(
-                                                    imageUrl: profileImage,
-                                                    width: 120,
-                                                    height: 120,
-                                                    fit: BoxFit.cover,
-                                                    placeholder:
-                                                        (context, url) =>
-                                                            Container(
-                                                      color: lightMaroon
-                                                          .withOpacity(0.3),
-                                                      child: const Center(
-                                                        child:
-                                                            CircularProgressIndicator(),
-                                                      ),
-                                                    ),
-                                                    errorWidget:
-                                                        (context, url, error) =>
-                                                            Container(
-                                                      color: lightMaroon
-                                                          .withOpacity(0.3),
-                                                      child: const Icon(
-                                                        Icons.person,
-                                                        size: 60,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  )
-                                                : Container(
-                                                    color: lightMaroon
-                                                        .withOpacity(0.3),
-                                                    child: const Icon(
-                                                      Icons.person,
-                                                      size: 60,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                      ),
-                                      Positioned(
-                                        bottom: 0,
-                                        right: 0,
-                                        child: GestureDetector(
-                                          onTap: _addFiles,
-                                          child: Container(
-                                            width: 40,
-                                            height: 40,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              gradient: LinearGradient(
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                                colors: [
-                                                  primaryMaroon,
-                                                  accentMaroon
-                                                ],
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: primaryMaroon
-                                                      .withOpacity(0.3),
-                                                  blurRadius: 8,
-                                                  spreadRadius: 2,
-                                                ),
-                                              ],
-                                            ),
-                                            child: const Icon(
-                                              Icons.camera_alt,
-                                              color: Colors.white,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
                                   ),
                                 ),
                               ),
-                            ),
+                              // Decorative Background Circle 2
+                              Positioned(
+                                right: 60,
+                                top: 10,
+                                child: Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topRight,
+                                      end: Alignment.bottomLeft,
+                                      colors: [
+                                        accentMaroon.withOpacity(0.08),
+                                        primaryMaroon.withOpacity(0.03),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // Decorative Icons
+                              Positioned(
+                                left: 40,
+                                bottom: 30,
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: lightMaroon.withOpacity(0.1),
+                                    border: Border.all(
+                                      color: lightMaroon.withOpacity(0.2),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    Icons.school_outlined,
+                                    color: primaryMaroon.withOpacity(0.6),
+                                    size: 24,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                right: 45,
+                                bottom: 40,
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: accentMaroon.withOpacity(0.1),
+                                    border: Border.all(
+                                      color: accentMaroon.withOpacity(0.2),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    Icons.star_outline,
+                                    color: accentMaroon.withOpacity(0.7),
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                              // Small decorative dots
+                              Positioned(
+                                left: 80,
+                                top: 5,
+                                child: Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: primaryMaroon.withOpacity(0.3),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                right: 30,
+                                top: 60,
+                                child: Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: lightMaroon.withOpacity(0.4),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                left: 25,
+                                top: 45,
+                                child: Container(
+                                  width: 4,
+                                  height: 4,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: accentMaroon.withOpacity(0.5),
+                                  ),
+                                ),
+                              ),
+                              // Main Profile Image Container
+                              Hero(
+                                tag: "profileImage",
+                                child: Container(
+                                  width: 140,
+                                  height: 140,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Colors.white,
+                                        Colors.white.withOpacity(0.95),
+                                      ],
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: primaryMaroon.withOpacity(0.15),
+                                        blurRadius: 20,
+                                        spreadRadius: 8,
+                                        offset: const Offset(0, 8),
+                                      ),
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.05),
+                                        blurRadius: 15,
+                                        spreadRadius: 2,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                    border: Border.all(
+                                      color: lightMaroon.withOpacity(0.1),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: Container(
+                                    margin: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          primaryMaroon.withOpacity(0.05),
+                                          lightMaroon.withOpacity(0.03),
+                                        ],
+                                      ),
+                                    ),
+                                    child: Material(
+                                      color: Colors.transparent,
+                                      child: Stack(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(62),
+                                            child: uploadedPicture != null
+                                                ? Image.file(
+                                                    File(uploadedPicture!),
+                                                    width: 124,
+                                                    height: 124,
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : profileImage.isNotEmpty
+                                                    ? CachedNetworkImage(
+                                                        imageUrl: profileImage,
+                                                        width: 124,
+                                                        height: 124,
+                                                        fit: BoxFit.cover,
+                                                        placeholder:
+                                                            (context, url) =>
+                                                                Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            shape:
+                                                                BoxShape.circle,
+                                                            gradient:
+                                                                LinearGradient(
+                                                              colors: [
+                                                                lightMaroon
+                                                                    .withOpacity(
+                                                                        0.3),
+                                                                primaryMaroon
+                                                                    .withOpacity(
+                                                                        0.2),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                          child: const Center(
+                                                            child:
+                                                                CircularProgressIndicator(
+                                                              strokeWidth: 3,
+                                                              valueColor:
+                                                                  AlwaysStoppedAnimation<
+                                                                          Color>(
+                                                                      Colors
+                                                                          .white),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        errorWidget: (context,
+                                                                url, error) =>
+                                                            Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            shape:
+                                                                BoxShape.circle,
+                                                            gradient:
+                                                                LinearGradient(
+                                                              colors: [
+                                                                lightMaroon
+                                                                    .withOpacity(
+                                                                        0.3),
+                                                                primaryMaroon
+                                                                    .withOpacity(
+                                                                        0.2),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                          child: const Icon(
+                                                            Icons.person,
+                                                            size: 60,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      )
+                                                    : Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          gradient:
+                                                              LinearGradient(
+                                                            colors: [
+                                                              lightMaroon
+                                                                  .withOpacity(
+                                                                      0.3),
+                                                              primaryMaroon
+                                                                  .withOpacity(
+                                                                      0.2),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        child: const Icon(
+                                                          Icons.person,
+                                                          size: 60,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                          ),
+                                          // Enhanced Camera Button
+                                          Positioned(
+                                            bottom: 5,
+                                            right: 5,
+                                            child: GestureDetector(
+                                              onTap: _addFiles,
+                                              child: Container(
+                                                width: 45,
+                                                height: 45,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  gradient: LinearGradient(
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                    colors: [
+                                                      primaryMaroon,
+                                                      accentMaroon
+                                                    ],
+                                                  ),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: primaryMaroon
+                                                          .withOpacity(0.4),
+                                                      blurRadius: 12,
+                                                      spreadRadius: 3,
+                                                      offset:
+                                                          const Offset(0, 4),
+                                                    ),
+                                                  ],
+                                                  border: Border.all(
+                                                    color: Colors.white,
+                                                    width: 3,
+                                                  ),
+                                                ),
+                                                child: const Icon(
+                                                  Icons.camera_alt,
+                                                  color: Colors.white,
+                                                  size: 22,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         Padding(
