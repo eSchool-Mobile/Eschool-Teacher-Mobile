@@ -34,7 +34,6 @@ class GeneralPermissionScreen extends StatefulWidget {
   State<GeneralPermissionScreen> createState() =>
       _GeneralPermissionScreenState();
 }
-
 class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
     with TickerProviderStateMixin {
   DateTime _selectedDateTime = DateTime.now();
@@ -109,6 +108,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
           getLeaves();
         }
       },
+      
       tabBuilder: (context) => Container(
         height: 48,
         child: Material(

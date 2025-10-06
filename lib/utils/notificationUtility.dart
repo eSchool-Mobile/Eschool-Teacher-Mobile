@@ -10,6 +10,7 @@ import 'package:eschool_saas_staff/data/models/notificationDetails.dart'
     as notificationDetails;
 import 'package:eschool_saas_staff/data/repositories/announcementRepository.dart';
 import 'package:eschool_saas_staff/data/repositories/authRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/settingsRepository.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:eschool_saas_staff/utils/hiveBoxKeys.dart';
 import 'package:eschool_saas_staff/utils/logger.dart';
@@ -19,6 +20,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:vibration/vibration.dart';
 
 class NotificationUtility {
   static String notificationType = "Notification";
@@ -185,6 +187,21 @@ class NotificationUtility {
         title: remoteMessage.notification?.title ?? "You have new notification",
         body: remoteMessage.notification?.body ?? "",
         payload: jsonEncode(additionalData));
+
+    // Trigger vibration if enabled and device supports it
+    _triggerVibration();
+  }
+
+  static Future<void> _triggerVibration() async {
+    final settingsRepository = SettingsRepository();
+    final vibrationEnabled = settingsRepository.getVibrationEnabled();
+
+    if (vibrationEnabled) {
+      final hasVibrator = await Vibration.hasVibrator();
+      if (hasVibrator) {
+        Vibration.vibrate(duration: 500);
+      }
+    }
   }
 
   static void onMessageOpenedAppListener(RemoteMessage remoteMessage) {

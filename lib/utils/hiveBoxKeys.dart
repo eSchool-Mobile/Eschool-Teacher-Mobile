@@ -10,8 +10,7 @@ const String settingsBoxKey = "settings";
 
 const String currentLanguageCodeKey = "currentLanguageCode";
 const String showOnBoardingScreenKey = "showOnBoardingScreen";
-
-//
+const String vibrationEnabledKey = "vibrationEnabled";
 const String notificationsBoxKey = "notifications";
 const String temporarilyStoredNotificationsKey =
     "temporarilyStoredNotifications";

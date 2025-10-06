@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/appLocalizationCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
+import 'package:eschool_saas_staff/data/repositories/settingsRepository.dart';
 import 'package:eschool_saas_staff/ui/screens/leaves/leavesScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/login/widgets/schoolListScreen.dart';
 import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
@@ -241,6 +242,14 @@ class _ProfileContainerState extends State<ProfileContainer>
                             index: 1,
                             onTap: () =>
                                 Get.toNamed(Routes.changePasswordScreen),
+                          ),
+                          _buildMenuItem(
+                            context: context,
+                            icon: Icons.notifications_active_outlined,
+                            title: "Pengaturan Notifikasi",
+                            index: 11,
+                            onTap: () =>
+                                _showNotificationSettingsBottomSheet(context),
                           ),
                         ],
                       ),
@@ -687,6 +696,135 @@ class _ProfileContainerState extends State<ProfileContainer>
         ),
       );
     });
+  }
+
+  void _showNotificationSettingsBottomSheet(BuildContext context) {
+    final settingsRepository = SettingsRepository();
+    bool vibrationEnabled = settingsRepository.getVibrationEnabled();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Container(
+              padding: const EdgeInsets.all(20),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.notifications_active_outlined,
+                        color: AppColorPalette.primaryMaroon,
+                        size: 28,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Pengaturan Notifikasi',
+                        style: GoogleFonts.poppins(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: AppColorPalette.primaryMaroon,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColorPalette.warmBeige.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.vibration,
+                          color: AppColorPalette.primaryMaroon,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Getar Saat Notifikasi',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColorPalette.primaryMaroon,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Aktifkan getaran saat menerima notifikasi baru',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Switch(
+                          value: vibrationEnabled,
+                          onChanged: (value) async {
+                            setState(() {
+                              vibrationEnabled = value;
+                            });
+                            await settingsRepository.setVibrationEnabled(value);
+                          },
+                          activeColor: AppColorPalette.primaryMaroon,
+                          activeTrackColor:
+                              AppColorPalette.secondaryMaroon.withOpacity(0.5),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColorPalette.primaryMaroon,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'Tutup',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   Widget _buildLogoutButton(BuildContext context) {

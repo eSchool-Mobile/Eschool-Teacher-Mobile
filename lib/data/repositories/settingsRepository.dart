@@ -35,6 +35,14 @@ class SettingsRepository {
         defaultLanguageCode;
   }
 
+  Future<void> setVibrationEnabled(bool value) async {
+    Hive.box(settingsBoxKey).put(vibrationEnabledKey, value);
+  }
+
+  bool getVibrationEnabled() {
+    return Hive.box(settingsBoxKey).get(vibrationEnabledKey) ?? true;
+  }
+
   Future<List<Holiday>> getHolidays() async {
     try {
       final result = await Api.get(url: Api.getHolidays);
