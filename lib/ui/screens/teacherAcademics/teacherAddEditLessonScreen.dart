@@ -87,20 +87,70 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomModernAppBar(
-        title: widget.lesson != null ? 'Edit Pelajaran' : 'Tambah Pelajaran',
-        icon: Icons.book_rounded,
-        primaryColor: Color(0xFF800020),
-        lightColor: Color(0xFFAA6976),
-        fabAnimationController: _fabAnimationController,
-        onBackPressed: () => Navigator.of(context).pop(),
-        showAddButton: false,
-        showArchiveButton: false,
-        showFilterButton: false,
-        showHelperButton: false,
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<GradeLevelCubit, GradeLevelState>(
+          listener: (context, state) {
+            if (state is GradeLevelFetchSuccess &&
+                _selectedClassSection != null &&
+                _selectedGradeLevel == null) {
+              GradeLevel? gradeLevel;
+              for (var g in state.gradeLevels) {
+                if (g.id == _selectedClassSection!.gradeLevelId) {
+                  gradeLevel = g;
+                  break;
+                }
+              }
+              if (gradeLevel != null) {
+                _selectedGradeLevel = gradeLevel;
+                setState(() {});
+                // Fetch classes filtered by grade level, but keep subjects for selected class section
+                context
+                    .read<ClassSectionsAndSubjectsCubit>()
+                    .getClassSectionsAndSubjects(
+                        gradeLevelId: gradeLevel.id,
+                        classSectionId: _selectedClassSection?.id);
+              }
+            }
+          },
+        ),
+        BlocListener<ClassSectionsAndSubjectsCubit,
+            ClassSectionsAndSubjectsState>(
+          listener: (context, state) {
+            if (state is ClassSectionsAndSubjectsFetchSuccess &&
+                widget.lesson != null &&
+                _selectedClassSection == null) {
+              // For edit mode, find the class section that matches the lesson's classSectionId
+              ClassSection? classSection;
+              for (var cs in state.classSections) {
+                if (cs.id == widget.lesson!.classSectionId) {
+                  classSection = cs;
+                  break;
+                }
+              }
+              if (classSection != null) {
+                _selectedClassSection = classSection;
+                setState(() {});
+              }
+            }
+          },
+        ),
+      ],
+      child: Scaffold(
+        appBar: CustomModernAppBar(
+          title: widget.lesson != null ? 'Edit Pelajaran' : 'Tambah Pelajaran',
+          icon: Icons.book_rounded,
+          primaryColor: Color(0xFF800020),
+          lightColor: Color(0xFFAA6976),
+          fabAnimationController: _fabAnimationController,
+          onBackPressed: () => Navigator.of(context).pop(),
+          showAddButton: false,
+          showArchiveButton: false,
+          showFilterButton: false,
+          showHelperButton: false,
+        ),
+        body: _buildAddEditLessonForm(),
       ),
-      body: _buildAddEditLessonForm(),
     );
   }
 
@@ -129,6 +179,13 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
 
   @override
   void initState() {
+    // For edit mode, we need to set the selected class section initially
+    // The BlocListener will then automatically find and set the grade level
+    if (widget.lesson != null && _selectedClassSection == null) {
+      // We'll set _selectedClassSection after data loads in BlocListener
+      // For now, just mark that we need to find it
+    }
+
     Future.delayed(Duration.zero, () async {
       if (mounted) {
         // Start fetching data
@@ -137,63 +194,6 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
             .read<ClassSectionsAndSubjectsCubit>()
             .getClassSectionsAndSubjects(
                 classSectionId: _selectedClassSection?.id);
-
-        // Auto-load grade level and class section for edit mode
-        if (widget.lesson != null && mounted) {
-          // Wait for both cubits to complete fetching
-          await Future.wait([
-            // Wait for grade levels to load
-            Future.doWhile(() async {
-              await Future.delayed(Duration(milliseconds: 50));
-              final state = context.read<GradeLevelCubit>().state;
-              return !(state is GradeLevelFetchSuccess ||
-                  state is GradeLevelFetchFailure);
-            }),
-            // Wait for class sections to load
-            Future.doWhile(() async {
-              await Future.delayed(Duration(milliseconds: 50));
-              final state = context.read<ClassSectionsAndSubjectsCubit>().state;
-              return !(state is ClassSectionsAndSubjectsFetchSuccess ||
-                  state is ClassSectionsAndSubjectsFetchFailure);
-            }),
-          ]);
-
-          if (mounted) {
-            final gradeLevelState = context.read<GradeLevelCubit>().state;
-            final classSectionState =
-                context.read<ClassSectionsAndSubjectsCubit>().state;
-
-            if (gradeLevelState is GradeLevelFetchSuccess &&
-                classSectionState is ClassSectionsAndSubjectsFetchSuccess) {
-              try {
-                // Find the class section that matches the lesson's classSectionId
-                final matchingClassSection = classSectionState.classSections
-                    .where((classSection) =>
-                        classSection.id == widget.lesson!.classSectionId)
-                    .toList();
-
-                if (matchingClassSection.isNotEmpty) {
-                  final classSection = matchingClassSection.first;
-
-                  // Find the grade level that matches the class section's gradeLevelId
-                  final matchingGradeLevel = gradeLevelState.gradeLevels
-                      .where((gradeLevel) =>
-                          gradeLevel.id == classSection.gradeLevelId)
-                      .toList();
-
-                  setState(() {
-                    _selectedClassSection = classSection;
-                    if (matchingGradeLevel.isNotEmpty) {
-                      _selectedGradeLevel = matchingGradeLevel.first;
-                    }
-                  });
-                }
-              } catch (err) {
-                // Handle error silently
-              }
-            }
-          }
-        }
       }
     });
 

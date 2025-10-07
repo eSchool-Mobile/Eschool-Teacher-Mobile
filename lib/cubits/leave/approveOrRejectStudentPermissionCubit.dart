@@ -32,24 +32,37 @@ class ApproveOrRejectStudentPermissionCubit
       required bool approveLeave,
       String? rejectReason}) async {
     try {
+      // Check if cubit is closed before emitting
+      if (isClosed) return;
+
       // Validation: if rejecting, reject_reason must be provided
       if (!approveLeave &&
           (rejectReason == null || rejectReason.trim().isEmpty)) {
-        emit(ApproveOrRejectStudentPermissionFailure(
-            "Alasan penolakan wajib diisi saat menolak izin siswa"));
+        if (!isClosed) {
+          emit(ApproveOrRejectStudentPermissionFailure(
+              "Alasan penolakan wajib diisi saat menolak izin siswa"));
+        }
         return;
       }
 
-      emit(ApproveOrRejectStudentPermissionInProgress());
+      if (!isClosed) {
+        emit(ApproveOrRejectStudentPermissionInProgress());
+      }
+
       await _permissionRepository.approveOrRejectStudentPermission(
           leaveId: leaveId,
           status: approveLeave ? 1 : 2,
           rejectionReason: rejectReason);
       //// 0 -> Pending, 1 -> Approved, 2 -> Rejected
-      emit(ApproveOrRejectStudentPermissionSuccess());
+
+      if (!isClosed) {
+        emit(ApproveOrRejectStudentPermissionSuccess());
+      }
     } catch (e) {
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
-      emit(ApproveOrRejectStudentPermissionFailure(userFriendlyMessage));
+      if (!isClosed) {
+        emit(ApproveOrRejectStudentPermissionFailure(userFriendlyMessage));
+      }
       print(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }

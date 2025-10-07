@@ -239,7 +239,9 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
   }
 
   void getTopics() {
-    context.read<TopicsCubit>().fetchTopics(lessonId: _selectedLesson?.id ?? 0);
+    if (_selectedLesson != null) {
+      context.read<TopicsCubit>().fetchTopics(lessonId: _selectedLesson!.id);
+    }
   }
 
   IconData _getFileTypeIcon(String fileName) {

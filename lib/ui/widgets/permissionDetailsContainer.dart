@@ -33,6 +33,9 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
   late Animation<double> _fadeAnimation;
   bool _isHovering = false;
 
+  // Add cubit as class member to manage its lifecycle properly
+  late ApproveOrRejectStudentPermissionCubit _approveRejectCubit;
+
   // Optimistic UI state
   int? _optimisticStatus;
   String? _optimisticRejectionReason;
@@ -49,10 +52,18 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
     super.initState();
     context.read<ClassesCubit>().getClasses();
 
+    // Initialize the cubit
+    _approveRejectCubit = ApproveOrRejectStudentPermissionCubit();
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 450),
       vsync: this,
     );
+
+    // Load the current permission state
+    if (safeLastLeave != null) {
+      _optimisticStatus = safeLastLeave!.status;
+    }
 
     _scaleAnimation = Tween<double>(begin: 0.95, end: 1.0).animate(
       CurvedAnimation(
@@ -72,8 +83,42 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
   }
 
   @override
+  void didUpdateWidget(PermissionDetailsContainer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    print("DEBUG didUpdateWidget called");
+    print("  - Old widget data: ${oldWidget.permissionDetails.hashCode}");
+    print("  - New widget data: ${widget.permissionDetails.hashCode}");
+
+    // If the permission data has been updated (e.g., after refresh),
+    // update the optimistic status to match the new server data
+    if (oldWidget.permissionDetails != widget.permissionDetails) {
+      print("  - Permission data changed, checking status sync");
+      final currentServerStatus = safeLastLeave?.status;
+      print("  - Current server status: $currentServerStatus");
+      print("  - Current optimistic status: $_optimisticStatus");
+
+      if (currentServerStatus != null && _optimisticStatus != null) {
+        // Only update if server status is different and not pending
+        if (currentServerStatus != 0 &&
+            currentServerStatus == _optimisticStatus) {
+          print(
+              "  - Server status matches optimistic, clearing optimistic state");
+          // Server status now matches our optimistic status, clear optimistic state
+          setState(() {
+            _optimisticStatus = null;
+            _optimisticRejectionReason = null;
+          });
+        }
+      }
+    }
+  }
+
+  @override
   void dispose() {
     _animationController.dispose();
+    // Close the cubit when the widget is disposed
+    _approveRejectCubit.close();
     super.dispose();
   }
 
@@ -1373,69 +1418,76 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
 
     // Check if leave is already approved or rejected (use optimistic status if available)
     final int status = _optimisticStatus ?? lastLeave.status ?? 0;
+
+    // Debug logging
+    print("DEBUG _buildActionButtons:");
+    print("  - Server status: ${lastLeave.status}");
+    print("  - Optimistic status: $_optimisticStatus");
+    print("  - Final status: $status");
+
     if (status == 1 || status == 2) {
       return _buildStatusSection(status);
     }
 
-    return BlocProvider(
-      create: (context) => ApproveOrRejectStudentPermissionCubit(),
-      child: BlocConsumer<ApproveOrRejectStudentPermissionCubit,
-          ApproveOrRejectStudentPermissionState>(
-        listener: (context, state) {
-          if (state is ApproveOrRejectStudentPermissionSuccess) {
-            Utils.showSnackBar(
-              message: "Izin berhasil diperbarui",
-              context: context,
-            );
-            widget.onPermissionUpdated?.call();
-          } else if (state is ApproveOrRejectStudentPermissionFailure) {
-            setState(() {
-              _optimisticStatus = null;
-              _optimisticRejectionReason = null;
-            });
-            Utils.showSnackBar(
-              message: state.errorMessage,
-              context: context,
-            );
-          }
-        },
-        builder: (context, state) {
-          final bool isInProgress =
-              state is ApproveOrRejectStudentPermissionInProgress;
-          return Container(
-            margin: const EdgeInsets.only(top: 20),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _buildPrimaryButton(
-                    onTap: isInProgress
-                        ? null
-                        : () => _approveLeave(context, lastLeave.id ?? 0),
-                    label: "Setujui",
-                    icon: Icons.check_circle_outline_rounded,
-                    primaryColor: Colors.green.shade600,
-                    isLoading: isInProgress,
-                    isApprove: true,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildPrimaryButton(
-                    onTap: isInProgress
-                        ? null
-                        : () => _rejectLeave(context, lastLeave.id ?? 0),
-                    label: "Tolak",
-                    icon: Icons.highlight_remove_rounded,
-                    primaryColor: Colors.red.shade600,
-                    isLoading: isInProgress,
-                    isApprove: false,
-                  ),
-                ),
-              ],
-            ),
+    return BlocConsumer<ApproveOrRejectStudentPermissionCubit,
+        ApproveOrRejectStudentPermissionState>(
+      bloc: _approveRejectCubit,
+      listener: (context, state) {
+        if (state is ApproveOrRejectStudentPermissionSuccess) {
+          Utils.showSnackBar(
+            message: "Izin berhasil diperbarui",
+            context: context,
           );
-        },
-      ),
+          // Don't clear optimistic state immediately - let it persist until refresh
+          // The parent will refresh the data and rebuild this widget with new data
+          widget.onPermissionUpdated?.call();
+        } else if (state is ApproveOrRejectStudentPermissionFailure) {
+          setState(() {
+            _optimisticStatus = null;
+            _optimisticRejectionReason = null;
+          });
+          Utils.showSnackBar(
+            message: state.errorMessage,
+            context: context,
+          );
+        }
+      },
+      builder: (context, state) {
+        final bool isInProgress =
+            state is ApproveOrRejectStudentPermissionInProgress;
+        return Container(
+          margin: const EdgeInsets.only(top: 20),
+          child: Row(
+            children: [
+              Expanded(
+                child: _buildPrimaryButton(
+                  onTap: isInProgress
+                      ? null
+                      : () => _approveLeave(context, lastLeave.id ?? 0),
+                  label: "Setujui",
+                  icon: Icons.check_circle_outline_rounded,
+                  primaryColor: Colors.green.shade600,
+                  isLoading: isInProgress,
+                  isApprove: true,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildPrimaryButton(
+                  onTap: isInProgress
+                      ? null
+                      : () => _rejectLeave(context, lastLeave.id ?? 0),
+                  label: "Tolak",
+                  icon: Icons.highlight_remove_rounded,
+                  primaryColor: Colors.red.shade600,
+                  isLoading: isInProgress,
+                  isApprove: false,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -1811,13 +1863,11 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                 _optimisticRejectionReason = null;
               });
 
-              // Make API call
-              context
-                  .read<ApproveOrRejectStudentPermissionCubit>()
-                  .approveOrRejectStudentPermission(
-                    leaveId: leaveId,
-                    approveLeave: true,
-                  );
+              // Make API call using class member cubit
+              _approveRejectCubit.approveOrRejectStudentPermission(
+                leaveId: leaveId,
+                approveLeave: true,
+              );
             },
             child: const Text("Setujui"),
           ),
@@ -1905,14 +1955,12 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
             _optimisticRejectionReason = rejectReason;
           });
 
-          // Make API call
-          context
-              .read<ApproveOrRejectStudentPermissionCubit>()
-              .approveOrRejectStudentPermission(
-                leaveId: leaveId,
-                approveLeave: false,
-                rejectReason: rejectReason,
-              );
+          // Make API call using class member cubit
+          _approveRejectCubit.approveOrRejectStudentPermission(
+            leaveId: leaveId,
+            approveLeave: false,
+            rejectReason: rejectReason,
+          );
         },
         onCancel: () => Navigator.of(dialogContext).pop(),
       ),
