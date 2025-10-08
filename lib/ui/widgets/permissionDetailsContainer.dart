@@ -1465,7 +1465,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                       ? null
                       : () => _approveLeave(context, lastLeave.id ?? 0),
                   label: "Setujui",
-                  icon: Icons.check_circle_outline_rounded,
+                  
                   primaryColor: Colors.green.shade600,
                   isLoading: isInProgress,
                   isApprove: true,
@@ -1478,7 +1478,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                       ? null
                       : () => _rejectLeave(context, lastLeave.id ?? 0),
                   label: "Tolak",
-                  icon: Icons.highlight_remove_rounded,
+                 
                   primaryColor: Colors.red.shade600,
                   isLoading: isInProgress,
                   isApprove: false,
@@ -1746,95 +1746,124 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
   Widget _buildPrimaryButton({
     required VoidCallback? onTap,
     required String label,
-    required IconData icon,
     required Color primaryColor,
     required bool isLoading,
     required bool isApprove,
   }) {
-    // Define gradient colors based on approve/reject
-    final List<Color> gradientColors = isApprove
-        ? [
-            primaryColor.withOpacity(0.9),
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            primaryColor.withOpacity(0.8),
             primaryColor,
-          ]
-        : [
             primaryColor.withOpacity(0.9),
-            primaryColor,
-          ];
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
+          ],
+        ),
         borderRadius: BorderRadius.circular(16),
-        splashColor: Colors.white.withOpacity(0.2),
-        highlightColor: Colors.white.withOpacity(0.1),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          height: 52,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: gradientColors,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: primaryColor.withOpacity(0.3),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-                spreadRadius: 1,
-              ),
-            ],
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withOpacity(0.4),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+            spreadRadius: -5,
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          BoxShadow(
+            color: primaryColor.withOpacity(0.3),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          splashColor: Colors.white.withOpacity(0.2),
+          highlightColor: Colors.transparent,
+          child: Stack(
             children: [
-              if (isLoading) ...[
-                SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.5,
-                    valueColor:
-                        const AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  "Memproses...",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                    letterSpacing: 0.3,
-                  ),
-                ),
-              ] else ...[
-                Container(
-                  padding: const EdgeInsets.all(6),
+              // Subtle pattern overlay
+              Opacity(
+                opacity: 0.05,
+                child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    letterSpacing: 0.4,
+                    borderRadius: BorderRadius.circular(16),
+                    image: const DecorationImage(
+                      image: NetworkImage(
+                          'https://www.transparenttextures.com/patterns/cubes.png'),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-              ],
+              ),
+
+              // Button content
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (isLoading) ...[
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          valueColor:
+                              const AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        "Memproses...",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ] else ...[
+                      Text(
+                        label,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+
+              // Top highlight for 3D effect
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 12,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.white.withOpacity(0.2),
+                        Colors.white.withOpacity(0.0),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

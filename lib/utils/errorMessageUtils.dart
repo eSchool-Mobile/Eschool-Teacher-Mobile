@@ -107,6 +107,11 @@ class ErrorMessageUtils {
       return 'Terjadi masalah pada database server. Silakan hubungi administrator.';
     }
 
+    // Handle validation.in error specifically
+    if (error.contains('validation.in')) {
+      return 'Data yang dimasukkan tidak valid. Silakan periksa kembali form pengajuan cuti dan pastikan semua informasi sudah benar.';
+    }
+
     if (error.contains('Technical error in') &&
         error.contains('validation.in')) {
       return 'Data yang dimasukkan tidak valid. Silakan periksa kembali form dan pastikan semua informasi sudah benar.';
