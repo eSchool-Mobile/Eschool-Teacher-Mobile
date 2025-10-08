@@ -739,36 +739,36 @@ class _MyPayrollDetailsContainerState extends State<MyPayrollDetailsContainer>
                             Expanded(
                               child: Row(
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        colors: [
-                                          widget.maroonPrimary.withOpacity(0.8),
-                                          widget.maroonLight,
-                                        ],
-                                      ),
-                                      borderRadius: BorderRadius.circular(12),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: widget.maroonPrimary
-                                              .withOpacity(0.2),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 4),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Text(
-                                      "${widget.index + 1}",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
+                                  // Container(
+                                  //   padding: const EdgeInsets.all(10),
+                                  //   decoration: BoxDecoration(
+                                  //     gradient: LinearGradient(
+                                  //       begin: Alignment.topLeft,
+                                  //       end: Alignment.bottomRight,
+                                  //       colors: [
+                                  //         widget.maroonPrimary.withOpacity(0.8),
+                                  //         widget.maroonLight,
+                                  //       ],
+                                  //     ),
+                                  //     borderRadius: BorderRadius.circular(12),
+                                  //     boxShadow: [
+                                  //       BoxShadow(
+                                  //         color: widget.maroonPrimary
+                                  //             .withOpacity(0.2),
+                                  //         blurRadius: 8,
+                                  //         offset: const Offset(0, 4),
+                                  //       ),
+                                  //     ],
+                                  //   ),
+                                  //   child: Text(
+                                  //     "${widget.index + 1}",
+                                  //     style: GoogleFonts.poppins(
+                                  //       fontSize: 16,
+                                  //       fontWeight: FontWeight.bold,
+                                  //       color: Colors.white,
+                                  //     ),
+                                  //   ),
+                                  // ),
                                   const SizedBox(width: 16),
                                   Expanded(
                                     child: Column(

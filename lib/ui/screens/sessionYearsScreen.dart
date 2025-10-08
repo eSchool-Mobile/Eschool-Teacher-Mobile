@@ -354,7 +354,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.only(
-                top: Utils.appContentTopScrollPadding(context: context) + 60,
+                top: Utils.appContentTopScrollPadding(context: context) ,
                 bottom: 16,
                 left: appContentHorizontalPadding,
                 right: appContentHorizontalPadding,
