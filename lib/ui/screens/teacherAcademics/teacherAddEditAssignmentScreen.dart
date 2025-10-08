@@ -12,10 +12,8 @@ import 'package:eschool_saas_staff/data/models/AssignmentFiletype.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:eschool_saas_staff/utils/optimized_file_compression_mixin.dart';
@@ -86,6 +84,14 @@ class _TeacherAddEditAssignmentScreenState
   late ClassSection? _selectedClassSection = widget.selectedClassSection;
   late TeacherSubject? _selectedSubject = widget.selectedSubject;
   GradeLevel? _selectedGradeLevel;
+
+  // Dropdown selection states for tiered selection
+  String? selectedTingkatan;
+  String? selectedKelas;
+  String? selectedMapel;
+  List<String> tingkatanList = [];
+  List<String> kelasList = [];
+  List<String> mapelList = [];
 
   // Animation controllers
   late AnimationController _fabAnimationController;
@@ -300,228 +306,37 @@ class _TeacherAddEditAssignmentScreenState
                 // Basic Information Section
                 _buildLuxurySection(
                   title: "Informasi Dasar",
-                  subtitle: "Detail Tugas",
+                  subtitle: "Detail dan informasi utama tugas",
                   icon: Icons.info_rounded,
                   gradient: [_burgundy, _deepMaroon],
                   children: [
-                    // Grade Level, Class and Subject Selection
-                    _buildElegantField(
-                      "Kelas & Mata Pelajaran",
-                      "Pilih tingkatan, kelas dan mata pelajaran",
-                      Icons.school_rounded,
-                      Column(
-                        children: [
-                          // Grade Level Selection
-                          BlocBuilder<GradeLevelCubit, GradeLevelState>(
-                            builder: (context, gradeLevelState) {
-                              if (gradeLevelState is GradeLevelFetchSuccess) {
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(colors: [
-                                      _pearl,
-                                      _champagne.withOpacity(0.3)
-                                    ]),
-                                    borderRadius: BorderRadius.circular(14),
-                                    border: Border.all(
-                                        color: _blushPink.withOpacity(0.3)),
-                                  ),
-                                  child: CustomSelectionDropdownSelectionButton(
-                                    onTap: () {
-                                      if (gradeLevelState.gradeLevels.isEmpty) {
-                                        Utils.showSnackBar(
-                                          context: context,
-                                          message:
-                                              "Tidak ada tingkatan yang tersedia",
-                                        );
-                                        return;
-                                      }
-
-                                      Utils.showBottomSheet(
-                                        child: FilterSelectionBottomsheet<
-                                            GradeLevel>(
-                                          onSelection: (value) {
-                                            if (value != null) {
-                                              changeSelectedGradeLevel(value);
-                                              Get.back();
-                                            }
-                                          },
-                                          selectedValue: _selectedGradeLevel ??
-                                              gradeLevelState.gradeLevels.first,
-                                          titleKey: "gradeLevelKey",
-                                          values: gradeLevelState.gradeLevels,
-                                        ),
-                                        context: context,
-                                      );
-                                    },
-                                    backgroundColor: Colors.transparent,
-                                    titleKey: _selectedGradeLevel?.name ??
-                                        "Pilih Tingkatan",
-                                  ),
-                                );
-                              }
-                              return Container(
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(colors: [
-                                    _pearl,
-                                    _champagne.withOpacity(0.3)
-                                  ]),
-                                  borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(
-                                      color: _blushPink.withOpacity(0.3)),
-                                ),
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    color: _deepMaroon,
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                          SizedBox(height: 12),
-                          // Class Selection
-                          Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(colors: [
-                                _pearl,
-                                _champagne.withOpacity(0.3)
-                              ]),
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
-                                  color: _blushPink.withOpacity(0.3)),
-                            ),
-                            child: CustomSelectionDropdownSelectionButton(
-                              onTap: () {
-                                // Filter classes based on selected grade level if any
-                                List<ClassSection> availableClasses =
-                                    state.classSections;
-
-                                if (_selectedGradeLevel != null) {
-                                  availableClasses = state.classSections
-                                      .where((classSection) =>
-                                          classSection.gradeLevelId ==
-                                          _selectedGradeLevel!.id)
-                                      .toList();
-                                }
-
-                                if (availableClasses.isEmpty) {
-                                  Utils.showSnackBar(
-                                    context: context,
-                                    message: _selectedGradeLevel != null
-                                        ? "Tidak ada kelas untuk tingkatan ${_selectedGradeLevel!.name}"
-                                        : "Tidak ada kelas yang tersedia",
-                                  );
-                                  return;
-                                }
-
-                                Utils.showBottomSheet(
-                                  child:
-                                      FilterSelectionBottomsheet<ClassSection>(
-                                    onSelection: (value) {
-                                      changeSelectedClassSection(value,
-                                          fetchNewSubjects: true);
-                                      Get.back();
-                                    },
-                                    selectedValue: _selectedClassSection ??
-                                        availableClasses.first,
-                                    titleKey: "Pilih Kelas",
-                                    values: availableClasses,
-                                  ),
-                                  context: context,
-                                );
-                              },
-                              backgroundColor: Colors.transparent,
-                              titleKey: _selectedClassSection?.fullName ??
-                                  "Pilih Kelas",
-                            ),
-                          ),
-                          SizedBox(height: 12),
-                          // Subject Selection
-                          Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(colors: [
-                                _pearl,
-                                _champagne.withOpacity(0.3)
-                              ]),
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
-                                  color: _blushPink.withOpacity(0.3)),
-                            ),
-                            child: CustomSelectionDropdownSelectionButton(
-                              onTap: () {
-                                if (state.subjects.isEmpty) {
-                                  Utils.showSnackBar(
-                                    context: context,
-                                    message: "Pilih kelas terlebih dahulu",
-                                  );
-                                  return;
-                                }
-
-                                Utils.showBottomSheet(
-                                  child: FilterSelectionBottomsheet<
-                                      TeacherSubject>(
-                                    onSelection: (value) {
-                                      changeSelectedTeacherSubject(value);
-                                      Get.back();
-                                    },
-                                    selectedValue: _selectedSubject ??
-                                        state.subjects.first,
-                                    titleKey: "Pilih Mata Pelajaran",
-                                    values: state.subjects,
-                                  ),
-                                  context: context,
-                                );
-                              },
-                              backgroundColor: Colors.transparent,
-                              titleKey: _selectedSubject?.subject
-                                      .getSybjectNameWithType() ??
-                                  "Pilih Mata Pelajaran",
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 24),
-
+                    // Subject selection
+                    _buildSubjectSelection(),
+                    SizedBox(height: 15),
                     // Assignment Name
-                    _buildElegantField(
-                      "Nama Tugas",
-                      "Berikan nama yang jelas untuk tugas",
-                      Icons.assignment_rounded,
-                      CustomTextFieldContainer(
-                        textEditingController:
-                            _assignmentNameTextEditingController,
-                        hintTextKey: 'Masukkan nama tugas...',
-                        backgroundColor: _pearl,
-                      ),
+                    _buildAnimatedTextField(
+                      controller: _assignmentNameTextEditingController,
+                      label: 'Nama Tugas',
+                      icon: Icons.assignment_rounded,
                     ),
-
-                    SizedBox(height: 24),
-
+                    SizedBox(height: 15),
                     // Description
-                    _buildElegantField(
-                      "Deskripsi Tugas",
-                      "Jelaskan detail tugas yang harus dikerjakan",
-                      Icons.description_rounded,
-                      CustomTextFieldContainer(
-                        textEditingController:
-                            _assignmentDescriptionTextEditingController,
-                        hintTextKey: 'Jelaskan tugas yang harus dikerjakan...',
-                        backgroundColor: _pearl,
-                        maxLines: 4,
-                      ),
+                    _buildAnimatedTextField(
+                      controller: _assignmentDescriptionTextEditingController,
+                      label: 'Deskripsi Tugas',
+                      icon: Icons.description_rounded,
+                      maxLines: 4,
                     ),
                   ],
                 ),
 
-                SizedBox(height: 24),
+                SizedBox(height: 20),
 
                 // Date & Time Section
                 _buildLuxurySection(
                   title: "Jadwal Tugas",
-                  subtitle: "Waktu & Tenggat",
+                  subtitle:
+                      "Tentukan waktu mulai, berakhir, dan deadline pengumpulan",
                   icon: Icons.schedule_rounded,
                   gradient: [_burgundy, _deepMaroon],
                   children: [
@@ -529,69 +344,49 @@ class _TeacherAddEditAssignmentScreenState
                   ],
                 ),
 
-                SizedBox(height: 24),
+                SizedBox(height: 20),
 
                 // Scoring Section
                 _buildLuxurySection(
                   title: "Penilaian",
-                  subtitle: "Sistem Poin & Pengumpulan Ulang",
+                  subtitle: "Sistem poin dan aturan pengumpulan ulang",
                   icon: Icons.grade_rounded,
                   gradient: [_burgundy, _deepMaroon],
                   children: [
                     Row(
                       children: [
                         Expanded(
-                          child: _buildElegantField(
-                            "Poin Max",
-                            "Total poin untuk tugas ini",
-                            Icons.star_rounded,
-                            CustomTextFieldContainer(
-                              keyboardType: TextInputType.number,
-                              textEditingController:
-                                  _assignmentPointsTextEditingController,
-                              hintTextKey: 'Contoh: 100',
-                              backgroundColor: _pearl,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly
-                              ],
-                            ),
+                          child: _buildAnimatedTextField(
+                            controller: _assignmentPointsTextEditingController,
+                            label: 'Poin Max',
+                            icon: Icons.star_rounded,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
                           ),
                         ),
                         SizedBox(width: 16),
                         Expanded(
-                          child: _buildElegantField(
-                            "Poin Minim",
-                            "Poin minimum untuk lulus",
-                            Icons.star_border_rounded,
-                            CustomTextFieldContainer(
-                              keyboardType: TextInputType.number,
-                              textEditingController:
-                                  _minPointsTextEditingController,
-                              hintTextKey: 'Contoh: 70',
-                              backgroundColor: _pearl,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly
-                              ],
-                            ),
+                          child: _buildAnimatedTextField(
+                            controller: _minPointsTextEditingController,
+                            label: 'Poin Minim',
+                            icon: Icons.star_border_rounded,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 24),
-                    _buildElegantField(
-                      "Pengumpulan Ulang",
-                      "Berapa kali siswa boleh mengumpulkan ulang",
-                      Icons.refresh_rounded,
-                      CustomTextFieldContainer(
-                        keyboardType: TextInputType.number,
-                        textEditingController:
-                            _extraResubmissionDaysTextEditingController,
-                        hintTextKey: 'Contoh: 2 (0 = tidak boleh)',
-                        backgroundColor: _pearl,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly
-                        ],
-                      ),
+                    SizedBox(height: 20),
+                    _buildAnimatedTextField(
+                      controller: _extraResubmissionDaysTextEditingController,
+                      label: 'Pengumpulan Ulang',
+                      icon: Icons.refresh_rounded,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     ),
                   ],
                 ),
@@ -1499,7 +1294,215 @@ class _TeacherAddEditAssignmentScreenState
     );
   }
 
-  // LUXURY SECTION BUILDER - Creates stunning sectioned cards
+  // Animated Text Field - Similar to createOnlineExam.dart
+  Widget _buildAnimatedTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    int maxLines = 1,
+    bool readOnly = false,
+    VoidCallback? onTap,
+    TextInputType? keyboardType,
+    Color? iconColor,
+    Color? labelColor,
+    List<TextInputFormatter>? inputFormatters,
+    Widget? suffixIcon,
+    String? Function(String?)? validator,
+    void Function(String)? onChanged,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      readOnly: readOnly,
+      onTap: onTap,
+      keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
+      validator: validator ?? (v) => v!.isEmpty ? 'Required' : null,
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(
+          color: labelColor ?? _deepMaroon,
+        ),
+        prefixIcon: Icon(
+          icon,
+          color: iconColor ?? _deepMaroon,
+        ),
+        suffixIcon: suffixIcon,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide.none,
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: _deepMaroon),
+        ),
+      ),
+    );
+  }
+
+  // Subject Selection Widget - Similar to createOnlineExam.dart
+  Widget _buildSubjectSelection() {
+    return BlocBuilder<ClassSectionsAndSubjectsCubit,
+        ClassSectionsAndSubjectsState>(
+      builder: (context, state) {
+        if (state is ClassSectionsAndSubjectsFetchSuccess) {
+          // Get grade levels from GradeLevelCubit
+          final gradeLevelState = context.watch<GradeLevelCubit>().state;
+
+          if (gradeLevelState is GradeLevelFetchSuccess) {
+            // Build lists for dropdowns
+            tingkatanList = gradeLevelState.gradeLevels
+                .map((e) => e.name ?? "")
+                .where((t) => t.isNotEmpty)
+                .toSet()
+                .toList()
+              ..sort();
+
+            kelasList = selectedTingkatan == null
+                ? []
+                : state.classSections
+                    .where((e) {
+                      final gradeLevel = gradeLevelState.gradeLevels
+                          .firstWhere((gl) => gl.id == e.gradeLevelId);
+                      return gradeLevel.name == selectedTingkatan;
+                    })
+                    .map((e) => e.fullName ?? "")
+                    .toSet()
+                    .toList()
+              ..sort();
+
+            mapelList = selectedKelas == null
+                ? []
+                : state.subjects
+                    .where((e) => e.classSection.fullName == selectedKelas)
+                    .map((e) => e.subject.getSybjectNameWithType())
+                    .toSet()
+                    .toList()
+              ..sort();
+
+            return Column(
+              children: [
+                // Tingkatan Dropdown
+                DropdownButtonFormField<String>(
+                  value: selectedTingkatan,
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.layers, color: _deepMaroon),
+                    labelText: 'Pilih Tingkatan',
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  items: tingkatanList
+                      .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                      .toList(),
+                  onChanged: (v) {
+                    setState(() {
+                      selectedTingkatan = v;
+                      selectedKelas = null;
+                      selectedMapel = null;
+                      _selectedSubject = null;
+                      _selectedClassSection = null;
+                    });
+                  },
+                  isExpanded: true,
+                  hint: Text('Pilih Tingkatan'),
+                ),
+                if (selectedTingkatan != null) ...[
+                  SizedBox(height: 12),
+                  // Kelas Dropdown
+                  DropdownButtonFormField<String>(
+                    value: selectedKelas,
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.class_, color: _deepMaroon),
+                      labelText: 'Pilih Kelas',
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    items: kelasList
+                        .map((k) => DropdownMenuItem(value: k, child: Text(k)))
+                        .toList(),
+                    onChanged: (v) {
+                      setState(() {
+                        selectedKelas = v;
+                        selectedMapel = null;
+                        _selectedSubject = null;
+                        _selectedClassSection = null;
+                      });
+
+                      // Set selected class section
+                      final classMatches = state.classSections
+                          .where((e) => e.fullName == v)
+                          .toList();
+                      if (classMatches.isNotEmpty) {
+                        _selectedClassSection = classMatches.first;
+                        changeSelectedClassSection(_selectedClassSection,
+                            fetchNewSubjects: true);
+                      }
+                    },
+                    isExpanded: true,
+                    hint: Text('Pilih Kelas'),
+                  ),
+                ],
+                if (selectedKelas != null) ...[
+                  SizedBox(height: 12),
+                  // Mata Pelajaran Dropdown
+                  DropdownButtonFormField<String>(
+                    value: selectedMapel,
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.menu_book, color: _deepMaroon),
+                      labelText: 'Pilih Mata Pelajaran',
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    items: mapelList
+                        .map((m) => DropdownMenuItem(value: m, child: Text(m)))
+                        .toList(),
+                    onChanged: (v) {
+                      setState(() {
+                        selectedMapel = v;
+                      });
+
+                      // Set selected subject
+                      final subjectMatches = state.subjects
+                          .where((e) =>
+                              e.classSection.fullName == selectedKelas &&
+                              e.subject.getSybjectNameWithType() == v)
+                          .toList();
+                      if (subjectMatches.isNotEmpty) {
+                        _selectedSubject = subjectMatches.first;
+                        changeSelectedTeacherSubject(_selectedSubject);
+                      }
+                    },
+                    isExpanded: true,
+                    hint: Text('Pilih Mata Pelajaran'),
+                  ),
+                ],
+              ],
+            );
+          }
+        }
+        return Container(
+          height: 50,
+          child: Center(
+            child: CircularProgressIndicator(
+              color: _deepMaroon,
+              strokeWidth: 2,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // LUXURY SECTION BUILDER - Creates stunning sectioned cards (Updated to match createOnlineExam style)
   Widget _buildLuxurySection({
     required String title,
     required String subtitle,
@@ -1508,125 +1511,66 @@ class _TeacherAddEditAssignmentScreenState
     required List<Widget> children,
   }) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: gradient[0].withOpacity(0.15),
-            blurRadius: 25,
-            offset: Offset(0, 12),
-            spreadRadius: 0,
-          ),
-          BoxShadow(
-            color: Colors.white,
-            blurRadius: 8,
-            offset: Offset(0, -4),
-            spreadRadius: 0,
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 5,
+            blurRadius: 10,
+            offset: Offset(0, 3),
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white,
-                _roseMist,
-                _pearl,
-              ],
-              stops: [0.0, 0.6, 1.0],
-            ),
-          ),
-          child: Column(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              // ELEGANT HEADER
               Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(24),
+                padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      gradient[0].withOpacity(0.08),
-                      gradient[1].withOpacity(0.04),
-                    ],
-                  ),
+                  color: _deepMaroon.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Row(
-                  children: [
-                    // Icon Container with Glassmorphism Effect
-                    Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: gradient,
-                        ),
-                        borderRadius: BorderRadius.circular(18),
-                        boxShadow: [
-                          BoxShadow(
-                            color: gradient[0].withOpacity(0.4),
-                            blurRadius: 12,
-                            offset: Offset(0, 6),
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        icon,
-                        color: Colors.white,
-                        size: 28,
-                      ),
-                    ),
-                    SizedBox(width: 20),
-                    // Title & Subtitle
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title,
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                              color: gradient[0],
-                              letterSpacing: -0.8,
-                              height: 1.1,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            subtitle,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: gradient[1].withOpacity(0.7),
-                              letterSpacing: 0.2,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                child: Icon(
+                  icon,
+                  color: _deepMaroon,
+                  size: 24,
                 ),
               ),
-
-              // CONTENT AREA
-              Padding(
-                padding: EdgeInsets.fromLTRB(24, 8, 24, 28),
+              SizedBox(width: 12),
+              Expanded(
                 child: Column(
-                  children: children,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: _deepMaroon,
+                      ),
+                    ),
+                    if (subtitle.isNotEmpty)
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ],
           ),
-        ),
+          SizedBox(height: 20),
+          ...children,
+        ],
       ),
     );
   }
@@ -1700,110 +1644,68 @@ class _TeacherAddEditAssignmentScreenState
   Widget _buildDateTimeSection() {
     return Column(
       children: [
-        // Periode Tugas
-        _buildElegantField(
-          "Periode Tugas",
-          "Tentukan waktu mulai dan berakhir tugas",
-          Icons.date_range_rounded,
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [_pearl, _champagne.withOpacity(0.3)],
-                    ),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: _blushPink.withOpacity(0.3)),
-                  ),
-                  child: CustomSelectionDropdownSelectionButton(
-                    onTap: () => _selectStartDate(context),
-                    titleKey: start_date != null
-                        ? DateFormat('dd MMM yyyy').format(start_date!)
-                        : "Tanggal Mulai",
-                    backgroundColor: Colors.transparent,
-                  ),
+        Row(
+          children: [
+            Expanded(
+              child: _buildAnimatedTextField(
+                controller: TextEditingController(
+                  text: start_date != null
+                      ? DateFormat('dd-MM-yyyy').format(start_date!)
+                      : '',
                 ),
+                label: 'Tanggal Mulai',
+                icon: Icons.calendar_today,
+                onTap: () => _selectStartDate(context),
+                readOnly: true,
               ),
-              SizedBox(width: 12),
-              Container(
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [_dustyRose, _blushPink]),
-                  borderRadius: BorderRadius.circular(8),
+            ),
+            SizedBox(width: 15),
+            Expanded(
+              child: _buildAnimatedTextField(
+                controller: TextEditingController(
+                  text: end_date != null
+                      ? DateFormat('dd-MM-yyyy').format(end_date!)
+                      : '',
                 ),
-                child: Icon(Icons.arrow_forward_rounded,
-                    color: Colors.white, size: 16),
+                label: 'Tanggal Berakhir',
+                icon: Icons.calendar_today,
+                onTap: () => _selectEndDate(context),
+                readOnly: true,
               ),
-              SizedBox(width: 12),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [_pearl, _champagne.withOpacity(0.3)],
-                    ),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: _blushPink.withOpacity(0.3)),
-                  ),
-                  child: CustomSelectionDropdownSelectionButton(
-                    onTap: () => _selectEndDate(context),
-                    titleKey: end_date != null
-                        ? DateFormat('dd MMM yyyy').format(end_date!)
-                        : "Tanggal Berakhir",
-                    backgroundColor: Colors.transparent,
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-        SizedBox(height: 24),
-        // Deadline
-        _buildElegantField(
-          "Tenggat Waktu",
-          "Waktu deadline pengumpulan tugas",
-          Icons.access_time_rounded,
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [_pearl, _champagne.withOpacity(0.3)],
-                    ),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: _blushPink.withOpacity(0.3)),
-                  ),
-                  child: CustomSelectionDropdownSelectionButton(
-                    onTap: openDatePicker,
-                    titleKey: dueDate != null
-                        ? Utils.getFormattedDate(dueDate!)
-                        : "Pilih Tanggal",
-                    backgroundColor: Colors.transparent,
-                  ),
+        SizedBox(height: 20),
+        Row(
+          children: [
+            Expanded(
+              child: _buildAnimatedTextField(
+                controller: TextEditingController(
+                  text: dueDate != null
+                      ? DateFormat('dd-MM-yyyy').format(dueDate!)
+                      : '',
                 ),
+                label: 'Tanggal Deadline',
+                icon: Icons.calendar_today,
+                onTap: openDatePicker,
+                readOnly: true,
               ),
-              SizedBox(width: 12),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [_pearl, _champagne.withOpacity(0.3)],
-                    ),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: _blushPink.withOpacity(0.3)),
-                  ),
-                  child: CustomSelectionDropdownSelectionButton(
-                    onTap: openTimePicker,
-                    titleKey: dueTime != null
-                        ? Utils.getFormattedDayOfTime(dueTime!)
-                        : "Pilih Jam",
-                    backgroundColor: Colors.transparent,
-                  ),
+            ),
+            SizedBox(width: 15),
+            Expanded(
+              child: _buildAnimatedTextField(
+                controller: TextEditingController(
+                  text: dueTime != null
+                      ? '${dueTime!.hour.toString().padLeft(2, '0')}:${dueTime!.minute.toString().padLeft(2, '0')}'
+                      : '',
                 ),
+                label: 'Jam Deadline',
+                icon: Icons.access_time,
+                onTap: openTimePicker,
+                readOnly: true,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ],
     );
