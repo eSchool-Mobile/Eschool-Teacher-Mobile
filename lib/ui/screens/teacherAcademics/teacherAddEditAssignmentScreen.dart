@@ -1021,30 +1021,53 @@ class _TeacherAddEditAssignmentScreenState
     }
 
     if (_assignmentNameTextEditingController.text.trim().isEmpty) {
-      showErrorMessage(pleaseEnterAssignmentNameKey);
+      showErrorMessage("Kolom Nama Tugas wajib diisi.");
       return;
     }
+
+    if (_assignmentDescriptionTextEditingController.text.trim().isEmpty) {
+      showErrorMessage("Kolom Deskripsi Tugas wajib diisi.");
+      return;
+    }
+
+    if (_assignmentPointsTextEditingController.text.trim().isEmpty) {
+      showErrorMessage("Kolom Poin Tugas wajib diisi.");
+      return;
+    }
+
     if (_assignmentPointsTextEditingController.text.length >= 10) {
       showErrorMessage(invalidPointsLengthKey);
       return;
     }
+
+    // Validasi poin minim tidak boleh lebih tinggi dari poin maksimal
+    final maxPoints =
+        int.tryParse(_assignmentPointsTextEditingController.text.trim()) ?? 0;
+    final minPoints =
+        int.tryParse(_minPointsTextEditingController.text.trim()) ?? 0;
+    if (minPoints > maxPoints) {
+      showErrorMessage(
+          "Poin minimal tidak boleh lebih tinggi dari poin maksimal.");
+      return;
+    }
+
     if (dueDate == null) {
-      showErrorMessage(pleaseSelectDateKey);
+      showErrorMessage("Kolom Tanggal Tenggat wajib diisi.");
       return;
     }
     if (dueTime == null) {
-      showErrorMessage(pleaseSelectTimeKey);
+      showErrorMessage("Kolom Waktu Tenggat wajib diisi.");
       return;
     }
     if (start_date == null) {
       // Add this line
-      showErrorMessage("Silahkan mengisi Tanggal Penugasan");
+      showErrorMessage("Kolom Tanggal Mulai Penugasan wajib diisi.");
       return;
     }
 
     if (end_date == null) {
       // Add this line
-      showErrorMessage("Isi Tanggal Mulai Penugasan.");
+      showErrorMessage("Kolom Tanggal Akhir Penugasan wajib diisi.");
       return;
     }
 
@@ -1118,26 +1141,49 @@ class _TeacherAddEditAssignmentScreenState
     }
 
     if (_assignmentNameTextEditingController.text.trim().isEmpty) {
-      showErrorMessage(pleaseEnterAssignmentNameKey);
+      showErrorMessage("Kolom Nama Tugas wajib diisi.");
       return;
     }
+
+    if (_assignmentDescriptionTextEditingController.text.trim().isEmpty) {
+      showErrorMessage("Kolom Deskripsi Tugas wajib diisi.");
+      return;
+    }
+
+    if (_assignmentPointsTextEditingController.text.trim().isEmpty) {
+      showErrorMessage("Kolom Poin Tugas wajib diisi.");
+      return;
+    }
+
     if (dueDate == null) {
-      showErrorMessage(pleaseSelectDateKey);
+      showErrorMessage("Kolom Tanggal Tenggat wajib diisi.");
       return;
     }
     if (_assignmentPointsTextEditingController.text.length >= 10) {
       return;
     }
+
+    // Validasi poin minim tidak boleh lebih tinggi dari poin maksimal
+    final maxPoints =
+        int.tryParse(_assignmentPointsTextEditingController.text.trim()) ?? 0;
+    final minPoints =
+        int.tryParse(_minPointsTextEditingController.text.trim()) ?? 0;
+    if (minPoints > maxPoints) {
+      showErrorMessage(
+          "Poin minimal tidak boleh lebih tinggi dari poin maksimal.");
+      return;
+    }
+
     if (dueTime == null) {
-      showErrorMessage(pleaseSelectDateKey);
+      showErrorMessage("Kolom Waktu Tenggat wajib diisi.");
       return;
     }
     if (start_date == null) {
-      showErrorMessage("Please select start date");
+      showErrorMessage("Kolom Tanggal Mulai Penugasan wajib diisi.");
       return;
     }
     if (end_date == null) {
-      showErrorMessage("Please select end date");
+      showErrorMessage("Kolom Tanggal Akhir Penugasan wajib diisi.");
       return;
     }
 
@@ -2026,7 +2072,6 @@ class _TeacherAddEditAssignmentScreenState
                         color: _deepMaroon,
                       ),
                     ),
-               
                   ],
                 ),
               ),

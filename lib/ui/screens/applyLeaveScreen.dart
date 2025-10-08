@@ -370,9 +370,11 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    SizedBox(height: 16), // Additional space at top
                     // Enhanced header with gradient and glow effect
                     Container(
-                      padding: EdgeInsets.all(32),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
@@ -466,11 +468,12 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
 
                     // Enhanced content area
                     Container(
-                      padding: EdgeInsets.all(32),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                       child: Column(
                         children: [
                           Container(
-                            padding: EdgeInsets.all(20),
+                            padding: EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: Colors.red.shade50.withOpacity(0.5),
                               borderRadius: BorderRadius.circular(20),
@@ -567,6 +570,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                   ),
                                   child: ElevatedButton(
                                     onPressed: () {
+                                      _clearAllFields();
                                       Navigator.of(context).pop();
                                     },
                                     style: ElevatedButton.styleFrom(
@@ -593,6 +597,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                         ],
                       ),
                     ),
+                    SizedBox(height: 16), // Additional space at bottom
                   ],
                 ),
               ),
@@ -798,6 +803,12 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
           'Harap isi semua field yang diperlukan',
       'Invalid file format': 'Format file tidak valid',
       'File size too large': 'Ukuran file terlalu besar',
+      'Technical error in applyLeave: validation.in':
+          'Data yang dimasukkan tidak valid. Silakan periksa kembali form pengajuan cuti.',
+      'Technical error in applyLeave:':
+          'Terjadi kesalahan saat memproses pengajuan cuti. Silakan coba lagi.',
+      'validation.in':
+          'Data validasi tidak valid. Silakan periksa kembali informasi yang dimasukkan.',
     };
 
     // Try to find translation (case insensitive)
@@ -816,6 +827,15 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     return hsl
         .withLightness((hsl.lightness - factor).clamp(0.0, 1.0))
         .toColor();
+  }
+
+  void _clearAllFields() {
+    _leaveDays = {};
+    _textEditingController.clear();
+    _selectedFromDate = null;
+    _selectedToDate = null;
+    _uploadedFiles = [];
+    setState(() {});
   }
 
   Color _getLightenedColor(Color baseColor, double factor) {

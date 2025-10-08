@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
 import 'package:eschool_saas_staff/data/models/onlineExam.dart';
 import 'package:get/get.dart';
-import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:intl/intl.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
@@ -845,7 +844,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                           );
 
                           await Future.delayed(Duration(milliseconds: 500));
-                          Get.offAllNamed(Routes.onlineExamScreen);
+                          Get.back();
                         } catch (e) {
                           Get.back(); // Close loading
                           Get.snackbar(

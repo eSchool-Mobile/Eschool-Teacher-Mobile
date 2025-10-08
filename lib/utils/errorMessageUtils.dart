@@ -107,6 +107,15 @@ class ErrorMessageUtils {
       return 'Terjadi masalah pada database server. Silakan hubungi administrator.';
     }
 
+    if (error.contains('Technical error in') &&
+        error.contains('validation.in')) {
+      return 'Data yang dimasukkan tidak valid. Silakan periksa kembali form dan pastikan semua informasi sudah benar.';
+    }
+
+    if (error.contains('Technical error in')) {
+      return 'Terjadi kesalahan teknis saat memproses permintaan. Silakan coba lagi atau hubungi administrator jika masalah berlanjut.';
+    }
+
     if (error.contains('Server encountered an error') ||
         lowerError.contains('error occurred')) {
       return 'Server mengalami gangguan. Silakan coba lagi atau hubungi administrator.';

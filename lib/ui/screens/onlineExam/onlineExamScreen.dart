@@ -169,8 +169,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
           showAddButton: true,
           onAddPressed: () async {
             // Navigate ke create exam screen dan tunggu hasil
-            final result =
-                await Navigator.pushNamed(context, Routes.createOnlineExam);
+            final result = await Get.toNamed(Routes.createOnlineExam);
             // Jika kembali dengan result true, refresh data
             if (result == true) {
               _refreshExams();
@@ -179,14 +178,14 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
           showArchiveButton: true,
           onArchivePressed: () {
             // Navigate to archived exams page
-            Navigator.pushNamed(context, Routes.archiveOnlineExam);
+            Get.toNamed(Routes.archiveOnlineExam);
           },
           onBackPressed: () {
             // Make sure to stop animations before popping
             _animationController.stop();
             _pulseController.stop();
             _appBarAnimationController.stop();
-            Navigator.of(context).pop();
+            Get.back();
           },
         ),
         body: _buildAnimatedBody(),
