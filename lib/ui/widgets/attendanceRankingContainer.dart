@@ -391,7 +391,7 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
             Container(
               padding: EdgeInsets.symmetric(horizontal: 2),
               child: Text(
-                'Jumlah alpha: ${student?.alpha_count ?? 0}',
+                'Alpha: ${student?.alpha_count ?? 0}',
                 style: TextStyle(
                   color: const Color.fromARGB(255, 228, 227, 227),
                   fontSize: 10,

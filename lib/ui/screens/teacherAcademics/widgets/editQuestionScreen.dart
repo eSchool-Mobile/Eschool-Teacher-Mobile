@@ -678,6 +678,8 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                   label: 'Nama Soal',
                   icon: Icons.title_rounded,
                   hint: 'Masukkan nama soal',
+                  maxLines: null,
+                  minLines: 2,
                 ),
                 SizedBox(height: 20),
 
@@ -766,7 +768,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                   color: _primaryColor,
                 ),
               ),
-             
             ],
           ),
         ),
@@ -1364,6 +1365,8 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                   // Text input
                   TextFormField(
                     initialValue: options[index]['text'],
+                    maxLines: null,
+                    minLines: 2,
                     decoration: InputDecoration(
                       labelText: 'Teks Jawaban',
                       prefixIcon: Icon(

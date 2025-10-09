@@ -81,7 +81,7 @@ class CustomTextFieldContainer extends StatelessWidget {
               color: Theme.of(context).colorScheme.secondary.withOpacity(0.76),
               fontSize: Utils.getScaledValue(context, 14)),
           hintStyle: TextStyle(
-              color: Theme.of(context).colorScheme.secondary.withOpacity(0.76),
+              color: Colors.grey.shade500,
               fontSize: Utils.getScaledValue(context, 15)),
           contentPadding:
               prefixWidget != null ? const EdgeInsets.only(top: 12.5) : null,

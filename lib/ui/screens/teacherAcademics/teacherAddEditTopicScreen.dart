@@ -1047,7 +1047,8 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                         controller: _topicNameTextEditingController,
                         label: 'Nama Topik',
                         icon: Icons.topic,
-                        maxLength: 128),
+                        maxLength: 128,
+                        expandable: true),
                     SizedBox(height: 15),
                     _buildAnimatedTextField(
                       controller: _topicDescriptionTextEditingController,

@@ -536,6 +536,8 @@ class _AddQuestionScreenState extends State<AddQuestionScreen>
                   label: 'Nama Soal',
                   icon: Icons.title_rounded,
                   hint: 'Masukkan nama soal',
+                  maxLines: null,
+                  minLines: 2,
                 ),
                 SizedBox(height: 20),
 
@@ -630,65 +632,77 @@ class _AddQuestionScreenState extends State<AddQuestionScreen>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.question_answer_rounded,
-                        color: Colors.white,
-                        size: 22,
-                      ),
-                      SizedBox(width: 12),
-                      Text(
-                        'Pengaturan',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: 0.3,
-                        ),
-                      ),
-                    ],
-                  ),
-                  // Display type badge
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.25),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                  Flexible(
                     child: Row(
                       children: [
                         Icon(
-                          selectedType == 'multiple_choice'
-                              ? Icons.check_circle_outline
-                              : selectedType == 'essay'
-                                  ? Icons.edit_note
-                                  : selectedType == 'true_false'
-                                      ? Icons.rule
-                                      : selectedType == 'short_answer'
-                                          ? Icons.short_text
-                                          : Icons.numbers,
+                          Icons.question_answer_rounded,
                           color: Colors.white,
-                          size: 16,
+                          size: 22,
                         ),
-                        SizedBox(width: 5),
-                        Text(
-                          selectedType == 'multiple_choice'
-                              ? 'Pilihan Ganda'
-                              : selectedType == 'essay'
-                                  ? 'Essay'
-                                  : selectedType == 'true_false'
-                                      ? 'Benar/Salah'
-                                      : selectedType == 'short_answer'
-                                          ? 'Jawaban Singkat'
-                                          : 'Numerik',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                        SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            'Pengaturan',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: 0.3,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                  // Display type badge
+                  Flexible(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      margin: EdgeInsets.only(left: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.25),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            selectedType == 'multiple_choice'
+                                ? Icons.check_circle_outline
+                                : selectedType == 'essay'
+                                    ? Icons.edit_note
+                                    : selectedType == 'true_false'
+                                        ? Icons.rule
+                                        : selectedType == 'short_answer'
+                                            ? Icons.short_text
+                                            : Icons.numbers,
+                            color: Colors.white,
+                            size: 14,
+                          ),
+                          SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              selectedType == 'multiple_choice'
+                                  ? 'Pilihan Ganda'
+                                  : selectedType == 'essay'
+                                      ? 'Essay'
+                                      : selectedType == 'true_false'
+                                          ? 'Benar/Salah'
+                                          : selectedType == 'short_answer'
+                                              ? 'Jawaban Singkat'
+                                              : 'Numerik',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -868,6 +882,8 @@ class _AddQuestionScreenState extends State<AddQuestionScreen>
                   // Text input
                   TextFormField(
                     controller: _optionControllers[index],
+                    maxLines: null,
+                    minLines: 2,
                     decoration: InputDecoration(
                       labelText: 'Teks Jawaban',
                       prefixIcon: Icon(
@@ -1425,7 +1441,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Label with icon
-        Padding(   
+        Padding(
           padding: EdgeInsets.only(left: 2, bottom: 8),
           child: Row(
             children: [
@@ -1439,7 +1455,6 @@ class _AddQuestionScreenState extends State<AddQuestionScreen>
                   color: _primaryColor,
                 ),
               ),
-              
             ],
           ),
         ),

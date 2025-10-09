@@ -196,7 +196,7 @@ class _AttendanceRankingItemContainerState
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Jumlah Alpha: ${widget.topStudents.alpha_count ?? 0}',
+                'Alpha: ${widget.topStudents.alpha_count ?? 0}',
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.9),
                   fontSize: 10,

@@ -325,7 +325,9 @@ class _TeacherAddEditAssignmentScreenState
                       controller: _assignmentDescriptionTextEditingController,
                       label: 'Deskripsi Tugas',
                       icon: Icons.description_rounded,
-                      maxLines: 4,
+                      maxLines: null,
+                      minLines: 3,
+                      textAlignVertical: TextAlignVertical.top,
                     ),
                   ],
                 ),
@@ -1299,30 +1301,33 @@ class _TeacherAddEditAssignmentScreenState
     required TextEditingController controller,
     required String label,
     required IconData icon,
-    int maxLines = 1,
+    int? maxLines = 1,
+    int? minLines,
     bool readOnly = false,
     VoidCallback? onTap,
     TextInputType? keyboardType,
     Color? iconColor,
-    Color? labelColor,
     List<TextInputFormatter>? inputFormatters,
     Widget? suffixIcon,
     String? Function(String?)? validator,
     void Function(String)? onChanged,
+    TextAlignVertical? textAlignVertical,
   }) {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
+      minLines: minLines,
       readOnly: readOnly,
       onTap: onTap,
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
       validator: validator ?? (v) => v!.isEmpty ? 'Required' : null,
       onChanged: onChanged,
+      textAlignVertical: textAlignVertical,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(
-          color: labelColor ?? _deepMaroon,
+          color: Colors.grey.shade500,
         ),
         prefixIcon: Icon(
           icon,
@@ -1653,7 +1658,7 @@ class _TeacherAddEditAssignmentScreenState
                       ? DateFormat('dd-MM-yyyy').format(start_date!)
                       : '',
                 ),
-                label: 'Tanggal Mulai',
+                label: 'Tgl Mulai',
                 icon: Icons.calendar_today,
                 onTap: () => _selectStartDate(context),
                 readOnly: true,
@@ -1667,7 +1672,7 @@ class _TeacherAddEditAssignmentScreenState
                       ? DateFormat('dd-MM-yyyy').format(end_date!)
                       : '',
                 ),
-                label: 'Tanggal Berakhir',
+                label: 'Tgl Akhir',
                 icon: Icons.calendar_today,
                 onTap: () => _selectEndDate(context),
                 readOnly: true,
@@ -1685,7 +1690,7 @@ class _TeacherAddEditAssignmentScreenState
                       ? DateFormat('dd-MM-yyyy').format(dueDate!)
                       : '',
                 ),
-                label: 'Tanggal Deadline',
+                label: 'Tgl Deadline',
                 icon: Icons.calendar_today,
                 onTap: openDatePicker,
                 readOnly: true,
@@ -1720,28 +1725,30 @@ class _TeacherAddEditAssignmentScreenState
       gradient: [_burgundy, _deepMaroon],
       children: [
         // Answer Type Cards
-        Row(
-          children: [
-            Expanded(
-                child: _buildAnswerTypeCard(
-              "Teks",
-              "Jawaban berupa teks",
-              Icons.text_fields_rounded,
-              _isTextAnswerAllowed,
-              () =>
-                  setState(() => _isTextAnswerAllowed = !_isTextAnswerAllowed),
-            )),
-            SizedBox(width: 16),
-            Expanded(
-                child: _buildAnswerTypeCard(
-              "File",
-              "Upload dokumen",
-              Icons.upload_file_rounded,
-              _isFileAnswerAllowed,
-              () =>
-                  setState(() => _isFileAnswerAllowed = !_isFileAnswerAllowed),
-            )),
-          ],
+        IntrinsicHeight(
+          child: Row(
+            children: [
+              Expanded(
+                  child: _buildAnswerTypeCard(
+                "Teks",
+                "Jawaban berupa teks",
+                Icons.text_fields_rounded,
+                _isTextAnswerAllowed,
+                () => setState(
+                    () => _isTextAnswerAllowed = !_isTextAnswerAllowed),
+              )),
+              SizedBox(width: 16),
+              Expanded(
+                  child: _buildAnswerTypeCard(
+                "File",
+                "Upload dokumen",
+                Icons.upload_file_rounded,
+                _isFileAnswerAllowed,
+                () => setState(
+                    () => _isFileAnswerAllowed = !_isFileAnswerAllowed),
+              )),
+            ],
+          ),
         ),
 
         // File Type Selection

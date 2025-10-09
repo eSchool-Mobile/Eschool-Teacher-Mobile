@@ -1093,8 +1093,8 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
     VoidCallback? onTap,
     TextInputType? keyboardType,
   }) {
-    // For description field, we'll position the icon next to the label
-    if (label == 'Deskripsi') {
+    // For description and lesson name fields, we'll position the icon next to the label and allow multiline
+    if (label == 'Deskripsi' || label == 'Nama Pelajaran') {
       return TextFormField(
         controller: controller,
         maxLines: null, // null allows unlimited lines for description
@@ -1136,7 +1136,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
           contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
         ),
         validator: (v) => v!.isEmpty ? 'Required' : null,
-        minLines: 3,
+        minLines: label == 'Nama Pelajaran' ? 2 : 3,
       );
     }
 
