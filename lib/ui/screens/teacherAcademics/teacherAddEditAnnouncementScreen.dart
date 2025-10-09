@@ -977,7 +977,7 @@ class _TeacherAddEditAnnouncementScreenState
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(
-          color: Theme.of(context).colorScheme.secondary,
+          color: Colors.grey.shade600,
         ),
         prefixIcon: Icon(
           icon,

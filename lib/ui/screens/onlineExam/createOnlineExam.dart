@@ -248,7 +248,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(
-          color: labelColor ?? Theme.of(context).colorScheme.secondary,
+          color: labelColor ?? Colors.grey.shade600,
         ),
         prefixIcon: Icon(
           icon,
@@ -258,7 +258,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
           borderSide: BorderSide.none,
-        ),
+        ), 
         filled: true,
         fillColor: Colors.grey.shade50,
         focusedBorder: OutlineInputBorder(
