@@ -19,7 +19,6 @@ import 'package:animate_do/animate_do.dart';
 import 'dart:ui';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lottie/lottie.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class AppColorPalette {
@@ -358,34 +357,98 @@ class _ProfileContainerState extends State<ProfileContainer>
                             title: "Pindah Sekolah",
                             index: 10,
                             onTap: () async {
-                              final authCubit = context.read<AuthCubit>();
-                              final userDetails = authCubit.getUserDetails();
-                              print('=== DEBUG PINDAH SEKOLAH ===');
-                              print('UserDetails: ${userDetails.toJson()}');
-
-                              final schoolsData =
-                                  await authCubit.getSchoolsData();
-                              print(
-                                  'Schools data from AuthCubit: $schoolsData');
-                              print(
-                                  'Schools data type: ${schoolsData.runtimeType}');
-                              print(
-                                  'Schools data length: ${schoolsData.length}');
-
-                              final userData = {
-                                'data': {
-                                  'first_name': userDetails.firstName,
-                                  'last_name': userDetails.lastName,
-                                  'email': userDetails.email,
-                                  'mobile': userDetails.mobile,
-                                  'image': userDetails.image,
-                                  'id': userDetails.id,
-                                  'schools': schoolsData,
+                              // Show loading dialog
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (BuildContext context) {
+                                  return const Dialog(
+                                    backgroundColor: Colors.transparent,
+                                    elevation: 0,
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                          Color(0xFF8B1F41),
+                                        ),
+                                      ),
+                                    ),
+                                  );
                                 },
-                              };
-                              print('Final userData created: $userData');
-                              Get.to(
-                                  () => SchoolListScreen(userData: userData));
+                              );
+
+                              try {
+                                final authCubit = context.read<AuthCubit>();
+                                final userDetails = authCubit.getUserDetails();
+
+                                final schoolsData =
+                                    await authCubit.getSchoolsData();
+
+                                print(
+                                    'DEBUG: schoolsData type: ${schoolsData.runtimeType}');
+                                print(
+                                    'DEBUG: schoolsData length: ${schoolsData.length}');
+                                if (schoolsData.isNotEmpty) {
+                                  print(
+                                      'DEBUG: first school type: ${schoolsData.first.runtimeType}');
+                                  print(
+                                      'DEBUG: first school keys: ${schoolsData.first.keys}');
+                                }
+
+                                // Validate schools data
+                                if (schoolsData.isEmpty) {
+                                  throw Exception(
+                                      'Data sekolah tidak tersedia. Silakan coba lagi.');
+                                }
+
+                                final userData = {
+                                  'data': {
+                                    'first_name': userDetails.firstName,
+                                    'last_name': userDetails.lastName,
+                                    'email': userDetails.email,
+                                    'mobile': userDetails.mobile,
+                                    'image': userDetails.image,
+                                    'id': userDetails.id,
+                                    'schools': schoolsData,
+                                  },
+                                };
+
+                                print('DEBUG: userData created successfully');
+                                print(
+                                    'DEBUG: userData[data][schools] type: ${userData['data']?['schools']?.runtimeType}');
+
+                                // Close loading dialog
+                                Navigator.of(context).pop();
+
+                                // Navigate to school list
+                                Get.to(
+                                    () => SchoolListScreen(userData: userData));
+                              } catch (e) {
+                                // Close loading dialog
+                                Navigator.of(context).pop();
+
+                                // Show error message
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Terjadi kesalahan: ${e.toString()}',
+                                      style: GoogleFonts.poppins(),
+                                    ),
+                                    backgroundColor: Colors.red,
+                                    duration: const Duration(seconds: 4),
+                                    action: SnackBarAction(
+                                      label: 'Tutup',
+                                      textColor: Colors.white,
+                                      onPressed: () {
+                                        ScaffoldMessenger.of(context)
+                                            .hideCurrentSnackBar();
+                                      },
+                                    ),
+                                  ),
+                                );
+
+                                print('Error in Pindah Sekolah: $e');
+                              }
                             },
                           ),
                         ],

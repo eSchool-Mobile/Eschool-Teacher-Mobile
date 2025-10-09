@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -60,7 +59,11 @@ class AuthRepository {
       return [];
     }
 
-    final result = List<Map<String, dynamic>>.from(schoolsData);
+    // Properly cast each map to Map<String, dynamic>
+    final result = (schoolsData as List<dynamic>).map((item) {
+      return Map<String, dynamic>.from(item as Map<dynamic, dynamic>);
+    }).toList();
+
     print('DEBUG: Converted schoolsData: $result');
     print('DEBUG: Result length: ${result.length}');
     return result;

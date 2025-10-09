@@ -89,7 +89,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                       60, // Increased from 16 to 60 to create more space from the appbar
                   left: 16,
                   right: 16,
-                  bottom: 100,
+                  bottom: 0,
                 ),
                 child: Column(
                   children: AnimationConfiguration.toStaggeredList(
@@ -286,14 +286,16 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                           _buildMenuItem(
                             context: context,
                             icon: Icons.edit_document,
-                            title: "Jadwal Ujian Offline", // Ganti dari examsKey
+                            title:
+                                "Jadwal Ujian Offline", // Ganti dari examsKey
                             index: 12,
                             onTap: () => Get.toNamed(Routes.examsScreen),
                           ),
                           _buildMenuItem(
                             context: context,
                             icon: Icons.analytics,
-                            title: "Hasil Ujian Offline", // Ganti dari examResultKey
+                            title:
+                                "Hasil Ujian Offline", // Ganti dari examResultKey
                             index: 13,
                             onTap: () =>
                                 Get.toNamed(Routes.teacherExamResultScreen),

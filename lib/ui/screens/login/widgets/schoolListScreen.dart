@@ -104,8 +104,11 @@ class _SchoolListScreenState extends State<SchoolListScreen>
 
     if (widget.userData['data']?['schools'] != null) {
       setState(() {
-        schools =
-            List<Map<String, dynamic>>.from(widget.userData['data']['schools']);
+        // Properly cast each map to ensure type safety
+        schools = (widget.userData['data']['schools'] as List<dynamic>)
+            .map((item) =>
+                Map<String, dynamic>.from(item as Map<dynamic, dynamic>))
+            .toList();
         filteredSchools = List.from(schools); // Initialize filtered list
       });
       print('Loaded schools: $schools');
