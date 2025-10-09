@@ -1417,6 +1417,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                       TextFormField(
                         controller: _nameController,
                         enabled: !isSubmitting,
+                        maxLines: 4,
+                        minLines: 2,
                         decoration: InputDecoration(
                           labelText: 'Nama Bank Soal',
                           prefixIcon: Icon(Icons.folder_outlined),
@@ -1645,6 +1647,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                       TextFormField(
                         controller: _editController,
                         enabled: !isSubmitting,
+                        maxLines: 4,
+                        minLines: 2,
                         decoration: InputDecoration(
                           labelText: 'Nama Bank Soal',
                           prefixIcon: Icon(Icons.folder_outlined),

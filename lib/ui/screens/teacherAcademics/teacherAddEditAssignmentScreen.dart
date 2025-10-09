@@ -318,6 +318,8 @@ class _TeacherAddEditAssignmentScreenState
                       controller: _assignmentNameTextEditingController,
                       label: 'Nama Tugas',
                       icon: Icons.assignment_rounded,
+                      maxLines: null,
+                      textAlignVertical: TextAlignVertical.top,
                     ),
                     SizedBox(height: 15),
                     // Description
@@ -326,7 +328,6 @@ class _TeacherAddEditAssignmentScreenState
                       label: 'Deskripsi Tugas',
                       icon: Icons.description_rounded,
                       maxLines: null,
-                      minLines: 3,
                       textAlignVertical: TextAlignVertical.top,
                     ),
                   ],

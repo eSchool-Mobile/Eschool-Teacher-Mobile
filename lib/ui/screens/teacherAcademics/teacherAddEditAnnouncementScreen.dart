@@ -495,7 +495,8 @@ class _TeacherAddEditAnnouncementScreenState
                   controller: _announcementTitleTextEditingController,
                   label: 'Judul Pengumuman',
                   icon: Icons.title,
-                  maxLength: 128),
+                  maxLength: 128,
+                  autoExpand: true),
               SizedBox(height: 15),
               _buildAnimatedTextField(
                 controller: _announcementDescriptionTextEditingController,
