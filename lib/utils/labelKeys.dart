@@ -28,6 +28,7 @@ const String pleaseEnterOldPasswordKey = "pleaseEnterOldPassword";
 const String forgotPasswordKey = "forgotPassword";
 const String pleaseAddNeededDetailsKey = "pleaseAddNeededDetails";
 const String signInKey = "signIn";
+const String rememberMeKey = "rememberMe";
 const String bySignInYouAgreeToOurKey = "bySignInYouAgreeToOur";
 const String termsAndConditionKey = "termsAndCondition";
 const String andKey = "and";

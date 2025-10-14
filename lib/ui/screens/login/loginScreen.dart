@@ -10,7 +10,6 @@ import 'package:eschool_saas_staff/ui/screens/login/widgets/schoolListScreen.dar
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -67,6 +66,7 @@ class _LoginScreenState extends State<LoginScreen>
   bool _hidePassword = true;
   bool _isEmailFocused = false;
   bool _isPasswordFocused = false;
+  bool _rememberMe = false;
 
   // Focus nodes
   late final FocusNode _emailFocusNode = FocusNode();
@@ -74,9 +74,9 @@ class _LoginScreenState extends State<LoginScreen>
 
   // Text controllers
   late final TextEditingController _emailTextEditingController =
-      TextEditingController(text: defaultEmail);
+      TextEditingController();
   late final TextEditingController _passwordTextEditingController =
-      TextEditingController(text: defaultPassword);
+      TextEditingController();
 
   // Brand colors
   final Color primaryMaroon = const Color(0xFF8B0000);
@@ -91,6 +91,7 @@ class _LoginScreenState extends State<LoginScreen>
     super.initState();
     _initializeAnimations();
     _setupFocusListeners();
+    _loadSavedCredentials();
     _startAnimations();
   }
 
@@ -291,6 +292,36 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
+  void _loadSavedCredentials() {
+    try {
+      final authRepository = AuthRepository();
+      final savedCredentials = authRepository.getSavedCredentials();
+
+      if (savedCredentials.rememberMe) {
+        setState(() {
+          _emailTextEditingController.text = savedCredentials.email;
+          _passwordTextEditingController.text = savedCredentials.password;
+          _rememberMe = true;
+        });
+      }
+    } catch (e) {
+      print('Error loading saved credentials: $e');
+    }
+  }
+
+  Future<void> _saveCredentialsIfRemembered() async {
+    try {
+      final authRepository = AuthRepository();
+      await authRepository.saveCredentials(
+        email: _emailTextEditingController.text.trim(),
+        password: _passwordTextEditingController.text.trim(),
+        rememberMe: _rememberMe,
+      );
+    } catch (e) {
+      print('Error saving credentials: $e');
+    }
+  }
+
   Future<void> _saveTeacherId(int id) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('teacher Id', id);
@@ -417,6 +448,47 @@ class _LoginScreenState extends State<LoginScreen>
             fontSize: 14,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildRememberMeCheckbox() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Transform.scale(
+            scale: 1.1,
+            child: Checkbox(
+              value: _rememberMe,
+              onChanged: (value) {
+                setState(() {
+                  _rememberMe = value ?? false;
+                });
+              },
+              activeColor: primaryMaroon,
+              checkColor: Colors.white,
+              side: BorderSide(
+                color: _rememberMe ? primaryMaroon : Colors.grey.shade400,
+                width: 2,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+      "Ingatkan Saya",
+              style: TextStyle(
+                color: Colors.grey.shade700,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -718,6 +790,9 @@ class _LoginScreenState extends State<LoginScreen>
       child: BlocConsumer<SignInCubit, SignInState>(
         listener: (context, state) {
           if (state is SignInSuccess) {
+            // Save credentials if remember me is checked
+            _saveCredentialsIfRemembered();
+
             // Check number of schools
             final schools =
                 state.responseJson['data']?['schools'] as List<dynamic>?;
@@ -917,6 +992,7 @@ class _LoginScreenState extends State<LoginScreen>
           focusNode: _passwordFocusNode,
         ),
         _buildForgotPasswordButton(),
+        _buildRememberMeCheckbox(),
         const SizedBox(height: 18),
         _buildLoginButton(),
         const SizedBox(height: 24),

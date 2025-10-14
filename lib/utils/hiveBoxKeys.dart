@@ -4,6 +4,9 @@ const String userDetailsKey = "userDetails";
 const String isLogInKey = "isLogIn";
 const String authTokenKey = "authToken";
 const String schoolsDataKey = "schoolsData";
+const String rememberedEmailKey = "rememberedEmail";
+const String rememberedPasswordKey = "rememberedPassword";
+const String rememberCredentialsKey = "rememberCredentials";
 
 //SettingsBox keys
 const String settingsBoxKey = "settings";

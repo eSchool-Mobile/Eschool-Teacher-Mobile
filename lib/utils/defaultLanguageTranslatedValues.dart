@@ -13,6 +13,7 @@ Map<String, String> defaultLanguageTranslatedValues = {
       "Step into the culinary arena and showcase your cooking prowess in a sizzling competition!",
   "skip": "Skip",
   "signIn": "Sign In",
+  "rememberMe": "Remember Me",
   "signUp": "Sign Up",
   "login": "Login",
   "pleaseLoginWithCurrentDetails": "Please login with current credentials",

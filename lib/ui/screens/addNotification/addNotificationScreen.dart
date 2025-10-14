@@ -555,9 +555,9 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
         GestureDetector(
           onTap: () {
             List<String> roles = [
-              "Guru",
-              "Siswa",
-              "Wali Kelas",
+              "Teacher",
+              "Student",
+              "Parent",
             ];
             roles.addAll(state.roles.map((role) => role.name ?? "-").toList());
             Utils.showBottomSheet(

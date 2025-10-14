@@ -17,6 +17,11 @@ class AuthRepository {
     setAuthToken("");
     setSchoolsData([]);
     schoolCode = "";
+
+    // Only clear credentials if remember me is not enabled
+    if (!getRememberCredentials()) {
+      await clearSavedCredentials();
+    }
   }
 
   static String getAuthToken() {
@@ -201,6 +206,59 @@ class AuthRepository {
     } catch (e) {
       throw ApiException(defaultErrorMessageKey);
     }
+  }
+
+  // Remember credentials functionality
+  static bool getRememberCredentials() {
+    return Hive.box(authBoxKey).get(rememberCredentialsKey) ?? false;
+  }
+
+  Future<void> setRememberCredentials(bool value) async {
+    return Hive.box(authBoxKey).put(rememberCredentialsKey, value);
+  }
+
+  static String getRememberedEmail() {
+    return Hive.box(authBoxKey).get(rememberedEmailKey) ?? "";
+  }
+
+  Future<void> setRememberedEmail(String email) async {
+    return Hive.box(authBoxKey).put(rememberedEmailKey, email);
+  }
+
+  static String getRememberedPassword() {
+    return Hive.box(authBoxKey).get(rememberedPasswordKey) ?? "";
+  }
+
+  Future<void> setRememberedPassword(String password) async {
+    return Hive.box(authBoxKey).put(rememberedPasswordKey, password);
+  }
+
+  Future<void> saveCredentials({
+    required String email,
+    required String password,
+    required bool rememberMe,
+  }) async {
+    if (rememberMe) {
+      await setRememberedEmail(email);
+      await setRememberedPassword(password);
+      await setRememberCredentials(true);
+    } else {
+      await clearSavedCredentials();
+    }
+  }
+
+  Future<void> clearSavedCredentials() async {
+    await setRememberedEmail("");
+    await setRememberedPassword("");
+    await setRememberCredentials(false);
+  }
+
+  ({String email, String password, bool rememberMe}) getSavedCredentials() {
+    return (
+      email: getRememberedEmail(),
+      password: getRememberedPassword(),
+      rememberMe: getRememberCredentials(),
+    );
   }
 
   /*
