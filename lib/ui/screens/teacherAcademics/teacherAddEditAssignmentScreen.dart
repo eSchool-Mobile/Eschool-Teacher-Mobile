@@ -297,6 +297,20 @@ class _TeacherAddEditAssignmentScreenState
         }
 
         if (state is ClassSectionsAndSubjectsFetchSuccess) {
+          // Auto-fill class and subject selections if they were passed from previous screen
+          if (widget.selectedClassSection != null && selectedKelas == null) {
+            selectedKelas = widget.selectedClassSection!.fullName;
+            _selectedClassSection = widget.selectedClassSection;
+            // Fetch subjects for the selected class section
+            changeSelectedClassSection(_selectedClassSection,
+                fetchNewSubjects: true);
+          }
+          if (widget.selectedSubject != null && selectedMapel == null) {
+            selectedMapel =
+                widget.selectedSubject!.subject.getSybjectNameWithType();
+            _selectedSubject = widget.selectedSubject;
+          }
+
           return SingleChildScrollView(
             physics: BouncingScrollPhysics(),
             child: Column(
@@ -505,6 +519,8 @@ class _TeacherAddEditAssignmentScreenState
               if (matchingGradeLevel != null && mounted) {
                 setState(() {
                   _selectedGradeLevel = matchingGradeLevel;
+                  // Initialize tiered dropdown selections based on selected class section
+                  selectedTingkatan = matchingGradeLevel.name;
                 });
               }
             }
@@ -513,8 +529,20 @@ class _TeacherAddEditAssignmentScreenState
 
         context
             .read<ClassSectionsAndSubjectsCubit>()
-            .getClassSectionsAndSubjects(
-                classSectionId: _selectedClassSection?.id);
+            .getClassSectionsAndSubjects();
+
+        // Initialize class section and subject selections if provided
+        if (widget.selectedClassSection != null) {
+          selectedKelas = widget.selectedClassSection!.fullName;
+          _selectedClassSection = widget.selectedClassSection;
+          // Fetch subjects for the selected class section
+          changeSelectedClassSection(_selectedClassSection,
+              fetchNewSubjects: true);
+        }
+        if (widget.selectedSubject != null) {
+          selectedMapel =
+              widget.selectedSubject!.subject.getSybjectNameWithType();
+        }
       }
     });
 
@@ -706,7 +734,10 @@ class _TeacherAddEditAssignmentScreenState
               final successState = (context
                   .read<ClassSectionsAndSubjectsCubit>()
                   .state as ClassSectionsAndSubjectsFetchSuccess);
-              changeSelectedTeacherSubject(successState.subjects.firstOrNull);
+              // Only auto-select subject if none was passed from previous screen
+              if (widget.selectedSubject == null) {
+                changeSelectedTeacherSubject(successState.subjects.firstOrNull);
+              }
             }
           }
         });
@@ -1058,7 +1089,7 @@ class _TeacherAddEditAssignmentScreenState
   // 🚀 PREMIUM SUBMIT BUTTON - Luxury design for action button
   Widget _buildSubmitButton() {
     return Container(
-      margin: EdgeInsets.all(24),
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: widget.assignment != null
           ? BlocConsumer<EditAssignmentCubit, EditAssignmentState>(
               listener: (context, state) {
@@ -1156,7 +1187,8 @@ class _TeacherAddEditAssignmentScreenState
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        margin: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        width: double.infinity,
         height: 80,
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -1383,7 +1415,8 @@ class _TeacherAddEditAssignmentScreenState
             mapelList = selectedKelas == null
                 ? []
                 : state.subjects
-                    .where((e) => e.classSection.fullName == selectedKelas)
+                    .where(
+                        (e) => e.classSection.id == _selectedClassSection?.id)
                     .map((e) => e.subject.getSybjectNameWithType())
                     .toSet()
                     .toList()
@@ -1457,39 +1490,94 @@ class _TeacherAddEditAssignmentScreenState
                 ],
                 if (selectedKelas != null) ...[
                   SizedBox(height: 12),
-                  // Mata Pelajaran Dropdown
-                  DropdownButtonFormField<String>(
-                    value: selectedMapel,
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.menu_book, color: _deepMaroon),
-                      labelText: 'Pilih Mata Pelajaran',
-                      filled: true,
-                      fillColor: Colors.grey.shade50,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                    items: mapelList
-                        .map((m) => DropdownMenuItem(value: m, child: Text(m)))
-                        .toList(),
-                    onChanged: (v) {
-                      setState(() {
-                        selectedMapel = v;
-                      });
+                  // Mata Pelajaran Dropdown - Show loading if subjects are being fetched
+                  if (context.watch<ClassSectionsAndSubjectsCubit>().state
+                      is ClassSectionsAndSubjectsFetchInProgress)
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(_deepMaroon),
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Text(
+                            'Memuat mata pelajaran...',
+                            style: TextStyle(
+                              color: _dustyRose,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else if (mapelList.isEmpty)
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.info_outline,
+                              color: Colors.grey.shade600, size: 20),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Tidak ada mata pelajaran tersedia untuk kelas ini',
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    DropdownButtonFormField<String>(
+                      value: selectedMapel,
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.menu_book, color: _deepMaroon),
+                        labelText: 'Pilih Mata Pelajaran',
+                        filled: true,
+                        fillColor: Colors.grey.shade50,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                      items: mapelList
+                          .map(
+                              (m) => DropdownMenuItem(value: m, child: Text(m)))
+                          .toList(),
+                      onChanged: (v) {
+                        setState(() {
+                          selectedMapel = v;
+                        });
 
-                      // Set selected subject
-                      final subjectMatches = state.subjects
-                          .where((e) =>
-                              e.classSection.fullName == selectedKelas &&
-                              e.subject.getSybjectNameWithType() == v)
-                          .toList();
-                      if (subjectMatches.isNotEmpty) {
-                        _selectedSubject = subjectMatches.first;
-                        changeSelectedTeacherSubject(_selectedSubject);
-                      }
-                    },
-                    isExpanded: true,
-                    hint: Text('Pilih Mata Pelajaran'),
-                  ),
+                        // Set selected subject
+                        final subjectMatches = state.subjects
+                            .where((e) =>
+                                e.classSection.id ==
+                                    _selectedClassSection?.id &&
+                                e.subject.getSybjectNameWithType() == v)
+                            .toList();
+                        if (subjectMatches.isNotEmpty) {
+                          _selectedSubject = subjectMatches.first;
+                          changeSelectedTeacherSubject(_selectedSubject);
+                        }
+                      },
+                      isExpanded: true,
+                      hint: Text('Pilih Mata Pelajaran'),
+                    ),
                 ],
               ],
             );
@@ -1691,7 +1779,7 @@ class _TeacherAddEditAssignmentScreenState
                       ? DateFormat('dd-MM-yyyy').format(dueDate!)
                       : '',
                 ),
-                label: 'Tgl Deadline',
+                label: 'Tenggat',
                 icon: Icons.calendar_today,
                 onTap: openDatePicker,
                 readOnly: true,

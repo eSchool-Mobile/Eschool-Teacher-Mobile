@@ -372,7 +372,8 @@ class _EditOnlineExamState extends State<EditOnlineExam>
     required TextEditingController controller,
     required String label,
     required IconData icon,
-    int maxLines = 1,
+    int? maxLines = 1,
+    int? minLines,
     bool readOnly = false,
     VoidCallback? onTap,
     TextInputType? keyboardType,
@@ -386,6 +387,7 @@ class _EditOnlineExamState extends State<EditOnlineExam>
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
+      minLines: minLines,
       readOnly: readOnly,
       onTap: onTap,
       keyboardType: keyboardType,
@@ -451,6 +453,9 @@ class _EditOnlineExamState extends State<EditOnlineExam>
             controller: _titleController,
             label: 'Judul Ujian',
             icon: Icons.title,
+            maxLines: null,
+            minLines: 2,
+            keyboardType: TextInputType.multiline,
           ),
           SizedBox(height: 15),
           _buildAnimatedTextField(
@@ -480,7 +485,7 @@ class _EditOnlineExamState extends State<EditOnlineExam>
       builder: (context, state) {
         List<SubjectDetail> subjects = [];
         if (state is OnlineExamSuccess) {
-          subjects = (state.subjectDetails as List)
+          subjects = state.subjectDetails
               .where((e) => e != null)
               .map((e) {
                 try {

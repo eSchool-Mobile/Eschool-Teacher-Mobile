@@ -700,7 +700,6 @@ class _TeacherViewAttendanceScreenState
       lightColor: _maroonLight,
       height: 210, // Increased height to accommodate filters
       onBackPressed: () => Navigator.of(context).pop(),
-      showFilterButton: true,
       onFilterPressed: () {
         // Show filter options
         _showStatusFilterDialog();
