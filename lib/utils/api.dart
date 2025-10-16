@@ -38,10 +38,13 @@ class Api {
   static String getSettings = "${databaseUrl}settings";
   static String getHolidays = "${databaseUrl}holidays";
   static String getLeaveRequests = "${databaseUrl}staff/leave-request";
-  static String submitLeaveStudentRequests = "${databaseUrl}staff/student-leave-approve";
-  static String getLeaveStudentRequests = "${databaseUrl}staff/student-leave-request";
+  static String submitLeaveStudentRequests =
+      "${databaseUrl}staff/student-leave-approve";
+  static String getLeaveStudentRequests =
+      "${databaseUrl}staff/student-leave-request";
   static String getPermission = "${databaseUrl}teacher/student-leaves";
-  static String submitStudentPermission = "${databaseUrl}teacher/student-leave-approve";
+  static String submitStudentPermission =
+      "${databaseUrl}teacher/student-leave-approve";
   static String approveOrRejectLeaveRequest =
       "${databaseUrl}staff/leave-approve";
   static String getClasses = "${databaseUrl}classes";
@@ -192,6 +195,13 @@ class Api {
   static String resetOnlineExamStatus =
       "${databaseUrl}teacher/reset-online-exam-status";
   static String gradeLevel = "${databaseUrl}teacher/get-grade-levels";
+
+  /// Contact APIs
+  static String submitContact = "${databaseUrl}contact/submit";
+  static String getContacts = "${databaseUrl}contacts";
+  static String getContactDetail = "${databaseUrl}contacts"; // /{id}
+  static String replyContact = "${databaseUrl}contacts"; // /{id}/reply
+  static String getContactStats = "${databaseUrl}contacts/stats";
 
   static Map<String, String> headers({bool useAuthToken = false}) {
     final String jwtToken = AuthRepository.getAuthToken();

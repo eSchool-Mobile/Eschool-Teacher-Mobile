@@ -327,6 +327,13 @@ class _ProfileContainerState extends State<ProfileContainer>
                           ),
                           _buildMenuItem(
                             context: context,
+                            icon: Icons.contact_support_rounded,
+                            title: "Kontak & Laporan",
+                            index: 71,
+                            onTap: () => Get.toNamed(Routes.contactListScreen),
+                          ),
+                          _buildMenuItem(
+                            context: context,
                             icon: Icons.privacy_tip_outlined,
                             title: "Kebijakan Privasi",
                             index: 8,

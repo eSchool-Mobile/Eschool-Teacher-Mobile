@@ -12,6 +12,14 @@ import 'package:eschool_saas_staff/ui/screens/changePasswordScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/classTimeTableScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/classesScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/contactUsScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/contact/contactListScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/contact/contactDetailScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/contact/submitContactScreen.dart';
+import 'package:eschool_saas_staff/cubits/contact/contactListCubit.dart';
+import 'package:eschool_saas_staff/cubits/contact/contactDetailCubit.dart';
+import 'package:eschool_saas_staff/cubits/contact/submitContactCubit.dart';
+import 'package:eschool_saas_staff/cubits/contact/contactStatsCubit.dart';
+import 'package:eschool_saas_staff/data/repositories/contactRepository.dart';
 import 'package:eschool_saas_staff/ui/screens/editAnnouncementScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/editProfileScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/examsScreen.dart';
@@ -205,6 +213,11 @@ class Routes {
   static const String bankSoalSelection = '/bank-soal-selection';
   static const String questionOnlineExamScreen = '/question-online-exam';
   static const String examStatusScreen = "/examStatus";
+
+  // Contact routes
+  static const String contactListScreen = "/contact-list";
+  static const String contactDetailScreen = "/contact-detail";
+  static const String submitContactScreen = "/submit-contact";
 
   // Nama page
   static final List<GetPage> getPages = [
@@ -731,6 +744,39 @@ class Routes {
           teacherName: args['teacherName'] as String,
         );
       },
+    ),
+
+    // Contact routes
+    GetPage(
+      name: contactListScreen,
+      page: () => MultiBlocProvider(
+        providers: [
+          BlocProvider<ContactListCubit>(
+            create: (context) => ContactListCubit(ContactRepository()),
+          ),
+          BlocProvider<ContactStatsCubit>(
+            create: (context) => ContactStatsCubit(ContactRepository()),
+          ),
+        ],
+        child: const ContactListScreen(),
+      ),
+    ),
+    GetPage(
+      name: contactDetailScreen,
+      page: () {
+        final contactId = Get.arguments as int;
+        return BlocProvider<ContactDetailCubit>(
+          create: (context) => ContactDetailCubit(ContactRepository()),
+          child: ContactDetailScreen(contactId: contactId),
+        );
+      },
+    ),
+    GetPage(
+      name: submitContactScreen,
+      page: () => BlocProvider<SubmitContactCubit>(
+        create: (context) => SubmitContactCubit(ContactRepository()),
+        child: const SubmitContactScreen(),
+      ),
     ),
   ]; // Add semicolon here
 
