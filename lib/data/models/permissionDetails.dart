@@ -87,8 +87,8 @@ class PermissionDetails {
   String translateLeaveType(String? leaveType) {
     final Map<String, String> leaveTranslations = {
       "fullDay": "Sehari Penuh",
-      "firstHalf": "Setengah Pertama",
-      "secondHalf": "Setengah Kedua",
+      "firstHalf": "Paruh Pertama",
+      "secondHalf": "Paruh Kedua",
     };
     return leaveTranslations[leaveType] ?? leaveType ?? '';
   }

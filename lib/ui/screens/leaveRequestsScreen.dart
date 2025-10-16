@@ -1094,6 +1094,22 @@ class LeaveRequestDetailsBottomsheet extends StatelessWidget {
     required this.isStaffLeave,
   });
 
+  // Fungsi untuk menerjemahkan tipe cuti
+  String translateLeaveType(String? type) {
+    if (type == null) return "";
+
+    switch (type) {
+      case "Full":
+        return "Sehari Penuh";
+      case "First Half":
+        return "Paruh Pertama";
+      case "Second Half":
+        return "Paruh Kedua";
+      default:
+        return type;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final hasAttachments = leaveRequest.attachments?.isNotEmpty ?? false;
@@ -1147,7 +1163,7 @@ class LeaveRequestDetailsBottomsheet extends StatelessWidget {
                                     ? "${Utils.formatDate(_safeParseDate(leaveDetail.date)!)}, ${Utils.weekDays[_safeParseDate(leaveDetail.date)!.weekday - 1].tr}"
                                     : "${leaveDetail.date ?? 'Tanggal tidak tersedia'}, -"),
                             subtitle: CustomTextContainer(
-                                textKey: leaveDetail.type ?? ""),
+                                textKey: translateLeaveType(leaveDetail.type)),
                           ),
                         ).animate().fadeIn(
                             duration: const Duration(milliseconds: 300),

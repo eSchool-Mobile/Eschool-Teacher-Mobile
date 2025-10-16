@@ -96,7 +96,7 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
   }
 
   PreferredSizeWidget _buildAppBar() {
-    return CustomModernAppBar(
+    return CustomModernAppBar(  
       title: Utils.getTranslatedLabel(classTimetableKey),
       icon: Icons.schedule_outlined,
       fabAnimationController: _fabAnimationController,
@@ -104,25 +104,7 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
       lightColor: _maroonLight,
       onBackPressed: () => Navigator.of(context).pop(),
       height: 200,
-      showFilterButton: true,
-      onFilterPressed: () {
-        final state = context.read<ClassesCubit>().state;
-        if (state is ClassesFetchSuccess &&
-            context.read<ClassesCubit>().getAllClasses().isNotEmpty) {
-          Utils.showBottomSheet(
-            child: FilterSelectionBottomsheet<ClassSection>(
-              onSelection: (value) {
-                changeSelectedClassSection(value!);
-                Get.back();
-              },
-              selectedValue: _selectedClassSection!,
-              titleKey: classKey,
-              values: context.read<ClassesCubit>().getAllClasses(),
-            ),
-            context: context,
-          );
-        }
-      },
+  
       tabBuilder: (context) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [

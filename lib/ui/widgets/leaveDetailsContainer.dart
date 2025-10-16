@@ -94,8 +94,8 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
   String translateLeaveType(String type) {
     final Map<String, String> leaveTranslations = {
       "Full": "Sehari Penuh",
-      "First Half": "Paruh Pagi",
-      "Second Half": "Paruh Sore",
+      "First Half": "Paruh Pertama",
+      "Second Half": "Paruh Kedua",
       "sick": "Sakit",
     };
     return leaveTranslations[type] ?? type;

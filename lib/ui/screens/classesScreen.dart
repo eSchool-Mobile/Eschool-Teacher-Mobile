@@ -280,29 +280,6 @@ class _ClassesScreenState extends State<ClassesScreen>
                           size: 22,
                         ),
                       ),
-                      suffixIcon: _searchQuery.isNotEmpty
-                          ? IconButton(
-                              icon: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: AppColorPalette.primaryMaroon
-                                      .withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Icon(
-                                  Icons.close_rounded,
-                                  color: AppColorPalette.primaryMaroon,
-                                  size: 16,
-                                ),
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _searchController.clear();
-                                  _searchQuery = "";
-                                });
-                              },
-                            )
-                          : null,
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(
                         vertical: 16,
@@ -310,14 +287,20 @@ class _ClassesScreenState extends State<ClassesScreen>
                       ),
                     ),
                     onChanged: (value) {
-                      setState(() {
-                        _searchQuery = value.trim();
-                      });
+                      final trimmedValue = value.trim();
+                      if (_searchQuery != trimmedValue) {
+                        setState(() {
+                          _searchQuery = trimmedValue;
+                        });
+                      }
                     },
                     onSubmitted: (value) {
-                      setState(() {
-                        _searchQuery = value.trim();
-                      });
+                      final trimmedValue = value.trim();
+                      if (_searchQuery != trimmedValue) {
+                        setState(() {
+                          _searchQuery = trimmedValue;
+                        });
+                      }
                     },
                   ),
                 ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.5, end: 0)
@@ -476,7 +459,7 @@ class _ClassesScreenState extends State<ClassesScreen>
                           setState(() {
                             _searchQuery = "";
                             _searchController.clear();
-                            _isSearchActive = false;
+                            // Keep search active, just clear the query
                           });
                         },
                         primaryColor: AppColorPalette.primaryMaroon,
@@ -522,32 +505,6 @@ class _ClassesScreenState extends State<ClassesScreen>
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
                                       color: AppColorPalette.primaryMaroon,
-                                    ),
-                                  ),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _searchQuery = "";
-                                      _searchController.clear();
-                                      _isSearchActive = false;
-                                    });
-                                  },
-                                  style: TextButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6,
-                                    ),
-                                    minimumSize: Size.zero,
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                  ),
-                                  child: Text(
-                                    'Hapus',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColorPalette.secondaryMaroon,
                                     ),
                                   ),
                                 ),
@@ -885,60 +842,6 @@ class _ClassesScreenState extends State<ClassesScreen>
                   ),
                 ],
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoChip(BuildContext context, String label, String value,
-      IconData icon, bool isAlt) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: isAlt
-            ? AppColorPalette.primaryMaroon.withOpacity(0.07)
-            : AppColorPalette.secondaryMaroon.withOpacity(0.07),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isAlt
-              ? AppColorPalette.primaryMaroon.withOpacity(0.1)
-              : AppColorPalette.secondaryMaroon.withOpacity(0.1),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: 20,
-            color: isAlt
-                ? AppColorPalette.primaryMaroon.withOpacity(0.7)
-                : AppColorPalette.secondaryMaroon.withOpacity(0.7),
-          ),
-          SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppColorPalette.primaryMaroon.withOpacity(0.6),
-                  ),
-                ),
-                Text(
-                  value,
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColorPalette.primaryMaroon.withOpacity(0.9),
-                  ),
-                ),
-              ],
             ),
           ),
         ],

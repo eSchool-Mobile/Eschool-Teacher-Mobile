@@ -115,9 +115,9 @@ class AppliedLeaveDetailsBottomsheet extends StatelessWidget {
       case "Full":
         return "Sehari Penuh"; // Terjemahan ke bahasa Indonesia
       case "First Half":
-        return "Setengah Hari Pertama";
+        return "Paruh Pertama";
       case "Second Half":
-        return "Setengah Hari Kedua";
+        return "Paruh Kedua";
       default:
         return type;
     }

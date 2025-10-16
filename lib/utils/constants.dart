@@ -39,9 +39,9 @@ double topPaddingOfErrorAndLoadingContainer = 150;
 // String defaultEmail = "agungcahyono533@gmail.com";
 // String defaultPassword = "081230093978";
 
-// String defaultSchoolCode = "";
-// String defaultEmail = "agungcahyono533@gmail.com";
-// String defaultPassword = "smkn8*()";
+String defaultSchoolCode = "";
+String defaultEmail = "agungcahyono533@gmail.com";
+String defaultPassword = "smkn8*()";
 
 // String defaultSchoolCode = "";
 // String defaultEmail = "adminsmk8malang@gmail.com";
@@ -53,9 +53,9 @@ double topPaddingOfErrorAndLoadingContainer = 150;
 
 // Default credentials are now handled by Remember Me functionality
 // Use the checkbox in login form to save credentials safely
-String defaultSchoolCode = "";
-String defaultEmail = "";
-String defaultPassword = "";
+// String defaultSchoolCode = "";
+// String defaultEmail = "";
+// String defaultPassword = "";
 
 List<String> months = [
   januaryKey,
@@ -109,12 +109,12 @@ const List<String> weekDays = [
 
 String getLeaveTypeValueFromKey({required String leaveTypeKey}) {
   if (leaveTypeKey == firstHalfKey) {
-    return "First Half";
+    return "Paruh Pertama";
   }
   if (leaveTypeKey == secondHalfKey) {
-    return "Second Half";
+    return "Paruh Kedua";
   }
-  return "Full";
+  return "Sehari Penuh";
 }
 
 ///[ 0 -> Pending, 1 -> Approved, 2 -> Rejected ]
