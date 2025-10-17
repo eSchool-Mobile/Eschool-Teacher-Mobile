@@ -2,18 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/contact/contactListCubit.dart';
 import 'package:eschool_saas_staff/cubits/contact/contactStatsCubit.dart';
-import 'package:eschool_saas_staff/data/repositories/contactRepository.dart';
 import 'package:eschool_saas_staff/models/contact.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/app/routes.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'dart:ui';
-import 'dart:math' as math;
+// removed unused imports
 
 class ContactListScreen extends StatefulWidget {
   const ContactListScreen({super.key});
@@ -27,10 +24,11 @@ class _ContactListScreenState extends State<ContactListScreen>
   late AnimationController _fabAnimationController;
   late TextEditingController _searchController;
   late ScrollController _scrollController;
+  String searchQuery = "";
+  String? _selectedSort = 'created_at:desc';
 
   String? _selectedType;
   String? _selectedStatus;
-  String? _selectedSort = 'created_at:desc';
 
   final Color _primaryColor = const Color(0xFF800020);
   final Color _lightColor = const Color(0xFFAA6976);
@@ -77,18 +75,30 @@ class _ContactListScreenState extends State<ContactListScreen>
       body: Column(
         children: [
           CustomModernAppBar(
-            title: 'Kontakt & Laporan',
+            title: 'Kontak & Laporan',
             icon: Icons.contact_support_rounded,
             fabAnimationController: _fabAnimationController,
             primaryColor: _primaryColor,
             lightColor: _lightColor,
             showAddButton: true,
             onAddPressed: _showSubmitContactDialog,
-            showFilterButton: true,
-            onFilterPressed: _showFilterBottomSheet,
-            filterActive: _selectedType != null || _selectedStatus != null,
-            showSearchButton: true,
-            onSearchPressed: _showSearchDialog,
+           
+            onBackPressed: () {
+              // Make sure to stop animations before popping
+              _fabAnimationController.stop();
+              Get.back();
+            },
+          ),
+          // Search and Filter section (inlined, similar styling to OnlineExam)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+            child: Column(
+              children: [
+                _buildSearchBar(),
+                const SizedBox(height: 12),
+                _buildFilterCard(),
+              ],
+            ),
           ),
           Expanded(
             child: Column(
@@ -102,6 +112,150 @@ class _ContactListScreenState extends State<ContactListScreen>
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: _searchController,
+        decoration: InputDecoration(
+          hintText: 'Cari kontak...',
+          prefixIcon: Icon(Icons.search, color: _primaryColor),
+          suffixIcon: searchQuery.isNotEmpty
+              ? IconButton(
+                  icon: Icon(Icons.clear, color: _primaryColor),
+                  onPressed: () {
+                    setState(() {
+                      searchQuery = "";
+                      _searchController.clear();
+                    });
+                    _applyFilters();
+                  },
+                )
+              : null,
+          border: InputBorder.none,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        ),
+        onChanged: (value) {
+          setState(() {
+            searchQuery = value;
+          });
+        },
+        onSubmitted: (_) => _applyFilters(),
+      ),
+    );
+  }
+
+  Widget _buildFilterCard() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: _primaryColor.withOpacity(0.06),
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.filter_alt_rounded, color: _primaryColor),
+                  const SizedBox(width: 8),
+                  Text('Filter Kontak',
+                      style: GoogleFonts.poppins(
+                          fontSize: 14, fontWeight: FontWeight.w600)),
+                ],
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _selectedType = null;
+                    _selectedStatus = null;
+                    searchQuery = "";
+                    _searchController.clear();
+                    _selectedSort = 'created_at:desc';
+                  });
+                  _applyFilters();
+                },
+                child: Text('Reset'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Type and Status chips row
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _buildFilterChip('Semua', _selectedType == null, () {
+                setState(() => _selectedType = null);
+                _applyFilters();
+              }),
+              _buildFilterChip('Pertanyaan', _selectedType == 'inquiry', () {
+                setState(() => _selectedType = 'inquiry');
+                _applyFilters();
+              }),
+              _buildFilterChip('Laporan', _selectedType == 'report', () {
+                setState(() => _selectedType = 'report');
+                _applyFilters();
+              }),
+              _buildFilterChip('Baru', _selectedStatus == 'new', () {
+                setState(() => _selectedStatus = 'new');
+                _applyFilters();
+              }),
+              _buildFilterChip('Dibalas', _selectedStatus == 'replied', () {
+                setState(() => _selectedStatus = 'replied');
+                _applyFilters();
+              }),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Sort dropdown
+          DropdownButtonFormField<String>(
+            value: _selectedSort,
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.sort, color: _primaryColor),
+              labelText: 'Urutkan',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+            ),
+            items: [
+              DropdownMenuItem(
+                  value: 'created_at:desc', child: Text('Terbaru')),
+              DropdownMenuItem(value: 'created_at:asc', child: Text('Terlama')),
+            ],
+            onChanged: (value) {
+              setState(() => _selectedSort = value);
+              _applyFilters();
+            },
           ),
         ],
       ),
@@ -489,142 +643,6 @@ class _ContactListScreenState extends State<ContactListScreen>
     );
   }
 
-  void _showFilterBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => _buildFilterBottomSheet(),
-    );
-  }
-
-  Widget _buildFilterBottomSheet() {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            margin: const EdgeInsets.only(top: 8),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Filter Kontak',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Type Filter
-                Text(
-                  'Tipe',
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    _buildFilterChip('Semua', _selectedType == null, () {
-                      setState(() => _selectedType = null);
-                    }),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Pertanyaan', _selectedType == 'inquiry',
-                        () {
-                      setState(() => _selectedType = 'inquiry');
-                    }),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Laporan', _selectedType == 'report', () {
-                      setState(() => _selectedType = 'report');
-                    }),
-                  ],
-                ),
-
-                const SizedBox(height: 16),
-
-                // Status Filter
-                Text(
-                  'Status',
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    _buildFilterChip('Semua', _selectedStatus == null, () {
-                      setState(() => _selectedStatus = null);
-                    }),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Baru', _selectedStatus == 'new', () {
-                      setState(() => _selectedStatus = 'new');
-                    }),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Dibalas', _selectedStatus == 'replied',
-                        () {
-                      setState(() => _selectedStatus = 'replied');
-                    }),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () {
-                          setState(() {
-                            _selectedType = null;
-                            _selectedStatus = null;
-                          });
-                          Navigator.pop(context);
-                          _applyFilters();
-                        },
-                        child: const Text('Reset'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _applyFilters();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _primaryColor,
-                          foregroundColor: Colors.white,
-                        ),
-                        child: const Text('Terapkan'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildFilterChip(String label, bool isSelected, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
@@ -649,35 +667,6 @@ class _ContactListScreenState extends State<ContactListScreen>
     );
   }
 
-  void _showSearchDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Cari Kontak'),
-        content: TextField(
-          controller: _searchController,
-          decoration: const InputDecoration(
-            hintText: 'Ketik kata kunci...',
-            border: OutlineInputBorder(),
-          ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _applyFilters();
-            },
-            child: const Text('Cari'),
-          ),
-        ],
-      ),
-    );
-  }
 
   void _showSubmitContactDialog() {
     // Navigate to submit contact screen

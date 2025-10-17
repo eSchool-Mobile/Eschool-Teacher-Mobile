@@ -911,6 +911,12 @@ class _TeacherAddEditAssignmentScreenState
       }
     }
 
+    // Ensure at least one answer type is selected (text or file)
+    if (!_isTextAnswerAllowed && !_isFileAnswerAllowed) {
+      showErrorMessage("Pilih minimal satu tipe jawaban");
+      return;
+    }
+
     // Get selected file types
     final selectedFileTypes = _isFileAnswerAllowed
         ? fileTypes
@@ -1412,15 +1418,36 @@ class _TeacherAddEditAssignmentScreenState
                     .toList()
               ..sort();
 
-            mapelList = selectedKelas == null
-                ? []
-                : state.subjects
-                    .where(
-                        (e) => e.classSection.id == _selectedClassSection?.id)
-                    .map((e) => e.subject.getSybjectNameWithType())
-                    .toSet()
-                    .toList()
-              ..sort();
+            // Build mapelList (subjects). If the cubit hasn't loaded
+            // subjects yet (state.subjects is empty) but the screen was
+            // opened with a `selectedSubject` passed in from previous
+            // screen, use that as a fallback so the currently-selected
+            // subject still appears in the dropdown options.
+            if (selectedKelas == null) {
+              mapelList = [];
+            } else if (state.subjects.isEmpty) {
+              // Fallback: use incoming selectedSubject if it belongs to
+              // the selected classSection so users still see the value.
+              if (_selectedSubject != null &&
+                  _selectedClassSection != null &&
+                  _selectedSubject!.classSection.id ==
+                      _selectedClassSection!.id) {
+                mapelList = [
+                  _selectedSubject!.subject.getSybjectNameWithType()
+                ];
+                debugPrint(
+                    '[ASSIGNMENT SCREEN] subjects list empty in state; using fallback selectedSubject (${mapelList.first}) for dropdown');
+              } else {
+                mapelList = [];
+              }
+            } else {
+              mapelList = state.subjects
+                  .where((e) => e.classSection.id == _selectedClassSection?.id)
+                  .map((e) => e.subject.getSybjectNameWithType())
+                  .toSet()
+                  .toList()
+                ..sort();
+            }
 
             return Column(
               children: [
@@ -1518,31 +1545,82 @@ class _TeacherAddEditAssignmentScreenState
                       ),
                     )
                   else if (mapelList.isEmpty)
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.info_outline,
-                              color: Colors.grey.shade600, size: 20),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Tidak ada mata pelajaran tersedia untuk kelas ini',
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 14,
+                    // Show message when there are no subjects available for the
+                    // selected class and also log diagnostic information so
+                    // developers can debug why subjects are missing.
+                    Builder(builder: (ctx) {
+                      // Schedule logs after this frame to avoid side-effects
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        try {
+                          // Collect diagnostic details
+                          final gradeSelected = selectedTingkatan ?? '<none>';
+                          final kelasSelected = selectedKelas ?? '<none>';
+                          final mapelSelected = selectedMapel ?? '<none>';
+                          final classSectionId =
+                              _selectedClassSection?.id?.toString() ?? '<none>';
+
+                          final totalClassSections = state.classSections.length;
+                          final totalSubjects = state.subjects.length;
+
+                          // Subjects that belong to the selected classSection
+                          final filteredSubjects = state.subjects
+                              .where((e) =>
+                                  e.classSection.id ==
+                                  _selectedClassSection?.id)
+                              .map((e) => e.subject.getSybjectNameWithType())
+                              .toList();
+
+                          debugPrint('--- [ASSIGNMENT SCREEN DIAGNOSTICS] ---');
+                          debugPrint(
+                              'Selected Tingkatan: $gradeSelected, Selected Kelas: $kelasSelected');
+                          debugPrint(
+                              'Selected ClassSection id: $classSectionId');
+                          debugPrint('Selected Mapel (name): $mapelSelected');
+                          debugPrint(
+                              'Total classSections in state: $totalClassSections');
+                          debugPrint('Total subjects in state: $totalSubjects');
+                          debugPrint(
+                              'Filtered subjects for selected classSection (count: ${filteredSubjects.length}):');
+                          for (var s in filteredSubjects) {
+                            debugPrint(' - $s');
+                          }
+                          if (filteredSubjects.isEmpty) {
+                            debugPrint(
+                                'NOTE: filter produced no results. Possible causes: selected classSection is null, classSection IDs do not match between classSections and subjects, or grade level/tingkatan mismatch.');
+                          }
+                          debugPrint('--- [END DIAGNOSTICS] ---');
+                        } catch (e, st) {
+                          debugPrint(
+                              'Error while logging diagnostics in teacherAddEditAssignmentScreen: $e\n$st');
+                        }
+                      });
+
+                      return Container(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.info_outline,
+                                color: Colors.grey.shade600, size: 20),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Tidak ada mata pelajaran tersedia untuk kelas ini',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    )
+                          ],
+                        ),
+                      );
+                    })
                   else
                     DropdownButtonFormField<String>(
                       value: selectedMapel,
