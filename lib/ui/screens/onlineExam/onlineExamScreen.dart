@@ -49,6 +49,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   late AnimationController _animationController;
   late AnimationController _pulseController;
   String searchQuery = ""; // Tambahkan ini
+  String? _restoredExamId; // ID ujian yang baru dipulihkan untuk highlight
 
   // Animation controller for CustomModernAppBar
   late AnimationController _appBarAnimationController;
@@ -176,9 +177,26 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
             }
           },
           showArchiveButton: true,
-          onArchivePressed: () {
-            // Navigate to archived exams page
-            Get.toNamed(Routes.archiveOnlineExam);
+          onArchivePressed: () async {
+            // Navigate to archived exams page and wait for result
+            final result = await Get.toNamed(Routes.archiveOnlineExam);
+            // If an exam was restored, refresh data and show the restored exam
+            if (result != null && result is Map<String, dynamic>) {
+              if (result['action'] == 'restored') {
+                // Store the restored exam ID for highlighting
+                _restoredExamId = result['examId'].toString();
+                _refreshExams();
+               
+                // Remove highlight after 5 seconds
+                Future.delayed(Duration(seconds: 5), () {
+                  if (mounted) {
+                    setState(() {
+                      _restoredExamId = null;
+                    });
+                  }
+                });
+              }
+            }
           },
           onBackPressed: () {
             // Make sure to stop animations before popping
@@ -540,12 +558,24 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
 
   Widget _buildExamGrid(OnlineExamSuccess state) {
     // Filter ujian berdasarkan kata kunci pencarian
-    final filteredExams = searchQuery.isEmpty
+    var filteredExams = searchQuery.isEmpty
         ? state.exams
         : state.exams
             .where((exam) =>
                 exam.title.toLowerCase().contains(searchQuery.toLowerCase()))
             .toList();
+
+    // Sort to prioritize restored exam if exists
+    if (_restoredExamId != null) {
+      filteredExams.sort((a, b) {
+        final aIsRestored = a.id.toString() == _restoredExamId;
+        final bIsRestored = b.id.toString() == _restoredExamId;
+
+        if (aIsRestored && !bIsRestored) return -1;
+        if (!aIsRestored && bIsRestored) return 1;
+        return 0; // Keep original order for other exams
+      });
+    }
 
     // Jika tidak ada ujian yang sesuai dengan pencarian, tampilkan NoSearchResultsWidget
     if (filteredExams.isEmpty && searchQuery.isNotEmpty) {
@@ -591,6 +621,9 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   }
 
   Widget _buildExamCard(BuildContext context, exam.OnlineExam exam) {
+    // Check if this is the restored exam for highlighting
+    final bool isRecentlyRestored = _restoredExamId == exam.id.toString();
+
     // Define modern color scheme with soft maroon colors
     final colorScheme = {
       'primary': Color.fromARGB(255, 172, 33, 33),
@@ -630,6 +663,25 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       duration: Duration(milliseconds: 600),
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 16),
+        decoration: isRecentlyRestored
+            ? BoxDecoration(
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.green.withOpacity(0.3),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                    offset: Offset(0, 5),
+                  ),
+                  BoxShadow(
+                    color: Colors.green.withOpacity(0.1),
+                    blurRadius: 40,
+                    spreadRadius: 5,
+                    offset: Offset(0, 0),
+                  ),
+                ],
+              )
+            : null,
         child: Material(
           color: Colors.transparent,
           child: InkWell(
@@ -639,9 +691,18 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
             splashColor: colorScheme['primary']!.withOpacity(0.05),
             child: Ink(
               decoration: BoxDecoration(
-                color: Color.fromARGB(
-                    255, 237, 237, 237), // Very slightly off-white
+                color: isRecentlyRestored
+                    ? Color.fromARGB(255, 240, 253,
+                        244) // Light green tint for restored exam
+                    : Color.fromARGB(
+                        255, 237, 237, 237), // Very slightly off-white
                 borderRadius: BorderRadius.circular(32),
+                border: isRecentlyRestored
+                    ? Border.all(
+                        color: Colors.green.withOpacity(0.3),
+                        width: 2,
+                      )
+                    : null,
                 // Keep your existing shadows if desired
               ),
               child: Stack(
@@ -777,6 +838,54 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                       );
                                     },
                                   ),
+                                  // Add restored badge if applicable
+                                  if (isRecentlyRestored) ...[
+                                    SizedBox(height: 12),
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Colors.green.shade400,
+                                            Colors.green.shade500,
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(20),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.green.withOpacity(0.4),
+                                            blurRadius: 8,
+                                            offset: Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.restore_rounded,
+                                            color: Colors.white,
+                                            size: 16,
+                                          ),
+                                          SizedBox(width: 6),
+                                          Text(
+                                            'Dipulihkan',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                   SizedBox(height: 16),
                                   Container(
                                     width: 60,
@@ -1529,6 +1638,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     );
   }
 
+ 
   void _showDeleteConfirmation(exam.OnlineExam exam) {
     showDialog(
       context: context,

@@ -17,9 +17,7 @@ class ArchiveOnlineExam extends StatefulWidget {
 class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
     with TickerProviderStateMixin {
   late final TextEditingController _searchController = TextEditingController();
-  bool _showSearchBar = false;
   bool _isSearching = false;
-  String _selectedFilter = "Semua"; // Variabel untuk filter (default Semua)
   DateTime? _startDate; // State untuk filter tanggal
   DateTime? _endDate; // State untuk filter tanggal
   @override
@@ -227,9 +225,6 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                         setModalState(() {
                           _startDate = null;
                           _endDate = null;
-                        });
-                        setState(() {
-                          _selectedFilter = "Semua";
                         });
                         _loadArchivedExams();
                         Navigator.pop(context);
@@ -844,7 +839,13 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                           );
 
                           await Future.delayed(Duration(milliseconds: 500));
-                          Get.back();
+
+                          // Navigate back to OnlineExamScreen with restored exam info
+                          Get.back(result: {
+                            'action': 'restored',
+                            'examId': exam.id,
+                            'examTitle': exam.title,
+                          });
                         } catch (e) {
                           Get.back(); // Close loading
                           Get.snackbar(
