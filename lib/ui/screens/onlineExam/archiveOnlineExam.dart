@@ -39,16 +39,12 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
 
   // Add these controller declarations
   late AnimationController _animationController;
-  late Animation<double> _animation;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
   // Theme colors - matching onlineExamScreen
   final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
   final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
-  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
-  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
-  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
   @override
   void initState() {
     super.initState();
@@ -57,10 +53,6 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
     _animationController = AnimationController(
       duration: Duration(milliseconds: 1000),
       vsync: this,
-    );
-    _animation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
     );
     _animationController.forward();
 

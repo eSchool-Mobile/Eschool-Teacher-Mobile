@@ -134,6 +134,34 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     }
   }
 
+  void _forceRefreshAfterRestore() {
+    // Force refresh with multiple attempts to ensure the restored exam appears
+    if (mounted) {
+      print('DEBUG: Force refresh attempt 1');
+      // Clear any existing state first
+      setState(() {});
+
+      // Trigger refresh
+      context.read<OnlineExamCubit>().getOnlineExams();
+
+      // Try again after a short delay in case the first attempt doesn't catch the new data
+      Future.delayed(Duration(milliseconds: 1000), () {
+        if (mounted) {
+          print('DEBUG: Force refresh attempt 2');
+          context.read<OnlineExamCubit>().getOnlineExams();
+        }
+      });
+
+      // One more attempt after an even longer delay
+      Future.delayed(Duration(milliseconds: 2500), () {
+        if (mounted) {
+          print('DEBUG: Force refresh attempt 3');
+          context.read<OnlineExamCubit>().getOnlineExams();
+        }
+      });
+    }
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -185,10 +213,18 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
               if (result['action'] == 'restored') {
                 // Store the restored exam ID for highlighting
                 _restoredExamId = result['examId'].toString();
-                _refreshExams();
-               
-                // Remove highlight after 5 seconds
-                Future.delayed(Duration(seconds: 5), () {
+
+
+                // Wait longer to ensure the backend has processed the restore
+                Future.delayed(Duration(milliseconds: 1200), () {
+                  if (mounted) {
+                    print('DEBUG: Starting force refresh after restore');
+                    _forceRefreshAfterRestore();
+                  }
+                });
+
+                // Remove highlight after 8 seconds
+                Future.delayed(Duration(seconds: 8), () {
                   if (mounted) {
                     setState(() {
                       _restoredExamId = null;
@@ -567,17 +603,40 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
 
     // Sort to prioritize restored exam if exists
     if (_restoredExamId != null) {
+      // Debug: check if restored exam exists in the list
+      final restoredExamExists =
+          filteredExams.any((exam) => exam.id.toString() == _restoredExamId);
+      print('DEBUG: Looking for restored exam ID: $_restoredExamId');
+      print('DEBUG: Restored exam exists in list: $restoredExamExists');
+      print('DEBUG: Total exams in filtered list: ${filteredExams.length}');
+
       filteredExams.sort((a, b) {
         final aIsRestored = a.id.toString() == _restoredExamId;
         final bIsRestored = b.id.toString() == _restoredExamId;
 
+        // Prioritize restored exam at the top
         if (aIsRestored && !bIsRestored) return -1;
         if (!aIsRestored && bIsRestored) return 1;
-        return 0; // Keep original order for other exams
-      });
-    }
 
-    // Jika tidak ada ujian yang sesuai dengan pencarian, tampilkan NoSearchResultsWidget
+        // For non-restored exams, sort by ID (newer ID = newer exam)
+        if (!aIsRestored && !bIsRestored) {
+          return b.id.compareTo(a.id);
+        }
+
+        return 0;
+      });
+
+      // Debug: check position after sorting
+      if (restoredExamExists && filteredExams.isNotEmpty) {
+        final restoredExamIndex = filteredExams
+            .indexWhere((exam) => exam.id.toString() == _restoredExamId);
+        print(
+            'DEBUG: Restored exam position after sorting: $restoredExamIndex');
+      }
+    } else {
+      // Default sorting by ID (newest first) when no restored exam
+      filteredExams.sort((a, b) => b.id.compareTo(a.id));
+    } // Jika tidak ada ujian yang sesuai dengan pencarian, tampilkan NoSearchResultsWidget
     if (filteredExams.isEmpty && searchQuery.isNotEmpty) {
       return SliverFillRemaining(
         child: NoSearchResultsWidget(
@@ -839,54 +898,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                     },
                                   ),
                                   // Add restored badge if applicable
-                                  if (isRecentlyRestored) ...[
-                                    SizedBox(height: 12),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.green.shade400,
-                                            Colors.green.shade500,
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.circular(20),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.green.withOpacity(0.4),
-                                            blurRadius: 8,
-                                            offset: Offset(0, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            Icons.restore_rounded,
-                                            color: Colors.white,
-                                            size: 16,
-                                          ),
-                                          SizedBox(width: 6),
-                                          Text(
-                                            'Dipulihkan',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                  SizedBox(height: 16),
+                               
                                   Container(
                                     width: 60,
                                     height: 3,
