@@ -1840,6 +1840,10 @@ class _TeacherViewAttendanceSubjectScreenState
   }
 
   Widget _buildAttachmentThumbnail(BuildContext context, String imageUrl) {
+    // Build full URL if it's a relative path
+    String fullUrl =
+        imageUrl.startsWith('http') ? imageUrl : '$storageUrl$imageUrl';
+
     return GestureDetector(
       onTap: () => _showAttachmentDialog(context, imageUrl),
       child: Container(
@@ -1852,7 +1856,7 @@ class _TeacherViewAttendanceSubjectScreenState
         child: ClipRRect(
           borderRadius: BorderRadius.circular(7),
           child: CachedNetworkImage(
-            imageUrl: imageUrl,
+            imageUrl: fullUrl,
             fit: BoxFit.cover,
             memCacheWidth: 200,
             memCacheHeight: 200,
@@ -1913,7 +1917,34 @@ class _TeacherViewAttendanceSubjectScreenState
     );
   }
 
+  // Helper method to check if file is an image
+  bool _isImageFile(String url) {
+    final String extension = url.split('.').last.toLowerCase();
+    final List<String> imageExtensions = [
+      'jpg',
+      'jpeg',
+      'png',
+      'gif',
+      'bmp',
+      'webp'
+    ];
+    return imageExtensions.contains(extension);
+  }
+
   void _showAttachmentDialog(BuildContext context, String imageUrl) {
+    // Build full URL if it's a relative path
+    String fullUrl =
+        imageUrl.startsWith('http') ? imageUrl : '$storageUrl$imageUrl';
+
+    // Check if file is an image based on extension
+    bool isImage = _isImageFile(fullUrl);
+
+    if (!isImage) {
+      // For non-image files (like PDF), open directly in WebView
+      _openImageExternally(imageUrl);
+      return;
+    }
+
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -2000,7 +2031,7 @@ class _TeacherViewAttendanceSubjectScreenState
                         maxScale: 4.0,
                         child: Center(
                           child: CachedNetworkImage(
-                            imageUrl: imageUrl,
+                            imageUrl: fullUrl,
                             fit: BoxFit.contain,
                             width: double.infinity,
                             filterQuality: FilterQuality.high,
@@ -2034,7 +2065,7 @@ class _TeacherViewAttendanceSubjectScreenState
                               // Automatically try to open in external app without showing error dialog
                               Future.microtask(() {
                                 Navigator.of(dialogContext).pop();
-                                _openImageExternally(imageUrl);
+                                _openImageExternally(fullUrl);
                               });
 
                               // Show a brief loading message while redirecting
@@ -2052,7 +2083,7 @@ class _TeacherViewAttendanceSubjectScreenState
                                       ),
                                       SizedBox(height: 16),
                                       Text(
-                                        'Membuka di aplikasi lain...',
+                                        'Membuka lampiran di aplikasi...',
                                         style: GoogleFonts.poppins(
                                           color: Colors.white,
                                           fontSize: 14,
@@ -2087,23 +2118,92 @@ class _TeacherViewAttendanceSubjectScreenState
 
   // Helper method to open image in external app
   void _openImageExternally(String imageUrl) async {
+    // Build full URL if it's a relative path
+    String fullUrl =
+        imageUrl.startsWith('http') ? imageUrl : '$storageUrl$imageUrl';
+
+    // For PDF files, use Google Docs viewer to display in WebView
+    if (fullUrl.toLowerCase().endsWith('.pdf')) {
+      final googleDocsUrl =
+          'https://docs.google.com/viewer?url=${Uri.encodeComponent(fullUrl)}&embedded=true';
+
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext dialogContext) {
+          return Dialog(
+            backgroundColor: Colors.white,
+            child: Container(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(_maroonPrimary),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Memuat PDF...',
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey[800],
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Mohon tunggu sebentar',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+
+      try {
+        final Uri url = Uri.parse(googleDocsUrl);
+        if (await canLaunchUrl(url)) {
+          // Close loading dialog and launch URL
+          Navigator.of(context).pop();
+          await launchUrl(url, mode: LaunchMode.inAppWebView);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('PDF berhasil dibuka'),
+              backgroundColor: _maroonPrimary,
+            ),
+          );
+          return;
+        }
+      } catch (e) {
+        // Close loading dialog
+        Navigator.of(context).pop();
+        print('Error opening PDF with Google Docs: $e');
+      }
+    }
+
     try {
       // Try to launch URL directly
-      final Uri url = Uri.parse(imageUrl);
+      final Uri url = Uri.parse(fullUrl);
       if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
+        await launchUrl(url, mode: LaunchMode.inAppWebView);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Membuka gambar di aplikasi eksternal...'),
+            content: Text('Lampiran berhasil dibuka'),
             backgroundColor: _maroonPrimary,
           ),
         );
       } else {
         // Fallback: copy URL to clipboard
-        await Clipboard.setData(ClipboardData(text: imageUrl));
+        await Clipboard.setData(ClipboardData(text: fullUrl));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('URL gambar disalin ke clipboard'),
+            content: Text('URL lampiran disalin ke clipboard'),
             backgroundColor: _maroonPrimary,
             action: SnackBarAction(
               label: 'OK',
@@ -2117,17 +2217,17 @@ class _TeacherViewAttendanceSubjectScreenState
       print('Error opening image externally: $e');
       // Fallback: copy URL to clipboard
       try {
-        await Clipboard.setData(ClipboardData(text: imageUrl));
+        await Clipboard.setData(ClipboardData(text: fullUrl));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('URL gambar disalin ke clipboard'),
+            content: Text('URL lampiran disalin ke clipboard'),
             backgroundColor: _maroonPrimary,
           ),
         );
       } catch (e2) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Tidak dapat membuka gambar'),
+            content: Text('Tidak dapat membuka lampiran'),
             backgroundColor: Colors.red,
           ),
         );
