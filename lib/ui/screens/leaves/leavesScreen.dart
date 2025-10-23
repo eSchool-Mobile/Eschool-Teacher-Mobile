@@ -51,8 +51,7 @@ class LeavesScreen extends StatefulWidget {
 class _LeavesScreenState extends State<LeavesScreen>
     with TickerProviderStateMixin {
   SessionYear? _selectedSessionYear;
-  late String _selectedMonthKey =
-      Utils.getMonthFullName(DateTime.now().month).toLowerCase();
+  late String _selectedMonthKey;
   final ScrollController _scrollController = ScrollController();
 
   // Animation controllers
@@ -82,12 +81,20 @@ class _LeavesScreenState extends State<LeavesScreen>
 
   DateTime _parseDate(String dateStr) {
     try {
+      // Handle both DD-MM-YYYY and YYYY-MM-DD formats
       List<String> parts = dateStr.split('-');
       if (parts.length == 3) {
-        int day = int.parse(parts[0]);
-        int month = int.parse(parts[1]);
-        int year = int.parse(parts[2]);
-        return DateTime(year, month, day);
+        int first = int.parse(parts[0]);
+        int second = int.parse(parts[1]);
+        int third = int.parse(parts[2]);
+
+        // If first part is year (4 digits), assume YYYY-MM-DD
+        if (first > 31) {
+          return DateTime(first, second, third);
+        } else {
+          // Assume DD-MM-YYYY
+          return DateTime(third, second, first);
+        }
       }
     } catch (e) {
       print('Error parsing date: $dateStr, error: $e');
@@ -115,9 +122,8 @@ class _LeavesScreenState extends State<LeavesScreen>
     _animationController.forward();
     _cardAnimationController.forward();
 
-    // Set default month to current month
-    _selectedMonthKey =
-        Utils.getMonthFullName(DateTime.now().month).toLowerCase();
+    // Set default month to current month using the key
+    _selectedMonthKey = months[DateTime.now().month - 1];
 
     // Initialize data loading pipeline
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -153,20 +159,20 @@ class _LeavesScreenState extends State<LeavesScreen>
   }
 
   int getSelectedMonthNumber() {
-    // Map lowercase Indonesian month names to their numeric values
+    // Map English month keys to their numeric values
     final Map<String, int> monthMap = {
-      'januari': 1,
-      'februari': 2,
-      'maret': 3,
+      'january': 1,
+      'february': 2,
+      'march': 3,
       'april': 4,
-      'mei': 5,
-      'juni': 6,
-      'juli': 7,
-      'agustus': 8,
+      'may': 5,
+      'june': 6,
+      'july': 7,
+      'august': 8,
       'september': 9,
-      'oktober': 10,
+      'october': 10,
       'november': 11,
-      'desember': 12,
+      'december': 12,
     };
 
     return monthMap[_selectedMonthKey] ??
@@ -370,7 +376,27 @@ class _LeavesScreenState extends State<LeavesScreen>
       },
       builder: (context, state) {
         if (state is UserLeavesFetchSuccess) {
-          if (state.leaves.isEmpty) {
+          // Filter leaves by selected month
+          final filteredLeaves = state.leaves.where((leave) {
+            if (leave.leaveDetail != null && leave.leaveDetail!.isNotEmpty) {
+              return leave.leaveDetail!.any((leaveDetail) {
+                if (leaveDetail.date != null) {
+                  try {
+                    final leaveDate = DateTime.parse(leaveDetail.date!);
+                    return leaveDate.month == getSelectedMonthNumber();
+                  } catch (e) {
+                    print(
+                        'Error parsing leave detail date: ${leaveDetail.date}, error: $e');
+                    return false;
+                  }
+                }
+                return false;
+              });
+            }
+            return false;
+          }).toList();
+
+          if (filteredLeaves.isEmpty) {
             return Center(
               child: Padding(
                 padding: EdgeInsets.only(top: 100),
@@ -548,7 +574,7 @@ class _LeavesScreenState extends State<LeavesScreen>
                                     ),
                                   ),
                                   Text(
-                                    "${state.leaves.length} pengajuan",
+                                    "${filteredLeaves.length} pengajuan",
                                     style: TextStyle(
                                       fontFamily: 'Poppins',
                                       fontSize: 13,
@@ -566,7 +592,7 @@ class _LeavesScreenState extends State<LeavesScreen>
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
-                                "${state.leaves.length} Cuti",
+                                "${filteredLeaves.length} Cuti",
                                 style: TextStyle(
                                   color: maroonPrimary,
                                   fontWeight: FontWeight.w600,
@@ -582,13 +608,13 @@ class _LeavesScreenState extends State<LeavesScreen>
                       ListView.separated(
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
-                        itemCount: state.leaves.length,
+                        itemCount: filteredLeaves.length,
                         separatorBuilder: (context, index) => Divider(
                           height: 1,
                           color: borderColor,
                         ),
                         itemBuilder: (context, index) {
-                          final leave = state.leaves[index];
+                          final leave = filteredLeaves[index];
                           return Container(
                             padding: EdgeInsets.all(20),
                             child: Row(

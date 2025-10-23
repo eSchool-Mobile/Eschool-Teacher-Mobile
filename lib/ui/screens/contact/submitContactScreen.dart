@@ -90,7 +90,7 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
                       backgroundColor: Colors.green,
                     ),
                   );
-                  Navigator.pop(context);
+                  Navigator.pop(context, true);
                 } else if (state is SubmitContactFailure) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

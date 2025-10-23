@@ -911,9 +911,10 @@ class _TeacherAddEditAssignmentScreenState
       }
     }
 
-    // Ensure at least one answer type is selected (text or file)
+    // Ensure at least one answer type is selected (text or file) - REQUIRED
     if (!_isTextAnswerAllowed && !_isFileAnswerAllowed) {
-      showErrorMessage("Pilih minimal satu tipe jawaban");
+      showErrorMessage(
+          "Jenis jawaban wajib dipilih. Pilih minimal satu antara Teks atau File.");
       return;
     }
 
@@ -927,11 +928,6 @@ class _TeacherAddEditAssignmentScreenState
 
     // Prepare text value
     final textValue = _isTextAnswerAllowed ? "1" : "0";
-
-    if (!_isTextAnswerAllowed && !_isFileAnswerAllowed) {
-      showErrorMessage("Pilih minimal satu tipe jawaban");
-      return;
-    }
 
     if (_isFileAnswerAllowed && selectedFileTypes.isEmpty) {
       showErrorMessage("Pilih minimal satu jenis file yang diizinkan");
@@ -1031,6 +1027,13 @@ class _TeacherAddEditAssignmentScreenState
         showErrorMessage("Jumlah pengumpulan ulang tidak boleh negatif");
         return;
       }
+    }
+
+    // Validasi required: minimal satu jenis jawaban harus dipilih
+    if (!_isTextAnswerAllowed && !_isFileAnswerAllowed) {
+      showErrorMessage(
+          "Jenis jawaban wajib dipilih. Pilih minimal satu antara Teks atau File.");
+      return;
     }
 
     print("File allowed?");
@@ -1886,18 +1889,59 @@ class _TeacherAddEditAssignmentScreenState
   // ANSWER TYPE SECTION - Interactive answer type selection
   Widget _buildAnswerTypeSection() {
     return _buildLuxurySection(
-      title: "Jenis Jawaban",
-      subtitle: "Cara Siswa Menjawab",
+      title: "Jenis Jawaban *",
+      subtitle: "Cara Siswa Menjawab (Wajib pilih minimal satu)",
       icon: Icons.quiz_rounded,
       gradient: [_burgundy, _deepMaroon],
       children: [
-        // Answer Type Cards
+        // Answer Type Cards with Required Indicator
+        Container(
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [_champagne.withOpacity(0.6), _pearl],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: _blushPink.withOpacity(0.3)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      colors: [Colors.red.shade400, Colors.red.shade600]),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child:
+                    Icon(Icons.warning_rounded, color: Colors.white, size: 16),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Wajib pilih minimal satu jenis jawaban",
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.red.shade700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 16),
         IntrinsicHeight(
           child: Row(
             children: [
               Expanded(
                   child: _buildAnswerTypeCard(
-                "Teks",
+                "Teks *",
                 "Jawaban berupa teks",
                 Icons.text_fields_rounded,
                 _isTextAnswerAllowed,
@@ -1907,7 +1951,7 @@ class _TeacherAddEditAssignmentScreenState
               SizedBox(width: 16),
               Expanded(
                   child: _buildAnswerTypeCard(
-                "File",
+                "File *",
                 "Upload dokumen",
                 Icons.upload_file_rounded,
                 _isFileAnswerAllowed,

@@ -7,6 +7,7 @@ import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'dart:ui';
 
 class ContactDetailScreen extends StatefulWidget {
@@ -194,7 +195,8 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
           _buildDetailRow(
             Icons.access_time_rounded,
             'Waktu',
-            Utils.formatDateAndTime(DateTime.parse(contact.createdAt)),
+            Utils.formatDateAndTime(
+                DateFormat('dd/MM/yyyy HH:mm:ss').parse(contact.createdAt)),
           ),
         ],
       ),
@@ -361,7 +363,8 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
                       ),
                     ),
                     Text(
-                      Utils.formatDateAndTime(DateTime.parse(reply.createdAt)),
+                      Utils.formatDateAndTime(DateFormat('dd/MM/yyyy HH:mm:ss')
+                          .parse(reply.createdAt)),
                       style: GoogleFonts.poppins(
                         fontSize: 10,
                         color: Colors.grey[600],
