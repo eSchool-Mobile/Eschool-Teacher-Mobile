@@ -4,13 +4,13 @@ import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:flutter/material.dart';
 
 ///[Do not add / at the end of the url]
-const String baseUrl = "https://esbeta.deanry.my.id";
+// const String baseUrl = "https://esbeta.deanry.my.id";
 // const String baseUrl = "https://es2.techflow.my.id";
 // const String baseUrl = "https://eschbeta.techflow.my.id";
 // const String baseUrl = "https://eschbeta.quantech.web.id";
 // const String baseUrl = "https://eschoolbeta.lucia.id";
 // // const String baseUrl = "https://eschool.lucia.id";
-// const String baseUrl = "https://eschool.ac.id";
+const String baseUrl = "https://eschool.ac.id";
 // const String baseUrl = "https://wrteam.net";
 
 const String databaseUrl = "$baseUrl/api/";
@@ -39,9 +39,9 @@ double topPaddingOfErrorAndLoadingContainer = 150;
 // String defaultEmail = "agungcahyono533@gmail.com";
 // String defaultPassword = "081230093978";
 
-String defaultSchoolCode = "";
-String defaultEmail = "agungcahyono533@gmail.com";
-String defaultPassword = "smkn8*()";
+// String defaultSchoolCode = "";
+// String defaultEmail = "agungcahyono533@gmail.com";
+// String defaultPassword = "smkn8*()";
 
 // String defaultSchoolCode = "";
 // String defaultEmail = "adminsmk8malang@gmail.com";
@@ -53,9 +53,9 @@ String defaultPassword = "smkn8*()";
 
 // Default credentials are now handled by Remember Me functionality
 // Use the checkbox in login form to save credentials safely
-// String defaultSchoolCode = "";
-// String defaultEmail = "";
-// String defaultPassword = "";
+String defaultSchoolCode = "";
+String defaultEmail = "";
+String defaultPassword = "";
 
 List<String> months = [
   januaryKey,

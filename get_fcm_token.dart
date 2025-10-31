@@ -19,7 +19,7 @@ void main() async {
   print('=================================');
   print('Project ID: eschool-mobile-fe51a');
   print('Sender ID: 919419641844');
-  print('Package Name: id.ac.eschool.guru');
+  print('Package Name: id.ac.eschool.GuruStaff.android');
   print('=================================');
 }
 

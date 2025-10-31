@@ -253,7 +253,7 @@ workflows:
       groups:
         - google_play # <-- (Includes GCLOUD_SERVICE_ACCOUNT_CREDENTIALS <-- Put your google-services.json here)
       vars:
-        PACKAGE_NAME: "id.ac.eschool.guru"
+        PACKAGE_NAME: "id.ac.eschool.GuruStaff.android"
       flutter: stable
       xcode: latest
       cocoapods: default
