@@ -19,6 +19,7 @@ import '../../../cubits/teacherAcademics/assignment/questionBankCubit.dart';
 import '../../widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 
 class PreviewQuestionBankSoal extends StatefulWidget {
   final BankSoalQuestion bank;
@@ -526,7 +527,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                 },
                 builder: (context, state) {
                   if (state is QuestionBankLoading && _allQuestions.isEmpty) {
-                    return Center(child: CircularProgressIndicator());
+                    return SkeletonPreviewQuestionBankSoal(itemCount: 6);
                   } else if (state is QuestionBankError &&
                       _allQuestions.isEmpty) {
                     return CustomErrorWidget(

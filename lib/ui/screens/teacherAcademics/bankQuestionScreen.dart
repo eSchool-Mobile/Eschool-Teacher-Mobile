@@ -21,6 +21,7 @@ import 'package:flutter/services.dart' show Uint8List;
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../ui/widgets/customModernAppBar.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 
 // Light rays painter
 class LightRaysPainter extends CustomPainter {
@@ -790,39 +791,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
           ],
         ),
       ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Use shimmer loading animation instead of Lottie for a more modern look
-            Shimmer.fromColors(
-              baseColor: _accentColor.withOpacity(0.4),
-              highlightColor: _highlightColor.withOpacity(0.7),
-              period: Duration(milliseconds: 1500),
-              child: Container(
-                width: 160,
-                height: 160,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.auto_stories_rounded,
-                  size: 80,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            SizedBox(height: 25),
-            Text(
-              'Memuat Soal',
-              style: TextStyle(
-                color: _primaryColor,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
+      child: SkeletonPreviewQuestionBankSoal(
+        itemCount: 6,
       ),
     );
   }

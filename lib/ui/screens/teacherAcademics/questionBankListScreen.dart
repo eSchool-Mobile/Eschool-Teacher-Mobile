@@ -5,17 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:flutter/services.dart';
-import 'package:lottie/lottie.dart';
 import 'package:eschool_saas_staff/app/routes.dart';
 import '../../../cubits/teacherAcademics/assignment/questionBankCubit.dart';
-import '../../../data/models/question.dart';
 import '../../../data/models/questionBank.dart';
 import '../../../data/models/subjectQuestion.dart';
 import 'package:eschool_saas_staff/data/repositories/questionBankRepository.dart';
 import '../../widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // Controller GetX untuk lifecycle
@@ -104,7 +102,6 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
   final _nameController = TextEditingController();
   final _typeController = TextEditingController(text: 'multiple_choice');
   final _defaultPointController = TextEditingController(text: '10');
-  late QuestionBankListController _controller;
   // Animation controllers
   late AnimationController _backgroundAnimationController;
   late AnimationController _waveAnimationController;
@@ -117,14 +114,9 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
   late AnimationController _tabTransitionController;
   // Animations
   late Animation<double> _backgroundAnimation;
-  late Animation<double> _waveAnimation;
-  late Animation<double> _breathingAnimation;
-  late Animation<double> _rotationAnimation;
   late Animation<double> _pulseAnimation;
 
-  int _selectedTabIndex = 0;
   int _hoveredCardIndex = -1;
-  double _dragPosition = 0;
 
   // Search functionality
   final TextEditingController _searchController = TextEditingController();
@@ -137,7 +129,6 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
   final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
   final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
   final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
-  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
   final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
 
   final List<Color> _cardGradients = [
@@ -151,15 +142,9 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     Color(0xFFB14040), // Softer bright maroon
   ];
 
-  // Track if the screen is initially loaded for animations
-  bool _isFirstLoad = true;
-
   @override
   void initState() {
     super.initState();
-    _controller =
-        Get.put(QuestionBankListController(context, widget.subject.subject.id));
-
     // Setup animation controllers
     _backgroundAnimationController = AnimationController(
       vsync: this,
@@ -211,20 +196,6 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
       curve: Curves.linear,
     );
 
-    _waveAnimation = CurvedAnimation(
-      parent: _waveAnimationController,
-      curve: Curves.easeInOut,
-    );
-
-    _breathingAnimation = CurvedAnimation(
-      parent: _breathingController,
-      curve: Curves.easeInOut,
-    );
-
-    _rotationAnimation = CurvedAnimation(
-      parent: _rotationController,
-      curve: Curves.linear,
-    );
     _pulseAnimation = CurvedAnimation(
       parent: _pulseController,
       curve: Curves.easeInOut,
@@ -249,13 +220,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     ));
 
     // Delay to ensure animations look good on first load
-    Future.delayed(Duration(milliseconds: 100), () {
-      if (mounted) {
-        setState(() {
-          _isFirstLoad = false;
-        });
-      }
-    });
+  
   }
 
   @override
@@ -352,9 +317,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                   child: NotificationListener<ScrollNotification>(
                     onNotification: (notification) {
                       if (notification is ScrollUpdateNotification) {
-                        setState(() {
-                          _dragPosition = notification.metrics.pixels / 10;
-                        });
+                      
                       }
                       return false;
                     },
@@ -423,86 +386,6 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     );
   }
 
-  // Tombol tambah bank soal untuk app bar
-  Widget _buildAddButtonForAppBar() {
-    return AnimatedBuilder(
-      animation: _pulseAnimation,
-      builder: (context, child) {
-        final scale = 1.0 + 0.05 * _pulseAnimation.value;
-        return GestureDetector(
-          onTap: () {
-            HapticFeedback.mediumImpact();
-            _showAddBankDialog();
-          },
-          child: Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.15),
-              boxShadow: [
-                BoxShadow(
-                  color: _highlightColor
-                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                  blurRadius: 12 * (1 + _pulseAnimation.value),
-                  spreadRadius: 2 * _pulseAnimation.value,
-                )
-              ],
-              border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
-                width: 1.5,
-              ),
-            ),
-            child: Transform.scale(
-              scale: scale,
-              child: Icon(
-                Icons.add,
-                color: Colors.white,
-                size: 24,
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.12),
-              boxShadow: [
-                BoxShadow(
-                  color: _highlightColor
-                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                  blurRadius: 12 * (1 + _pulseAnimation.value),
-                  spreadRadius: 2 * _pulseAnimation.value,
-                )
-              ],
-              border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildContentArea(QuestionBankState state) {
     if (state is QuestionBankLoading) {
       return _buildLoadingView();
@@ -539,64 +422,9 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
   }
 
   Widget _buildLoadingView() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.white,
-            Color(0xFFFFF0F0), // Very light maroon tint instead of light blue
-          ],
-        ),
-      ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Use shimmer loading animation instead of Lottie for a more modern look
-            Shimmer.fromColors(
-              baseColor: _accentColor.withOpacity(0.4),
-              highlightColor: _highlightColor.withOpacity(0.7),
-              period: Duration(milliseconds: 1500),
-              child: Container(
-                width: 160,
-                height: 160,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.auto_stories_rounded,
-                  size: 80,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            SizedBox(height: 25),
-            Text(
-              'Memuat Bank Soal',
-              style: TextStyle(
-                color: _primaryColor,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 10),
-            // Animated loading indicator
-            Container(
-              width: 150,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
-                  backgroundColor: _accentColor.withOpacity(0.2),
-                  valueColor: AlwaysStoppedAnimation<Color>(_accentColor),
-                  minHeight: 6,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return SkeletonQuestionBankListScreen(
+      itemCount: 6,
+      showSearch: false,
     );
   }
 
@@ -1936,81 +1764,6 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
           ],
         );
       },
-    );
-  }
-
-  // Tambahkan metode baru untuk tombol aksi yang lebih baik
-  Widget _buildActionButtonImproved({
-    required IconData icon,
-    required String label,
-    required VoidCallback onPressed,
-    required bool isHovered,
-    required Color neonGlowColor,
-    bool isPrimary = false,
-    bool isDanger = false,
-  }) {
-    Color buttonColor;
-    Color textColor = Colors.white;
-    Color borderColor;
-
-    if (isDanger) {
-      buttonColor = Colors.red.withOpacity(0.2);
-      borderColor = Colors.red.withOpacity(0.3);
-    } else if (isPrimary) {
-      buttonColor = Colors.white.withOpacity(0.2);
-      borderColor = Colors.white.withOpacity(0.3);
-    } else {
-      buttonColor = Colors.white.withOpacity(0.15);
-      borderColor = Colors.white.withOpacity(0.25);
-    }
-
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        onPressed();
-      },
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 300),
-        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: buttonColor,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: isHovered
-              ? [
-                  BoxShadow(
-                    color: isDanger
-                        ? Colors.red.withOpacity(0.3)
-                        : neonGlowColor.withOpacity(0.3),
-                    blurRadius: 8,
-                    spreadRadius: 1,
-                  )
-                ]
-              : [],
-          border: Border.all(
-            color: borderColor,
-            width: 1.2,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: textColor,
-              size: 18,
-            ),
-            SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: textColor,
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

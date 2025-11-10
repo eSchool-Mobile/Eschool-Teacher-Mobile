@@ -8,9 +8,9 @@ import 'package:eschool_saas_staff/cubits/questionOnlineExam/questionOnlineExamC
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:get/get.dart' as getx;
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:flutter/services.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 
 class LightRaysPainter extends CustomPainter {
   final Color color;
@@ -286,50 +286,9 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
   }
 
   Widget _buildLoadingView() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Colors.white, Color(0xFFFFF0F0)],
-        ),
-      ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Shimmer.fromColors(
-              baseColor: _accentColor.withOpacity(0.4),
-              highlightColor: _highlightColor.withOpacity(0.7),
-              period: Duration(milliseconds: 1500),
-              child: Container(
-                width: 160,
-                height: 160,
-                decoration: BoxDecoration(shape: BoxShape.circle),
-                child: Icon(Icons.auto_stories_rounded,
-                    size: 80, color: Colors.white),
-              ),
-            ),
-            SizedBox(height: 25),
-            Text('Memuat Bank Soal',
-                style: TextStyle(
-                    color: _primaryColor,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold)),
-            SizedBox(height: 10),
-            Container(
-              width: 150,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
-                    backgroundColor: _accentColor.withOpacity(0.2),
-                    valueColor: AlwaysStoppedAnimation<Color>(_accentColor),
-                    minHeight: 6),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return SkeletonBankSoalSelectionScreen(
+      itemCount: 6,
+      showSearch: false,
     );
   }
 

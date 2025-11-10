@@ -12,6 +12,7 @@ import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import '../../../app/routes.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 
 class UltraModernPatternPainter extends CustomPainter {
   final Color primaryColor;
@@ -462,26 +463,10 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
   }
 
   Widget _buildLoadingState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(
-              Theme.of(context).colorScheme.secondary,
-            ),
-          ),
-          SizedBox(height: 16),
-          Text(
-            'Memuat soal...',
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.secondary,
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
-    ).animate().fadeIn(duration: 600.ms);
+    return SkeletonQuestionSubjectScreen(
+      itemCount: 6,
+      showSearch: false,
+    );
   }
 
   Widget _buildEmptyState() {
