@@ -15,6 +15,7 @@ import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customTit
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
@@ -1791,30 +1792,68 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                           ),
                         );
                       }
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              width: 60,
-                              height: 60,
-                              child: CircularProgressIndicator(
-                                color: maroonPrimary,
-                                strokeWidth: 4,
-                              ),
+                      // Loading state for class sections - show simplified header with grade level only
+                      return Column(
+                        children: [
+                          CustomFilterModernAppBar(
+                            title: Utils.getTranslatedLabel(manageLessonKey),
+                            titleIcon: Icons.menu_book_rounded,
+                            primaryColor: maroonPrimary,
+                            secondaryColor: maroonLight,
+                            onBackPressed: () => Navigator.pop(context),
+                            height:
+                                200, // Height for loading with partial filters
+                            // Only show grade level filter if available
+                            firstFilterItem: FilterItemConfig(
+                              title: _selectedGradeLevel?.name ??
+                                  "Pilih Tingkatan",
+                              icon: Icons.school_rounded,
+                              onTap: () {
+                                if (gradeLevelState.gradeLevels.isEmpty) {
+                                  _showSnackBar(
+                                      "Tidak ada tingkatan yang tersedia");
+                                  return;
+                                }
+
+                                HapticFeedback.lightImpact();
+                                Utils.showBottomSheet(
+                                  child: FilterSelectionBottomsheet<GradeLevel>(
+                                    onSelection: (value) {
+                                      if (value != null) {
+                                        changeSelectedGradeLevel(value);
+                                        Get.back();
+                                      }
+                                    },
+                                    selectedValue: _selectedGradeLevel ??
+                                        gradeLevelState.gradeLevels.first,
+                                    titleKey: gradeLevelKey,
+                                    values: gradeLevelState.gradeLevels,
+                                  ),
+                                  context: context,
+                                );
+                              },
                             ),
-                            SizedBox(height: 24),
-                            Text(
-                              "Memuat data...",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: textMediumColor,
-                                fontFamily: 'Poppins',
-                                fontWeight: FontWeight.w500,
-                              ),
+                            // Show loading placeholders for other filters
+                            secondFilterItem: FilterItemConfig(
+                              title: "Memuat kelas...",
+                              icon: Icons.class_rounded,
+                              onTap: () {}, // Disabled during loading
                             ),
-                          ],
-                        ),
+                          ),
+                          Expanded(
+                            child: ListView.builder(
+                              padding: EdgeInsets.only(
+                                top: 20,
+                                left: 16,
+                                right: 16,
+                                bottom: 20,
+                              ),
+                              itemCount: 5,
+                              itemBuilder: (context, index) =>
+                                  SkeletonLessonCard(),
+                            ),
+                          ),
+                        ],
                       );
                     },
                   );
@@ -1833,30 +1872,32 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                   );
                 }
 
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 60,
-                        height: 60,
-                        child: CircularProgressIndicator(
-                          color: maroonPrimary,
-                          strokeWidth: 4,
+                // Loading state for grade level - show simplified header
+                return Column(
+                  children: [
+                    // Use a simplified header during initial loading state
+                    CustomFilterModernAppBar(
+                      title: Utils.getTranslatedLabel(manageLessonKey),
+                      titleIcon: Icons.menu_book_rounded,
+                      primaryColor: maroonPrimary,
+                      secondaryColor: maroonLight,
+                      onBackPressed: () => Navigator.pop(context),
+                      height: 150, // Reduced height for loading state
+                      // No filter items during loading to prevent glitch
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        padding: EdgeInsets.only(
+                          top: 20,
+                          left: 16,
+                          right: 16,
+                          bottom: 20,
                         ),
+                        itemCount: 5,
+                        itemBuilder: (context, index) => SkeletonLessonCard(),
                       ),
-                      SizedBox(height: 24),
-                      Text(
-                        "Memuat data...",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: textMediumColor,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 );
               },
             ),

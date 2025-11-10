@@ -4,10 +4,10 @@ import 'package:eschool_saas_staff/cubits/payRoll/myPayRollCubit.dart';
 import 'package:eschool_saas_staff/data/models/payRoll.dart';
 import 'package:eschool_saas_staff/data/models/sessionYear.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/downloadPayRollSlipDialog.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -415,24 +415,7 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
           );
         }
 
-        return Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CustomCircularProgressIndicator(
-                indicatorColor: _maroonPrimary,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Memuat data gaji...',
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
-          ).animate().fadeIn(duration: 300.ms),
-        );
+        return SkeletonPayrollCard().animate().fadeIn(duration: 300.ms);
       },
     );
   }
@@ -482,11 +465,7 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
                 );
               }
 
-              return Center(
-                child: CustomCircularProgressIndicator(
-                  indicatorColor: _maroonPrimary,
-                ),
-              );
+              return SkeletonPayrollCard();
             },
           ),
 

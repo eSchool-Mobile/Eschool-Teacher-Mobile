@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -435,9 +435,7 @@ class _RecapAttendanceSubjectScreenState
                   padding: EdgeInsets.only(
                     top: topPaddingOfErrorAndLoadingContainer,
                   ),
-                  child: CustomCircularProgressIndicator(
-                    indicatorColor: Theme.of(context).colorScheme.primary,
-                  ),
+                  child: const SkeletonRecapAttendanceScreen(itemCount: 6),
                 ),
               );
             },

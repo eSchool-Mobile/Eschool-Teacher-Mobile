@@ -14,6 +14,7 @@ import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/confirmDe
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -1286,9 +1287,17 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                   ),
                 );
               }
-              // Show loading indicator only when all selections are made
-              return Center(
-                child: CircularProgressIndicator(),
+              // Show skeleton loading when all selections are made
+              return Scaffold(
+                appBar: _buildAppBar(),
+                body: Padding(
+                  padding: EdgeInsets.only(top: 20),
+                  child: ListView.builder(
+                    itemCount: 5,
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    itemBuilder: (context, index) => SkeletonAssignmentCard(),
+                  ),
+                ),
               );
             }
           },
@@ -1758,30 +1767,16 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
 
         return Scaffold(
           appBar: _buildAppBar(),
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: 60,
-                  height: 60,
-                  child: CircularProgressIndicator(
-                    color: maroonPrimary,
-                    strokeWidth: 4,
-                  ),
+          body: Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: 5,
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  itemBuilder: (context, index) => SkeletonAssignmentCard(),
                 ),
-                SizedBox(height: 24),
-                Text(
-                  "Memuat data...",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: textMediumColor,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },

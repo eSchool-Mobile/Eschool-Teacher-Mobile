@@ -14,6 +14,7 @@ import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customTit
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
@@ -1342,9 +1343,7 @@ class _TeacherManageAnnouncementScreenState
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
         controller: _scrollController,
-        padding: EdgeInsets.only(
-            bottom: 70,
-            top: Utils.appContentTopScrollPadding(context: context) + 195),
+        padding: EdgeInsets.only(bottom: 70, top: 20),
         child:
             BlocBuilder<TeacherAnnouncementsCubit, TeacherAnnouncementsState>(
           builder: (context, state) {
@@ -1847,61 +1846,59 @@ class _TeacherManageAnnouncementScreenState
       data: theme,
       child: Scaffold(
         backgroundColor: bgColor,
-        body: Stack(
-          children: [
-            BlocBuilder<ClassSectionsAndSubjectsCubit,
-                ClassSectionsAndSubjectsState>(
-              builder: (context, state) {
-                if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                  return Stack(
+        body: BlocBuilder<ClassSectionsAndSubjectsCubit,
+            ClassSectionsAndSubjectsState>(
+          builder: (context, state) {
+            return Column(
+              children: [
+                // Header section - now as a normal widget in Column
+                _buildHeaderSection(),
+
+                // Content area with different states
+                Expanded(
+                  child: Stack(
                     children: [
-                      _buildAnnouncementList(),
-                      _buildHeaderSection(),
-                      _buildSubmitButton(),
-                    ],
-                  );
-                }
-                if (state is ClassSectionsAndSubjectsFetchFailure) {
-                  return Center(
-                      child: CustomErrorWidget(
-                    message:
-                        "Gagal mendapatkan data kelas dan mata pelajaran, mohon coba lagi",
-                    onRetry: () {
-                      context
-                          .read<ClassSectionsAndSubjectsCubit>()
-                          .getClassSectionsAndSubjects();
-                    },
-                    primaryColor: maroonPrimary,
-                  ));
-                }
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 60,
-                        height: 60,
-                        child: CircularProgressIndicator(
-                          color: maroonPrimary,
-                          strokeWidth: 4,
+                      if (state is ClassSectionsAndSubjectsFetchSuccess) ...[
+                        _buildAnnouncementList(),
+                        _buildSubmitButton(),
+                      ] else if (state is ClassSectionsAndSubjectsFetchFailure)
+                        Container(
+                          padding: EdgeInsets.only(top: 20),
+                          child: Center(
+                            child: CustomErrorWidget(
+                              message:
+                                  "Gagal mendapatkan data kelas dan mata pelajaran, mohon coba lagi",
+                              onRetry: () {
+                                context
+                                    .read<ClassSectionsAndSubjectsCubit>()
+                                    .getClassSectionsAndSubjects();
+                              },
+                              primaryColor: maroonPrimary,
+                            ),
+                          ),
+                        )
+                      else
+                        // Loading state - show skeleton with proper padding
+                        Container(
+                          padding: EdgeInsets.fromLTRB(
+                            appContentHorizontalPadding,
+                            20,
+                            appContentHorizontalPadding,
+                            0,
+                          ),
+                          child: ListView.builder(
+                            padding: EdgeInsets.symmetric(vertical: 20),
+                            itemCount: 4,
+                            itemBuilder: (context, index) =>
+                                SkeletonAnnouncementCard(),
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 24),
-                      Text(
-                        "Memuat data...",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: textMediumColor,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
                     ],
                   ),
-                );
-              },
-            ),
-          ],
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

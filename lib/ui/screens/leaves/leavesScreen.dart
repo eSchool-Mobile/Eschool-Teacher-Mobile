@@ -8,6 +8,7 @@ import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -690,31 +691,7 @@ class _LeavesScreenState extends State<LeavesScreen>
           );
         }
 
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 60,
-                height: 60,
-                child: CircularProgressIndicator(
-                  color: maroonPrimary,
-                  strokeWidth: 4,
-                ),
-              ),
-              SizedBox(height: 24),
-              Text(
-                "Memuat data...",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: textMediumColor,
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        );
+        return SkeletonLeavesCard();
       },
     );
   }
@@ -1136,31 +1113,7 @@ class _LeavesScreenState extends State<LeavesScreen>
               );
             }
 
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: CircularProgressIndicator(
-                      color: maroonPrimary,
-                      strokeWidth: 4,
-                    ),
-                  ),
-                  SizedBox(height: 24),
-                  Text(
-                    "Memuat data...",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: textMediumColor,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            );
+            return SkeletonLeavesCard();
           },
         ),
       ),

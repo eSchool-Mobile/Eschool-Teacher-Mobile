@@ -9,6 +9,7 @@ import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
@@ -25,7 +26,6 @@ import 'package:lottie/lottie.dart';
 import 'package:flutter/services.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:intl/intl.dart';
-import 'package:shimmer/shimmer.dart';
 
 class ExamsScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -1097,18 +1097,7 @@ class _ExamsScreenState extends State<ExamsScreen>
     return ListView.builder(
       itemCount: 3,
       itemBuilder: (context, index) {
-        return Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: Container(
-            margin: EdgeInsets.only(bottom: 20),
-            height: 180,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-          ),
-        );
+        return SkeletonExamCard();
       },
     );
   }
@@ -2543,24 +2532,10 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
   }
 
   Widget _buildLoadingState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(
-            color: primaryColor,
-          ),
-          SizedBox(height: 16),
-          Text(
-            "Memuat data ujian...",
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: primaryColor,
-            ),
-          ),
-        ],
-      ),
+    return ListView.builder(
+      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+      itemCount: 6,
+      itemBuilder: (context, index) => SkeletonExamCard(),
     ).animate().fadeIn(duration: 500.ms);
   }
 }

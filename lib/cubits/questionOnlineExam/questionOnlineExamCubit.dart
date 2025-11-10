@@ -67,7 +67,7 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
       );
       emit(QuestionOnlineExamSuccess(questions));
     } catch (e) {
-      print("ELOL 1");
+   
       // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(QuestionOnlineExamFailure(userFriendlyMessage));
@@ -89,7 +89,7 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
       print("AMAN NIEH");
       emit(QuestionOnlineExamSuccess(questions));
     } catch (e) {
-      print("ELOL 2");
+    
       // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(QuestionOnlineExamFailure(userFriendlyMessage));
@@ -106,7 +106,7 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
       final banks = await _repository.getBankSoal(examId);
       emit(QuestionBanksLoaded(banks));
     } catch (e) {
-      print("ELOL 3");
+     
       // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(QuestionOnlineExamFailure(userFriendlyMessage));

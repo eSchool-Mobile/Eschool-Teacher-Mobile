@@ -3,7 +3,7 @@ import 'package:eschool_saas_staff/cubits/teacherAcademics/attendence/attendance
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/holidayAttendanceContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
@@ -666,24 +666,11 @@ class _TeacherViewAttendanceScreenState
               );
             } else {
               return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.2),
-                    CustomCircularProgressIndicator(
-                      indicatorColor: _maroonPrimary,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Memuat data kehadiran...',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
+                child: Padding(
+                  padding: EdgeInsets.only(top: 20),
+                  child: const SkeletonSubjectAttendanceScreen(itemCount: 4),
                 ),
-              ).animate().fadeIn(duration: 300.ms);
+              );
             }
           },
         ),
@@ -1093,11 +1080,8 @@ class _TeacherViewAttendanceScreenState
               primaryColor: _maroonPrimary,
             ));
           }
-          return Center(
-            child: CustomCircularProgressIndicator(
-              indicatorColor: Theme.of(context).colorScheme.primary,
-            ),
-          );
+          return const Center(
+              child: SkeletonSubjectAttendanceScreen(itemCount: 6));
         },
       ),
     );

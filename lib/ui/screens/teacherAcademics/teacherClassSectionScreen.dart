@@ -20,6 +20,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 
 class TeacherClassSectionScreen extends StatefulWidget {
   const TeacherClassSectionScreen({super.key});
@@ -72,23 +73,6 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
     )..forward();
 
     _scrollController.addListener(_scrollListener);
-
-    Future.delayed(Duration.zero, () {
-      getClassSectionDetails();
-      context.read<GradeLevelCubit>().getGradeLevels();
-    });
-  }
-
-  void _scrollListener() {
-    if (_scrollController.offset > 10 && !_isScrolled) {
-      setState(() {
-        _isScrolled = true;
-      });
-    } else if (_scrollController.offset <= 10 && _isScrolled) {
-      setState(() {
-        _isScrolled = false;
-      });
-    }
   }
 
   @override
@@ -114,6 +98,18 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
 
       // Refresh class sections when grade level changes
       getClassSectionDetails();
+    }
+  }
+
+  void _scrollListener() {
+    if (_scrollController.offset > 100 && !_isScrolled) {
+      setState(() {
+        _isScrolled = true;
+      });
+    } else if (_scrollController.offset <= 100 && _isScrolled) {
+      setState(() {
+        _isScrolled = false;
+      });
     }
   }
 
@@ -985,69 +981,27 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
   }
 
   Widget _buildLoadingState(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Enhanced loading animation
-          TweenAnimationBuilder(
-            duration: const Duration(milliseconds: 1500),
-            tween: Tween<double>(begin: 0.0, end: 1.0),
-            builder: (context, value, child) {
-              return Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Outer circle
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppColorPalette.primaryMaroon.withOpacity(0.2),
-                        width: 4,
-                      ),
-                    ),
-                  ),
-                  // Animated progress circle
-                  SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: CircularProgressIndicator(
-                      value: null,
-                      strokeWidth: 4,
-                      backgroundColor: Colors.transparent,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        AppColorPalette.primaryMaroon,
-                      ),
-                    ),
-                  ),
-                  // Center icon
-                  Icon(
-                    Icons.school_rounded,
-                    color: AppColorPalette.primaryMaroon,
-                    size: 40,
-                  ),
-                ],
-              );
-            },
-          ),
-          SizedBox(height: 32),
-          Text(
-            "Memuat Kelas...",
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-              color: AppColorPalette.primaryMaroon,
+    return SafeArea(
+      child: CustomScrollView(
+        physics: BouncingScrollPhysics(),
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.only(top: 16, bottom: 16),
+              child: _buildEnhancedHeaderCard(context),
             ),
           ),
-          SizedBox(height: 8),
-          Text(
-            "Mohon tunggu selagi kami memuat data kelas",
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: AppColorPalette.secondaryMaroon.withOpacity(0.7),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 0),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => SkeletonClassSectionCard(),
+                childCount: 6, // Show 6 skeleton cards
+              ),
             ),
+          ),
+          SliverToBoxAdapter(
+            child: SizedBox(height: 80),
           ),
         ],
       ),

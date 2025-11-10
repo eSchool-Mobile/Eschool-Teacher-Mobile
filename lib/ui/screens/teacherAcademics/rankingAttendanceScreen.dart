@@ -17,6 +17,7 @@ import 'package:get/get.dart';
 import 'dart:ui';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 
 class RankingAttendanceScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -906,7 +907,8 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
 
                           if (attendanceState is AttendanceRankingInProgress) {
                             return const Center(
-                                child: CircularProgressIndicator());
+                                child: SkeletonAttendanceRankingScreen(
+                                    itemCount: 4));
                           } else if (attendanceState
                               is AttendanceRankingFetchFailure) {
                             return CustomErrorWidget(
@@ -936,24 +938,9 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                           }
 
                           // Show loading state
-                          return Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                CircularProgressIndicator(
-                                  color: _maroonPrimary,
-                                ),
-                                SizedBox(height: 16),
-                                Text(
-                                  "Memuat data peringkat...",
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.grey[600],
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
+                          return const Center(
+                              child: SkeletonAttendanceRankingScreen(
+                                  itemCount: 6));
                         },
                       );
                     },

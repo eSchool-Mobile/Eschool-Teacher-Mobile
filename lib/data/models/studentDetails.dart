@@ -136,8 +136,7 @@ class StudentDetails {
 
   factory StudentDetails.fromJson(Map<String, dynamic> json) {
 
-    print("AMAN BOSQUEH");
-    // Debug status parsing
+   
     
     int? parsedStatus;
     if (json['status'] is int) {

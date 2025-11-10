@@ -14,6 +14,7 @@ import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/confirmDe
 import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -1949,30 +1950,18 @@ class _TeacherManageAssignmentScreenState
                   );
                 }
 
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 60,
-                        height: 60,
-                        child: CircularProgressIndicator(
-                          color: maroonPrimary,
-                          strokeWidth: 4,
-                        ),
+                return Column(
+                  children: [
+                    _buildHeaderSection(),
+                    Expanded(
+                      child: ListView.builder(
+                        padding: EdgeInsets.symmetric(horizontal: 0),
+                        itemCount: 4,
+                        itemBuilder: (context, index) =>
+                            SkeletonAssignmentCard(),
                       ),
-                      SizedBox(height: 24),
-                      Text(
-                        "Memuat data...",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: textMediumColor,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 );
               },
             ),

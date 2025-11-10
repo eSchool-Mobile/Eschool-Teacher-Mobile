@@ -6,7 +6,7 @@ import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/holidayAttendanceContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/studentAttendanceContainer.dart';
@@ -233,15 +233,8 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
             ),
           );
         } else {
-          return Center(
-            child: Padding(
-              padding:
-                  EdgeInsets.only(top: topPaddingOfErrorAndLoadingContainer),
-              child: CustomCircularProgressIndicator(
-                indicatorColor: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-          );
+          // Return just the student list skeleton without extra padding
+          return const SkeletonAttendanceList(itemCount: 8);
         }
       },
     );
@@ -400,25 +393,91 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                 ),
               );
             } else {
-              return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.2),
-                    CustomCircularProgressIndicator(
-                      indicatorColor: _maroonPrimary,
+              // Return skeleton with same structure as the actual content
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title and subtitle section skeleton
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                    width: double.infinity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 180,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Memuat data kehadiran...',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
+                  ),
+
+                  // Students container skeleton with same structure
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: Offset(0, 5),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ).animate().fadeIn(duration: 300.ms);
+                    child: Column(
+                      children: [
+                        // Header skeleton with same styling
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius:
+                                BorderRadius.vertical(top: Radius.circular(16)),
+                          ),
+                          child: Row(
+                            children: [
+                              // Icon skeleton
+                              Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade400,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              // Title skeleton
+                              Container(
+                                width: 160,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade400,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Student list skeleton
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          child: const SkeletonAttendanceList(itemCount: 8),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
             }
           },
         ),
@@ -871,11 +930,7 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
               primaryColor: _maroonPrimary,
             ));
           }
-          return Center(
-            child: CustomCircularProgressIndicator(
-              indicatorColor: Theme.of(context).colorScheme.primary,
-            ),
-          );
+          return const Center(child: SkeletonAttendanceList(itemCount: 8));
         },
       ),
     );

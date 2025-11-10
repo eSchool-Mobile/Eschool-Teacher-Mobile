@@ -6,7 +6,7 @@ import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCub
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/timeTableSlot.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/holidayAttendanceContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
@@ -1432,24 +1432,11 @@ class _TeacherViewAttendanceSubjectScreenState
               );
             } else {
               return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.2),
-                    CustomCircularProgressIndicator(
-                      indicatorColor: _maroonPrimary,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Memuat data kehadiran...',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
+                child: Padding(
+                  padding: EdgeInsets.only(top: 20),
+                  child: const SkeletonSubjectAttendanceScreen(itemCount: 4),
                 ),
-              ).animate().fadeIn(duration: 300.ms);
+              );
             }
           },
         ),
@@ -1789,11 +1776,8 @@ class _TeacherViewAttendanceSubjectScreenState
             //   },
             // ));
           }
-          return Center(
-            child: CustomCircularProgressIndicator(
-              indicatorColor: Theme.of(context).colorScheme.primary,
-            ),
-          );
+          return const Center(
+              child: SkeletonSubjectAttendanceScreen(itemCount: 6));
         },
       ),
     );
@@ -1867,16 +1851,7 @@ class _TeacherViewAttendanceSubjectScreenState
             fadeOutDuration: Duration(milliseconds: 100),
             placeholder: (context, url) => Container(
               color: Colors.grey.shade100,
-              child: Center(
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.0,
-                    valueColor: AlwaysStoppedAnimation<Color>(_maroonPrimary),
-                  ),
-                ),
-              ),
+              child: const Center(child: SkeletonAvatar(size: 20)),
             ),
             errorWidget: (context, url, error) {
               print('Error loading thumbnail image: $error');

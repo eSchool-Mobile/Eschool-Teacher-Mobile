@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:lottie/lottie.dart';
@@ -13,6 +12,7 @@ import '../../../cubits/teacherAcademics/assignment/questionBankCubit.dart';
 import '../../../data/models/subjectQuestion.dart';
 import '../../../ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 
 class QuestionSubjectController extends GetxController {
   final BuildContext context;
@@ -384,102 +384,9 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
   }
 
   Widget _buildLoadingView() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.white,
-            Color(0xFFFFF0F0), // Very light maroon tint instead of light blue
-          ],
-        ),
-      ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Enhanced shimmer loading with modern design
-            AnimatedBuilder(
-              animation: _pulseController,
-              builder: (context, child) {
-                final scale = 1.0 + 0.05 * _pulseController.value;
-                return Transform.scale(
-                  scale: scale,
-                  child: Container(
-                    padding: EdgeInsets.all(25),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          _primaryColor.withOpacity(0.1),
-                          _accentColor.withOpacity(0.05),
-                        ],
-                      ),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: _primaryColor.withOpacity(0.1),
-                        width: 2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: _primaryColor.withOpacity(0.08),
-                          blurRadius: 20,
-                          spreadRadius: 0,
-                          offset: Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: Shimmer.fromColors(
-                      baseColor: _primaryColor.withOpacity(0.3),
-                      highlightColor: _accentColor.withOpacity(0.6),
-                      period: Duration(milliseconds: 1500),
-                      child: Icon(
-                        Icons.auto_stories_rounded,
-                        size: 70,
-                        color: _primaryColor.withOpacity(0.7),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-            SizedBox(height: 30),
-            Text(
-              'Memuat Mata Pelajaran',
-              style: TextStyle(
-                color: _primaryColor,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.5,
-              ),
-            ),
-            SizedBox(height: 16),
-            // Enhanced loading indicator
-            Container(
-              width: 180,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: LinearProgressIndicator(
-                  backgroundColor: _accentColor.withOpacity(0.2),
-                  valueColor: AlwaysStoppedAnimation<Color>(_primaryColor),
-                  minHeight: 6,
-                ),
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Mohon tunggu sebentar...',
-              style: TextStyle(
-                color: _accentColor.withOpacity(0.7),
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return SkeletonQuestionSubjectScreen(
+      itemCount: 6,
+      showSearch: true,
     );
   }
 

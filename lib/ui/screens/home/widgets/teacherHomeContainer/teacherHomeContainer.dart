@@ -4,11 +4,10 @@ import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCub
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/widgets/homeContainerAppbar.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/teacherHomeContainer/widgets/teacherHolidaysContainer.dart';
-import 'package:eschool_saas_staff/ui/screens/home/widgets/teacherHomeContainer/widgets/teacherHomeOverviewContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/teacherHomeContainer/widgets/teacherLeavesContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/teacherHomeContainer/widgets/teacherPermissionContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/teacherHomeContainer/widgets/teacherTodaysTimetableContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
+import 'package:eschool_saas_staff/ui/screens/home/widgets/teacherHomeContainer/widgets/teacherHomeSkeletonLoader.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/systemModulesAndPermissions.dart';
 import 'package:flutter/material.dart';
@@ -82,7 +81,8 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer> {
                             ),
                             BlocProvider(
                               create: (BuildContext context) {
-                                return TeacherMyTimetableCubit()..getTeacherMyTimetable();
+                                return TeacherMyTimetableCubit()
+                                  ..getTeacherMyTimetable();
                               },
                               child: const TeacherTodaysTimetableContainer(),
                             ),
@@ -113,14 +113,12 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer> {
                     );
                   }
 
-                  return Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                          top: MediaQuery.of(context).size.height * (0.175)),
-                      child: CustomCircularProgressIndicator(
-                        indicatorColor: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
+                  // Show skeleton loader instead of circular progress indicator
+                  return Stack(
+                    children: [
+                      const TeacherHomeSkeletonLoader(),
+                      _buildAppBar(),
+                    ],
                   );
                 },
               );
@@ -135,10 +133,12 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer> {
                 primaryColor: const Color(0xFF800020),
               );
             } else {
-              return Center(
-                child: CustomCircularProgressIndicator(
-                  indicatorColor: Theme.of(context).colorScheme.primary,
-                ),
+              // Show skeleton loader for initial permission loading
+              return Stack(
+                children: [
+                  const TeacherHomeSkeletonLoader(),
+                  _buildAppBar(),
+                ],
               );
             }
           },

@@ -1,5 +1,5 @@
 import 'package:eschool_saas_staff/cubits/payRoll/allowancesAndDeductionsCubit.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 
 import 'package:flutter/material.dart';
@@ -990,61 +990,10 @@ class _AllowancesAndDeductionsScreenState
               ),
             );
           }
-          return Container(
-            color: _neutralBg,
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Modern Loading Animation
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: _maroonSoft,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                      AnimatedBuilder(
-                        animation: _pulseAnimationController,
-                        builder: (context, child) {
-                          return Transform.scale(
-                            scale:
-                                1.0 + (_pulseAnimationController.value * 0.1),
-                            child: CustomCircularProgressIndicator(
-                              indicatorColor: _maroonPrimary,
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'Memuat Data Gaji...',
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: _maroonDeep,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Mengambil informasi tunjangan & potongan',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w400,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ).animate().fadeIn(duration: 500.ms).scaleXY(
+          return SkeletonAllowancesAndDeductionsCard()
+              .animate()
+              .fadeIn(duration: 500.ms)
+              .scaleXY(
                 begin: 0.95,
                 end: 1.0,
                 curve: Curves.easeOutCubic,

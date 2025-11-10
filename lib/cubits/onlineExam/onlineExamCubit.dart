@@ -316,7 +316,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
     try {
       emit(OnlineExamLoading());
 
-      print("BELUM ELOL 0");
+      
 
       await _repository.updateOnlineExam(
         id: id,
@@ -329,9 +329,9 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       );
 
       // Fetch updated exam list immediately
-      print("BELUM ELOL 1");
+     
       final result = await _repository.getOnlineExams();
-      print("BELUM ELOL 2");
+      
 
       final List<OnlineExam> exams = [];
       if (result['exams'] is List) {
@@ -351,7 +351,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         subjectDetails: result['subjectDetails'] ?? [],
       ));
     } catch (e) {
-      print("ELOL");
+      
       // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(OnlineExamFailure(userFriendlyMessage));

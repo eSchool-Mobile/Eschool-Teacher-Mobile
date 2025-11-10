@@ -10,6 +10,7 @@ import 'package:eschool_saas_staff/data/models/studentDetails.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
@@ -1142,7 +1143,8 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                   });
                 } else if (state is SubmitExamMarksSubmitFailure) {
                   Utils.showSnackBar(
-                     message: "Anda harus mengisi penilaian", context: context);
+                      message: "Anda harus mengisi penilaian",
+                      context: context);
                 }
               },
               builder: (context, state) {
@@ -1785,10 +1787,11 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                         ),
                       );
                     }
-                    return Center(
-                      child: CircularProgressIndicator(
-                        color: _primaryColor,
-                      ),
+                    return ListView.builder(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                      itemCount: 5,
+                      itemBuilder: (context, index) => SkeletonExamCard(),
                     );
                   },
                 ),

@@ -11,6 +11,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:intl/intl.dart';
 import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 
 class OnlineExamResultScreen extends StatefulWidget {
   @override
@@ -357,7 +358,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
     return BlocBuilder<OnlineExamCubit, OnlineExamState>(
       builder: (context, state) {
         if (state is OnlineExamLoading) {
-          return Center(child: CircularProgressIndicator());
+          return _buildSkeletonLoading();
         }
         if (state is OnlineExamFailure) {
           return Center(
@@ -392,56 +393,52 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
           if (filteredExams.isEmpty) {
             // Jika sedang searching, gunakan NoSearchResultsWidget
             if (_isSearching) {
-              return Expanded(
-                child: NoSearchResultsWidget(
-                  searchQuery: _searchController.text,
-                  onClearSearch: () {
-                    setState(() {
-                      _searchController.clear();
-                      _isSearching = false;
-                    });
-                    context.read<OnlineExamCubit>().getOnlineExams(
-                          startDate: _startDate,
-                          endDate: _endDate,
-                        );
-                  },
-                  primaryColor: _primaryColor,
-                  accentColor: _accentColor,
-                  title: 'Tidak Ada Hasil Ujian',
-                  description:
-                      'Tidak ditemukan hasil ujian yang sesuai dengan pencarian Anda. Coba gunakan kata kunci yang berbeda.',
-                  clearButtonText: 'Hapus Pencarian',
-                  icon: Icons.assignment_outlined,
-                ),
+              return NoSearchResultsWidget(
+                searchQuery: _searchController.text,
+                onClearSearch: () {
+                  setState(() {
+                    _searchController.clear();
+                    _isSearching = false;
+                  });
+                  context.read<OnlineExamCubit>().getOnlineExams(
+                        startDate: _startDate,
+                        endDate: _endDate,
+                      );
+                },
+                primaryColor: _primaryColor,
+                accentColor: _accentColor,
+                title: 'Tidak Ada Hasil Ujian',
+                description:
+                    'Tidak ditemukan hasil ujian yang sesuai dengan pencarian Anda. Coba gunakan kata kunci yang berbeda.',
+                clearButtonText: 'Hapus Pencarian',
+                icon: Icons.assignment_outlined,
               );
             }
             // Jika tidak sedang searching, tampilkan pesan filter
-            return Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  ),
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
                 ),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.filter_list_off,
-                          size: 80, color: Colors.grey[400]),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Tidak ada ujian tersedia untuk filter ini',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
-                        ),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.filter_list_off,
+                        size: 80, color: Colors.grey[400]),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Tidak ada ujian tersedia untuk filter ini',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             );
@@ -918,6 +915,27 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSkeletonLoading() {
+    return AnimationLimiter(
+      child: ListView.builder(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        itemCount: 3,
+        itemBuilder: (context, index) {
+          return AnimationConfiguration.staggeredList(
+            position: index,
+            duration: Duration(milliseconds: 500),
+            child: SlideAnimation(
+              verticalOffset: 50.0,
+              child: FadeInAnimation(
+                child: SkeletonOnlineExamCard(),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
