@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eschool_saas_staff/cubits/teacher/timeTableOfTeacherCubit.dart';
 import 'package:eschool_saas_staff/data/models/userDetails.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/timetableSlotContainer.dart';
@@ -81,6 +80,136 @@ class AppBarDecorationPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return false;
+  }
+}
+
+// Skeleton widget for timetable slots
+class _TimetableSlotSkeleton extends StatelessWidget {
+  const _TimetableSlotSkeleton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+      height: Utils().getResponsiveHeight(context, 150),
+      child: LayoutBuilder(builder: (context, boxConstraints) {
+        return Row(
+          children: [
+            // Time column skeleton (20% width)
+            SizedBox(
+              width: boxConstraints.maxWidth * (0.2),
+              child: Column(
+                children: [
+                  // Start time skeleton
+                  Container(
+                    height: 20,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    height: 12,
+                    width: 30,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const Spacer(),
+                  // Vertical line skeleton
+                  Container(
+                    height: Utils().getResponsiveHeight(context, 65),
+                    width: Utils.getScaledValue(context, 1.5),
+                    color: Colors.white,
+                  ),
+                  const Spacer(),
+                  // End time skeleton
+                  Container(
+                    height: 20,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  Container(
+                    height: 12,
+                    width: 30,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Spacing (5% width)
+            SizedBox(width: boxConstraints.maxWidth * (0.05)),
+            // Main content skeleton (70% width)
+            SizedBox(
+              width: boxConstraints.maxWidth * (0.7),
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                    horizontal: constants.appContentHorizontalPadding,
+                    vertical: 10),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white),
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.white,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Subject label skeleton
+                    Container(
+                      height: 12,
+                      width: 60,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    // Subject name skeleton
+                    Container(
+                      height: 18,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const Spacer(),
+                    // Class/Teacher label skeleton
+                    Container(
+                      height: 12,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    // Class/Teacher name skeleton
+                    Container(
+                      height: 18,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      }),
+    );
   }
 }
 
@@ -263,6 +392,32 @@ class _TeacherTimeTableDetailsScreenState
                       duration: Duration(milliseconds: 300),
                     ));
           }).toList(),
+        ),
+      ),
+    );
+  }
+
+  // Build timetable skeleton for loading state
+  Widget _buildTimetableSkeleton() {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        padding: EdgeInsets.only(
+            bottom: 25,
+            top: Utils.appContentTopScrollPadding(context: context) + 150),
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          padding: EdgeInsets.all(constants.appContentHorizontalPadding),
+          color: Theme.of(context).colorScheme.surface,
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+            child: Column(
+              children:
+                  List.generate(5, (index) => const _TimetableSlotSkeleton()),
+            ),
+          ),
         ),
       ),
     );
@@ -800,11 +955,7 @@ class _TeacherTimeTableDetailsScreenState
                 );
               }
 
-              return Center(
-                child: CustomCircularProgressIndicator(
-                  indicatorColor: Theme.of(context).colorScheme.primary,
-                ),
-              );
+              return _buildTimetableSkeleton();
             },
           ),
           _buildAppBar(),
