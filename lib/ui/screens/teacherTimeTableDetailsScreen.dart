@@ -14,6 +14,7 @@ import 'package:get/route_manager.dart';
 import 'dart:ui';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
 class TeacherTimeTableDetailsScreen extends StatefulWidget {
   final UserDetails teacherDetails;
