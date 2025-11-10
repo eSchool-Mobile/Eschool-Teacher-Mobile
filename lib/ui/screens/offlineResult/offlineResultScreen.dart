@@ -18,6 +18,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/route_manager.dart';
+import 'package:shimmer/shimmer.dart';
 
 class OfflineResultScreen extends StatefulWidget {
   const OfflineResultScreen({super.key});
@@ -279,12 +280,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                                     );
                                   }
 
-                                  return Center(
-                                    child: CustomCircularProgressIndicator(
-                                      indicatorColor:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
-                                  );
+                                  return _buildStudentResultRowSkeleton();
                                 }
                               }
                               return StudentOfflineResultContainer(
@@ -314,11 +310,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
           );
         }
 
-        return Center(
-          child: CustomCircularProgressIndicator(
-            indicatorColor: Theme.of(context).colorScheme.primary,
-          ),
-        );
+        return _buildOfflineResultSkeleton();
       },
     );
   }
@@ -427,6 +419,297 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                 context: context);
           }
         },
+      ),
+    );
+  }
+
+  Widget _buildTableHeaderSkeleton() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: appContentHorizontalPadding),
+      height: 40,
+      width: double.maxFinite,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        color: Theme.of(context).colorScheme.tertiary,
+      ),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey.shade300,
+        highlightColor: Colors.grey.shade100,
+        child: LayoutBuilder(builder: (context, boxConstraints) {
+          return Row(
+            children: [
+              SizedBox(
+                width: boxConstraints.maxWidth * (0.15),
+                child: Container(
+                  height: 16,
+                  width: 30,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: boxConstraints.maxWidth * (0.85),
+                child: Container(
+                  height: 16,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildStudentResultRowSkeleton() {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: appContentHorizontalPadding,
+        horizontal: appContentHorizontalPadding,
+      ),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
+        ),
+      ),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey.shade300,
+        highlightColor: Colors.grey.shade100,
+        child: LayoutBuilder(builder: (context, boxConstraints) {
+          return Row(
+            children: [
+              SizedBox(
+                width: boxConstraints.maxWidth * (0.15),
+                child: Container(
+                  height: 16,
+                  width: 30,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: boxConstraints.maxWidth * (0.85),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            height: 16,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            height: 14,
+                            width: 120,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.arrow_drop_down,
+                        color: Colors.grey.shade400,
+                        size: 20,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildOfflineResultSkeleton() {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: SingleChildScrollView(
+        padding: EdgeInsets.only(
+          top: 0,
+        ),
+        child: Container(
+          padding: EdgeInsets.all(appContentHorizontalPadding),
+          color: Theme.of(context).colorScheme.surface,
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            children: [
+              // Filter area skeleton (below app bar)
+              Container(
+                margin: const EdgeInsets.only(bottom: 20),
+                child: Shimmer.fromColors(
+                  baseColor: Colors.grey.shade300,
+                  highlightColor: Colors.grey.shade100,
+                  child: Column(
+                    children: [
+                      // Session year filter skeleton
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.grey.shade200,
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 16),
+                            Container(
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade300,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Container(
+                              height: 16,
+                              width: 120,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Exam filter skeleton
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.grey.shade200,
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 16),
+                            Container(
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade300,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Container(
+                              height: 16,
+                              width: 100,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Class filter skeleton
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 20),
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.grey.shade200,
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 16),
+                            Container(
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade300,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Container(
+                              height: 16,
+                              width: 80,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Table header skeleton
+              _buildTableHeaderSkeleton(),
+              const SizedBox(height: 8),
+
+              // Table body with skeleton rows
+              Container(
+                width: double.maxFinite,
+                decoration: BoxDecoration(
+                  border: Border(
+                    right: BorderSide(
+                        color: Theme.of(context).colorScheme.tertiary),
+                    left: BorderSide(
+                        color: Theme.of(context).colorScheme.tertiary),
+                  ),
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(5),
+                    bottomRight: Radius.circular(5),
+                  ),
+                  color: Theme.of(context).colorScheme.surface,
+                ),
+                child: Column(
+                  children: List.generate(8, (index) {
+                    return _buildStudentResultRowSkeleton();
+                  }),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -558,11 +841,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
               );
             }
 
-            return Center(
-              child: CustomCircularProgressIndicator(
-                indicatorColor: Theme.of(context).colorScheme.primary,
-              ),
-            );
+            return _buildOfflineResultSkeleton();
           },
         ),
       ),
