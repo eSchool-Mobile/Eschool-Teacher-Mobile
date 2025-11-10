@@ -1,10 +1,7 @@
 import 'dart:ui';
 import 'dart:math';
 import 'package:eschool_saas_staff/cubits/academics/sessionYearsCubit.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
@@ -17,6 +14,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:shimmer/shimmer.dart';
 
 class SessionYearsScreen extends StatefulWidget {
   const SessionYearsScreen({super.key});
@@ -354,7 +352,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.only(
-                top: Utils.appContentTopScrollPadding(context: context) ,
+                top: Utils.appContentTopScrollPadding(context: context),
                 bottom: 16,
                 left: appContentHorizontalPadding,
                 right: appContentHorizontalPadding,
@@ -776,69 +774,211 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
   }
 
   Widget _buildLoadingState(BuildContext context) {
-    return Center(
+    return SingleChildScrollView(
+      physics: BouncingScrollPhysics(),
+      padding: EdgeInsets.only(
+        top: Utils.appContentTopScrollPadding(context: context),
+        bottom: 80,
+        left: appContentHorizontalPadding,
+        right: appContentHorizontalPadding,
+      ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          TweenAnimationBuilder(
-            duration: const Duration(milliseconds: 1500),
-            tween: Tween<double>(begin: 0.0, end: 1.0),
-            builder: (context, value, child) {
-              return Stack(
-                alignment: Alignment.center,
+          // Header card skeleton
+          _buildHeaderCardSkeleton(),
+
+          // Session year cards skeleton
+          ...List.generate(4, (index) => _buildSessionYearCardSkeleton(index)),
+
+          // Add some bottom padding
+          SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeaderCardSkeleton() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey.shade300,
+        highlightColor: Colors.grey.shade100,
+        child: Card(
+          elevation: 16,
+          shadowColor: AppColorPalette.primaryMaroon.withOpacity(0.3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+          ),
+          child: Container(
+            height: 120,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(28),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.grey.shade400,
+                  Colors.grey.shade300,
+                ],
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Row(
+                    children: [
+                      Container(
+                        height: 24,
+                        width: 140,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.8),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
                   Container(
-                    width: 100,
-                    height: 100,
+                    width: 60,
+                    height: 3,
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppColorPalette.primaryMaroon.withOpacity(0.2),
-                        width: 4,
-                      ),
+                      color: Colors.white.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(2),
                     ),
-                  ),
-                  SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: CircularProgressIndicator(
-                      value: null,
-                      strokeWidth: 4,
-                      backgroundColor: Colors.transparent,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        AppColorPalette.primaryMaroon,
-                      ),
-                    ),
-                  ),
-                  Icon(
-                    Icons.calendar_today_rounded,
-                    color: AppColorPalette.primaryMaroon,
-                    size: 40,
                   ),
                 ],
-              );
-            },
-          ),
-          SizedBox(height: 32),
-          Text(
-            "Memuat Tahun Ajaran...",
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-              color: AppColorPalette.primaryMaroon,
+              ),
             ),
           ),
-          SizedBox(height: 8),
-          Text(
-            "Mohon tunggu selagi kami memuat data tahun ajaran",
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: AppColorPalette.secondaryMaroon.withOpacity(0.7),
-            ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSessionYearCardSkeleton(int index) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 5),
           ),
         ],
+      ),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey.shade300,
+        highlightColor: Colors.grey.shade100,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header with session year name and status
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 18,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    width: 80,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              // Status info section
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            height: 14,
+                            width: 60,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            height: 16,
+                            width: 120,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // Default badge (shown randomly for some cards)
+              if (index % 2 == 0)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    width: 90,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

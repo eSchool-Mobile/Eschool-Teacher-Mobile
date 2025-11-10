@@ -223,8 +223,8 @@ class _StaffsScreenState extends State<StaffsScreen>
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),
-                  blurRadius: 6,
-                  offset: Offset(0, 4),
+                  blurRadius: 10,
+                  offset: Offset(0, 5),
                 ),
               ],
             ),

@@ -14,6 +14,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ClassTimeTableScreen extends StatefulWidget {
   const ClassTimeTableScreen({super.key});
@@ -96,7 +97,7 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
   }
 
   PreferredSizeWidget _buildAppBar() {
-    return CustomModernAppBar(  
+    return CustomModernAppBar(
       title: Utils.getTranslatedLabel(classTimetableKey),
       icon: Icons.schedule_outlined,
       fabAnimationController: _fabAnimationController,
@@ -104,7 +105,6 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
       lightColor: _maroonLight,
       onBackPressed: () => Navigator.of(context).pop(),
       height: 200,
-  
       tabBuilder: (context) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -355,12 +355,155 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
             ),
           );
         }
-        return Center(
-          child: CustomCircularProgressIndicator(
-            indicatorColor: Theme.of(context).colorScheme.primary,
-          ),
-        );
+        return _buildTimetableSkeleton();
       },
+    );
+  }
+
+  Widget _buildTimetableSkeleton() {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        padding: EdgeInsets.only(top: 20),
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          padding: EdgeInsets.all(constants.appContentHorizontalPadding),
+          color: Theme.of(context).colorScheme.surface,
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+            child: Column(
+              children: List.generate(6, (index) {
+                return Container(
+                  margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                  height: Utils().getResponsiveHeight(context, 150),
+                  child: LayoutBuilder(builder: (context, boxConstraints) {
+                    return Row(
+                      children: [
+                        // Time column skeleton
+                        SizedBox(
+                          width: boxConstraints.maxWidth * (0.2),
+                          child: Column(
+                            children: [
+                              // Start time
+                              Container(
+                                height: 18,
+                                width: 50,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              // Timezone label
+                              Container(
+                                height: 12,
+                                width: 30,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                              ),
+                              const Spacer(),
+                              // Timeline
+                              Container(
+                                height:
+                                    Utils().getResponsiveHeight(context, 65),
+                                width: 2,
+                                color: Colors.white,
+                              ),
+                              const Spacer(),
+                              // End time
+                              Container(
+                                height: 18,
+                                width: 50,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                              // Timezone label
+                              Container(
+                                height: 12,
+                                width: 30,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(width: boxConstraints.maxWidth * (0.05)),
+                        // Content column skeleton
+                        SizedBox(
+                          width: boxConstraints.maxWidth * (0.7),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: constants.appContentHorizontalPadding,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade300),
+                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.white,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Subject label
+                                Container(
+                                  height: 12,
+                                  width: 60,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                // Subject name
+                                Container(
+                                  height: 16,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                                const Spacer(),
+                                // Teacher label
+                                Container(
+                                  height: 12,
+                                  width: 70,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                // Teacher name
+                                Container(
+                                  height: 16,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+                );
+              }),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -395,11 +538,7 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
             );
           }
 
-          return Center(
-            child: CustomCircularProgressIndicator(
-              indicatorColor: Theme.of(context).colorScheme.primary,
-            ),
-          );
+            return _buildTimetableSkeleton();
         },
       ),
     );
