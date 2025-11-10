@@ -2,23 +2,17 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
 
-import 'package:animate_do/animate_do.dart';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/teacher/teachersCubit.dart';
 import 'package:eschool_saas_staff/ui/screens/leaves/leavesScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherProfileScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherTimeTableDetailsScreen.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/searchContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,6 +20,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/route_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
 enum TeacherNavigationType { leave, profile, timetable }
 
@@ -57,7 +52,6 @@ class TeachersScreen extends StatefulWidget {
 
 class _TeachersScreenState extends State<TeachersScreen>
     with TickerProviderStateMixin {
-  late String _selectedTabKey = allKey;
   late final TextEditingController _textEditingController =
       TextEditingController()..addListener(searchQueryTextControllerListener);
 
@@ -98,13 +92,9 @@ class _TeachersScreenState extends State<TeachersScreen>
 
   // Controllers untuk animasi
   late AnimationController _fadeController;
-  late Animation<double> _fadeAnimation;
   late AnimationController _slideController;
-  late Animation<Offset> _slideAnimation;
   late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
   late AnimationController _rotationController;
-  late Animation<double> _rotationAnimation;
   late AnimationController
       _fabAnimationController; // Added for CustomModernAppBar
 
@@ -113,7 +103,6 @@ class _TeachersScreenState extends State<TeachersScreen>
 
   // Untuk efek scroll header
   final ScrollController _scrollController = ScrollController();
-  double _headerHeight = 200.0;
   bool _isScrolled = false;
 
   @override
@@ -126,26 +115,9 @@ class _TeachersScreenState extends State<TeachersScreen>
       duration: Duration(milliseconds: 800),
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _fadeController,
-        curve: Curves.easeInOut,
-      ),
-    );
-
     _slideController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 700),
-    );
-
-    _slideAnimation = Tween<Offset>(
-      begin: Offset(0, 0.2),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _slideController,
-        curve: Curves.easeOutQuint,
-      ),
     );
 
     // Pulse animation untuk efek interaktif
@@ -154,23 +126,11 @@ class _TeachersScreenState extends State<TeachersScreen>
       duration: Duration(milliseconds: 1200),
     )..repeat(reverse: true);
 
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
-      CurvedAnimation(
-        parent: _pulseController,
-        curve: Curves.easeInOut,
-      ),
-    );
-
     // Rotation animation untuk elemen dekoratif
     _rotationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 10000),
     )..repeat();
-
-    _rotationAnimation = Tween<double>(
-      begin: 0,
-      end: 2 * math.pi,
-    ).animate(_rotationController);
 
     // Initialize fabAnimationController for CustomModernAppBar
     _fabAnimationController = AnimationController(
@@ -186,12 +146,10 @@ class _TeachersScreenState extends State<TeachersScreen>
     _scrollController.addListener(() {
       if (_scrollController.offset > 50 && !_isScrolled) {
         setState(() {
-          _headerHeight = 120.0;
           _isScrolled = true;
         });
       } else if (_scrollController.offset <= 50 && _isScrolled) {
         setState(() {
-          _headerHeight = 200.0;
           _isScrolled = false;
         });
       }
@@ -256,9 +214,7 @@ class _TeachersScreenState extends State<TeachersScreen>
   }
 
   void changeTab(String value) {
-    setState(() {
-      _selectedTabKey = value;
-    });
+    // Tab functionality removed - keeping for future use if needed
     getTeachers();
   }
 
@@ -310,19 +266,11 @@ class _TeachersScreenState extends State<TeachersScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Animasi ikon
-              AnimatedBuilder(
-                animation: _pulseAnimation,
-                builder: (context, child) {
-                  return Transform.scale(
-                    scale: _pulseAnimation.value,
-                    child: Icon(
-                      Icons.people_outline,
-                      size: 80,
-                      color: maroonPrimary.withOpacity(0.6),
-                    ),
-                  );
-                },
+              // Ikon statis
+              Icon(
+                Icons.people_outline,
+                size: 80,
+                color: maroonPrimary.withOpacity(0.6),
               ),
               SizedBox(height: 16),
               Text(
@@ -566,6 +514,163 @@ class _TeachersScreenState extends State<TeachersScreen>
     );
   }
 
+  Widget _buildTeacherSkeletonList() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: List.generate(6, (index) {
+          return Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Shimmer.fromColors(
+              baseColor: Colors.grey.shade300,
+              highlightColor: Colors.grey.shade100,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header with teacher info and status
+                    Row(
+                      children: [
+                        Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                height: 16,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Container(
+                                height: 14,
+                                width: 120,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: 80,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Role tags section
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Role tags
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: [
+                              Container(
+                                width: 90,
+                                height: 14,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              Container(
+                                width: 65,
+                                height: 14,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              if (index % 3 == 0)
+                                Container(
+                                  width: 75,
+                                  height: 14,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              if (index % 4 == 0)
+                                Container(
+                                  width: 25,
+                                  height: 14,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // Arrow icon
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Need to add a fabAnimationController for the CustomModernAppBar
@@ -761,11 +866,7 @@ class _TeachersScreenState extends State<TeachersScreen>
                   );
                 }
 
-                return Center(
-                  child: CustomCircularProgressIndicator(
-                    indicatorColor: maroonPrimary,
-                  ),
-                );
+                return _buildTeacherSkeletonList();
               },
             ),
           ),

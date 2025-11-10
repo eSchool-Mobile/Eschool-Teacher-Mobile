@@ -1,27 +1,17 @@
-// This is a temporary file to recreate the staffsScreen.dart file
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
 
-import 'package:animate_do/animate_do.dart';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/staff/staffsCubit.dart';
 import 'package:eschool_saas_staff/ui/screens/leaves/leavesScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/staffDetailsScreen.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customModernAppBarWithTabs.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/searchContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/tabBackgroundContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTabContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,6 +19,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/route_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
 class StaffsScreen extends StatefulWidget {
   final bool forStaffLeave;
@@ -214,6 +205,137 @@ class _StaffsScreenState extends State<StaffsScreen>
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildStaffSkeleton() {
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      child: Column(
+        children: List.generate(6, (index) {
+          return Container(
+            margin: EdgeInsets.only(bottom: 16),
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 6,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Shimmer.fromColors(
+              baseColor: Colors.grey.shade300,
+              highlightColor: Colors.grey.shade100,
+              child: Row(
+                children: [
+                  // Avatar skeleton
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  SizedBox(width: 16),
+
+                  // Staff info skeleton
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            // Name skeleton
+                            Expanded(
+                              child: Container(
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            // Status badge skeleton
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Container(
+                                width: 40,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 6),
+                        // Role text skeleton
+                        Container(
+                          height: 14,
+                          width: 120,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        // Role tags skeleton
+                        Row(
+                          children: List.generate(3, (tagIndex) {
+                            return Container(
+                              margin: EdgeInsets.only(right: 6),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Container(
+                                width: tagIndex == 0
+                                    ? 50
+                                    : tagIndex == 1
+                                        ? 35
+                                        : 45,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            );
+                          }),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Arrow icon skeleton
+                  Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
       ),
     );
   }
@@ -616,11 +738,13 @@ class _StaffsScreenState extends State<StaffsScreen>
                         );
                       }
 
-                      return Center(
-                        child: CustomCircularProgressIndicator(
-                          indicatorColor: maroonPrimary,
-                        ),
-                      );
+                      // Loading state - show skeleton
+                      if (state is StaffsFetchInProgress) {
+                        return _buildStaffSkeleton();
+                      }
+
+                      // Initial state - also show skeleton while waiting for first load
+                      return _buildStaffSkeleton();
                     },
                   ),
                 ),

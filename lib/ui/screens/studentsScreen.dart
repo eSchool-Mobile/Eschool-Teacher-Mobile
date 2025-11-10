@@ -9,18 +9,16 @@ import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.da
 import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
-import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/searchContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/studentListCard.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
 class StudentsScreen extends StatefulWidget {
   const StudentsScreen({super.key});
@@ -47,9 +45,6 @@ class _StudentsScreenState extends State<StudentsScreen>
   ClassSection? _selectedClassSection;
   SessionYear? _selectedSessionYear;
   String? _selectedStatus; // null = semua, '1' = aktif, '0' = non-aktif
-  // Static header height
-  static const double _headerHeight =
-      270.0; // Increased for better filter spacing
 
   late final ScrollController _scrollController = ScrollController();
 
@@ -76,60 +71,6 @@ class _StudentsScreenState extends State<StudentsScreen>
   final Color textDarkColor = Color(0xFF2D2D2D);
   final Color textMediumColor = Color(0xFF717171);
   final Color borderColor = Color(0xFFE8E8E8);
-
-  // Helper method to build info columns in student cards
-  Widget _buildInfoColumn({
-    required IconData icon,
-    required Color iconColor,
-    required String label,
-    required String value,
-  }) {
-    return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            height: 32,
-            width: 32,
-            decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 16,
-            ),
-          ),
-          SizedBox(height: 6),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              fontFamily: 'Poppins',
-              color: textDarkColor,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              fontFamily: 'Poppins',
-              color: textMediumColor,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   void initState() {
@@ -753,11 +694,48 @@ class _StudentsScreenState extends State<StudentsScreen>
                             )
                           ],
                         ),
-                        child: SearchContainer(
-                          additionalCallback: () {
-                            getStudents();
+                        child: TextField(
+                          controller: _textEditingController,
+                          decoration: InputDecoration(
+                            hintText: "Cari siswa...",
+                            hintStyle: TextStyle(
+                              color: textMediumColor,
+                              fontFamily: 'Poppins',
+                            ),
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: maroonPrimary,
+                            ),
+                            suffixIcon: _textEditingController.text.isNotEmpty
+                                ? IconButton(
+                                    icon: Icon(
+                                      Icons.clear,
+                                      color: textMediumColor,
+                                    ),
+                                    onPressed: () {
+                                      _textEditingController.clear();
+                                      getStudents();
+                                    },
+                                  )
+                                : null,
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 16,
+                            ),
+                          ),
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: textDarkColor,
+                          ),
+                          onChanged: (value) {
+                            // Debounced search will be handled by the listener
                           },
-                          textEditingController: _textEditingController,
                         ),
                       ),
                     ),
@@ -798,6 +776,9 @@ class _StudentsScreenState extends State<StudentsScreen>
             builder: (context, state) {
               return BlocBuilder<StudentsCubit, StudentsState>(
                   builder: (context, state) {
+                if (state is StudentsFetchInProgress) {
+                  return _buildStudentsSkeleton();
+                }
                 if (state is StudentsFetchSuccess) {
                   return FadeTransition(
                       opacity: _fadeAnimation,
@@ -1068,49 +1049,392 @@ class _StudentsScreenState extends State<StudentsScreen>
                   );
                 }
 
-                // Default loading state when no filters selected or waiting for initial data
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.filter_list_rounded,
-                        size: 60,
-                        color: maroonPrimary.withOpacity(0.3),
-                      ),
-                      SizedBox(height: 24),
-                      Text(
-                        "Pilih kelas dan tahun ajaran terlebih dahulu",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: textMediumColor,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w500,
+                // Default state when no filters are selected yet
+                if (_selectedClassSection == null &&
+                    _selectedSessionYear == null) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.filter_list_rounded,
+                          size: 60,
+                          color: maroonPrimary.withOpacity(0.3),
                         ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        "Untuk melihat daftar siswa, silakan pilih kelas dan tahun ajaran",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: textMediumColor.withOpacity(0.8),
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w400,
+                        SizedBox(height: 24),
+                        Text(
+                          "Pilih Filter Terlebih Dahulu",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: textDarkColor,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                );
+                        SizedBox(height: 12),
+                        Text(
+                          "Silakan pilih kelas dan tahun ajaran\ndari menu filter di atas untuk melihat data siswa",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: textMediumColor,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w400,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                // Default loading state when waiting for initial data or during fetch
+                return _buildStudentsSkeleton();
               });
             },
           ),
           // Add some bottom padding
           SizedBox(height: 30),
         ],
+      ),
+    );
+  }
+
+  Widget _buildStudentsSkeleton() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: List.generate(6, (index) {
+          return Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 15,
+                  offset: Offset(0, 5),
+                  spreadRadius: 0,
+                ),
+              ],
+            ),
+            child: Shimmer.fromColors(
+              baseColor: Colors.grey.shade300,
+              highlightColor: Colors.grey.shade100,
+              child: Stack(
+                children: [
+                  // Status indicator strip skeleton
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    child: Container(
+                      width: 8,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          bottomLeft: Radius.circular(16),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Main content
+                  Padding(
+                    padding: EdgeInsets.only(left: 8),
+                    child: Column(
+                      children: [
+                        // Header section with profile image and name
+                        Container(
+                          padding: EdgeInsets.fromLTRB(16, 16, 16, 10),
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                color: borderColor,
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              // Profile image skeleton
+                              Container(
+                                width: 65,
+                                height: 65,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Status and gender badges row
+                                    Row(
+                                      children: [
+                                        // Status badge skeleton
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 3),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          child: Container(
+                                            width: 50,
+                                            height: 12,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(width: 8),
+                                        // Gender badge skeleton
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 3),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          child: Container(
+                                            width: 35,
+                                            height: 12,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 6),
+                                    // Student name skeleton
+                                    Container(
+                                      height: 17,
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    SizedBox(height: 5),
+                                    // GR Number row skeleton
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: 14,
+                                          height: 14,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(2),
+                                          ),
+                                        ),
+                                        SizedBox(width: 6),
+                                        Container(
+                                          height: 13,
+                                          width: 100,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(6),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Information section skeleton
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              // Roll number column skeleton
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      height: 32,
+                                      width: 32,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    SizedBox(height: 6),
+                                    Container(
+                                      height: 14,
+                                      width: 30,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                    ),
+                                    SizedBox(height: 2),
+                                    Container(
+                                      height: 11,
+                                      width: 40,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                height: 40,
+                                width: 1,
+                                color: Colors.white,
+                              ),
+                              // Class column skeleton
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      height: 32,
+                                      width: 32,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    SizedBox(height: 6),
+                                    Container(
+                                      height: 14,
+                                      width: 25,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                    ),
+                                    SizedBox(height: 2),
+                                    Container(
+                                      height: 11,
+                                      width: 35,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                height: 40,
+                                width: 1,
+                                color: Colors.white,
+                              ),
+                              // Session year column skeleton
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      height: 32,
+                                      width: 32,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    SizedBox(height: 6),
+                                    Container(
+                                      height: 14,
+                                      width: 35,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                    ),
+                                    SizedBox(height: 2),
+                                    Container(
+                                      height: 11,
+                                      width: 30,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Action row skeleton
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(8),
+                              bottomRight: Radius.circular(16),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 16,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Container(
+                                height: 12,
+                                width: 120,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ),
+                              Spacer(),
+                              Container(
+                                width: 28,
+                                height: 28,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
       ),
     );
   }
@@ -1162,32 +1486,7 @@ class _StudentsScreenState extends State<StudentsScreen>
               ));
             }
 
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: CircularProgressIndicator(
-                      color: maroonPrimary,
-                      strokeWidth: 4,
-                    ),
-                  ),
-                  SizedBox(height: 24),
-                  Text(
-                    "Memuat data...",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: textMediumColor,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
+            return _buildStudentsSkeleton();},
         ),
       ),
     );
