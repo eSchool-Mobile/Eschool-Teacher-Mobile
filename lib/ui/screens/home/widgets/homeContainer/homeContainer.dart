@@ -9,6 +9,7 @@ import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/widgets
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/systemModulesAndPermissions.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -113,10 +114,8 @@ class HomeContainerState extends State<HomeContainer> {
                 return Center(
                   child: Padding(
                     padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).size.height * (0.175)),
-                    child: CustomCircularProgressIndicator(
-                      indicatorColor: Theme.of(context).colorScheme.primary,
-                    ),
+                        top: MediaQuery.of(context).size.height * (0.1)),
+                    child: const SkeletonHomeContainer(),
                   ),
                 );
               });
