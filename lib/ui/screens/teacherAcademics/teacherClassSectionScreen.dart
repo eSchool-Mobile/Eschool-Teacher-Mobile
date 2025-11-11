@@ -73,6 +73,12 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
     )..forward();
 
     _scrollController.addListener(_scrollListener);
+
+    // Load class section details when screen initializes
+    getClassSectionDetails();
+
+    // Load grade levels for filter
+    context.read<GradeLevelCubit>().getGradeLevels();
   }
 
   @override

@@ -11,6 +11,7 @@ import 'package:eschool_saas_staff/ui/widgets/customImageWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -1147,13 +1148,15 @@ class _TeacherManageAssignmentSubmissionScreenState
                 ),
               );
             } else {
-              return Center(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      top: topPaddingOfErrorAndLoadingContainer),
-                  child: CustomCircularProgressIndicator(
-                    indicatorColor: Color(0xFF800020),
-                  ).animate().fadeIn(duration: 300.ms),
+              return Container(
+                padding: EdgeInsets.fromLTRB(
+                    appContentHorizontalPadding,
+                    0, // Remove top padding since scroll view already provides it
+                    appContentHorizontalPadding,
+                    20),
+                margin: const EdgeInsets.symmetric(horizontal: 12),
+                child: SkeletonTeacherManageAssignmentSubmissionScreen(
+                  itemCount: 6,
                 ),
               );
             }
@@ -1310,24 +1313,6 @@ class _TeacherManageAssignmentSubmissionScreenState
     return [Color(0xFF6A1B31), Color(0xFF57152A)];
   }
 
-  // Helper method untuk mendapatkan ikon yang sesuai dengan opsi pengurutan
-  IconData _getSortIcon(String sortKey) {
-    switch (sortKey) {
-      case 'date_desc':
-        return Icons.arrow_downward_rounded;
-      case 'date_asc':
-        return Icons.arrow_upward_rounded;
-      case 'name_asc':
-        return Icons.sort_by_alpha;
-      case 'name_desc':
-        return Icons.sort_by_alpha;
-      case 'status':
-        return Icons.label_important_outline_rounded;
-      default:
-        return Icons.sort_rounded;
-    }
-  }
-
   // Helper method untuk mendapatkan warna grade berdasarkan nilai siswa dengan tema maroon
   Color _getGradeColor(double points, double totalPoints) {
     double percentage = (points / totalPoints) * 100;
@@ -1387,27 +1372,5 @@ class _TeacherManageAssignmentSubmissionScreenState
     }
 
     return Icons.insert_drive_file_outlined;
-  }
-
-  // Menangani event tap pada filter badge
-  void _handleFilterBadgeTap() {
-    // Animasikan badge filter dengan skala
-    setState(() {
-      // Implementasi untuk mengganti filter dengan UI yang lebih interaktif
-    });
-  }
-
-  // Menampilkan animasi pulse pada badge filter
-  Widget _buildPulseAnimationWidget(Widget child) {
-    return child
-        .animate(
-          onPlay: (controller) => controller.repeat(reverse: true),
-        )
-        .scale(
-          duration: 1500.ms,
-          begin: const Offset(1.0, 1.0),
-          end: const Offset(1.05, 1.05),
-          curve: Curves.easeInOut,
-        );
   }
 }

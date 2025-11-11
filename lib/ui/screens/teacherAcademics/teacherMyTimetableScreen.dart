@@ -1,11 +1,11 @@
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/timetableSlotContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -327,8 +327,20 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
           }
 
           return Center(
-            child: CustomCircularProgressIndicator(
-              indicatorColor: Theme.of(context).colorScheme.primary,
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(bottom: 25, top: 25),
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  padding: EdgeInsets.all(appContentHorizontalPadding),
+                  color: Theme.of(context).colorScheme.surface,
+                  child: Column(
+                    children:
+                        List.generate(6, (index) => SkeletonTimetableSlot()),
+                  ),
+                ),
+              ),
             ),
           );
         },
