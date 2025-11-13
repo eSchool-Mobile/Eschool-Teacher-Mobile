@@ -46,22 +46,20 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
   @override
   void initState() {
     super.initState();
-    print('🎯 [EXTRACURRICULAR SCREEN] initState called');
+    print('🎯 [EXTRACURRICULAR SCREEN] Initialized');
     _refreshExtracurriculars();
 
     // Listen for state changes
     context.read<ExtracurricularCubit>().stream.listen((state) {
-      print('📊 [EXTRACURRICULAR SCREEN] State changed: ${state.runtimeType}');
       if (state is ExtracurricularSuccess) {
         print(
-            '✅ [EXTRACURRICULAR SCREEN] Success state with ${state.extracurriculars.length} extracurriculars');
+            '✅ [EXTRACURRICULAR SCREEN] UI Updated: ${state.extracurriculars.length} extracurriculars');
         setState(() {});
       } else if (state is ExtracurricularFailure) {
-        print(
-            '❌ [EXTRACURRICULAR SCREEN] Failure state with error: ${state.errorMessage}');
+        print('❌ [EXTRACURRICULAR SCREEN] UI Error: ${state.errorMessage}');
         setState(() {});
       } else if (state is ExtracurricularLoading) {
-        print('⏳ [EXTRACURRICULAR SCREEN] Loading state');
+        print('⏳ [EXTRACURRICULAR SCREEN] Loading...');
       }
     });
 
@@ -95,14 +93,11 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
   }
 
   void _refreshExtracurriculars() {
-    print(
-        '🔄 [EXTRACURRICULAR SCREEN] _refreshExtracurriculars called, mounted: $mounted');
+    print('🔄 [EXTRACURRICULAR SCREEN] Refreshing data...');
     if (mounted) {
-      print('📡 [EXTRACURRICULAR SCREEN] Calling cubit.getExtracurriculars()');
       context.read<ExtracurricularCubit>().getExtracurriculars();
     } else {
-      print(
-          '⚠️ [EXTRACURRICULAR SCREEN] Not calling refresh because widget is not mounted');
+      print('⚠️ [EXTRACURRICULAR SCREEN] Widget not mounted, skipping refresh');
     }
   }
 
@@ -151,7 +146,7 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
       child: Scaffold(
         backgroundColor: Colors.grey[50],
         appBar: CustomModernAppBar(
-          title: 'Ekstrakurikuler',
+          title: 'kurikuler',
           icon: Icons.sports_soccer,
           fabAnimationController: _appBarAnimationController,
           primaryColor: _primaryColor,
@@ -196,11 +191,8 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
           _buildSearchBar(),
           BlocBuilder<ExtracurricularCubit, ExtracurricularState>(
             builder: (context, state) {
-              print(
-                  '🎨 [EXTRACURRICULAR SCREEN] BlocBuilder received state: ${state.runtimeType}');
-
               if (state is ExtracurricularLoading) {
-                print('⏳ [EXTRACURRICULAR SCREEN] Building loading UI');
+                print('🎨 [EXTRACURRICULAR SCREEN] Building loading UI');
                 return SliverPadding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   sliver: SliverList(
@@ -213,8 +205,7 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
               }
 
               if (state is ExtracurricularFailure) {
-                print(
-                    '❌ [EXTRACURRICULAR SCREEN] Building error UI with message: ${state.errorMessage}');
+                print('🎨 [EXTRACURRICULAR SCREEN] Building error UI');
                 return SliverFillRemaining(
                   child: Center(
                     child: CustomErrorWidget(
@@ -226,13 +217,11 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
               }
 
               if (state is ExtracurricularSuccess) {
-                print(
-                    '✅ [EXTRACURRICULAR SCREEN] Building success UI with ${state.extracurriculars.length} extracurriculars');
+                print('🎨 [EXTRACURRICULAR SCREEN] Building success UI');
                 return _buildExtracurricularGrid(state);
               }
 
-              print(
-                  '🤔 [EXTRACURRICULAR SCREEN] Building default loading UI for unknown state');
+              print('🎨 [EXTRACURRICULAR SCREEN] Building default UI');
               return SliverFillRemaining(
                 child: Center(child: CircularProgressIndicator()),
               );
