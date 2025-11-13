@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/contact/contactDetailCubit.dart';
+import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/models/contact.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'dart:ui';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 
 class ContactDetailScreen extends StatefulWidget {
   final int contactId;
@@ -24,6 +25,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
   late AnimationController _fabAnimationController;
   late TextEditingController _replyController;
   late ScrollController _scrollController;
+  bool _hasReplied = false; // Track if user has sent a reply
 
   final Color _primaryColor = const Color(0xFF800020);
   final Color _lightColor = const Color(0xFFAA6976);
@@ -65,13 +67,16 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
             fabAnimationController: _fabAnimationController,
             primaryColor: _primaryColor,
             lightColor: _lightColor,
-            onBackPressed: () => Get.back(),
+            onBackPressed: () {
+              // Pass back true if user has sent a reply
+              Get.back(result: _hasReplied);
+            },
           ),
           Expanded(
             child: BlocBuilder<ContactDetailCubit, ContactDetailState>(
               builder: (context, state) {
                 if (state is ContactDetailLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const SkeletonContactDetailScreen();
                 } else if (state is ContactDetailSuccess) {
                   return _buildContactDetail(state.contact);
                 } else if (state is ContactDetailFailure) {
@@ -116,8 +121,8 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
           ),
         ),
 
-        // Reply Input (for staff only)
-        _buildReplyInput(contact),
+        // Reply Input (for staff/admin only, not teachers)
+        if (!context.read<AuthCubit>().isTeacher()) _buildReplyInput(contact),
       ],
     );
   }
@@ -195,8 +200,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
           _buildDetailRow(
             Icons.access_time_rounded,
             'Waktu',
-            Utils.formatDateAndTime(
-                DateFormat('dd/MM/yyyy HH:mm:ss').parse(contact.createdAt)),
+            _formatDateTime(contact.createdAt),
           ),
         ],
       ),
@@ -363,8 +367,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
                       ),
                     ),
                     Text(
-                      Utils.formatDateAndTime(DateFormat('dd/MM/yyyy HH:mm:ss')
-                          .parse(reply.createdAt)),
+                      _formatDateTime(reply.createdAt),
                       style: GoogleFonts.poppins(
                         fontSize: 10,
                         color: Colors.grey[600],
@@ -393,7 +396,35 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
   }
 
   Widget _buildReplyInput(Contact contact) {
-    // Only show for staff and if contact is not closed
+    // Only show for staff/admin (not for teachers) and if contact is not closed
+    final isTeacher = context.read<AuthCubit>().isTeacher();
+
+    if (isTeacher) {
+      // Teachers cannot reply to contacts
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          border: Border(
+            top: BorderSide(color: Colors.grey[300]!),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.info_outline_rounded, color: Colors.grey[600], size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'Hanya admin/staff yang dapat membalas pesan',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     if (contact.isClosed) {
       return Container(
         padding: const EdgeInsets.all(16),
@@ -590,7 +621,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
     );
   }
 
-  void _sendReply(Contact contact) {
+  void _sendReply(Contact contact) async {
     final reply = _replyController.text.trim();
     if (reply.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -599,16 +630,48 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
       return;
     }
 
-    context.read<ContactDetailCubit>().replyToContact(contact.id, reply);
-    _replyController.clear();
+    try {
+      await context
+          .read<ContactDetailCubit>()
+          .replyToContact(contact.id, reply);
+      _replyController.clear();
 
-    // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Balasan berhasil dikirim'),
-        backgroundColor: Colors.green,
-      ),
-    );
+      // Mark that user has sent a reply
+      setState(() {
+        _hasReplied = true;
+      });
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Balasan berhasil dikirim'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      // Refresh contact detail to show new reply
+      await context.read<ContactDetailCubit>().getContactDetail(contact.id);
+
+      // Scroll to bottom to show the new reply
+      Future.delayed(Duration(milliseconds: 300), () {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    } catch (e) {
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal mengirim balasan: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _updateStatus(Contact contact, String status) {
@@ -620,5 +683,21 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
         backgroundColor: Colors.green,
       ),
     );
+  }
+
+  String _formatDateTime(String dateTimeString) {
+    try {
+      // Try to parse as ISO 8601 format first
+      final dateTime = DateTime.parse(dateTimeString);
+      return Utils.formatDateAndTime(dateTime);
+    } catch (e) {
+      // If parsing fails, assume it's already formatted
+      // Check if it's already in the expected format
+      if (dateTimeString.contains('/')) {
+        return dateTimeString;
+      }
+      // If not, return as is
+      return dateTimeString;
+    }
   }
 }

@@ -336,6 +336,19 @@ class Api {
         'dataType': response.data.runtimeType.toString(),
         'hasErrorKey':
             response.data is Map && (response.data as Map).containsKey('error'),
+        'errorValue': response.data is Map ? response.data['error'] : null,
+      });
+
+      // Check for API errors - only throw if error is true
+      if (response.data is Map &&
+          response.data.containsKey('error') &&
+          response.data['error'] == true) {
+        throw ApiException(response.data['message'].toString());
+      }
+
+      AppLogger.debug('Api.postJson', 'Response successful', data: {
+        'hasData': response.data is Map && response.data.containsKey('data'),
+        'message': response.data is Map ? response.data['message'] : null,
       });
 
       return response.data as Map<String, dynamic>;

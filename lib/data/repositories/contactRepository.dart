@@ -31,7 +31,9 @@ class ContactRepository {
     String? sort,
   }) async {
     try {
-      final queryParams = <String, dynamic>{};
+      final queryParams = <String, dynamic>{
+        'with_replies': 'true', // Request replies data
+      };
 
       if (type != null && type.isNotEmpty) queryParams['type'] = type;
       if (status != null && status.isNotEmpty) queryParams['status'] = status;

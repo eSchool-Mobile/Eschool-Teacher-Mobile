@@ -10,6 +10,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui';
+import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ContactListScreen extends StatefulWidget {
   const ContactListScreen({super.key});
@@ -132,8 +134,59 @@ class _ContactListScreenState extends State<ContactListScreen>
     return BlocBuilder<ContactListCubit, ContactListState>(
       builder: (context, state) {
         if (state is ContactListLoading) {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return RefreshIndicator(
+            onRefresh: () => context.read<ContactListCubit>().refresh(),
+            child: CustomScrollView(
+              controller: _scrollController,
+              slivers: [
+                // Search and Filter Section (tetap tampil saat loading)
+                SliverToBoxAdapter(
+                  child: AnimatedBuilder(
+                    animation: _slideAnimationController,
+                    builder: (context, child) {
+                      return Transform.translate(
+                        offset: Offset(
+                          0,
+                          50 * (1 - _slideAnimationController.value),
+                        ),
+                        child: Opacity(
+                          opacity: _slideAnimationController.value,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+                            child: Column(
+                              children: [
+                                _buildEnhancedSearchBar(),
+                                const SizedBox(height: 16),
+                                _buildEnhancedFilterCard(),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                // Stats Section (skeleton)
+                SliverToBoxAdapter(
+                  child: _buildSkeletonStatsSection(),
+                ),
+                // Contact List Skeleton
+                SliverToBoxAdapter(
+                  child: const SizedBox(height: 20),
+                ),
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: const SkeletonContactListItem(),
+                      );
+                    },
+                    childCount: 6, // Show 6 skeleton items
+                  ),
+                ),
+              ],
+            ),
           );
         } else if (state is ContactListSuccess) {
           return RefreshIndicator(
@@ -481,6 +534,108 @@ class _ContactListScreenState extends State<ContactListScreen>
     ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.2, end: 0);
   }
 
+  Widget _buildSkeletonStatsSection() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildSkeletonStatCard(),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildSkeletonStatCard(),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildSkeletonStatCard(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSkeletonStatCard() {
+    return AnimatedBuilder(
+      animation: _pulseAnimationController,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: 1.0 + (_pulseAnimationController.value * 0.02),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                    spreadRadius: 2,
+                  ),
+                  BoxShadow(
+                    color: Colors.white.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(-4, -4),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.grey.shade200,
+                        width: 1,
+                      ),
+                    ),
+                    child: Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    height: 24,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    height: 12,
+                    width: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    )
+        .animate(delay: 0.ms)
+        .fadeIn(duration: 600.ms, curve: Curves.easeOut)
+        .scale(begin: const Offset(0.8, 0.8))
+        .slideY(begin: 0.3, end: 0);
+  }
+
   Widget _buildEnhancedStatsSection() {
     return BlocBuilder<ContactStatsCubit, ContactStatsState>(
       builder: (context, state) {
@@ -792,9 +947,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              DateFormat('dd/MM/yyyy HH:mm').format(
-                                  DateFormat('dd/MM/yyyy HH:mm:ss')
-                                      .parse(contact.createdAt)),
+                              _formatDateTime(contact.createdAt),
                               style: GoogleFonts.inter(
                                 fontSize: 10,
                                 color: _lightColor,
@@ -836,6 +989,122 @@ class _ContactListScreenState extends State<ContactListScreen>
                     ],
                   ),
                 ),
+
+                const SizedBox(height: 16),
+
+                // Reply preview if exists
+                if (contact.replies != null && contact.replies!.isNotEmpty)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFF059669).withOpacity(0.05),
+                          const Color(0xFF10B981).withOpacity(0.03),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: const Color(0xFF059669).withOpacity(0.15),
+                        width: 1,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF059669).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.reply_rounded,
+                                size: 14,
+                                color: const Color(0xFF059669),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Balasan (${contact.replies!.length})',
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF059669),
+                                letterSpacing: -0.1,
+                              ),
+                            ),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.6),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                _formatDateTime(
+                                    contact.replies!.last.createdAt),
+                                style: GoogleFonts.inter(
+                                  fontSize: 9,
+                                  color: const Color(0xFF059669),
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: -0.1,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          contact.replies!.last.reply,
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: const Color(0xFF1F2937),
+                            height: 1.5,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: -0.1,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (contact.replies!.last.adminName != null) ...[
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.person_outline_rounded,
+                                size: 12,
+                                color: const Color(0xFF059669).withOpacity(0.7),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                contact.replies!.last.adminName!,
+                                style: GoogleFonts.inter(
+                                  fontSize: 10,
+                                  color:
+                                      const Color(0xFF059669).withOpacity(0.8),
+                                  fontWeight: FontWeight.w500,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  )
+                      .animate()
+                      .fadeIn(duration: 400.ms, delay: 100.ms)
+                      .slideY(begin: 0.1, end: 0)
+                else
+                  // Debug: Show if no replies
+                  SizedBox.shrink(),
 
                 const SizedBox(height: 16),
 
@@ -1014,90 +1283,97 @@ class _ContactListScreenState extends State<ContactListScreen>
 
   Widget _buildEmptyState() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(40),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  _primaryColor.withOpacity(0.1),
-                  _accentColor.withOpacity(0.05)
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: _primaryColor.withOpacity(0.1),
-                  blurRadius: 30,
-                  offset: const Offset(0, 10),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(40),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    _primaryColor.withOpacity(0.1),
+                    _accentColor.withOpacity(0.05)
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ],
-            ),
-            child: Icon(
-              Icons.contact_support_rounded,
-              size: 80,
-              color: _primaryColor,
-            ),
-          ),
-          const SizedBox(height: 32),
-          Text(
-            '💬 Belum Ada Kontak',
-            style: GoogleFonts.poppins(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: _primaryColor,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Text(
-              'Belum ada inquiry atau laporan yang masuk ke sistem.\nMulai terima kontak dari pengguna!',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.poppins(
-                fontSize: 15,
-                color: _lightColor,
-                height: 1.6,
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [_primaryColor, _lightColor],
-              ),
-              borderRadius: BorderRadius.circular(25),
-              boxShadow: [
-                BoxShadow(
-                  color: _primaryColor.withOpacity(0.3),
-                  blurRadius: 15,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.add_rounded, color: Colors.white, size: 18),
-                const SizedBox(width: 8),
-                Text(
-                  'Tambah Kontak Baru',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: _primaryColor.withOpacity(0.1),
+                    blurRadius: 30,
+                    offset: const Offset(0, 10),
                   ),
-                ),
-              ],
+                ],
+              ),
+              child: Icon(
+                Icons.contact_support_rounded,
+                size: 80,
+                color: _primaryColor,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 32),
+            Text(
+              '💬 Belum Ada Kontak',
+              style: GoogleFonts.poppins(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: _primaryColor,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'Belum ada inquiry atau laporan yang masuk ke sistem.\nMulai terima kontak dari pengguna!',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: 15,
+                  color: _lightColor,
+                  height: 1.6,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            GestureDetector(
+              onTap: _showSubmitContactDialog,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [_primaryColor, _lightColor],
+                  ),
+                  borderRadius: BorderRadius.circular(25),
+                  boxShadow: [
+                    BoxShadow(
+                      color: _primaryColor.withOpacity(0.3),
+                      blurRadius: 15,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.add_rounded, color: Colors.white, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Tambah Kontak Baru',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     )
         .animate()
@@ -1108,99 +1384,102 @@ class _ContactListScreenState extends State<ContactListScreen>
 
   Widget _buildErrorState(String message) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(40),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.red.withOpacity(0.1),
-                  Colors.red.withOpacity(0.05),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(40),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.red.withOpacity(0.1),
+                    Colors.red.withOpacity(0.05),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.red.withOpacity(0.1),
+                    blurRadius: 30,
+                    offset: const Offset(0, 10),
+                  ),
                 ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
               ),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.red.withOpacity(0.1),
-                  blurRadius: 30,
-                  offset: const Offset(0, 10),
-                ),
-              ],
+              child: Icon(
+                Icons.error_outline_rounded,
+                size: 80,
+                color: Colors.red[400],
+              ),
             ),
-            child: Icon(
-              Icons.error_outline_rounded,
-              size: 80,
-              color: Colors.red[400],
-            ),
-          ),
-          const SizedBox(height: 32),
-          Text(
-            '⚠️ Terjadi Kesalahan',
-            style: GoogleFonts.poppins(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: Colors.red[600],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Text(
-              message,
-              textAlign: TextAlign.center,
+            const SizedBox(height: 32),
+            Text(
+              '⚠️ Terjadi Kesalahan',
               style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: Colors.grey[600],
-                height: 1.5,
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: Colors.red[600],
               ),
             ),
-          ),
-          const SizedBox(height: 24),
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [_primaryColor, _lightColor],
-              ),
-              borderRadius: BorderRadius.circular(25),
-              boxShadow: [
-                BoxShadow(
-                  color: _primaryColor.withOpacity(0.3),
-                  blurRadius: 15,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: ElevatedButton.icon(
-              onPressed: () => context.read<ContactListCubit>().refresh(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-              ),
-              icon: const Icon(
-                Icons.refresh_rounded,
-                color: Colors.white,
-                size: 20,
-              ),
-              label: Text(
-                'Coba Lagi',
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                message,
+                textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
                   fontSize: 14,
+                  color: Colors.grey[600],
+                  height: 1.5,
                 ),
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 24),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [_primaryColor, _lightColor],
+                ),
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [
+                  BoxShadow(
+                    color: _primaryColor.withOpacity(0.3),
+                    blurRadius: 15,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: ElevatedButton.icon(
+                onPressed: () => context.read<ContactListCubit>().refresh(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+                icon: const Icon(
+                  Icons.refresh_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                label: Text(
+                  'Coba Lagi',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     )
         .animate()
@@ -1288,10 +1567,43 @@ class _ContactListScreenState extends State<ContactListScreen>
         );
   }
 
-  void _navigateToContactDetail(Contact contact) {
-    Get.toNamed(
+  void _navigateToContactDetail(Contact contact) async {
+    final result = await Get.toNamed(
       Routes.contactDetailScreen,
       arguments: contact.id,
     );
+
+    // Refresh contact list when returning from detail screen
+    // Only refresh if user has sent a reply (result == true)
+    if (result == true) {
+      // Refresh contact list to show updated replies
+      context.read<ContactListCubit>().getContacts(
+            type: _selectedType,
+            status: _selectedStatus,
+            search: _searchController.text.isNotEmpty
+                ? _searchController.text
+                : null,
+            sort: _selectedSort,
+            refresh: true,
+          );
+      // Refresh stats
+      context.read<ContactStatsCubit>().getContactStats();
+    }
+  }
+
+  String _formatDateTime(String dateTimeString) {
+    try {
+      // Try to parse as ISO 8601 format first
+      final dateTime = DateTime.parse(dateTimeString);
+      return DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
+    } catch (e) {
+      // If parsing fails, assume it's already formatted
+      // Check if it's already in the expected format
+      if (dateTimeString.contains('/')) {
+        return dateTimeString;
+      }
+      // If not, return as is
+      return dateTimeString;
+    }
   }
 }
