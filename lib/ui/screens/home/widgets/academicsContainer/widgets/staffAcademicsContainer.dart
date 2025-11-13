@@ -270,7 +270,6 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                         )
                       : const SizedBox(),
 
-                
                   // Question Bank Section
                   _buildMenuSection(
                     context: context,
@@ -319,7 +318,7 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                         )
                       : const SizedBox(),
 
-                        // Offline Exam Section
+                  // Offline Exam Section
                   (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
                               moduleId: examManagementModuleId.toString())) &&
                           (staffAllowedPermissionsAndModulesCubit
@@ -363,7 +362,6 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                         )
                       : const SizedBox(),
 
-
                   // Online Exam Section
                   _buildMenuSection(
                     context: context,
@@ -391,13 +389,31 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                           onTap: () =>
                               Get.toNamed(Routes.onlineExamResultScreen),
                         ),
-                                                  _buildMenuItem(
-                            context: context,
-                            icon: Icons.visibility,
-                            title: "Status Siswa Ujian",
-                            index: 16,
-                            onTap: () => Get.toNamed(Routes.examStatusScreen),
-                          ),
+                      _buildMenuItem(
+                        context: context,
+                        icon: Icons.visibility,
+                        title: "Status Siswa Ujian",
+                        index: 16,
+                        onTap: () => Get.toNamed(Routes.examStatusScreen),
+                      ),
+                    ],
+                  ),
+
+                  // Extracurricular Section
+                  _buildMenuSection(
+                    context: context,
+                    title: "Ekstrakurikuler",
+                    icon: Icons.sports_soccer,
+                    iconColor: Color(0xFF8B0000).withOpacity(0.9),
+                    index: 8,
+                    menus: [
+                      _buildMenuItem(
+                        context: context,
+                        icon: Icons.list,
+                        title: "Kelola Ekstrakurikuler",
+                        index: 17,
+                        onTap: () => Get.toNamed(Routes.extracurricularScreen),
+                      ),
                     ],
                   ),
 

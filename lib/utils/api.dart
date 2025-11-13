@@ -196,6 +196,18 @@ class Api {
       "${databaseUrl}teacher/reset-online-exam-status";
   static String gradeLevel = "${databaseUrl}teacher/get-grade-levels";
 
+  // Extracurricular APIs
+  static String getExtracurriculars = "${databaseUrl}extracurricular";
+  static String getArchivedExtracurriculars =
+      "${databaseUrl}extracurricular/archived";
+  static String createExtracurricular = "${databaseUrl}extracurricular/store";
+  static String updateExtracurricular = "${databaseUrl}extracurricular/update";
+  static String deleteExtracurricular = "${databaseUrl}extracurricular/destroy";
+  static String restoreExtracurricular =
+      "${databaseUrl}extracurricular/restore";
+  static String forceDeleteExtracurricular =
+      "${databaseUrl}extracurricular/force-delete";
+
   /// Contact APIs
   static String submitContact = "${databaseUrl}contact/submit";
   static String getContacts = "${databaseUrl}contacts";
@@ -205,10 +217,12 @@ class Api {
 
   static Map<String, String> headers({bool useAuthToken = false}) {
     final String jwtToken = AuthRepository.getAuthToken();
-    print(jwtToken);
+    print(
+        '🔑 [API] Getting auth token: ${jwtToken.isNotEmpty ? "Token exists (${jwtToken.length} chars)" : "No token"}');
     final schoolCode = AuthRepository().schoolCode;
+    print('🏫 [API] School code: $schoolCode');
 
-    return {
+    final headers = {
       "Authorization": "Bearer $jwtToken",
       "school_code": schoolCode,
       "Content-Type": "application/json",
@@ -222,6 +236,18 @@ class Api {
       "Access-Control-Allow-Headers":
           "Origin, Content-Type, Accept, Authorization, X-Request-With, role, view_type, all",
     };
+
+    print('📋 [API] Generated headers:');
+    headers.forEach((key, value) {
+      if (key == 'Authorization' && value.length > 27) {
+        // "Bearer " + some token
+        print('  $key: Bearer ${value.substring(7, 27)}...');
+      } else {
+        print('  $key: $value');
+      }
+    });
+
+    return headers;
   }
 
   static Future<XFile> fetchImg(String url) async {

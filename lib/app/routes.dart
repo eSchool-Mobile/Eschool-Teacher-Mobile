@@ -107,6 +107,12 @@ import 'package:eschool_saas_staff/cubits/examStatus/examStatusCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/examStatusRepository.dart';
 import 'package:eschool_saas_staff/ui/screens/assignmentMonitoring/assignmentMonitoringScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/assignmentMonitoring/assignmentDetailMonitoringScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/extracurricular/extracurricularScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/extracurricular/createExtracurricular.dart';
+import 'package:eschool_saas_staff/ui/screens/extracurricular/editExtracurricular.dart';
+import 'package:eschool_saas_staff/ui/screens/extracurricular/archiveExtracurricular.dart';
+import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularCubit.dart';
+import 'package:eschool_saas_staff/data/repositories/extracurricularRepository.dart';
 
 // Nama route
 class Routes {
@@ -155,6 +161,12 @@ class Routes {
 
   static String sessionYearsScreen = "/sessionYears";
   static String allowancesAndDeductionsScreen = "/allowancesAndDeductions";
+
+  // Extracurricular routes
+  static String extracurricularScreen = "/extracurricular";
+  static String createExtracurricular = "/createExtracurricular";
+  static String editExtracurricular = "/editExtracurricular";
+  static String archiveExtracurricular = "/archiveExtracurricular";
 
   //teacher academics routes
   static String teacherMyTimetableScreen = "/teacherMyTimetable";
@@ -670,6 +682,36 @@ class Routes {
             ArchiveOnlineExam(), // Replace Container() with ArchiveOnlineExam()
       ),
     ),
+
+    // Extracurricular routes
+    GetPage(
+      name: extracurricularScreen,
+      page: () => ExtracurricularScreen.getRouteInstance(),
+    ),
+    GetPage(
+      name: createExtracurricular,
+      page: () => BlocProvider<ExtracurricularCubit>(
+        create: (context) => ExtracurricularCubit(ExtracurricularRepository()),
+        child: CreateExtracurricular(),
+      ),
+    ),
+    GetPage(
+      name: editExtracurricular,
+      page: () => BlocProvider<ExtracurricularCubit>(
+        create: (context) => ExtracurricularCubit(ExtracurricularRepository()),
+        child: EditExtracurricular(
+          extracurricular: Get.arguments,
+        ),
+      ),
+    ),
+    GetPage(
+      name: archiveExtracurricular,
+      page: () => BlocProvider<ExtracurricularCubit>(
+        create: (context) => ExtracurricularCubit(ExtracurricularRepository()),
+        child: ArchiveExtracurricular(),
+      ),
+    ),
+
     GetPage(
       name: Routes
           .previewQuestionBank, // Pastikan 'previewQuestionBank' didefinisikan di Routes
