@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/extracurricular.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
@@ -7,44 +6,28 @@ class ExtracurricularRepository {
   // Get list of active extracurriculars
   Future<List<Extracurricular>> getExtracurriculars() async {
     try {
-      print('🔍 [EXTRACURRICULAR REPO] Starting getExtracurriculars API call');
-      print('🔍 [EXTRACURRICULAR REPO] API URL: ${Api.getExtracurriculars}');
+      print('🔍 [EXTRACURRICULAR REPO] API Call: ${Api.getExtracurriculars}');
 
-      final response = await Dio().get(
-        Api.getExtracurriculars,
-        options: Options(headers: Api.headers()),
+      final response = await Api.get(
+        url: Api.getExtracurriculars,
+        useAuthToken: true,
       );
 
       print(
-          '🔍 [EXTRACURRICULAR REPO] Response status: ${response.statusCode}');
-      print(
-          '🔍 [EXTRACURRICULAR REPO] Response data type: ${response.data.runtimeType}');
-      print('🔍 [EXTRACURRICULAR REPO] Response data: ${response.data}');
+          '✅ [EXTRACURRICULAR REPO] Response: ${response['message'] ?? 'Success'}');
 
-      if (response.data['error'] == true) {
-        print(
-            '❌ [EXTRACURRICULAR REPO] API returned error: ${response.data['message']}');
+      if (response['error'] == true) {
+        print('❌ [EXTRACURRICULAR REPO] API Error: ${response['message']}');
         throw ApiException(
-            response.data['message'] ?? 'Failed to load extracurriculars');
+            response['message'] ?? 'Failed to load extracurriculars');
       }
 
-      final List<dynamic> data = response.data['data'] ?? [];
-      print(
-          '✅ [EXTRACURRICULAR REPO] Successfully loaded ${data.length} extracurriculars');
+      final List<dynamic> data = response['data'] ?? [];
+      print('📊 [EXTRACURRICULAR REPO] Loaded ${data.length} extracurriculars');
 
       return data.map((json) => Extracurricular.fromJson(json)).toList();
     } catch (e) {
-      print('❌ [EXTRACURRICULAR REPO] Exception in getExtracurriculars: $e');
-      print('❌ [EXTRACURRICULAR REPO] Exception type: ${e.runtimeType}');
-      if (e is DioException) {
-        print('❌ [EXTRACURRICULAR REPO] DioException details:');
-        print('  - Type: ${e.type}');
-        print('  - Message: ${e.message}');
-        print('  - Status Code: ${e.response?.statusCode}');
-        print('  - Response Data: ${e.response?.data}');
-        print('  - Request URL: ${e.requestOptions.uri}');
-        print('  - Headers: ${e.requestOptions.headers}');
-      }
+      print('❌ [EXTRACURRICULAR REPO] Exception: $e');
       throw ApiException(e.toString());
     }
   }
@@ -52,17 +35,17 @@ class ExtracurricularRepository {
   // Get list of archived extracurriculars
   Future<List<Extracurricular>> getArchivedExtracurriculars() async {
     try {
-      final response = await Dio().get(
-        Api.getArchivedExtracurriculars,
-        options: Options(headers: Api.headers()),
+      final response = await Api.get(
+        url: Api.getArchivedExtracurriculars,
+        useAuthToken: true,
       );
 
-      if (response.data['error'] == true) {
-        throw ApiException(response.data['message'] ??
-            'Failed to load archived extracurriculars');
+      if (response['error'] == true) {
+        throw ApiException(
+            response['message'] ?? 'Failed to load archived extracurriculars');
       }
 
-      final List<dynamic> data = response.data['data'] ?? [];
+      final List<dynamic> data = response['data'] ?? [];
       return data.map((json) => Extracurricular.fromJson(json)).toList();
     } catch (e) {
       throw ApiException(e.toString());
@@ -76,21 +59,27 @@ class ExtracurricularRepository {
     required int coachId,
   }) async {
     try {
-      final response = await Dio().post(
-        Api.createExtracurricular,
-        data: {
+      print('➕ [EXTRACURRICULAR REPO] Creating: $name');
+
+      final response = await Api.post(
+        url: Api.createExtracurricular,
+        useAuthToken: true,
+        body: {
           'name': name,
           'description': description,
-          'coach_id': coachId,
+          'coach_id': coachId.toString(),
         },
-        options: Options(headers: Api.headers()),
       );
 
-      if (response.data['error'] == true) {
+      if (response['error'] == true) {
+        print('❌ [EXTRACURRICULAR REPO] Create failed: ${response['message']}');
         throw ApiException(
-            response.data['message'] ?? 'Failed to create extracurricular');
+            response['message'] ?? 'Failed to create extracurricular');
       }
+
+      print('✅ [EXTRACURRICULAR REPO] Created successfully');
     } catch (e) {
+      print('❌ [EXTRACURRICULAR REPO] Create exception: $e');
       throw ApiException(e.toString());
     }
   }
@@ -103,21 +92,27 @@ class ExtracurricularRepository {
     required int coachId,
   }) async {
     try {
-      final response = await Dio().put(
-        '${Api.updateExtracurricular}/$id',
-        data: {
+      print('✏️ [EXTRACURRICULAR REPO] Updating ID $id: $name');
+
+      final response = await Api.put(
+        url: '${Api.updateExtracurricular}/$id',
+        useAuthToken: true,
+        body: {
           'name': name,
           'description': description,
-          'coach_id': coachId,
+          'coach_id': coachId.toString(),
         },
-        options: Options(headers: Api.headers()),
       );
 
-      if (response.data['error'] == true) {
+      if (response['error'] == true) {
+        print('❌ [EXTRACURRICULAR REPO] Update failed: ${response['message']}');
         throw ApiException(
-            response.data['message'] ?? 'Failed to update extracurricular');
+            response['message'] ?? 'Failed to update extracurricular');
       }
+
+      print('✅ [EXTRACURRICULAR REPO] Updated successfully');
     } catch (e) {
+      print('❌ [EXTRACURRICULAR REPO] Update exception: $e');
       throw ApiException(e.toString());
     }
   }
@@ -125,17 +120,25 @@ class ExtracurricularRepository {
   // Soft delete (Archive) extracurricular
   Future<void> deleteExtracurricular(int id) async {
     try {
-      final response = await Dio().delete(
-        '${Api.deleteExtracurricular}/$id',
+      print('🗂️ [EXTRACURRICULAR REPO] Archiving ID: $id');
+
+      final response = await Api.delete(
+        url: '${Api.deleteExtracurricular}/$id',
+        useAuthToken: true,
+        body: {},
         queryParameters: {'mode': 'archive'},
-        options: Options(headers: Api.headers()),
       );
 
-      if (response.data['error'] == true) {
+      if (response['error'] == true) {
+        print(
+            '❌ [EXTRACURRICULAR REPO] Archive failed: ${response['message']}');
         throw ApiException(
-            response.data['message'] ?? 'Failed to archive extracurricular');
+            response['message'] ?? 'Failed to archive extracurricular');
       }
+
+      print('✅ [EXTRACURRICULAR REPO] Archived successfully');
     } catch (e) {
+      print('❌ [EXTRACURRICULAR REPO] Archive exception: $e');
       throw ApiException(e.toString());
     }
   }
@@ -143,14 +146,15 @@ class ExtracurricularRepository {
   // Restore archived extracurricular
   Future<void> restoreExtracurricular(int id) async {
     try {
-      final response = await Dio().post(
-        '${Api.restoreExtracurricular}/$id',
-        options: Options(headers: Api.headers()),
+      final response = await Api.post(
+        url: '${Api.restoreExtracurricular}/$id',
+        useAuthToken: true,
+        body: {},
       );
 
-      if (response.data['error'] == true) {
+      if (response['error'] == true) {
         throw ApiException(
-            response.data['message'] ?? 'Failed to restore extracurricular');
+            response['message'] ?? 'Failed to restore extracurricular');
       }
     } catch (e) {
       throw ApiException(e.toString());
@@ -160,14 +164,15 @@ class ExtracurricularRepository {
   // Force delete (Permanent delete) extracurricular
   Future<void> forceDeleteExtracurricular(int id) async {
     try {
-      final response = await Dio().delete(
-        '${Api.forceDeleteExtracurricular}/$id',
+      final response = await Api.delete(
+        url: '${Api.forceDeleteExtracurricular}/$id',
+        useAuthToken: true,
+        body: {},
         queryParameters: {'mode': 'permanent'},
-        options: Options(headers: Api.headers()),
       );
 
-      if (response.data['error'] == true) {
-        throw ApiException(response.data['message'] ??
+      if (response['error'] == true) {
+        throw ApiException(response['message'] ??
             'Failed to permanently delete extracurricular');
       }
     } catch (e) {

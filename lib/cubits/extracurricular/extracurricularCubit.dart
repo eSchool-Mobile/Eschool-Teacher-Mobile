@@ -32,11 +32,9 @@ class ExtracurricularCubit extends Cubit<ExtracurricularState> {
 
   // Get active extracurriculars
   Future<void> getExtracurriculars() async {
-    print('🚀 [EXTRACURRICULAR CUBIT] getExtracurriculars called');
+    print('🚀 [EXTRACURRICULAR CUBIT] Fetching extracurriculars...');
     emit(ExtracurricularLoading());
     try {
-      print(
-          '📡 [EXTRACURRICULAR CUBIT] Calling repository.getExtracurriculars()');
       final extracurriculars =
           await _extracurricularRepository.getExtracurriculars();
       final currentState = state;
@@ -45,14 +43,13 @@ class ExtracurricularCubit extends Cubit<ExtracurricularState> {
           : <Extracurricular>[];
 
       print(
-          '✅ [EXTRACURRICULAR CUBIT] Successfully loaded ${extracurriculars.length} extracurriculars');
+          '✅ [EXTRACURRICULAR CUBIT] Success: ${extracurriculars.length} active extracurriculars');
       emit(ExtracurricularSuccess(
         extracurriculars: extracurriculars,
         archivedExtracurriculars: archivedExtracurriculars,
       ));
     } catch (e) {
-      print('❌ [EXTRACURRICULAR CUBIT] Error in getExtracurriculars: $e');
-      print('❌ [EXTRACURRICULAR CUBIT] Error type: ${e.runtimeType}');
+      print('❌ [EXTRACURRICULAR CUBIT] Error: $e');
       emit(ExtracurricularFailure(e.toString()));
     }
   }
@@ -83,14 +80,17 @@ class ExtracurricularCubit extends Cubit<ExtracurricularState> {
     required String description,
     required int coachId,
   }) async {
+    print('➕ [EXTRACURRICULAR CUBIT] Creating: $name');
     try {
       await _extracurricularRepository.createExtracurricular(
         name: name,
         description: description,
         coachId: coachId,
       );
+      print('✅ [EXTRACURRICULAR CUBIT] Created successfully');
       await getExtracurriculars();
     } catch (e) {
+      print('❌ [EXTRACURRICULAR CUBIT] Create failed: $e');
       emit(ExtracurricularFailure(e.toString()));
       rethrow;
     }
@@ -103,6 +103,7 @@ class ExtracurricularCubit extends Cubit<ExtracurricularState> {
     required String description,
     required int coachId,
   }) async {
+    print('✏️ [EXTRACURRICULAR CUBIT] Updating ID $id: $name');
     try {
       await _extracurricularRepository.updateExtracurricular(
         id: id,
@@ -110,8 +111,10 @@ class ExtracurricularCubit extends Cubit<ExtracurricularState> {
         description: description,
         coachId: coachId,
       );
+      print('✅ [EXTRACURRICULAR CUBIT] Updated successfully');
       await getExtracurriculars();
     } catch (e) {
+      print('❌ [EXTRACURRICULAR CUBIT] Update failed: $e');
       emit(ExtracurricularFailure(e.toString()));
       rethrow;
     }
@@ -119,10 +122,13 @@ class ExtracurricularCubit extends Cubit<ExtracurricularState> {
 
   // Delete (Archive) extracurricular
   Future<void> deleteExtracurricular(int id) async {
+    print('🗂️ [EXTRACURRICULAR CUBIT] Archiving ID: $id');
     try {
       await _extracurricularRepository.deleteExtracurricular(id);
+      print('✅ [EXTRACURRICULAR CUBIT] Archived successfully');
       await getExtracurriculars();
     } catch (e) {
+      print('❌ [EXTRACURRICULAR CUBIT] Archive failed: $e');
       emit(ExtracurricularFailure(e.toString()));
       rethrow;
     }
