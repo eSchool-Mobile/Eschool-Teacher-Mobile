@@ -1,4 +1,5 @@
 import 'package:eschool_saas_staff/data/models/extracurricular.dart';
+import 'package:eschool_saas_staff/data/models/user.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 
@@ -22,7 +23,11 @@ class ExtracurricularRepository {
             response['message'] ?? 'Failed to load extracurriculars');
       }
 
-      final List<dynamic> data = response['data'] ?? [];
+      // Handle null data or empty array
+      final dynamic rawData = response['data'];
+      final List<dynamic> data =
+          rawData is List ? rawData : (rawData == null ? [] : []);
+
       print('📊 [EXTRACURRICULAR REPO] Loaded ${data.length} extracurriculars');
 
       return data.map((json) => Extracurricular.fromJson(json)).toList();
@@ -176,6 +181,43 @@ class ExtracurricularRepository {
             'Failed to permanently delete extracurricular');
       }
     } catch (e) {
+      throw ApiException(e.toString());
+    }
+  }
+
+  // Get list of teachers and staff
+  Future<List<User>> getTeachersStaffList() async {
+    try {
+      print('🔍 [EXTRACURRICULAR REPO] API Call: ${Api.getTeachersStaffList}');
+
+      final response = await Api.get(
+        url: Api.getTeachersStaffList,
+        useAuthToken: true,
+        queryParameters: {
+          'role': 'teacher,staff',
+        },
+      );
+
+      print(
+          '✅ [EXTRACURRICULAR REPO] Teachers/Staff Response: ${response['message'] ?? 'Success'}');
+
+      if (response['error'] == true) {
+        print('❌ [EXTRACURRICULAR REPO] API Error: ${response['message']}');
+        throw ApiException(
+            response['message'] ?? 'Failed to load teachers/staff');
+      }
+
+      // Handle paginated response structure
+      final responseData = response['data'];
+      final List<dynamic> data = responseData is Map
+          ? (responseData['data'] ?? [])
+          : (responseData ?? []);
+
+      print('📊 [EXTRACURRICULAR REPO] Loaded ${data.length} users');
+
+      return data.map((json) => User.fromJson(json)).toList();
+    } catch (e) {
+      print('❌ [EXTRACURRICULAR REPO] Exception: $e');
       throw ApiException(e.toString());
     }
   }

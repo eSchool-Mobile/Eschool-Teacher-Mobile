@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/models/extracurricular.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricularRepository.dart';
+import 'package:eschool_saas_staff/data/models/user.dart';
 
 abstract class ExtracurricularState {}
 
@@ -16,6 +17,20 @@ class ExtracurricularSuccess extends ExtracurricularState {
     required this.extracurriculars,
     required this.archivedExtracurriculars,
   });
+}
+
+class TeachersStaffLoading extends ExtracurricularState {}
+
+class TeachersStaffSuccess extends ExtracurricularState {
+  final List<User> users;
+
+  TeachersStaffSuccess(this.users);
+}
+
+class TeachersStaffFailure extends ExtracurricularState {
+  final String errorMessage;
+
+  TeachersStaffFailure(this.errorMessage);
 }
 
 class ExtracurricularFailure extends ExtracurricularState {
@@ -154,6 +169,20 @@ class ExtracurricularCubit extends Cubit<ExtracurricularState> {
     } catch (e) {
       emit(ExtracurricularFailure(e.toString()));
       rethrow;
+    }
+  }
+
+  // Get teachers and staff list
+  Future<void> getTeachersStaffList() async {
+    print('🔍 [EXTRACURRICULAR CUBIT] Fetching teachers/staff list...');
+    emit(TeachersStaffLoading());
+    try {
+      final users = await _extracurricularRepository.getTeachersStaffList();
+      print('✅ [EXTRACURRICULAR CUBIT] Success: ${users.length} users');
+      emit(TeachersStaffSuccess(users));
+    } catch (e) {
+      print('❌ [EXTRACURRICULAR CUBIT] Error: $e');
+      emit(TeachersStaffFailure(e.toString()));
     }
   }
 }

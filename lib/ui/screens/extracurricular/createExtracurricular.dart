@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularCubit.dart';
+import 'package:eschool_saas_staff/data/models/user.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
@@ -15,9 +16,12 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _coachController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   int? selectedCoachId;
+  String? selectedCoachName;
+  List<User> allUsers = [];
+  List<User> filteredUsers = [];
   late AnimationController _animationController;
   late AnimationController _pulseController;
 
@@ -37,6 +41,9 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
       vsync: this,
       duration: Duration(milliseconds: 1200),
     )..repeat(reverse: true);
+
+    // Fetch teachers/staff list
+    context.read<ExtracurricularCubit>().getTeachersStaffList();
   }
 
   @override
@@ -45,7 +52,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
     _pulseController.dispose();
     _nameController.dispose();
     _descriptionController.dispose();
-    _coachController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -159,34 +166,371 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
               ),
             ),
             SizedBox(height: 20),
-            _buildAnimatedTextField(
-              controller: _coachController,
-              label: 'ID Pelatih',
-              icon: Icons.person,
-              keyboardType: TextInputType.number,
-              validator: (v) {
-                if (v!.isEmpty) return 'ID Pelatih wajib diisi';
-                if (int.tryParse(v) == null) return 'ID harus berupa angka';
-                return null;
-              },
-              onChanged: (value) {
-                if (value.isNotEmpty && int.tryParse(value) != null) {
+            BlocConsumer<ExtracurricularCubit, ExtracurricularState>(
+              listener: (context, state) {
+                if (state is TeachersStaffSuccess) {
                   setState(() {
-                    selectedCoachId = int.parse(value);
+                    allUsers = state.users;
+                    filteredUsers = state.users;
                   });
                 }
               },
+              builder: (context, state) {
+                if (state is TeachersStaffLoading) {
+                  return Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(20),
+                      child: CircularProgressIndicator(color: _primaryColor),
+                    ),
+                  );
+                }
+
+                if (state is TeachersStaffFailure) {
+                  return Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error_outline, color: Colors.red),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Gagal memuat daftar guru/staff',
+                            style: TextStyle(color: Colors.red.shade900),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            context
+                                .read<ExtracurricularCubit>()
+                                .getTeachersStaffList();
+                          },
+                          child: Text('Coba Lagi'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return Column(
+                  children: [
+                    // Selected coach display
+                    if (selectedCoachId != null)
+                      Container(
+                        padding: EdgeInsets.all(12),
+                        margin: EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          color: _primaryColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: _primaryColor, width: 2),
+                        ),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 20,
+                              backgroundColor: _primaryColor,
+                              child: Icon(Icons.person,
+                                  color: Colors.white, size: 20),
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Pelatih Terpilih',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                  Text(
+                                    selectedCoachName ?? '',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: _primaryColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.close, color: Colors.red),
+                              onPressed: () {
+                                setState(() {
+                                  selectedCoachId = null;
+                                  selectedCoachName = null;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    // Dropdown button
+                    InkWell(
+                      onTap: () => _showCoachSelectionDialog(),
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: selectedCoachId == null
+                                ? Colors.grey.shade300
+                                : _primaryColor,
+                            width: selectedCoachId == null ? 1 : 2,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.person_search,
+                              color: selectedCoachId == null
+                                  ? Colors.grey.shade600
+                                  : _primaryColor,
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                selectedCoachId == null
+                                    ? 'Pilih Pelatih/Pembina'
+                                    : 'Ganti Pelatih/Pembina',
+                                style: TextStyle(
+                                  color: selectedCoachId == null
+                                      ? Colors.grey.shade600
+                                      : _primaryColor,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            Icon(
+                              Icons.arrow_drop_down,
+                              color: selectedCoachId == null
+                                  ? Colors.grey.shade600
+                                  : _primaryColor,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
-            SizedBox(height: 10),
-            Text(
-              'Masukkan ID user yang akan menjadi pelatih/pembina ekstrakurikuler ini',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-                fontStyle: FontStyle.italic,
+            if (selectedCoachId == null)
+              Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: Text(
+                  'Pilih guru atau staff yang akan menjadi pelatih/pembina ekstrakurikuler ini',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
               ),
-            ),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _showCoachSelectionDialog() {
+    _searchController.clear();
+    setState(() {
+      filteredUsers = allUsers;
+    });
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: MediaQuery.of(context).size.height * 0.7,
+            padding: EdgeInsets.all(20),
+            child: Column(
+              children: [
+                // Header
+                Row(
+                  children: [
+                    Icon(Icons.person_search, color: _primaryColor, size: 28),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Pilih Pelatih/Pembina',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: _primaryColor,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 15),
+
+                // Search field
+                TextField(
+                  controller: _searchController,
+                  onChanged: (value) {
+                    setDialogState(() {
+                      if (value.isEmpty) {
+                        filteredUsers = allUsers;
+                      } else {
+                        filteredUsers = allUsers.where((user) {
+                          final name = user.fullName?.toLowerCase() ?? '';
+                          final search = value.toLowerCase();
+                          return name.contains(search);
+                        }).toList();
+                      }
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Cari guru/staff...',
+                    prefixIcon: Icon(Icons.search, color: _primaryColor),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(Icons.clear),
+                            onPressed: () {
+                              setDialogState(() {
+                                _searchController.clear();
+                                filteredUsers = allUsers;
+                              });
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey.shade100,
+                  ),
+                ),
+                SizedBox(height: 15),
+
+                // User count
+                Text(
+                  '${filteredUsers.length} guru/staff ditemukan',
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
+                  ),
+                ),
+                SizedBox(height: 10),
+
+                // User list
+                Expanded(
+                  child: filteredUsers.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.person_off,
+                                  size: 64, color: Colors.grey.shade400),
+                              SizedBox(height: 16),
+                              Text(
+                                'Tidak ada guru/staff ditemukan',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: filteredUsers.length,
+                          itemBuilder: (context, index) {
+                            final user = filteredUsers[index];
+                            final isSelected = selectedCoachId == user.id;
+
+                            return Container(
+                              margin: EdgeInsets.only(bottom: 8),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? _primaryColor.withOpacity(0.1)
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? _primaryColor
+                                      : Colors.grey.shade200,
+                                  width: isSelected ? 2 : 1,
+                                ),
+                              ),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  radius: 24,
+                                  backgroundColor: isSelected
+                                      ? _primaryColor
+                                      : Colors.grey.shade300,
+                                  backgroundImage: user.image != null &&
+                                          user.image!.isNotEmpty
+                                      ? NetworkImage(user.image!)
+                                      : null,
+                                  child:
+                                      user.image == null || user.image!.isEmpty
+                                          ? Icon(
+                                              Icons.person,
+                                              color: isSelected
+                                                  ? Colors.white
+                                                  : Colors.grey.shade600,
+                                              size: 24,
+                                            )
+                                          : null,
+                                ),
+                                title: Text(
+                                  user.fullName ?? 'No Name',
+                                  style: TextStyle(
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                    color: isSelected
+                                        ? _primaryColor
+                                        : Colors.black,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  user.role ?? 'No Role',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                                trailing: isSelected
+                                    ? Icon(Icons.check_circle,
+                                        color: _primaryColor)
+                                    : null,
+                                onTap: () {
+                                  setState(() {
+                                    selectedCoachId = user.id;
+                                    selectedCoachName = user.fullName;
+                                  });
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

@@ -195,21 +195,22 @@ class Api {
   static String resetOnlineExamStatus =
       "${databaseUrl}teacher/reset-online-exam-status";
   static String gradeLevel = "${databaseUrl}teacher/get-grade-levels";
+  static String getTeachersStaffList = "${databaseUrl}staff/users";
 
   // Extracurricular APIs
-  static String getExtracurriculars = "${databaseUrl}extracurricular";
+  static String getExtracurriculars = "${databaseUrl}staff/extracurricular";
   static String getArchivedExtracurriculars =
-      "${databaseUrl}extracurricular/archived";
+      "${databaseUrl}staff/extracurricular/archived";
   static String createExtracurricular =
-      "${databaseUrl}extracurricular/store";
+      "${databaseUrl}staff/extracurricular/store";
   static String updateExtracurricular =
-      "${databaseUrl}extracurricular/update";
+      "${databaseUrl}staff/extracurricular/update";
   static String deleteExtracurricular =
-      "${databaseUrl}extracurricular/destroy";
+      "${databaseUrl}staff/extracurricular/destroy";
   static String restoreExtracurricular =
-      "${databaseUrl}extracurricular/restore";
+      "${databaseUrl}staff/extracurricular/restore";
   static String forceDeleteExtracurricular =
-      "${databaseUrl}extracurricular/force-delete";
+      "${databaseUrl}staff/extracurricular/force-delete";
 
   /// Contact APIs
   static String submitContact = "${databaseUrl}contact/submit";
