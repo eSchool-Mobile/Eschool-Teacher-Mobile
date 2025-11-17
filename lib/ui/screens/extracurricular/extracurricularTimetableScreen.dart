@@ -2,12 +2,11 @@ import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularTimetab
 import 'package:eschool_saas_staff/data/repositories/extracurricularTimetableRepository.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/timetableSlotContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart' as constants;
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/route_manager.dart';
 import 'dart:ui';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -82,34 +81,125 @@ class _TimetableSlotSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      padding: EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 20,
-            width: 150,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(4),
+      margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+      height: Utils().getResponsiveHeight(context, 150),
+      child: LayoutBuilder(builder: (context, boxConstraints) {
+        return Row(
+          children: [
+            // Time column skeleton (20% width)
+            SizedBox(
+              width: boxConstraints.maxWidth * (0.2),
+              child: Column(
+                children: [
+                  // Start time skeleton
+                  Container(
+                    height: 20,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    height: 12,
+                    width: 30,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const Spacer(),
+                  // Vertical line skeleton
+                  Container(
+                    height: Utils().getResponsiveHeight(context, 65),
+                    width: Utils.getScaledValue(context, 1.5),
+                    color: Colors.white,
+                  ),
+                  const Spacer(),
+                  // End time skeleton
+                  Container(
+                    height: 20,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  Container(
+                    height: 12,
+                    width: 30,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          SizedBox(height: 12),
-          Container(
-            height: 16,
-            width: 100,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(4),
+            // Spacing (5% width)
+            SizedBox(width: boxConstraints.maxWidth * (0.05)),
+            // Main content skeleton (70% width)
+            SizedBox(
+              width: boxConstraints.maxWidth * (0.7),
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                    horizontal: constants.appContentHorizontalPadding,
+                    vertical: 10),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white),
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.white,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Subject label skeleton
+                    Container(
+                      height: 12,
+                      width: 60,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    // Subject name skeleton
+                    Container(
+                      height: 18,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const Spacer(),
+                    // Class/Teacher label skeleton
+                    Container(
+                      height: 12,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    // Class/Teacher name skeleton
+                    Container(
+                      height: 18,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      }),
     );
   }
 }
@@ -518,124 +608,23 @@ class _ExtracurricularTimetableScreenState
     );
   }
 
-  Widget _buildExtracurricularCard({
-    required String name,
-    required String time,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16.0),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white,
-            Colors.grey.shade50,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: _maroonPrimary.withOpacity(0.1),
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
-        border: Border.all(
-          color: _maroonPrimary.withOpacity(0.1),
-          width: 1,
-        ),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Stack(
-          children: [
-            // Decorative element
-            Positioned(
-              right: -20,
-              top: -20,
-              child: Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      _maroonPrimary.withOpacity(0.05),
-                      _maroonPrimary.withOpacity(0.0),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            // Content
-            Padding(
-              padding: EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  // Icon
-                  Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: _maroonPrimary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      Icons.sports_soccer,
-                      color: _maroonPrimary,
-                      size: 28,
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  // Text info
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          name,
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.access_time,
-                              size: 16,
-                              color: _maroonPrimary.withOpacity(0.7),
-                            ),
-                            SizedBox(width: 6),
-                            Expanded(
-                              child: Text(
-                                time,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  color: Colors.grey.shade600,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    )
-        .animate()
-        .fadeIn(duration: 400.ms)
-        .slideX(begin: -0.1, end: 0, curve: Curves.easeOutCubic);
+  // Helper method to parse time from schedule string like "16:30:00 - 17:30:00"
+  Map<String, String> _parseScheduleTime(String schedule) {
+    try {
+      if (schedule.contains('-')) {
+        final parts = schedule.split('-');
+        return {
+          'startTime': parts[0].trim(),
+          'endTime': parts[1].trim(),
+        };
+      }
+    } catch (e) {
+      print('❌ Error parsing schedule time: $e');
+    }
+    return {
+      'startTime': '',
+      'endTime': '',
+    };
   }
 
   @override
@@ -691,13 +680,20 @@ class _ExtracurricularTimetableScreenState
                           EdgeInsets.all(constants.appContentHorizontalPadding),
                       color: Theme.of(context).colorScheme.surface,
                       child: Column(
-                        children: filteredItems
-                            .map((item) => _buildExtracurricularCard(
-                                  name: item.extracurricularName ?? '-',
-                                  time: item.getScheduleForDay(selectedDay) ??
-                                      '-',
-                                ))
-                            .toList(),
+                        children: filteredItems.map((item) {
+                          final schedule =
+                              item.getScheduleForDay(selectedDay) ?? '-';
+                          final timeData = _parseScheduleTime(schedule);
+
+                          return TimetableSlotContainer(
+                            startTime: timeData['startTime'] ?? '',
+                            endTime: timeData['endTime'] ?? '',
+                            subjectName: item.extracurricularName ?? '-',
+                            isForClass: false,
+                            classSectionName: 'Ekstrakurikuler',
+                            note: '',
+                          );
+                        }).toList(),
                       ),
                     ),
                   ),

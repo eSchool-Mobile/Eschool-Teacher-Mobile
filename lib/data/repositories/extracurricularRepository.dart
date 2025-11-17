@@ -23,14 +23,12 @@ class ExtracurricularRepository {
             response['message'] ?? 'Failed to load extracurriculars');
       }
 
-      // Handle null data or empty array
-      final dynamic rawData = response['data'];
-      final List<dynamic> data =
-          rawData is List ? rawData : (rawData == null ? [] : []);
+      // Response now uses 'rows' instead of 'data'
+      final List<dynamic> rows = response['rows'] ?? [];
 
-      print('📊 [EXTRACURRICULAR REPO] Loaded ${data.length} extracurriculars');
+      print('📊 [EXTRACURRICULAR REPO] Loaded ${rows.length} extracurriculars');
 
-      return data.map((json) => Extracurricular.fromJson(json)).toList();
+      return rows.map((json) => Extracurricular.fromJson(json)).toList();
     } catch (e) {
       print('❌ [EXTRACURRICULAR REPO] Exception: $e');
       throw ApiException(e.toString());

@@ -39,9 +39,13 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
   late AnimationController _appBarAnimationController;
   final ScrollController _scrollController = ScrollController();
 
-  // Theme colors - Soft Maroon palette
-  final Color _primaryColor = Color(0xFF7A1E23);
-  final Color _highlightColor = Color(0xFFB84D4D);
+  // Filter variables
+  String? selectedCoachName;
+  List<String> coachNameList = [];
+
+  // Theme colors - Softer Maroon palette (same as onlineExamScreen)
+  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
 
   @override
   void initState() {
@@ -137,21 +141,26 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
 
     return WillPopScope(
       onWillPop: () async {
-        if (Navigator.of(context).canPop()) {
-          Navigator.of(context).pop();
-          return false;
-        }
+        _animationController.stop();
+        _pulseController.stop();
+        _appBarAnimationController.stop();
         return true;
       },
       child: Scaffold(
         backgroundColor: Colors.grey[50],
+        extendBodyBehindAppBar: true,
         appBar: CustomModernAppBar(
-          title: 'kurikuler',
+          title: 'Kurikuler',
           icon: Icons.sports_soccer,
           fabAnimationController: _appBarAnimationController,
           primaryColor: _primaryColor,
           lightColor: _highlightColor,
-          onBackPressed: () => Navigator.of(context).pop(),
+          onBackPressed: () {
+            _animationController.stop();
+            _pulseController.stop();
+            _appBarAnimationController.stop();
+            Get.back();
+          },
           showAddButton: true,
           onAddPressed: () async {
             final result = await Get.toNamed(Routes.createExtracurricular);
@@ -188,43 +197,41 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
         controller: _scrollController,
         physics: BouncingScrollPhysics(),
         slivers: [
-          _buildSearchBar(),
+          // Add padding for the app bar
+          SliverPadding(
+            padding: EdgeInsets.only(top: 120),
+            sliver: SliverToBoxAdapter(child: SizedBox()),
+          ),
+          _buildSearchAndFilter(),
           BlocBuilder<ExtracurricularCubit, ExtracurricularState>(
             builder: (context, state) {
               if (state is ExtracurricularLoading) {
                 print('🎨 [EXTRACURRICULAR SCREEN] Building loading UI');
-                return SliverPadding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) => _buildShimmerCard(),
-                      childCount: 6,
-                    ),
-                  ),
+                return SliverFillRemaining(
+                  child: _buildShimmerLoading(),
                 );
               }
 
               if (state is ExtracurricularFailure) {
                 print('🎨 [EXTRACURRICULAR SCREEN] Building error UI');
                 return SliverFillRemaining(
-                  child: Center(
-                    child: CustomErrorWidget(
-                      message: state.errorMessage,
-                      onRetry: _refreshExtracurriculars,
-                    ),
+                  child: CustomErrorWidget(
+                    message: state.errorMessage,
+                    onRetry: _refreshExtracurriculars,
+                    primaryColor: _primaryColor,
                   ),
                 );
               }
 
               if (state is ExtracurricularSuccess) {
                 print('🎨 [EXTRACURRICULAR SCREEN] Building success UI');
-                return _buildExtracurricularGrid(state);
+                return state.extracurriculars.isEmpty
+                    ? SliverFillRemaining(child: _buildEmptyState())
+                    : _buildExtracurricularGrid(state);
               }
 
               print('🎨 [EXTRACURRICULAR SCREEN] Building default UI');
-              return SliverFillRemaining(
-                child: Center(child: CircularProgressIndicator()),
-              );
+              return SliverToBoxAdapter(child: SizedBox());
             },
           ),
         ],
@@ -232,56 +239,194 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchAndFilter() {
     return SliverToBoxAdapter(
-      child: FadeInDown(
-        delay: Duration(milliseconds: 200),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-          child: Container(
-            height: 50,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(25),
-              boxShadow: [
-                BoxShadow(
-                  color: _primaryColor.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: Offset(0, 3),
-                ),
-              ],
-            ),
-            child: TextField(
-              onChanged: (value) {
-                setState(() {
-                  searchQuery = value;
-                });
-              },
-              decoration: InputDecoration(
-                hintText: 'Cari ekstrakurikuler...',
-                prefixIcon: Icon(Icons.search, color: _primaryColor),
-                border: InputBorder.none,
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              ),
-            ),
-          ),
+      child: Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          children: [
+            _buildSearchBar(),
+            SizedBox(height: 20),
+            _buildFilterSection(),
+          ],
         ),
       ),
     );
   }
 
+  Widget _buildSearchBar() {
+    return FadeInDown(
+      duration: Duration(milliseconds: 600),
+      child: Container(
+        height: 55,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 10,
+              offset: Offset(0, 5),
+            ),
+          ],
+        ),
+        child: TextField(
+          decoration: InputDecoration(
+            hintText: 'Cari ekstrakurikuler...',
+            prefixIcon: Icon(Icons.search, color: _primaryColor),
+            suffixIcon: searchQuery.isNotEmpty
+                ? IconButton(
+                    icon: Icon(Icons.clear, color: _primaryColor),
+                    onPressed: () {
+                      setState(() {
+                        searchQuery = "";
+                      });
+                    },
+                  )
+                : null,
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          ),
+          onChanged: (value) {
+            setState(() {
+              searchQuery = value;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterSection() {
+    return BlocBuilder<ExtracurricularCubit, ExtracurricularState>(
+      builder: (context, state) {
+        List<String> coaches = [];
+        if (state is ExtracurricularSuccess) {
+          coaches = state.extracurriculars
+              .map((e) => e.coachName)
+              .where((name) => name.isNotEmpty)
+              .toSet()
+              .toList()
+            ..sort();
+        }
+
+        coachNameList = coaches;
+
+        return FadeInDown(
+          duration: Duration(milliseconds: 700),
+          child: Container(
+            padding: EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: _primaryColor.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.filter_list, color: _primaryColor, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'Filter',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: _primaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (selectedCoachName != null)
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            selectedCoachName = null;
+                          });
+                        },
+                        child: Text(
+                          'Reset',
+                          style: TextStyle(
+                            color: _primaryColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                SizedBox(height: 15),
+                // Coach Name Dropdown
+                DropdownButtonFormField<String>(
+                  value: selectedCoachName,
+                  decoration: InputDecoration(
+                    labelText: 'Pelatih/Coach',
+                    labelStyle: TextStyle(color: _primaryColor),
+                    prefixIcon: Icon(Icons.person, color: _primaryColor),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: _primaryColor),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: _primaryColor, width: 2),
+                    ),
+                  ),
+                  items: coachNameList
+                      .map((coach) => DropdownMenuItem(
+                            value: coach,
+                            child: Text(coach),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedCoachName = value;
+                    });
+                  },
+                  isExpanded: true,
+                  hint: Text('Pilih Pelatih',
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildExtracurricularGrid(ExtracurricularSuccess state) {
-    var filteredExtracurriculars = searchQuery.isEmpty
-        ? state.extracurriculars
-        : state.extracurriculars
-            .where((e) =>
-                e.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
-                e.description
-                    .toLowerCase()
-                    .contains(searchQuery.toLowerCase()) ||
-                e.coachName.toLowerCase().contains(searchQuery.toLowerCase()))
-            .toList();
+    var filteredExtracurriculars = state.extracurriculars;
+
+    // Apply search filter
+    if (searchQuery.isNotEmpty) {
+      filteredExtracurriculars = filteredExtracurriculars
+          .where((e) =>
+              e.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
+              e.description.toLowerCase().contains(searchQuery.toLowerCase()) ||
+              e.coachName.toLowerCase().contains(searchQuery.toLowerCase()))
+          .toList();
+    }
+
+    // Apply coach filter
+    if (selectedCoachName != null) {
+      filteredExtracurriculars = filteredExtracurriculars
+          .where((e) => e.coachName == selectedCoachName)
+          .toList();
+    }
 
     // Sort to prioritize restored extracurricular if exists
     if (_restoredExtracurricularId != null) {
@@ -294,27 +439,36 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
       filteredExtracurriculars.sort((a, b) => b.id.compareTo(a.id));
     }
 
-    if (filteredExtracurriculars.isEmpty && searchQuery.isNotEmpty) {
+    if (filteredExtracurriculars.isEmpty &&
+        (searchQuery.isNotEmpty || selectedCoachName != null)) {
       return SliverFillRemaining(
         child: NoSearchResultsWidget(
-          searchQuery: searchQuery,
+          searchQuery: searchQuery.isNotEmpty ? searchQuery : 'filter',
           onClearSearch: () {
             setState(() {
               searchQuery = "";
+              selectedCoachName = null;
             });
           },
+          primaryColor: _primaryColor,
+          accentColor: _highlightColor,
+          title: 'Tidak Ada Ekstrakurikuler',
+          description:
+              'Tidak ditemukan ekstrakurikuler yang sesuai dengan pencarian atau filter Anda.',
+          clearButtonText: 'Reset Filter',
+          icon: Icons.sports_soccer,
         ),
       );
     }
 
     return SliverPadding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.all(20),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
             return AnimationConfiguration.staggeredList(
               position: index,
-              duration: const Duration(milliseconds: 375),
+              duration: Duration(milliseconds: 500),
               child: SlideAnimation(
                 verticalOffset: 50.0,
                 child: FadeInAnimation(
@@ -335,231 +489,465 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
     final bool isRecentlyRestored =
         _restoredExtracurricularId == extracurricular.id.toString();
 
+    // Define modern color scheme with soft maroon colors (same as onlineExamScreen)
     final colorScheme = {
-      'primary': _primaryColor,
-      'light': Color(0xFFF5E6E8),
-      'accent': Color(0xFF8B4513),
+      'primary': Color.fromARGB(255, 172, 33, 33),
+      'gradient1': Color(0xFF7D1F1F), // Lighter maroon
+      'gradient2': Color(0xFF9B2F2F), // Medium maroon
+      'gradient3': Color(0xFFBF4040), // Soft bright maroon
+      'neutral1': Color(0xFF333333), // Dark gray for primary text
+      'neutral2': Color(0xFF666666), // Medium gray for secondary text
+      'accent': Color(0xFF8B4513), // Brown accent color
     };
 
+    // Improved calculation for text wrapping (same as onlineExamScreen)
     final double screenWidth = MediaQuery.of(context).size.width;
-    final double availableWidth = screenWidth - 48;
+    final double availableWidth = screenWidth - 48; // 24px padding on each side
     final double titleFontSize = 24.0;
     final double lineHeight = 1.4;
 
+    // Calculate estimated number of lines based on character count and available width
     final int estimatedCharactersPerLine =
         (availableWidth / (titleFontSize * 0.6)).floor();
     final int estimatedLines = math.max(
         1, (extracurricular.name.length / estimatedCharactersPerLine).ceil());
     final double estimatedTextHeight =
-        estimatedLines * titleFontSize * lineHeight;
+        estimatedLines * (titleFontSize * lineHeight);
 
-    final double minHeight = 260.0;
-    final double maxHeight = 450.0;
+    final double minHeight = 260.0; // Increased minimum height untuk header
+    final double maxHeight = 450.0; // Increased maximum height untuk header
 
+    // Sesuaikan headerHeight dengan batasan min dan max, plus extra space untuk wrapping
     final double headerHeight = math.min(
       maxHeight,
-      math.max(minHeight, 200 + estimatedTextHeight),
+      math.max(minHeight,
+          estimatedTextHeight + 200.0), // Increased padding for better spacing
     );
 
     return FadeInUp(
-      duration: Duration(milliseconds: 500),
+      duration: Duration(milliseconds: 600),
       child: Container(
-        margin: EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: isRecentlyRestored
-                  ? Colors.green.withOpacity(0.3)
-                  : colorScheme['primary']!.withOpacity(0.1),
-              blurRadius: 15,
-              offset: Offset(0, 5),
-            ),
-          ],
-          border: isRecentlyRestored
-              ? Border.all(color: Colors.green, width: 2)
-              : null,
-        ),
-        child: Column(
-          children: [
-            // Header with gradient and pattern
-            Container(
-              height: headerHeight,
+        margin: EdgeInsets.symmetric(vertical: 16),
+        decoration: isRecentlyRestored
+            ? BoxDecoration(
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.green.withOpacity(0.3),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                    offset: Offset(0, 5),
+                  ),
+                  BoxShadow(
+                    color: Colors.green.withOpacity(0.1),
+                    blurRadius: 40,
+                    spreadRadius: 5,
+                    offset: Offset(0, 0),
+                  ),
+                ],
+              )
+            : null,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(32),
+            highlightColor: Colors.transparent,
+            splashColor: colorScheme['primary']!.withOpacity(0.05),
+            child: Ink(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    colorScheme['primary']!,
-                    colorScheme['primary']!.withOpacity(0.8),
-                  ],
-                ),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
+                color: isRecentlyRestored
+                    ? Color.fromARGB(
+                        255, 240, 253, 244) // Light green tint for restored
+                    : Color.fromARGB(
+                        255, 237, 237, 237), // Very slightly off-white
+                borderRadius: BorderRadius.circular(32),
+                border: isRecentlyRestored
+                    ? Border.all(
+                        color: Colors.green.withOpacity(0.3),
+                        width: 2,
+                      )
+                    : null,
               ),
               child: Stack(
+                clipBehavior: Clip.none,
                 children: [
-                  // Pattern overlay
-                  Positioned.fill(
-                    child: CustomPaint(
-                      painter: Modern2025PatternPainter(
-                        primaryColor: Colors.white.withOpacity(0.1),
-                        secondaryColor: Colors.white.withOpacity(0.05),
-                      ),
-                    ),
-                  ),
-                  // Content
-                  Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Icon with glow effect
-                        Container(
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.white.withOpacity(0.3),
-                                blurRadius: 10,
-                                spreadRadius: 2,
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.sports_soccer,
-                            color: Colors.white,
-                            size: 32,
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                        // Title with auto-wrap
-                        Text(
-                          extracurricular.name,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: titleFontSize,
-                            fontWeight: FontWeight.bold,
-                            height: lineHeight,
-                            shadows: [
-                              Shadow(
-                                color: Colors.black26,
-                                offset: Offset(0, 2),
-                                blurRadius: 4,
-                              ),
-                            ],
-                          ),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        SizedBox(height: 8),
-                        // Coach info
-                        Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.person, color: Colors.white, size: 16),
-                              SizedBox(width: 6),
-                              Flexible(
-                                child: Text(
-                                  extracurricular.coachName,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Content section
-            Padding(
-              padding: EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Description
-                  Text(
-                    'Deskripsi',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme['primary'],
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    extracurricular.description,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[700],
-                      height: 1.5,
-                    ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 16),
-                  // Action buttons
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: _buildModernActionButton(
-                          onTap: () async {
-                            final result = await Get.toNamed(
-                              Routes.editExtracurricular,
-                              arguments: extracurricular,
-                            );
-                            if (result == true) {
-                              _refreshExtracurriculars();
-                            }
-                          },
-                          icon: Icons.edit,
-                          label: 'Edit',
-                          gradient: LinearGradient(
-                            colors: [Color(0xFF4CAF50), Color(0xFF45A049)],
-                          ),
-                          shadowColor: Color(0xFF4CAF50),
-                        ),
-                      ),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: _buildModernActionButton(
-                          onTap: () => _showDeleteConfirmation(extracurricular),
-                          icon: Icons.archive,
-                          label: 'Arsip',
-                          gradient: LinearGradient(
-                            colors: [Color(0xFFFF9800), Color(0xFFFF8C00)],
-                          ),
-                          shadowColor: Color(0xFFFF9800),
-                        ),
-                      ),
+                      _buildCardHeader(
+                          extracurricular, colorScheme, headerHeight),
+                      _buildCardContent(
+                          extracurricular, colorScheme, headerHeight),
                     ],
                   ),
+                  // Overlapping Card - Dynamic position based on header height
+                  _buildOverlappingCard(
+                      extracurricular, colorScheme, headerHeight),
                 ],
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardHeader(Extracurricular extracurricular,
+      Map<String, Color> colorScheme, double headerHeight) {
+    return Container(
+      height: headerHeight, // Increased height
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(32),
+          topRight: Radius.circular(32),
+        ),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            colorScheme['gradient1']!,
+            colorScheme['gradient2']!,
+            colorScheme['gradient3']!,
           ],
+        ),
+      ),
+      child: Stack(
+        children: [
+          // Decorative Pattern Overlay
+          Opacity(
+            opacity: 0.07,
+            child: CustomPaint(
+              size: Size.infinite,
+              painter: Modern2025PatternPainter(
+                primaryColor: Colors.white,
+                secondaryColor: Colors.white.withOpacity(0.5),
+              ),
+            ),
+          ),
+
+          // Glow Effect Corner
+          Positioned(
+            top: -30,
+            right: -30,
+            child: Container(
+              height: 150,
+              width: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    Colors.white.withOpacity(0.2),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Coach Badge (replaces duration badge from exam)
+          Positioned(
+            top: 20,
+            right: 24,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    spreadRadius: -5,
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.person_outline,
+                      size: 16, color: colorScheme['primary']),
+                  SizedBox(width: 6),
+                  Text(
+                    extracurricular.coachName,
+                    style: TextStyle(
+                      color: colorScheme['primary'],
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.3,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Title - Updated position and styling with better wrapping
+          Positioned(
+            top: 80, // Move title more to top
+            left: 24,
+            right: 24,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Remove Container constraint and let text wrap naturally
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Text(
+                      extracurricular.name,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24, // Keep consistent font size
+                        fontWeight: FontWeight.w800,
+                        height: 1.4, // Good line height for readability
+                        letterSpacing: 0.3,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.5),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
+                      textAlign: TextAlign.left,
+                      maxLines: null, // Allow unlimited lines
+                    );
+                  },
+                ),
+
+                Container(
+                  width: 60,
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(1.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCardContent(Extracurricular extracurricular,
+      Map<String, Color> colorScheme, double headerHeight) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+          24,
+          math.max(
+              120,
+              (headerHeight * 0.35)
+                  .round()
+                  .toDouble()), // Dynamic top padding based on header height
+          24,
+          24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Actions Row - Modern Button Design
+          Row(
+            children: [
+              // Edit Button - Modern Design
+              Expanded(
+                child: _buildModernActionButton(
+                  onTap: () async {
+                    final result = await Get.toNamed(
+                      Routes.editExtracurricular,
+                      arguments: extracurricular,
+                    );
+                    if (result == true) {
+                      _refreshExtracurriculars();
+                    }
+                  },
+                  icon: Icons.edit_outlined,
+                  label: 'Edit',
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFF26A69A),
+                      Color(0xFF00897B),
+                      Color(0xFF00796B),
+                    ],
+                  ),
+                  shadowColor: Color(0xFF26A69A).withOpacity(0.4),
+                ),
+              ),
+
+              SizedBox(width: 16),
+
+              // Archive Button - Modern Design
+              Expanded(
+                child: _buildModernActionButton(
+                  onTap: () => _showDeleteConfirmation(extracurricular),
+                  icon: Icons.archive_outlined,
+                  label: 'Arsip',
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFF9C4146), // Softer maroon
+                      Color(0xFF812A33), // Medium maroon
+                      Color(0xFF6A1B24), // Deep maroon
+                    ],
+                  ),
+                  shadowColor: Color(0xFF812A33).withOpacity(0.4),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOverlappingCard(Extracurricular extracurricular,
+      Map<String, Color> colorScheme, double headerHeight) {
+    return Positioned(
+      top: headerHeight - 85, // Dynamic positioning based on header height
+      left: 20,
+      right: 20,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 15,
+              offset: Offset(0, 5),
+              spreadRadius: -5,
+            ),
+            BoxShadow(
+              color: Colors.black.withOpacity(0.07),
+              blurRadius: 5,
+              offset: Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          child: Column(
+            children: [
+              // Top section: Description
+              Padding(
+                padding: EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    // Icon Container - reduced padding
+                    Container(
+                      padding: EdgeInsets.all(10), // Reduced from 12
+                      decoration: BoxDecoration(
+                        color: colorScheme['primary']!.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.description_rounded,
+                        color: colorScheme['primary'],
+                        size: 20, // Reduced from 22
+                      ),
+                    ),
+                    SizedBox(width: 12), // Reduced from 16
+
+                    // Text Content - with overflow handling
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Deskripsi',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: colorScheme['neutral1'],
+                              fontSize: 16,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            extracurricular.description,
+                            style: TextStyle(
+                              color: colorScheme['neutral2'],
+                              fontSize: 14,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Arrow Icon - reduced padding
+                    Container(
+                      padding: EdgeInsets.all(8), // Reduced from 10
+                      decoration: BoxDecoration(
+                        color: colorScheme['primary']!.withOpacity(0.07),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.sports_soccer,
+                        color: colorScheme['primary'],
+                        size: 16, // Reduced from 18
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Divider
+              Divider(
+                height: 1,
+                thickness: 1,
+                color: colorScheme['primary']!.withOpacity(0.08),
+                indent: 20,
+                endIndent: 20,
+              ),
+
+              // Bottom section: Category info
+              Padding(
+                padding: EdgeInsets.all(20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Category badge
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: colorScheme['primary']!.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.category_rounded,
+                            size: 16,
+                            color: colorScheme['primary'],
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Ekstrakurikuler',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: colorScheme['neutral1'],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -573,15 +961,21 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
     required Color shadowColor,
   }) {
     return Container(
-      height: 45,
+      height: 56,
       decoration: BoxDecoration(
         gradient: gradient,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
+            color: shadowColor,
+            blurRadius: 15,
+            offset: Offset(0, 5),
+            spreadRadius: -5,
+          ),
+          BoxShadow(
             color: shadowColor.withOpacity(0.3),
-            blurRadius: 8,
-            offset: Offset(0, 4),
+            blurRadius: 3,
+            offset: Offset(0, 1),
           ),
         ],
       ),
@@ -589,18 +983,76 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          borderRadius: BorderRadius.circular(16),
+          splashColor: Colors.white.withOpacity(0.2),
+          highlightColor: Colors.transparent,
+          child: Stack(
             children: [
-              Icon(icon, color: Colors.white, size: 20),
-              SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
+              // Subtle pattern overlay
+              Opacity(
+                opacity: 0.05,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: LinearGradient(
+                      colors: [Colors.white, Colors.transparent],
+                    ),
+                  ),
+                ),
+              ),
+
+              // Button content
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        icon,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Top highlight for 3D effect
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 12,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.white.withOpacity(0.3),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -610,11 +1062,59 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
     );
   }
 
-  Widget _buildShimmerCard() {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      child: SkeletonCard(
-        height: 300,
+  Widget _buildShimmerLoading() {
+    return ListView.builder(
+      padding: EdgeInsets.all(20),
+      itemCount: 3,
+      itemBuilder: (_, index) {
+        return Container(
+          margin: EdgeInsets.only(bottom: 16),
+          child: SkeletonCard(height: 400),
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return FadeIn(
+      duration: Duration(milliseconds: 800),
+      child: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(height: MediaQuery.of(context).size.height * 0.15),
+                Icon(
+                  Icons.sports_soccer,
+                  size: 80,
+                  color: Colors.grey[400],
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Belum ada ekstrakurikuler',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[600],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Tambahkan ekstrakurikuler baru dengan menekan tombol +',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[500],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.15),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -622,56 +1122,105 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
   void _showDeleteConfirmation(Extracurricular extracurricular) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            Icon(Icons.archive, color: Colors.orange),
-            SizedBox(width: 10),
-            Text('Arsipkan Ekstrakurikuler?'),
-          ],
-        ),
-        content: Text(
-          'Ekstrakurikuler "${extracurricular.name}" akan dipindahkan ke arsip. Anda dapat memulihkannya nanti.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Batal', style: TextStyle(color: Colors.grey[600])),
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              try {
-                await context
-                    .read<ExtracurricularCubit>()
-                    .deleteExtracurricular(extracurricular.id);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Ekstrakurikuler berhasil diarsipkan'),
-                    backgroundColor: Colors.green,
+          title: Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Color(0xFF8B4A5A).withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.archive_rounded,
+                  color: Color(0xFF8B4A5A),
+                  size: 28,
+                ),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Arsipkan Ekstrakurikuler',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
-                );
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Gagal mengarsipkan ekstrakurikuler'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Apakah Anda yakin ingin mengarsipkan "${extracurricular.name}"?',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF555555),
+                ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Ekstrakurikuler yang diarsipkan dapat dilihat kembali di menu Arsip.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF888888),
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(
+                'Batal',
+                style: TextStyle(
+                  color: Color(0xFF666666),
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-            child: Text('Arsipkan'),
-          ),
-        ],
-      ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(dialogContext);
+                try {
+                  await context
+                      .read<ExtracurricularCubit>()
+                      .deleteExtracurricular(extracurricular.id);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Ekstrakurikuler berhasil diarsipkan'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Gagal mengarsipkan ekstrakurikuler'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF8B4A5A),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 2,
+              ),
+              child: Text('Arsipkan'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
