@@ -414,6 +414,14 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                         index: 17,
                         onTap: () => Get.toNamed(Routes.extracurricularScreen),
                       ),
+                      _buildMenuItem(
+                        context: context,
+                        icon: Icons.calendar_today,
+                        title: "Jadwal Ekstrakurikuler",
+                        index: 18,
+                        onTap: () =>
+                            Get.toNamed(Routes.extracurricularTimetable),
+                      ),
                     ],
                   ),
 

@@ -111,6 +111,7 @@ import 'package:eschool_saas_staff/ui/screens/extracurricular/extracurricularScr
 import 'package:eschool_saas_staff/ui/screens/extracurricular/createExtracurricular.dart';
 import 'package:eschool_saas_staff/ui/screens/extracurricular/editExtracurricular.dart';
 import 'package:eschool_saas_staff/ui/screens/extracurricular/archiveExtracurricular.dart';
+import 'package:eschool_saas_staff/ui/screens/extracurricular/extracurricularTimetableScreen.dart';
 import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricularRepository.dart';
 
@@ -167,6 +168,7 @@ class Routes {
   static String createExtracurricular = "/createExtracurricular";
   static String editExtracurricular = "/editExtracurricular";
   static String archiveExtracurricular = "/archiveExtracurricular";
+  static String extracurricularTimetable = "/extracurricularTimetable";
 
   //teacher academics routes
   static String teacherMyTimetableScreen = "/teacherMyTimetable";
@@ -710,6 +712,10 @@ class Routes {
         create: (context) => ExtracurricularCubit(ExtracurricularRepository()),
         child: ArchiveExtracurricular(),
       ),
+    ),
+    GetPage(
+      name: extracurricularTimetable,
+      page: () => ExtracurricularTimetableScreen.getRouteInstance(),
     ),
 
     GetPage(
