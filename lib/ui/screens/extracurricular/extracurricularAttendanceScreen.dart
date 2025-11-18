@@ -8,8 +8,12 @@ import 'package:eschool_saas_staff/cubits/extracurricularAttendance/extracurricu
 import 'package:eschool_saas_staff/cubits/extracurricularAttendance/extracurricularAttendanceState.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricularAttendanceRepository.dart';
 import 'package:eschool_saas_staff/data/models/extracurricularAttendance.dart';
+import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
+import 'package:eschool_saas_staff/data/models/studentDetails.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/studentAttendanceContainer.dart';
+import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 
 class ExtracurricularAttendanceScreen extends StatefulWidget {
@@ -38,7 +42,12 @@ class _ExtracurricularAttendanceScreenState
   String? _selectedExtracurricularName;
   List<Map<String, dynamic>> _extracurricularList = [];
   List<ExtracurricularAttendance> _attendanceList = [];
-  List<AttendanceData> _attendanceReport = [];
+  List<({StudentAttendanceStatus status, int studentId})> attendanceReport = [];
+
+  // Search functionality
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  bool _isSearchVisible = false;
 
   // Animation controllers
   late AnimationController _fabAnimationController;
@@ -69,14 +78,15 @@ class _ExtracurricularAttendanceScreenState
 
   @override
   void dispose() {
+    _searchController.dispose();
     _scrollController.dispose();
     _fabAnimationController.dispose();
     super.dispose();
   }
 
-  // Format date for API (d-m-Y)
+  // Format date for API (YYYY-MM-DD ISO format)
   String _formatDateForApi(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}';
+    return date.toIso8601String().split('T')[0]; // YYYY-MM-DD
   }
 
   // Load attendance data
@@ -94,14 +104,49 @@ class _ExtracurricularAttendanceScreenState
 
   // Save attendance data
   void _saveAttendance() {
-    if (_selectedExtracurricularId != null && _attendanceReport.isNotEmpty) {
-      // Use staff ID as session ID (this might need adjustment)
+    if (_selectedExtracurricularId != null && attendanceReport.isNotEmpty) {
+      print('🔍 [ATTENDANCE SCREEN] Preparing to save attendance...');
+      print(
+          '🔍 [ATTENDANCE SCREEN] Attendance report count: ${attendanceReport.length}');
+
+      // Convert attendance report to API format
+      final attendanceData = attendanceReport.map((report) {
+        print(
+            '🔍 [ATTENDANCE SCREEN] Converting report: StudentID=${report.studentId}, Status=${report.status}');
+        return AttendanceData(
+          studentId: report.studentId,
+          type: _convertStatusToInt(report.status),
+        );
+      }).toList();
+
+      print(
+          '🔍 [ATTENDANCE SCREEN] Final attendance data: ${attendanceData.map((e) => 'StudentID=${e.studentId}, Type=${e.type}').toList()}');
+
       context.read<ExtracurricularAttendanceCubit>().saveAttendance(
             sessionId: 1, // This should be actual session/staff ID
             extracurricularId: _selectedExtracurricularId!,
             date: _formatDateForApi(_selectedDate),
-            attendanceData: _attendanceReport,
+            attendanceData: attendanceData,
           );
+    } else {
+      print(
+          '❌ [ATTENDANCE SCREEN] Cannot save: ExtracurricularId=${_selectedExtracurricularId}, ReportCount=${attendanceReport.length}');
+    }
+  }
+
+  // Convert StudentAttendanceStatus to int
+  int _convertStatusToInt(StudentAttendanceStatus status) {
+    switch (status) {
+      case StudentAttendanceStatus.present:
+        return 1;
+      case StudentAttendanceStatus.absent:
+        return 0;
+      case StudentAttendanceStatus.sick:
+        return 2;
+      case StudentAttendanceStatus.permission:
+        return 3;
+      default:
+        return 1;
     }
   }
 
@@ -111,7 +156,7 @@ class _ExtracurricularAttendanceScreenState
       backgroundColor: Colors.grey[50],
       extendBodyBehindAppBar: true,
       appBar: CustomModernAppBar(
-        title: 'Absensi Ekstrakurikuler',
+        title: 'Absensi Kurikuler',
         icon: Icons.edit_calendar_rounded,
         fabAnimationController: _fabAnimationController,
         primaryColor: _maroonPrimary,
@@ -121,7 +166,77 @@ class _ExtracurricularAttendanceScreenState
           Get.back();
         },
         height: 160,
+        showSearchButton: true,
+        onSearchPressed: () {
+          setState(() {
+            _isSearchVisible = !_isSearchVisible;
+            if (!_isSearchVisible) {
+              _searchQuery = '';
+              _searchController.clear();
+            }
+          });
+        },
         tabBuilder: (context) {
+          // Show search input if search is active
+          if (_isSearchVisible) {
+            return Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value.toLowerCase();
+                    });
+                  },
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Cari nama anggota...',
+                    hintStyle: GoogleFonts.poppins(
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: 14,
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: Colors.white.withOpacity(0.8),
+                      size: 20,
+                    ),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(
+                              Icons.clear_rounded,
+                              color: Colors.white.withOpacity(0.8),
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _searchQuery = '';
+                                _searchController.clear();
+                              });
+                            },
+                          )
+                        : null,
+                    border: InputBorder.none,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                ),
+              ),
+            );
+          }
+
+          // Default tab content for filters
           return Row(
             children: [
               // Date filter
@@ -237,13 +352,24 @@ class _ExtracurricularAttendanceScreenState
             child: BlocConsumer<ExtracurricularAttendanceCubit,
                 ExtracurricularAttendanceState>(
               listener: (context, state) {
+                print(
+                    '🔍 [ATTENDANCE SCREEN] State changed: ${state.runtimeType}');
+
                 if (state is ExtracurricularAttendanceSuccess) {
+                  print('🔍 [ATTENDANCE SCREEN] Success state received');
+
                   if (state.extracurricularList != null) {
+                    print(
+                        '🔍 [ATTENDANCE SCREEN] Extracurricular list received: ${state.extracurricularList!.length} items');
+                    print(
+                        '🔍 [ATTENDANCE SCREEN] List content: ${state.extracurricularList}');
                     setState(() {
                       _extracurricularList = state.extracurricularList!;
                     });
                   }
                   if (state.attendanceData != null) {
+                    print(
+                        '🔍 [ATTENDANCE SCREEN] Attendance data received: ${state.attendanceData!.members.length} members');
                     setState(() {
                       _attendanceList = state.attendanceData!.members;
                       _initializeAttendanceReport();
@@ -345,28 +471,154 @@ class _ExtracurricularAttendanceScreenState
       );
     }
 
-    if (_attendanceList.isEmpty) {
-      return Center(
+    return _buildStudentsContainer();
+  }
+
+  Widget _buildStudentsContainer() {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        padding: EdgeInsets.only(top: 20, bottom: 90),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Title and subtitle section
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Kehadiran Anggota Ekstrakurikuler',
+                    style: GoogleFonts.poppins(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: _maroonPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
+            ),
+
+            // Students attendance container
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  // List header with modern design
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 16),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          _maroonPrimary.withOpacity(0.9),
+                          _maroonPrimary,
+                          _maroonLight,
+                        ],
+                      ),
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(16)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _maroonPrimary.withOpacity(0.3),
+                          blurRadius: 10,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        // Animated icon
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.people_alt_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+
+                        const SizedBox(width: 16),
+
+                        // Title text
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Daftar Kehadiran Anggota',
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Student attendance list
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: _buildStudents(),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStudents() {
+    if (_attendanceList.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 40),
+        child: Column(
           children: [
             Icon(
-              Icons.people_outlined,
-              size: 80,
-              color: _maroonPrimary.withOpacity(0.3),
+              Icons.people_alt_outlined,
+              size: 48,
+              color: Colors.grey[400],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 16),
             Text(
-              'Belum Ada Data Absensi',
+              'Tidak ada anggota untuk ditampilkan',
               style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
+                fontSize: 16,
                 color: Colors.grey[600],
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 8),
             Text(
-              'Belum ada data absensi untuk tanggal ini',
+              'Silakan pilih ekstrakurikuler dan tanggal',
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: Colors.grey[500],
@@ -377,214 +629,97 @@ class _ExtracurricularAttendanceScreenState
       );
     }
 
-    return SingleChildScrollView(
-      controller: _scrollController,
-      padding: EdgeInsets.only(
-        top: Utils.appContentTopScrollPadding(context: context) + 20,
-        left: 16,
-        right: 16,
-        bottom: 100,
-      ),
-      child: Column(
-        children: [
-          // Header
-          Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.people_alt_rounded, color: _maroonPrimary, size: 20),
-                SizedBox(width: 8),
-                Text(
-                  'Daftar Absensi',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey[800],
-                  ),
-                ),
-                Spacer(),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: _maroonPrimary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(
-                      color: _maroonPrimary.withOpacity(0.3),
-                      width: 1,
-                    ),
-                  ),
-                  child: Text(
-                    '${_attendanceList.length} Anggota',
-                    style: GoogleFonts.poppins(
-                      color: _maroonPrimary,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+    // Convert ExtracurricularAttendance to StudentAttendance format
+    final studentAttendances = _attendanceList.map((member) {
+      print(
+          '🔍 [ATTENDANCE SCREEN] Converting member: AttendanceID=${member.attendanceId}, StudentID=${member.studentId}, Name=${member.studentName}, Status=${member.status.label}');
 
-          SizedBox(height: 16),
+      // Create StudentDetails from ExtracurricularAttendance
+      final studentDetails = StudentDetails.fromJson({
+        'id': member.studentId,
+        'full_name': member.studentName,
+        'first_name': member.studentName.split(' ').first,
+        'last_name': member.studentName.split(' ').skip(1).join(' '),
+        'gr_number': member.studentNisn,
+        'class_section': {
+          'full_name': member.className,
+        },
+      });
 
-          // Attendance list
-          ...List.generate(_attendanceList.length, (index) {
-            final member = _attendanceList[index];
-            return _buildAttendanceCard(member, index);
-          }),
-        ],
-      ),
+      print(
+          '🔍 [ATTENDANCE SCREEN] Created StudentDetails: ID=${studentDetails.id}');
+
+      return StudentAttendance.fromStudentDetails(
+        studentDetails: studentDetails,
+        type: member.status.value,
+      );
+    }).toList();
+
+    // Filter students based on search query
+    final filteredStudents = _searchQuery.isEmpty
+        ? studentAttendances
+        : studentAttendances.where((attendance) {
+            final fullName =
+                (attendance.studentDetails?.fullName ?? '').toLowerCase();
+            return fullName.contains(_searchQuery.toLowerCase());
+          }).toList();
+
+    return StudentAttendanceContainer(
+      studentAttendances: filteredStudents,
+      allStudentAttendances: studentAttendances,
+      onStatusChanged: (attendanceStatuses) {
+        attendanceReport = attendanceStatuses;
+      },
+      isForAddAttendance: true,
+      showSummary: true,
     );
-  }
-
-  Widget _buildAttendanceCard(ExtracurricularAttendance member, int index) {
-    final currentAttendance = _attendanceReport.firstWhere(
-      (report) => report.id == member.studentId,
-      orElse: () => AttendanceData(id: member.studentId ?? 0, type: 1),
-    );
-
-    return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: _maroonPrimary.withOpacity(0.08),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Row(
-          children: [
-            // Student info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    member.studentName ?? 'Nama tidak tersedia',
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                      color: Colors.grey[800],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'NISN: ${member.studentNisn ?? '-'}',
-                    style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  Text(
-                    'Kelas: ${member.className ?? '-'}',
-                    style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Attendance status dropdown
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: _getAttendanceColor(currentAttendance.type)
-                    .withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: _getAttendanceColor(currentAttendance.type)
-                      .withOpacity(0.3),
-                ),
-              ),
-              child: DropdownButton<int>(
-                value: currentAttendance.type,
-                underline: SizedBox(),
-                items: [
-                  DropdownMenuItem(
-                      value: 1,
-                      child: Text('Hadir',
-                          style: GoogleFonts.poppins(fontSize: 12))),
-                  DropdownMenuItem(
-                      value: 0,
-                      child: Text('Tidak Hadir',
-                          style: GoogleFonts.poppins(fontSize: 12))),
-                  DropdownMenuItem(
-                      value: 2,
-                      child: Text('Sakit',
-                          style: GoogleFonts.poppins(fontSize: 12))),
-                  DropdownMenuItem(
-                      value: 3,
-                      child: Text('Izin',
-                          style: GoogleFonts.poppins(fontSize: 12))),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    _updateAttendanceReport(member.studentId ?? 0, value);
-                  }
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Color _getAttendanceColor(int type) {
-    switch (type) {
-      case 0:
-        return Colors.red;
-      case 1:
-        return Colors.green;
-      case 2:
-        return Colors.orange;
-      case 3:
-        return Colors.blue;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  void _updateAttendanceReport(int studentId, int type) {
-    setState(() {
-      final existingIndex =
-          _attendanceReport.indexWhere((report) => report.id == studentId);
-      if (existingIndex != -1) {
-        _attendanceReport[existingIndex] =
-            AttendanceData(id: studentId, type: type);
-      } else {
-        _attendanceReport.add(AttendanceData(id: studentId, type: type));
-      }
-    });
   }
 
   void _initializeAttendanceReport() {
-    _attendanceReport = _attendanceList.map((member) {
-      return AttendanceData(
-        id: member.studentId ?? 0,
-        type: member.attendanceType ?? 1,
+    // Initialize attendance report with current data
+    attendanceReport = _attendanceList.map((member) {
+      print(
+          '🔍 [ATTENDANCE SCREEN] Initializing report for student ID: ${member.studentId}, Status: ${member.status.label}');
+
+      return (
+        status: _convertAttendanceStatusToStudentStatus(member.status),
+        studentId: member.studentId,
       );
     }).toList();
+
+    print(
+        '🔍 [ATTENDANCE SCREEN] Initialized ${attendanceReport.length} attendance reports');
+  }
+
+  // Convert AttendanceStatus to StudentAttendanceStatus
+  StudentAttendanceStatus _convertAttendanceStatusToStudentStatus(
+      AttendanceStatus status) {
+    switch (status) {
+      case AttendanceStatus.absent:
+        return StudentAttendanceStatus.absent;
+      case AttendanceStatus.present:
+        return StudentAttendanceStatus.present;
+      case AttendanceStatus.sick:
+        return StudentAttendanceStatus.sick;
+      case AttendanceStatus.permission:
+        return StudentAttendanceStatus.permission;
+    }
+  }
+
+  // Convert int to StudentAttendanceStatus
+  StudentAttendanceStatus _convertIntToStatus(int type) {
+    switch (type) {
+      case 0:
+        return StudentAttendanceStatus.absent;
+      case 1:
+        return StudentAttendanceStatus.present;
+      case 2:
+        return StudentAttendanceStatus.sick;
+      case 3:
+        return StudentAttendanceStatus.permission;
+      default:
+        return StudentAttendanceStatus.present;
+    }
   }
 
   void _showExtracurricularPicker() {
@@ -612,31 +747,75 @@ class _ExtracurricularAttendanceScreenState
               ),
             ),
             Expanded(
-              child: ListView.builder(
-                itemCount: _extracurricularList.length,
-                itemBuilder: (context, index) {
-                  final extracurricular = _extracurricularList[index];
-                  return ListTile(
-                    leading: Icon(Icons.sports_soccer, color: _maroonPrimary),
-                    title: Text(
-                      extracurricular['name'],
-                      style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+              child: _extracurricularList.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.sports_soccer,
+                            size: 60,
+                            color: Colors.grey[400],
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'Tidak ada ekstrakurikuler',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Belum ada data ekstrakurikuler yang tersedia',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              // Retry loading
+                              context
+                                  .read<ExtracurricularAttendanceCubit>()
+                                  .getExtracurricularList();
+                            },
+                            child: Text('Coba Lagi'),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: _extracurricularList.length,
+                      itemBuilder: (context, index) {
+                        final extracurricular = _extracurricularList[index];
+                        return ListTile(
+                          leading:
+                              Icon(Icons.sports_soccer, color: _maroonPrimary),
+                          title: Text(
+                            extracurricular['name'],
+                            style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w500),
+                          ),
+                          subtitle: Text(
+                            extracurricular['description'] ?? '',
+                            style: GoogleFonts.poppins(fontSize: 12),
+                          ),
+                          onTap: () {
+                            setState(() {
+                              _selectedExtracurricularId =
+                                  extracurricular['id'];
+                              _selectedExtracurricularName =
+                                  extracurricular['name'];
+                            });
+                            Navigator.pop(context);
+                            _loadAttendanceData();
+                          },
+                        );
+                      },
                     ),
-                    subtitle: Text(
-                      extracurricular['description'] ?? '',
-                      style: GoogleFonts.poppins(fontSize: 12),
-                    ),
-                    onTap: () {
-                      setState(() {
-                        _selectedExtracurricularId = extracurricular['id'];
-                        _selectedExtracurricularName = extracurricular['name'];
-                      });
-                      Navigator.pop(context);
-                      _loadAttendanceData();
-                    },
-                  );
-                },
-              ),
             ),
           ],
         ),

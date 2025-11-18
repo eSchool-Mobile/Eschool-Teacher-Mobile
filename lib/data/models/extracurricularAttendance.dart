@@ -1,98 +1,156 @@
+// Enum untuk status kehadiran
+enum AttendanceStatus {
+  absent(0, 'Tidak Hadir', 'Alpa'),
+  present(1, 'Hadir', 'Present'),
+  sick(2, 'Sakit', 'Sick'),
+  permission(3, 'Izin', 'Permission');
+
+  const AttendanceStatus(this.value, this.label, this.englishLabel);
+
+  final int value;
+  final String label;
+  final String englishLabel;
+
+  static AttendanceStatus fromInt(int value) {
+    switch (value) {
+      case 0:
+        return AttendanceStatus.absent;
+      case 1:
+        return AttendanceStatus.present;
+      case 2:
+        return AttendanceStatus.sick;
+      case 3:
+        return AttendanceStatus.permission;
+      default:
+        print(
+            '⚠️ [ENUM] Unknown attendance status: $value, defaulting to present');
+        return AttendanceStatus.present;
+    }
+  }
+
+  static AttendanceStatus? fromIntNullable(int? value) {
+    if (value == null) return null;
+    return fromInt(value);
+  }
+}
+
+// Model untuk data absensi ekstrakurikuler
 class ExtracurricularAttendance {
-  final int? id;
-  final int? studentId;
-  final String? studentName;
-  final String? studentNisn;
-  final String? className;
-  final int? attendanceType; // 0=absent, 1=present, 2=sick, 3=permit
-  final String? date;
-  final int? extracurricularId;
-  final String? extracurricularName;
+  final int attendanceId; // ID record absensi
+  final int studentId; // ID siswa (REQUIRED)
+  final String studentName; // Nama siswa (REQUIRED)
+  final String? studentNisn; // NISN siswa
+  final String? className; // Nama kelas
+  final AttendanceStatus status; // Status kehadiran (ENUM)
+  final DateTime date; // Tanggal absensi (REQUIRED)
+  final int? extracurricularId; // ID ekstrakurikuler
+  final String? extracurricularName; // Nama ekstrakurikuler
 
   const ExtracurricularAttendance({
-    this.id,
-    this.studentId,
-    this.studentName,
+    required this.attendanceId,
+    required this.studentId,
+    required this.studentName,
     this.studentNisn,
     this.className,
-    this.attendanceType,
-    this.date,
+    required this.status,
+    required this.date,
     this.extracurricularId,
     this.extracurricularName,
   });
 
-  // Factory constructor from JSON
+  // Factory constructor from JSON with proper error handling
   factory ExtracurricularAttendance.fromJson(Map<String, dynamic> json) {
+    // Parse date with fallback to current date if null
+    DateTime parsedDate;
+    try {
+      if (json['date'] != null && json['date'] != '') {
+        parsedDate = DateTime.parse(json['date']);
+      } else {
+        print(
+            '⚠️ [MODEL] Date is null/empty for attendance ID: ${json['attendance_id'] ?? json['id']}, using current date');
+        parsedDate = DateTime.now();
+      }
+    } catch (e) {
+      print(
+          '⚠️ [MODEL] Failed to parse date: ${json['date']}, using current date');
+      parsedDate = DateTime.now();
+    }
+
+    // Parse status with fallback to Present if null/invalid
+    AttendanceStatus parsedStatus;
+    try {
+      final statusValue =
+          json['status'] ?? json['attendance_type'] ?? json['type'] ?? 1;
+      parsedStatus = AttendanceStatus.fromInt(statusValue);
+    } catch (e) {
+      print(
+          '⚠️ [MODEL] Failed to parse status: ${json['status']}, using Present as default');
+      parsedStatus = AttendanceStatus.present;
+    }
+
     return ExtracurricularAttendance(
-      id: json['id'],
-      studentId: json['student_id'] ?? json['studentId'],
-      studentName: json['name'] ?? json['student_name'] ?? json['studentName'],
+      attendanceId: json['attendance_id'] ?? json['id'] ?? 0,
+      studentId: json['student_id'] ?? json['studentId'] ?? 0,
+      studentName: json['student_name'] ??
+          json['name'] ??
+          json['studentName'] ??
+          'Unknown Student',
       studentNisn: json['student_nisn'] ?? json['nisn'],
       className: json['class_name'] ?? json['kelas'] ?? json['className'],
-      attendanceType: json['attendance_type'] ?? json['type'],
-      date: json['date'],
+      status: parsedStatus,
+      date: parsedDate,
       extracurricularId:
           json['extracurricular_id'] ?? json['ekstrakurikuler_id'],
-      extracurricularName:
-          json['extracurricular_name'] ?? json['ekstrakurikuler_name'],
+      extracurricularName: json['eskul_name'] ??
+          json['extracurricular_name'] ??
+          json['ekstrakurikuler_name'],
     );
   }
 
   // Convert to JSON
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'attendance_id': attendanceId,
       'student_id': studentId,
-      'name': studentName,
+      'student_name': studentName,
       'student_nisn': studentNisn,
       'class_name': className,
-      'attendance_type': attendanceType,
-      'date': date,
+      'status': status.value,
+      'date': date.toIso8601String().split('T')[0], // YYYY-MM-DD format
       'extracurricular_id': extracurricularId,
       'extracurricular_name': extracurricularName,
     };
   }
 
   // Helper methods for attendance status
-  bool get isPresent => attendanceType == 1;
-  bool get isAbsent => attendanceType == 0;
-  bool get isSick => attendanceType == 2;
-  bool get isPermit => attendanceType == 3;
+  bool get isPresent => status == AttendanceStatus.present;
+  bool get isAbsent => status == AttendanceStatus.absent;
+  bool get isSick => status == AttendanceStatus.sick;
+  bool get isPermission => status == AttendanceStatus.permission;
 
-  String get attendanceStatusText {
-    switch (attendanceType) {
-      case 0:
-        return 'Tidak Hadir';
-      case 1:
-        return 'Hadir';
-      case 2:
-        return 'Sakit';
-      case 3:
-        return 'Izin';
-      default:
-        return 'Tidak Diketahui';
-    }
-  }
+  String get statusText => status.label;
+  String get statusEnglishText => status.englishLabel;
+  int get statusValue => status.value;
 
   // Copy with method
   ExtracurricularAttendance copyWith({
-    int? id,
+    int? attendanceId,
     int? studentId,
     String? studentName,
     String? studentNisn,
     String? className,
-    int? attendanceType,
-    String? date,
+    AttendanceStatus? status,
+    DateTime? date,
     int? extracurricularId,
     String? extracurricularName,
   }) {
     return ExtracurricularAttendance(
-      id: id ?? this.id,
+      attendanceId: attendanceId ?? this.attendanceId,
       studentId: studentId ?? this.studentId,
       studentName: studentName ?? this.studentName,
       studentNisn: studentNisn ?? this.studentNisn,
       className: className ?? this.className,
-      attendanceType: attendanceType ?? this.attendanceType,
+      status: status ?? this.status,
       date: date ?? this.date,
       extracurricularId: extracurricularId ?? this.extracurricularId,
       extracurricularName: extracurricularName ?? this.extracurricularName,
@@ -101,24 +159,24 @@ class ExtracurricularAttendance {
 
   @override
   String toString() {
-    return 'ExtracurricularAttendance(id: $id, studentId: $studentId, studentName: $studentName, attendanceType: $attendanceType, date: $date)';
+    return 'ExtracurricularAttendance(attendanceId: $attendanceId, studentId: $studentId, studentName: $studentName, status: ${status.label}, date: ${date.toIso8601String().split('T')[0]})';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is ExtracurricularAttendance &&
-        other.id == id &&
+        other.attendanceId == attendanceId &&
         other.studentId == studentId &&
-        other.attendanceType == attendanceType &&
+        other.status == status &&
         other.date == date;
   }
 
   @override
   int get hashCode {
-    return id.hashCode ^
+    return attendanceId.hashCode ^
         studentId.hashCode ^
-        attendanceType.hashCode ^
+        status.hashCode ^
         date.hashCode;
   }
 }
@@ -139,13 +197,22 @@ class ExtracurricularAttendanceResponse {
 
   factory ExtracurricularAttendanceResponse.fromJson(
       Map<String, dynamic> json) {
-    final data = json['data'] ?? {};
-    final membersList = data['members'] as List<dynamic>? ?? [];
+    // Handle both possible response structures
+    List<dynamic> membersList = [];
+
+    // Try 'rows' first (actual API response), then 'data.members' (fallback)
+    if (json['rows'] != null) {
+      membersList = json['rows'] as List<dynamic>;
+    } else {
+      final data = json['data'] ?? {};
+      membersList = data['members'] as List<dynamic>? ?? [];
+    }
 
     return ExtracurricularAttendanceResponse(
-      attendanceId: data['attendance_id'],
-      extracurricularId: data['ekstrakurikuler_id'],
-      date: data['date'],
+      attendanceId: json['attendance_id'] ?? json['data']?['attendance_id'],
+      extracurricularId:
+          json['ekstrakurikuler_id'] ?? json['data']?['ekstrakurikuler_id'],
+      date: json['date'] ?? json['data']?['date'],
       members: membersList
           .map((memberJson) => ExtracurricularAttendance.fromJson(memberJson))
           .toList(),
@@ -175,19 +242,32 @@ class ExtracurricularAttendanceRequest {
 }
 
 class AttendanceData {
-  final int id; // student id
+  final int studentId; // student id (FIXED: was 'id')
   final int type; // 0=absent, 1=present, 2=sick, 3=permit
 
   const AttendanceData({
-    required this.id,
+    required this.studentId,
     required this.type,
   });
 
+  // Factory from ExtracurricularAttendance
+  factory AttendanceData.fromAttendance(ExtracurricularAttendance attendance) {
+    return AttendanceData(
+      studentId: attendance.studentId,
+      type: attendance.status.value,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'student_id': studentId, // FIXED: use 'student_id' not 'id'
       'type': type,
     };
+  }
+
+  @override
+  String toString() {
+    return 'AttendanceData(studentId: $studentId, type: $type)';
   }
 }
 

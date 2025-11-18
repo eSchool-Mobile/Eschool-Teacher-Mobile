@@ -44,19 +44,22 @@ class ExtracurricularAttendanceCubit
   // Get extracurricular list for filter/dropdown
   Future<void> getExtracurricularList() async {
     try {
+      print('🔍 [ATTENDANCE CUBIT] Starting to get extracurricular list');
       emit(ExtracurricularAttendanceLoading());
-
-      print('🔍 [ATTENDANCE CUBIT] Getting extracurricular list');
 
       final extracurricularList = await _repository.getExtracurricularList();
 
       print(
           '🔍 [ATTENDANCE CUBIT] Received ${extracurricularList.length} extracurriculars');
+      print('🔍 [ATTENDANCE CUBIT] List content: $extracurricularList');
 
       emit(ExtracurricularAttendanceSuccess(
         message: 'Daftar ekstrakurikuler berhasil dimuat',
         extracurricularList: extracurricularList,
       ));
+
+      print(
+          '✅ [ATTENDANCE CUBIT] Successfully emitted success state with extracurricular list');
     } catch (e) {
       print('❌ [ATTENDANCE CUBIT] Error getting extracurricular list: $e');
       emit(ExtracurricularAttendanceFailure(e.toString()));

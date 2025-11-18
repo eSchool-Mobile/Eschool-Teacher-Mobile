@@ -34,10 +34,18 @@ class ExtracurricularAttendanceRepository {
       print('🔍 [ATTENDANCE REPO] Response: $response');
 
       if (response['error'] == false) {
+        print('🔍 [ATTENDANCE REPO] Parsing response with fromJson...');
         final attendanceResponse =
             ExtracurricularAttendanceResponse.fromJson(response);
         print(
             '✅ [ATTENDANCE REPO] Successfully parsed ${attendanceResponse.members.length} members');
+
+        // Debug: Print first few members
+        if (attendanceResponse.members.isNotEmpty) {
+          print(
+              '🔍 [ATTENDANCE REPO] First member: ${attendanceResponse.members.first.toString()}');
+        }
+
         return attendanceResponse;
       } else {
         throw Exception(response['message'] ?? 'Failed to get attendance data');
@@ -66,9 +74,13 @@ class ExtracurricularAttendanceRepository {
 
       print('💾 [ATTENDANCE REPO] Response: $response');
 
-      if (response['success'] == true) {
-        final saveResponse =
-            ExtracurricularAttendanceSaveResponse.fromJson(response);
+      if (response['error'] == false) {
+        // Create save response manually since API doesn't return savedCount
+        final saveResponse = ExtracurricularAttendanceSaveResponse(
+          success: true,
+          message: response['message'] ?? 'Absensi berhasil disimpan',
+          savedCount: request.attendanceData.length, // Use request data count
+        );
         print(
             '✅ [ATTENDANCE REPO] Successfully saved ${saveResponse.savedCount} attendance records');
         return saveResponse;
@@ -94,23 +106,37 @@ class ExtracurricularAttendanceRepository {
 
       print('🔍 [ATTENDANCE REPO] Extracurricular list response: $response');
 
-      if (response['error'] == false) {
-        final List<dynamic> data = response['data'] ?? [];
-        final List<Map<String, dynamic>> extracurriculars = data
-            .map((item) => {
-                  'id': item['id'],
-                  'name': item['name'] ?? item['title'] ?? 'Unknown',
-                  'description': item['description'] ?? '',
-                })
-            .toList();
+      // Handle different response structures
+      List<dynamic> data = [];
 
-        print(
-            '✅ [ATTENDANCE REPO] Successfully fetched ${extracurriculars.length} extracurriculars');
-        return extracurriculars;
+      if (response['error'] == false || response['success'] == true) {
+        // Try different possible data locations
+        final rawData = response['data'] ?? response['rows'] ?? [];
+        if (rawData is List) {
+          data = rawData;
+        } else {
+          print(
+              '⚠️ [ATTENDANCE REPO] Expected List but got: ${rawData.runtimeType}');
+          data = [];
+        }
       } else {
         throw Exception(
             response['message'] ?? 'Failed to get extracurricular list');
       }
+
+      final List<Map<String, dynamic>> extracurriculars = data
+          .map((item) => {
+                'id': item['id'],
+                'name':
+                    item['name'] ?? item['title'] ?? item['nama'] ?? 'Unknown',
+                'description': item['description'] ?? item['deskripsi'] ?? '',
+              })
+          .toList();
+
+      print(
+          '✅ [ATTENDANCE REPO] Successfully fetched ${extracurriculars.length} extracurriculars');
+      print('✅ [ATTENDANCE REPO] Extracurriculars: $extracurriculars');
+      return extracurriculars;
     } catch (e) {
       print('❌ [ATTENDANCE REPO] Error getting extracurricular list: $e');
       throw Exception('Failed to get extracurricular list: $e');
