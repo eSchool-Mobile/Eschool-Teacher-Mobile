@@ -8,8 +8,9 @@ class ExtracurricularTimetableLoading extends ExtracurricularTimetableState {}
 
 class ExtracurricularTimetableSuccess extends ExtracurricularTimetableState {
   final String message;
+  final List<ExtracurricularTimetable>? timetables;
 
-  ExtracurricularTimetableSuccess(this.message);
+  ExtracurricularTimetableSuccess(this.message, {this.timetables});
 }
 
 class ExtracurricularTimetableFailure extends ExtracurricularTimetableState {

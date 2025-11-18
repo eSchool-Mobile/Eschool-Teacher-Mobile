@@ -3,9 +3,11 @@ import 'package:get/get.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/models/extracurricularTimetable.dart';
 import 'package:eschool_saas_staff/data/models/extracurricularTimetableEntry.dart';
+import 'package:eschool_saas_staff/data/models/extracurricular.dart';
 import 'package:eschool_saas_staff/ui/screens/extracurricular/createExtracurricularTimetableScreen.dart';
 import 'package:eschool_saas_staff/cubits/extracurricularTimetable/extracurricularTimetableCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricularTimetableRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/extracurricularRepository.dart';
 
 class ExtracurricularTimetableItem extends StatelessWidget {
   final ExtracurricularTimetable item;
@@ -221,6 +223,29 @@ class ExtracurricularTimetableItem extends StatelessWidget {
   }
 
   void _editTimetable(BuildContext context) async {
+    // Fetch fresh extracurricular data
+    List<Extracurricular>? extracurriculars;
+
+    try {
+      final extracurricularRepo = ExtracurricularRepository();
+      extracurriculars = await extracurricularRepo.getExtracurriculars();
+      print('✅ Fetched ${extracurriculars.length} extracurriculars for edit');
+    } catch (e) {
+      print('❌ Error fetching extracurriculars for edit: $e');
+      // Create a single extracurricular from current item as fallback
+      extracurriculars = [
+        Extracurricular(
+          id: item.id ?? 0,
+          name: item.extracurricularName ?? 'Unnamed',
+          description: '',
+          coachId: 0,
+          coachName: '',
+          createdAt: '',
+          updatedAt: '',
+        )
+      ];
+    }
+
     // Create ExtracurricularTimetableEntry from current item
     final schedule = item.getScheduleForDay(selectedDay) ?? '-';
     final timeData = _parseScheduleTime(schedule);
@@ -240,6 +265,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
           ),
           child: CreateExtracurricularTimetableScreen(
             existingEntry: entry,
+            extracurriculars: extracurriculars,
           ),
         ));
 
@@ -249,101 +275,293 @@ class ExtracurricularTimetableItem extends StatelessWidget {
   }
 
   void _showDeleteConfirmation(BuildContext context) {
+    final Color primaryMaroon = const Color(0xFF8B4B6B);
+    final Color lightMaroon = const Color(0xFFB85C7A);
+    final Color softCream = const Color(0xFFF5E6D3);
+
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: Row(
-          children: [
-            Icon(Icons.warning_rounded, color: Colors.orange, size: 24),
-            SizedBox(width: 12),
-            Text(
-              'Konfirmasi Hapus',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+      barrierColor: Colors.black.withOpacity(0.7),
+      builder: (dialogContext) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          width: MediaQuery.of(context).size.width * 0.85,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white,
+                softCream.withOpacity(0.3),
+              ],
             ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Apakah Anda yakin ingin menghapus jadwal ini?',
-              style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 12),
-            Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: primaryMaroon.withOpacity(0.3),
+                blurRadius: 20,
+                offset: Offset(0, 10),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.extracurricularName ?? 'Unnamed',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header with icon
+              Container(
+                padding: EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [primaryMaroon, lightMaroon],
+                        ),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: primaryMaroon.withOpacity(0.3),
+                            blurRadius: 15,
+                            offset: Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.delete_forever_rounded,
+                        color: Colors.white,
+                        size: 40,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Hari: ${_getDayInIndonesian(selectedDay)}',
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                  ),
-                ],
+                    SizedBox(height: 20),
+                    Text(
+                      'Hapus Jadwal',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: primaryMaroon,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Tindakan ini tidak dapat dibatalkan',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+
+              // Content
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: softCream.withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: primaryMaroon.withOpacity(0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.school_rounded,
+                                color: primaryMaroon,
+                                size: 20,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'Ekstrakurikuler',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade600,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            item.extracurricularName ?? 'Unnamed',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: primaryMaroon,
+                            ),
+                          ),
+                          SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today_rounded,
+                                color: primaryMaroon,
+                                size: 16,
+                              ),
+                              SizedBox(width: 6),
+                              Text(
+                                _getDayInIndonesian(selectedDay),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey.shade700,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 24),
+                    Text(
+                      'Apakah Anda yakin ingin menghapus jadwal ini secara permanen?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey.shade700,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Actions
+              Padding(
+                padding: EdgeInsets.all(24),
+                child: Row(
+                  children: [
+                    // Cancel button
+                    Expanded(
+                      child: Container(
+                        height: 50,
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(dialogContext),
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.grey.shade100,
+                            foregroundColor: Colors.grey.shade700,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            'Batal',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(width: 12),
+
+                    // Delete button
+                    Expanded(
+                      child: Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [primaryMaroon, lightMaroon],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: primaryMaroon.withOpacity(0.4),
+                              blurRadius: 8,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.pop(dialogContext);
+                              _resetTimetable(context, true);
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Center(
+                              child: Text(
+                                'Hapus',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              _resetTimetable(context, false);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
-              foregroundColor: Colors.white,
-            ),
-            child: Text('Reset'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              _resetTimetable(context, true);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: Text('Hapus Permanen'),
-          ),
-        ],
       ),
     );
   }
 
-  void _resetTimetable(BuildContext context, bool permanent) {
+  void _resetTimetable(BuildContext context, bool permanent) async {
     if (item.id != null) {
-      context.read<ExtracurricularTimetableCubit>().resetTimetableEntry(
-            item.id!,
-            permanent: permanent,
-          );
+      try {
+        // Show loading indicator
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
 
-      if (onRefresh != null) {
-        onRefresh!();
+        // Use repository directly instead of cubit
+        final repository = ExtracurricularTimetableRepository();
+        await repository.resetTimetableEntry(item.id!, permanent: permanent);
+
+        // Close loading dialog
+        Navigator.pop(context);
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(permanent
+                ? 'Jadwal berhasil dihapus permanen'
+                : 'Jadwal berhasil direset'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Refresh the list
+        if (onRefresh != null) {
+          onRefresh!();
+        }
+      } catch (e) {
+        // Close loading dialog if still open
+        Navigator.pop(context);
+
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }

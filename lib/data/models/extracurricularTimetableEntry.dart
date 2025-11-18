@@ -44,12 +44,37 @@ class ExtracurricularTimetableEntry {
       };
 
   // Create request body for API
-  Map<String, dynamic> toCreateRequest() => {
-        'extracurricular_id': extracurricularId,
-        'day': day,
-        'start_time': startTime,
-        'end_time': endTime,
-      };
+  Map<String, dynamic> toCreateRequest() {
+    final requestBody = {
+      'extracurricular_id': extracurricularId,
+      'day': _formatDayForAPI(day),
+      'start_time': _formatTimeForAPI(startTime),
+      'end_time': _formatTimeForAPI(endTime),
+    };
+
+    print('🔍 [TIMETABLE ENTRY] API Request Body: $requestBody');
+    return requestBody;
+  }
+
+  // Format day for API (ensure proper case)
+  String _formatDayForAPI(String day) {
+    if (day.isEmpty) return day;
+
+    // Ensure proper capitalization (e.g., "Thursday" not "thursday")
+    return day.substring(0, 1).toUpperCase() + day.substring(1).toLowerCase();
+  }
+
+  // Format time for API (add seconds if not present)
+  String _formatTimeForAPI(String time) {
+    if (time.isEmpty) return time;
+
+    // If time doesn't have seconds, add :00
+    if (time.contains(':') && time.split(':').length == 2) {
+      return '$time:00';
+    }
+
+    return time;
+  }
 
   // Copy with method for updates
   ExtracurricularTimetableEntry copyWith({

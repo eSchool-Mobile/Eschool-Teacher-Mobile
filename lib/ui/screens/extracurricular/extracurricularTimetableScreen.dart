@@ -409,6 +409,50 @@ class _ExtracurricularTimetableScreenState
     );
   }
 
+  // Function to handle add button press
+  Future<void> _handleAddPressed() async {
+    // Fetch fresh extracurricular data
+    List<Extracurricular>? extracurriculars;
+
+    try {
+      final extracurricularRepo = ExtracurricularRepository();
+      extracurriculars = await extracurricularRepo.getExtracurriculars();
+    } catch (e) {
+      print('Error fetching extracurriculars: $e');
+      // Fallback: try to get from current timetable state
+      final currentState = context.read<ExtracurricularTimetableCubit>().state;
+      if (currentState is ExtracurricularTimetableSuccess) {
+        extracurriculars = currentState.timetables.map((timetable) {
+          return Extracurricular(
+            id: timetable.id ?? 0,
+            name: timetable.extracurricularName ?? 'Unnamed',
+            description: '',
+            coachId: 0,
+            coachName: '',
+            createdAt: '',
+            updatedAt: '',
+          );
+        }).toList();
+      }
+    }
+
+    final result = await Get.to(() => BlocProvider(
+          create: (context) => timetableCubit.ExtracurricularTimetableCubit(
+            ExtracurricularTimetableRepository(),
+          ),
+          child: CreateExtracurricularTimetableScreen(
+            extracurriculars: extracurriculars,
+          ),
+        ));
+
+    if (result == true) {
+      // Refresh timetable data
+      context
+          .read<ExtracurricularTimetableCubit>()
+          .getExtracurricularTimetable();
+    }
+  }
+
   Widget _buildAppBar() {
     return Align(
       alignment: Alignment.topCenter,
@@ -494,7 +538,7 @@ class _ExtracurricularTimetableScreenState
               },
             ),
 
-            // App bar with blur effect - Title
+            // App bar with blur effect - Title and Add Button
             Positioned(
               top: MediaQuery.of(context).padding.top + 10,
               left: 16,
@@ -558,13 +602,100 @@ class _ExtracurricularTimetableScreenState
                         Expanded(
                           child: Center(
                             child: Text(
-                              'Jadwal Ekstrakurikuler',
+                              'Jadwal Kurikuler',
                               style: GoogleFonts.poppins(
                                 color: Colors.white,
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
+                          ),
+                        ),
+
+                        // Add button - sama seperti di CustomModernAppBar
+                        Padding(
+                          padding: const EdgeInsets.only(right: 12.0),
+                          child: AnimatedBuilder(
+                            animation: _fabAnimationController,
+                            builder: (context, child) {
+                              return Transform.scale(
+                                scale: 1.0 +
+                                    (_fabAnimationController.value * 0.02),
+                                child: Material(
+                                  color: Colors.transparent,
+                                  borderRadius: BorderRadius.circular(50),
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(50),
+                                    highlightColor:
+                                        Colors.white.withOpacity(0.15),
+                                    splashColor: Colors.white.withOpacity(0.25),
+                                    onTap: _handleAddPressed,
+                                    child: Container(
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.12),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                            spreadRadius: 0.3,
+                                          ),
+                                          // Subtle glow shadow
+                                          BoxShadow(
+                                            color: _maroonPrimary
+                                                .withOpacity(0.15),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 0),
+                                            spreadRadius: 1,
+                                          ),
+                                        ],
+                                        border: Border.all(
+                                          color: Colors.white.withOpacity(0.4),
+                                          width: 1.5,
+                                        ),
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            _maroonLight.withOpacity(0.75),
+                                            _maroonPrimary.withOpacity(0.75),
+                                          ],
+                                        ),
+                                      ),
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          // Glow effect
+                                          Container(
+                                            width: 22,
+                                            height: 22,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              gradient: RadialGradient(
+                                                colors: [
+                                                  Colors.white
+                                                      .withOpacity(0.25),
+                                                  Colors.white.withOpacity(0.0),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          // Icon
+                                          Icon(
+                                            Icons.add_rounded,
+                                            color: Colors.white,
+                                            size: 24,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ],
@@ -617,56 +748,6 @@ class _ExtracurricularTimetableScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          // Fetch fresh extracurricular data
-          List<Extracurricular>? extracurriculars;
-
-          try {
-            final extracurricularRepo = ExtracurricularRepository();
-            extracurriculars = await extracurricularRepo.getExtracurriculars();
-          } catch (e) {
-            print('Error fetching extracurriculars: $e');
-            // Fallback: try to get from current timetable state
-            final currentState =
-                context.read<ExtracurricularTimetableCubit>().state;
-            if (currentState is ExtracurricularTimetableSuccess) {
-              extracurriculars = currentState.timetables.map((timetable) {
-                return Extracurricular(
-                  id: timetable.id ?? 0,
-                  name: timetable.extracurricularName ?? 'Unnamed',
-                  description: '',
-                  coachId: 0,
-                  coachName: '',
-                  createdAt: '',
-                  updatedAt: '',
-                );
-              }).toList();
-            }
-          }
-
-          final result = await Get.to(() => BlocProvider(
-                create: (context) =>
-                    timetableCubit.ExtracurricularTimetableCubit(
-                  ExtracurricularTimetableRepository(),
-                ),
-                child: CreateExtracurricularTimetableScreen(
-                  extracurriculars: extracurriculars,
-                ),
-              ));
-
-          if (result == true) {
-            // Refresh timetable data
-            context
-                .read<ExtracurricularTimetableCubit>()
-                .getExtracurricularTimetable();
-          }
-        },
-        icon: Icon(Icons.add),
-        label: Text('Tambah Jadwal'),
-        backgroundColor: const Color(0xFF8B4B6B), // Soft maroon
-        foregroundColor: Colors.white,
-      ),
       body: Stack(
         children: [
           BlocBuilder<ExtracurricularTimetableCubit,
@@ -735,15 +816,13 @@ class _ExtracurricularTimetableScreenState
               }
 
               if (state is ExtracurricularTimetableFailure) {
-                return Center(
-                  child: ErrorContainer(
-                    errorMessage: state.errorMessage,
-                    onTapRetry: () {
-                      context
-                          .read<ExtracurricularTimetableCubit>()
-                          .getExtracurricularTimetable();
-                    },
-                  ),
+                return ErrorContainer(
+                  errorMessage: state.errorMessage,
+                  onTapRetry: () {
+                    context
+                        .read<ExtracurricularTimetableCubit>()
+                        .getExtracurricularTimetable();
+                  },
                 );
               }
 

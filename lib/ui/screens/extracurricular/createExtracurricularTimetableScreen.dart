@@ -255,13 +255,11 @@ class _CreateExtracurricularTimetableScreenState
                     child: Text(extracurricular.name ?? 'Unnamed'),
                   );
                 }).toList(),
-                onChanged: isEditMode
-                    ? null
-                    : (value) {
-                        setState(() {
-                          selectedExtracurricularId = value;
-                        });
-                      },
+                onChanged: (value) {
+                  setState(() {
+                    selectedExtracurricularId = value;
+                  });
+                },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Pilih ekstrakurikuler';
