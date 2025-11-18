@@ -6,7 +6,6 @@ import 'package:eschool_saas_staff/data/models/extracurricularTimetableEntry.dar
 import 'package:eschool_saas_staff/ui/screens/extracurricular/createExtracurricularTimetableScreen.dart';
 import 'package:eschool_saas_staff/cubits/extracurricularTimetable/extracurricularTimetableCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricularTimetableRepository.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
 
 class ExtracurricularTimetableItem extends StatelessWidget {
   final ExtracurricularTimetable item;
@@ -23,8 +22,11 @@ class ExtracurricularTimetableItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final schedule = item.getScheduleForDay(selectedDay) ?? '-';
+    print('🔍 Raw schedule data: "$schedule"');
     final timeData = _parseScheduleTime(schedule);
-    final Color primaryColor = const Color(0xFF6366F1);
+    print('🔍 Parsed timeData: $timeData');
+    final Color primaryColor = const Color(0xFF8B4B6B); // Soft maroon
+    final Color accentColor = const Color(0xFFD4A574); // Warm gold
 
     return Container(
       margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
@@ -128,8 +130,9 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: primaryColor.withOpacity(0.1),
+                      color: accentColor.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: accentColor.withOpacity(0.5)),
                     ),
                     child: Text(
                       '${timeData['startTime']} - ${timeData['endTime']}',
@@ -157,15 +160,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        time.isEmpty
-            ? '-'
-            : Utils.formatTime(
-                timeOfDay: TimeOfDay(
-                  hour: Utils.getHourFromTimeDetails(time: time),
-                  minute: Utils.getMinuteFromTimeDetails(time: time),
-                ),
-                context: context,
-              ),
+        time.isEmpty ? '-' : _formatTimeString(time),
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
@@ -174,6 +169,32 @@ class ExtracurricularTimetableItem extends StatelessWidget {
         textAlign: TextAlign.center,
       ),
     );
+  }
+
+  String _formatTimeString(String time) {
+    print('🕐 Formatting time: "$time"');
+    try {
+      // Handle different time formats
+      if (time.contains(':')) {
+        final parts = time.split(':');
+        print('🕐 Time parts: $parts');
+        if (parts.length >= 2) {
+          final hour = int.parse(parts[0]);
+          final minute = int.parse(parts[1]);
+
+          // Format as HH:MM
+          final formatted =
+              '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+          print('🕐 Formatted result: "$formatted"');
+          return formatted;
+        }
+      }
+      print('🕐 No colon found, returning original: "$time"');
+      return time;
+    } catch (e) {
+      print('❌ Error formatting time: $time, error: $e');
+      return time;
+    }
   }
 
   Widget _buildActionButton({
@@ -349,22 +370,91 @@ class ExtracurricularTimetableItem extends StatelessWidget {
   }
 
   Map<String, String> _parseScheduleTime(String schedule) {
-    if (schedule == '-' || schedule.isEmpty) {
+    print('🕐 Parsing schedule: "$schedule"');
+
+    if (schedule == '-' || schedule.isEmpty || schedule == 'null') {
       return {'startTime': '', 'endTime': ''};
     }
 
-    // Try to parse different time formats
-    // Format: "HH:MM - HH:MM" or "HH:MM-HH:MM"
-    final timePattern = RegExp(r'(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})');
-    final match = timePattern.firstMatch(schedule);
+    try {
+      // Remove any extra whitespace and normalize
+      schedule = schedule.trim();
 
-    if (match != null) {
-      return {
-        'startTime': match.group(1) ?? '',
-        'endTime': match.group(2) ?? '',
-      };
+      // Handle various separators and formats
+      List<String> separators = [' - ', '-', ' – ', '–', ' to ', ' TO '];
+
+      for (String separator in separators) {
+        if (schedule.contains(separator)) {
+          final parts = schedule.split(separator);
+          if (parts.length >= 2) {
+            String startTime = parts[0].trim();
+            String endTime = parts[1].trim();
+
+            // Clean and validate times
+            startTime = _extractAndCleanTime(startTime);
+            endTime = _extractAndCleanTime(endTime);
+
+            if (startTime.isNotEmpty && endTime.isNotEmpty) {
+              print('✅ Parsed times: start="$startTime", end="$endTime"');
+              return {
+                'startTime': startTime,
+                'endTime': endTime,
+              };
+            }
+          }
+        }
+      }
+
+      // Try to extract time patterns directly
+      RegExp timeRegex = RegExp(r'\b(\d{1,2}):(\d{2})\b');
+      Iterable<Match> matches = timeRegex.allMatches(schedule);
+
+      if (matches.length >= 2) {
+        List<Match> timeMatches = matches.toList();
+        String startTime =
+            '${timeMatches[0].group(1)}:${timeMatches[0].group(2)}';
+        String endTime =
+            '${timeMatches[1].group(1)}:${timeMatches[1].group(2)}';
+
+        print(
+            '✅ Extracted times from pattern: start="$startTime", end="$endTime"');
+        return {
+          'startTime': startTime,
+          'endTime': endTime,
+        };
+      }
+    } catch (e) {
+      print('❌ Error parsing schedule: $e');
     }
 
+    print('❌ Could not parse schedule: "$schedule"');
     return {'startTime': '', 'endTime': ''};
+  }
+
+  String _extractAndCleanTime(String timeStr) {
+    print('🧹 Cleaning time: "$timeStr"');
+
+    // Remove extra whitespace
+    timeStr = timeStr.trim();
+
+    // Extract time pattern HH:MM or H:MM
+    RegExp timePattern = RegExp(r'(\d{1,2}):(\d{2})');
+    Match? match = timePattern.firstMatch(timeStr);
+
+    if (match != null) {
+      int hour = int.parse(match.group(1)!);
+      int minute = int.parse(match.group(2)!);
+
+      // Validate hour and minute ranges
+      if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
+        String cleaned =
+            '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+        print('🧹 Cleaned result: "$cleaned"');
+        return cleaned;
+      }
+    }
+
+    print('🧹 Could not clean time: "$timeStr"');
+    return '';
   }
 }

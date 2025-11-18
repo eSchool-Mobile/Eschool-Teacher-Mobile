@@ -1,5 +1,7 @@
 import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularTimetableCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricularTimetableRepository.dart';
+import 'package:eschool_saas_staff/data/models/extracurricular.dart';
+import 'package:eschool_saas_staff/data/repositories/extracurricularRepository.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart' as constants;
@@ -612,36 +614,45 @@ class _ExtracurricularTimetableScreenState
     );
   }
 
-  // Helper method to parse time from schedule string like "16:30:00 - 17:30:00"
-  Map<String, String> _parseScheduleTime(String schedule) {
-    try {
-      if (schedule.contains('-')) {
-        final parts = schedule.split('-');
-        return {
-          'startTime': parts[0].trim(),
-          'endTime': parts[1].trim(),
-        };
-      }
-    } catch (e) {
-      print('❌ Error parsing schedule time: $e');
-    }
-    return {
-      'startTime': '',
-      'endTime': '',
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
+          // Fetch fresh extracurricular data
+          List<Extracurricular>? extracurriculars;
+
+          try {
+            final extracurricularRepo = ExtracurricularRepository();
+            extracurriculars = await extracurricularRepo.getExtracurriculars();
+          } catch (e) {
+            print('Error fetching extracurriculars: $e');
+            // Fallback: try to get from current timetable state
+            final currentState =
+                context.read<ExtracurricularTimetableCubit>().state;
+            if (currentState is ExtracurricularTimetableSuccess) {
+              extracurriculars = currentState.timetables.map((timetable) {
+                return Extracurricular(
+                  id: timetable.id ?? 0,
+                  name: timetable.extracurricularName ?? 'Unnamed',
+                  description: '',
+                  coachId: 0,
+                  coachName: '',
+                  createdAt: '',
+                  updatedAt: '',
+                );
+              }).toList();
+            }
+          }
+
           final result = await Get.to(() => BlocProvider(
                 create: (context) =>
                     timetableCubit.ExtracurricularTimetableCubit(
                   ExtracurricularTimetableRepository(),
                 ),
-                child: CreateExtracurricularTimetableScreen(),
+                child: CreateExtracurricularTimetableScreen(
+                  extracurriculars: extracurriculars,
+                ),
               ));
 
           if (result == true) {
@@ -653,7 +664,7 @@ class _ExtracurricularTimetableScreenState
         },
         icon: Icon(Icons.add),
         label: Text('Tambah Jadwal'),
-        backgroundColor: const Color(0xFF6366F1),
+        backgroundColor: const Color(0xFF8B4B6B), // Soft maroon
         foregroundColor: Colors.white,
       ),
       body: Stack(

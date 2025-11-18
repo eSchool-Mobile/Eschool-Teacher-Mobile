@@ -35,8 +35,10 @@ class _CreateExtracurricularTimetableScreenState
   String? selectedDay;
   bool get isEditMode => widget.existingEntry != null;
 
-  final Color _primaryColor = const Color(0xFF6366F1);
-  final Color _highlightColor = const Color(0xFF8B5CF6);
+  final Color _primaryColor = const Color(0xFF8B4B6B); // Soft maroon
+  final Color _highlightColor = const Color(0xFFB85C7A); // Light maroon
+  final Color _accentColor = const Color(0xFFD4A574); // Warm gold
+  final Color _softColor = const Color(0xFFF5E6D3); // Cream
 
   final List<String> days = [
     'Monday',
@@ -145,7 +147,7 @@ class _CreateExtracurricularTimetableScreenState
           gradient: LinearGradient(
             colors: [
               _primaryColor.withOpacity(0.1),
-              _highlightColor.withOpacity(0.05)
+              _softColor.withOpacity(0.3)
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -336,11 +338,14 @@ class _CreateExtracurricularTimetableScreenState
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: isSelected ? _primaryColor : Colors.grey.shade100,
+                      color: isSelected
+                          ? _primaryColor
+                          : _accentColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(25),
                       border: Border.all(
-                        color:
-                            isSelected ? _primaryColor : Colors.grey.shade300,
+                        color: isSelected
+                            ? _primaryColor
+                            : _accentColor.withOpacity(0.5),
                         width: isSelected ? 2 : 1,
                       ),
                     ),
