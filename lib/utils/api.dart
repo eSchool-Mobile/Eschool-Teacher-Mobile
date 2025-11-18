@@ -200,8 +200,6 @@ class Api {
   // Extracurricular APIs
   static String getExtracurriculars =
       "${databaseUrl}staff/extracurricular/show";
-  static String getArchivedExtracurriculars =
-      "${databaseUrl}staff/extracurricular/archived";
   static String getExtracurricularTimetable =
       "${databaseUrl}staff/extracurricular/timetable";
   static String createExtracurricular =

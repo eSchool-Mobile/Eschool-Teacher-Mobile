@@ -4,7 +4,9 @@ import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularCubit.d
 import 'package:eschool_saas_staff/data/models/extracurricular.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:intl/intl.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:flutter/services.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -17,12 +19,17 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
     with TickerProviderStateMixin {
   late final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
+  DateTime? _startDate; // State untuk filter tanggal
+  DateTime? _endDate; // State untuk filter tanggal
 
+  // Add these controller declarations
   late AnimationController _animationController;
   late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
 
-  final Color _primaryColor = Color(0xFF7A1E23);
-  final Color _accentColor = Color(0xFF9D3C3C);
+  // Theme colors - matching onlineExamScreen
+  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
 
   @override
   void initState() {
@@ -34,12 +41,20 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
       vsync: this,
     );
     _animationController.forward();
+
+    // Start the animation loop for the app bar effect
     _animationController.repeat(reverse: true);
 
+    // Add pulse animation controller
     _pulseController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 1200),
     )..repeat(reverse: true);
+
+    _pulseAnimation = CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
@@ -57,10 +72,164 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
     }
   }
 
+  void _showFilterBottomSheet(BuildContext parentContext) {
+    showModalBottomSheet(
+      context: parentContext,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      backgroundColor: Colors.white,
+      builder: (BuildContext modalContext) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Handle Bar
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: EdgeInsets.only(top: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  // Judul
+                  Text(
+                    'Filter Ekstrakurikuler Arsip',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF8B0000),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  // Input Tanggal
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () async {
+                            final DateTime? picked = await showDatePicker(
+                              context: modalContext,
+                              initialDate: _startDate ?? DateTime.now(),
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime(2030),
+                            );
+                            if (picked != null) {
+                              setModalState(() {
+                                _startDate = picked;
+                                _loadArchivedExtracurriculars();
+                              });
+                            }
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 12, horizontal: 16),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              _startDate != null
+                                  ? DateFormat('dd/MM/yyyy').format(_startDate!)
+                                  : 'Dari',
+                              style: TextStyle(
+                                  fontSize: 16, color: Colors.grey[800]),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        child: Text(
+                          '-',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () async {
+                            final DateTime? picked = await showDatePicker(
+                              context: modalContext,
+                              initialDate: _endDate ?? DateTime.now(),
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime(2030),
+                            );
+                            if (picked != null) {
+                              setModalState(() {
+                                _endDate = picked;
+                                _loadArchivedExtracurriculars();
+                              });
+                            }
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 12, horizontal: 16),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              _endDate != null
+                                  ? DateFormat('dd/MM/yyyy').format(_endDate!)
+                                  : 'Sampai',
+                              style: TextStyle(
+                                  fontSize: 16, color: Colors.grey[800]),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+
+                  // Filter mata pelajaran (jika diperlukan)
+                  // ...
+
+                  // Tombol Reset Filter
+                  SizedBox(height: 16),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setModalState(() {
+                          _startDate = null;
+                          _endDate = null;
+                        });
+                        _loadArchivedExtracurriculars();
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF8B0000),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      ),
+                      child: Text(
+                        'Reset Filter',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: CustomModernAppBar(
         title: 'Arsip Ekstrakurikuler',
         icon: Icons.archive,
@@ -68,6 +237,8 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
         primaryColor: _primaryColor,
         lightColor: _accentColor,
         onBackPressed: () => Navigator.of(context).pop(),
+        showFilterButton: true,
+        onFilterPressed: () => _showFilterBottomSheet(context),
       ),
       body: _buildBody(),
     );
@@ -104,9 +275,9 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
             borderRadius: BorderRadius.circular(25),
             boxShadow: [
               BoxShadow(
-                color: _primaryColor.withOpacity(0.1),
-                blurRadius: 10,
-                offset: Offset(0, 3),
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
@@ -118,11 +289,14 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
               });
             },
             decoration: InputDecoration(
-              hintText: 'Cari ekstrakurikuler...',
-              prefixIcon: Icon(Icons.search, color: _primaryColor),
+              hintText: 'Cari ekstrakurikuler arsip...',
+              hintStyle: TextStyle(color: Colors.grey[400]),
+              prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
               border: InputBorder.none,
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 15,
+              ),
             ),
           ),
         ),
@@ -134,57 +308,56 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
     return BlocBuilder<ExtracurricularCubit, ExtracurricularState>(
       builder: (context, state) {
         if (state is ExtracurricularLoading) {
-          return _buildArchiveSkeleton();
+          return _buildArchiveExtracurricularSkeleton();
         }
-
         if (state is ExtracurricularFailure) {
           return Center(
             child: ErrorContainer(
-              errorMessage: state.errorMessage,
+              errorMessage:
+                  "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
               onTapRetry: () {
                 _loadArchivedExtracurriculars();
               },
             ),
           );
         }
-
         if (state is ExtracurricularSuccess) {
           final archivedExtracurriculars = state.archivedExtracurriculars;
 
+          // Filter berdasarkan pencarian
           final filteredExtracurriculars = _searchController.text.isEmpty
               ? archivedExtracurriculars
               : archivedExtracurriculars
-                  .where((e) =>
-                      e.name
-                          .toLowerCase()
-                          .contains(_searchController.text.toLowerCase()) ||
-                      e.description
-                          .toLowerCase()
-                          .contains(_searchController.text.toLowerCase()) ||
-                      e.coachName
-                          .toLowerCase()
-                          .contains(_searchController.text.toLowerCase()))
+                  .where((extracurricular) => extracurricular.name
+                      .toLowerCase()
+                      .contains(_searchController.text.toLowerCase()))
                   .toList();
 
-          if (filteredExtracurriculars.isEmpty) {
+          // Filter berdasarkan tanggal jika ada (untuk ekstrakurikuler, kita bisa filter berdasarkan created_at atau updated_at)
+          // Karena model Extracurricular mungkin tidak memiliki tanggal, kita skip filter tanggal untuk sekarang
+          final dateFilteredExtracurriculars = filteredExtracurriculars;
+
+          if (dateFilteredExtracurriculars.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.archive_outlined,
+                    _isSearching ? Icons.search_off : Icons.archive_outlined,
                     size: 80,
                     color: Colors.grey[400],
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: 20),
                   Text(
-                    _searchController.text.isEmpty
-                        ? 'Tidak ada ekstrakurikuler yang diarsipkan'
-                        : 'Tidak ditemukan hasil pencarian',
+                    _isSearching
+                        ? 'Tidak ada ekstrakurikuler arsip yang cocok'
+                        : 'Belum ada ekstrakurikuler yang diarsipkan',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
                       color: Colors.grey[600],
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -193,152 +366,145 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
 
           return ListView.builder(
             padding: EdgeInsets.symmetric(horizontal: 16),
-            itemCount: filteredExtracurriculars.length,
+            itemCount: dateFilteredExtracurriculars.length,
             itemBuilder: (context, index) {
-              return _buildExtracurricularCard(filteredExtracurriculars[index]);
+              final extracurricular = dateFilteredExtracurriculars[index];
+              return _buildExtracurricularCard(extracurricular);
             },
           );
         }
-
         return SizedBox();
       },
     );
   }
 
   Widget _buildExtracurricularCard(Extracurricular extracurricular) {
-    return FadeInUp(
-      duration: Duration(milliseconds: 500),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(15),
-          child: Column(
-            children: [
-              // Header
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.grey[600]!,
-                      Colors.grey[700]!,
-                    ],
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.sports_soccer,
-                            color: Colors.white, size: 24),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            extracurricular.name,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          extracurricular.name,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF8B0000),
+                            overflow: TextOverflow.visible,
                           ),
                         ),
-                      ],
-                    ),
-                    SizedBox(height: 8),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
+                      Row(
                         children: [
-                          Icon(Icons.archive, color: Colors.white, size: 14),
-                          SizedBox(width: 4),
-                          Text(
-                            'Diarsipkan',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(20),
                             ),
+                            child: Text(
+                              'Arsip',
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          // Menu popup
+                          PopupMenuButton<String>(
+                            icon:
+                                Icon(Icons.more_vert, color: Colors.grey[700]),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            onSelected: (value) {
+                              if (value == 'restore') {
+                                _showRestoreConfirmation(extracurricular);
+                              } else if (value == 'delete') {
+                                _showPermanentDeleteConfirmation(
+                                    extracurricular);
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              PopupMenuItem<String>(
+                                value: 'restore',
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.restore,
+                                        color: Colors.blue, size: 18),
+                                    SizedBox(width: 8),
+                                    Text('Pulihkan'),
+                                  ],
+                                ),
+                              ),
+                              PopupMenuItem<String>(
+                                value: 'delete',
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.delete_forever,
+                                        color: Colors.red, size: 18),
+                                    SizedBox(width: 8),
+                                    Text('Hapus'),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    extracurricular.coachName,
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 14,
                     ),
-                  ],
-                ),
-              ),
-              // Content
-              Padding(
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildInfoRow(
-                        Icons.person, 'Pelatih: ${extracurricular.coachName}'),
-                    SizedBox(height: 8),
-                    _buildInfoRow(
-                        Icons.description, extracurricular.description),
-                    SizedBox(height: 16),
-                    // Action buttons
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () =>
-                                _showRestoreConfirmation(extracurricular),
-                            icon: Icon(Icons.restore, size: 18),
-                            label: Text('Pulihkan'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              padding: EdgeInsets.symmetric(vertical: 12),
-                            ),
-                          ),
+                  ),
+                  SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: _buildInfoRow(
+                          Icons.description,
+                          extracurricular.description,
                         ),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () => _showPermanentDeleteConfirmation(
-                                extracurricular),
-                            icon: Icon(Icons.delete_forever, size: 18),
-                            label: Text('Hapus'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              padding: EdgeInsets.symmetric(vertical: 12),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                  // Hapus deretan tombol di sini
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -357,11 +523,11 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
           child: Text(
             text,
             style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[700],
+              color: Colors.grey[600],
+              fontSize: 13,
             ),
-            maxLines: 2,
             overflow: TextOverflow.ellipsis,
+            maxLines: 1,
           ),
         ),
       ],
@@ -376,7 +542,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -390,37 +556,86 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: double.infinity,
-                height: 20,
-                color: Colors.white,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Title skeleton
+                  Expanded(
+                    flex: 3,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: 18,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          height: 14,
+                          width: 120,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Archive badge and menu skeleton
+                  Row(
+                    children: [
+                      Container(
+                        width: 50,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              SizedBox(height: 12),
-              Container(
-                width: 150,
-                height: 16,
-                color: Colors.white,
-              ),
-              SizedBox(height: 12),
-              Container(
-                width: double.infinity,
-                height: 14,
-                color: Colors.white,
-              ),
-              SizedBox(height: 16),
+              const SizedBox(height: 12),
+              // Info rows skeleton
               Row(
                 children: [
                   Expanded(
-                    child: Container(
-                      height: 40,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Container(
-                      height: 40,
-                      color: Colors.white,
+                    flex: 2,
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 16,
+                          height: 16,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Container(
+                            height: 13,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -432,7 +647,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
     );
   }
 
-  Widget _buildArchiveSkeleton() {
+  Widget _buildArchiveExtracurricularSkeleton() {
     return ListView.builder(
       padding: EdgeInsets.symmetric(horizontal: 16),
       itemCount: 6,
@@ -460,31 +675,31 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
               Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
+                  color: Colors.blue[50],
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  Icons.restore,
-                  color: Colors.green,
-                  size: 50,
+                  Icons.restore_rounded,
+                  color: Colors.blue[600],
+                  size: 32,
                 ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 24),
               Text(
-                'Pulihkan Ekstrakurikuler?',
+                'Pulihkan Ekstrakurikuler',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: _primaryColor,
+                  color: Colors.grey[800],
                 ),
               ),
-              SizedBox(height: 12),
+              SizedBox(height: 16),
               Text(
-                'Ekstrakurikuler "${extracurricular.name}" akan dikembalikan ke daftar aktif.',
+                'Apakah Anda yakin ingin memulihkan ekstrakurikuler ini?',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 14,
                   color: Colors.grey[600],
+                  height: 1.5,
                 ),
               ),
               SizedBox(height: 24),
@@ -493,50 +708,271 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                   Expanded(
                     child: TextButton(
                       onPressed: () => Get.back(),
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                      ),
                       child: Text(
                         'Batal',
-                        style: TextStyle(color: Colors.grey[600]),
+                        style: TextStyle(
+                          color: Colors.grey[800],
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          side: BorderSide(color: Colors.grey[300]!),
+                        ),
                       ),
                     ),
                   ),
-                  SizedBox(width: 12),
+                  SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
                         Get.back();
                         try {
+                          // Show modern loading dialog
+                          Get.dialog(
+                            Material(
+                              color: Colors.black.withOpacity(0.5),
+                              child: Center(
+                                child: Container(
+                                  width: 320,
+                                  padding: EdgeInsets.all(40),
+                                  margin: EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.white,
+                                        Colors.blue[50]!,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(32),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.blue.withOpacity(0.3),
+                                        blurRadius: 30,
+                                        spreadRadius: 0,
+                                        offset: Offset(0, 15),
+                                      ),
+                                      BoxShadow(
+                                        color: Colors.white.withOpacity(0.8),
+                                        blurRadius: 10,
+                                        spreadRadius: -5,
+                                        offset: Offset(0, -5),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      // Animated Icon Container
+                                      Container(
+                                        width: 100,
+                                        height: 100,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.blue[400]!,
+                                              Colors.blue[600]!,
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.blue.withOpacity(0.4),
+                                              blurRadius: 20,
+                                              spreadRadius: 0,
+                                              offset: Offset(0, 8),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            // Rotating outer ring
+                                            SizedBox(
+                                              width: 80,
+                                              height: 80,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 3,
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                        Color>(
+                                                  Colors.white.withOpacity(0.8),
+                                                ),
+                                              ),
+                                            ),
+                                            // Static icon
+                                            Icon(
+                                              Icons.restore_rounded,
+                                              color: Colors.white,
+                                              size: 36,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(height: 32),
+
+                                      // Title with gradient text effect
+                                      ShaderMask(
+                                        shaderCallback: (bounds) =>
+                                            LinearGradient(
+                                          colors: [
+                                            Colors.blue[700]!,
+                                            Colors.blue[500]!
+                                          ],
+                                        ).createShader(bounds),
+                                        child: Text(
+                                          'Memulihkan Ekstrakurikuler',
+                                          style: TextStyle(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 16),
+
+                                      // Subtitle with better styling
+                                      Text(
+                                        'Sedang memproses pemulihan data ekstrakurikuler',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        'Mohon tunggu sebentar...',
+                                        style: TextStyle(
+                                          color: Colors.grey[500],
+                                          fontSize: 14,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      SizedBox(height: 24),
+
+                                      // Progress dots animation
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: List.generate(
+                                          3,
+                                          (index) => Container(
+                                            margin: EdgeInsets.symmetric(
+                                                horizontal: 4),
+                                            child: AnimatedBuilder(
+                                              animation: _pulseAnimation,
+                                              builder: (context, child) {
+                                                return Container(
+                                                  width: 8,
+                                                  height: 8,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.blue[400]!
+                                                        .withOpacity(0.3 +
+                                                            0.7 *
+                                                                (((_pulseAnimation
+                                                                            .value +
+                                                                        (index *
+                                                                            0.3)) %
+                                                                    1.0))),
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            barrierDismissible: false,
+                          );
+
                           await context
                               .read<ExtracurricularCubit>()
                               .restoreExtracurricular(extracurricular.id);
+
+                          Get.back(); // Close loading
+
+                          // Show auto-dismissing success snackbar
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content:
-                                  Text('Ekstrakurikuler berhasil dipulihkan'),
-                              backgroundColor: Colors.green,
+                              content: Container(
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.check_circle,
+                                        color: Colors.white),
+                                    SizedBox(width: 12),
+                                    Text(
+                                      'Ekstrakurikuler berhasil dipulihkan!',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              backgroundColor: Colors.green.shade400,
+                              duration: Duration(seconds: 2),
+                              behavior: SnackBarBehavior.floating,
+                              margin: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              elevation: 4,
                             ),
                           );
-                          Get.back(result: extracurricular.id.toString());
+
+                          await Future.delayed(Duration(milliseconds: 500));
+
+                          // Navigate back to ExtracurricularScreen with restored info
+                          Get.back(result: {
+                            'action': 'restored',
+                            'extracurricularId': extracurricular.id,
+                            'extracurricularName': extracurricular.name,
+                          });
                         } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Gagal memulihkan ekstrakurikuler'),
-                              backgroundColor: Colors.red,
-                            ),
+                          Get.back(); // Close loading
+                          Get.snackbar(
+                            'Gagal',
+                            'Gagal memulihkan ekstrakurikuler: ${e.toString()}',
+                            backgroundColor: Colors.red,
+                            colorText: Colors.white,
+                            snackPosition: SnackPosition.TOP,
+                            duration: Duration(seconds: 3),
                           );
                         }
                       },
+                      child: Text(
+                        'Pulihkan',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
+                        backgroundColor: Colors.blue,
+                        padding: EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        padding: EdgeInsets.symmetric(vertical: 12),
                       ),
-                      child: Text('Pulihkan',
-                          style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ],
@@ -567,31 +1003,31 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
               Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: Colors.red[50],
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  Icons.delete_forever,
-                  color: Colors.red,
-                  size: 50,
+                  Icons.delete_forever_rounded,
+                  color: Colors.red[600],
+                  size: 32,
                 ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 24),
               Text(
-                'Hapus Permanen?',
+                'Hapus Permanen',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.red,
+                  color: Colors.grey[800],
                 ),
               ),
-              SizedBox(height: 12),
+              SizedBox(height: 16),
               Text(
-                'Ekstrakurikuler "${extracurricular.name}" akan dihapus secara permanen dan tidak dapat dipulihkan kembali.',
+                'Apakah Anda yakin ingin menghapus ekstrakurikuler ini secara permanen?\nTindakan ini tidak dapat dibatalkan.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 14,
                   color: Colors.grey[600],
+                  height: 1.5,
                 ),
               ),
               SizedBox(height: 24),
@@ -600,49 +1036,258 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                   Expanded(
                     child: TextButton(
                       onPressed: () => Get.back(),
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                      ),
                       child: Text(
                         'Batal',
-                        style: TextStyle(color: Colors.grey[600]),
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                  SizedBox(width: 12),
+                  SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
-                        Get.back();
                         try {
+                          Get.back(); // Tutup dialog konfirmasi
+                          // Show modern delete loading dialog
+                          Get.dialog(
+                            Material(
+                              color: Colors.black.withOpacity(0.5),
+                              child: Center(
+                                child: Container(
+                                  width: 320,
+                                  padding: EdgeInsets.all(40),
+                                  margin: EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.white,
+                                        Colors.red[50]!,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(32),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.red.withOpacity(0.3),
+                                        blurRadius: 30,
+                                        spreadRadius: 0,
+                                        offset: Offset(0, 15),
+                                      ),
+                                      BoxShadow(
+                                        color: Colors.white.withOpacity(0.8),
+                                        blurRadius: 10,
+                                        spreadRadius: -5,
+                                        offset: Offset(0, -5),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      // Animated Icon Container
+                                      Container(
+                                        width: 100,
+                                        height: 100,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.red[400]!,
+                                              Colors.red[600]!,
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.red.withOpacity(0.4),
+                                              blurRadius: 20,
+                                              spreadRadius: 0,
+                                              offset: Offset(0, 8),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            // Rotating outer ring
+                                            SizedBox(
+                                              width: 80,
+                                              height: 80,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 3,
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                        Color>(
+                                                  Colors.white.withOpacity(0.8),
+                                                ),
+                                              ),
+                                            ),
+                                            // Static icon
+                                            Icon(
+                                              Icons.delete_forever_rounded,
+                                              color: Colors.white,
+                                              size: 36,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(height: 32),
+
+                                      // Title with gradient text effect
+                                      ShaderMask(
+                                        shaderCallback: (bounds) =>
+                                            LinearGradient(
+                                          colors: [
+                                            Colors.red[700]!,
+                                            Colors.red[500]!
+                                          ],
+                                        ).createShader(bounds),
+                                        child: Text(
+                                          'Menghapus Ekstrakurikuler',
+                                          style: TextStyle(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 16),
+
+                                      // Subtitle with better styling
+                                      Text(
+                                        'Sedang menghapus data ekstrakurikuler secara permanen',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        'Mohon tunggu sebentar...',
+                                        style: TextStyle(
+                                          color: Colors.grey[500],
+                                          fontSize: 14,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      SizedBox(height: 24),
+
+                                      // Progress dots animation
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: List.generate(
+                                          3,
+                                          (index) => Container(
+                                            margin: EdgeInsets.symmetric(
+                                                horizontal: 4),
+                                            child: AnimatedBuilder(
+                                              animation: _pulseAnimation,
+                                              builder: (context, child) {
+                                                return Container(
+                                                  width: 8,
+                                                  height: 8,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.red[400]!
+                                                        .withOpacity(0.3 +
+                                                            0.7 *
+                                                                (((_pulseAnimation
+                                                                            .value +
+                                                                        (index *
+                                                                            0.3)) %
+                                                                    1.0))),
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            barrierDismissible: false,
+                          );
+
                           await context
                               .read<ExtracurricularCubit>()
                               .forceDeleteExtracurricular(extracurricular.id);
+
+                          // Tutup loading
+                          Get.back();
+
+                          // Refresh extracurricular list
+                          _loadArchivedExtracurriculars();
+
+                          // Show auto-dismissing success snackbar
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(
-                                  'Ekstrakurikuler berhasil dihapus permanen'),
-                              backgroundColor: Colors.red,
+                              content: Container(
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.check_circle,
+                                        color: Colors.white),
+                                    SizedBox(width: 12),
+                                    Text(
+                                      'Ekstrakurikuler berhasil dihapus!',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              backgroundColor: Colors.green.shade400,
+                              duration: Duration(seconds: 2),
+                              behavior: SnackBarBehavior.floating,
+                              margin: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              elevation: 4,
                             ),
                           );
                         } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Gagal menghapus ekstrakurikuler'),
-                              backgroundColor: Colors.red,
-                            ),
+                          // Tutup loading jika masih terbuka
+                          if (Get.isDialogOpen ?? false) {
+                            Get.back();
+                          }
+
+                          Get.snackbar(
+                            'Gagal',
+                            e.toString(),
+                            backgroundColor: Colors.red,
+                            colorText: Colors.white,
+                            snackPosition: SnackPosition.BOTTOM,
                           );
                         }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 12),
                       ),
-                      child:
-                          Text('Hapus', style: TextStyle(color: Colors.white)),
+                      child: Text(
+                        'Hapus',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],

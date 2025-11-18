@@ -71,6 +71,7 @@ class ExtracurricularCubit extends Cubit<ExtracurricularState> {
 
   // Get archived extracurriculars
   Future<void> getArchivedExtracurriculars() async {
+    print('🗂️ [EXTRACURRICULAR CUBIT] Fetching archived extracurriculars...');
     emit(ExtracurricularLoading());
     try {
       final archivedExtracurriculars =
@@ -80,11 +81,14 @@ class ExtracurricularCubit extends Cubit<ExtracurricularState> {
           ? currentState.extracurriculars
           : <Extracurricular>[];
 
+      print(
+          '✅ [EXTRACURRICULAR CUBIT] Success: ${archivedExtracurriculars.length} archived extracurriculars');
       emit(ExtracurricularSuccess(
         extracurriculars: extracurriculars,
         archivedExtracurriculars: archivedExtracurriculars,
       ));
     } catch (e) {
+      print('❌ [EXTRACURRICULAR CUBIT] Archived fetch failed: $e');
       emit(ExtracurricularFailure(e.toString()));
     }
   }

@@ -38,19 +38,37 @@ class ExtracurricularRepository {
   // Get list of archived extracurriculars
   Future<List<Extracurricular>> getArchivedExtracurriculars() async {
     try {
+      print(
+          '🔍 [EXTRACURRICULAR REPO] API Call: ${Api.getExtracurriculars} (archived)');
+
       final response = await Api.get(
-        url: Api.getArchivedExtracurriculars,
+        url: Api.getExtracurriculars,
         useAuthToken: true,
+        queryParameters: {
+          'role': 'teacher',
+          'view_type': 'teacher',
+          'archived': 'true', // Request archived items
+        },
       );
 
+      print(
+          '✅ [EXTRACURRICULAR REPO] Archived Response: ${response['message'] ?? 'Success'}');
+
       if (response['error'] == true) {
+        print('❌ [EXTRACURRICULAR REPO] API Error: ${response['message']}');
         throw ApiException(
             response['message'] ?? 'Failed to load archived extracurriculars');
       }
 
-      final List<dynamic> data = response['data'] ?? [];
-      return data.map((json) => Extracurricular.fromJson(json)).toList();
+      // Response uses 'rows' instead of 'data' for consistency with active extracurriculars
+      final List<dynamic> rows = response['rows'] ?? [];
+
+      print(
+          '📊 [EXTRACURRICULAR REPO] Loaded ${rows.length} archived extracurriculars');
+
+      return rows.map((json) => Extracurricular.fromJson(json)).toList();
     } catch (e) {
+      print('❌ [EXTRACURRICULAR REPO] Exception: $e');
       throw ApiException(e.toString());
     }
   }
