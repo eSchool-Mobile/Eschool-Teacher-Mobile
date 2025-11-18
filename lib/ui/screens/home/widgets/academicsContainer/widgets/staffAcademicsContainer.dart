@@ -429,6 +429,14 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                         index: 19,
                         onTap: () => Get.toNamed(Routes.extracurricularMember),
                       ),
+                      _buildMenuItem(
+                        context: context,
+                        title: 'Absensi Ekstrakurikuler',
+                        icon: Icons.edit_calendar_rounded,
+                        index: 20,
+                        onTap: () =>
+                            Get.toNamed(Routes.extracurricularAttendance),
+                      ),
                     ],
                   ),
 

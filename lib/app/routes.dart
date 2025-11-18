@@ -120,6 +120,7 @@ import 'package:eschool_saas_staff/cubits/extracurricularMember/extracurricularM
 import 'package:eschool_saas_staff/data/repositories/extracurricularRepository.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricularTimetableRepository.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricularMemberRepository.dart';
+import 'package:eschool_saas_staff/ui/screens/extracurricular/extracurricularAttendanceScreen.dart';
 
 // Nama route
 class Routes {
@@ -178,6 +179,7 @@ class Routes {
   static String createExtracurricularTimetable =
       "/createExtracurricularTimetable";
   static String extracurricularMember = "/extracurricularMember";
+  static String extracurricularAttendance = "/extracurricularAttendance";
 
   //teacher academics routes
   static String teacherMyTimetableScreen = "/teacherMyTimetable";
@@ -748,6 +750,10 @@ class Routes {
         ),
         child: ExtracurricularMemberScreen(),
       ),
+    ),
+    GetPage(
+      name: extracurricularAttendance,
+      page: () => ExtracurricularAttendanceScreen.getRouteInstance(),
     ),
 
     GetPage(
