@@ -209,6 +209,14 @@ class Api {
   static String deleteExtracurricular =
       "${databaseUrl}staff/extracurricular/destroy";
 
+  // Extracurricular Timetable APIs
+  static String createExtracurricularTimetable =
+      "${databaseUrl}staff/extracurricular/timetable/save";
+  static String updateExtracurricularTimetable =
+      "${databaseUrl}staff/extracurricular/timetable/update";
+  static String resetExtracurricularTimetable =
+      "${databaseUrl}staff/extracurricular/timetable/reset";
+
   /// Contact APIs
   static String submitContact = "${databaseUrl}contact/submit";
   static String getContacts = "${databaseUrl}contacts";

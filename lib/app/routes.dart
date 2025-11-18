@@ -112,8 +112,11 @@ import 'package:eschool_saas_staff/ui/screens/extracurricular/createExtracurricu
 import 'package:eschool_saas_staff/ui/screens/extracurricular/editExtracurricular.dart';
 import 'package:eschool_saas_staff/ui/screens/extracurricular/archiveExtracurricular.dart';
 import 'package:eschool_saas_staff/ui/screens/extracurricular/extracurricularTimetableScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/extracurricular/createExtracurricularTimetableScreen.dart';
 import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularCubit.dart';
+import 'package:eschool_saas_staff/cubits/extracurricularTimetable/extracurricularTimetableCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricularRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/extracurricularTimetableRepository.dart';
 
 // Nama route
 class Routes {
@@ -169,6 +172,8 @@ class Routes {
   static String editExtracurricular = "/editExtracurricular";
   static String archiveExtracurricular = "/archiveExtracurricular";
   static String extracurricularTimetable = "/extracurricularTimetable";
+  static String createExtracurricularTimetable =
+      "/createExtracurricularTimetable";
 
   //teacher academics routes
   static String teacherMyTimetableScreen = "/teacherMyTimetable";
@@ -716,6 +721,20 @@ class Routes {
     GetPage(
       name: extracurricularTimetable,
       page: () => ExtracurricularTimetableScreen.getRouteInstance(),
+    ),
+    GetPage(
+      name: createExtracurricularTimetable,
+      page: () => BlocProvider<ExtracurricularTimetableCubit>(
+        create: (context) => ExtracurricularTimetableCubit(
+          ExtracurricularTimetableRepository(),
+        ),
+        child: CreateExtracurricularTimetableScreen(
+          existingEntry: Get.arguments?['existingEntry'],
+          extracurriculars: Get.arguments?['extracurriculars'],
+          selectedExtracurricularId:
+              Get.arguments?['selectedExtracurricularId'],
+        ),
+      ),
     ),
 
     GetPage(

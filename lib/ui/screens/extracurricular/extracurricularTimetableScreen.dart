@@ -2,7 +2,6 @@ import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularTimetab
 import 'package:eschool_saas_staff/data/repositories/extracurricularTimetableRepository.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/timetableSlotContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart' as constants;
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +10,11 @@ import 'dart:ui';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:get/get.dart';
+import 'package:eschool_saas_staff/ui/screens/extracurricular/createExtracurricularTimetableScreen.dart';
+import 'package:eschool_saas_staff/cubits/extracurricularTimetable/extracurricularTimetableCubit.dart'
+    as timetableCubit;
+import 'package:eschool_saas_staff/ui/widgets/extracurricularTimetableItem.dart';
 
 class ExtracurricularTimetableScreen extends StatefulWidget {
   const ExtracurricularTimetableScreen({super.key});
@@ -630,6 +634,28 @@ class _ExtracurricularTimetableScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          final result = await Get.to(() => BlocProvider(
+                create: (context) =>
+                    timetableCubit.ExtracurricularTimetableCubit(
+                  ExtracurricularTimetableRepository(),
+                ),
+                child: CreateExtracurricularTimetableScreen(),
+              ));
+
+          if (result == true) {
+            // Refresh timetable data
+            context
+                .read<ExtracurricularTimetableCubit>()
+                .getExtracurricularTimetable();
+          }
+        },
+        icon: Icon(Icons.add),
+        label: Text('Tambah Jadwal'),
+        backgroundColor: const Color(0xFF6366F1),
+        foregroundColor: Colors.white,
+      ),
       body: Stack(
         children: [
           BlocBuilder<ExtracurricularTimetableCubit,
@@ -681,17 +707,14 @@ class _ExtracurricularTimetableScreenState
                       color: Theme.of(context).colorScheme.surface,
                       child: Column(
                         children: filteredItems.map((item) {
-                          final schedule =
-                              item.getScheduleForDay(selectedDay) ?? '-';
-                          final timeData = _parseScheduleTime(schedule);
-
-                          return TimetableSlotContainer(
-                            startTime: timeData['startTime'] ?? '',
-                            endTime: timeData['endTime'] ?? '',
-                            subjectName: item.extracurricularName ?? '-',
-                            isForClass: false,
-                            classSectionName: 'Ekstrakurikuler',
-                            note: '',
+                          return ExtracurricularTimetableItem(
+                            item: item,
+                            selectedDay: selectedDay,
+                            onRefresh: () {
+                              context
+                                  .read<ExtracurricularTimetableCubit>()
+                                  .getExtracurricularTimetable();
+                            },
                           );
                         }).toList(),
                       ),
