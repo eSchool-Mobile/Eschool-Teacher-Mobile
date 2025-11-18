@@ -15,6 +15,7 @@ import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/studentAttendanceContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
+import 'package:eschool_saas_staff/utils/dateFormatter.dart';
 
 class ExtracurricularAttendanceScreen extends StatefulWidget {
   const ExtracurricularAttendanceScreen({Key? key}) : super(key: key);
@@ -84,9 +85,9 @@ class _ExtracurricularAttendanceScreenState
     super.dispose();
   }
 
-  // Format date for API (YYYY-MM-DD ISO format)
+  // Format date for API using DateFormatter (DD-MM-YYYY format for all requests)
   String _formatDateForApi(DateTime date) {
-    return date.toIso8601String().split('T')[0]; // YYYY-MM-DD
+    return DateFormatter.toApiFormat(date);
   }
 
   // Load attendance data
@@ -97,41 +98,111 @@ class _ExtracurricularAttendanceScreenState
       context.read<ExtracurricularAttendanceCubit>().getAttendanceData(
             attendanceId: _selectedExtracurricularId!,
             extracurricularId: _selectedExtracurricularId,
-            date: _formatDateForApi(_selectedDate),
+            date: _formatDateForApi(_selectedDate), // Use DD-MM-YYYY format
           );
     }
   }
 
-  // Save attendance data
+  // Save attendance data with validation
   void _saveAttendance() {
-    if (_selectedExtracurricularId != null && attendanceReport.isNotEmpty) {
-      print('🔍 [ATTENDANCE SCREEN] Preparing to save attendance...');
-      print(
-          '🔍 [ATTENDANCE SCREEN] Attendance report count: ${attendanceReport.length}');
+    if (_selectedExtracurricularId == null) {
+      print('❌ [ATTENDANCE SCREEN] Cannot save: No extracurricular selected');
+      _showErrorSnackbar('Pilih ekstrakurikuler terlebih dahulu');
+      return;
+    }
 
-      // Convert attendance report to API format
-      final attendanceData = attendanceReport.map((report) {
-        print(
-            '🔍 [ATTENDANCE SCREEN] Converting report: StudentID=${report.studentId}, Status=${report.status}');
-        return AttendanceData(
+    if (attendanceReport.isEmpty) {
+      print('❌ [ATTENDANCE SCREEN] Cannot save: No attendance data');
+      _showErrorSnackbar('Tidak ada data absensi untuk disimpan');
+      return;
+    }
+
+    print('🔍 [ATTENDANCE SCREEN] Preparing to save attendance...');
+    print(
+        '🔍 [ATTENDANCE SCREEN] Attendance report count: ${attendanceReport.length}');
+    print(
+        '🔍 [ATTENDANCE SCREEN] Selected date: ${_formatDateForApi(_selectedDate)}');
+
+    // Validate date format
+    final dateString = _formatDateForApi(_selectedDate);
+    if (!DateFormatter.isValidGetRequestDateFormat(dateString)) {
+      print('❌ [ATTENDANCE SCREEN] Invalid date format: $dateString');
+      _showErrorSnackbar('Format tanggal tidak valid');
+      return;
+    }
+
+    // Convert attendance report to API format with validation
+    final List<AttendanceData> attendanceData = [];
+    bool hasInvalidData = false;
+
+    for (final report in attendanceReport) {
+      print(
+          '🔍 [ATTENDANCE SCREEN] Processing report: StudentID=${report.studentId}, Status=${report.status}');
+
+      // Validate student ID
+      if (report.studentId <= 0) {
+        print('❌ [ATTENDANCE SCREEN] Invalid student ID: ${report.studentId}');
+        hasInvalidData = true;
+        continue;
+      }
+
+      try {
+        final data = AttendanceData.create(
           studentId: report.studentId,
           type: _convertStatusToInt(report.status),
         );
-      }).toList();
 
-      print(
-          '🔍 [ATTENDANCE SCREEN] Final attendance data: ${attendanceData.map((e) => 'StudentID=${e.studentId}, Type=${e.type}').toList()}');
-
-      context.read<ExtracurricularAttendanceCubit>().saveAttendance(
-            sessionId: 1, // This should be actual session/staff ID
-            extracurricularId: _selectedExtracurricularId!,
-            date: _formatDateForApi(_selectedDate),
-            attendanceData: attendanceData,
-          );
-    } else {
-      print(
-          '❌ [ATTENDANCE SCREEN] Cannot save: ExtracurricularId=${_selectedExtracurricularId}, ReportCount=${attendanceReport.length}');
+        if (data.isValid()) {
+          attendanceData.add(data);
+          print(
+              '✅ [ATTENDANCE SCREEN] Added valid attendance data: ${data.toString()}');
+        } else {
+          print(
+              '❌ [ATTENDANCE SCREEN] Invalid attendance data: ${data.toString()}');
+          hasInvalidData = true;
+        }
+      } catch (e) {
+        print('❌ [ATTENDANCE SCREEN] Error creating attendance data: $e');
+        hasInvalidData = true;
+      }
     }
+
+    if (hasInvalidData) {
+      _showErrorSnackbar(
+          'Beberapa data absensi tidak valid. Periksa data siswa.');
+      return;
+    }
+
+    if (attendanceData.isEmpty) {
+      print('❌ [ATTENDANCE SCREEN] No valid attendance data to save');
+      _showErrorSnackbar('Tidak ada data absensi yang valid untuk disimpan');
+      return;
+    }
+
+    print(
+        '🔍 [ATTENDANCE SCREEN] Final attendance data (${attendanceData.length} items):');
+    for (final data in attendanceData) {
+      print('  - ${data.toString()}');
+    }
+
+    // Send to API
+    context.read<ExtracurricularAttendanceCubit>().saveAttendance(
+          sessionId: 1, // This should be actual session/staff ID
+          extracurricularId: _selectedExtracurricularId!,
+          date: dateString,
+          attendanceData: attendanceData,
+        );
+  }
+
+  // Show error snackbar
+  void _showErrorSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   // Convert StudentAttendanceStatus to int
@@ -370,6 +441,16 @@ class _ExtracurricularAttendanceScreenState
                   if (state.attendanceData != null) {
                     print(
                         '🔍 [ATTENDANCE SCREEN] Attendance data received: ${state.attendanceData!.members.length} members');
+
+                    // Debug: Print first few members to see their structure
+                    for (int i = 0;
+                        i < state.attendanceData!.members.length && i < 3;
+                        i++) {
+                      final member = state.attendanceData!.members[i];
+                      print(
+                          '🔍 [ATTENDANCE SCREEN] Member $i: AttendanceID=${member.attendanceId}, StudentID=${member.studentId}, Name=${member.studentName}');
+                    }
+
                     setState(() {
                       _attendanceList = state.attendanceData!.members;
                       _initializeAttendanceReport();
@@ -703,22 +784,6 @@ class _ExtracurricularAttendanceScreenState
         return StudentAttendanceStatus.sick;
       case AttendanceStatus.permission:
         return StudentAttendanceStatus.permission;
-    }
-  }
-
-  // Convert int to StudentAttendanceStatus
-  StudentAttendanceStatus _convertIntToStatus(int type) {
-    switch (type) {
-      case 0:
-        return StudentAttendanceStatus.absent;
-      case 1:
-        return StudentAttendanceStatus.present;
-      case 2:
-        return StudentAttendanceStatus.sick;
-      case 3:
-        return StudentAttendanceStatus.permission;
-      default:
-        return StudentAttendanceStatus.present;
     }
   }
 

@@ -1,5 +1,6 @@
 import 'package:eschool_saas_staff/data/models/extracurricularAttendance.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
+import 'package:eschool_saas_staff/utils/dateFormatter.dart';
 import 'package:eschool_saas_staff/utils/hiveBoxKeys.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -62,35 +63,70 @@ class ExtracurricularAttendanceRepository {
     required ExtracurricularAttendanceRequest request,
   }) async {
     try {
-      print('💾 [ATTENDANCE REPO] Saving attendance for session: $sessionId');
-      print('💾 [ATTENDANCE REPO] Request data: ${request.toJson()}');
+      print('🔍 [ATTENDANCE REPO] Saving attendance for session: $sessionId');
+      print('🔍 [ATTENDANCE REPO] Request data: ${request.toJson()}');
+
+      // Validate request data
+      if (request.attendanceData.isEmpty) {
+        throw ArgumentError('Attendance data is empty');
+      }
+
+      // Validate date format
+      if (!DateFormatter.isValidGetRequestDateFormat(request.date)) {
+        throw ArgumentError(
+            'Invalid date format: ${request.date}. Expected DD-MM-YYYY');
+      }
+
+      // Validate all attendance data
+      for (final data in request.attendanceData) {
+        if (!data.isValid()) {
+          throw ArgumentError('Invalid attendance data: ${data.toString()}');
+        }
+      }
 
       final response = await Api.post(
-        url: Api.saveExtracurricularAttendance
-            .replaceAll('{id}', sessionId.toString()),
-        useAuthToken: true,
+        url: Api.saveExtracurricularAttendance + sessionId.toString(),
         body: request.toJson(),
+        useAuthToken: true,
       );
 
-      print('💾 [ATTENDANCE REPO] Response: $response');
+      print('🔍 [ATTENDANCE REPO] Save response: $response');
 
+      // Check if request was successful
       if (response['error'] == false) {
         // Create save response manually since API doesn't return savedCount
         final saveResponse = ExtracurricularAttendanceSaveResponse(
           success: true,
           message: response['message'] ?? 'Absensi berhasil disimpan',
-          savedCount: request.attendanceData.length, // Use request data count
+          savedCount: request.attendanceData.length,
         );
+
         print(
-            '✅ [ATTENDANCE REPO] Successfully saved ${saveResponse.savedCount} attendance records');
+            '✅ [ATTENDANCE REPO] Successfully saved ${request.attendanceData.length} attendance records');
         return saveResponse;
       } else {
-        throw Exception(
-            response['message'] ?? 'Failed to save attendance data');
+        final errorMessage = response['message'] ?? 'Gagal menyimpan absensi';
+        final errorCode = response['code'];
+
+        // Handle specific error codes
+        if (errorCode == 103) {
+          throw Exception(
+              'Format tanggal tidak valid. Pastikan menggunakan format YYYY-MM-DD');
+        }
+
+        print(
+            '❌ [ATTENDANCE REPO] API returned error: $errorMessage (code: $errorCode)');
+        throw Exception(errorMessage);
       }
     } catch (e) {
       print('❌ [ATTENDANCE REPO] Error saving attendance: $e');
-      throw Exception('Failed to save attendance data: $e');
+
+      // Provide user-friendly error messages
+      if (e.toString().contains('Carbon')) {
+        throw Exception('Format tanggal tidak valid. Silakan coba lagi.');
+      }
+
+      rethrow;
     }
   }
 
@@ -164,28 +200,19 @@ class ExtracurricularAttendanceRepository {
     }
   }
 
-  // Helper method to format date for API (d-m-Y format)
+  // Helper method to format date for API using DateFormatter (YYYY-MM-DD format for POST)
   String formatDateForApi(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}';
+    return DateFormatter.toApiFormat(date);
   }
 
-  // Helper method to parse date from API (d-m-Y format)
+  // Helper method to format date for GET request (DD-MM-YYYY format)
+  String formatDateForGetRequest(DateTime date) {
+    return DateFormatter.toGetRequestFormat(date);
+  }
+
+  // Helper method to parse date from API using DateFormatter
   DateTime? parseDateFromApi(String? dateString) {
-    if (dateString == null || dateString.isEmpty) return null;
-
-    try {
-      final parts = dateString.split('-');
-      if (parts.length == 3) {
-        final day = int.parse(parts[0]);
-        final month = int.parse(parts[1]);
-        final year = int.parse(parts[2]);
-        return DateTime(year, month, day);
-      }
-    } catch (e) {
-      print('❌ [ATTENDANCE REPO] Error parsing date: $dateString, error: $e');
-    }
-
-    return null;
+    return DateFormatter.fromApiFormat(dateString);
   }
 
   // Get attendance history for a specific extracurricular and date range
@@ -203,10 +230,10 @@ class ExtracurricularAttendanceRepository {
       };
 
       if (startDate != null) {
-        queryParams['start_date'] = formatDateForApi(startDate);
+        queryParams['start_date'] = formatDateForGetRequest(startDate);
       }
       if (endDate != null) {
-        queryParams['end_date'] = formatDateForApi(endDate);
+        queryParams['end_date'] = formatDateForGetRequest(endDate);
       }
 
       // Note: This endpoint might need to be adjusted based on actual backend implementation
