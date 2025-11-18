@@ -217,6 +217,14 @@ class Api {
   static String resetExtracurricularTimetable =
       "${databaseUrl}staff/extracurricular/timetable/reset";
 
+  // Extracurricular Member APIs
+  static String getExtracurricularMembers =
+      "${databaseUrl}staff/extracurricular/members";
+  static String approveExtracurricularMember =
+      "${databaseUrl}staff/extracurricular/members/approve";
+  static String rejectExtracurricularMember =
+      "${databaseUrl}staff/extracurricular/members/reject";
+
   /// Contact APIs
   static String submitContact = "${databaseUrl}contact/submit";
   static String getContacts = "${databaseUrl}contacts";

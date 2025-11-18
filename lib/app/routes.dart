@@ -113,10 +113,13 @@ import 'package:eschool_saas_staff/ui/screens/extracurricular/editExtracurricula
 import 'package:eschool_saas_staff/ui/screens/extracurricular/archiveExtracurricular.dart';
 import 'package:eschool_saas_staff/ui/screens/extracurricular/extracurricularTimetableScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/extracurricular/createExtracurricularTimetableScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/extracurricular/extracurricularMemberScreen.dart';
 import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularCubit.dart';
 import 'package:eschool_saas_staff/cubits/extracurricularTimetable/extracurricularTimetableCubit.dart';
+import 'package:eschool_saas_staff/cubits/extracurricularMember/extracurricularMemberCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricularRepository.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricularTimetableRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/extracurricularMemberRepository.dart';
 
 // Nama route
 class Routes {
@@ -174,6 +177,7 @@ class Routes {
   static String extracurricularTimetable = "/extracurricularTimetable";
   static String createExtracurricularTimetable =
       "/createExtracurricularTimetable";
+  static String extracurricularMember = "/extracurricularMember";
 
   //teacher academics routes
   static String teacherMyTimetableScreen = "/teacherMyTimetable";
@@ -734,6 +738,15 @@ class Routes {
           selectedExtracurricularId:
               Get.arguments?['selectedExtracurricularId'],
         ),
+      ),
+    ),
+    GetPage(
+      name: extracurricularMember,
+      page: () => BlocProvider<ExtracurricularMemberCubit>(
+        create: (context) => ExtracurricularMemberCubit(
+          ExtracurricularMemberRepository(),
+        ),
+        child: ExtracurricularMemberScreen(),
       ),
     ),
 

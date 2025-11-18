@@ -422,6 +422,13 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                         onTap: () =>
                             Get.toNamed(Routes.extracurricularTimetable),
                       ),
+                      _buildMenuItem(
+                        context: context,
+                        icon: Icons.people,
+                        title: "Daftar Anggota",
+                        index: 19,
+                        onTap: () => Get.toNamed(Routes.extracurricularMember),
+                      ),
                     ],
                   ),
 
