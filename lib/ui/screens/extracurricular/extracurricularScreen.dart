@@ -644,48 +644,54 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
             ),
           ),
 
-          // Coach Badge (replaces duration badge from exam)
+          // Coach name badge - centered above title
           Positioned(
-            top: 20,
+            top: 30, // Position above the title
+            left: 24,
             right: 24,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    spreadRadius: -5,
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.person_outline,
-                      size: 16, color: colorScheme['primary']),
-                  SizedBox(width: 6),
-                  Text(
-                    extracurricular.coachName,
-                    style: TextStyle(
-                      color: colorScheme['primary'],
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.3,
+            child: Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      spreadRadius: -5,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.person_outline,
+                        size: 16, color: colorScheme['primary']),
+                    SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        extracurricular.coachName,
+                        style: TextStyle(
+                          color: colorScheme['primary'],
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.3,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
 
           // Title - Updated position and styling with better wrapping
           Positioned(
-            top: 80, // Move title more to top
+            top: 90, // Adjust position to be below coach name
             left: 24,
             right: 24,
             child: Column(
@@ -1195,7 +1201,7 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
                       .deleteExtracurricular(extracurricular.id);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Ekstrakurikuler berhasil diarsipkan'),
+                      content: Text('Ekstrakurikuler diarsipkan'),
                       backgroundColor: Colors.green,
                     ),
                   );

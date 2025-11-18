@@ -208,10 +208,6 @@ class Api {
       "${databaseUrl}staff/extracurricular/update";
   static String deleteExtracurricular =
       "${databaseUrl}staff/extracurricular/destroy";
-  static String restoreExtracurricular =
-      "${databaseUrl}staff/extracurricular/restore";
-  static String forceDeleteExtracurricular =
-      "${databaseUrl}staff/extracurricular/force-delete";
 
   /// Contact APIs
   static String submitContact = "${databaseUrl}contact/submit";

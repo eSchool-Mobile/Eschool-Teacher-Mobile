@@ -481,11 +481,14 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                     ],
                   ),
                   SizedBox(height: 8),
-                  Text(
-                    extracurricular.coachName,
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
+                  Center(
+                    child: Text(
+                      extracurricular.coachName,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                   SizedBox(height: 12),
@@ -917,7 +920,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                         color: Colors.white),
                                     SizedBox(width: 12),
                                     Text(
-                                      'Ekstrakurikuler berhasil dipulihkan!',
+                                      'Ekstrakurikuler dipulihkan!',
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 16,
@@ -1242,7 +1245,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                         color: Colors.white),
                                     SizedBox(width: 12),
                                     Text(
-                                      'Ekstrakurikuler berhasil dihapus!',
+                                      'Ekstrakurikuler dihapus!',
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 16,

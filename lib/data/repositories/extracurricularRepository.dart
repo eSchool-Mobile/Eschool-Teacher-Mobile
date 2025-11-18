@@ -167,17 +167,28 @@ class ExtracurricularRepository {
   // Restore archived extracurricular
   Future<void> restoreExtracurricular(int id) async {
     try {
-      final response = await Api.post(
-        url: '${Api.restoreExtracurricular}/$id',
+      print('🔄 [EXTRACURRICULAR REPO] Restoring ID: $id');
+
+      // Try using the unified destroy endpoint with restore mode
+      final response = await Api.delete(
+        url: '${Api.deleteExtracurricular}/$id',
         useAuthToken: true,
         body: {},
+        queryParameters: {'mode': 'restore'},
       );
 
+      print('🔍 [EXTRACURRICULAR REPO] Restore response: $response');
+
       if (response['error'] == true) {
+        print(
+            '❌ [EXTRACURRICULAR REPO] Restore failed: ${response['message']}');
         throw ApiException(
             response['message'] ?? 'Failed to restore extracurricular');
       }
+
+      print('✅ [EXTRACURRICULAR REPO] Restored successfully');
     } catch (e) {
+      print('❌ [EXTRACURRICULAR REPO] Restore exception: $e');
       throw ApiException(e.toString());
     }
   }
@@ -185,18 +196,27 @@ class ExtracurricularRepository {
   // Force delete (Permanent delete) extracurricular
   Future<void> forceDeleteExtracurricular(int id) async {
     try {
+      print('🗑️ [EXTRACURRICULAR REPO] Permanent delete ID: $id');
+
       final response = await Api.delete(
-        url: '${Api.forceDeleteExtracurricular}/$id',
+        url: '${Api.deleteExtracurricular}/$id',
         useAuthToken: true,
         body: {},
         queryParameters: {'mode': 'permanent'},
       );
 
+      print('🔍 [EXTRACURRICULAR REPO] Permanent delete response: $response');
+
       if (response['error'] == true) {
+        print(
+            '❌ [EXTRACURRICULAR REPO] Permanent delete failed: ${response['message']}');
         throw ApiException(response['message'] ??
             'Failed to permanently delete extracurricular');
       }
+
+      print('✅ [EXTRACURRICULAR REPO] Permanently deleted successfully');
     } catch (e) {
+      print('❌ [EXTRACURRICULAR REPO] Permanent delete exception: $e');
       throw ApiException(e.toString());
     }
   }
