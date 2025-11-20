@@ -106,20 +106,68 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                           ],
                         ),
                       ),
-                      // Action buttons
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _buildActionButton(
-                            icon: Icons.edit_rounded,
-                            color: Colors.blue,
-                            onTap: () => _editTimetable(context),
+                      // Action menu (three dots)
+                      PopupMenuButton<String>(
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: Colors.grey.shade600,
+                          size: 20,
+                        ),
+                        offset: Offset(-10, 40),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 8,
+                        color: Colors.white,
+                        onSelected: (value) {
+                          if (value == 'edit') {
+                            _editTimetable(context);
+                          } else if (value == 'delete') {
+                            _showDeleteConfirmation(context);
+                          }
+                        },
+                        itemBuilder: (BuildContext context) => [
+                          PopupMenuItem<String>(
+                            value: 'edit',
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.edit_rounded,
+                                  color: Colors.blue,
+                                  size: 18,
+                                ),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Edit Jadwal',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade800,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          SizedBox(width: 8),
-                          _buildActionButton(
-                            icon: Icons.delete_rounded,
-                            color: Colors.red,
-                            onTap: () => _showDeleteConfirmation(context),
+                          PopupMenuItem<String>(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.delete_rounded,
+                                  color: Colors.red,
+                                  size: 18,
+                                ),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Hapus Jadwal',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade800,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -197,29 +245,6 @@ class ExtracurricularTimetableItem extends StatelessWidget {
       print('❌ Error formatting time: $time, error: $e');
       return time;
     }
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: color.withOpacity(0.3)),
-        ),
-        child: Icon(
-          icon,
-          size: 16,
-          color: color,
-        ),
-      ),
-    );
   }
 
   void _editTimetable(BuildContext context) async {

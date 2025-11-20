@@ -335,6 +335,49 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                           ),
                         ],
                       ),
+
+                      // Extracurricular Section
+                      _buildMenuSection(
+                        context: context,
+                        title: "Ekstrakurikuler",
+                        icon: Icons.sports_soccer,
+                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
+                        index: 8,
+                        menus: [
+                          _buildMenuItem(
+                            context: context,
+                            icon: Icons.list,
+                            title: "Kelola Ekstrakurikuler",
+                            index: 17,
+                            onTap: () =>
+                                Get.toNamed(Routes.extracurricularScreen),
+                          ),
+                          _buildMenuItem(
+                            context: context,
+                            icon: Icons.calendar_today,
+                            title: "Jadwal Ekstrakurikuler",
+                            index: 18,
+                            onTap: () =>
+                                Get.toNamed(Routes.extracurricularTimetable),
+                          ),
+                          _buildMenuItem(
+                            context: context,
+                            icon: Icons.people,
+                            title: "Daftar Anggota",
+                            index: 19,
+                            onTap: () =>
+                                Get.toNamed(Routes.extracurricularMember),
+                          ),
+                          _buildMenuItem(
+                            context: context,
+                            title: 'Absensi Ekstrakurikuler',
+                            icon: Icons.edit_calendar_rounded,
+                            index: 20,
+                            onTap: () =>
+                                Get.toNamed(Routes.extracurricularAttendance),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),

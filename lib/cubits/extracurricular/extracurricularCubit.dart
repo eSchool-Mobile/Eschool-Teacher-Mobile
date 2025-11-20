@@ -47,7 +47,7 @@ class ExtracurricularCubit extends Cubit<ExtracurricularState> {
 
   // Get active extracurriculars
   Future<void> getExtracurriculars() async {
-    print('🚀 [EXTRACURRICULAR CUBIT] Fetching extracurriculars...');
+    print(' [EXTRACURRICULAR CUBIT] Fetching extracurriculars...');
     emit(ExtracurricularLoading());
     try {
       final extracurriculars =
@@ -145,7 +145,9 @@ class ExtracurricularCubit extends Cubit<ExtracurricularState> {
     try {
       await _extracurricularRepository.deleteExtracurricular(id);
       print('✅ [EXTRACURRICULAR CUBIT] Archived successfully');
+      // Refresh both active and archived data
       await getExtracurriculars();
+      await getArchivedExtracurriculars();
     } catch (e) {
       print('❌ [EXTRACURRICULAR CUBIT] Archive failed: $e');
       emit(ExtracurricularFailure(e.toString()));
@@ -155,11 +157,19 @@ class ExtracurricularCubit extends Cubit<ExtracurricularState> {
 
   // Restore extracurricular
   Future<void> restoreExtracurricular(int id) async {
+    print('🔄 [EXTRACURRICULAR CUBIT] Restoring ID: $id');
     try {
       await _extracurricularRepository.restoreExtracurricular(id);
+      print(
+          '✅ [EXTRACURRICULAR CUBIT] Restored successfully, refreshing data...');
+
+      // Refresh both archived and active data for immediate UI update
       await getArchivedExtracurriculars();
       await getExtracurriculars();
+
+      print('🔄 [EXTRACURRICULAR CUBIT] Data refreshed after restore');
     } catch (e) {
+      print('❌ [EXTRACURRICULAR CUBIT] Restore failed: $e');
       emit(ExtracurricularFailure(e.toString()));
       rethrow;
     }

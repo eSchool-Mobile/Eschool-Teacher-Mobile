@@ -324,10 +324,19 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
         if (state is ExtracurricularSuccess) {
           final archivedExtracurriculars = state.archivedExtracurriculars;
 
+          // Since we're calling the archived API endpoint, all returned items are archived
+          // No need to filter by isArchived as the API already returns only archived items
+          final trulyArchivedExtracurriculars = archivedExtracurriculars;
+
+          print(
+              '🔍 [ARCHIVE SCREEN] Total from API: ${archivedExtracurriculars.length}');
+          print(
+              '🔍 [ARCHIVE SCREEN] Truly archived: ${trulyArchivedExtracurriculars.length}');
+
           // Filter berdasarkan pencarian
           final filteredExtracurriculars = _searchController.text.isEmpty
-              ? archivedExtracurriculars
-              : archivedExtracurriculars
+              ? trulyArchivedExtracurriculars
+              : trulyArchivedExtracurriculars
                   .where((extracurricular) => extracurricular.name
                       .toLowerCase()
                       .contains(_searchController.text.toLowerCase()))
@@ -350,8 +359,10 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                   SizedBox(height: 20),
                   Text(
                     _isSearching
-                        ? 'Tidak ada ekstrakurikuler arsip yang cocok'
-                        : 'Belum ada ekstrakurikuler yang diarsipkan',
+                        ? 'Tidak ada ekstrakurikuler arsip yang cocok dengan pencarian'
+                        : trulyArchivedExtracurriculars.isEmpty
+                            ? 'Belum ada ekstrakurikuler yang diarsipkan'
+                            : 'Tidak ada ekstrakurikuler arsip yang cocok dengan filter',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
@@ -379,6 +390,9 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
   }
 
   Widget _buildExtracurricularCard(Extracurricular extracurricular) {
+    // Since we're on the archive screen and API returns only archived items,
+    // no need to double-check isArchived property
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -503,6 +517,19 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                       ),
                     ],
                   ),
+                  SizedBox(height: 8),
+                  // Tambahkan informasi tanggal arsip
+                  if (extracurricular.deletedAt != null)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoRow(
+                            Icons.archive,
+                            'Diarsipkan: ${_formatArchiveDate(extracurricular.deletedAt!)}',
+                          ),
+                        ),
+                      ],
+                    ),
                   // Hapus deretan tombol di sini
                 ],
               ),
@@ -1301,5 +1328,15 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
       ),
       barrierDismissible: false,
     );
+  }
+
+  // Helper method to format archive date
+  String _formatArchiveDate(String dateString) {
+    try {
+      final DateTime date = DateTime.parse(dateString);
+      return DateFormat('dd MMM yyyy, HH:mm', 'id_ID').format(date);
+    } catch (e) {
+      return dateString; // Return original string if parsing fails
+    }
   }
 }

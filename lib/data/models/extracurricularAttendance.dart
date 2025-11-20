@@ -150,43 +150,58 @@ class ExtracurricularAttendance {
     }
 
     // Validasi student_id - CRITICAL untuk mencegah id: 0
-    // Berdasarkan response API, field 'id' adalah attendance_id, bukan student_id
-    // Kita perlu mencari field yang tepat untuk student_id
-    final studentId = json['student_id'] ??
-        json['studentId'] ??
-        json['siswa_id'] ??
-        json['user_id'] ??
-        json['member_id'] ??
-        0;
+    // Debug: Print semua field yang tersedia untuk analisis
+    print(' [MODEL] Available JSON fields: ${json.keys.toList()}');
+    print(' [MODEL] Full JSON data: ${json.toString()}');
 
-    if (studentId == 0) {
-      print(
-          ' [MODEL] CRITICAL: student_id is 0 for attendance ${json['attendance_id'] ?? json['id']}');
-      print(' [MODEL] Available fields: ${json.keys.toList()}');
-      print(' [MODEL] Full JSON: ${json.toString()}');
+    // Coba berbagai kemungkinan field name untuk student_id
+    int studentId = 0;
 
-      // Coba gunakan attendance_id sebagai fallback sementara untuk testing
-      // CATATAN: Ini bukan solusi ideal, tapi untuk debugging
-      final fallbackId = json['attendance_id'] ?? json['id'] ?? 0;
-      if (fallbackId != 0) {
-        print(
-            ' [MODEL] Using attendance_id as fallback student_id: $fallbackId');
-        return ExtracurricularAttendance(
-          attendanceId: fallbackId,
-          studentId:
-              fallbackId, // TEMPORARY: menggunakan attendance_id sebagai student_id
-          studentName: studentName,
-          studentNisn: json['student_nisn'] ?? json['nisn'],
-          className: json['class_name'] ?? json['kelas'] ?? json['className'],
-          status: parsedStatus,
-          date: parsedDate,
-          extracurricularId:
-              json['extracurricular_id'] ?? json['ekstrakurikuler_id'],
-          extracurricularName: json['eskul_name'] ??
-              json['extracurricular_name'] ??
-              json['ekstrakurikuler_name'],
-        );
+    // Prioritas pencarian field student_id
+    final possibleStudentIdFields = [
+      'student_id',
+      'studentId',
+      'siswa_id',
+      'user_id',
+      'member_id',
+      'id'
+    ];
+
+    for (final field in possibleStudentIdFields) {
+      final value = json[field];
+      if (value != null) {
+        if (value is int && value > 0) {
+          studentId = value;
+          print(
+              ' [MODEL] Found valid student_id in field "$field": $studentId');
+          break;
+        } else if (value is String) {
+          final parsedValue = int.tryParse(value);
+          if (parsedValue != null && parsedValue > 0) {
+            studentId = parsedValue;
+            print(
+                ' [MODEL] Found valid student_id in field "$field" (parsed from string): $studentId');
+            break;
+          }
+        }
       }
+    }
+
+    if (studentId <= 0) {
+      print(' [MODEL] CRITICAL: No valid student_id found!');
+      print(' [MODEL] Available fields: ${json.keys.toList()}');
+      print(' [MODEL] Field values:');
+      for (final field in possibleStudentIdFields) {
+        print('   - $field: ${json[field]} (${json[field].runtimeType})');
+      }
+
+      // Untuk debugging, gunakan attendance_id sebagai temporary student_id
+      // HANYA untuk testing - ini bukan solusi final
+      final tempId = json['attendance_id'] ?? json['id'] ?? 1;
+      print(
+          ' [MODEL] TEMPORARY: Using attendance_id as student_id for debugging: $tempId');
+      studentId =
+          tempId is int ? tempId : (int.tryParse(tempId.toString()) ?? 1);
     }
 
     final result = ExtracurricularAttendance(
@@ -317,15 +332,27 @@ class ExtracurricularAttendanceResponse {
 
   factory ExtracurricularAttendanceResponse.fromJson(
       Map<String, dynamic> json) {
+    print('🔍 [ATTENDANCE_RESPONSE] Full API response: ${json.toString()}');
+
     // Handle both possible response structures
     List<dynamic> membersList = [];
 
     // Try 'rows' first (actual API response), then 'data.members' (fallback)
     if (json['rows'] != null) {
       membersList = json['rows'] as List<dynamic>;
+      print(
+          '🔍 [ATTENDANCE_RESPONSE] Using rows structure, found ${membersList.length} members');
     } else {
       final data = json['data'] ?? {};
       membersList = data['members'] as List<dynamic>? ?? [];
+      print(
+          '🔍 [ATTENDANCE_RESPONSE] Using data.members structure, found ${membersList.length} members');
+    }
+
+    // Debug: Print first member structure if available
+    if (membersList.isNotEmpty) {
+      print(
+          '🔍 [ATTENDANCE_RESPONSE] First member structure: ${membersList.first.toString()}');
     }
 
     return ExtracurricularAttendanceResponse(
@@ -358,18 +385,19 @@ class ExtracurricularAttendanceRequest {
 
     for (final data in attendanceData) {
       attendanceDataMap[data.studentId.toString()] = {
-        'id': data.studentId,
-        'type': data.type,
+        'id': data.studentId.toString(), // Convert to string as per API spec
+        'type': data.type.toString(), // Convert to string as per API spec
       };
     }
 
     final json = {
-      'ekstrakurikuler_id': extracurricularId,
+      'ekstrakurikuler_id':
+          extracurricularId.toString(), // Convert to string as per API spec
       'date': date, // Already in DD-MM-YYYY format
       'attendance_data': attendanceDataMap,
     };
 
-    print('🔍 [REQUEST] Final request body: ${json.toString()}');
+    print(' [REQUEST] Final request body: ${json.toString()}');
     return json;
   }
 }

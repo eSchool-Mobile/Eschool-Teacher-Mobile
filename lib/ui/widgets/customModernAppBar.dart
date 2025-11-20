@@ -6,6 +6,7 @@ import 'dart:math' as math;
 
 class CustomModernAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String title;
+  final String? subtitle;
   final IconData icon;
   final AnimationController fabAnimationController;
   final Color primaryColor;
@@ -36,6 +37,7 @@ class CustomModernAppBar extends StatefulWidget implements PreferredSizeWidget {
   const CustomModernAppBar({
     Key? key,
     required this.title,
+    this.subtitle,
     required this.icon,
     required this.fabAnimationController,
     this.primaryColor = const Color(0xFF800020),
@@ -491,33 +493,71 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
 
                                       SizedBox(width: 12),
 
-                                      // Title text with glowing effect
-                                      ShaderMask(
-                                        shaderCallback: (Rect bounds) {
-                                          return LinearGradient(
-                                            begin: Alignment.topCenter,
-                                            end: Alignment.bottomCenter,
-                                            colors: [
-                                              Colors.white,
-                                              Colors.white.withOpacity(0.9),
-                                            ],
-                                          ).createShader(bounds);
-                                        },
-                                        blendMode: BlendMode.srcIn,
-                                        child: Text(
-                                          widget.title,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                            shadows: [
-                                              Shadow(
-                                                color: Colors.black26,
-                                                offset: Offset(0, 1),
-                                                blurRadius: 3,
+                                      // Title and subtitle with glowing effect
+                                      Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          ShaderMask(
+                                            shaderCallback: (Rect bounds) {
+                                              return LinearGradient(
+                                                begin: Alignment.topCenter,
+                                                end: Alignment.bottomCenter,
+                                                colors: [
+                                                  Colors.white,
+                                                  Colors.white.withOpacity(0.9),
+                                                ],
+                                              ).createShader(bounds);
+                                            },
+                                            blendMode: BlendMode.srcIn,
+                                            child: Text(
+                                              widget.title,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
+                                                shadows: [
+                                                  Shadow(
+                                                    color: Colors.black26,
+                                                    offset: Offset(0, 1),
+                                                    blurRadius: 3,
+                                                  ),
+                                                ],
                                               ),
-                                            ],
+                                            ),
                                           ),
-                                        ),
+                                          if (widget.subtitle != null) ...[
+                                            SizedBox(height: 2),
+                                            ShaderMask(
+                                              shaderCallback: (Rect bounds) {
+                                                return LinearGradient(
+                                                  begin: Alignment.topCenter,
+                                                  end: Alignment.bottomCenter,
+                                                  colors: [
+                                                    Colors.white
+                                                        .withOpacity(0.8),
+                                                    Colors.white
+                                                        .withOpacity(0.6),
+                                                  ],
+                                                ).createShader(bounds);
+                                              },
+                                              blendMode: BlendMode.srcIn,
+                                              child: Text(
+                                                widget.subtitle!,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w400,
+                                                  shadows: [
+                                                    Shadow(
+                                                      color: Colors.black26,
+                                                      offset: Offset(0, 1),
+                                                      blurRadius: 2,
+                                                    ),
+                                                  ],
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          ],
+                                        ],
                                       ),
                                     ],
                                   ),

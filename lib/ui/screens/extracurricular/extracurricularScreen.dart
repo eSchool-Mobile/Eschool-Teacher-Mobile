@@ -171,18 +171,22 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
           showArchiveButton: true,
           onArchivePressed: () async {
             final result = await Get.toNamed(Routes.archiveExtracurricular);
-            if (result != null && result is String) {
-              setState(() {
-                _restoredExtracurricularId = result;
-              });
-              _forceRefreshAfterRestore();
-              Future.delayed(Duration(seconds: 3), () {
-                if (mounted) {
-                  setState(() {
-                    _restoredExtracurricularId = null;
-                  });
-                }
-              });
+            if (result != null && result is Map) {
+              // Handle restore result from archive page
+              if (result['action'] == 'restored') {
+                setState(() {
+                  _restoredExtracurricularId =
+                      result['extracurricularId'].toString();
+                });
+                _forceRefreshAfterRestore();
+                Future.delayed(Duration(seconds: 3), () {
+                  if (mounted) {
+                    setState(() {
+                      _restoredExtracurricularId = null;
+                    });
+                  }
+                });
+              }
             }
           },
         ),

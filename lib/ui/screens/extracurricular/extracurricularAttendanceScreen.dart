@@ -216,8 +216,8 @@ class _ExtracurricularAttendanceScreenState
         return 2;
       case StudentAttendanceStatus.permission:
         return 3;
-      default:
-        return 1;
+      case StudentAttendanceStatus.alpa:
+        return 0; // Alpa sama dengan absent
     }
   }
 
@@ -469,8 +469,12 @@ class _ExtracurricularAttendanceScreenState
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
-                  // Reload data after save
-                  _loadAttendanceData();
+                  // Reload data after save with delay to ensure backend has processed
+                  print(
+                      '✅ [ATTENDANCE SCREEN] Save successful, reloading data...');
+                  Future.delayed(Duration(milliseconds: 500), () {
+                    _loadAttendanceData();
+                  });
                 }
 
                 if (state is ExtracurricularAttendanceFailure) {
@@ -725,15 +729,46 @@ class _ExtracurricularAttendanceScreenState
         'class_section': {
           'full_name': member.className,
         },
+        'student': {
+          'user_id': member.studentId, // Ensure this matches studentId
+          'id': member.studentId, // Also set id field
+          'class_section_id': 1,
+          'session_year_id': 1,
+        },
       });
 
       print(
-          '🔍 [ATTENDANCE SCREEN] Created StudentDetails: ID=${studentDetails.id}');
+          '🔍 [ATTENDANCE SCREEN] Created StudentDetails: ID=${studentDetails.id}, UserID=${studentDetails.student?.userId}');
 
-      return StudentAttendance.fromStudentDetails(
+      // Convert backend status to StudentAttendance type
+      int studentAttendanceType;
+      switch (member.status) {
+        case AttendanceStatus.absent:
+          studentAttendanceType = 4; // Alpa in StudentAttendance
+          break;
+        case AttendanceStatus.present:
+          studentAttendanceType = 1; // Present
+          break;
+        case AttendanceStatus.sick:
+          studentAttendanceType = 2; // Sick
+          break;
+        case AttendanceStatus.permission:
+          studentAttendanceType = 3; // Permission
+          break;
+      }
+
+      final studentAttendance = StudentAttendance.fromStudentDetails(
         studentDetails: studentDetails,
-        type: member.status.value,
+        type:
+            studentAttendanceType, // Use converted type for proper status detection
       );
+
+      print(
+          '🔍 [ATTENDANCE SCREEN] Created StudentAttendance: ID=${studentAttendance.studentDetails?.id}, Type=${studentAttendance.type}, Status=${member.status.label}');
+      print(
+          '🔍 [ATTENDANCE SCREEN] Status check - isPresent: ${studentAttendance.isPresent()}, isAbsent: ${studentAttendance.isAbsent()}, isSick: ${studentAttendance.isSick()}, isPermission: ${studentAttendance.isPermission()}, isAlpa: ${studentAttendance.isAlpa()}');
+
+      return studentAttendance;
     }).toList();
 
     // Filter students based on search query
@@ -749,6 +784,13 @@ class _ExtracurricularAttendanceScreenState
       studentAttendances: filteredStudents,
       allStudentAttendances: studentAttendances,
       onStatusChanged: (attendanceStatuses) {
+        print(
+            '🔍 [ATTENDANCE SCREEN] Status changed callback received ${attendanceStatuses.length} items:');
+        for (int i = 0; i < attendanceStatuses.length; i++) {
+          final item = attendanceStatuses[i];
+          print(
+              '  - Index $i: StudentID=${item.studentId}, Status=${item.status}');
+        }
         attendanceReport = attendanceStatuses;
       },
       isForAddAttendance: true,
@@ -759,17 +801,26 @@ class _ExtracurricularAttendanceScreenState
   void _initializeAttendanceReport() {
     // Initialize attendance report with current data
     attendanceReport = _attendanceList.map((member) {
+      final convertedStatus =
+          _convertAttendanceStatusToStudentStatus(member.status);
       print(
-          '🔍 [ATTENDANCE SCREEN] Initializing report for student ID: ${member.studentId}, Status: ${member.status.label}');
+          '🔍 [ATTENDANCE SCREEN] Initializing report for student ID: ${member.studentId}, Original Status: ${member.status.label} (${member.status.value}), Converted: ${convertedStatus}');
 
       return (
-        status: _convertAttendanceStatusToStudentStatus(member.status),
+        status: convertedStatus,
         studentId: member.studentId,
       );
     }).toList();
 
     print(
         '🔍 [ATTENDANCE SCREEN] Initialized ${attendanceReport.length} attendance reports');
+
+    // Debug: Print all attendance reports
+    for (int i = 0; i < attendanceReport.length; i++) {
+      final report = attendanceReport[i];
+      print(
+          '🔍 [ATTENDANCE SCREEN] Report $i: StudentID=${report.studentId}, Status=${report.status}');
+    }
   }
 
   // Convert AttendanceStatus to StudentAttendanceStatus
@@ -777,7 +828,7 @@ class _ExtracurricularAttendanceScreenState
       AttendanceStatus status) {
     switch (status) {
       case AttendanceStatus.absent:
-        return StudentAttendanceStatus.absent;
+        return StudentAttendanceStatus.alpa; // Fix: absent should map to alpa
       case AttendanceStatus.present:
         return StudentAttendanceStatus.present;
       case AttendanceStatus.sick:

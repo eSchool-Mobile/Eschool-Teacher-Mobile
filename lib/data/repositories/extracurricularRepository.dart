@@ -12,6 +12,11 @@ class ExtracurricularRepository {
       final response = await Api.get(
         url: Api.getExtracurriculars,
         useAuthToken: true,
+        queryParameters: {
+          'role': 'teacher',
+          'view_type': 'teacher',
+          'all': 'true',
+        },
       );
 
       print(
@@ -28,7 +33,13 @@ class ExtracurricularRepository {
 
       print('📊 [EXTRACURRICULAR REPO] Loaded ${rows.length} extracurriculars');
 
-      return rows.map((json) => Extracurricular.fromJson(json)).toList();
+      final extracurriculars =
+          rows.map((json) => Extracurricular.fromJson(json)).toList();
+
+      print(
+          '📊 [EXTRACURRICULAR REPO] Successfully loaded ${extracurriculars.length} active items');
+
+      return extracurriculars;
     } catch (e) {
       print('❌ [EXTRACURRICULAR REPO] Exception: $e');
       throw ApiException(e.toString());
@@ -39,34 +50,46 @@ class ExtracurricularRepository {
   Future<List<Extracurricular>> getArchivedExtracurriculars() async {
     try {
       print(
-          '🔍 [EXTRACURRICULAR REPO] API Call: ${Api.getExtracurriculars} (archived)');
+          '🔍 [EXTRACURRICULAR REPO] API Call: ${Api.getTrashedExtracurriculars}');
 
       final response = await Api.get(
-        url: Api.getExtracurriculars,
+        url: Api.getTrashedExtracurriculars,
         useAuthToken: true,
         queryParameters: {
           'role': 'teacher',
           'view_type': 'teacher',
-          'archived': 'true', // Request archived items
         },
       );
 
       print(
           '✅ [EXTRACURRICULAR REPO] Archived Response: ${response['message'] ?? 'Success'}');
 
-      if (response['error'] == true) {
+      // Check for success field instead of error field
+      if (response['success'] != true) {
         print('❌ [EXTRACURRICULAR REPO] API Error: ${response['message']}');
         throw ApiException(
             response['message'] ?? 'Failed to load archived extracurriculars');
       }
 
-      // Response uses 'rows' instead of 'data' for consistency with active extracurriculars
-      final List<dynamic> rows = response['rows'] ?? [];
+      // Response uses 'data' field for trashed endpoint
+      final List<dynamic> data = response['data'] ?? [];
 
       print(
-          '📊 [EXTRACURRICULAR REPO] Loaded ${rows.length} archived extracurriculars');
+          '📊 [EXTRACURRICULAR REPO] Loaded ${data.length} archived extracurriculars');
 
-      return rows.map((json) => Extracurricular.fromJson(json)).toList();
+      final archivedExtracurriculars =
+          data.map((json) => Extracurricular.fromJson(json)).toList();
+
+      // Debug: Print all items and their deletedAt status
+      for (var item in archivedExtracurriculars) {
+        print(
+            '🔍 [DEBUG ARCHIVED] Item ID: ${item.id}, Name: ${item.name}, deletedAt: ${item.deletedAt}');
+      }
+
+      print(
+          '📊 [EXTRACURRICULAR REPO] Successfully loaded ${archivedExtracurriculars.length} archived items');
+
+      return archivedExtracurriculars;
     } catch (e) {
       print('❌ [EXTRACURRICULAR REPO] Exception: $e');
       throw ApiException(e.toString());
@@ -169,17 +192,17 @@ class ExtracurricularRepository {
     try {
       print('🔄 [EXTRACURRICULAR REPO] Restoring ID: $id');
 
-      // Try using the unified destroy endpoint with restore mode
-      final response = await Api.delete(
-        url: '${Api.deleteExtracurricular}/$id',
+      // Use dedicated restore endpoint
+      final response = await Api.post(
+        url: '${Api.restoreExtracurricular}/$id',
         useAuthToken: true,
         body: {},
-        queryParameters: {'mode': 'restore'},
       );
 
       print('🔍 [EXTRACURRICULAR REPO] Restore response: $response');
 
-      if (response['error'] == true) {
+      // Check for success field (similar to trashed endpoint)
+      if (response['success'] != true && response['error'] == true) {
         print(
             '❌ [EXTRACURRICULAR REPO] Restore failed: ${response['message']}');
         throw ApiException(
@@ -199,10 +222,10 @@ class ExtracurricularRepository {
       print('🗑️ [EXTRACURRICULAR REPO] Permanent delete ID: $id');
 
       final response = await Api.delete(
-        url: '${Api.deleteExtracurricular}/$id',
+        url: '${Api.forceDeleteExtracurricular}/$id',
         useAuthToken: true,
         body: {},
-        queryParameters: {'mode': 'permanent'},
+        queryParameters: {'mode': 'permanent'}, // Optional parameter
       );
 
       print('🔍 [EXTRACURRICULAR REPO] Permanent delete response: $response');

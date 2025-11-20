@@ -64,7 +64,16 @@ class ExtracurricularAttendanceRepository {
   }) async {
     try {
       print('🔍 [ATTENDANCE REPO] Saving attendance for session: $sessionId');
-      print('🔍 [ATTENDANCE REPO] Request data: ${request.toJson()}');
+      print('🔍 [ATTENDANCE REPO] Request body: ${request.toJson()}');
+
+      // Log authentication info before making request
+      final authBox = Hive.box(authBoxKey);
+      final token = authBox.get(authTokenKey);
+      final schoolCode = authBox.get('school_code'); // Based on common usage
+      print(
+          '🔑 [ATTENDANCE REPO] Auth Token: ${token != null ? "Bearer $token" : "NO TOKEN"}');
+      print(
+          '🏫 [ATTENDANCE REPO] School Code: ${schoolCode ?? "NO SCHOOL CODE"}');
 
       // Validate request data
       if (request.attendanceData.isEmpty) {
@@ -85,7 +94,8 @@ class ExtracurricularAttendanceRepository {
       }
 
       final response = await Api.post(
-        url: Api.saveExtracurricularAttendance + sessionId.toString(),
+        url: Api.saveExtracurricularAttendance
+            .replaceAll('{id}', request.extracurricularId.toString()),
         body: request.toJson(),
         useAuthToken: true,
       );

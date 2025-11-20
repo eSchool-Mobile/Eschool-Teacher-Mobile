@@ -208,6 +208,12 @@ class Api {
       "${databaseUrl}staff/extracurricular/update";
   static String deleteExtracurricular =
       "${databaseUrl}staff/extracurricular/destroy";
+  static String forceDeleteExtracurricular =
+      "${databaseUrl}staff/extracurricular/force-delete";
+  static String getTrashedExtracurriculars =
+      "${databaseUrl}staff/extracurricular/trashed";
+  static String restoreExtracurricular =
+      "${databaseUrl}staff/extracurricular/restore";
 
   // Extracurricular Timetable APIs
   static String createExtracurricularTimetable =
@@ -236,6 +242,7 @@ class Api {
   /// Contact APIs
   static String submitContact = "${databaseUrl}contact/submit";
   static String getContacts = "${databaseUrl}contacts";
+
   static String getContactDetail = "${databaseUrl}contacts"; // /{id}
   static String replyContact = "${databaseUrl}contacts"; // /{id}/reply
   static String getContactStats = "${databaseUrl}contacts/stats";
@@ -243,6 +250,13 @@ class Api {
   static Map<String, String> headers({bool useAuthToken = false}) {
     final String jwtToken = AuthRepository.getAuthToken();
     final schoolCode = AuthRepository().schoolCode;
+
+    // Log bearer token for debugging
+    if (useAuthToken) {
+      print(
+          '🔑 [API] Bearer Token: ${jwtToken.isNotEmpty ? "Bearer $jwtToken" : "NO TOKEN"}');
+      print('🏫 [API] School Code: ${schoolCode ?? "NO SCHOOL CODE"}');
+    }
 
     print(
         '🔑 [API] Auth Token: ${jwtToken.isNotEmpty ? "Present" : "Missing"}, School: $schoolCode');
