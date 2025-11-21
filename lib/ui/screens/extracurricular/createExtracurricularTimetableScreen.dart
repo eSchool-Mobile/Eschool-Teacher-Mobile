@@ -93,6 +93,7 @@ class _CreateExtracurricularTimetableScreenState
         title: isEditMode ? 'Edit Jadwal' : 'Tambah Jadwal',
         icon: isEditMode ? Icons.edit_calendar : Icons.add_alarm,
         fabAnimationController: AnimationController(vsync: this),
+        onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: BlocListener<ExtracurricularTimetableCubit,
           ExtracurricularTimetableState>(

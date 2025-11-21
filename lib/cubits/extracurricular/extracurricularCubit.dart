@@ -142,14 +142,28 @@ class ExtracurricularCubit extends Cubit<ExtracurricularState> {
   // Delete (Archive) extracurricular
   Future<void> deleteExtracurricular(int id) async {
     print('🗂️ [EXTRACURRICULAR CUBIT] Archiving ID: $id');
+
+    // Optimistic update: immediately remove from UI
+    final currentState = state;
+    if (currentState is ExtracurricularSuccess) {
+      final updatedExtracurriculars =
+          currentState.extracurriculars.where((e) => e.id != id).toList();
+
+      emit(ExtracurricularSuccess(
+        extracurriculars: updatedExtracurriculars,
+        archivedExtracurriculars: currentState.archivedExtracurriculars,
+      ));
+    }
+
     try {
       await _extracurricularRepository.deleteExtracurricular(id);
       print('✅ [EXTRACURRICULAR CUBIT] Archived successfully');
-      // Refresh both active and archived data
-      await getExtracurriculars();
-      await getArchivedExtracurriculars();
+      // Refresh data silently without loading state
+      await _refreshDataSilently();
     } catch (e) {
       print('❌ [EXTRACURRICULAR CUBIT] Archive failed: $e');
+      // Revert optimistic update on error
+      await _refreshDataSilently();
       emit(ExtracurricularFailure(e.toString()));
       rethrow;
     }
@@ -197,6 +211,24 @@ class ExtracurricularCubit extends Cubit<ExtracurricularState> {
     } catch (e) {
       print('❌ [EXTRACURRICULAR CUBIT] Error: $e');
       emit(TeachersStaffFailure(e.toString()));
+    }
+  }
+
+  // Private method to refresh data without emitting loading states
+  Future<void> _refreshDataSilently() async {
+    try {
+      final extracurriculars =
+          await _extracurricularRepository.getExtracurriculars();
+      final archivedExtracurriculars =
+          await _extracurricularRepository.getArchivedExtracurriculars();
+
+      emit(ExtracurricularSuccess(
+        extracurriculars: extracurriculars,
+        archivedExtracurriculars: archivedExtracurriculars,
+      ));
+    } catch (e) {
+      print('❌ [EXTRACURRICULAR CUBIT] Silent refresh failed: $e');
+      // Don't emit failure state during silent refresh to avoid UI disruption
     }
   }
 }

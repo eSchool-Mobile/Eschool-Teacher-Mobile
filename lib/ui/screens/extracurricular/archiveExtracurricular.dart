@@ -19,8 +19,6 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
     with TickerProviderStateMixin {
   late final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
-  DateTime? _startDate; // State untuk filter tanggal
-  DateTime? _endDate; // State untuk filter tanggal
 
   // Add these controller declarations
   late AnimationController _animationController;
@@ -110,114 +108,16 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                     ),
                   ),
                   SizedBox(height: 16),
-                  // Input Tanggal
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () async {
-                            final DateTime? picked = await showDatePicker(
-                              context: modalContext,
-                              initialDate: _startDate ?? DateTime.now(),
-                              firstDate: DateTime(2020),
-                              lastDate: DateTime(2030),
-                            );
-                            if (picked != null) {
-                              setModalState(() {
-                                _startDate = picked;
-                                _loadArchivedExtracurriculars();
-                              });
-                            }
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 12, horizontal: 16),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              _startDate != null
-                                  ? DateFormat('dd/MM/yyyy').format(_startDate!)
-                                  : 'Dari',
-                              style: TextStyle(
-                                  fontSize: 16, color: Colors.grey[800]),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8),
-                        child: Text(
-                          '-',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () async {
-                            final DateTime? picked = await showDatePicker(
-                              context: modalContext,
-                              initialDate: _endDate ?? DateTime.now(),
-                              firstDate: DateTime(2020),
-                              lastDate: DateTime(2030),
-                            );
-                            if (picked != null) {
-                              setModalState(() {
-                                _endDate = picked;
-                                _loadArchivedExtracurriculars();
-                              });
-                            }
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 12, horizontal: 16),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              _endDate != null
-                                  ? DateFormat('dd/MM/yyyy').format(_endDate!)
-                                  : 'Sampai',
-                              style: TextStyle(
-                                  fontSize: 16, color: Colors.grey[800]),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-
-                  // Filter mata pelajaran (jika diperlukan)
-                  // ...
-
-                  // Tombol Reset Filter
-                  SizedBox(height: 16),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setModalState(() {
-                          _startDate = null;
-                          _endDate = null;
-                        });
-                        _loadArchivedExtracurriculars();
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF8B0000),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      ),
-                      child: Text(
-                        'Reset Filter',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                  Text(
+                    'Tidak ada filter tambahan tersedia saat ini.',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                      fontStyle: FontStyle.italic,
                     ),
+                    textAlign: TextAlign.center,
                   ),
+                  SizedBox(height: 16),
                 ],
               ),
             );
@@ -342,11 +242,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                       .contains(_searchController.text.toLowerCase()))
                   .toList();
 
-          // Filter berdasarkan tanggal jika ada (untuk ekstrakurikuler, kita bisa filter berdasarkan created_at atau updated_at)
-          // Karena model Extracurricular mungkin tidak memiliki tanggal, kita skip filter tanggal untuk sekarang
-          final dateFilteredExtracurriculars = filteredExtracurriculars;
-
-          if (dateFilteredExtracurriculars.isEmpty) {
+          if (filteredExtracurriculars.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -377,9 +273,9 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
 
           return ListView.builder(
             padding: EdgeInsets.symmetric(horizontal: 16),
-            itemCount: dateFilteredExtracurriculars.length,
+            itemCount: filteredExtracurriculars.length,
             itemBuilder: (context, index) {
-              final extracurricular = dateFilteredExtracurriculars[index];
+              final extracurricular = filteredExtracurriculars[index];
               return _buildExtracurricularCard(extracurricular);
             },
           );
@@ -1334,7 +1230,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
   String _formatArchiveDate(String dateString) {
     try {
       final DateTime date = DateTime.parse(dateString);
-      return DateFormat('dd MMM yyyy, HH:mm', 'id_ID').format(date);
+      return DateFormat('dd MMM yyyy', 'id_ID').format(date);
     } catch (e) {
       return dateString; // Return original string if parsing fails
     }
