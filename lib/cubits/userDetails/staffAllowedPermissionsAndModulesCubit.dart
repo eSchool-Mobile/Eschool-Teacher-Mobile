@@ -37,6 +37,13 @@ class StaffAllowedPermissionsAndModulesCubit
       emit(StaffAllowedPermissionsAndModulesFetchInProgress());
       final result =
           await _userDetailsRepository.getPermissionAndAllowedModules();
+
+      // Log warning if permissions are empty (likely backend issue)
+      if (result.enabledModules.isEmpty && result.permissions.isEmpty) {
+        print('⚠️ WARNING: Received empty permissions from backend');
+        print('⚠️ User access will be restricted until backend is fixed');
+      }
+
       emit(StaffAllowedPermissionsAndModulesFetchSuccess(
           enabledModules: result.enabledModules,
           permissions: result.permissions));
@@ -64,5 +71,4 @@ class StaffAllowedPermissionsAndModulesCubit
     }
     return false;
   }
-  
 }

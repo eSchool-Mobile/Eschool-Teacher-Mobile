@@ -15,7 +15,21 @@ class UserDetailsRepository {
             .toList()
       );
     } catch (e) {
-      throw ApiException(e.toString());
+      // TEMPORARY WORKAROUND: If backend returns HTML/empty response, return empty permissions
+      // This allows user to continue but with restricted access until backend is fixed
+      print(
+          '⚠️ WARNING: Failed to fetch permissions from backend: ${e.toString()}');
+      print(
+          '⚠️ WORKAROUND: Returning empty permissions. User access will be restricted.');
+      print(
+          '⚠️ ACTION REQUIRED: Backend must fix /api/staff/features-permission endpoint');
+
+      // Return empty permissions instead of throwing error
+      // This prevents app from crashing but restricts all access
+      return (
+        enabledModules: <String, String>{},
+        permissions: <String>[],
+      );
     }
   }
 

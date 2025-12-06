@@ -357,8 +357,8 @@ class _LoginScreenState extends State<LoginScreen>
         prefs.setString('selected_school_code', school['school_code']),
         prefs.setString('selected_school_name', school['school_name']),
         prefs.setString('selected_school_db', school['database_name']),
-        // Save bearer token with 'Bearer ' prefix
-        prefs.setString('auth_token', 'Bearer $schoolToken'),
+        // Save token without Bearer prefix (will be added in headers)
+        prefs.setString('auth_token', '$schoolToken'),
       ]);
 
       // Get the school data from the user object
@@ -393,14 +393,14 @@ class _LoginScreenState extends State<LoginScreen>
           userDataFromResponse['schools'] ?? []);
 
       await context.read<AuthCubit>().authenticateUser(
-            authToken: 'Bearer $schoolToken', // Add Bearer prefix
+            authToken: '$schoolToken', // Token without Bearer prefix
             userDetails: userDetailsInstance,
             schoolCode: school['school_code'] ?? '',
             schools: schoolsToStore,
           );
 
       print('DEBUG AUTO SCHOOL SELECTION: Authentication completed');
-      print('Full auth token set: Bearer $schoolToken');
+      print('Full auth token set: $schoolToken');
       print('School selected: ${school['school_name']}');
       print('School ID: ${schoolData['id']}');
 
@@ -480,7 +480,7 @@ class _LoginScreenState extends State<LoginScreen>
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-      "Ingatkan Saya",
+              "Ingatkan Saya",
               style: TextStyle(
                 color: Colors.grey.shade700,
                 fontSize: 14,

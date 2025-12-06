@@ -159,8 +159,8 @@ class _SchoolListScreenState extends State<SchoolListScreen>
         prefs.setString('selected_school_code', school['school_code']),
         prefs.setString('selected_school_name', school['school_name']),
         prefs.setString('selected_school_db', school['database_name']),
-        // Save bearer token with 'Bearer ' prefix
-        prefs.setString('auth_token', 'Bearer $schoolToken'),
+        // Save token without Bearer prefix (will be added in headers)
+        prefs.setString('auth_token', '$schoolToken'),
       ]);
 
       // Get the school data from the user object
@@ -241,7 +241,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
       print('DEBUG SCHOOL SELECTION: Schools length: ${schoolsToStore.length}');
 
       await context.read<AuthCubit>().authenticateUser(
-            authToken: 'Bearer $schoolToken', // Add Bearer prefix
+            authToken: '$schoolToken', // Token without Bearer prefix
             userDetails: userDetailsInstance,
             schoolCode: school['school_code'] ?? '',
             schools: schoolsToStore,
@@ -255,7 +255,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
       print('- School Name: ${userDetailsInstance.school?.name}');
 
       // Debug logging
-      print('Full auth token set: Bearer $schoolToken');
+      print('Full auth token set: $schoolToken');
       print('School selected: ${school['school_name']}');
       print('School ID: ${schoolData['id']}');
       print('Database name: ${school['database_name']}');

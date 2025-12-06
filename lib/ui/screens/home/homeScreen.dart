@@ -154,10 +154,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 }
               },
               builder: (context, state) {
-                final chatModuleEnabled = context
-                    .read<StaffAllowedPermissionsAndModulesCubit>()
-                    .isModuleEnabled(moduleId: chatModuleId.toString());
-
                 return Stack(
                   children: [
                     Align(
@@ -174,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               HomeContainer(key: HomeContainer.widgetKey),
                             ],
                             const AcademicsContainer(),
-                            if (chatModuleEnabled) const ProfileContainer(),
+                            const ProfileContainer(),
                           ],
                         ),
                       ),
