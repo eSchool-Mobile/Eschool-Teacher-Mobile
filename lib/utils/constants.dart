@@ -5,19 +5,17 @@ import 'package:flutter/material.dart';
 
 ///[Do not add / at the end of the url]
 const String baseUrl = "https://esbeta.deanry.my.id";
-// const String baseUrl = "https://es2.techflow.my.id";
-// const String baseUrl = "https://eschbeta.techflow.my.id";
-// const String baseUrl = "https://eschbeta.quantech.web.id";
-// const String baseUrl = "https://eschoolbeta.lucia.id";
-// // const String baseUrl = "https://eschool.lucia.id";
 // const String baseUrl = "https://eschool.ac.id";
-// const String baseUrl = "https://wrteam.net";
 
 const String databaseUrl = "$baseUrl/api/";
 const String storageUrl = "$baseUrl/storage/";
 
 // Socket url
 const socketUrl = "ws://193.203.162.252:8090";
+
+// FCM Topics
+const String staffNotificationsTopic = 'staff_notifications';
+const String allNotificationsTopic = 'all_notifications';
 
 // Web socket ping interval
 const socketPingInterval = Duration(seconds: 275);
