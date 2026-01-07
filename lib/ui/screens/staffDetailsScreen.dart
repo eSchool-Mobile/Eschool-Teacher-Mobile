@@ -669,6 +669,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                                 backgroundColor: primaryMaroonColor,
                                 onTap: () {
                                   Utils.launchEmailLog(
+                                      context: context,
                                       email: widget.staffDetails.email ?? "");
                                 },
                               ),
@@ -679,6 +680,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                                 backgroundColor: lightMaroonColor,
                                 onTap: () {
                                   Utils.launchCallLog(
+                                      context: context,
                                       mobile: widget.staffDetails.mobile ?? "");
                                 },
                               ),

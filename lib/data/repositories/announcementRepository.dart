@@ -191,7 +191,11 @@ class AnnouncementRepository {
 
       await sharedPreferences.setStringList(
           temporarilyStoredNotificationsKey, notifications);
-    } catch (_) {}
+    } catch (e) {
+      if (kDebugMode) {
+        print(e.toString());
+      }
+    }
   }
 
   static Future<List<Map<String, dynamic>>>

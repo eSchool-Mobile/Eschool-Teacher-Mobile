@@ -395,16 +395,32 @@ class Utils {
     return numLines;
   }
 
-  static Future<void> launchCallLog({required String mobile}) async {
+  static Future<void> launchCallLog(
+      {required String mobile, required BuildContext context}) async {
     try {
-      launchUrl(Uri.parse("tel:$mobile"));
-    } catch (_) {}
+      final result = await launchUrl(Uri.parse("tel:$mobile"));
+      if (!result && context.mounted) {
+        Utils.showSnackBar(message: defaultErrorMessageKey, context: context);
+      }
+    } catch (_) {
+      if (context.mounted) {
+        Utils.showSnackBar(message: defaultErrorMessageKey, context: context);
+      }
+    }
   }
 
-  static Future<void> launchEmailLog({required String email}) async {
+  static Future<void> launchEmailLog(
+      {required String email, required BuildContext context}) async {
     try {
-      launchUrl(Uri.parse("mailto:$email"));
-    } catch (_) {}
+      final result = await launchUrl(Uri.parse("mailto:$email"));
+      if (!result && context.mounted) {
+        Utils.showSnackBar(message: defaultErrorMessageKey, context: context);
+      }
+    } catch (_) {
+      if (context.mounted) {
+        Utils.showSnackBar(message: defaultErrorMessageKey, context: context);
+      }
+    }
   }
 
   static int getHourFromTimeDetails({required String time}) {

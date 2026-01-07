@@ -1,9 +1,9 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path/path.dart' as path;
 import 'package:image/image.dart' as img;
+import 'dart:math' as math;
 
 /// Utility class for file compression operations
 /// Handles image and document compression with quality preservation
@@ -37,7 +37,7 @@ class FileCompressionUtils {
     '.docx',
     '.txt'
   ];
-  
+
   /// Compress any file (image or document) based on its type and size
   ///
   /// Parameters:
@@ -216,9 +216,18 @@ class FileCompressionUtils {
       int height = image.height;
 
       // Reduce dimensions if file is too large
-      while (bytes.length > maxSizeInBytes && width > 400 && height > 300) {
-        width = (width * 0.8).round();
-        height = (height * 0.8).round();
+      // Fix: Check if file needs resizing based on size ratio
+      if (bytes.length > maxSizeInBytes) {
+        // Calculate scale factor (sqrt of size ratio serves as good approximation for dimension scaling)
+        double ratio = maxSizeInBytes / bytes.length;
+        double scale = math.sqrt(ratio) * 0.9; // 0.9 safety factor
+
+        width = (width * scale).round();
+        height = (height * scale).round();
+
+        // Enforce minimum dimensions to avoid becoming too small (unless original was already small)
+        if (width < 400 && image.width > 400) width = 400;
+        if (height < 300 && image.height > 300) height = 300;
       }
 
       // Resize and compress

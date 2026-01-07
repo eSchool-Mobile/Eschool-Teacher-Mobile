@@ -1,4 +1,4 @@
- import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/sessionYear.dart';
 import 'package:eschool_saas_staff/data/models/studentDetails.dart';
@@ -872,7 +872,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
     return Padding(
       padding: EdgeInsets.only(left: 8),
       child: InkWell(
-        onTap: () => Utils.launchCallLog(mobile: phoneNumber),
+        onTap: () => Utils.launchCallLog(context: context, mobile: phoneNumber),
         borderRadius: BorderRadius.circular(50),
         child: Container(
           padding: EdgeInsets.all(12),

@@ -683,6 +683,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen>
                                 backgroundColor: primaryMaroonColor,
                                 onTap: () {
                                   Utils.launchEmailLog(
+                                      context: context,
                                       email: widget.teacher.email ?? "");
                                 },
                               ),
@@ -693,6 +694,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen>
                                 backgroundColor: lightMaroonColor,
                                 onTap: () {
                                   Utils.launchCallLog(
+                                      context: context,
                                       mobile: widget.teacher.mobile ?? "");
                                 },
                               ),

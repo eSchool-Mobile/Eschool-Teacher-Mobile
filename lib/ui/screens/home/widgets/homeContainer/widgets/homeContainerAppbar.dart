@@ -74,11 +74,15 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
 
     // Start animations with delays for more natural feel
     _glowAnimationController.repeat(reverse: true);
-    Future.delayed(Duration(milliseconds: 500), () {
-      _pulseAnimationController.repeat(reverse: true);
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        _pulseAnimationController.repeat(reverse: true);
+      }
     });
-    Future.delayed(Duration(milliseconds: 1000), () {
-      _rotationAnimationController.repeat();
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      if (mounted) {
+        _rotationAnimationController.repeat();
+      }
     });
   }
 
