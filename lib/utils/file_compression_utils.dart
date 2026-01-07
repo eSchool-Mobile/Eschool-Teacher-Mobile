@@ -37,7 +37,7 @@ class FileCompressionUtils {
     '.docx',
     '.txt'
   ];
-
+  
   /// Compress any file (image or document) based on its type and size
   ///
   /// Parameters:
