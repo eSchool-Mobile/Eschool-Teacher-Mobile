@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/repositories/onlineExamRepository.dart';
 import 'package:eschool_saas_staff/data/models/onlineExam.dart';
@@ -146,7 +146,9 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
             // if (getFull == true) {
             activeExams.add(exam);
             // }
-          } catch (e) {}
+          } catch (e) {
+            debugPrint('Error parsing active exam: $e');
+          }
         }
       }
       emit(OnlineExamSuccess(
@@ -316,8 +318,6 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
     try {
       emit(OnlineExamLoading());
 
-      
-
       await _repository.updateOnlineExam(
         id: id,
         classSectionId: classSectionId,
@@ -329,9 +329,8 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       );
 
       // Fetch updated exam list immediately
-     
+
       final result = await _repository.getOnlineExams();
-      
 
       final List<OnlineExam> exams = [];
       if (result['exams'] is List) {
@@ -351,7 +350,6 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         subjectDetails: result['subjectDetails'] ?? [],
       ));
     } catch (e) {
-      
       // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(OnlineExamFailure(userFriendlyMessage));

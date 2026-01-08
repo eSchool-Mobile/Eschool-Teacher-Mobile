@@ -57,9 +57,14 @@ class SettingsRepository {
 
   Future<String> getSetting(String type) async {
     try {
-      final result =
+      final response =
           await Api.get(url: Api.getSettings, queryParameters: {"type": type});
-      return result['data'];
+
+      final result = response['data'];
+      if (result is Map && result.containsKey('value')) {
+        return result['value'].toString();
+      }
+      return result.toString();
     } catch (e) {
       throw ApiException(e.toString());
     }

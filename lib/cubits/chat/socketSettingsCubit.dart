@@ -31,19 +31,30 @@ class SocketSettingCubit extends Cubit<SocketSettingState> {
 
   late Uri wsUrl;
   late WebSocketChannel channel;
+  int _currentUserId = 0;
+  int _reconnectAttempts = 0;
+  bool _isConnecting = false;
+  Timer? _reconnectTimer;
   StreamSubscription<dynamic>? streamSubscription;
 
   Future<void> init({required int userId}) async {
+    if (_isConnecting) return;
+    _isConnecting = true;
+    _currentUserId = userId;
+
     wsUrl = Uri.parse(socketUrl);
 
-    // connect to socket
-    channel = IOWebSocketChannel.connect(
-      wsUrl,
-      pingInterval: socketPingInterval,
-    );
+    try {
+      // connect to socket
+      channel = IOWebSocketChannel.connect(
+        wsUrl,
+        pingInterval: socketPingInterval,
+      );
 
-    // listen to socket events when it is ready
-    channel.ready.then((value) {
+      // listen to socket events when it is ready
+      await channel.ready;
+      _isConnecting = false;
+      _reconnectAttempts = 0;
       emit(SocketConnectSuccess());
 
       /// Register user with socket to listen to user messages (with user id)
@@ -54,25 +65,58 @@ class SocketSettingCubit extends Cubit<SocketSettingState> {
 
       streamSubscription = channel.stream.listen(
         (event) {
-          final eventMap = json.decode(event) as Map<String, dynamic>;
+          try {
+            final eventMap = json.decode(event) as Map<String, dynamic>;
 
-          if (eventMap["command"] == SocketEvent.message.name) {
-            if (eventMap['to'].toString() == userId.toString()) {
-              emit(
-                SocketMessageReceived(
-                  from: eventMap['from'].toString(),
-                  to: eventMap['to'].toString(),
-                  message: ChatMessage.fromJson(
-                      eventMap['message'] as Map<String, dynamic>),
-                ),
-              );
+            if (eventMap["command"] == SocketEvent.message.name) {
+              if (eventMap['to'].toString() == userId.toString()) {
+                emit(
+                  SocketMessageReceived(
+                    from: eventMap['from'].toString(),
+                    to: eventMap['to'].toString(),
+                    message: ChatMessage.fromJson(
+                        eventMap['message'] as Map<String, dynamic>),
+                  ),
+                );
+              }
             }
+          } catch (e) {
+            debugPrint("Error parsing socket message: $e");
           }
         },
+        onError: (error) {
+          debugPrint("Socket stream error: $error");
+          _handleReconnect();
+        },
+        onDone: () {
+          debugPrint("Socket connection closed");
+          _handleReconnect();
+        },
       );
-    }).catchError((error) {
+    } catch (error) {
+      _isConnecting = false;
       emit(SocketConnectFailure());
-      debugPrint(error.toString());
+      debugPrint("Socket init error: $error");
+      _handleReconnect();
+    }
+  }
+
+  void _handleReconnect() {
+    if (_isConnecting) return;
+
+    // Clear previous subscription
+    streamSubscription?.cancel();
+
+    // Exponential backoff: 2s, 4s, 8s, 16s, max 30s
+    _reconnectAttempts++;
+    int delaySeconds = (1 << _reconnectAttempts).clamp(2, 30);
+
+    debugPrint(
+        "Attempting to reconnect in $delaySeconds seconds... (Attempt $_reconnectAttempts)");
+
+    _reconnectTimer?.cancel();
+    _reconnectTimer = Timer(Duration(seconds: delaySeconds), () {
+      init(userId: _currentUserId);
     });
   }
 
@@ -81,20 +125,25 @@ class SocketSettingCubit extends Cubit<SocketSettingState> {
     required int receiverId,
     required ChatMessage message,
   }) async {
-    channel.sink.add(
-      json.encode({
-        "command": SocketEvent.message.name,
-        "from": userId,
-        "to": receiverId,
-        "message": message.toJson(),
-      }),
-    );
+    try {
+      channel.sink.add(
+        json.encode({
+          "command": SocketEvent.message.name,
+          "from": userId,
+          "to": receiverId,
+          "message": message.toJson(),
+        }),
+      );
+    } catch (e) {
+      debugPrint("Error sending message: $e");
+    }
   }
 
   @override
   Future<void> close() async {
-    await channel.sink.close();
+    _reconnectTimer?.cancel();
     streamSubscription?.cancel();
+    await channel.sink.close();
     super.close();
   }
 }

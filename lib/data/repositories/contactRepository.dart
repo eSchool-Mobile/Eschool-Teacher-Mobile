@@ -1,4 +1,5 @@
 import 'package:eschool_saas_staff/models/contact.dart';
+import 'package:eschool_saas_staff/utils/logger.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 
 class ContactRepository {
@@ -67,7 +68,9 @@ class ContactRepository {
       } else {
         throw Exception(response['message'] ?? 'Failed to fetch contacts');
       }
-    } catch (e) {
+    } catch (e, st) {
+      AppLogger.error('ContactRepository.getContacts', 'Exception',
+          error: e, stack: st);
       throw Exception('Failed to fetch contacts: $e');
     }
   }
@@ -123,7 +126,9 @@ class ContactRepository {
       } else {
         throw Exception(response['message'] ?? 'Failed to fetch contact stats');
       }
-    } catch (e) {
+    } catch (e, st) {
+      AppLogger.error('ContactRepository.getContactStats', 'Exception',
+          error: e, stack: st);
       throw Exception('Failed to fetch contact stats: $e');
     }
   }
