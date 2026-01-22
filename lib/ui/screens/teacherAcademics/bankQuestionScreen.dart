@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
@@ -8,18 +8,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:shimmer/shimmer.dart';
+
 import 'package:animate_do/animate_do.dart';
 import '../../../cubits/teacherAcademics/assignment/questionBankCubit.dart';
 import 'package:eschool_saas_staff/data/models/question.dart' as q;
 import 'package:eschool_saas_staff/data/models/questionBank.dart';
-import 'package:eschool_saas_staff/data/models/QuestionVersion.dart';
+
 import '../../../data/models/subjectQuestion.dart';
 import 'package:html/parser.dart' show parse;
 import '../../../app/routes.dart';
 import 'package:flutter/services.dart' show Uint8List;
-import 'package:eschool_saas_staff/utils/api.dart';
-import 'package:image_picker/image_picker.dart';
+
 import '../../../ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 
@@ -190,19 +189,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
   // Add this map to track active version for each question
   Map<int, int> _activeVersionIndices = {};
 
-  // Add this controller map to access PageView controllers
-  Map<int, PageController> _pageControllers = {};
-
-  // Create controller for a question
-  PageController _getPageController(int questionId) {
-    if (!_pageControllers.containsKey(questionId)) {
-      _pageControllers[questionId] = PageController(
-        viewportFraction: 0.99, // Slightly less than 1.0 for peeking effect
-        initialPage: 0,
-      );
-    }
-    return _pageControllers[questionId]!;
-  }
+  // Track drag distance for hybrid gesture detection
+  double _dragDistance = 0.0;
 
   // Update the active version index
   void _setActiveVersionIndex(int questionId, int versionIndex) {
@@ -287,33 +275,10 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
       systemNavigationBarColor: _primaryColor,
       systemNavigationBarIconBrightness: Brightness.light,
     ));
-
-    // Tambahkan ini di initState()
-    _pageControllers.forEach((questionId, controller) {
-      controller.addListener(() {
-        // Trigger rebuild for animation based on page scroll position
-        if (mounted) setState(() {});
-      });
-    });
-
-    // Add in initState() after other PageController initialization
-    _pageControllers.forEach((questionId, controller) {
-      controller.addListener(() {
-        if (controller.hasClients &&
-            controller.page != null &&
-            controller.page!.round() != controller.page) {
-          // This will rebuild during animation for smoother transitions
-          if (mounted) setState(() {});
-        }
-      });
-    });
   }
 
   @override
   void dispose() {
-    // Dispose all page controllers
-    _pageControllers.forEach((_, controller) => controller.dispose());
-
     _searchController.dispose();
     _backgroundAnimationController.dispose();
     _waveAnimationController.dispose();
@@ -858,86 +823,81 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
 
   Widget _buildQuestionCard(q.Question question, dynamic latestVersion) {
     final int questionVersionsCount = question.versions.length;
-    // Get the page controller for this question
-    final PageController pageController = _getPageController(question.id);
+    final int activeIndex = _getActiveVersionIndex(question.id);
+
+    // Calculate display index (0 = latest, 1 = older, etc.)
+    // Ensure activeIndex is within bounds
+    final int safeIndex = activeIndex.clamp(0, questionVersionsCount - 1);
+
+    // Map UI index back to actual version list index
+    // UI: 0 is latest, 1 is previous...
+    // List: 0 is oldest, N-1 is latest
+    final displayIndex = questionVersionsCount - 1 - safeIndex;
+    final version = question.versions[displayIndex];
+
     return FadeInUp(
       duration: Duration(milliseconds: 500),
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(28),
-          boxShadow: [
-            BoxShadow(
-              color: _getTypeColor(latestVersion.type).withOpacity(0.12),
-              blurRadius: 12,
-              offset: Offset(0, 5),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(28),
-          child: Container(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.6,
-            ),
-            child: PageView.builder(
-              controller: pageController,
-              // Add smooth page physics
-              physics: const BouncingScrollPhysics(
-                parent: AlwaysScrollableScrollPhysics(),
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onHorizontalDragStart: (_) {
+          _dragDistance = 0.0;
+        },
+        onHorizontalDragUpdate: (details) {
+          _dragDistance += details.delta.dx;
+        },
+        onHorizontalDragEnd: (details) {
+          if (questionVersionsCount <= 1) return;
+
+          final double velocity = details.primaryVelocity ?? 0.0;
+          final double distance = _dragDistance;
+
+          // Hybrid Detection:
+          // 1. Fast Swipe (Velocity < -300)
+          // 2. Slow Drag (Distance < -100) - moved significantly left
+          if (velocity < -300 || distance < -100) {
+            print("GESTURE DEBUG: Left Action (Next Version)");
+            if (safeIndex < questionVersionsCount - 1) {
+              HapticFeedback.lightImpact();
+              _setActiveVersionIndex(question.id, safeIndex + 1);
+            }
+          }
+          // 1. Fast Swipe (Velocity > 300)
+          // 2. Slow Drag (Distance > 100) - moved significantly right
+          else if (velocity > 300 || distance > 100) {
+            if (safeIndex > 0) {
+              HapticFeedback.lightImpact();
+              _setActiveVersionIndex(question.id, safeIndex - 1);
+            }
+          }
+        },
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(
+                color: _getTypeColor(latestVersion.type).withOpacity(0.12),
+                blurRadius: 12,
+                offset: Offset(0, 5),
               ),
-              // Reduce viewportFraction slightly to show peek of adjacent cards
-              pageSnapping: true,
-              allowImplicitScrolling: true,
-              padEnds: false,
-              itemCount: questionVersionsCount,
-              onPageChanged: (index) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) {
-                    HapticFeedback.lightImpact();
-                    _setActiveVersionIndex(question.id, index);
-                  }
-                });
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(28),
+            child: AnimatedSwitcher(
+              duration: Duration(milliseconds: 300),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return FadeTransition(opacity: animation, child: child);
               },
-              itemBuilder: (context, index) {
-                final displayIndex = questionVersionsCount - 1 - index;
-                final version = question.versions[displayIndex];
-
-                // Add animation transformation wrapper
-                return AnimatedBuilder(
-                  animation: pageController,
-                  builder: (context, child) {
-                    double value = 1.0;
-
-                    // Calculate animation value only when controller is attached to scroll view
-                    if (pageController.position.hasContentDimensions) {
-                      value = pageController.page! - index;
-                      // Add smooth curve and constrain the value
-                      value = (1 - (value.abs() * 0.3)).clamp(0.85, 1.0);
-                    }
-
-                    return Transform(
-                      // Apply 3D effect on horizontal swipe
-                      transform: Matrix4.identity()
-                        ..setEntry(3, 2, 0.001) // Perspective
-                        ..rotateY(value - 1 != 0.0
-                            ? (value - 1) * 0.5
-                            : 0.0), // Y-axis rotation
-                      alignment: value < 0
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
-                      // Scale the card slightly during animation
-                      child: Transform.scale(
-                        scale: value,
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: _buildVersionCardWithActionsImproved(
-                      version, question, index, questionVersionsCount),
-                );
-              },
+              child: Container(
+                // Use a composite key to GUARANTEE uniqueness even if version.id is null/duplicate
+                key: ValueKey<String>("${question.id}_ver_$safeIndex"),
+                width: double.infinity,
+                // Important: No fixed height here!
+                child: _buildVersionCardWithActionsImproved(
+                    version, question, safeIndex, questionVersionsCount),
+              ),
             ),
           ),
         ),
@@ -947,459 +907,425 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
 
   Widget _buildVersionCardWithActionsImproved(q.QuestionVersion version,
       q.Question question, int versionIndex, int totalVersions) {
-    // Calculate the header height based on aspect ratio - balanced size
-    final double headerHeight = MediaQuery.of(context).size.width / 2.8;
-
-    return Stack(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Header section
         _buildVersionCardHeader(version, question, versionIndex, totalVersions),
 
-        // Content section with scrollable area if needed
-        Positioned(
-          top: headerHeight,
-          left: 0,
-          right: 0,
-          bottom: 0,
+        // Content section
+        Padding(
+          padding: EdgeInsets.fromLTRB(22, 20, 22, 10),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Main content area - Now uses Expanded + SingleChildScrollView to handle overflow
-              Expanded(
-                child: Container(
-                  padding: EdgeInsets.fromLTRB(22, 40, 22, 18),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Question content
-                      Row(
-                        children: [
-                          Container(
-                            width: 4,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(2),
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  _getTypeColor(version.type),
-                                  _getTypeColor(version.type).withOpacity(0.6),
-                                ],
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: _getTypeColor(version.type)
-                                      .withOpacity(0.4),
-                                  blurRadius: 8,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: 12),
-                          Text(
-                            "Konten Pertanyaan",
-                            style: TextStyle(
-                              color: Colors.grey[800],
-                              fontSize: 15.5,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.3,
-                            ),
-                          ),
+              // Question content
+              Row(
+                children: [
+                  Container(
+                    width: 4,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(2),
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          _getTypeColor(version.type),
+                          _getTypeColor(version.type).withOpacity(0.6),
                         ],
                       ),
-                      // Ganti bagian Container pertanyaan dalam _buildVersionCardWithActionsImproved
-
-                      SizedBox(height: 16),
-                      Container(
-                        // Hapus constraints fixed height, biarkan container menyesuaikan dengan kontennya                        width: double.infinity, // Pastikan lebar penuh
-                        padding: EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: Colors.grey.shade100),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.02),
-                              blurRadius: 8,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
+                      boxShadow: [
+                        BoxShadow(
+                          color: _getTypeColor(version.type).withOpacity(0.4),
+                          blurRadius: 8,
+                          offset: Offset(0, 2),
                         ),
-                        child: Text(
-                          parseHtmlString(version.question),
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.grey[800],
-                            height: 1.5,
-                            letterSpacing: 0.2,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      SizedBox(height: 0),
-
-                      // Pilihan Jawaban section
-                      Container(),
-                      SizedBox(height: 18),
-
-                      // Pilihan Jawaban section
-                      Container(
-                        padding: EdgeInsets.all(15),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Colors.white,
-                              Colors.grey.shade50,
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(22),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
-                              blurRadius: 12,
-                              spreadRadius: 0,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                          border: Border.all(
-                            color: _getTypeColor(version.type).withOpacity(0.2),
-                            width: 1.5,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            // Animated pulse container
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Container(
-                                  width: 44,
-                                  height: 44,
-                                  decoration: BoxDecoration(
-                                    color: _getTypeColor(version.type)
-                                        .withOpacity(0.08),
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                                Container(
-                                  width: 38,
-                                  height: 38,
-                                  decoration: BoxDecoration(
-                                    color: _getTypeColor(version.type)
-                                        .withOpacity(0.12),
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: BoxDecoration(
-                                    color: _getTypeColor(version.type)
-                                        .withOpacity(0.15),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: _getTypeColor(version.type),
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  child: Icon(
-                                    Icons.check_circle_outline_rounded,
-                                    color: _getTypeColor(version.type),
-                                    size: 20,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 18),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Pilihan Jawaban',
-                                  style: TextStyle(
-                                    color: Colors.grey[500],
-                                    fontSize: 13.5,
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  '${version.options.length} Opsi',
-                                  style: TextStyle(
-                                    color: Colors.grey[800],
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Spacer(),
-                            // Arrow indicator with click functionality
-                            Material(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(16),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(16),
-                                onTap: () =>
-                                    _showDetailQuestionSheet(question, version),
-                                child: Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: BoxDecoration(
-                                    color: _getTypeColor(version.type)
-                                        .withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    color: _getTypeColor(version.type),
-                                    size: 14,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ), // Add space for pagination indicators
-                      SizedBox(height: totalVersions > 1 ? 25 : 0),
-                    ],
-                  ),
-                ),
-              ),
-              // Action buttons - now in a fixed position at bottom
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.grey.shade50,
-                      Colors.grey.shade100,
-                    ],
-                  ),
-                  border: Border(
-                    top: BorderSide(
-                      color: Colors.grey.shade200,
-                      width: 1.5,
+                      ],
                     ),
                   ),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(28),
-                    bottomRight: Radius.circular(28),
+                  SizedBox(width: 12),
+                  Text(
+                    "Konten Pertanyaan",
+                    style: TextStyle(
+                      color: Colors.grey[800],
+                      fontSize: 15.5,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: Colors.grey.shade100),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 8,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  parseHtmlString(version.question),
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.grey[800],
+                    height: 1.5,
+                    letterSpacing: 0.2,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  // Removed maxLines to allow full expansion
+                ),
+              ),
+
+              SizedBox(height: 18),
+
+              // Pilihan Jawaban section
+              Container(
+                padding: EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white,
+                      Colors.grey.shade50,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(22),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 12,
+                      spreadRadius: 0,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                  border: Border.all(
+                    color: _getTypeColor(version.type).withOpacity(0.2),
+                    width: 1.5,
                   ),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    // Show edit, delete, and detail buttons for latest version
-                    if (versionIndex == 0)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          // Edit Button
-                          Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(16),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(16),
-                              onTap: () =>
-                                  _navigateToEditQuestion(question, version),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 14, vertical: 10),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      _getTypeColor(version.type),
-                                      Color.lerp(_getTypeColor(version.type),
-                                          Colors.black, 0.15)!,
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: _getTypeColor(version.type)
-                                          .withOpacity(0.4),
-                                      blurRadius: 12,
-                                      offset: Offset(0, 5),
-                                      spreadRadius: -2,
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.edit_rounded,
-                                        size: 18, color: Colors.white),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Edit',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                    // Animated pulse container
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color:
+                                _getTypeColor(version.type).withOpacity(0.08),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        Container(
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color:
+                                _getTypeColor(version.type).withOpacity(0.12),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color:
+                                _getTypeColor(version.type).withOpacity(0.15),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: _getTypeColor(version.type),
+                              width: 1.5,
                             ),
                           ),
-                          SizedBox(width: 10), // Space between buttons
-
-                          // Delete button
-                          Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(16),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(16),
-                              onTap: () =>
-                                  _showDeleteQuestionConfirmation(question),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 14, vertical: 10),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Colors.red.shade400,
-                                      Colors.red.shade700,
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.red.withOpacity(0.3),
-                                      blurRadius: 12,
-                                      offset: Offset(0, 5),
-                                      spreadRadius: -2,
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.delete_outline_rounded,
-                                        size: 18, color: Colors.white),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Hapus',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                          child: Icon(
+                            Icons.check_circle_outline_rounded,
+                            color: _getTypeColor(version.type),
+                            size: 20,
                           ),
-                        ],
-                      )
-                    else // Detail Button for older versions
-                      Material(
-                        color: Colors.transparent,
+                        ),
+                      ],
+                    ),
+                    SizedBox(width: 18),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Pilihan Jawaban',
+                          style: TextStyle(
+                            color: Colors.grey[500],
+                            fontSize: 13.5,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          '${version.options.length} Opsi',
+                          style: TextStyle(
+                            color: Colors.grey[800],
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Spacer(),
+                    // Arrow indicator with click functionality
+                    Material(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(16),
+                      child: InkWell(
                         borderRadius: BorderRadius.circular(16),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(16),
-                          onTap: () =>
-                              _showDetailQuestionSheet(question, version),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 10),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              gradient: LinearGradient(
-                                colors: [
-                                  _getTypeColor(version.type).withOpacity(0.8),
-                                  Color.lerp(_getTypeColor(version.type),
-                                          Colors.black, 0.2)!
-                                      .withOpacity(0.8),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: _getTypeColor(version.type)
-                                      .withOpacity(0.3),
-                                  blurRadius: 12,
-                                  offset: Offset(0, 5),
-                                  spreadRadius: -2,
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.visibility_outlined,
-                                    size: 18, color: Colors.white),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Lihat Detail',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ],
-                            ),
+                        onTap: () =>
+                            _showDetailQuestionSheet(question, version),
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: _getTypeColor(version.type).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: _getTypeColor(version.type),
+                            size: 14,
                           ),
                         ),
                       ),
+                    ),
                   ],
                 ),
               ),
+
+              SizedBox(height: 25),
             ],
           ),
         ),
 
-        // Version indicators
-        if (totalVersions > 1)
-          Positioned(
-            bottom: 80,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(totalVersions, (index) {
-                  final isActive = index == versionIndex;
-                  return GestureDetector(
-                    onTap: () {
-                      _getPageController(question.id).animateToPage(
-                        index,
-                        duration: Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                    },
-                    child: Container(
-                      width: isActive ? 24 : 8,
-                      height: 8,
-                      margin: EdgeInsets.symmetric(horizontal: 3),
-                      decoration: BoxDecoration(
-                        color: isActive
-                            ? _getTypeColor(version.type)
-                            : Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  );
-                }),
+        // Action buttons
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.grey.shade50,
+                Colors.grey.shade100,
+              ],
+            ),
+            border: Border(
+              top: BorderSide(
+                color: Colors.grey.shade200,
+                width: 1.5,
               ),
             ),
           ),
+          padding: EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  // Show edit, delete, and detail buttons for latest version
+                  if (versionIndex == 0)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        // Edit Button
+                        Material(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(16),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(16),
+                            onTap: () =>
+                                _navigateToEditQuestion(question, version),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    _getTypeColor(version.type),
+                                    Color.lerp(_getTypeColor(version.type),
+                                        Colors.black, 0.15)!,
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: _getTypeColor(version.type)
+                                        .withOpacity(0.4),
+                                    blurRadius: 12,
+                                    offset: Offset(0, 5),
+                                    spreadRadius: -2,
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.edit_rounded,
+                                      size: 18, color: Colors.white),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Edit',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 10), // Space between buttons
+
+                        // Delete button
+                        Material(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(16),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(16),
+                            onTap: () =>
+                                _showDeleteQuestionConfirmation(question),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.red.shade400,
+                                    Colors.red.shade700,
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.red.withOpacity(0.3),
+                                    blurRadius: 12,
+                                    offset: Offset(0, 5),
+                                    spreadRadius: -2,
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.delete_outline_rounded,
+                                      size: 18, color: Colors.white),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Hapus',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  else // Detail Button for older versions
+                    Material(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(16),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () =>
+                            _showDetailQuestionSheet(question, version),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            gradient: LinearGradient(
+                              colors: [
+                                _getTypeColor(version.type).withOpacity(0.8),
+                                Color.lerp(_getTypeColor(version.type),
+                                        Colors.black, 0.2)!
+                                    .withOpacity(0.8),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: _getTypeColor(version.type)
+                                    .withOpacity(0.3),
+                                blurRadius: 12,
+                                offset: Offset(0, 5),
+                                spreadRadius: -2,
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.visibility_outlined,
+                                  size: 18, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text(
+                                'Lihat Detail',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              // Version Indicators
+              if (totalVersions > 1)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(totalVersions, (index) {
+                      final isActive = index == versionIndex;
+                      return Container(
+                        width: isActive ? 24 : 8,
+                        height: 8,
+                        margin: EdgeInsets.symmetric(horizontal: 3),
+                        decoration: BoxDecoration(
+                          color: isActive
+                              ? _getTypeColor(version.type)
+                              : Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ],
     );
   }
