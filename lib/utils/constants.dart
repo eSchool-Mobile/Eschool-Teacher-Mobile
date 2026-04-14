@@ -1,14 +1,14 @@
 import 'package:eschool_saas_staff/data/models/assignmentSubmission.dart';
 import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
+import 'package:eschool_saas_staff/utils/app_config.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:flutter/material.dart';
 
-///[Do not add / at the end of the url]
-const String baseUrl = "https://esbeta.deanry.my.id";
-// const String baseUrl = "https://eschool.ac.id";
-
-const String databaseUrl = "$baseUrl/api/";
-const String storageUrl = "$baseUrl/storage/";
+//[URL dikelola oleh AppConfig — pilih via env switcher di runtime]
+// static const tersedia di AppConfig.devUrl / prodUrl / testingUrl
+String get baseUrl => AppConfig.baseUrl;
+String get databaseUrl => AppConfig.databaseUrl;
+String get storageUrl => "${AppConfig.baseUrl}/storage/";
 
 // Socket url
 const socketUrl = "ws://193.203.162.252:8090";

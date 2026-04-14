@@ -5983,7 +5983,7 @@ class SkeletonHomeContainer extends StatelessWidget {
 
         // Horizontal overview cards
         SizedBox(
-          height: 150,
+          height: 165,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: 20),

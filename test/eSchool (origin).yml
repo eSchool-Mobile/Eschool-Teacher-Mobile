@@ -1,0 +1,2546 @@
+app:
+  description: ''
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: eSchool (origin)
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/gemini:0.7.4@5faf411e694e0da130a337347a625a3812b1b7502a0183382d66d92c841bf05a
+    version: null
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/groq:0.0.12@38f75b2f4a3687af7b0947693c7903f5c7d8756f217ea492b8b81de6f16601f6
+    version: null
+kind: app
+version: 0.5.0
+workflow:
+  conversation_variables:
+  - description: ''
+    id: da3399c2-17ad-4f84-a16b-4d719ba87326
+    name: datadiri
+    selector:
+    - conversation
+    - datadiri
+    value:
+      email: null
+      firstname: null
+      fullname: null
+      gender: null
+      lastname: null
+      phone: null
+      role: null
+      schoolname: null
+      userid: null
+    value_type: object
+  - description: ''
+    id: 28d0ca91-5219-42a7-955a-21ece1ba4202
+    name: schoolcode
+    selector:
+    - conversation
+    - schoolcode
+    value: ''
+    value_type: string
+  - description: ''
+    id: 5599b3e1-5163-4cb2-9c56-5c9ff5506182
+    name: phonenumber
+    selector:
+    - conversation
+    - phonenumber
+    value: ''
+    value_type: string
+  - description: login|logined|otp
+    id: e245bd42-7a03-4aaf-901e-aba978ef9b6d
+    name: state
+    selector:
+    - conversation
+    - state
+    value: login
+    value_type: string
+  - description: ''
+    id: f2dc401b-031f-4ce6-9775-cb1f035af8a9
+    name: token
+    selector:
+    - conversation
+    - token
+    value: ''
+    value_type: string
+  environment_variables:
+  - description: ''
+    id: 7817fbae-0d4d-4ada-8b9b-9d890559c9e0
+    name: timezone
+    selector:
+    - env
+    - timezone
+    value: 'Asia/Jakarta '
+    value_type: string
+  - description: ''
+    id: a0c3c2b8-2568-44e0-9875-a9266c64930e
+    name: baseUrl
+    selector:
+    - env
+    - baseUrl
+    value: https://esbeta.deanry.my.id/
+    value_type: string
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 50
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: code_api_config-source-http_dynamic-target
+      selected: false
+      source: code_api_config
+      sourceHandle: source
+      target: http_dynamic
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: 1768895000000-source-1768977505176-target
+      selected: false
+      source: '1768895000000'
+      sourceHandle: source
+      target: '1768977505176'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1768893952332-source-1768894079162-target
+      selected: false
+      source: '1768893952332'
+      sourceHandle: source
+      target: '1768894079162'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: assigner
+        targetType: answer
+      id: 1768977736387-source-1768977867630-target
+      selected: false
+      source: '1768977736387'
+      sourceHandle: source
+      target: '1768977867630'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: tool
+      id: 1768880847802-source-1769054136524-target
+      selected: false
+      source: '1768880847802'
+      sourceHandle: source
+      target: '1769054136524'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1769136908398-source-llm_intent_classifier-target
+      selected: false
+      source: '1769136908398'
+      sourceHandle: source
+      target: llm_intent_classifier
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: if-else
+      id: llm_intent_classifier-source-1769137996661-target
+      selected: false
+      source: llm_intent_classifier
+      sourceHandle: source
+      target: '1769137996661'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: code
+      id: 1769137996661-true-code_api_config-target
+      selected: false
+      source: '1769137996661'
+      sourceHandle: 'true'
+      target: code_api_config
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: if-else
+      id: 1769137996661-false-1769142315515-target
+      selected: false
+      source: '1769137996661'
+      sourceHandle: 'false'
+      target: '1769142315515'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: answer
+      id: http_dynamic-fail-branch-1768979906406-target
+      selected: false
+      source: http_dynamic
+      sourceHandle: fail-branch
+      target: '1768979906406'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: http_dynamic-source-1768895000000-target
+      selected: false
+      source: http_dynamic
+      sourceHandle: source
+      target: '1768895000000'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: answer
+      id: 1769142315515-false-1769142412809-target
+      selected: false
+      source: '1769142315515'
+      sourceHandle: 'false'
+      target: '1769142412809'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: code
+      id: 1769391718149-true-1769391863158-target
+      selected: false
+      source: '1769391718149'
+      sourceHandle: 'true'
+      target: '1769391863158'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: 1769391863158-source-1769392357184-target
+      selected: false
+      source: '1769391863158'
+      sourceHandle: source
+      target: '1769392357184'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: http-request
+      id: 1769392357184-true-1769392528535-target
+      selected: false
+      source: '1769392357184'
+      sourceHandle: 'true'
+      target: '1769392528535'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: if-else
+      id: 1769054136524-source-1769391718149-target
+      selected: false
+      source: '1769054136524'
+      sourceHandle: source
+      target: '1769391718149'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: answer
+      id: 1769392357184-false-1769392674886-target
+      selected: false
+      source: '1769392357184'
+      sourceHandle: 'false'
+      target: '1769392674886'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: if-else
+      id: 1769392528535-fail-branch-1769392912739-target
+      selected: false
+      source: '1769392528535'
+      sourceHandle: fail-branch
+      target: '1769392912739'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: answer
+      id: 1769392912739-true-1769392862544-target
+      selected: false
+      source: '1769392912739'
+      sourceHandle: 'true'
+      target: '1769392862544'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: answer
+      id: 1769392912739-false-1769392941458-target
+      selected: false
+      source: '1769392912739'
+      sourceHandle: 'false'
+      target: '1769392941458'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: assigner
+        targetType: answer
+      id: 1769393060678-source-1769393187672-target
+      selected: false
+      source: '1769393060678'
+      sourceHandle: source
+      target: '1769393187672'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: 1769392528535-source-1769393289897-target
+      selected: false
+      source: '1769392528535'
+      sourceHandle: source
+      target: '1769393289897'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: 1769393289897-source-1769393436039-target
+      selected: false
+      source: '1769393289897'
+      sourceHandle: source
+      target: '1769393436039'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: assigner
+      id: 1769393436039-true-1769393060678-target
+      selected: false
+      source: '1769393436039'
+      sourceHandle: 'true'
+      target: '1769393060678'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: answer
+      id: 1769393436039-false-1769393546378-target
+      selected: false
+      source: '1769393436039'
+      sourceHandle: 'false'
+      target: '1769393546378'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: code
+      id: 1769391718149-fbdff7f9-9ccb-4df4-804d-d6b0778cf678-1769393704580-target
+      selected: false
+      source: '1769391718149'
+      sourceHandle: fbdff7f9-9ccb-4df4-804d-d6b0778cf678
+      target: '1769393704580'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: 1769393704580-source-1769393865982-target
+      selected: false
+      source: '1769393704580'
+      sourceHandle: source
+      target: '1769393865982'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: http-request
+      id: 1769393865982-true-1769393885060-target
+      selected: false
+      source: '1769393865982'
+      sourceHandle: 'true'
+      target: '1769393885060'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: answer
+      id: 1769393865982-false-1769393979050-target
+      selected: false
+      source: '1769393865982'
+      sourceHandle: 'false'
+      target: '1769393979050'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: answer
+      id: 1769393885060-fail-branch-1769394020796-target
+      selected: false
+      source: '1769393885060'
+      sourceHandle: fail-branch
+      target: '1769394020796'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: 1769393885060-source-17693941499930-target
+      selected: false
+      source: '1769393885060'
+      sourceHandle: source
+      target: '17693941499930'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: 17693941499930-source-1769394195022-target
+      selected: false
+      source: '17693941499930'
+      sourceHandle: source
+      target: '1769394195022'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: answer
+      id: 1769394195022-false-1769394245374-target
+      selected: false
+      source: '1769394195022'
+      sourceHandle: 'false'
+      target: '1769394245374'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: assigner
+      id: 1769394195022-true-1769395392965-target
+      selected: false
+      source: '1769394195022'
+      sourceHandle: 'true'
+      target: '1769395392965'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: assigner
+        targetType: template-transform
+      id: 1769395392965-source-1769395529896-target
+      selected: false
+      source: '1769395392965'
+      sourceHandle: source
+      target: '1769395529896'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: template-transform
+        targetType: answer
+      id: 1769395529896-source-1769395447000-target
+      selected: false
+      source: '1769395529896'
+      sourceHandle: source
+      target: '1769395447000'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: assigner
+      id: 1768977505176-true-1768977736387-target
+      selected: false
+      source: '1768977505176'
+      sourceHandle: 'true'
+      target: '1768977736387'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: http-request
+      id: 1769391718149-adb4e390-8a0c-47a1-bb98-d673e4096bce-1769396874678-target
+      selected: false
+      source: '1769391718149'
+      sourceHandle: adb4e390-8a0c-47a1-bb98-d673e4096bce
+      target: '1769396874678'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: 1769396874678-source-1769397082402-target
+      selected: false
+      source: '1769396874678'
+      sourceHandle: source
+      target: '1769397082402'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: knowledge-retrieval
+      id: 1769397082402-source-1769136908398-target
+      selected: false
+      source: '1769397082402'
+      sourceHandle: source
+      target: '1769136908398'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: answer
+      id: 1769396874678-fail-branch-17693981135230-target
+      selected: false
+      source: '1769396874678'
+      sourceHandle: fail-branch
+      target: '17693981135230'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: template-transform
+      id: 1769142315515-true-1769399252090-target
+      selected: false
+      source: '1769142315515'
+      sourceHandle: 'true'
+      target: '1769399252090'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: template-transform
+        targetType: llm
+      id: 1769399252090-source-1768893952332-target
+      selected: false
+      source: '1769399252090'
+      sourceHandle: source
+      target: '1768893952332'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: template-transform
+      id: 1768977505176-false-1769399252090-target
+      selected: false
+      source: '1768977505176'
+      sourceHandle: 'false'
+      target: '1769399252090'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        selected: false
+        title: User Input
+        type: start
+        variables: []
+      height: 72
+      id: '1768880847802'
+      position:
+        x: 0
+        y: 1225
+      positionAbsolute:
+        x: 0
+        y: 1225
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1769136908398'
+          - result
+        memory:
+          query_prompt_template: '{{#sys.query#}}
+
+
+            {{#sys.files#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 5
+        model:
+          completion_params: {}
+          mode: chat
+          name: openai/gpt-oss-20b
+          provider: langgenius/groq/groq
+        prompt_template:
+        - id: system_prompt
+          role: system
+          text: "<context>{{#context#}}</context>\n<context>{{#1769397082402.result#}}</context>\n\
+            <datetimenow>{{#1769054136524.text#}}</datetimenow>\nTugas Anda adalah\
+            \ menganalisis input pengguna dan menentukan apakah input tersebut memerlukan\
+            \ panggilan API berdasarkan konteks di atas.\n**Format Output:**\nAnda\
+            \ WAJIB memberikan output HANYA dalam format JSON sebagai berikut:\n```json\n\
+            {\n  \"isApi\": boolean,\n  \"urlapi\": \"string\",\n  \"params\": {\n\
+                \"param_name\": \"param_value\"\n  },\n  \"msg\": \"string\"\n}\n\
+            ```\n**Aturan Pengisian:**\n- `isApi`:\n  - `true` hanya jika input pengguna\
+            \ berkaitan dengan API DAN semua parameter wajib (required params) berhasil\
+            \ dideteksi.\n  - `false` jika tidak berkaitan dengan API, atau jika berkaitan\
+            \ tapi parameter wajib tidak ditemukan.\n- `urlapi`: Isi dengan URL endpoint\
+            \ API yang sesuai dari konteks. Jika tidak berkaitan sama sekali, isi\
+            \ dengan \"unknown\".\n- `params`: Objek berisi parameter yang diekstrak.\n\
+            - `msg`:\n  - Jika `isApi` = `true`: Kosongkan string `\"\"`.\n  - Jika\
+            \ `isApi` = `false` tapi `urlapi` valid (parameter kurang): Isi dengan\
+            \ pertanyaan spesifik untuk meminta parameter yang kurang (contoh: \"\
+            Untuk tanggal berapa?\",\"Untuk kelas berapa?\",\"Untuk kelas apa?\")\n\
+            **Contoh:**\nInput: \"Cek absensi hari ini\"\nOutput:\n```json\n{\n  \"\
+            isApi\": true,\n  \"urlapi\": \"/api/teacher/get-attendance\",\n  \"params\"\
+            : {\n         \"date\":\"2026-01-23\"\n   },\n  \"msg\": \"\"\n}\n```\n\
+            Input: \"Cek absensi saya\"\n(Asumsi: get_attendance butuh param 'date')\n\
+            Output:\n```json\n{\n  \"isApi\": false,\n  \"urlapi\": \"/api/teacher/get-attendance\"\
+            ,\n  \"params\": {},\n  \"msg\": \"Untuk tanggal berapa Anda ingin mengecek\
+            \ absensi?\"\n}\n```\nInput: \"Halo, apa kabar?\"\nOutput:\n```json\n\
+            {\n  \"isApi\": false,\n  \"urlapi\": \"unknown\",\n  \"params\": {},\n\
+              \"msg\": \"\"\n}\n```\nAturan Tambahan Penanganan Input di Luar Menu\
+            \ (WAJIB DIPATUHI):\n\n- jika user coba meminta jadwal mengajar selain\
+            \ hari itu / satu minggu tambahkan `?day={hari-yang-diminta}` untuk hari\
+            \ lain selain hari ini dan `?all=true` untuk seminggu di params\n- Jika\
+            \ input pengguna TIDAK berkaitan dengan fitur sistem eSchool\n  (jadwal,\
+            \ mata pelajaran, kehadiran, tugas, ujian, pengumuman, hari libur):\n\n\
+            \  - Set `isApi` = false\n  - Set `urlapi` = \"unknown\"\n  - Set `params`\
+            \ = {}\n  - WAJIB isi `msg` dengan:\n    \"Silakan pilih menu fitur yang\
+            \ tersedia untuk melanjutkan.\"\n\n- Aturan ini hanya berlaku jika input\
+            \ pengguna benar-benar di luar konteks menu.\n- Jangan mengosongkan `msg`\
+            \ pada kondisi ini.\n- Jangan menampilkan pesan error atau penjelasan\
+            \ tambahan.\n```\n\nSekarang, proses input berikut ini."
+        selected: false
+        structured_output:
+          schema:
+            additionalProperties: false
+            properties:
+              isApi:
+                description: if to answer user have to call api
+                type: boolean
+              msg:
+                type: string
+              params:
+                description: list of params
+                items:
+                  additionalProperties: false
+                  properties: {}
+                  required: []
+                  type: object
+                type: array
+              urlApi:
+                description: url of api
+                type: string
+            required:
+            - urlApi
+            - isApi
+            type: object
+        structured_output_enabled: true
+        title: KLASIFIKASI PERTANYAAN
+        type: llm
+        vision:
+          enabled: false
+      height: 87
+      id: llm_intent_classifier
+      position:
+        x: 2468.2774810436745
+        y: 1997.99626164176
+      positionAbsolute:
+        x: 2468.2774810436745
+        y: 1997.99626164176
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "function main({ intent_json }) {\n  const knowledge = [\n    {\n  \
+          \    api_key: \"get_lesson\",\n      endpoint: \"/api/teacher/get-lesson\"\
+          ,\n      method: \"GET\",\n      required_params: [],\n      optional_params:\
+          \ [\n        \"lesson_id\",\n        \"class_section_id\",\n        \"class_subject_id\"\
+          ,\n        \"grade_level_id\",\n      ],\n    },\n    {\n      api_key:\
+          \ \"get_subjects\",\n      endpoint: \"/api/teacher/subjects\",\n      method:\
+          \ \"GET\",\n      required_params: [],\n      optional_params: [\"class_section_id\"\
+          , \"subject_id\"],\n    },\n    {\n      api_key: \"get_attendance\",\n\
+          \      endpoint: \"/api/teacher/get-attendance\",\n      method: \"GET\"\
+          ,\n      required_params: [\"date\"],\n      optional_params: [\n      \
+          \  \"type\",\n        \"class_section_id\",\n        \"grade_level_id\"\
+          ,\n        \"session_year_id\",\n      ],\n    },\n    {\n      api_key:\
+          \ \"get_assignment\",\n      endpoint: \"/api/teacher/get-assignment\",\n\
+          \      method: \"GET\",\n      required_params: [],\n      optional_params:\
+          \ [\n        \"class_section_id\",\n        \"class_subject_id\",\n    \
+          \    \"grade_level_id\",\n      ],\n    },\n    {\n      api_key: \"get_exam_list\"\
+          ,\n      endpoint: \"/api/teacher/get-exam-list\",\n      method: \"GET\"\
+          ,\n      required_params: [],\n      optional_params: [\"status\", \"publish\"\
+          , \"grade_level_id\"],\n    },\n    {\n      api_key: \"get_announcement\"\
+          ,\n      endpoint: \"/api/teacher/get-announcement\",\n      method: \"\
+          GET\",\n      required_params: [],\n      optional_params: [\n        \"\
+          class_section_id\",\n        \"class_subject_id\",\n        \"grade_level_id\"\
+          ,\n      ],\n    },\n    {\n      api_key: \"get_holidays\",\n      endpoint:\
+          \ \"/api/holidays\",\n      method: \"GET\",\n      required_params: [],\n\
+          \      optional_params: [],\n    },\n    {\n      api_key: \"get_timetable\"\
+          ,\n      endpoint: \"/api/teacher/teacher_timetable\",\n      method: \"\
+          GET\",\n      required_params: [],\n      optional_params: [],\n    },\n\
+          \  ];\n\n  try {\n    // Extract JSON from potential markdown code blocks\
+          \ if present\n    let cleanJson = intent_json;\n    if (typeof intent_json\
+          \ === \"string\") {\n      cleanJson = intent_json\n        .replace(/```json/g,\
+          \ \"\")\n        .replace(/```/g, \"\")\n        .trim();\n    }\n\n   \
+          \ const input = JSON.parse(cleanJson);\n\n    // Check isApi flag and urlapi\
+          \ validity from prompt output\n    const urlapi = input.urlapi || input.urlApi;\
+          \ // Handle both casings\n\n    if (!input.isApi || !urlapi || urlapi ===\
+          \ \"unknown\") {\n      return {\n        full_url: \"\",\n        method:\
+          \ \"GET\",\n        error: \"Unknown Intent or No API Call\",\n      };\n\
+          \    }\n\n    // Validate endpoint against knowledge base (optional but\
+          \ recommended for security)\n    // Matching by endpoint instead of api_key\
+          \ since prompt provides the endpoint URL\n    const apiConfig = knowledge.find((k)\
+          \ => k.endpoint === urlapi);\n\n    if (!apiConfig) {\n      return {\n\
+          \        full_url: \"\",\n        method: \"GET\",\n        error: \"Invalid\
+          \ Endpoint from Intent\",\n      };\n    }\n\n    let url = \"https://esbeta.deanry.my.id\"\
+          \ + apiConfig.endpoint;\n    let queryParams = [];\n\n    // Add params\
+          \ if they exist in input\n    let params = input.params;\n\n    // Handle\
+          \ case where params is an array of objects (e.g. [{\"key\":\"val\"}])\n\
+          \    if (Array.isArray(params)) {\n      params = params.reduce((acc, curr)\
+          \ => ({ ...acc, ...curr }), {});\n    }\n\n    if (params) {\n      for\
+          \ (const [key, value] of Object.entries(params)) {\n        // Only add\
+          \ params that are defined in optional param list (or required)\n       \
+          \ // This logic is simplified; strict validation would check required_params\
+          \ too\n        if (value !== null && value !== undefined && value !== \"\
+          \") {\n          queryParams.push(`${key}=${encodeURIComponent(value)}`);\n\
+          \        }\n      }\n    }\n\n    let full_url = url;\n    if (queryParams.length\
+          \ > 0) {\n      full_url += \"?\" + queryParams.join(\"&\");\n    }\n\n\
+          \    return {\n      full_url: full_url,\n      method: apiConfig.method,\n\
+          \      error: \"\",\n    };\n  } catch (e) {\n    return { full_url: \"\"\
+          , method: \"GET\", error: e.message };\n  }\n}\n"
+        code_language: javascript
+        outputs:
+          error:
+            children: null
+            type: string
+          full_url:
+            children: null
+            type: string
+          method:
+            children: null
+            type: string
+        selected: false
+        title: FORMAT STRUKTUR API
+        type: code
+        variables:
+        - value_selector:
+          - llm_intent_classifier
+          - text
+          value_type: string
+          variable: intent_json
+      height: 51
+      id: code_api_config
+      position:
+        x: 3177.0396841995794
+        y: 1916.99626164176
+      positionAbsolute:
+        x: 3177.0396841995794
+        y: 1916.99626164176
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - type: text
+            value: ''
+          type: none
+        error_strategy: fail-branch
+        headers: 'Authorization:Bearer {{#conversation.token#}}
+
+          school_code:{{#conversation.schoolcode#}}'
+        method: get
+        params: ''
+        retry_config:
+          max_retries: 3
+          retry_enabled: true
+          retry_interval: 100
+        selected: false
+        ssl_verify: true
+        timeout:
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+        title: JALANKAN API
+        type: http-request
+        url: '{{#code_api_config.full_url#}}'
+        variables: []
+      height: 159
+      id: http_dynamic
+      position:
+        x: 3539.0396841995794
+        y: 1862.99626164176
+      positionAbsolute:
+        x: 3539.0396841995794
+        y: 1862.99626164176
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "function main({ raw_response, url }) {\n    try {\n        let data\
+          \ = raw_response;\n\n        // Parse JSON jika string\n        if (typeof\
+          \ raw_response === 'string') {\n            try {\n                const\
+          \ parsed = JSON.parse(raw_response);\n                data = (parsed.data\
+          \ && parsed.data.data)\n                    ? parsed.data.data\n       \
+          \             : (parsed.data || parsed);\n            } catch {\n      \
+          \          return { result: raw_response };\n            }\n        }\n\n\
+          \        const list = Array.isArray(data) ? data : [data];\n        if (!list.length\
+          \ || typeof list[0] !== 'object') {\n            return { result: \"Data\
+          \ kosong/tidak valid.\" };\n        }\n\n        /* =====================================================\n\
+          \           \U0001F500 CONDITIONAL FORMATTER\n           Jika endpoint /subjects\
+          \ → pakai context-safe formatter\n        ======================================================\
+          \ */\n        if (typeof url === 'string' && url.includes('/subjects'))\
+          \ {\n\n            const mapped = list.map(item => ({\n                id:\
+          \ item.id,\n                class_section_id: item.class_section_id,\n \
+          \               class_subject_id: item.class_subject_id,\n             \
+          \   subject_id: item.subject_id,\n\n                subject_name: item.subject?.name,\n\
+          \                subject_type: item.subject?.type,\n                subject_code:\
+          \ item.subject?.code,\n\n                class_name: item.class_section?.class?.full_name,\n\
+          \                section_name: item.class_section?.section?.name,\n    \
+          \            grade_level_id: item.class_section?.grade_level_id,\n     \
+          \           medium: item.class_section?.medium?.name,\n\n              \
+          \  school_id: item.school_id\n            }));\n\n            return { result:\
+          \ toCSVTable(mapped) };\n        }\n\n        /* =====================================================\n\
+          \           \U0001F9FE DEFAULT FORMATTER (GENERIC CSV)\n        ======================================================\
+          \ */\n        return { result: toCSVTable(list) };\n\n    } catch (e) {\n\
+          \        return { result: \"Error: \" + e.message };\n    }\n}\n\n/* =====================================================\n\
+          \   \U0001F6E0 CSV HELPER (REUSABLE)\n=====================================================\
+          \ */\nfunction toCSVTable(list) {\n    if (!list.length) return '';\n\n\
+          \    const headers = Object.keys(list[0]);\n\n    const toCSV = (val) =>\
+          \ {\n        if (val === null || val === undefined) return '';\n       \
+          \ if (Array.isArray(val) || typeof val === 'object') return '';\n\n    \
+          \    const s = String(val);\n        if (s.includes('\"') || s.includes(',')\
+          \ || s.includes('\\n')) {\n            return `\"${s.replace(/\"/g, '\"\"\
+          ')}\"`;\n        }\n        return s;\n    };\n\n    const rows = [];\n\
+          \    rows.push(headers.join(','));\n\n    list.forEach(item => {\n     \
+          \   rows.push(headers.map(k => toCSV(item[k])).join(','));\n    });\n\n\
+          \    return rows.join('\\n');\n}\n"
+        code_language: javascript
+        outputs:
+          result:
+            children: null
+            type: string
+        selected: false
+        title: FORMAT RESPONSE API
+        type: code
+        variables:
+        - value_selector:
+          - http_dynamic
+          - body
+          value_type: string
+          variable: raw_response
+        - value_selector:
+          - code_api_config
+          - full_url
+          value_type: string
+          variable: url
+      height: 51
+      id: '1768895000000'
+      position:
+        x: 3924.1731142025437
+        y: 1853.99626164176
+      positionAbsolute:
+        x: 3924.1731142025437
+        y: 1853.99626164176
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1768895000000'
+          - result
+        memory:
+          query_prompt_template: '{{#sys.query#}}
+
+
+            {{#sys.files#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 50
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: qwen/qwen3-32b
+          provider: langgenius/groq/groq
+        prompt_config:
+          jinja2_variables:
+          - value_selector:
+            - '1769054136524'
+            - json
+            variable: json
+        prompt_template:
+        - edition_type: basic
+          id: ca3503e7-48fc-4591-bb5f-c17620201586
+          jinja2_text: '{{ json }}'
+          role: system
+          text: "Kamu adalah chatbot resmi sistem eSchool untuk Guru.\n\nProfil Pengguna:\n\
+            <profile>\n{{#1769399252090.output#}}\n</profile>\n\nAturan Sapaan (WAJIB):\n\
+            - Jika `gender` = \"male\" → gunakan sapaan \"Bapak\" / \"Pak\"\n- Jika\
+            \ `gender` = \"female\" → gunakan sapaan \"Ibu\" / \"Bu\"\n- Jika `gender`\
+            \ tidak tersedia → gunakan \"Bapak/Ibu\"\n- Jangan menggunakan kata ganti\
+            \ informal seperti \"kamu\".\n- Jangan menyebut nama tanpa sapaan.\n\n\
+            Tugasmu:\n- Menjawab pertanyaan guru berdasarkan data dari API eSchool\
+            \ (Mapel, Jadwal, Kehadiran, Tugas, Ujian, Pengumuman, Libur).\n- Jawaban\
+            \ HARUS singkat, jelas, dan mudah dibaca.\n- JANGAN memberikan penjelasan\
+            \ tambahan yang tidak diminta.\n- JANGAN mengajukan pertanyaan balik.\n\
+            - JANGAN menambahkan saran teknis atau instruksi sistem.\n\nAturan Penanganan\
+            \ Context (PENTING):\n1. Jika Context Data KOSONG (dan `questionfollowup`\
+            \ kosong):\n   - Jawab secara natural dan profesional.\n   - Untuk sapaan\
+            \ atau pertanyaan umum, jangan menyebutkan \"data tidak ditemukan\".\n\
+            \n2. Jika Context Data TERISI tetapi DATA YANG DIMINTA TIDAK ADA:\n  \
+            \ - Sampaikan secara singkat dan netral.\n   - Gunakan kalimat deskriptif,\
+            \ bukan instruktif.\n   - DILARANG menggunakan kalimat seperti:\n    \
+            \ - \"Pastikan data sudah disinkronisasi\"\n     - \"Silakan hubungi admin\"\
+            \n     - \"Jika masalah berlanjut\"\n   - Contoh jawaban yang BENAR:\n\
+            \     - \"Jadwal mengajar hari ini kosong.\"\n     - \"Tidak ada tugas\
+            \ yang tercatat saat ini.\"\n     - \"Belum ada pengumuman terbaru.\"\n\
+            \nAturan Umum:\n- Gunakan bahasa Indonesia formal yang sederhana.\n- Gunakan\
+            \ gaya komunikasi institusi pendidikan.\n\nContext Data dari API:\n<csv>\n\
+            {{#context#}}\n</csv>\n\nTanggal Sistem: {{#1769054136524.text#}}\n"
+        selected: false
+        title: PROSES USER INPUT & API RESPONSE
+        type: llm
+        vision:
+          enabled: false
+      height: 87
+      id: '1768893952332'
+      position:
+        x: 4962.752929757369
+        y: 2267.87921166007
+      positionAbsolute:
+        x: 4962.752929757369
+        y: 2267.87921166007
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#1768893952332.text#}}'
+        selected: false
+        title: KIRIM JAWABAN
+        type: answer
+        variables: []
+      height: 101
+      id: '1768894079162'
+      position:
+        x: 5275.616274203241
+        y: 2267.87921166007
+      positionAbsolute:
+        x: 5275.616274203241
+        y: 2267.87921166007
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            id: d8bbd67a-a28e-4138-98de-3834b255814d
+            value: '{"message":"Unauthenticated."}'
+            varType: string
+            variable_selector:
+            - '1768895000000'
+            - result
+          id: 'true'
+          logical_operator: and
+        selected: false
+        title: CEK UNAUTHORIZE MSG
+        type: if-else
+      height: 123
+      id: '1768977505176'
+      position:
+        x: 4230.79257419801
+        y: 1896.289611618219
+      positionAbsolute:
+        x: 4230.79257419801
+        y: 1896.289611618219
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        items:
+        - input_type: constant
+          operation: set
+          value: login
+          variable_selector:
+          - conversation
+          - state
+          write_mode: over-write
+        selected: false
+        title: UPDATE STATE JADI LOGIN
+        type: assigner
+        version: '2'
+      height: 83
+      id: '1768977736387'
+      position:
+        x: 4605.039684199579
+        y: 1916.99626164176
+      positionAbsolute:
+        x: 4605.039684199579
+        y: 1916.99626164176
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: 'Sesi ada sudah berakhir silahkan login lagi..
+
+          '
+        selected: false
+        title: KIRIM PESAN SESSION HABIS
+        type: answer
+        variables: []
+      height: 115
+      id: '1768977867630'
+      position:
+        x: 4975.616274203241
+        y: 1916.99626164176
+      positionAbsolute:
+        x: 4975.616274203241
+        y: 1916.99626164176
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#code_api_config.full_url#}}
+
+          {{#http_dynamic.error_type#}} {{#http_dynamic.error_message#}}'
+        selected: false
+        title: KIRIM PESAN ERROR API
+        type: answer
+        variables: []
+      height: 138
+      id: '1768979906406'
+      position:
+        x: 3924.1731142025437
+        y: 1980.99626164176
+      positionAbsolute:
+        x: 3924.1731142025437
+        y: 1980.99626164176
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        is_team_authorization: true
+        paramSchemas:
+        - auto_generate: null
+          default: '%Y-%m-%d %H:%M:%S'
+          form: form
+          human_description:
+            en_US: Time format in strftime standard.
+            ja_JP: Time format in strftime standard.
+            pt_BR: Time format in strftime standard.
+            zh_Hans: strftime 标准的时间格式。
+          label:
+            en_US: Format
+            ja_JP: Format
+            pt_BR: Format
+            zh_Hans: 格式
+          llm_description: null
+          max: null
+          min: null
+          name: format
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: UTC
+          form: form
+          human_description:
+            en_US: Timezone
+            ja_JP: Timezone
+            pt_BR: Timezone
+            zh_Hans: 时区
+          label:
+            en_US: Timezone
+            ja_JP: Timezone
+            pt_BR: Timezone
+            zh_Hans: 时区
+          llm_description: null
+          max: null
+          min: null
+          name: timezone
+          options:
+          - icon: null
+            label:
+              en_US: UTC
+              ja_JP: UTC
+              pt_BR: UTC
+              zh_Hans: UTC
+            value: UTC
+          - icon: null
+            label:
+              en_US: America/New_York
+              ja_JP: America/New_York
+              pt_BR: America/New_York
+              zh_Hans: 美洲/纽约
+            value: America/New_York
+          - icon: null
+            label:
+              en_US: America/Los_Angeles
+              ja_JP: America/Los_Angeles
+              pt_BR: America/Los_Angeles
+              zh_Hans: 美洲/洛杉矶
+            value: America/Los_Angeles
+          - icon: null
+            label:
+              en_US: America/Chicago
+              ja_JP: America/Chicago
+              pt_BR: America/Chicago
+              zh_Hans: 美洲/芝加哥
+            value: America/Chicago
+          - icon: null
+            label:
+              en_US: America/Sao_Paulo
+              ja_JP: America/Sao_Paulo
+              pt_BR: América/São Paulo
+              zh_Hans: 美洲/圣保罗
+            value: America/Sao_Paulo
+          - icon: null
+            label:
+              en_US: Asia/Shanghai
+              ja_JP: Asia/Shanghai
+              pt_BR: Asia/Shanghai
+              zh_Hans: 亚洲/上海
+            value: Asia/Shanghai
+          - icon: null
+            label:
+              en_US: Asia/Ho_Chi_Minh
+              ja_JP: Asia/Ho_Chi_Minh
+              pt_BR: Ásia/Ho Chi Minh
+              zh_Hans: 亚洲/胡志明市
+            value: Asia/Ho_Chi_Minh
+          - icon: null
+            label:
+              en_US: Asia/Tokyo
+              ja_JP: Asia/Tokyo
+              pt_BR: Asia/Tokyo
+              zh_Hans: 亚洲/东京
+            value: Asia/Tokyo
+          - icon: null
+            label:
+              en_US: Asia/Dubai
+              ja_JP: Asia/Dubai
+              pt_BR: Asia/Dubai
+              zh_Hans: 亚洲/迪拜
+            value: Asia/Dubai
+          - icon: null
+            label:
+              en_US: Asia/Kolkata
+              ja_JP: Asia/Kolkata
+              pt_BR: Asia/Kolkata
+              zh_Hans: 亚洲/加尔各答
+            value: Asia/Kolkata
+          - icon: null
+            label:
+              en_US: Asia/Seoul
+              ja_JP: Asia/Seoul
+              pt_BR: Asia/Seoul
+              zh_Hans: 亚洲/首尔
+            value: Asia/Seoul
+          - icon: null
+            label:
+              en_US: Asia/Singapore
+              ja_JP: Asia/Singapore
+              pt_BR: Asia/Singapore
+              zh_Hans: 亚洲/新加坡
+            value: Asia/Singapore
+          - icon: null
+            label:
+              en_US: Europe/London
+              ja_JP: Europe/London
+              pt_BR: Europe/London
+              zh_Hans: 欧洲/伦敦
+            value: Europe/London
+          - icon: null
+            label:
+              en_US: Europe/Berlin
+              ja_JP: Europe/Berlin
+              pt_BR: Europe/Berlin
+              zh_Hans: 欧洲/柏林
+            value: Europe/Berlin
+          - icon: null
+            label:
+              en_US: Europe/Moscow
+              ja_JP: Europe/Moscow
+              pt_BR: Europe/Moscow
+              zh_Hans: 欧洲/莫斯科
+            value: Europe/Moscow
+          - icon: null
+            label:
+              en_US: Australia/Sydney
+              ja_JP: Australia/Sydney
+              pt_BR: Australia/Sydney
+              zh_Hans: 澳大利亚/悉尼
+            value: Australia/Sydney
+          - icon: null
+            label:
+              en_US: Pacific/Auckland
+              ja_JP: Pacific/Auckland
+              pt_BR: Pacific/Auckland
+              zh_Hans: 太平洋/奥克兰
+            value: Pacific/Auckland
+          - icon: null
+            label:
+              en_US: Africa/Cairo
+              ja_JP: Africa/Cairo
+              pt_BR: Africa/Cairo
+              zh_Hans: 非洲/开罗
+            value: Africa/Cairo
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: select
+        params:
+          format: ''
+          timezone: ''
+        plugin_id: null
+        plugin_unique_identifier: ''
+        provider_icon: https://cloud.dify.ai/console/api/workspaces/current/tool-provider/builtin/time/icon
+        provider_id: time
+        provider_name: time
+        provider_type: builtin
+        selected: false
+        title: Current Time
+        tool_configurations:
+          format:
+            type: mixed
+            value: '%A %Y-%m-%d %H:%M:%S'
+          timezone:
+            type: variable
+            value:
+            - env
+            - timezone
+        tool_description: A tool for getting the current time.
+        tool_label: Current Time
+        tool_name: current_time
+        tool_node_version: '2'
+        tool_parameters: {}
+        type: tool
+      height: 113
+      id: '1769054136524'
+      position:
+        x: 342
+        y: 1205
+      positionAbsolute:
+        x: 342
+        y: 1205
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        dataset_ids:
+        - 8i4yOt20YRNLe2xpvpLQIqtDx3i8fLZaP905SGlkS0vDq1IntPUNpw/JH8Mf0484
+        multiple_retrieval_config:
+          reranking_enable: false
+          reranking_mode: weighted_score
+          top_k: 4
+          weights:
+            keyword_setting:
+              keyword_weight: 0.3
+            vector_setting:
+              embedding_model_name: text-embedding-004
+              embedding_provider_name: langgenius/gemini/google
+              vector_weight: 0.7
+            weight_type: customized
+        query_attachment_selector: []
+        query_variable_selector:
+        - '1768880847802'
+        - sys.query
+        retrieval_mode: multiple
+        selected: false
+        title: Knowledge Retrieval
+        type: knowledge-retrieval
+      height: 89
+      id: '1769136908398'
+      position:
+        x: 2131.0396841995794
+        y: 1997.99626164176
+      positionAbsolute:
+        x: 2131.0396841995794
+        y: 1997.99626164176
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            id: 43f15fa1-5b31-4bec-87e6-93017a3dd2a0
+            value: 'true'
+            varType: object
+            variable_selector:
+            - llm_intent_classifier
+            - structured_output
+            - isApi
+          id: 'true'
+          logical_operator: and
+        selected: false
+        title: cek apakah butuh api
+        type: if-else
+      height: 123
+      id: '1769137996661'
+      position:
+        x: 2815.0396841995794
+        y: 1980.99626164176
+      positionAbsolute:
+        x: 2815.0396841995794
+        y: 1980.99626164176
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: empty
+            id: 50dbf7d9-b925-4b8f-b468-befac861d8fd
+            value: ''
+            varType: object
+            variable_selector:
+            - llm_intent_classifier
+            - structured_output
+            - msg
+          id: 'true'
+          logical_operator: and
+        selected: false
+        title: CEK FOLLOWUP PESAN
+        type: if-else
+      height: 123
+      id: '1769142315515'
+      position:
+        x: 3177.0396841995794
+        y: 2078.9962616417597
+      positionAbsolute:
+        x: 3177.0396841995794
+        y: 2078.9962616417597
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#llm_intent_classifier.structured_output.msg#}}'
+        selected: false
+        title: KIRIM PESAN FOLLOWUP
+        type: answer
+        variables: []
+      height: 101
+      id: '1769142412809'
+      position:
+        x: 3539.0396841995794
+        y: 2233.9928916586746
+      positionAbsolute:
+        x: 3539.0396841995794
+        y: 2233.9928916586746
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            id: 76e6824e-60ab-4324-86a6-bf0d547d9582
+            value: login
+            varType: string
+            variable_selector:
+            - conversation
+            - state
+          id: 'true'
+          logical_operator: and
+        - case_id: fbdff7f9-9ccb-4df4-804d-d6b0778cf678
+          conditions:
+          - comparison_operator: is
+            id: 71830a63-eaf8-423a-b8f0-284ae221765a
+            value: otp
+            varType: string
+            variable_selector:
+            - conversation
+            - state
+          id: fbdff7f9-9ccb-4df4-804d-d6b0778cf678
+          logical_operator: and
+        - case_id: adb4e390-8a0c-47a1-bb98-d673e4096bce
+          conditions:
+          - comparison_operator: is
+            id: 180db19b-ffea-4e02-a042-cc18cd8e27e5
+            value: logined
+            varType: string
+            variable_selector:
+            - conversation
+            - state
+          id: adb4e390-8a0c-47a1-bb98-d673e4096bce
+          logical_operator: and
+        selected: false
+        title: CEK USER STATE
+        type: if-else
+      height: 219
+      id: '1769391718149'
+      position:
+        x: 684
+        y: 1152
+      positionAbsolute:
+        x: 684
+        y: 1152
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "function main({ input }) {\n    if (!input) {\n        return {\n \
+          \           isphonenumber: false,\n            phonenumber: \"\"\n     \
+          \   }\n    }\n\n    // hilangkan + - ( ) dan spasi\n    const cleaned =\
+          \ input.replace(/[+\\-()\\s]/g, '');\n\n    // cek hanya angka & panjang\
+          \ > 10\n    const isNumber = /^\\d+$/.test(cleaned);\n    const isPhoneNumber\
+          \ = isNumber && cleaned.length > 8;\n\n    return {\n        isphonenumber:\
+          \ isPhoneNumber,\n        phonenumber: isPhoneNumber ? cleaned : \"\"\n\
+          \    }\n}\n"
+        code_language: javascript
+        outputs:
+          isphonenumber:
+            children: null
+            type: boolean
+          phonenumber:
+            children: null
+            type: string
+        selected: false
+        title: DETEKSI NOMOR HP
+        type: code
+        variables:
+        - value_selector:
+          - sys
+          - query
+          value_type: string
+          variable: input
+      height: 51
+      id: '1769391863158'
+      position:
+        x: 1514.6689288387902
+        y: 589.1598756701363
+      positionAbsolute:
+        x: 1514.6689288387902
+        y: 589.1598756701363
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            id: 9dfdbc8f-b89e-4aa4-86bf-4e0d8521751d
+            value: true
+            varType: boolean
+            variable_selector:
+            - '1769391863158'
+            - isphonenumber
+          id: 'true'
+          logical_operator: and
+        selected: false
+        title: JIKA FORMAT NOMOR HP
+        type: if-else
+      height: 123
+      id: '1769392357184'
+      position:
+        x: 1856.6689288387902
+        y: 553.1598756701363
+      positionAbsolute:
+        x: 1856.6689288387902
+        y: 553.1598756701363
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-199
+            key: ''
+            type: text
+            value: '{
+
+                  "phone":"{{#1769391863158.phonenumber#}}"
+
+              }'
+          type: json
+        error_strategy: fail-branch
+        headers: Accept:application/json
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 3
+          retry_enabled: true
+          retry_interval: 100
+        selected: false
+        ssl_verify: true
+        timeout:
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+        title: REQUEST OTP
+        type: http-request
+        url: '{{#env.baseUrl#}}api/auth/otp/request'
+        variables: []
+      height: 176
+      id: '1769392528535'
+      position:
+        x: 2218.66892883879
+        y: 338.15987567013633
+      positionAbsolute:
+        x: 2218.66892883879
+        y: 338.15987567013633
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '**SMKN 100 Malang**
+
+          Aplikasi Guru/Staff
+
+
+          Silahkan kirim nomer telepon yang terdaftar di eSchool.'
+        selected: false
+        title: KIRIM INSTRUKSI LOGIN
+        type: answer
+        variables: []
+      height: 131
+      id: '1769392674886'
+      position:
+        x: 2218.66892883879
+        y: 594.1598756701363
+      positionAbsolute:
+        x: 2218.66892883879
+        y: 594.1598756701363
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: Nomor telepon yang anda kirim tidak terdaftar di eSchool.
+        selected: false
+        title: KIRIM PESAN ERROR 404
+        type: answer
+        variables: []
+      height: 115
+      id: '1769392862544'
+      position:
+        x: 2931.2421477742178
+        y: 471.0022228196426
+      positionAbsolute:
+        x: 2931.2421477742178
+        y: 471.0022228196426
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: contains
+            id: 0d1ea11d-5b89-42f6-b64f-f6d5d10f5c6b
+            value: '404'
+            varType: string
+            variable_selector:
+            - '1769392528535'
+            - error_message
+          id: 'true'
+          logical_operator: and
+        selected: false
+        title: CEK JIKA ERROR 404
+        type: if-else
+      height: 123
+      id: '1769392912739'
+      position:
+        x: 2582.2563298907585
+        y: 529.184940766123
+      positionAbsolute:
+        x: 2582.2563298907585
+        y: 529.184940766123
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{
+
+          error_type:{{#1769392528535.error_type#}},
+
+          error_msg:{{#1769392528535.error_message#}},
+
+          body:{{#1769392528535.body#}}
+
+          }'
+        selected: false
+        title: KIRIM PESAN ERROR
+        type: answer
+        variables: []
+      height: 170
+      id: '1769392941458'
+      position:
+        x: 2931.2421477742178
+        y: 709.8620512227842
+      positionAbsolute:
+        x: 2931.2421477742178
+        y: 709.8620512227842
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        items:
+        - input_type: constant
+          operation: set
+          value: otp
+          variable_selector:
+          - conversation
+          - state
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1769391863158'
+          - phonenumber
+          variable_selector:
+          - conversation
+          - phonenumber
+          write_mode: over-write
+        selected: false
+        title: SET STATE KE OTP & PHONENUMBER
+        type: assigner
+        version: '2'
+      height: 109
+      id: '1769393060678'
+      position:
+        x: 3283.081527786822
+        y: 126.90954627804763
+      positionAbsolute:
+        x: 3283.081527786822
+        y: 126.90954627804763
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#1769393289897.message#}}. *hint otp:{{#1769393289897.otp#}}'
+        selected: false
+        title: KIRIM RESPONSE MSG DARI API
+        type: answer
+        variables: []
+      height: 120
+      id: '1769393187672'
+      position:
+        x: 3629.8437309427263
+        y: 126.90954627804763
+      positionAbsolute:
+        x: 3629.8437309427263
+        y: 126.90954627804763
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "function main({ body }) {\n    let data;\n\n    try {\n        data\
+          \ = typeof body === \"string\" ? JSON.parse(body) : body;\n    } catch (e)\
+          \ {\n        return {\n            success: false,\n            message:\
+          \ \"Invalid JSON\",\n            otp: \"\"\n        }\n    }\n\n    return\
+          \ {\n        success: Boolean(data.success),\n        message: String(data.message\
+          \ || \"\"),\n        otp: String(data.otp || \"\")\n    }\n}\n"
+        code_language: javascript
+        outputs:
+          message:
+            children: null
+            type: string
+          otp:
+            children: null
+            type: string
+          success:
+            children: null
+            type: boolean
+        selected: false
+        title: FORMAT RESPONSE REQEUST OTP
+        type: code
+        variables:
+        - value_selector:
+          - '1769392528535'
+          - body
+          value_type: string
+          variable: body
+      height: 51
+      id: '1769393289897'
+      position:
+        x: 2567.018533046663
+        y: 252.2780333409175
+      positionAbsolute:
+        x: 2567.018533046663
+        y: 252.2780333409175
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            id: 1e06d33f-9d6b-4230-a9f1-e8b556c630a6
+            value: true
+            varType: boolean
+            variable_selector:
+            - '1769393289897'
+            - success
+          id: 'true'
+          logical_operator: and
+        selected: false
+        title: JIKA SUCESS TRUE
+        type: if-else
+      height: 123
+      id: '1769393436039'
+      position:
+        x: 2931.2421477742178
+        y: 252.2780333409175
+      positionAbsolute:
+        x: 2931.2421477742178
+        y: 252.2780333409175
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#1769393289897.message#}}'
+        selected: false
+        title: KIRIM PESAN ERROR
+        type: answer
+        variables: []
+      height: 101
+      id: '1769393546378'
+      position:
+        x: 3283.081527786822
+        y: 466.1252451630585
+      positionAbsolute:
+        x: 3283.081527786822
+        y: 466.1252451630585
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "function main({ otp }) {\n    const isValid =\n        typeof otp ===\
+          \ \"string\" &&\n        /^\\d{6}$/.test(otp);\n\n    return {\n       \
+          \ isvalid: isValid,\n        otp: isValid ? otp : \"\"\n    }\n}\n"
+        code_language: javascript
+        outputs:
+          isvalid:
+            children: null
+            type: boolean
+          otp:
+            children: null
+            type: string
+        selected: false
+        title: DETEKSI OTP
+        type: code
+        variables:
+        - value_selector:
+          - sys
+          - query
+          value_type: string
+          variable: otp
+      height: 51
+      id: '1769393704580'
+      position:
+        x: 1519.7303147604725
+        y: 1370.7421572762419
+      positionAbsolute:
+        x: 1519.7303147604725
+        y: 1370.7421572762419
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            id: f559a451-0674-44b3-8ffe-ec2a84626d10
+            value: true
+            varType: boolean
+            variable_selector:
+            - '1769393704580'
+            - isvalid
+          id: 'true'
+          logical_operator: and
+        selected: false
+        title: JIKA VALID OTP
+        type: if-else
+      height: 123
+      id: '1769393865982'
+      position:
+        x: 1861.7303147604725
+        y: 1334.7421572762419
+      positionAbsolute:
+        x: 1861.7303147604725
+        y: 1334.7421572762419
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-390
+            key: ''
+            type: text
+            value: "{\n    \"phone\":\"{{#conversation.phonenumber#}}\",\n    \"otp\"\
+              :\"{{#1769393704580.otp#}}\"\n}"
+          type: json
+        error_strategy: fail-branch
+        headers: Accept:application/json
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 3
+          retry_enabled: true
+          retry_interval: 100
+        selected: false
+        ssl_verify: true
+        timeout:
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+        title: VERIFY OTP
+        type: http-request
+        url: '{{#env.baseUrl#}}api/auth/otp/verify'
+        variables: []
+      height: 176
+      id: '1769393885060'
+      position:
+        x: 2223.7303147604725
+        y: 1127.7421572762419
+      positionAbsolute:
+        x: 2223.7303147604725
+        y: 1127.7421572762419
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: OTP TIDAK VALID
+        selected: false
+        title: KIRIM PESAN OTP NOT VALID
+        type: answer
+        variables: []
+      height: 99
+      id: '1769393979050'
+      position:
+        x: 2223.7303147604725
+        y: 1514.7739464653087
+      positionAbsolute:
+        x: 2223.7303147604725
+        y: 1514.7739464653087
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{
+
+          error_type:{{#1769393885060.error_type#}},
+
+          error_msg:{{#1769393885060.error_message#}},
+
+          body:{{#1769393885060.body#}}
+
+          }'
+        selected: false
+        title: KIRIM PESAN ERROR
+        type: answer
+        variables: []
+      height: 170
+      id: '1769394020796'
+      position:
+        x: 2598.329525259421
+        y: 1346.7184722447041
+      positionAbsolute:
+        x: 2598.329525259421
+        y: 1346.7184722447041
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "function main({ body }) {\n    let data;\n\n    try {\n        data\
+          \ = typeof body === \"string\" ? JSON.parse(body) : body;\n    } catch (e)\
+          \ {\n        return {\n            success: false,\n            message:\
+          \ \"Invalid JSON\",\n            user: null,\n            token: \"\",\n\
+          \            school_code: \"\",\n            debug_code:\"\"\n        }\n\
+          \    }\n\n    const user = data.user || {};\n\n    return {\n        success:\
+          \ Boolean(data.success),\n        message: String(data.message || \"\"),\n\
+          \        debug_code:String(data.debug_code||\"\"),\n        user: {\n  \
+          \          userid: user.id ?? null,\n            firstname: user.first_name\
+          \ ?? \"\",\n            lastname: user.last_name ?? \"\",\n            fullname:\
+          \ user.full_name ?? \"\",\n            phone: user.mobile || user.phone\
+          \ || \"\",\n            email: user.email ?? \"\",\n            gender:\
+          \ user.gender ?? \"\",\n            role: user.role ?? \"\",\n         \
+          \   schoolname: user.school_names ?? \"\"\n        },\n        token: String(data.token\
+          \ || \"\"),\n        school_code: String(data.school_code || \"\")\n   \
+          \ }\n}\n"
+        code_language: javascript
+        outputs:
+          debug_code:
+            children: null
+            type: string
+          message:
+            children: null
+            type: string
+          school_code:
+            children: null
+            type: string
+          success:
+            children: null
+            type: boolean
+          token:
+            children: null
+            type: string
+          user:
+            children: null
+            type: object
+        selected: false
+        title: FORMAT RESPONSE VERIFY OTP
+        type: code
+        variables:
+        - value_selector:
+          - '1769393885060'
+          - body
+          value_type: string
+          variable: body
+      height: 51
+      id: '17693941499930'
+      position:
+        x: 2573.289841059842
+        y: 1070.0714733886466
+      positionAbsolute:
+        x: 2573.289841059842
+        y: 1070.0714733886466
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            id: 27432570-3dd0-48e4-9b2a-9064d8f87c14
+            value: true
+            varType: boolean
+            variable_selector:
+            - '17693941499930'
+            - success
+          id: 'true'
+          logical_operator: and
+        selected: false
+        title: CEK JIKA BERHASIL
+        type: if-else
+      height: 123
+      id: '1769394195022'
+      position:
+        x: 2917.8096831596313
+        y: 1056.7500522867545
+      positionAbsolute:
+        x: 2917.8096831596313
+        y: 1056.7500522867545
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#17693941499930.message#}}'
+        selected: false
+        title: KIRIM PESAN ERROR
+        type: answer
+        variables: []
+      height: 101
+      id: '1769394245374'
+      position:
+        x: 3277.1311042615234
+        y: 1213.1707884611037
+      positionAbsolute:
+        x: 3277.1311042615234
+        y: 1213.1707884611037
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '17693941499930'
+          - user
+          variable_selector:
+          - conversation
+          - datadiri
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - '17693941499930'
+          - school_code
+          variable_selector:
+          - conversation
+          - schoolcode
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - '17693941499930'
+          - token
+          variable_selector:
+          - conversation
+          - token
+          write_mode: over-write
+        - input_type: constant
+          operation: set
+          value: logined
+          variable_selector:
+          - conversation
+          - state
+          write_mode: over-write
+        selected: false
+        title: SET VARIABLE LOGIN SUCESS
+        type: assigner
+        version: '2'
+      height: 161
+      id: '1769395392965'
+      position:
+        x: 3257.131104261524
+        y: 999.5555787941132
+      positionAbsolute:
+        x: 3257.131104261524
+        y: 999.5555787941132
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#1769395529896.output#}}'
+        selected: false
+        title: KIRIM PESAN BERHASIL LOGIN
+        type: answer
+        variables: []
+      height: 101
+      id: '1769395447000'
+      position:
+        x: 3910.892999064047
+        y: 999.5555787941132
+      positionAbsolute:
+        x: 3910.892999064047
+        y: 999.5555787941132
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        selected: false
+        template: "✅ **Login Berhasil**\r\n\r\nSelamat datang, **{{ user.fullname\
+          \ }}**.\r\n\r\nAnda berhasil masuk ke sistem sebagai **{{ user.role }}**.\r\
+          \n\r\n{% if user.schoolname %}\r\n\U0001F3EB Sekolah : {{ user.schoolname\
+          \ }}\r\n{% endif %}\r\n\r\nApa yang ingin Anda lakukan?\r\n- Melihat jadwal\
+          \ mengajar\r\n- Melihat daftar mata pelajaran dan kelas\r\n- Mengecek rekap\
+          \ kehadiran siswa\r\n- Melihat daftar tugas\r\n- Melihat daftar ujian\r\n\
+          - Melihat pengumuman sekolah\r\n- Melihat daftar hari libur\r\n\r\nJika\
+          \ membutuhkan bantuan, silakan hubungi admin sekolah."
+        title: FORMAT PESAN BERHASIL LOGIN
+        type: template-transform
+        variables:
+        - value_selector:
+          - '17693941499930'
+          - user
+          value_type: object
+          variable: user
+      height: 51
+      id: '1769395529896'
+      position:
+        x: 3589.0517358623647
+        y: 999.5555787941132
+      positionAbsolute:
+        x: 3589.0517358623647
+        y: 999.5555787941132
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        author: Dify
+        desc: ''
+        height: 758
+        selected: false
+        showAuthor: true
+        text: '{"root":{"children":[{"children":[{"detail":0,"format":1,"mode":"normal","style":"font-size:
+          16px;","text":"PENANGANAN VERIFY OTP","type":"text","version":1}],"direction":null,"format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"font-size:
+          16px;"}],"direction":null,"format":"","indent":0,"type":"root","version":1,"textFormat":1,"textStyle":"font-size:
+          16px;"}}'
+        theme: blue
+        title: ''
+        type: ''
+        width: 2895
+      height: 758
+      id: '1769396160951'
+      position:
+        x: 1408.404234432854
+        y: 915.6126915406287
+      positionAbsolute:
+        x: 1408.404234432854
+        y: 915.6126915406287
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom-note
+      width: 2895
+    - data:
+        author: Dify
+        desc: ''
+        height: 897
+        selected: false
+        showAuthor: true
+        text: '{"root":{"children":[{"children":[{"detail":0,"format":1,"mode":"normal","style":"font-size:
+          16px;","text":"PENANGANAN REQUEST OTP","type":"text","version":1}],"direction":null,"format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"font-size:
+          16px;"}],"direction":null,"format":"","indent":0,"type":"root","version":1,"textFormat":1,"textStyle":"font-size:
+          16px;"}}'
+        theme: pink
+        title: ''
+        type: ''
+        width: 2890
+      height: 897
+      id: '1769396221904'
+      position:
+        x: 1408.404234432854
+        y: 9.061366466588652
+      positionAbsolute:
+        x: 1408.404234432854
+        y: 9.061366466588652
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom-note
+      width: 2890
+    - data:
+        author: Dify
+        desc: ''
+        height: 876
+        selected: false
+        showAuthor: true
+        text: '{"root":{"children":[{"children":[{"detail":0,"format":1,"mode":"normal","style":"font-size:
+          16px;","text":"PENANGANAN JIKA SUDAH TERLOGIN","type":"text","version":1}],"direction":null,"format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"font-size:
+          16px;"}],"direction":null,"format":"","indent":0,"type":"root","version":1,"textFormat":1,"textStyle":"font-size:
+          16px;"}}'
+        theme: cyan
+        title: ''
+        type: ''
+        width: 4185
+      height: 876
+      id: '1769396326568'
+      position:
+        x: 1402.1070699406819
+        y: 1764.453229476194
+      positionAbsolute:
+        x: 1402.1070699406819
+        y: 1764.453229476194
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom-note
+      width: 4185
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data: []
+          type: none
+        error_strategy: fail-branch
+        headers: 'Authorization:Bearer {{#conversation.token#}}
+
+          school_code:{{#conversation.schoolcode#}}'
+        method: get
+        params: ''
+        retry_config:
+          max_retries: 3
+          retry_enabled: true
+          retry_interval: 100
+        selected: false
+        ssl_verify: true
+        timeout:
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+        title: GET DETAIL GURU
+        type: http-request
+        url: '{{#env.baseUrl#}}api/teacher/subjects'
+        variables: []
+      height: 160
+      id: '1769396874678'
+      position:
+        x: 1531.0396841995794
+        y: 1997.99626164176
+      positionAbsolute:
+        x: 1531.0396841995794
+        y: 1997.99626164176
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "function main({ raw_response }) {\n    try {\n        let data = raw_response;\n\
+          \n        // Parse JSON jika string\n        if (typeof raw_response ===\
+          \ 'string') {\n            try {\n                const parsed = JSON.parse(raw_response);\n\
+          \                data = parsed.data || parsed;\n            } catch {\n\
+          \                return { result: raw_response };\n            }\n     \
+          \   }\n\n        const list = Array.isArray(data) ? data : [data];\n   \
+          \     if (!list.length || typeof list[0] !== 'object') {\n            return\
+          \ { result: \"Data kosong/tidak valid.\" };\n        }\n\n        // \U0001F525\
+          \ Mapping ringkas tapi context tetap utuh\n        const mapped = list.map(item\
+          \ => ({\n            id: item.id,\n            class_section_id: item.class_section_id,\n\
+          \            class_subject_id: item.class_subject_id,\n            subject_id:\
+          \ item.subject_id,\n\n            subject_name: item.subject?.name,\n  \
+          \          subject_type: item.subject?.type,\n\n            class_name:\
+          \ item.class_section?.class?.full_name,\n            section_name: item.class_section?.section?.name,\n\
+          \            grade_level_id: item.class_section?.grade_level_id,\n     \
+          \       medium: item.class_section?.medium?.name,\n\n            school_id:\
+          \ item.school_id\n        }));\n\n        const headers = Object.keys(mapped[0]);\n\
+          \n        const toCSV = (val) => {\n            if (val === null || val\
+          \ === undefined) return '';\n            const s = String(val);\n      \
+          \      if (s.includes('\"') || s.includes(',') || s.includes('\\n')) {\n\
+          \                return `\"${s.replace(/\"/g, '\"\"')}\"`;\n           \
+          \ }\n            return s;\n        };\n\n        const rows = [];\n   \
+          \     rows.push(headers.join(','));\n\n        mapped.forEach(item => {\n\
+          \            rows.push(headers.map(k => toCSV(item[k])).join(','));\n  \
+          \      });\n\n        return { result: rows.join('\\n') };\n\n    } catch\
+          \ (e) {\n        return { result: \"Error: \" + e.message };\n    }\n}\n"
+        code_language: javascript
+        outputs:
+          result:
+            children: null
+            type: string
+        selected: false
+        title: FORMAT DETAIL GURU
+        type: code
+        variables:
+        - value_selector:
+          - '1769396874678'
+          - body
+          value_type: string
+          variable: raw_response
+      height: 51
+      id: '1769397082402'
+      position:
+        x: 1831.0396841995794
+        y: 1997.99626164176
+      positionAbsolute:
+        x: 1831.0396841995794
+        y: 1997.99626164176
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{
+
+          error_type:{{#1769396874678.error_type#}},
+
+          error_msg:{{#1769396874678.error_message#}},
+
+          body:{{#1769396874678.body#}}
+
+          }'
+        selected: false
+        title: KIRIM PESAN ERROR (1)
+        type: answer
+        variables: []
+      height: 170
+      id: '17693981135230'
+      position:
+        x: 2001.6136020283934
+        y: 2205.9823896186444
+      positionAbsolute:
+        x: 2001.6136020283934
+        y: 2205.9823896186444
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        selected: false
+        template: '{{ datadiri }}'
+        title: FORMAT DATADIRI GURU
+        type: template-transform
+        variables:
+        - value_selector:
+          - conversation
+          - datadiri
+          value_type: object
+          variable: datadiri
+      height: 51
+      id: '1769399252090'
+      position:
+        x: 4673.864737121146
+        y: 2267.87921166007
+      positionAbsolute:
+        x: 4673.864737121146
+        y: 2267.87921166007
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: -822.8613198827759
+      y: -424.81268787883437
+      zoom: 0.29905059724133287
+  rag_pipeline_variables: []

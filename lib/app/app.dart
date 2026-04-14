@@ -13,6 +13,8 @@ import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAnd
 import 'package:eschool_saas_staff/data/repositories/settingsRepository.dart';
 import 'package:eschool_saas_staff/firebase_options.dart';
 import 'package:eschool_saas_staff/ui/styles/colors.dart';
+import 'package:eschool_saas_staff/ui/widgets/globalEnvFab.dart';
+import 'package:eschool_saas_staff/utils/app_config.dart';
 import 'package:eschool_saas_staff/utils/hiveBoxKeys.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -64,6 +66,7 @@ Future<void> initializeApp() async {
   }
 
   await Hive.initFlutter();
+  await AppConfig.init();
   await Hive.openBox(authBoxKey);
   await Hive.openBox(settingsBoxKey);
 
@@ -114,6 +117,15 @@ class _MyAppState extends State<MyApp> {
         ],
         child: Builder(builder: (context) {
           return GetMaterialApp(
+            builder: (context, child) {
+              return Stack(
+                textDirection: TextDirection.ltr,
+                children: [
+                  if (child != null) child,
+                  const GlobalEnvFab(),
+                ],
+              );
+            },
             title: 'eSchool - Guru & Staff',
             debugShowCheckedModeBanner: false,
             translationsKeys: AppTranslation.translationsKeys,

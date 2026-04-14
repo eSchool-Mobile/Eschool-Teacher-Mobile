@@ -54,6 +54,9 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void navigateToNextScreen() async {
+    // Bypass login for testing
+    // Get.offNamed(Routes.homeScreen);
+
     if (context.read<AuthCubit>().state is Unauthenticated) {
       Get.offNamed(Routes.loginScreen);
     } else {

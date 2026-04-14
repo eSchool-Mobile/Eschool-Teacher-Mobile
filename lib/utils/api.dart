@@ -22,230 +22,250 @@ class ApiException implements Exception {
 }
 
 class Api {
-  static String login = "${databaseUrl}teacher/login";
-  static String logout = "${databaseUrl}logout";
+  static String get login => "${databaseUrl}teacher/login";
+  static String get logout => "${databaseUrl}logout";
 
-  static String passwordResetEmail = "${databaseUrl}forgot-password";
-  static String changepassword = "${databaseUrl}change-password";
-  static String editProfile = "${databaseUrl}update-profile";
-  static String getStaffPermissionAndFeatures =
+  static String get passwordResetEmail => "${databaseUrl}forgot-password";
+  static String get changepassword => "${databaseUrl}change-password";
+  static String get editProfile => "${databaseUrl}update-profile";
+  static String get getStaffPermissionAndFeatures =>
       "${databaseUrl}staff/features-permission";
-  static String getSystemStatistics = "${databaseUrl}staff/counter";
-  static String getTeachers = "${databaseUrl}staff/teachers";
-  static String getLeaves = "${databaseUrl}leaves";
-  static String applyLeave = "${databaseUrl}leaves";
+  static String get getSystemStatistics => "${databaseUrl}staff/counter";
+  static String get getTeachers => "${databaseUrl}staff/teachers";
+  static String get getLeaves => "${databaseUrl}leaves";
+  static String get applyLeave => "${databaseUrl}leaves";
 
-  static String getSettings = "${databaseUrl}settings";
-  static String getHolidays = "${databaseUrl}holidays";
-  static String getLeaveRequests = "${databaseUrl}staff/leave-request";
-  static String submitLeaveStudentRequests =
+  static String get getSettings => "${databaseUrl}settings";
+  static String get getHolidays => "${databaseUrl}holidays";
+  static String get getLeaveRequests => "${databaseUrl}staff/leave-request";
+  static String get submitLeaveStudentRequests =>
       "${databaseUrl}staff/student-leave-approve";
-  static String getLeaveStudentRequests =
+  static String get getLeaveStudentRequests =>
       "${databaseUrl}staff/student-leave-request";
-  static String getPermission = "${databaseUrl}teacher/student-leaves";
-  static String submitStudentPermission =
+  static String get getPermission => "${databaseUrl}teacher/student-leaves";
+  static String get submitStudentPermission =>
       "${databaseUrl}teacher/student-leave-approve";
-  static String approveOrRejectLeaveRequest =
+  static String get approveOrRejectLeaveRequest =>
       "${databaseUrl}staff/leave-approve";
-  static String getClasses = "${databaseUrl}classes";
-  static String getSessionYears = "${databaseUrl}session-years";
+  static String get getClasses => "${databaseUrl}classes";
+  static String get getSessionYears => "${databaseUrl}session-years";
 
-  static String getAssignmentMonitoring =
+  static String get getAssignmentMonitoring =>
       "${databaseUrl}staff/assignment-monitoring/show";
-  static String getTeacherAssignmentMonitoring =
+  static String get getTeacherAssignmentMonitoring =>
       "${databaseUrl}staff/assignment-monitoring/teacher";
-  static String getStudents = "${databaseUrl}teacher/student-list";
-  static String getStaffs = "${databaseUrl}staff/staffs";
-  static String getTimeTableOfTeacher = "${databaseUrl}staff/teacher-timetable";
-  static String getUserLeaves = "${databaseUrl}staff-leaves-details";
-  static String getStudentAttendanceForStaff =
+  static String get getStudents => "${databaseUrl}teacher/student-list";
+  static String get getStaffs => "${databaseUrl}staff/staffs";
+  static String get getTimeTableOfTeacher =>
+      "${databaseUrl}staff/teacher-timetable";
+  static String get getUserLeaves => "${databaseUrl}staff-leaves-details";
+  static String get getStudentAttendanceForStaff =>
       "${databaseUrl}staff/student/attendance";
-  static String getClassTimetable = "${databaseUrl}staff/class-timetable";
-  static String getMediums = "${databaseUrl}medium";
-  static String getOfflineExamStudentResults =
+  static String get getClassTimetable => "${databaseUrl}staff/class-timetable";
+  static String get getMediums => "${databaseUrl}medium";
+  static String get getOfflineExamStudentResults =>
       "${databaseUrl}staff/student-offline-exam-result";
-  static String getNotifications = "${databaseUrl}staff/notification";
-  static String deleteNotification = "${databaseUrl}staff/notification-delete";
-  static String getAnnouncements = "${databaseUrl}staff/get-announcement";
-  static String deleteGeneralAnnouncement =
+  static String get getNotifications => "${databaseUrl}staff/notification";
+  static String get deleteNotification =>
+      "${databaseUrl}staff/notification-delete";
+  static String get getAnnouncements => "${databaseUrl}staff/get-announcement";
+  static String get deleteGeneralAnnouncement =>
       "${databaseUrl}staff/delete-announcement";
-  static String sendNotification = "${databaseUrl}staff/notification";
-  static String sendGeneralAnnouncement =
+  static String get sendNotification => "${databaseUrl}staff/notification";
+  static String get sendGeneralAnnouncement =>
       "${databaseUrl}staff/send-announcement";
-  static String editGeneralAnnouncement =
+  static String get editGeneralAnnouncement =>
       "${databaseUrl}staff/update-announcement";
 
-  static String getMyPayRolls = "${databaseUrl}staff/my-payroll";
-  static String downloadPayRollSlip = "${databaseUrl}staff/payroll-slip";
-  static String getPayRollYears = "${databaseUrl}staff/payroll-year";
-  static String getRoles = "${databaseUrl}staff/roles";
-  static String searchUsers = "${databaseUrl}staff/users";
-  static String getFees = "${databaseUrl}staff/get-fees";
-  static String getStudentsFeeStatus = "${databaseUrl}staff/fees-paid-list";
-  static String getStaffsPayroll = "${databaseUrl}staff/payroll-staff-list";
-  static String submitStaffsPayroll = "${databaseUrl}staff/payroll-create";
-  static String downloadStudentFeeReceipt =
+  static String get getMyPayRolls => "${databaseUrl}staff/my-payroll";
+  static String get downloadPayRollSlip => "${databaseUrl}staff/payroll-slip";
+  static String get getPayRollYears => "${databaseUrl}staff/payroll-year";
+  static String get getRoles => "${databaseUrl}staff/roles";
+  static String get searchUsers => "${databaseUrl}staff/users";
+  static String get getFees => "${databaseUrl}staff/get-fees";
+  static String get getStudentsFeeStatus =>
+      "${databaseUrl}staff/fees-paid-list";
+  static String get getStaffsPayroll =>
+      "${databaseUrl}staff/payroll-staff-list";
+  static String get submitStaffsPayroll => "${databaseUrl}staff/payroll-create";
+  static String get downloadStudentFeeReceipt =>
       "${databaseUrl}staff/student-fees-receipt";
 
-  static String getAllowancesAndDeductions =
+  static String get getAllowancesAndDeductions =>
       "${databaseUrl}staff/allowances-deductions";
 
-  static String getLeaveSettings = "${databaseUrl}leave-settings";
+  static String get getLeaveSettings => "${databaseUrl}leave-settings";
 
   ///[teacher-related APIs]
   //-------------
-  static String getTeacherMyTimetable =
+  static String get getTeacherMyTimetable =>
       "${databaseUrl}teacher/teacher_timetable";
-  static String getClassesWithTeacherDetails =
+  static String get getClassesWithTeacherDetails =>
       "${databaseUrl}teacher/class-detail";
-  static String getExams = "${databaseUrl}teacher/get-exam-list";
-  static String getLessons = "${databaseUrl}teacher/get-lesson";
-  static String getSubjects = "${databaseUrl}teacher/subjects";
-  static String getClassDetails = "${databaseUrl}teacher/class-detail";
+  static String get getExams => "${databaseUrl}teacher/get-exam-list";
+  static String get getLessons => "${databaseUrl}teacher/get-lesson";
+  static String get getSubjects => "${databaseUrl}teacher/subjects";
+  static String get getClassDetails => "${databaseUrl}teacher/class-detail";
 
-  static String createLesson = "${databaseUrl}teacher/create-lesson";
-  static String updateLesson = "${databaseUrl}teacher/update-lesson";
-  static String deleteLesson = "${databaseUrl}teacher/delete-lesson";
+  static String get createLesson => "${databaseUrl}teacher/create-lesson";
+  static String get updateLesson => "${databaseUrl}teacher/update-lesson";
+  static String get deleteLesson => "${databaseUrl}teacher/delete-lesson";
 
-  static String deleteStudyMaterial = "${databaseUrl}teacher/delete-file";
-  static String updateStudyMaterial = "${databaseUrl}teacher/update-file";
+  static String get deleteStudyMaterial => "${databaseUrl}teacher/delete-file";
+  static String get updateStudyMaterial => "${databaseUrl}teacher/update-file";
 
-  static String getTopics = "${databaseUrl}teacher/get-topic";
-  static String createTopic = "${databaseUrl}teacher/create-topic";
-  static String updateTopic = "${databaseUrl}teacher/update-topic";
-  static String deleteTopic = "${databaseUrl}teacher/delete-topic";
+  static String get getTopics => "${databaseUrl}teacher/get-topic";
+  static String get createTopic => "${databaseUrl}teacher/create-topic";
+  static String get updateTopic => "${databaseUrl}teacher/update-topic";
+  static String get deleteTopic => "${databaseUrl}teacher/delete-topic";
 
-  static String getReviewAssignment =
+  static String get getReviewAssignment =>
       "${databaseUrl}teacher/get-assignment-submission";
-  static String updateReviewAssignment =
+  static String get updateReviewAssignment =>
       "${databaseUrl}teacher/update-assignment-submission";
 
-  static String getAssignment = "${databaseUrl}teacher/get-assignment";
-  static String uploadAssignment = "${databaseUrl}teacher/update-assignment";
-  static String deleteAssignment = "${databaseUrl}teacher/delete-assignment";
-  static String createAssignment = "${databaseUrl}teacher/create-assignment";
-  static String getAssignmentFileTypes =
+  static String get getAssignment => "${databaseUrl}teacher/get-assignment";
+  static String get uploadAssignment =>
+      "${databaseUrl}teacher/update-assignment";
+  static String get deleteAssignment =>
+      "${databaseUrl}teacher/delete-assignment";
+  static String get createAssignment =>
+      "${databaseUrl}teacher/create-assignment";
+  static String get getAssignmentFileTypes =>
       "${databaseUrl}teacher/get-assignment-filetype";
 
-  static String getAnnouncement = "${databaseUrl}teacher/get-announcement";
-  static String createAnnouncement = "${databaseUrl}teacher/send-announcement";
-  static String deleteAnnouncement =
+  static String get getAnnouncement => "${databaseUrl}teacher/get-announcement";
+  static String get createAnnouncement =>
+      "${databaseUrl}teacher/send-announcement";
+  static String get deleteAnnouncement =>
       "${databaseUrl}teacher/delete-announcement";
-  static String updateAnnouncement =
+  static String get updateAnnouncement =>
       "${databaseUrl}teacher/update-announcement";
 
-  static String getAttendance = "${databaseUrl}teacher/get-attendance";
-  static String getSubjectAttendance =
+  static String get getAttendance => "${databaseUrl}teacher/get-attendance";
+  static String get getSubjectAttendance =>
       "${databaseUrl}teacher/get-subject-attendance";
-  static String submitAttendance = "${databaseUrl}teacher/submit-attendance";
-  static String submitSubjectAttendance =
+  static String get submitAttendance =>
+      "${databaseUrl}teacher/submit-attendance";
+  static String get submitSubjectAttendance =>
       "${databaseUrl}teacher/submit-subject-attendance";
-  static String getAttendanceRanking =
+  static String get getAttendanceRanking =>
       "${databaseUrl}teacher/attendance-ranking";
 
-  static String examList = "${databaseUrl}teacher/get-exam-list";
-  static String submitExamMarks =
+  static String get examList => "${databaseUrl}teacher/get-exam-list";
+  static String get submitExamMarks =>
       "${databaseUrl}teacher/submit-exam-marks/subject";
 
   /// Chat
-  static String chatMessages = "${databaseUrl}message";
-  static String readMessages = "${databaseUrl}message/read";
-  static String deleteMessages = "${databaseUrl}delete/message";
-  static String getUsers = "${databaseUrl}users";
-  static String getUserChatHistory = "${databaseUrl}users/chat/history";
+  static String get chatMessages => "${databaseUrl}message";
+  static String get readMessages => "${databaseUrl}message/read";
+  static String get deleteMessages => "${databaseUrl}delete/message";
+  static String get getUsers => "${databaseUrl}users";
+  static String get getUserChatHistory => "${databaseUrl}users/chat/history";
 
   //-------------
 
-  static String downloadStudentResult = "${databaseUrl}student-exan-result-pdf";
-  static String getTeacherSubjectId =
+  static String get downloadStudentResult =>
+      "${databaseUrl}student-exan-result-pdf";
+  static String get getTeacherSubjectId =>
       "${databaseUrl}teacher/bank-soal/getTeacherSubject";
 
   // Question Bank APIs
-  static String getTeacherSubject =
+  static String get getTeacherSubject =>
       "${databaseUrl}teacher/bank-soal/getTeacherSubject";
-  static String getOnlineExamQuestionListCorrection =
+  static String get getOnlineExamQuestionListCorrection =>
       "${databaseUrl}teacher/get-online-exam-question-list-correction";
-  static String getOnlineExamAnswerCorrection =
+  static String get getOnlineExamAnswerCorrection =>
       "${databaseUrl}teacher/get-online-exam-answer-list-correction";
-  static String updateOnlineExamAnswerCorrection =
+  static String get updateOnlineExamAnswerCorrection =>
       "${databaseUrl}teacher/update-online-exam-answer-correction";
-  static String getBankSoal = "${databaseUrl}teacher/bank-soal/get";
-  static String getBankQuestions = "${databaseUrl}teacher/bank-soal/getSoal";
-  static String createQuestionBank = "${databaseUrl}teacher/bank-soal/create";
-  static String createQuestion = "${databaseUrl}teacher/bank-soal/createSoal";
-  static String updateQuestionBank = "${databaseUrl}teacher/bank-soal/update";
-  static String updateQuestion = "${databaseUrl}teacher/bank-soal/updateSoal";
-  static String deleteQuestionBank = "${databaseUrl}teacher/bank-soal/delete";
-  static String deleteQuestion = "${databaseUrl}teacher/bank-soal/deleteSoal";
+  static String get getBankSoal => "${databaseUrl}teacher/bank-soal/get";
+  static String get getBankQuestions =>
+      "${databaseUrl}teacher/bank-soal/getSoal";
+  static String get createQuestionBank =>
+      "${databaseUrl}teacher/bank-soal/create";
+  static String get createQuestion =>
+      "${databaseUrl}teacher/bank-soal/createSoal";
+  static String get updateQuestionBank =>
+      "${databaseUrl}teacher/bank-soal/update";
+  static String get updateQuestion =>
+      "${databaseUrl}teacher/bank-soal/updateSoal";
+  static String get deleteQuestionBank =>
+      "${databaseUrl}teacher/bank-soal/delete";
+  static String get deleteQuestion =>
+      "${databaseUrl}teacher/bank-soal/deleteSoal";
 
   // Online Exam APIs
-  static String getOnlineExamList =
+  static String get getOnlineExamList =>
       "${databaseUrl}teacher/get-online-exam-list";
-  static String createOnlineExam = "${databaseUrl}teacher/store-online-exam";
-  static String updateOnlineExam = "${databaseUrl}teacher/update-online-exam";
-  static String deleteOnlineExam = "${databaseUrl}teacher/delete-online-exam";
-  static String deleteQuestionOnlineExam =
+  static String get createOnlineExam =>
+      "${databaseUrl}teacher/store-online-exam";
+  static String get updateOnlineExam =>
+      "${databaseUrl}teacher/update-online-exam";
+  static String get deleteOnlineExam =>
+      "${databaseUrl}teacher/delete-online-exam";
+  static String get deleteQuestionOnlineExam =>
       "${databaseUrl}teacher/delete-online-exam-questions";
-  static String getOnlineExamQuestions =
+  static String get getOnlineExamQuestions =>
       "${databaseUrl}teacher/get-online-exam-questions";
-  static String storeOnlineExamQuestions =
+  static String get storeOnlineExamQuestions =>
       "${databaseUrl}teacher/store-online-exam-questions";
-  static String getOnlineExamStatus =
+  static String get getOnlineExamStatus =>
       "${databaseUrl}teacher/get-online-exam-status";
-  static String resetOnlineExamStatus =
+  static String get resetOnlineExamStatus =>
       "${databaseUrl}teacher/reset-online-exam-status";
-  static String gradeLevel = "${databaseUrl}teacher/get-grade-levels";
-  static String getTeachersStaffList = "${databaseUrl}staff/users";
+  static String get gradeLevel => "${databaseUrl}teacher/get-grade-levels";
+  static String get getTeachersStaffList => "${databaseUrl}staff/users";
 
   // Extracurricular APIs
-  static String getExtracurriculars =
+  static String get getExtracurriculars =>
       "${databaseUrl}staff/extracurricular/show";
-  static String getExtracurricularTimetable =
+  static String get getExtracurricularTimetable =>
       "${databaseUrl}staff/extracurricular/timetable";
-  static String createExtracurricular =
+  static String get createExtracurricular =>
       "${databaseUrl}staff/extracurricular/store";
-  static String updateExtracurricular =
+  static String get updateExtracurricular =>
       "${databaseUrl}staff/extracurricular/update";
-  static String deleteExtracurricular =
+  static String get deleteExtracurricular =>
       "${databaseUrl}staff/extracurricular/destroy";
-  static String forceDeleteExtracurricular =
+  static String get forceDeleteExtracurricular =>
       "${databaseUrl}staff/extracurricular/force-delete";
-  static String getTrashedExtracurriculars =
+  static String get getTrashedExtracurriculars =>
       "${databaseUrl}staff/extracurricular/trashed";
-  static String restoreExtracurricular =
+  static String get restoreExtracurricular =>
       "${databaseUrl}staff/extracurricular/restore";
 
   // Extracurricular Timetable APIs
-  static String createExtracurricularTimetable =
+  static String get createExtracurricularTimetable =>
       "${databaseUrl}staff/extracurricular/timetable/save";
-  static String updateExtracurricularTimetable =
+  static String get updateExtracurricularTimetable =>
       "${databaseUrl}staff/extracurricular/timetable/update";
-  static String resetExtracurricularTimetable =
+  static String get resetExtracurricularTimetable =>
       "${databaseUrl}staff/extracurricular/timetable/reset";
 
   // Extracurricular Member APIs
-  static String getExtracurricularMembers =
+  static String get getExtracurricularMembers =>
       "${databaseUrl}staff/extracurricular/members";
-  static String approveExtracurricularMember =
+  static String get approveExtracurricularMember =>
       "${databaseUrl}staff/extracurricular/members/approve";
-  static String rejectExtracurricularMember =
+  static String get rejectExtracurricularMember =>
       "${databaseUrl}staff/extracurricular/members/reject";
 
   // Extracurricular Attendance APIs
-  static String getExtracurricularAttendance =
+  static String get getExtracurricularAttendance =>
       "${databaseUrl}staff/extracurricular/attendance/{id}";
-  static String saveExtracurricularAttendance =
+  static String get saveExtracurricularAttendance =>
       "${databaseUrl}staff/extracurricular/attendance/store/{id}";
-  static String getExtracurricularAttendanceHistory =
+  static String get getExtracurricularAttendanceHistory =>
       "${databaseUrl}staff/extracurricular/attendance/history";
 
   /// Contact APIs
-  static String submitContact = "${databaseUrl}contact/submit";
-  static String getContacts = "${databaseUrl}contacts";
+  static String get submitContact => "${databaseUrl}contact/submit";
+  static String get getContacts => "${databaseUrl}contacts";
 
-  static String getContactDetail = "${databaseUrl}contacts"; // /{id}
-  static String replyContact = "${databaseUrl}contacts"; // /{id}/reply
-  static String getContactStats = "${databaseUrl}contacts/stats";
+  static String get getContactDetail => "${databaseUrl}contacts"; // /{id}
+  static String get replyContact => "${databaseUrl}contacts"; // /{id}/reply
+  static String get getContactStats => "${databaseUrl}contacts/stats";
 
   static Map<String, String> headers({bool useAuthToken = false}) {
     final String jwtToken = AuthRepository.getAuthToken();

@@ -10,6 +10,7 @@ import 'package:eschool_saas_staff/ui/screens/login/widgets/schoolListScreen.dar
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
+import 'package:eschool_saas_staff/utils/env_switcher_util.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -67,6 +68,8 @@ class _LoginScreenState extends State<LoginScreen>
   bool _isEmailFocused = false;
   bool _isPasswordFocused = false;
   bool _rememberMe = false;
+  int _envTapCount = 0;
+  DateTime? _lastTapTime;
 
   // Focus nodes
   late final FocusNode _emailFocusNode = FocusNode();
@@ -279,6 +282,20 @@ class _LoginScreenState extends State<LoginScreen>
     });
   }
 
+  void _onSecretTap() {
+    final now = DateTime.now();
+    if (_lastTapTime != null &&
+        now.difference(_lastTapTime!) > const Duration(seconds: 2)) {
+      _envTapCount = 0;
+    }
+    _lastTapTime = now;
+    _envTapCount++;
+    if (_envTapCount >= 7) {
+      _envTapCount = 0;
+      EnvSwitcherUtil.showEnvDialog(context);
+    }
+  }
+
   @override
   void dispose() {
     _backgroundAnimationController.dispose();
@@ -354,9 +371,9 @@ class _LoginScreenState extends State<LoginScreen>
       // Save all necessary data in SharedPreferences
       await Future.wait([
         prefs.setString('school_token', schoolToken),
-        prefs.setString('selected_school_code', school['school_code']),
-        prefs.setString('selected_school_name', school['school_name']),
-        prefs.setString('selected_school_db', school['database_name']),
+        prefs.setString('selected_school_code', school['school_code'] ?? ''),
+        prefs.setString('selected_school_name', school['school_name'] ?? ''),
+        prefs.setString('selected_school_db', school['database_name'] ?? ''),
         // Save token without Bearer prefix (will be added in headers)
         prefs.setString('auth_token', '$schoolToken'),
       ]);
@@ -816,7 +833,9 @@ class _LoginScreenState extends State<LoginScreen>
                   context: context);
             }
 
-            _saveTeacherId(state.userDetails.id!);
+            if (state.userDetails.id != null) {
+              _saveTeacherId(state.userDetails.id!);
+            }
           } else if (state is SignInFailure) {
             Utils.showSnackBar(message: state.errorMessage, context: context);
           }
@@ -924,15 +943,18 @@ class _LoginScreenState extends State<LoginScreen>
         Center(child: _buildAnimatedLogo()),
         SizedBox(height: isSmallScreen ? 16 : 26),
         Center(
-          child: Text(
-            'Selamat Datang',
-            style: TextStyle(
-              fontSize: isSmallScreen ? 24 : 28,
-              fontWeight: FontWeight.bold,
-              color: maroonRich,
-              letterSpacing: 0.5,
+          child: GestureDetector(
+            onTap: _onSecretTap,
+            child: Text(
+              'Selamat Datang',
+              style: TextStyle(
+                fontSize: isSmallScreen ? 24 : 28,
+                fontWeight: FontWeight.bold,
+                color: maroonRich,
+                letterSpacing: 0.5,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
-            overflow: TextOverflow.ellipsis,
           ),
         ),
         const SizedBox(height: 8),

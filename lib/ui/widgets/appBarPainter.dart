@@ -97,7 +97,7 @@ class AppBarPainter extends CustomPainter {
       ],
     );
 
-    double circleCenterY = 45.0; // Adjusted to better position the circle
+    double circleCenterY = 59.0; // Adjusted to better position the circle
 
     var circlePaint = Paint()
       ..shader = circleGradient.createShader(Rect.fromCircle(
