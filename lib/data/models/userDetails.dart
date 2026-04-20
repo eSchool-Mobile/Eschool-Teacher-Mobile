@@ -115,7 +115,7 @@ class UserDetails {
     if (json.containsKey('user') && json['user'] is Map) {
       data = {
         ...json,
-        ...(json['user'] as Map<dynamic, dynamic>).cast<String, dynamic>(),
+        ...Map<String, dynamic>.from(json['user'] as Map),
       };
     }
 

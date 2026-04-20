@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -156,22 +155,30 @@ class _SchoolListScreenState extends State<SchoolListScreen>
       // Save all necessary data in SharedPreferences
       await Future.wait([
         prefs.setString('school_token', schoolToken),
-        prefs.setString('selected_school_code', school['school_code']),
-        prefs.setString('selected_school_name', school['school_name']),
-        prefs.setString('selected_school_db', school['database_name']),
+        prefs.setString('selected_school_code', school['school_code'] ?? ""),
+        prefs.setString('selected_school_name', school['school_name'] ?? ""),
+        prefs.setString('selected_school_db', school['database_name'] ?? ""),
         // Save token without Bearer prefix (will be added in headers)
         prefs.setString('auth_token', '$schoolToken'),
       ]);
 
       // Get the school data from the user object - safely check nested structure
-      final userMap = school['user'] as Map<String, dynamic>? ?? {};
-      final schoolData = userMap['school'] as Map<String, dynamic>? ?? {};
+      final userMap = school['user'] != null && school['user'] is Map
+          ? Map<String, dynamic>.from(school['user'] as Map)
+          : <String, dynamic>{};
+      final schoolData = userMap['school'] != null && userMap['school'] is Map
+          ? Map<String, dynamic>.from(userMap['school'] as Map)
+          : <String, dynamic>{};
       final userDataFromResponse =
-          widget.userData['data'] as Map<String, dynamic>? ?? {};
+          widget.userData['data'] != null && widget.userData['data'] is Map
+              ? Map<String, dynamic>.from(widget.userData['data'] as Map)
+              : <String, dynamic>{};
 
       // Global user object from the initial login response
-      final globalUser =
-          userDataFromResponse['user'] as Map<String, dynamic>? ?? {};
+      final globalUser = userDataFromResponse['user'] != null &&
+              userDataFromResponse['user'] is Map
+          ? Map<String, dynamic>.from(userDataFromResponse['user'] as Map)
+          : <String, dynamic>{};
 
       // Create a complete user details map with all necessary data
       final Map<String, dynamic> completeUserDetails = {
