@@ -378,17 +378,33 @@ class _LoginScreenState extends State<LoginScreen>
         prefs.setString('auth_token', '$schoolToken'),
       ]);
 
-      // Get the school data from the user object
-      final schoolData = school['user']['school'];
-      final userDataFromResponse = userData['data'];
+      // Get the school data from the user object - safely check nested structure
+      final userMap = school['user'] as Map<String, dynamic>? ?? {};
+      final schoolData = userMap['school'] as Map<String, dynamic>? ?? {};
+      final userDataFromResponse =
+          userData['data'] as Map<String, dynamic>? ?? {};
+
+      // Global user object from the initial login response
+      final globalUser =
+          userDataFromResponse['user'] as Map<String, dynamic>? ?? {};
 
       // Create a complete user details map with all necessary data
       final Map<String, dynamic> completeUserDetails = {
-        ...userDataFromResponse,
-        'school': schoolData,
-        'school_id': schoolData['id'],
-        'token': schoolToken, // Include token in user details
-        'schools': userDataFromResponse['schools'], // Preserve schools list
+        ...globalUser, // Global user fields (id, name, email, etc.)
+        ...userMap, // Branch-specific user fields (overwrites global if present)
+        'school': {
+          ...schoolData,
+          'name': schoolData['name'] ??
+              school['school_name'] ??
+              school['name'], // Fallback name
+          'id': schoolData['id'] ??
+              school['id'] ??
+              userMap['school_id'], // Fallback ID
+          'school_code': school['school_code'],
+        },
+        'school_id': schoolData['id'] ?? school['id'] ?? userMap['school_id'],
+        'token': schoolToken,
+        'schools': userDataFromResponse['schools'],
       };
 
       // Set login state before creating user details
@@ -399,8 +415,8 @@ class _LoginScreenState extends State<LoginScreen>
       await authRepository.setUserDetails(userDetailsInstance);
 
       // Save teacher ID if available
-      if (school['user']['teacher'] != null) {
-        await prefs.setInt('teacher_id', school['user']['teacher']['id']);
+      if (userMap['teacher'] != null) {
+        await prefs.setInt('teacher_id', userMap['teacher']['id']);
       }
 
       // Update Auth state in BLoC with proper token format

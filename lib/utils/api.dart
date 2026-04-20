@@ -267,7 +267,8 @@ class Api {
   static String get replyContact => "${databaseUrl}contacts"; // /{id}/reply
   static String get getContactStats => "${databaseUrl}contacts/stats";
 
-  static Map<String, String> headers({bool useAuthToken = false}) {
+  static Map<String, String> headers(
+      {bool useAuthToken = false, bool includeSchoolCode = true}) {
     final String jwtToken = AuthRepository.getAuthToken();
     final schoolCode = AuthRepository().schoolCode;
 
@@ -283,7 +284,7 @@ class Api {
 
     return {
       "Authorization": "Bearer $jwtToken",
-      "school_code": schoolCode,
+      if (includeSchoolCode) "school-code": schoolCode,
       "Content-Type": "application/json",
       "Accept": "application/json",
       "X-Requested-With": "XMLHttpRequest",
@@ -334,7 +335,10 @@ class Api {
           cancelToken: cancelToken,
           onReceiveProgress: onReceiveProgress,
           onSendProgress: onSendProgress,
-          options: (useAuthToken ?? true) ? Options(headers: headers()) : null);
+          options: Options(
+              headers: headers(
+                  useAuthToken: useAuthToken ?? true,
+                  includeSchoolCode: useAuthToken ?? true)));
 
       AppLogger.debug('Api.post', 'Response meta', data: {
         'statusCode': response.statusCode,
@@ -343,7 +347,8 @@ class Api {
             response.data is Map && (response.data as Map).containsKey('error'),
       });
 
-      if (response.data.containsKey('error') &&
+      if (response.data is Map &&
+          response.data.containsKey('error') &&
           response.data['error'] == true) {
         throw ApiException(response.data['message'].toString());
       }
@@ -359,8 +364,17 @@ class Api {
             },
             error: e);
       }
-      throw ApiException(
-          e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
+
+      // Extract server-side error message if available
+      String errorMessage = defaultErrorMessageKey;
+      if (e.response?.data is Map && e.response?.data['message'] != null) {
+        errorMessage =
+            e.response?.data['message']?.toString() ?? defaultErrorMessageKey;
+      } else if (e.error is SocketException) {
+        errorMessage = noInternetKey;
+      }
+
+      throw ApiException(errorMessage);
     } on ApiException catch (e) {
       throw ApiException(e.errorMessage);
     } catch (e) {
@@ -399,7 +413,9 @@ class Api {
           onSendProgress: onSendProgress,
           options: Options(
             headers: {
-              ...((useAuthToken ?? true) ? headers() : {}),
+              ...headers(
+                  useAuthToken: useAuthToken ?? true,
+                  includeSchoolCode: useAuthToken ?? true),
               'Content-Type': 'application/json',
             },
           ));
@@ -435,8 +451,17 @@ class Api {
             },
             error: e.toString());
       }
-      throw ApiException(
-          e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
+
+      // Extract server-side error message if available
+      String errorMessage = defaultErrorMessageKey;
+      if (e.response?.data is Map && e.response?.data['message'] != null) {
+        errorMessage =
+            e.response?.data['message']?.toString() ?? defaultErrorMessageKey;
+      } else if (e.error is SocketException) {
+        errorMessage = noInternetKey;
+      }
+
+      throw ApiException(errorMessage);
     } on ApiException catch (e) {
       throw ApiException(e.errorMessage);
     } catch (e) {
@@ -667,7 +692,9 @@ class Api {
           onSendProgress: onSendProgress,
           options: Options(
             headers: {
-              ...headers(useAuthToken: useAuthToken ?? true),
+              ...headers(
+                  useAuthToken: useAuthToken ?? true,
+                  includeSchoolCode: useAuthToken ?? true),
               'Content-Type':
                   'application/json', // Explicitly set content type to JSON
             },
@@ -678,7 +705,8 @@ class Api {
         'dataType': response.data.runtimeType.toString(),
       });
 
-      if (response.data.containsKey('error') &&
+      if (response.data is Map &&
+          response.data.containsKey('error') &&
           response.data['error'] == true) {
         throw ApiException(response.data['message'].toString());
       }
@@ -694,8 +722,17 @@ class Api {
             },
             error: e);
       }
-      throw ApiException(
-          e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
+
+      // Extract server-side error message if available
+      String errorMessage = defaultErrorMessageKey;
+      if (e.response?.data is Map && e.response?.data['message'] != null) {
+        errorMessage =
+            e.response?.data['message']?.toString() ?? defaultErrorMessageKey;
+      } else if (e.error is SocketException) {
+        errorMessage = noInternetKey;
+      }
+
+      throw ApiException(errorMessage);
     } on ApiException catch (e) {
       throw ApiException(e.errorMessage);
     } catch (e) {

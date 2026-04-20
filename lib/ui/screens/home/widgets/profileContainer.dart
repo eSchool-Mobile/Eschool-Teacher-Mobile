@@ -1303,6 +1303,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                   final userDetails =
                       context.read<AuthCubit>().getUserDetails();
                   final fullName = "${userDetails.firstName ?? ""}".trim();
+                  print(
+                      'DEBUG ProfileContainer: firstName="${userDetails.firstName}", email="${userDetails.email}", schoolName="${userDetails.school?.name}"');
                   return Text(
                     fullName.isEmpty ? "Pengguna" : fullName,
                     style: GoogleFonts.poppins(

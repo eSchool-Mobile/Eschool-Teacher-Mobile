@@ -163,41 +163,36 @@ class _SchoolListScreenState extends State<SchoolListScreen>
         prefs.setString('auth_token', '$schoolToken'),
       ]);
 
-      // Get the school data from the user object
-      final schoolData = school['user']['school'];
-      final userData = widget.userData['data'];
+      // Get the school data from the user object - safely check nested structure
+      final userMap = school['user'] as Map<String, dynamic>? ?? {};
+      final schoolData = userMap['school'] as Map<String, dynamic>? ?? {};
+      final userDataFromResponse =
+          widget.userData['data'] as Map<String, dynamic>? ?? {};
+
+      // Global user object from the initial login response
+      final globalUser =
+          userDataFromResponse['user'] as Map<String, dynamic>? ?? {};
 
       // Create a complete user details map with all necessary data
       final Map<String, dynamic> completeUserDetails = {
-        // Start with userData sebagai base
-        ...userData,
-        // Override dengan data specific dari sekolah yang dipilih
-        'school': schoolData,
-        'school_id': schoolData['id'],
-        'token': schoolToken, // Include token in user details
-        'schools': userData['schools'], // Preserve schools list
-        // IMPORTANT: Preserve teacher data from selected school's user object
-        // Teacher dan staff data HARUS dari sekolah yang dipilih, bukan userData global
-        'teacher': school['user']['teacher'], // Include complete teacher data
-        'staff': school['user']
-            ['staff'], // Include complete staff data if exists
-        // Also preserve other user data from the selected school
-        'roles': school['user']['roles'] ?? userData['roles'],
-        // Preserve user-level data from the selected school user
-        'first_name': school['user']['first_name'] ?? userData['first_name'],
-        'last_name': school['user']['last_name'] ?? userData['last_name'],
-        'full_name': school['user']['full_name'] ?? userData['full_name'],
-        'email': school['user']['email'] ?? userData['email'],
-        'mobile': school['user']['mobile'] ?? userData['mobile'],
-        'image': school['user']['image'] ?? userData['image'],
-        'gender': school['user']['gender'] ?? userData['gender'],
-        'status': school['user']['status'] ?? userData['status'],
-        // Preserve other attributes...
-        'dob': school['user']['dob'] ?? userData['dob'],
-        'current_address':
-            school['user']['current_address'] ?? userData['current_address'],
-        'permanent_address': school['user']['permanent_address'] ??
-            userData['permanent_address'],
+        ...globalUser, // Global user fields (id, name, email, etc.)
+        ...userMap, // Branch-specific user fields (overwrites global if present)
+        'school': {
+          ...schoolData,
+          'name': schoolData['name'] ??
+              school['school_name'] ??
+              school['name'], // Fallback name
+          'id': schoolData['id'] ??
+              school['id'] ??
+              userMap['school_id'], // Fallback ID
+          'school_code': school['school_code'],
+        },
+        'school_id': schoolData['id'] ?? school['id'] ?? userMap['school_id'],
+        'token': schoolToken,
+        'schools': userDataFromResponse['schools'],
+        // IMPORTANT: Preserve teacher/staff data from selected school's user object
+        'teacher': userMap['teacher'],
+        'staff': userMap['staff'],
       };
 
       // Set login state before creating user details
@@ -205,7 +200,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
 
       // Debug logging untuk memastikan data teacher tidak hilang
       print('=== DEBUG TEACHER DATA PRESERVATION ===');
-      print('Original userData teacher: ${userData['teacher']}');
+      print('Original globalUser teacher: ${globalUser['teacher']}');
       print('Selected school user teacher: ${school['user']['teacher']}');
       print('Complete user details teacher: ${completeUserDetails['teacher']}');
       print('Complete user details staff: ${completeUserDetails['staff']}');
@@ -223,20 +218,20 @@ class _SchoolListScreenState extends State<SchoolListScreen>
       print('==================================');
 
       // Save teacher ID if available (dari sekolah yang dipilih, bukan global)
-      if (school['user']['teacher'] != null) {
-        await prefs.setInt('teacher_id', school['user']['teacher']['id']);
+      if (userMap['teacher'] != null) {
+        await prefs.setInt('teacher_id', userMap['teacher']['id']);
         print(
-            'Saved teacher ID from selected school: ${school['user']['teacher']['id']}');
-      } else if (userData['teacher'] != null) {
+            'Saved teacher ID from selected school: ${userMap['teacher']['id']}');
+      } else if (globalUser['teacher'] != null) {
         // Fallback ke teacher global jika tidak ada teacher untuk sekolah ini
-        await prefs.setInt('teacher_id', userData['teacher']['id']);
+        await prefs.setInt('teacher_id', globalUser['teacher']['id']);
         print(
-            'Saved teacher ID from global data: ${userData['teacher']['id']}');
+            'Saved teacher ID from global data: ${globalUser['teacher']['id']}');
       } // Update Auth state in BLoC with proper token format
       if (!context.mounted) return;
 
-      final schoolsToStore =
-          List<Map<String, dynamic>>.from(userData['schools'] ?? []);
+      final schoolsToStore = List<Map<String, dynamic>>.from(
+          userDataFromResponse['schools'] ?? []);
       print('DEBUG SCHOOL SELECTION: Schools to store: $schoolsToStore');
       print('DEBUG SCHOOL SELECTION: Schools length: ${schoolsToStore.length}');
 

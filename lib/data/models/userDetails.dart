@@ -109,34 +109,58 @@ class UserDetails {
     );
   }
 
-  UserDetails.fromJson(Map<String, dynamic> json)
-      : id = json['id'] as int?,
-        firstName = json['first_name'] as String?,
-        lastName = json['last_name'] as String?,
-        mobile = json['mobile'] as String?,
-        email = json['email'] as String?,
-        gender = json['gender'] as String?,
-        image = json['image'] as String?,
-        dob = json['dob'] as String?,
-        currentAddress = json['current_address'] as String?,
-        permanentAddress = json['permanent_address'] as String?,
-        occupation = json['occupation'] as String?,
-        status = json['status'] as int?,
-        resetRequest = json['reset_request'] as int?,
-        fcmId = json['fcm_id'] as String?,
-        schoolId = json['school_id'] as int?,
-        emailVerifiedAt = json['email_verified_at'] as String?,
-        createdAt = json['created_at'] as String?,
-        updatedAt = json['updated_at'] as String?,
-        deletedAt = json['deleted_at'] as String?,
-        roles = ((json['roles'] ?? []) as List)
-            .map((role) => Role.fromJson(Map.from(role ?? {})))
-            .toList(),
-        school = School.fromJson(Map.from(json['school'] ?? {})),
-        teacher =
-            AdditionalUserDetails.fromJson(Map.from(json['teacher'] ?? {})),
-        staff = AdditionalUserDetails.fromJson(Map.from(json['staff'] ?? {})),
-        fullName = json['full_name'] as String?;
+  factory UserDetails.fromJson(Map<String, dynamic> json) {
+    // Flatten nested 'user' data if it exists
+    Map<String, dynamic> data = json;
+    if (json.containsKey('user') && json['user'] is Map) {
+      data = {
+        ...json,
+        ...(json['user'] as Map<dynamic, dynamic>).cast<String, dynamic>(),
+      };
+    }
+
+    // Ensure we have school data with fallbacks for name and ID
+    Map<String, dynamic> schoolMap = Map.from(data['school'] ?? {});
+    if (schoolMap.isEmpty) {
+      // Fallback for when school info is at the same level (e.g. login school list)
+      schoolMap['id'] = data['school_id'] ?? json['id'];
+      schoolMap['name'] = json['school_name'] ?? json['name'];
+      schoolMap['code'] = json['school_code'];
+    } else {
+      // Ensure specific fields are prioritised from the top level if missing in nested school
+      schoolMap['name'] ??= json['school_name'] ?? json['name'];
+      schoolMap['id'] ??= data['school_id'];
+    }
+
+    return UserDetails(
+      id: data['id'] as int?,
+      firstName: data['first_name'] as String?,
+      lastName: data['last_name'] as String?,
+      mobile: data['mobile'] as String?,
+      email: data['email'] as String?,
+      gender: data['gender'] as String?,
+      image: data['image'] as String?,
+      dob: data['dob'] as String?,
+      currentAddress: data['current_address'] as String?,
+      permanentAddress: data['permanent_address'] as String?,
+      occupation: data['occupation'] as String?,
+      status: data['status'] as int?,
+      resetRequest: data['reset_request'] as int?,
+      fcmId: data['fcm_id'] as String?,
+      schoolId: data['school_id'] as int?,
+      emailVerifiedAt: data['email_verified_at'] as String?,
+      createdAt: data['created_at'] as String?,
+      updatedAt: data['updated_at'] as String?,
+      deletedAt: data['deleted_at'] as String?,
+      roles: ((data['roles'] ?? []) as List)
+          .map((role) => Role.fromJson(Map.from(role ?? {})))
+          .toList(),
+      school: School.fromJson(schoolMap),
+      teacher: AdditionalUserDetails.fromJson(Map.from(data['teacher'] ?? {})),
+      staff: AdditionalUserDetails.fromJson(Map.from(data['staff'] ?? {})),
+      fullName: data['full_name'] as String?,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -182,7 +206,6 @@ class UserDetails {
 
   String getRoles() {
     return (roles ?? []).map((item) => item.name).toList().join(",");
-
   }
 
   bool isSchoolAdmin() {

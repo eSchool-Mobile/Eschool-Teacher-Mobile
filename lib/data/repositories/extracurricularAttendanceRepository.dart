@@ -69,7 +69,7 @@ class ExtracurricularAttendanceRepository {
       // Log authentication info before making request
       final authBox = Hive.box(authBoxKey);
       final token = authBox.get(authTokenKey);
-      final schoolCode = authBox.get('school_code'); // Based on common usage
+      final schoolCode = authBox.get('schoolCode'); // Match AuthRepository key
       print(
           '🔑 [ATTENDANCE REPO] Auth Token: ${token != null ? "Bearer $token" : "NO TOKEN"}');
       print(

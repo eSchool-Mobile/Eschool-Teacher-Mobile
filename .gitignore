@@ -12,6 +12,7 @@ migrate_working_dir/
 key.properties
 upload-store.jks
 backup/
+docs-ai/
 
 # IntelliJ related
 *.iml
